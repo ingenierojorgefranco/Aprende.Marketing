@@ -144,7 +144,7 @@ const App: React.FC = () => {
         {isOffline && (
             <div className="mb-4 bg-yellow-900/30 border border-yellow-700 text-yellow-200 px-4 py-2 rounded-lg flex items-center gap-2 text-sm animate-in fade-in slide-in-from-top-2">
                 <WifiOff className="w-4 h-4" />
-                <span><strong>Modo Offline:</strong> No se pudo conectar a la Base de Datos. Usando almacenamiento local temporal.</span>
+                <span><strong>Modo Offline:</strong> No se pudo conectar a la Base de Datos. Usando almacenamiento local temporal ---.</span>
             </div>
         )}
 
