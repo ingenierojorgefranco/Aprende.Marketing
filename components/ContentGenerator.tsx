@@ -1,0 +1,423 @@
+
+
+import React, { useState, useEffect } from 'react';
+import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../services/geminiService';
+import { BookOpen, Search, List, FileText, Download, Copy, Check, RefreshCw, ArrowLeft, ArrowRight, Wand2, BarChart, ChevronRight, Type, Link as LinkIcon, Sparkles, Save } from 'lucide-react';
+import { Article } from '../types';
+
+interface ContentGeneratorProps {
+    onSave?: (article: Omit<Article, 'id' | 'createdAt'>) => Promise<void>;
+}
+
+export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) => {
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  
+  // Data State
+  const [topic, setTopic] = useState('');
+  const [objective, setObjective] = useState('');
+  const [keyword, setKeyword] = useState('');
+  
+  const [titleIdeas, setTitleIdeas] = useState<ArticleTitleIdea[]>([]);
+  const [selectedTitle, setSelectedTitle] = useState<ArticleTitleIdea | null>(null);
+  
+  const [outline, setOutline] = useState<string[]>([]);
+  const [ctaLink, setCtaLink] = useState('');
+  
+  const [articleContent, setArticleContent] = useState('');
+  
+  // SEO Metrics State
+  const [seoScore, setSeoScore] = useState(0);
+  const [wordCount, setWordCount] = useState(0);
+  const [keywordDensity, setKeywordDensity] = useState(0);
+
+  // --- ACTIONS ---
+
+  const handleGenerateTitles = async () => {
+    if (!topic || !objective) return alert("Por favor completa el tema y el objetivo.");
+    setLoading(true);
+    try {
+        const titles = await generateArticleTitles(topic, objective, keyword);
+        setTitleIdeas(titles);
+        setStep(2);
+    } catch (e) {
+        alert("Error generando títulos.");
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  const handleSelectTitle = async (idea: ArticleTitleIdea) => {
+      setSelectedTitle(idea);
+      setLoading(true);
+      try {
+          const generatedOutline = await generateArticleOutline(idea.title, objective);
+          setOutline(generatedOutline);
+          setStep(3);
+      } catch (e) {
+          alert("Error generando esquema.");
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  const handleGenerateArticle = async () => {
+      if (!selectedTitle) return;
+      setLoading(true);
+      try {
+          const content = await generateFullArticle(selectedTitle.title, outline, objective, ctaLink || '#', keyword);
+          setArticleContent(content);
+          setStep(4);
+          analyzeSeo(content);
+      } catch (e) {
+          alert("Error escribiendo artículo.");
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  const handleSaveArticle = async () => {
+      if (!selectedTitle || !onSave) return;
+      setSaving(true);
+      try {
+          await onSave({
+              title: selectedTitle.title,
+              description: selectedTitle.description,
+              contentHtml: articleContent,
+              keyword: keyword,
+              seoScore: seoScore
+          });
+          alert("Artículo guardado en tu biblioteca.");
+      } catch (e) {
+          alert("Error guardando el artículo.");
+      } finally {
+          setSaving(false);
+      }
+  };
+
+  // --- SEO ANALYSIS ---
+  const analyzeSeo = (content: string) => {
+      // Simple Mock Analysis
+      const text = content.replace(/<[^>]*>?/gm, ''); // Strip HTML
+      const words = text.split(/\s+/).length;
+      setWordCount(words);
+
+      let score = 50; // Base score
+      
+      // Word count factor
+      if (words > 600) score += 20;
+      else if (words > 300) score += 10;
+
+      // Keyword factor
+      let density = 0;
+      if (keyword) {
+          const regex = new RegExp(keyword, 'gi');
+          const matches = text.match(regex);
+          const count = matches ? matches.length : 0;
+          density = (count / words) * 100;
+          setKeywordDensity(parseFloat(density.toFixed(2)));
+          
+          if (count > 2) score += 20;
+          if (content.toLowerCase().includes(`<h1>`)) score += 5; // H1 exists (assumed in content or separate)
+      } else {
+          setKeywordDensity(0);
+          score += 10; // Bonus for not stuffing if no keyword? No, just neutral.
+      }
+
+      // Headers factor
+      if (content.includes('<h2>')) score += 5;
+      
+      setSeoScore(Math.min(100, score));
+  };
+
+  const copyToClipboard = () => {
+      navigator.clipboard.writeText(articleContent);
+      alert("HTML copiado al portapapeles");
+  };
+
+  const downloadDoc = () => {
+      const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>";
+      const footer = "</body></html>";
+      const sourceHTML = header + articleContent + footer;
+      
+      const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+      const fileDownload = document.createElement("a");
+      document.body.appendChild(fileDownload);
+      fileDownload.href = source;
+      fileDownload.download = `${selectedTitle?.title || 'articulo'}.doc`;
+      fileDownload.click();
+      document.body.removeChild(fileDownload);
+  };
+
+  // --- RENDER STEPS ---
+
+  // STEP 1: INPUT
+  const renderStep1 = () => (
+      <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-white mb-2">¿Sobre qué quieres escribir hoy?</h2>
+              <p className="text-gray-400">Define el tema y deja que la IA estructure el éxito de tu contenido.</p>
+          </div>
+
+          <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 shadow-xl space-y-6">
+              <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Tema o Título Tentativo</label>
+                  <div className="relative">
+                      <BookOpen className="absolute top-3.5 left-4 w-5 h-5 text-gray-500" />
+                      <input 
+                        type="text" 
+                        value={topic}
+                        onChange={(e) => setTopic(e.target.value)}
+                        className="w-full bg-black border border-gray-700 rounded-xl py-3 pl-12 pr-4 text-white focus:border-blue-500 outline-none transition"
+                        placeholder="Ej: Tendencias de Microblading 2024"
+                      />
+                  </div>
+              </div>
+
+              <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Objetivo del Artículo</label>
+                  <div className="relative">
+                      <Wand2 className="absolute top-3.5 left-4 w-5 h-5 text-gray-500" />
+                      <input 
+                        type="text" 
+                        value={objective}
+                        onChange={(e) => setObjective(e.target.value)}
+                        className="w-full bg-black border border-gray-700 rounded-xl py-3 pl-12 pr-4 text-white focus:border-blue-500 outline-none transition"
+                        placeholder="Ej: Atraer tráfico para vender mi curso online"
+                      />
+                  </div>
+              </div>
+
+              <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Palabra Clave Objetivo (SEO)</label>
+                  <div className="relative">
+                      <Search className="absolute top-3.5 left-4 w-5 h-5 text-gray-500" />
+                      <input 
+                        type="text" 
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
+                        className="w-full bg-black border border-gray-700 rounded-xl py-3 pl-12 pr-4 text-white focus:border-blue-500 outline-none transition"
+                        placeholder="Ej: curso de microblading online"
+                      />
+                  </div>
+              </div>
+
+              <button 
+                onClick={handleGenerateTitles}
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20"
+              >
+                  {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                  Generar Ideas de Títulos
+              </button>
+          </div>
+      </div>
+  );
+
+  // STEP 2: SELECT TITLE
+  const renderStep2 = () => (
+      <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-right-8 duration-500">
+          <button onClick={() => setStep(1)} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm"><ArrowLeft className="w-4 h-4"/> Volver</button>
+          
+          <h2 className="text-2xl font-bold text-white mb-6">Selecciona el mejor enfoque</h2>
+          
+          <div className="grid md:grid-cols-2 gap-4">
+              {titleIdeas.map((idea, idx) => (
+                  <div 
+                    key={idx}
+                    onClick={() => handleSelectTitle(idea)}
+                    className="bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-blue-500/50 p-6 rounded-xl cursor-pointer transition group relative overflow-hidden"
+                  >
+                      <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition"></div>
+                      <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition">{idea.title}</h3>
+                      <p className="text-sm text-gray-400">{idea.description}</p>
+                  </div>
+              ))}
+          </div>
+          
+          {loading && (
+              <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-xl z-10">
+                  <div className="bg-gray-900 p-6 rounded-xl border border-gray-700 flex flex-col items-center">
+                      <RefreshCw className="w-8 h-8 text-blue-500 animate-spin mb-4" />
+                      <p className="text-white font-medium">Generando Estructura...</p>
+                  </div>
+              </div>
+          )}
+      </div>
+  );
+
+  // STEP 3: OUTLINE
+  const renderStep3 = () => (
+      <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-right-8 duration-500">
+          <button onClick={() => setStep(2)} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm"><ArrowLeft className="w-4 h-4"/> Volver</button>
+          
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+              <div className="p-6 border-b border-gray-800 bg-gray-800/50">
+                  <h2 className="text-xl font-bold text-white mb-1">Estructura del Artículo</h2>
+                  <p className="text-sm text-gray-400">Revisa y ajusta los puntos clave antes de escribir.</p>
+              </div>
+              
+              <div className="p-6 space-y-3">
+                  {outline.map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-3 bg-black/30 p-3 rounded-lg border border-gray-800">
+                          <div className="w-6 h-6 rounded-full bg-blue-900/30 text-blue-400 flex items-center justify-center text-xs font-bold">
+                              {idx + 1}
+                          </div>
+                          <input 
+                            value={item}
+                            onChange={(e) => {
+                                const newOutline = [...outline];
+                                newOutline[idx] = e.target.value;
+                                setOutline(newOutline);
+                            }}
+                            className="flex-1 bg-transparent text-gray-200 outline-none text-sm"
+                          />
+                      </div>
+                  ))}
+                  
+                  <div className="mt-6 pt-6 border-t border-gray-800">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Enlace de Llamado a la Acción (CTA)</label>
+                      <div className="flex gap-2">
+                          <div className="relative flex-1">
+                              <LinkIcon className="absolute top-3 left-3 w-4 h-4 text-gray-500" />
+                              <input 
+                                type="text" 
+                                value={ctaLink}
+                                onChange={(e) => setCtaLink(e.target.value)}
+                                className="w-full bg-black border border-gray-700 rounded-lg py-2.5 pl-10 pr-4 text-white text-sm focus:border-blue-500 outline-none"
+                                placeholder="https://tu-curso.com/oferta"
+                              />
+                          </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">La IA insertará este enlace de forma natural en el contenido.</p>
+                  </div>
+              </div>
+              
+              <div className="p-6 bg-gray-800/30 border-t border-gray-800 flex justify-end">
+                  <button 
+                    onClick={handleGenerateArticle}
+                    disabled={loading}
+                    className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition flex items-center gap-2"
+                  >
+                      {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Type className="w-5 h-5" />}
+                      Redactar Artículo Completo
+                  </button>
+              </div>
+          </div>
+      </div>
+  );
+
+  // STEP 4: EDITOR & RESULTS
+  const renderStep4 = () => (
+      <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)] animate-in fade-in zoom-in-95 duration-500">
+          
+          {/* Main Editor */}
+          <div className="flex-1 bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col">
+              {/* Editor Toolbar */}
+              <div className="bg-gray-50 border-b border-gray-200 p-4 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                      <div className="bg-blue-100 text-blue-600 p-2 rounded-lg"><FileText className="w-5 h-5" /></div>
+                      <div>
+                          <h3 className="font-bold text-gray-800 text-sm line-clamp-1">{selectedTitle?.title}</h3>
+                          <p className="text-xs text-gray-500">Generado por AI</p>
+                      </div>
+                  </div>
+                  <div className="flex gap-2">
+                      {onSave && (
+                        <button onClick={handleSaveArticle} disabled={saving} className="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 rounded-lg hover:bg-gray-700 transition text-sm font-medium mr-2">
+                             {saving ? <RefreshCw className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>} Guardar
+                        </button>
+                      )}
+                      <button onClick={copyToClipboard} className="text-gray-600 hover:text-blue-600 p-2 rounded-lg hover:bg-blue-50 transition" title="Copiar HTML"><Copy className="w-5 h-5" /></button>
+                      <button onClick={downloadDoc} className="text-gray-600 hover:text-blue-600 p-2 rounded-lg hover:bg-blue-50 transition" title="Descargar Word"><Download className="w-5 h-5" /></button>
+                  </div>
+              </div>
+              
+              {/* Content Editable Area */}
+              <div className="flex-1 overflow-y-auto p-8 bg-white">
+                  <div 
+                    className="prose prose-lg max-w-none text-gray-800 focus:outline-none"
+                    contentEditable
+                    dangerouslySetInnerHTML={{ __html: articleContent }}
+                    onInput={(e) => {
+                        const newContent = e.currentTarget.innerHTML;
+                        // Avoid constant state updates for performance, but needed for copy/download
+                        setArticleContent(newContent);
+                        analyzeSeo(newContent);
+                    }}
+                  />
+              </div>
+          </div>
+
+          {/* Sidebar SEO */}
+          <div className="w-full lg:w-80 space-y-6">
+              <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6 shadow-lg">
+                  <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+                      <BarChart className="w-5 h-5 text-green-400" /> Análisis SEO
+                  </h3>
+                  
+                  {/* Score Circle */}
+                  <div className="flex flex-col items-center mb-6">
+                      <div className="relative w-32 h-32 flex items-center justify-center">
+                          <svg className="w-full h-full" viewBox="0 0 36 36">
+                              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#374151" strokeWidth="3" />
+                              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={seoScore > 80 ? '#22c55e' : seoScore > 50 ? '#eab308' : '#ef4444'} strokeWidth="3" strokeDasharray={`${seoScore}, 100`} className="animate-[spin_1s_ease-out_reverse]" />
+                          </svg>
+                          <div className="absolute flex flex-col items-center">
+                              <span className="text-3xl font-bold text-white">{Math.round(seoScore)}</span>
+                              <span className="text-[10px] text-gray-400">PUNTOS</span>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div className="space-y-4">
+                      <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-400">Palabras</span>
+                          <span className="text-white font-bold">{wordCount}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-400">Densidad Keyword</span>
+                          <span className={`font-bold ${keywordDensity > 0.5 && keywordDensity < 2.5 ? 'text-green-400' : 'text-yellow-400'}`}>{keywordDensity}%</span>
+                      </div>
+                      
+                      <div className="pt-4 border-t border-gray-800 space-y-2">
+                          <div className="flex items-center gap-2 text-xs text-gray-300">
+                              {wordCount > 600 ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
+                              Longitud adecuada ({'>'}600)
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-gray-300">
+                              {keywordDensity > 0 ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
+                              Keyword presente
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-gray-300">
+                              {articleContent.includes('<h2>') ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
+                              Estructura de Encabezados
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-gray-300">
+                              {articleContent.includes(ctaLink) ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
+                              Enlace CTA insertado
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              
+              <button 
+                onClick={() => setStep(1)} 
+                className="w-full py-3 border border-gray-700 hover:bg-gray-800 rounded-xl text-gray-400 hover:text-white transition text-sm flex items-center justify-center gap-2"
+              >
+                  <RefreshCw className="w-4 h-4" /> Crear Nuevo Artículo
+              </button>
+          </div>
+      </div>
+  );
+
+  return (
+    <div className="min-h-full">
+        {step === 1 && renderStep1()}
+        {step === 2 && renderStep2()}
+        {step === 3 && renderStep3()}
+        {step === 4 && renderStep4()}
+    </div>
+  );
+};
