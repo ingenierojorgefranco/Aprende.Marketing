@@ -118,9 +118,12 @@ const ColorPicker = ({ selected, onChange }: { selected?: string, onChange: (col
 };
 
 // --- RICH TEXT COMPONENT ---
+// Fix: Explicitly add className and id to interface to resolve type errors
 interface RichTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
     value: string;
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    className?: string;
+    id?: string;
 }
 
 const RichTextArea = ({ value, onChange, className, id, ...props }: RichTextAreaProps) => {

@@ -1,81 +1,53 @@
 require('dotenv').config();
 const express = require('express');
-const mysql = require('mysql2/promise');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const pool = require('./db');
+const { generateContent } = require('./geminiService');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' }));
 
-// --- LOGGING MIDDLEWARE ---
+// Logging middleware
 app.use((req, res, next) => {
   console.log(`[API REQUEST] ${req.method} ${req.path}`);
   next();
 });
 
-// --- CONFIGURACIÓN DE BASE DE DATOS ---
-const dbConfig = {
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'generator_landing_db',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-};
-
-// Lógica de conexión para Google Cloud SQL vs Local
-if (process.env.INSTANCE_CONNECTION_NAME) {
-  // Conexión vía Socket (Producción en Cloud Run)
-  dbConfig.socketPath = `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`;
-} else {
-  // Conexión TCP (Localhost)
-  dbConfig.host = process.env.DB_HOST || 'localhost';
-  dbConfig.port = process.env.DB_PORT || 3306;
-}
-
-let pool;
-
-async function initDB() {
-  try {
-    pool = mysql.createPool(dbConfig);
-    const connection = await pool.getConnection();
-    console.log(
-      `✅ Conexión DB Exitosa [${process.env.INSTANCE_CONNECTION_NAME ? 'Cloud SQL' : 'Local Host'}]`
-    );
-    connection.release();
-  } catch (error) {
-    console.error('❌ Error fatal conectando a la Base de Datos:', error.message);
-    console.log('⚠️ El servidor iniciará, pero las peticiones fallarán hasta que se arregle la DB.');
-  }
-}
-
-initDB();
-
-// Middleware para asegurar que hay DB
-const requireDB = (req, res, next) => {
-  if (!pool) return res.status(503).json({ error: 'Base de datos no disponible' });
-  next();
-};
-
 // --- RUTAS API ---
 
-// 1. LANDING PAGES
-app.get('/api/pages', requireDB, async (req, res) => {
+// 1. GEMINI AI (Proxy Route)
+app.post('/api/gemini', async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM landing_pages ORDER BY created_at DESC'
-    );
+    const { model, contents, config } = req.body;
+    // Llamamos al servicio de backend que sí tiene acceso a la API Key segura
+    const generatedText = await generateContent(model, contents, config);
+    res.json({ text: generatedText });
+  } catch (error) {
+    console.error('Error en /api/gemini:', error);
+    res.status(500).json({ 
+        error: 'Error procesando solicitud de IA', 
+        details: error.message 
+    });
+  }
+});
+
+// 2. LANDING PAGES
+app.get('/api/pages', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM landing_pages ORDER BY created_at DESC');
     res.json(rows);
   } catch (error) {
+    console.error('Error fetching pages:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/api/pages', requireDB, async (req, res) => {
+app.post('/api/pages', async (req, res) => {
   const { name, niche, goal, subdomain, content, userId } = req.body;
   try {
     const [result] = await pool.query(
@@ -84,11 +56,12 @@ app.post('/api/pages', requireDB, async (req, res) => {
     );
     res.json({ id: result.insertId, message: 'Página creada' });
   } catch (error) {
+    console.error('Error creating page:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-app.put('/api/pages/:id', requireDB, async (req, res) => {
+app.put('/api/pages/:id', async (req, res) => {
   const { id } = req.params;
   const { content, isPublished } = req.body;
   try {
@@ -98,28 +71,27 @@ app.put('/api/pages/:id', requireDB, async (req, res) => {
     );
     res.json({ message: 'Página actualizada' });
   } catch (error) {
+    console.error('Error updating page:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// 2. LEADS
-app.get('/api/leads', requireDB, async (req, res) => {
+// 3. LEADS
+app.get('/api/leads', async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      `
+    const [rows] = await pool.query(`
       SELECT l.*, p.name as page_name 
       FROM leads l 
       LEFT JOIN landing_pages p ON l.page_id = p.id 
       ORDER BY l.captured_at DESC
-    `
-    );
+    `);
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/api/leads', requireDB, async (req, res) => {
+app.post('/api/leads', async (req, res) => {
   const { pageId, name, email } = req.body;
   try {
     await pool.query(
@@ -136,19 +108,17 @@ app.post('/api/leads', requireDB, async (req, res) => {
   }
 });
 
-// 3. ARTÍCULOS (Content Generator Pro)
-app.get('/api/articles', requireDB, async (req, res) => {
+// 4. ARTÍCULOS
+app.get('/api/articles', async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM articles ORDER BY created_at DESC'
-    );
+    const [rows] = await pool.query('SELECT * FROM articles ORDER BY created_at DESC');
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/api/articles', requireDB, async (req, res) => {
+app.post('/api/articles', async (req, res) => {
   const { title, description, content_html, keyword, seo_score, user_id } = req.body;
   try {
     const [result] = await pool.query(
@@ -162,7 +132,7 @@ app.post('/api/articles', requireDB, async (req, res) => {
 });
 
 // DB Test Endpoint
-app.get('/api/test-db', requireDB, async (req, res) => {
+app.get('/api/test-db', async (req, res) => {
   try {
     await pool.query('SELECT 1');
     res.json({ message: 'Conexión a DB operativa' });
@@ -171,16 +141,23 @@ app.get('/api/test-db', requireDB, async (req, res) => {
   }
 });
 
-// Health Check específico para Cloud Run
+// Health Check
 app.get('/healthz', (req, res) => {
   res.status(200).send('OK');
 });
 
 // --- SERVIR FRONTEND COMPILADO (dist) ---
-app.use(express.static(path.join(__dirname, '..', 'dist')));
+// Ajustar ruta: backend/server.js -> ../dist
+const frontendDistPath = path.join(__dirname, '..', 'dist');
+app.use(express.static(frontendDistPath));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
+  // Si es una ruta de API que no existe, devolver 404 json
+  if (req.path.startsWith('/api')) {
+      return res.status(404).json({ error: 'API Endpoint Not Found' });
+  }
+  // Para todo lo demás, devolver index.html (SPA)
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
 app.listen(PORT, () => {
