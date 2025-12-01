@@ -3,30 +3,30 @@ steps:
     args:
       - "build"
       - "-t"
-      - "__REGION__-docker.pkg.dev/$PROJECT_ID/__REPO_DOCKER__/__IMAGE_NAME__:$SHORT_SHA"
+      - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/plataformadeventacom/plataformadeventacom:$SHORT_SHA"
       - "."
 
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "__REGION__-docker.pkg.dev/$PROJECT_ID/__REPO_DOCKER__/__IMAGE_NAME__:$SHORT_SHA"
+      - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/plataformadeventacom/plataformadeventacom:$SHORT_SHA"
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: gcloud
     args:
       - "run"
       - "deploy"
-      - "__SERVICE_NAME__"
+      - "plataformadeventacom"
       - "--image"
-      - "__REGION__-docker.pkg.dev/$PROJECT_ID/__REPO_DOCKER__/__IMAGE_NAME__:$SHORT_SHA"
+      - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/plataformadeventacom/plataformadeventacom:$SHORT_SHA"
       - "--region"
-      - "__REGION__"
+      - "europe-southwest1"
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
 
 images:
-  - "__REGION__-docker.pkg.dev/$PROJECT_ID/__REPO_DOCKER__/__IMAGE_NAME__:$SHORT_SHA"
+  - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/plataformadeventacom/plataformadeventacom:$SHORT_SHA"
 
 options:
   logging: CLOUD_LOGGING_ONLY
