@@ -1,11 +1,15 @@
 import React from 'react';
-import { ArrowRight, Zap, Layout, MessageCircle, BarChart, Users, CheckCircle, Globe, Lock, DollarSign, Rocket } from 'lucide-react';
+import { ArrowRight, Zap, Layout, MessageCircle, BarChart, Users, CheckCircle, Globe, Lock, DollarSign, Rocket, LogOut, LayoutDashboard } from 'lucide-react';
+import { User } from '../types';
 
 interface PublicHomeProps {
+  user: User | null;
   onLoginClick: () => void;
+  onDashboardClick?: () => void;
+  onLogout?: () => void;
 }
 
-export const PublicHome: React.FC<PublicHomeProps> = ({ onLoginClick }) => {
+export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLoginClick, onDashboardClick, onLogout }) => {
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-primary selection:text-white">
       {/* Navigation */}
@@ -21,12 +25,38 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ onLoginClick }) => {
             <a href="#stats" className="hover:text-white transition">Resultados</a>
             <a href="#blog" className="hover:text-white transition">Blog</a>
           </div>
-          <button
-            onClick={onLoginClick}
-            className="px-6 py-2 rounded-full bg-white text-black font-bold hover:bg-gray-200 transition text-sm"
-          >
-            Acceso Usuarios
-          </button>
+          
+          <div className="flex items-center gap-4">
+            {user ? (
+              <>
+                 <span className="hidden md:block text-sm text-gray-400">Hola, <span className="text-white font-bold">{user.name}</span></span>
+                 {onDashboardClick && (
+                   <button
+                    onClick={onDashboardClick}
+                    className="px-4 py-2 rounded-full bg-primary/20 text-primary border border-primary/50 font-bold hover:bg-primary/30 transition text-sm flex items-center gap-2"
+                   >
+                     <LayoutDashboard className="w-4 h-4" /> Panel
+                   </button>
+                 )}
+                 {onLogout && (
+                   <button
+                    onClick={onLogout}
+                    className="p-2 rounded-full text-gray-400 hover:text-red-400 hover:bg-gray-800 transition"
+                    title="Cerrar Sesión"
+                   >
+                     <LogOut className="w-5 h-5" />
+                   </button>
+                 )}
+              </>
+            ) : (
+              <button
+                onClick={onLoginClick}
+                className="px-6 py-2 rounded-full bg-white text-black font-bold hover:bg-gray-200 transition text-sm"
+              >
+                Acceso Usuarios
+              </button>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -50,10 +80,14 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ onLoginClick }) => {
           </p>
           <div className="flex flex-col md:flex-row items-center justify-center gap-4">
             <button
-              onClick={onLoginClick}
+              onClick={user && onDashboardClick ? onDashboardClick : onLoginClick}
               className="px-8 py-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 rounded-full text-lg font-bold transition flex items-center gap-2 shadow-lg shadow-orange-900/40 text-white"
             >
-              Crear mi Página Gratis <ArrowRight className="w-5 h-5" />
+              {user ? (
+                 <>Ir a mi Panel <LayoutDashboard className="w-5 h-5" /></>
+              ) : (
+                 <>Crear mi Página Gratis <ArrowRight className="w-5 h-5" /></>
+              )}
             </button>
             <button className="px-8 py-4 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-full text-lg font-bold transition flex items-center gap-2">
               <Rocket className="w-5 h-5 text-gray-400" /> Ver Demo en Vivo

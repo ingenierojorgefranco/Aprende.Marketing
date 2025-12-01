@@ -12,6 +12,7 @@ import { ArticlesList } from './components/ArticlesList';
 import { ViewState, User, LandingPage, Article } from './types';
 import { LayoutTemplate, Pencil, Loader2, PenTool, WifiOff, BookOpen } from 'lucide-react';
 import { api } from './services/api';
+import { getCurrentUser, logout } from './services/auth';
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>(ViewState.PUBLIC_HOME);
@@ -24,13 +25,42 @@ const App: React.FC = () => {
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
-  // Cargar datos al iniciar sesión
+  // 1. Restaurar sesión al cargar la app
+  useEffect(() => {
+    const restoreSession = async () => {
+      const token = localStorage.getItem('plataformadeventacom_token');
+      
+      // Si hay token, intentamos validar contra el backend
+      if (token) {
+        try {
+          const authUser = await getCurrentUser();
+          if (authUser) {
+             setUser({
+               id: authUser.id.toString(),
+               name: authUser.name,
+               email: authUser.email
+             });
+             // No forzamos cambio de vista aquí para dejar al usuario en Home si recarga,
+             // pero el Home mostrará que está logueado.
+          }
+        } catch (error) {
+          console.error("Sesión expirada o inválida");
+          logout(); // Limpiar token inválido
+        }
+      }
+      setAuthLoading(false);
+    };
+    restoreSession();
+  }, []);
+
+  // Cargar datos cuando el usuario cambia o la vista cambia a una protegida
   useEffect(() => {
     if (user && view !== ViewState.PUBLIC_HOME && view !== ViewState.LOGIN) {
       loadData();
     }
-  }, [user]);
+  }, [user, view]);
 
   const loadData = async () => {
     try {
@@ -50,7 +80,12 @@ const App: React.FC = () => {
   };
 
   const handleLoginClick = () => {
-    setView(ViewState.LOGIN);
+    // Si ya está logueado, ir directo al dashboard
+    if (user) {
+      setView(ViewState.DASHBOARD);
+    } else {
+      setView(ViewState.LOGIN);
+    }
   };
 
   const handleLoginSubmit = (loggedInUser: User) => {
@@ -59,8 +94,11 @@ const App: React.FC = () => {
   };
 
   const handleLogout = () => {
+    logout(); // Limpia localStorage
     setUser(null);
     setView(ViewState.PUBLIC_HOME);
+    setMyPages([]);
+    setMyArticles([]);
   };
 
   // --- PAGE HANDLERS ----
@@ -100,18 +138,45 @@ const App: React.FC = () => {
      }
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
+  }
+
   const renderContent = () => {
     if (view === ViewState.PUBLIC_HOME) {
-      return <PublicHome onLoginClick={handleLoginClick} />;
+      return (
+        <PublicHome 
+          user={user} 
+          onLoginClick={handleLoginClick} 
+          onDashboardClick={() => setView(ViewState.DASHBOARD)}
+          onLogout={handleLogout}
+        />
+      );
     }
 
     if (view === ViewState.LOGIN) {
+      // Si por alguna razón está en vista LOGIN pero ya tiene usuario, redirigir
+      if (user) {
+         setTimeout(() => setView(ViewState.DASHBOARD), 100);
+         return null;
+      }
       return <Login onLogin={handleLoginSubmit} onBack={() => setView(ViewState.PUBLIC_HOME)} />;
     }
 
     // Require User for other views
     if (!user) {
-      return <PublicHome onLoginClick={handleLoginClick} />;
+      return (
+         <PublicHome 
+          user={user} 
+          onLoginClick={handleLoginClick} 
+          onDashboardClick={() => setView(ViewState.DASHBOARD)}
+          onLogout={handleLogout}
+        />
+      );
     }
 
     if (view === ViewState.EDITOR && selectedPageId) {
