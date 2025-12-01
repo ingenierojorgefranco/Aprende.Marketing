@@ -1,1 +1,11 @@
-��^�j�W����u��	h�"�"�('���i����׿��n����
+node_modules
+npm-debug.log
+yarn.lock
+pnpm-lock.yaml
+.git
+.gitignore
+dist
+backend/node_modules
+.DS_Store
+.env
+.env.*
