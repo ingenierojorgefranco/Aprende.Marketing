@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Lock, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Lock, Loader2, AlertCircle, Database, WifiOff } from 'lucide-react';
 import { User } from '../types';
 import { login as authLogin } from '../services/auth';
 
@@ -8,11 +8,14 @@ interface LoginProps {
   onBack: () => void;
 }
 
+type LoginMode = 'db' | 'offline';
+
 export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
   const [email, setEmail] = useState('admin@plataformadeventa.com');
-  const [password, setPassword] = useState('MiPasswordSuperSegura123'); // la que usaste en /auth/register
+  const [password, setPassword] = useState('MiPasswordSuperSegura123'); // la que usaste al registrar
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<LoginMode>('db'); // 'db' | 'offline'
 
   // Consola visual para debug
   const [logs, setLogs] = useState<string[]>([]);
@@ -24,9 +27,24 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
     setLoading(true);
     setError(null);
     setLogs([]);
-    addLog('Iniciando proceso de login...');
+    addLog(`Iniciando proceso de login en modo: ${mode === 'db' ? 'Base de Datos' : 'Offline Demo'}`);
     addLog(`Usuario: ${email}`);
 
+    // 🟡 MODO OFFLINE: no llama a backend
+    if (mode === 'offline') {
+      addLog('Modo OFFLINE seleccionado, saltando petición al backend.');
+      const offlineUser: User = {
+        id: 'offline-demo',
+        name: 'Usuario Demo (Offline)',
+        email,
+      };
+      addLog('Usuario demo generado localmente.');
+      onLogin(offlineUser);
+      setLoading(false);
+      return;
+    }
+
+    // 🔵 MODO BD: login real contra /api/auth/login
     try {
       addLog('Llamando a backend /api/auth/login...');
       const { user } = await authLogin({ email, password });
@@ -34,7 +52,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
       addLog('Usuario autenticado correctamente en backend.');
       addLog(`ID: ${user.id} | Rol: ${user.role}`);
 
-      // Adaptar al tipo User que usa el resto de la app (id string)
       const mappedUser: User = {
         id: user.id.toString(),
         name: user.name,
@@ -51,12 +68,13 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
     }
   };
 
-  const handleForceOffline = () => {
-    addLog('Forzando entrada offline (modo demo)...');
+  const handleForceOfflineClick = () => {
+    // Botón extra por si el modo está en BD pero falla algo y quieres entrar rápido
+    addLog('Botón de "Entrar como Demo" presionado.');
     const offlineUser: User = {
       id: 'force-off',
-      name: 'Demo User',
-      email: email,
+      name: 'Demo User (Forzado)',
+      email,
     };
     onLogin(offlineUser);
   };
@@ -71,12 +89,49 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
       </button>
 
       <div className="w-full max-w-md bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-2xl z-10">
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <div className="w-12 h-12 bg-primary/20 text-primary rounded-xl flex items-center justify-center mx-auto mb-4">
             <Lock className="w-6 h-6" />
           </div>
           <h2 className="text-2xl font-bold text-white">Bienvenido de nuevo</h2>
           <p className="text-gray-400 mt-2">Ingresa a tu panel de administración</p>
+        </div>
+
+        {/* Selector de modo de login */}
+        <div className="mb-6">
+          <p className="text-xs text-gray-400 mb-2">Modo de autenticación</p>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <button
+              type="button"
+              onClick={() => setMode('db')}
+              className={`flex items-center justify-center gap-1 px-3 py-2 rounded-lg border ${
+                mode === 'db'
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-gray-700 text-gray-400 hover:border-gray-500'
+              }`}
+              disabled={loading}
+            >
+              <Database className="w-4 h-4" />
+              BD (Cloud SQL)
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('offline')}
+              className={`flex items-center justify-center gap-1 px-3 py-2 rounded-lg border ${
+                mode === 'offline'
+                  ? 'border-yellow-400 bg-yellow-500/10 text-yellow-300'
+                  : 'border-gray-700 text-gray-400 hover:border-gray-500'
+              }`}
+              disabled={loading}
+            >
+              <WifiOff className="w-4 h-4" />
+              Offline (demo)
+            </button>
+          </div>
+          <p className="mt-2 text-[11px] text-gray-500">
+            • <span className="text-primary">BD</span>: usa la base de datos real en Cloud SQL.<br />
+            • <span className="text-yellow-300">Offline</span>: entra con usuario demo sin tocar la BDD.
+          </p>
         </div>
 
         {error && (
@@ -131,18 +186,26 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
           </button>
         </form>
 
-        {loading && (
-          <button
-            type="button"
-            onClick={handleForceOffline}
-            className="mt-4 w-full text-xs text-gray-500 hover:text-white underline"
-          >
-            ¿Tarda mucho? Entrar como Demo
-          </button>
-        )}
+        {/* Botón extra de "Entrar como Demo" por si algo se cuelga */}
+        <button
+          type="button"
+          onClick={handleForceOfflineClick}
+          className="mt-4 w-full text-xs text-gray-500 hover:text-white underline"
+        >
+          ¿Problemas de conexión? Entrar como Demo inmediato
+        </button>
 
         <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Modo DB Cloud + Offline Fallback</p>
+          <p>
+            Modo actual:{' '}
+            <span
+              className={
+                mode === 'db' ? 'text-primary font-semibold' : 'text-yellow-300 font-semibold'
+              }
+            >
+              {mode === 'db' ? 'BD (Cloud SQL)' : 'Offline (demo)'}
+            </span>
+          </p>
         </div>
       </div>
 
