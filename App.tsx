@@ -70,7 +70,7 @@ const App: React.FC = () => {
     setView(ViewState.PUBLIC_HOME);
   };
 
-  // --- PAGE HANDLERS ---
+  // --- PAGE HANDLERS ----
   const handlePageGenerated = async (page: LandingPage) => {
     try {
         setLoading(true);
