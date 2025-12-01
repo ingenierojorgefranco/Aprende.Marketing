@@ -5,13 +5,8 @@ import { LandingPage, Lead, GeneratedPageContent, Article } from "../types";
 // TRUE: Ignora la API y usa siempre datos locales.
 const FORCE_MOCK_DATA = false; 
 
-// URL Base del Backend (Host)
-// Si existe VITE_API_URL (ej: http://localhost:8080), lo usa.
-let BASE_URL = (import.meta as any).env?.VITE_API_URL || '';
-// Limpieza: Quitar slash final si existe
-BASE_URL = BASE_URL.replace(/\/$/, '');
-// Limpieza: Quitar /api al final si el usuario lo puso por error, para evitar duplicados
-BASE_URL = BASE_URL.replace(/\/api$/, '');
+// URL del Backend
+const API_URL = (import.meta as any).env?.VITE_API_URL || '/api';
 
 // --- MOCK DATA (CONTENIDO DEMO - ESPECIALISTA EN MICROBLADING 2.0) ---
 let mockPages: LandingPage[] = [
@@ -21,7 +16,7 @@ let mockPages: LandingPage[] = [
         niche: 'Belleza y Estética',
         goal: 'Registro a Clase / Captación',
         isPublished: true,
-        subdomain: 'especialista-cejas.generatorlanding.com',
+        subdomain: 'especialista-cejas.plataformadeventa.com',
         visits: 1250,
         conversions: 315,
         createdAt: new Date(),
@@ -159,21 +154,12 @@ let isOfflineMode = false;
 const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     if (FORCE_MOCK_DATA) throw new Error("Force Mock Mode Enabled");
     
-    // Construcción robusta de la URL
-    // Elimina cualquier slash inicial del endpoint para evitar dobles slashes
-    const cleanEndpoint = endpoint.replace(/^\/+/, '');
-    
-    // Siempre usa /api/ como prefijo relativo o absoluto
-    // Si BASE_URL está vacío (dev), queda /api/endpoint (Vite proxy lo maneja)
-    // Si BASE_URL es http://localhost:8080 (prod env var), queda http://localhost:8080/api/endpoint
-    const url = `${BASE_URL}/api/${cleanEndpoint}`;
-
     try {
         // Aumentado el timeout a 5s por si el backend está 'despertando'
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), 5000);
         
-        const res = await fetch(url, {
+        const res = await fetch(`${API_URL}${endpoint}`, {
             ...options,
             signal: controller.signal
         });
@@ -189,7 +175,7 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     } catch (error: any) {
         if (!isOfflineMode) {
             // Log detallado del error real (NO esconder)
-            console.error(`❌ Error Conectando API en ${url}:`, error);
+            console.error(`❌ Error Conectando API en ${endpoint}:`, error);
             console.warn(`⚠️ Sistema cambiando a MODO OFFLINE debido al error anterior. Datos simulados activados.`);
         }
         isOfflineMode = true;

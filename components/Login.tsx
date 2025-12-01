@@ -7,7 +7,7 @@ interface LoginProps {
 }
 
 export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
-  const [email, setEmail] = useState('admin@generatorlanding.com');
+  const [email, setEmail] = useState('admin@plataformadeventa.com');
   const [password, setPassword] = useState('password123');
 
   const handleSubmit = (e: React.FormEvent) => {

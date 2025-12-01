@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType } from '../types';
 import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid } from 'lucide-react';
@@ -120,14 +118,16 @@ const ColorPicker = ({ selected, onChange }: { selected?: string, onChange: (col
 };
 
 // --- RICH TEXT COMPONENT ---
-interface RichTextAreaProps extends React.ComponentPropsWithoutRef<'textarea'> {
+interface RichTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
     value: string;
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
-const RichTextArea = ({ value, onChange, className, ...props }: RichTextAreaProps) => {
+const RichTextArea = ({ value, onChange, className, id, ...props }: RichTextAreaProps) => {
+    const uniqueId = id || `rta-${Math.random().toString(36).substr(2, 9)}`;
+
     const insertTag = (tagOpen: string, tagClose: string) => {
-        const textarea = document.getElementById(props.id || 'rich-textarea') as HTMLTextAreaElement;
+        const textarea = document.getElementById(uniqueId) as HTMLTextAreaElement;
         if (!textarea) return;
 
         const start = textarea.selectionStart;
@@ -152,8 +152,6 @@ const RichTextArea = ({ value, onChange, className, ...props }: RichTextAreaProp
             textarea.setSelectionRange(start + tagOpen.length, end + tagOpen.length);
         }, 0);
     };
-
-    const uniqueId = props.id || `rta-${Math.random().toString(36).substr(2, 9)}`;
 
     return (
         <div className="space-y-1">

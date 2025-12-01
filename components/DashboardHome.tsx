@@ -68,10 +68,10 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ pages }) => {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-800 flex flex-col">
+        <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-800">
           <h3 className="font-bold text-white mb-6">Tráfico Semanal</h3>
-          {/* Explicit styles to prevent Recharts calculation errors */}
-          <div style={{ width: '100%', height: 300, minWidth: 0 }}>
+          {/* Explicit height wrapper to fix Recharts width/height warning */}
+          <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />
@@ -87,10 +87,10 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ pages }) => {
           </div>
         </div>
 
-        <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-800 flex flex-col">
+        <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-800">
           <h3 className="font-bold text-white mb-6">Tendencia de Conversión</h3>
-          {/* Explicit styles to prevent Recharts calculation errors */}
-          <div style={{ width: '100%', height: 300, minWidth: 0 }}>
+          {/* Explicit height wrapper to fix Recharts width/height warning */}
+          <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />

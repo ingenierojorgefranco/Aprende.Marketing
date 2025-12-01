@@ -3,30 +3,30 @@ steps:
     args:
       - "build"
       - "-t"
-      - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/generatorladingdeployend/generatorladingdeployend:$SHORT_SHA"
+      - "__REGION__-docker.pkg.dev/$PROJECT_ID/__REPO_DOCKER__/__IMAGE_NAME__:$SHORT_SHA"
       - "."
 
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/generatorladingdeployend/generatorladingdeployend:$SHORT_SHA"
+      - "__REGION__-docker.pkg.dev/$PROJECT_ID/__REPO_DOCKER__/__IMAGE_NAME__:$SHORT_SHA"
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: gcloud
     args:
       - "run"
       - "deploy"
-      - "generatorladingdeployend"
+      - "__SERVICE_NAME__"
       - "--image"
-      - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/generatorladingdeployend/generatorladingdeployend:$SHORT_SHA"
+      - "__REGION__-docker.pkg.dev/$PROJECT_ID/__REPO_DOCKER__/__IMAGE_NAME__:$SHORT_SHA"
       - "--region"
-      - "europe-southwest1"
+      - "__REGION__"
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
 
 images:
-  - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/generatorladingdeployend/generatorladingdeployend:$SHORT_SHA"
+  - "__REGION__-docker.pkg.dev/$PROJECT_ID/__REPO_DOCKER__/__IMAGE_NAME__:$SHORT_SHA"
 
 options:
   logging: CLOUD_LOGGING_ONLY

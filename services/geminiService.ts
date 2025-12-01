@@ -1,39 +1,13 @@
+import { GoogleGenAI, Type } from "@google/genai";
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig } from "../types";
-// Importamos Type solo para usar las constantes en la definicion del schema, 
-// aunque la ejecucion real sucede en el backend.
-import { Type } from "@google/genai";
 
-// Obtenemos la URL de la API desde Vite env o usamos relativa por defecto
-const API_URL = (import.meta as any).env?.VITE_API_URL || '';
-
-const generateContentViaBackend = async (
-    model: string, 
-    contents: string, 
-    config?: any
-): Promise<string> => {
-    try {
-        const response = await fetch(`${API_URL}/api/gemini/generate`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                model,
-                contents,
-                config
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`Backend API Error: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data.text;
-    } catch (error) {
-        console.error("AI Generation Error (Backend)", error);
-        throw error;
-    }
+const getAiClient = () => {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    console.warn("API_KEY is missing. Using Mock Data for AI responses.");
+    return null;
+  }
+  return new GoogleGenAI({ apiKey });
 };
 
 // --- LANDING PAGE GENERATION ---
@@ -47,6 +21,7 @@ export const generateLandingPageContent = async (
   structure: StructureType,
   destination: DestinationConfig
 ): Promise<GeneratedPageContent> => {
+  const ai = getAiClient();
   
   // Contexto específico para el prompt
   let ctaContext = "";
@@ -85,7 +60,12 @@ export const generateLandingPageContent = async (
   
   Devuelve JSON.`;
 
-  const config = {
+  try {
+    if (!ai) throw new Error("No API Key");
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
         responseMimeType: "application/json",
         responseSchema: {
             type: Type.OBJECT,
@@ -188,13 +168,11 @@ export const generateLandingPageContent = async (
             },
             required: ["hero", "testimonials", "intro", "benefits", "whatYouWillLearn", "instructor", "footer", "thankYouMessage", "redirectUrl"],
         },
-    };
+        },
+    });
 
-  try {
-    const textResponse = await generateContentViaBackend("gemini-2.5-flash", prompt, config);
-    
-    if (textResponse) {
-        const content = JSON.parse(textResponse) as GeneratedPageContent;
+    if (response.text) {
+        const content = JSON.parse(response.text) as GeneratedPageContent;
         content.palette = palette;
         content.structure = structure;
         content.destination = destination;
@@ -202,7 +180,8 @@ export const generateLandingPageContent = async (
         return content;
     }
   } catch (error) {
-      console.error("Content Gen Error", error);
+      console.error("AI Generation Error", error);
+      // Fallback for demo without API Key
       throw new Error("Failed to generate content");
   }
   throw new Error("Failed to generate content");
@@ -212,14 +191,21 @@ export const generateBotReply = async (
   incomingMessage: string,
   context: string
 ): Promise<string> => {
+  const ai = getAiClient();
+  
+  if (!ai) return "Lo siento, estoy en modo offline. (Configura API KEY)";
+
   const prompt = `Eres un asistente de CRM inteligente para un negocio.
   Contexto del negocio: ${context}.
   El cliente dijo: "${incomingMessage}".
   Responde brevemente en ESPAÑOL, de forma profesional y persuasiva para cerrar una venta o cita. Máximo 50 palabras.`;
 
   try {
-    const text = await generateContentViaBackend("gemini-2.5-flash", prompt);
-    return text || "Lo siento, no entendí eso.";
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+    });
+    return response.text || "Lo siento, no entendí eso.";
   } catch (e) {
       return "Error de conexión con IA.";
   }
@@ -233,6 +219,7 @@ export interface ArticleTitleIdea {
 }
 
 export const generateArticleTitles = async (topic: string, objective: string, keyword: string): Promise<ArticleTitleIdea[]> => {
+    const ai = getAiClient();
     const prompt = `Actúa como un experto SEO y Content Manager.
     Genera 5 ideas de títulos atractivos y optimizados para SEO para un artículo sobre el tema: "${topic}".
     El objetivo del artículo es: "${objective}".
@@ -243,29 +230,40 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
     - description: Breve explicación del enfoque o ángulo de este artículo (1 frase).
     `;
 
-    const config = {
-        responseMimeType: "application/json",
-        responseSchema: {
-            type: Type.ARRAY,
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    title: { type: Type.STRING },
-                    description: { type: Type.STRING }
+    try {
+        if (!ai) throw new Error("No API Key");
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.ARRAY,
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            title: { type: Type.STRING },
+                            description: { type: Type.STRING }
+                        }
+                    }
                 }
             }
-        }
-    };
-
-    try {
-        const text = await generateContentViaBackend("gemini-2.5-flash", prompt, config);
-        return JSON.parse(text || "[]");
+        });
+        return JSON.parse(response.text || "[]");
     } catch (e) {
-        throw e;
+        // Fallback Mock
+        return [
+            { title: `Guía Completa de ${topic} para 2024`, description: "Enfoque general y educativo para principiantes." },
+            { title: `${topic}: 5 Errores Comunes y Cómo Evitarlos`, description: "Artículo tipo lista para generar curiosidad y autoridad." },
+            { title: `Domina ${topic} en 3 Pasos Sencillos`, description: "Tutorial paso a paso enfocado en la acción rápida." },
+            { title: `El Secreto de ${topic} que Nadie te Cuenta`, description: "Ángulo de misterio para aumentar el CTR." },
+            { title: `¿Vale la pena ${topic}? Análisis de Expertos`, description: "Artículo de opinión y revisión para audiencias dudosas." }
+        ];
     }
 };
 
 export const generateArticleOutline = async (title: string, objective: string): Promise<string[]> => {
+    const ai = getAiClient();
     const prompt = `Crea un esquema (outline) detallado para un artículo de blog titulado: "${title}".
     Objetivo: "${objective}".
     
@@ -276,23 +274,36 @@ export const generateArticleOutline = async (title: string, objective: string): 
     
     Devuelve SOLO un JSON array de strings, donde cada string es un encabezado o sección.`;
 
-    const config = {
-        responseMimeType: "application/json",
-        responseSchema: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING }
-        }
-    };
-
     try {
-        const text = await generateContentViaBackend("gemini-2.5-flash", prompt, config);
-        return JSON.parse(text || "[]");
+        if (!ai) throw new Error("No API Key");
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING }
+                }
+            }
+        });
+        return JSON.parse(response.text || "[]");
     } catch (e) {
-        throw e;
+        return [
+            "Introducción: La importancia del tema",
+            "¿Qué es exactamente y por qué importa?",
+            "Beneficios Principales",
+            "Paso 1: Preparación",
+            "Paso 2: Ejecución Correcta",
+            "Errores Frecuentes a Evitar",
+            "Casos de Éxito",
+            "Conclusión y Siguientes Pasos"
+        ];
     }
 };
 
 export const generateFullArticle = async (title: string, outline: string[], objective: string, ctaLink: string, keyword: string): Promise<string> => {
+    const ai = getAiClient();
     const prompt = `Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este título y esquema.
     
     Título: "${title}"
@@ -308,9 +319,39 @@ export const generateFullArticle = async (title: string, outline: string[], obje
     NO incluyas <html>, <head> o <body>, solo el contenido del artículo.`;
 
     try {
-        const text = await generateContentViaBackend("gemini-2.5-flash", prompt);
-        return text || "<p>Error generando el artículo.</p>";
+        if (!ai) throw new Error("No API Key");
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+        });
+        return response.text || "<p>Error generando el artículo.</p>";
     } catch (e) {
-        return "<p>Error generando contenido.</p>";
+        return `
+            <h1>${title}</h1>
+            <p><strong>Nota:</strong> Este es un artículo generado en modo demo (Offline).</p>
+            <p>Bienvenido a esta guía completa donde exploraremos todo sobre el tema propuesto. El objetivo principal es ayudarte a lograr ${objective} de la manera más eficiente posible.</p>
+            
+            <h2>Introducción</h2>
+            <p>En el mundo actual, entender los conceptos básicos es fundamental. Si estás buscando mejorar tus habilidades o simplemente aprender algo nuevo, estás en el lugar correcto.</p>
+            
+            <h2>Puntos Clave</h2>
+            <ul>
+                <li>Entendiendo los fundamentos.</li>
+                <li>Estrategias avanzadas para expertos.</li>
+                <li>Herramientas recomendadas.</li>
+            </ul>
+            
+            <h2>¿Por qué esto es importante para ti?</h2>
+            <p>La razón principal es el impacto que puede tener en tu carrera o negocio. Al dominar estas técnicas, te posicionas por delante de la competencia.</p>
+            
+            <h2>Conclusión</h2>
+            <p>Esperamos que este artículo te haya sido de utilidad. Recuerda que la práctica hace al maestro.</p>
+            
+            <p style="text-align: center; margin-top: 20px;">
+                <a href="${ctaLink}" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                    Haz clic aquí para saber más
+                </a>
+            </p>
+        `;
     }
 };

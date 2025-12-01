@@ -572,7 +572,7 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
                                 content.logoSvg ? <div className="w-6 h-6" dangerouslySetInnerHTML={{ __html: content.logoSvg }} /> : <Anchor className="w-5 h-5"/>
                              )}
                         </div>
-                        <h4 className="text-2xl font-bold" dangerouslySetInnerHTML={{__html: content.brandName || "GeneratorLanding"}}></h4>
+                        <h4 className="text-2xl font-bold" dangerouslySetInnerHTML={{__html: content.brandName || "PlataformaDeVenta.com"}}></h4>
                     </div>
                     <p className="text-gray-400 max-w-xs leading-relaxed">{content.footer.copyright}</p>
                     <div id="redes-sociales" className="flex gap-4 mt-6">

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { ViewState, User } from '../types';
 import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List } from 'lucide-react';
@@ -49,21 +47,21 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     },
     {
       id: 'content-gen',
-      label: 'Content Generator Pro',
+      label: 'Generador de Contenido',
       icon: BookOpen,
       subItems: [
-        { label: 'Ver Artículos', view: ViewState.ARTICLES_LIST, icon: List },
-        { label: 'Nuevo Artículo', view: ViewState.ARTICLE_CREATOR, icon: PlusCircle }
+        { label: 'Artículos SEO', view: ViewState.ARTICLES_LIST, icon: List },
+        { label: 'Redactar Nuevo', view: ViewState.ARTICLE_CREATOR, icon: PlusCircle }
       ]
     },
     {
       id: 'tools',
-      label: 'Mis Herramientas',
+      label: 'Herramientas Pro',
       icon: Wrench,
       subItems: [
-        { label: 'Mail Pro', view: ViewState.EMAIL_MARKETING, icon: Mail },
-        { label: 'WhatsApp Pro', view: ViewState.WHATSAPP, icon: MessageSquare },
-        { label: 'CopySell Pro', view: ViewState.COPY_PRO, icon: PenTool }
+        { label: 'Email Marketing', view: ViewState.EMAIL_MARKETING, icon: Mail },
+        { label: 'WhatsApp CRM', view: ViewState.WHATSAPP, icon: MessageSquare },
+        { label: 'CopySell AI', view: ViewState.COPY_PRO, icon: PenTool }
       ]
     }
   ];
@@ -152,7 +150,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       {/* Sidebar (Desktop) */}
       <aside className="hidden md:flex flex-col w-72 bg-gray-900 border-r border-gray-800">
         <div className="p-6">
-          <h2 className="text-2xl font-bold text-white tracking-tight">Generator<span className="text-primary">AI</span></h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">PlataformaDe<span className="text-primary">Venta</span></h2>
+          <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">Panel de Control</p>
         </div>
         
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
@@ -182,7 +181,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 w-full bg-gray-900 border-b border-gray-800 z-20 flex items-center justify-between p-4">
-        <span className="font-bold text-lg text-white">GeneratorAI</span>
+        <span className="font-bold text-lg text-white">PlataformaDeVenta</span>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white">
           {mobileMenuOpen ? <X /> : <Menu />}
         </button>
