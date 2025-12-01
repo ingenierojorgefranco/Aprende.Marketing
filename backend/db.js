@@ -7,7 +7,8 @@ const dbConfig = {
     database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    connectTimeout: 5000 // 5 segundos máximo para intentar conectar
 };
 
 if (process.env.INSTANCE_CONNECTION_NAME) {
@@ -30,6 +31,7 @@ pool.getConnection()
     })
     .catch(err => {
         console.error('❌ [DB] Error fatal al conectar a la base de datos:', err.message);
+        console.error('   -> El sistema funcionará en modo OFFLINE si el frontend no recibe respuesta.');
     });
 
 module.exports = pool;

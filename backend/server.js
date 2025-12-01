@@ -20,6 +20,35 @@ app.use((req, res, next) => {
 
 // --- RUTAS API ---
 
+// 0. LOGIN (AUTH)
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+    console.log(`[AUTH] Intento de login para: ${email}`);
+
+    try {
+        // Consultamos la base de datos real
+        // Nota: En producción las contraseñas deben estar hasheadas (ej. bcrypt). 
+        // Para esta prueba usamos texto plano como solicitaste para verificar conexión.
+        const [rows] = await pool.query(
+            'SELECT id, name, email FROM users WHERE email = ? AND password = ?',
+            [email, password]
+        );
+
+        if (rows.length > 0) {
+            console.log(`[AUTH] Login exitoso: ${rows[0].name}`);
+            res.json(rows[0]);
+        } else {
+            console.log(`[AUTH] Credenciales inválidas para: ${email}`);
+            res.status(401).json({ error: 'Credenciales incorrectas' });
+        }
+    } catch (error) {
+        console.error('[AUTH] Error de base de datos:', error.message);
+        // Retornamos 500 para que el frontend sepa que falló el servidor 
+        // y pueda activar el modo offline si es necesario.
+        res.status(500).json({ error: 'Error de conexión con base de datos' });
+    }
+});
+
 // 1. GEMINI AI (Proxy Route)
 app.post('/api/gemini', async (req, res) => {
   try {

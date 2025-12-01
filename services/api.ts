@@ -1,4 +1,4 @@
-import { LandingPage, Lead, GeneratedPageContent, Article } from "../types";
+import { LandingPage, Lead, GeneratedPageContent, Article, User } from "../types";
 
 // --- HELPER PARA OBTENER BASE URL ---
 const getBaseUrl = () => {
@@ -16,7 +16,6 @@ const getBaseUrl = () => {
     url = url.replace(/\/+$/, '');
     
     // Si la URL no termina en /api, añadimos /api
-    // Esto asegura que si VITE_API_URL es "http://localhost:8080", el resultado sea "http://localhost:8080/api"
     if (!url.endsWith('/api')) {
         url = `${url}/api`;
     }
@@ -28,6 +27,7 @@ const API_URL = getBaseUrl();
 
 // --- CONFIGURACIÓN ---
 const FORCE_MOCK_DATA = false;
+let isOfflineMode = false;
 
 // --- MOCK DATA (CONTENIDO DEMO - ESPECIALISTA EN MICROBLADING 2.0) ---
 let mockPages: LandingPage[] = [
@@ -146,8 +146,7 @@ let mockArticles: Article[] = [
     }
 ];
 
-let isOfflineMode = false;
-
+// --- FUNCIÓN FETCH CON TIMEOUT Y RETRY LOGIC ---
 const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     if (FORCE_MOCK_DATA) throw new Error("Force Mock Mode Enabled");
     
@@ -155,17 +154,18 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     const url = `${API_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
 
     try {
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), 8000); // 8 sec timeout
-        
-        const res = await fetch(url, {
-            ...options,
-            signal: controller.signal
-        });
-        clearTimeout(id);
+        // Implementar Promise.race para timeout efectivo de 3 segundos
+        // Si el backend se cuelga, esto cortará la conexión y forzará el catch
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Timeout: Servidor tardó demasiado")), 3000)
+        );
+
+        const fetchPromise = fetch(url, options);
+
+        const res = await Promise.race([fetchPromise, timeoutPromise]) as Response;
 
         if (!res.ok) {
-            // Try to read error body
+            // Intentar leer el error
             let errorMsg = res.statusText;
             try {
                 const errBody = await res.json();
@@ -180,7 +180,7 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
         return await res.json();
     } catch (error: any) {
         if (!isOfflineMode) {
-            console.error(`❌ Error Conectando API en ${url}:`, error.message);
+            console.warn(`⚠️ [API] Fallo conexión a ${url}: ${error.message}. Cambiando a Modo Offline.`);
         }
         isOfflineMode = true;
         throw error;
@@ -188,9 +188,45 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
 };
 
 export const api = {
-  getBaseUrl: getBaseUrl, // Expose for other services
-
+  getBaseUrl: getBaseUrl,
   isUsingMockData: () => isOfflineMode || FORCE_MOCK_DATA,
+
+  // --- NUEVA FUNCIÓN LOGIN ---
+  login: async (email: string, password: string, logCallback?: (msg: string) => void): Promise<User> => {
+      const log = (msg: string) => { if (logCallback) logCallback(msg); console.log(msg); };
+
+      log(`[API] Iniciando login para ${email}...`);
+
+      try {
+          // Intentar conexión real
+          log(`[API] Fetching: /api/login`);
+          const user = await fetchWithFallback('/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password })
+          });
+          
+          log(`[API] Login exitoso. Usuario: ${user.name}`);
+          return user;
+
+      } catch (error: any) {
+          log(`[API] Error de conexión: ${error.message}`);
+          
+          // FALLBACK OFFLINE DURO
+          // Si el usuario es el demo, permitimos entrar aunque no haya BD
+          if (email === 'admin@plataformadeventa.com' && password === 'password123') {
+              log(`[OFFLINE] Credenciales demo detectadas. Activando modo offline de emergencia.`);
+              isOfflineMode = true;
+              return {
+                  id: 'offline-admin',
+                  name: 'Admin Offline',
+                  email: 'admin@plataformadeventa.com'
+              };
+          }
+
+          throw error;
+      }
+  },
 
   getPages: async (): Promise<LandingPage[]> => {
     try {

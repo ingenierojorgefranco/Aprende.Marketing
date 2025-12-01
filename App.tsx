@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { PublicHome } from './components/PublicHome';
 import { Login } from './components/Login';
@@ -55,13 +53,8 @@ const App: React.FC = () => {
     setView(ViewState.LOGIN);
   };
 
-  const handleLoginSubmit = () => {
-    const demoUser: User = {
-      id: '1',
-      name: 'Admin User',
-      email: 'admin@generatorlanding.com'
-    };
-    setUser(demoUser);
+  const handleLoginSubmit = (loggedInUser: User) => {
+    setUser(loggedInUser);
     setView(ViewState.DASHBOARD);
   };
 
