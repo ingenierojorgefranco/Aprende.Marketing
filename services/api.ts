@@ -250,6 +250,7 @@ export const api = {
         });
         return pages.map((p: any) => ({
             ...p,
+            id: String(p.id), // Asegurar que el ID sea string (MySQL devuelve INT)
             content: typeof p.content === 'string' ? JSON.parse(p.content) : p.content,
             createdAt: new Date(p.created_at || p.createdAt)
         }));

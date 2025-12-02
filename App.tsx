@@ -27,7 +27,7 @@ const EditorRouteWrapper = ({
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   // Ensure pages are loaded before finding
-  const page = pages.find(p => p.id === id);
+  const page = pages.find(p => String(p.id) === id);
 
   if (!page) {
      if (pages.length === 0) {
@@ -171,7 +171,7 @@ const App: React.FC = () => {
   }
 
   // --- PROTECTED ROUTE COMPONENT ---
-  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
     if (!user) {
       return <Navigate to="/login" replace />;
     }
