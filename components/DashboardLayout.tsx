@@ -1,48 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { ViewState, User } from '../types';
+import { User } from '../types';
 import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List } from 'lucide-react';
+import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 
 interface DashboardLayoutProps {
   user: User;
-  currentView: ViewState;
-  onNavigate: (view: ViewState) => void;
   onLogout: () => void;
-  children: React.ReactNode;
+  isOffline?: boolean;
 }
 
 type MenuItem = {
   id: string;
   label: string;
   icon: any;
-  view?: ViewState;
-  subItems?: { label: string; view: ViewState; icon?: any }[];
+  path?: string;
+  subItems?: { label: string; path: string; icon?: any }[];
 };
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   user,
-  currentView,
-  onNavigate,
   onLogout,
-  children,
+  isOffline,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  // State to track which menu section is expanded.
   const [expandedMenu, setExpandedMenu] = useState<string | null>('mid-landing');
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const menuStructure: MenuItem[] = [
     { 
       id: 'dashboard', 
       label: 'Panel Principal', 
       icon: LayoutDashboard, 
-      view: ViewState.DASHBOARD 
+      path: '/dashboard'
     },
     {
       id: 'mid-landing',
       label: 'Mis Páginas',
       icon: FileText,
       subItems: [
-        { label: 'Ver Páginas', view: ViewState.MY_PAGES, icon: FileText },
-        { label: 'Nueva Página', view: ViewState.GENERATOR, icon: PlusCircle }
+        { label: 'Ver Páginas', path: '/dashboard/pages', icon: FileText },
+        { label: 'Nueva Página', path: '/dashboard/generator', icon: PlusCircle }
       ]
     },
     {
@@ -50,8 +48,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       label: 'Generador de Contenido',
       icon: BookOpen,
       subItems: [
-        { label: 'Artículos SEO', view: ViewState.ARTICLES_LIST, icon: List },
-        { label: 'Redactar Nuevo', view: ViewState.ARTICLE_CREATOR, icon: PlusCircle }
+        { label: 'Artículos SEO', path: '/dashboard/articles', icon: List },
+        { label: 'Redactar Nuevo', path: '/dashboard/content-creator', icon: PlusCircle }
       ]
     },
     {
@@ -59,9 +57,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       label: 'Herramientas Pro',
       icon: Wrench,
       subItems: [
-        { label: 'Email Marketing', view: ViewState.EMAIL_MARKETING, icon: Mail },
-        { label: 'WhatsApp CRM', view: ViewState.WHATSAPP, icon: MessageSquare },
-        { label: 'CopySell AI', view: ViewState.COPY_PRO, icon: PenTool }
+        { label: 'Email Marketing', path: '/dashboard/email', icon: Mail },
+        { label: 'WhatsApp CRM', path: '/dashboard/whatsapp', icon: MessageSquare },
+        { label: 'CopySell AI', path: '/dashboard/copy-pro', icon: PenTool }
       ]
     }
   ];
@@ -74,31 +72,32 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   useEffect(() => {
     menuStructure.forEach(item => {
       if (item.subItems) {
-        const isActive = item.subItems.some(sub => sub.view === currentView);
+        const isActive = item.subItems.some(sub => location.pathname === sub.path);
         if (isActive) {
           setExpandedMenu(item.id);
         }
       }
     });
-  }, [currentView]);
+  }, [location.pathname]);
 
   const NavItemRender: React.FC<{ item: MenuItem }> = ({ item }) => {
     const hasSubItems = !!item.subItems;
     const isExpanded = expandedMenu === item.id;
-    const isActive = item.view === currentView || (hasSubItems && item.subItems?.some(sub => sub.view === currentView));
+    // Lógica para saber si está activo (coincidencia exacta o parcial para subitems)
+    const isActive = item.path === location.pathname || (hasSubItems && item.subItems?.some(sub => sub.path === location.pathname));
 
     return (
       <div className="mb-1">
-        <button
+        <div
           onClick={() => {
             if (hasSubItems) {
               toggleSubMenu(item.id);
-            } else if (item.view) {
-              onNavigate(item.view);
+            } else if (item.path) {
+              navigate(item.path);
               setMobileMenuOpen(false);
             }
           }}
-          className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
+          className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors cursor-pointer ${
             isActive && !hasSubItems
               ? 'bg-primary text-white shadow-md shadow-primary/20'
               : 'text-gray-400 hover:bg-gray-800 hover:text-white'
@@ -111,7 +110,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           {hasSubItems && (
             isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
           )}
-        </button>
+        </div>
 
         {/* Sub Menu */}
         {hasSubItems && (
@@ -122,21 +121,19 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           >
             <div className="ml-4 pl-4 border-l border-gray-800 space-y-1">
               {item.subItems?.map((sub, idx) => (
-                <button
+                <Link
                   key={idx}
-                  onClick={() => {
-                    onNavigate(sub.view);
-                    setMobileMenuOpen(false);
-                  }}
+                  to={sub.path}
+                  onClick={() => setMobileMenuOpen(false)}
                   className={`w-full flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${
-                    currentView === sub.view
+                    location.pathname === sub.path
                       ? 'text-primary bg-primary/10 font-medium'
                       : 'text-gray-500 hover:text-gray-200'
                   }`}
                 >
                   {sub.icon && <sub.icon className="w-4 h-4" />}
                   {sub.label}
-                </button>
+                </Link>
               ))}
             </div>
           </div>
@@ -204,7 +201,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       {/* Main Content */}
       <main className="flex-1 p-6 md:p-10 overflow-y-auto mt-16 md:mt-0 bg-black">
-        {children}
+        {isOffline && (
+            <div className="mb-6 bg-yellow-900/30 border border-yellow-700 text-yellow-200 px-4 py-2 rounded-lg flex items-center gap-2 text-sm animate-in fade-in slide-in-from-top-2">
+               {/* @ts-ignore */}
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 2l20 20"/><path d="M8.56 2.69a10 10 0 0 1 8.13 13.54"/><path d="M10.83 17.17a6 6 0 0 1-5.66-3.87"/><path d="M13.62 2.11c.57.06 1.13.16 1.67.29"/><path d="M1.42 9a16 16 0 0 1 1.77-3.15"/></svg>
+                <span><strong>Modo Offline:</strong> No se pudo conectar a la Base de Datos. Usando almacenamiento local temporal.</span>
+            </div>
+        )}
+        <Outlet />
       </main>
     </div>
   );

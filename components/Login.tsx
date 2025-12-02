@@ -2,23 +2,25 @@ import React, { useState } from 'react';
 import { ArrowLeft, Lock, Loader2, AlertCircle, Database, WifiOff } from 'lucide-react';
 import { User } from '../types';
 import { login as authLogin } from '../services/auth';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginProps {
   onLogin: (user: User) => void;
-  onBack: () => void;
 }
 
 type LoginMode = 'db' | 'offline';
 
-export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
+export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [email, setEmail] = useState('admin@plataformadeventa.com');
   const [password, setPassword] = useState('MiPasswordSuperSegura123'); // la que usaste al registrar
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<LoginMode>('db'); // 'db' | 'offline'
+  const [mode, setMode] = useState<LoginMode>('db'); 
 
   // Consola visual para debug
   const [logs, setLogs] = useState<string[]>([]);
+  const navigate = useNavigate();
+
   const addLog = (msg: string) =>
     setLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
 
@@ -28,30 +30,29 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
     setError(null);
     setLogs([]);
     addLog(`Iniciando proceso de login en modo: ${mode === 'db' ? 'Base de Datos' : 'Offline Demo'}`);
-    addLog(`Usuario: ${email}`);
-
+    
     // 🟡 MODO OFFLINE: no llama a backend
     if (mode === 'offline') {
-      addLog('Modo OFFLINE seleccionado, saltando petición al backend.');
+      addLog('Modo OFFLINE seleccionado.');
       const offlineUser: User = {
         id: 'offline-demo',
         name: 'Usuario Demo (Offline)',
         email,
       };
-      addLog('Usuario demo generado localmente.');
+      
       onLogin(offlineUser);
       setLoading(false);
+      navigate('/dashboard'); // Redirigir
       return;
     }
 
-    // 🔵 MODO BD: login real contra /api/auth/login
+    // 🔵 MODO BD: login real
     try {
       addLog('Llamando a backend /api/auth/login...');
       const { user } = await authLogin({ email, password });
 
-      addLog('Usuario autenticado correctamente en backend.');
-      addLog(`ID: ${user.id} | Rol: ${user.role}`);
-
+      addLog('Usuario autenticado correctamente.');
+      
       const mappedUser: User = {
         id: user.id.toString(),
         name: user.name,
@@ -59,9 +60,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
       };
 
       onLogin(mappedUser);
+      navigate('/dashboard'); // Redirigir
+
     } catch (err: any) {
       console.error('Error de login:', err);
-      addLog(`Error fatal: ${err.message || 'Error desconocido'}`);
+      addLog(`Error fatal: ${err.message}`);
       setError(err.message || 'Error al iniciar sesión');
     } finally {
       setLoading(false);
@@ -69,20 +72,19 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
   };
 
   const handleForceOfflineClick = () => {
-    // Botón extra por si el modo está en BD pero falla algo y quieres entrar rápido
-    addLog('Botón de "Entrar como Demo" presionado.');
     const offlineUser: User = {
       id: 'force-off',
       name: 'Demo User (Forzado)',
       email,
     };
     onLogin(offlineUser);
+    navigate('/dashboard');
   };
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 relative">
       <button
-        onClick={onBack}
+        onClick={() => navigate('/')}
         className="absolute top-6 left-6 text-gray-400 hover:text-white flex items-center gap-2"
       >
         <ArrowLeft className="w-5 h-5" /> Volver
@@ -128,10 +130,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
               Offline (demo)
             </button>
           </div>
-          <p className="mt-2 text-[11px] text-gray-500">
-            • <span className="text-primary">BD</span>: usa la base de datos real en Cloud SQL.<br />
-            • <span className="text-yellow-300">Offline</span>: entra con usuario demo sin tocar la BDD.
-          </p>
         </div>
 
         {error && (
@@ -186,7 +184,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
           </button>
         </form>
 
-        {/* Botón extra de "Entrar como Demo" por si algo se cuelga */}
         <button
           type="button"
           onClick={handleForceOfflineClick}
@@ -194,19 +191,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
         >
           ¿Problemas de conexión? Entrar como Demo inmediato
         </button>
-
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <p>
-            Modo actual:{' '}
-            <span
-              className={
-                mode === 'db' ? 'text-primary font-semibold' : 'text-yellow-300 font-semibold'
-              }
-            >
-              {mode === 'db' ? 'BD (Cloud SQL)' : 'Offline (demo)'}
-            </span>
-          </p>
-        </div>
       </div>
 
       {/* Console Logs for Debugging */}
@@ -214,9 +198,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBack }) => {
         <p className="text-gray-500 mb-2 border-b border-gray-800 pb-1">
           Console Logs (Debug)
         </p>
-        {logs.length === 0 && (
-          <span className="text-gray-700">Esperando acciones...</span>
-        )}
         {logs.map((log, i) => (
           <div key={i} className="text-green-400 mb-1">
             {log}
