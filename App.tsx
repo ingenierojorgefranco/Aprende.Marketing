@@ -11,7 +11,7 @@ import { EmailMarketing } from './components/EmailMarketing';
 import { ContentGenerator } from './components/ContentGenerator';
 import { ArticlesList } from './components/ArticlesList';
 import { User, LandingPage, Article } from './types';
-import { Loader2, PenTool, LayoutTemplate } from 'lucide-react';
+import { Loader2, PenTool, LayoutTemplate, Trash2, AlertTriangle, X } from 'lucide-react';
 import { api } from './services/api';
 import { getCurrentUser, logout } from './services/auth';
 
@@ -55,6 +55,10 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+
+  // Deletion Modal State
+  const [pageToDelete, setPageToDelete] = useState<LandingPage | null>(null);
+  const [deleting, setDeleting] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -151,6 +155,20 @@ const App: React.FC = () => {
     }
   };
 
+  const confirmDeletePage = async () => {
+    if (!pageToDelete) return;
+    setDeleting(true);
+    try {
+        await api.deletePage(pageToDelete.id);
+        setMyPages(prev => prev.filter(p => p.id !== pageToDelete.id));
+        setPageToDelete(null);
+    } catch (e) {
+        alert("Error eliminando la página.");
+    } finally {
+        setDeleting(false);
+    }
+  };
+
   // --- ARTICLE HANDLERS ---
   const handleArticleSave = async (articleData: Omit<Article, 'id' | 'createdAt'>) => {
      try {
@@ -178,7 +196,36 @@ const App: React.FC = () => {
     return <>{children}</>;
   };
 
+  // --- DELETE CONFIRMATION MODAL ---
+  const DeleteModal = () => {
+    if (!pageToDelete) return null;
+    return (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-gray-900 border border-gray-700 rounded-xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95">
+                <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3 text-red-500 font-bold text-lg">
+                        <AlertTriangle className="w-6 h-6" /> Eliminar Página
+                    </div>
+                    <button onClick={() => setPageToDelete(null)} className="text-gray-500 hover:text-white"><X className="w-5 h-5"/></button>
+                </div>
+                <p className="text-gray-300 mb-6">
+                    ¿Estás seguro de que quieres eliminar <b>"{pageToDelete.name}"</b>? <br/><br/>
+                    Esta acción es irreversible y se perderán todos los datos asociados.
+                </p>
+                <div className="flex justify-end gap-3">
+                    <button onClick={() => setPageToDelete(null)} disabled={deleting} className="px-4 py-2 rounded-lg border border-gray-700 hover:bg-gray-800 text-white transition">Cancelar</button>
+                    <button onClick={confirmDeletePage} disabled={deleting} className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold transition flex items-center gap-2">
+                        {deleting ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>} 
+                        Sí, Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+  };
+
   return (
+    <>
     <Routes>
       {/* RUTAS PÚBLICAS */}
       <Route path="/" element={<PublicHome user={user} onLogout={handleLogout} />} />
@@ -211,7 +258,7 @@ const App: React.FC = () => {
                 ) : (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {myPages.map(page => (
-                      <div key={page.id} className="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-800 hover:border-primary transition group">
+                      <div key={page.id} className="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-800 hover:border-primary transition group relative">
                           <div className="flex justify-between items-start mb-4">
                             <div><h3 className="font-bold text-lg text-white">{page.name}</h3><p className="text-xs text-gray-500">{page.niche}</p></div>
                             <div className={`w-3 h-3 rounded-full ${page.isPublished ? 'bg-green-500' : 'bg-orange-500'}`} />
@@ -220,9 +267,14 @@ const App: React.FC = () => {
                             <p>Visitas: {page.visits}</p>
                             <p>Conversiones: {page.conversions}</p>
                           </div>
-                          <button onClick={() => navigate(`/dashboard/editor/${page.id}`)} className="w-full py-2 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 flex items-center justify-center gap-2 group-hover:border-primary group-hover:text-primary transition">
-                            <PenTool className="w-4 h-4" /> Editar Página
-                          </button>
+                          <div className="flex flex-col gap-2">
+                             <button onClick={() => navigate(`/dashboard/editor/${page.id}`)} className="w-full py-2 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 flex items-center justify-center gap-2 group-hover:border-primary group-hover:text-primary transition">
+                                <PenTool className="w-4 h-4" /> Editar Página
+                             </button>
+                             <button onClick={() => setPageToDelete(page)} className="w-full py-2 border border-red-900/30 rounded-lg text-red-500/70 hover:bg-red-900/10 hover:text-red-500 hover:border-red-900/50 flex items-center justify-center gap-2 transition text-sm">
+                                <Trash2 className="w-4 h-4" /> Eliminar Página
+                             </button>
+                          </div>
                       </div>
                     ))}
                   </div>
@@ -251,6 +303,9 @@ const App: React.FC = () => {
       {/* CUALQUIER OTRA RUTA -> REDIRIGIR */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    
+    <DeleteModal />
+    </>
   );
 };
 

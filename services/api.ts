@@ -301,6 +301,18 @@ export const api = {
     }
   },
 
+  deletePage: async (id: string): Promise<void> => {
+    try {
+        await fetchWithFallback(`/pages/${id}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
+    } catch (e) {
+        // Mock fallback
+        mockPages = mockPages.filter(p => p.id !== id);
+    }
+  },
+
   getLeads: async (): Promise<Lead[]> => {
       try {
           return await fetchWithFallback('/leads', {

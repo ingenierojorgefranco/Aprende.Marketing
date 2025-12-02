@@ -261,6 +261,31 @@ app.put('/api/pages/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// Eliminar página (verificando propiedad)
+app.delete('/api/pages/:id', authMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  try {
+    // 1. Verificar propiedad
+    const [check] = await pool.query('SELECT id FROM landing_pages WHERE id = ? AND user_id = ?', [id, userId]);
+    if (check.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para eliminar esta página o no existe' });
+    }
+
+    // 2. Eliminar (las leads asociadas podrían necesitar borrado en cascada o mantenerse según diseño de DB.
+    // Asumiremos borrado simple de la página por ahora).
+    await pool.query('DELETE FROM landing_pages WHERE id = ?', [id]);
+    
+    console.log(`[API] Página eliminada: ${id} por usuario ${userId}`);
+    res.json({ message: 'Página eliminada correctamente' });
+
+  } catch (error) {
+    console.error('Error deleting page:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // 3. LEADS (Público para capturar, Protegido para leer)
 app.get('/api/leads', authMiddleware, async (req, res) => {
   try {
