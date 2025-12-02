@@ -154,9 +154,9 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     const url = `${API_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
 
     try {
-        // Implementar Promise.race para timeout efectivo de 3 segundos
+        // Aumentado a 15 segundos para evitar falsos offline en conexiones lentas o cold starts
         const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("Timeout: Servidor tardó demasiado")), 3000)
+            setTimeout(() => reject(new Error("Timeout: Servidor tardó demasiado")), 15000)
         );
 
         const fetchPromise = fetch(url, options);
@@ -385,6 +385,7 @@ export const api = {
   
   testConnection: async (): Promise<{ success: boolean; message: string }> => {
       try {
+          // Usamos fetchWithFallback para que gestione el flag global de offline
           const data = await fetchWithFallback('/test-db');
           return { success: true, message: data.message };
       } catch (error: any) {

@@ -108,7 +108,17 @@ const App: React.FC = () => {
       ]);
       setMyPages(pages);
       setMyArticles(articles);
-      setIsOffline(api.isUsingMockData());
+
+      // Verificación de estado Offline con test real
+      if (api.isUsingMockData()) {
+          // Intentamos un ping a la DB para ver si fue solo un timeout puntual
+          const health = await api.testConnection();
+          // Si health.success es true, la DB sí responde, forzamos offline a false
+          setIsOffline(!health.success);
+      } else {
+          setIsOffline(false);
+      }
+
     } catch (error) {
       console.error("Failed to load data", error);
     } finally {

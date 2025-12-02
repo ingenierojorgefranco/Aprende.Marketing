@@ -1,11 +1,11 @@
 
-
 import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, ColorPalette, StructureType } from '../types';
-import { CheckCircle, Star, PlayCircle, User, MessageCircle, ArrowRight, Lock, ShieldCheck, Zap, BarChart, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Award, Users, DollarSign, FileText, Briefcase, BookOpen, ScanFace, Palette, Feather, Plus, Minus, HelpCircle, X, Rocket, Target, Globe } from 'lucide-react';
+import { CheckCircle, Star, PlayCircle, User, MessageCircle, ArrowRight, Lock, ShieldCheck, Zap, BarChart, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Award, Users, DollarSign, FileText, Briefcase, BookOpen, ScanFace, Palette, Feather, Plus, Minus, HelpCircle, X, Rocket, Target, Globe, Menu } from 'lucide-react';
 
 interface LivePageProps {
   content: GeneratedPageContent;
+  isMobilePreview?: boolean;
 }
 
 // Icon Mapping
@@ -278,7 +278,7 @@ const getDesignSystem = (palette: ColorPalette) => {
   }
 };
 
-export const LivePage: React.FC<LivePageProps> = ({ content }) => {
+export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = false }) => {
   const ds = getDesignSystem(content.palette);
   const structure: StructureType = content.structure || 'classic-sales'; 
   const dest = content.destination;
@@ -293,10 +293,11 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
       '<span class="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-orange-600">$1</span>'
     );
     
+    // Adjusted sizes for better mobile view
     return (
       <h1 
         id="titulo-principal"
-        className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-white tracking-tight mb-6 leading-[1.15] max-w-4xl mx-auto"
+        className={`font-extrabold text-white tracking-tight mb-6 leading-[1.15] max-w-4xl mx-auto ${isMobilePreview ? 'text-3xl' : 'text-3xl md:text-5xl lg:text-7xl'}`}
         dangerouslySetInnerHTML={{ __html: htmlContent }}
       />
     );
@@ -319,11 +320,11 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
     <div className="space-y-4 relative z-10">
         <div className="relative">
             <User className="absolute top-3.5 left-3 w-5 h-5 text-gray-300" />
-            <input placeholder="Tu Nombre Completo" className="w-full pl-10 pr-4 py-3 border border-gray-600/50 rounded-lg bg-white/10 text-white focus:bg-white/20 focus:border-blue-500 focus:ring-2 focus:ring-blue-900/50 outline-none transition placeholder-gray-400" />
+            <input placeholder="Tu Nombre Completo" className="w-full pl-10 pr-4 py-3 border border-gray-600/50 rounded-lg bg-white/10 text-white focus:bg-white/20 focus:border-blue-500 focus:ring-2 focus:ring-blue-900/50 outline-none transition placeholder-gray-400 text-base" />
         </div>
         <div className="relative">
             <MessageCircle className="absolute top-3.5 left-3 w-5 h-5 text-gray-300" />
-            <input placeholder="Tu Correo Principal" className="w-full pl-10 pr-4 py-3 border border-gray-600/50 rounded-lg bg-white/10 text-white focus:bg-white/20 focus:border-blue-500 focus:ring-2 focus:ring-blue-900/50 outline-none transition placeholder-gray-400" />
+            <input placeholder="Tu Correo Principal" className="w-full pl-10 pr-4 py-3 border border-gray-600/50 rounded-lg bg-white/10 text-white focus:bg-white/20 focus:border-blue-500 focus:ring-2 focus:ring-blue-900/50 outline-none transition placeholder-gray-400 text-base" />
         </div>
         <button className={`w-full py-4 rounded-lg font-bold text-lg transition transform hover:scale-[1.02] active:scale-[0.98] ${btnClass}`}>
             {btnText}
@@ -354,14 +355,14 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
 
       if (dest.type === 'form') {
           return (
-            <div id="contenedor-formulario-cta" className={`bg-white/5 backdrop-blur-md rounded-2xl p-6 md:p-8 shadow-2xl border border-gray-700/50 relative ${centered ? 'mx-auto max-w-md' : 'w-full'}`}>
+            <div id="contenedor-formulario-cta" className={`bg-white/5 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700/50 relative ${centered ? 'mx-auto max-w-md' : 'w-full'} ${isMobilePreview ? 'p-5' : 'p-5 md:p-8'}`}>
                 
                 {/* Badge de Cupos - Positioned half on border (-top-3.5) */}
-                <div className="absolute -top-3.5 right-6 bg-red-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg z-20 border border-red-500/50">
+                <div className="absolute -top-3.5 right-4 md:right-6 bg-red-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg z-20 border border-red-500/50">
                     {content.hero.spotsLeft || "¡Cupos Limitados!"}
                 </div>
 
-                <h3 className="text-2xl font-bold text-white mb-2 text-center">Reserva tu lugar GRATIS</h3>
+                <h3 className={`font-bold text-white mb-2 text-center ${isMobilePreview ? 'text-xl' : 'text-xl md:text-2xl'}`}>Reserva tu lugar GRATIS</h3>
                 <p className="text-gray-400 text-center mb-6 text-sm">Accede al método exclusivo.</p>
                 
                 <LeadCaptureForm btnClass={ds.primaryBtn} btnText={content.hero.ctaText} />
@@ -373,9 +374,9 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
                 {/* Social Proof Section */}
                 <div className="pt-6 border-t border-gray-700/50 flex items-center justify-between">
                     <div className="flex -space-x-3">
-                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" className="w-8 h-8 rounded-full border-2 border-[#1e293b]" />
-                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" className="w-8 h-8 rounded-full border-2 border-[#1e293b]" />
-                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="User" className="w-8 h-8 rounded-full border-2 border-[#1e293b]" />
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&h=100&q=80" alt="User" className="w-8 h-8 rounded-full border-2 border-[#1e293b] object-cover" />
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80" alt="User" className="w-8 h-8 rounded-full border-2 border-[#1e293b] object-cover" />
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=100&h=100&q=80" alt="User" className="w-8 h-8 rounded-full border-2 border-[#1e293b] object-cover" />
                     </div>
                     <div className="text-right">
                         <div className="flex items-center justify-end gap-1 text-white font-bold text-lg">
@@ -472,6 +473,8 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
   // 4. Navbar with Modal Trigger
   const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false); // Mobile Menu State
+
     const baseTextColorClass = content.palette === 'minimal-mono' ? 'text-black' : 'text-white';
     // Use the specific sticky text color from design system
     const stickyTextColorClass = ds.navStickyText || 'text-gray-900'; 
@@ -523,37 +526,75 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
             ${isScrolled ? `${ds.navStickyBg} fixed top-0 left-0` : 'absolute top-0 left-0 bg-transparent border-b border-white/5 backdrop-blur-sm'}
         `}
       >
-          <div className="w-full max-w-[75em] mx-auto px-6 py-4 flex justify-between items-center">
-            <div id="logo-marca" className={`flex items-center gap-3 font-bold text-2xl tracking-tight transition-colors duration-300 ${currentTextColor}`}>
+          <div className="w-full max-w-[75em] mx-auto px-6 py-4 flex justify-between items-center relative">
+            <div id="logo-marca" className={`flex items-center gap-3 font-bold text-xl md:text-2xl tracking-tight transition-colors duration-300 ${currentTextColor}`}>
               {/* Logo en Círculo Destacado */}
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform border-2 border-white/20 ${ds.logoBg}`}>
-                 {content.brandIcon ? getIcon(content.brandIcon, <Sparkles className="w-6 h-6" />) : (
+              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform border-2 border-white/20 ${ds.logoBg}`}>
+                 {content.brandIcon ? getIcon(content.brandIcon, <Sparkles className="w-5 h-5 md:w-6 md:h-6" />) : (
                     content.logoSvg ? (
                         <div 
-                          className="w-7 h-7" 
+                          className="w-6 h-6 md:w-7 md:h-7" 
                           dangerouslySetInnerHTML={{ __html: content.logoSvg }} 
                         />
-                     ) : <Anchor className="w-6 h-6 text-current" /> 
+                     ) : <Anchor className="w-5 h-5 md:w-6 md:h-6 text-current" /> 
                  )}
               </div>
               
-              {renderBrandName(content.brandName || "Brand")}
+              <span className="truncate max-w-[150px] md:max-w-none">{renderBrandName(content.brandName || "Brand")}</span>
             </div>
             
-            <div id="enlaces-navegacion" className={`hidden md:flex gap-8 text-sm font-medium transition-colors duration-300 ${currentTextColor} opacity-90`}>
+            {/* Desktop Menu - Condicionado por isMobilePreview para ocultarlo en la vista previa movil */}
+            <div id="enlaces-navegacion" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-sm font-medium transition-colors duration-300 ${currentTextColor} opacity-90`}>
               {navLinks.map((link, i) => (
                   <a key={i} href={link.href} className="hover:opacity-100 transition">{link.label}</a>
               ))}
             </div>
             
-            <button 
-              id="cta-navbar" 
-              onClick={() => setShowModal(true)}
-              className={`px-6 py-2.5 rounded-full text-sm font-bold transition shadow-sm ${ds.primaryBtn} ${content.palette === 'minimal-mono' && !isScrolled ? '' : 'bg-white text-black hover:bg-gray-100 border-none'}`}
-            >
-              {content.navCta || "Regístrate Gratis"}
-            </button>
+            {/* Mobile Actions */}
+            <div className="flex items-center gap-2">
+                <button 
+                id="cta-navbar" 
+                onClick={() => setShowModal(true)}
+                className={`${isMobilePreview ? 'hidden' : 'hidden md:block'} px-4 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition shadow-sm ${ds.primaryBtn} ${content.palette === 'minimal-mono' && !isScrolled ? '' : 'bg-white text-black hover:bg-gray-100 border-none'}`}
+                >
+                {content.navCta || "Regístrate"}
+                </button>
+
+                {/* Hamburger Toggle (Mobile Only) - Condicionado para aparecer siempre si isMobilePreview es true */}
+                <button 
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className={`${isMobilePreview ? 'flex' : 'md:hidden flex'} items-center justify-center p-2 rounded-lg transition-colors ${currentTextColor} hover:bg-white/10`}
+                >
+                    {isMenuOpen ? <X className="w-6 h-6"/> : <Menu className="w-6 h-6"/>}
+                </button>
+            </div>
           </div>
+
+          {/* Mobile Dropdown Menu */}
+          {isMenuOpen && (
+              <div className={`${isMobilePreview ? 'flex' : 'md:hidden flex'} absolute top-full left-0 w-full ${ds.navStickyBg || 'bg-white'} border-b border-gray-100 shadow-xl p-6 flex-col gap-4 animate-in slide-in-from-top-2 z-40`}>
+                  {navLinks.map((link, i) => (
+                      <a 
+                        key={i} 
+                        href={link.href} 
+                        onClick={() => setIsMenuOpen(false)}
+                        className={`text-lg font-medium py-3 border-b border-gray-100/50 last:border-0 hover:pl-2 transition-all ${ds.navStickyText || 'text-gray-900'}`}
+                      >
+                          {link.label}
+                      </a>
+                  ))}
+                  
+                  {/* CTA en el menú móvil */}
+                  <div className="pt-4 mt-2 border-t border-gray-100/20 w-full">
+                     <button
+                        onClick={() => { setShowModal(true); setIsMenuOpen(false); }}
+                        className={`w-full py-3 rounded-xl font-bold text-center shadow-lg ${ds.primaryBtn}`}
+                     >
+                        {content.navCta || "Regístrate"}
+                     </button>
+                  </div>
+              </div>
+          )}
       </nav>
     );
   };
@@ -564,8 +605,8 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
     return (
         <footer id="pie-de-pagina" className={`${isDark ? 'bg-black border-t border-gray-900' : 'bg-gray-900 text-white border-t border-gray-800'} py-16`}>
             <div className="w-full max-w-[75em] mx-auto px-6">
-                <div className="grid md:grid-cols-4 gap-12 mb-12">
-                    <div className="col-span-2">
+                <div className={`grid gap-12 mb-12 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-4'}`}>
+                    <div className={`${isMobilePreview ? '' : 'col-span-2'}`}>
                     <div id="footer-logo" className="flex items-center gap-2 mb-4">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md border border-white/10 ${ds.logoBg}`}>
                              {content.brandIcon ? getIcon(content.brandIcon, <Sparkles className="w-5 h-5"/>) : (
@@ -716,7 +757,7 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
     <section id="seccion-introduccion" className={`py-24 relative overflow-hidden ${ds.introBg}`}>
         <BackgroundPattern />
         <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className={`grid gap-12 items-center ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
                 {/* Image Side */}
                 <div id="contenedor-imagen-intro" className="relative">
                      <div className={`absolute top-0 left-0 w-2/3 h-2/3 -translate-x-4 -translate-y-4 rounded-3xl opacity-20 ${ds.blobColor}`}></div>
@@ -796,7 +837,7 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
                 <div className={`h-1.5 w-24 rounded-full mx-auto mt-6 ${ds.blobColor}`}></div>
             </div>
             
-            <div id="grid-beneficios" className="grid md:grid-cols-3 gap-8">
+            <div id="grid-beneficios" className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.benefits.items || []).map((item, idx) => (
                     <FeatureCard key={idx} item={item} idx={idx} />
                 ))}
@@ -817,9 +858,11 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
                 </p>
             </div>
 
-            <div className="relative grid md:grid-cols-3 gap-8">
+            <div className={`relative grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                  {/* Connector Line (Desktop) - Behind cards */}
-                 <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-1 bg-gray-200 z-0 opacity-50"></div>
+                 {!isMobilePreview && (
+                     <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-1 bg-gray-200 z-0 opacity-50"></div>
+                 )}
                  
                  {/* Steps */}
                  {[
@@ -846,7 +889,7 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
          <div className={`absolute top-1/2 left-0 md:left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] opacity-30 ${ds.blobColor}`}></div>
          
          <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
-            <div className="flex flex-col md:flex-row items-center gap-12 md:gap-20">
+            <div className={`flex flex-col items-center gap-12 ${isMobilePreview ? '' : 'md:flex-row md:gap-20'}`}>
                 {/* Circular Image with Glow */}
                 <div className="relative group shrink-0">
                      {/* Ring Glow */}
@@ -871,14 +914,14 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
                 </div>
 
                 {/* Content Side */}
-                <div className="text-center md:text-left flex-1">
+                <div className={`text-center flex-1 ${isMobilePreview ? '' : 'md:text-left'}`}>
                     <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-2 opacity-80">Conoce a tu Mentora</h4>
                     <h2 className={`text-4xl md:text-6xl font-black mb-6 ${ds.accentText}`}>
                         {content.instructor.name}
                     </h2>
-                    {renderRichText(content.instructor.bio, "text-gray-300 text-lg leading-relaxed mb-8 max-w-2xl mx-auto md:mx-0 font-light")}
+                    {renderRichText(content.instructor.bio, `text-gray-300 text-lg leading-relaxed mb-8 max-w-2xl font-light ${isMobilePreview ? 'mx-auto' : 'mx-auto md:mx-0'}`)}
                     
-                    <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                    <div className={`flex flex-wrap justify-center gap-4 ${isMobilePreview ? '' : 'md:justify-start'}`}>
                         <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-full flex items-center gap-3">
                             <Users className="w-5 h-5 text-gray-400" />
                             <span className="text-white font-bold">{content.instructor.statsStudents || "5k+ Alumnos"}</span>
@@ -906,7 +949,7 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
                  </p>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className={`grid gap-6 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.testimonials || []).map((t, i) => (
                     <div key={i} className={`p-6 rounded-2xl flex flex-col gap-4 shadow-xl transition hover:-translate-y-1 backdrop-blur-sm bg-white/5 border border-white/10`}>
                         <div className="flex items-center gap-4">
@@ -959,26 +1002,26 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
     </section>
   );
 
-  // --- STRUCTURE 1: CLASSIC SALES (Redesigned) ---
+  // --- STRUCTURE 1: CLASSIC SALES (Redesigned Mobile-First) ---
   if (structure === 'classic-sales') {
     return (
       <div id="layout-ventas-clasica" className={`min-h-screen font-sans selection:bg-pink-500 selection:text-white ${ds.bg} scroll-smooth`}>
         {content.palette !== 'minimal-mono' && <Navbar />}
         <RegistrationModal />
         
-        <header id="cabecera-hero" className={`relative pt-36 pb-24 lg:pt-48 lg:pb-32 overflow-hidden ${ds.heroGradient}`}>
+        <header id="cabecera-hero" className={`relative pb-12 overflow-hidden ${ds.heroGradient} ${isMobilePreview ? 'pt-28' : 'pt-24 lg:pt-48 lg:pb-32'}`}>
           {/* Decorative Elements */}
           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] opacity-30 pointer-events-none ${ds.blobColor}`}></div>
           {content.palette === 'minimal-mono' && <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>}
 
           <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
              {/* FULL WIDTH HEADER */}
-             <div id="contenedor-titulares" className="text-center max-w-5xl mx-auto mb-16">
+             <div id="contenedor-titulares" className="text-center max-w-5xl mx-auto mb-10 lg:mb-16">
                  {/* Top Tagline / Banner */}
-                 <div id="contenedor-tagline" className="flex justify-center mb-8">
+                 <div id="contenedor-tagline" className="flex justify-center mb-6 lg:mb-8">
                      <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md ${ds.heroText} shadow-lg shadow-white/5 hover:scale-105 transition-transform duration-300`}>
                           <span className="flex h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse shadow-sm shadow-red-500"></span>
-                          <span className="text-sm font-black uppercase tracking-wider">
+                          <span className="text-xs md:text-sm font-black uppercase tracking-wider">
                               {content.topTagline || "🔥 Oferta por tiempo limitado"}
                           </span>
                       </div>
@@ -987,14 +1030,16 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
                  {/* Updated H1 Rendering with Gradient Span */}
                  {renderStyledHeadline(content.hero.headline)}
 
-                  {renderRichText(content.hero.subheadline, `text-xl md:text-2xl font-light opacity-90 max-w-3xl mx-auto leading-relaxed ${ds.heroText}`)}
+                  {renderRichText(content.hero.subheadline, `font-light opacity-90 max-w-3xl mx-auto leading-relaxed ${ds.heroText} ${isMobilePreview ? 'text-lg' : 'text-lg md:text-2xl'}`)}
              </div>
 
-             <div className="grid lg:grid-cols-12 gap-12 items-start">
-                {/* LEFT COLUMN: Benefits - Wider (7/12 = 58%) */}
-                <div id="columna-lista-beneficios" className="lg:col-span-7 text-left">
-                    {/* NEW IMAGE CARD */}
-                    <div id="tarjeta-video-clase" className="relative w-full h-[240px] rounded-2xl overflow-hidden mb-8 shadow-2xl border border-white/10 group cursor-pointer">
+             {/* MAIN CONTENT GRID - SINGLE COLUMN ON MOBILE (Also logic for preview) */}
+             <div className={`grid gap-8 items-start ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-12 lg:gap-12'}`}>
+                
+                {/* LEFT COLUMN: Benefits - Order 2 on Mobile (Content) */}
+                <div id="columna-lista-beneficios" className={`${isMobilePreview ? 'w-full order-2' : 'lg:col-span-7 text-left order-2 lg:order-1'}`}>
+                    {/* NEW IMAGE CARD - RESPONSIVE & ASPECT RATIO FIXED */}
+                    <div id="tarjeta-video-clase" className={`relative w-full aspect-video h-auto rounded-2xl overflow-hidden mb-8 shadow-2xl border border-white/10 group cursor-pointer`}>
                         <img
                             src={content.hero.heroImage || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"}
                             alt="Clase Gratuita"
@@ -1002,39 +1047,39 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90"></div>
 
-                        <div className="absolute bottom-0 left-0 w-full p-6 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-blue-500/20 backdrop-blur-md flex items-center justify-center border border-blue-400/30 group-hover:scale-110 transition-transform">
-                                 <PlayCircle className="w-6 h-6 text-blue-400 fill-blue-400/20" />
+                        <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 flex items-center gap-4">
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-500/20 backdrop-blur-md flex items-center justify-center border border-blue-400/30 group-hover:scale-110 transition-transform">
+                                 <PlayCircle className="w-5 h-5 md:w-6 md:h-6 text-blue-400 fill-blue-400/20" />
                             </div>
                             <div>
-                                <p className="text-white font-bold text-lg">{content.hero.videoTitle || "Clase Gratuita: Estrategia Exclusiva"}</p>
-                                <p className="text-gray-300 text-sm">{content.hero.videoDuration || "Duración: 45 Minutos"}</p>
+                                <p className="text-white font-bold text-base md:text-lg">{content.hero.videoTitle || "Clase Gratuita: Estrategia Exclusiva"}</p>
+                                <p className="text-gray-300 text-xs md:text-sm">{content.hero.videoDuration || "Duración: 45 Minutos"}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 shadow-lg">
-                        <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                             <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                                 {content.whatYouWillLearn.icon ? getIcon(content.whatYouWillLearn.icon, <BookOpen className="w-5 h-5 text-yellow-400" />) : <BookOpen className="w-5 h-5 text-yellow-400" />}
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8 shadow-lg">
+                        <h3 className="text-xl md:text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                             <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                                 {content.whatYouWillLearn.icon ? getIcon(content.whatYouWillLearn.icon, <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-yellow-400" />) : <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-yellow-400" />}
                              </div>
                              {content.whatYouWillLearn.title}
                         </h3>
                         <ul className="space-y-4">
                             {content.whatYouWillLearn.items.map((item, idx) => (
-                                <li key={idx} className="flex items-start gap-4 p-3 hover:bg-white/5 rounded-lg transition-colors group">
-                                    <div className={`mt-1 w-6 h-6 rounded-full flex items-center justify-center bg-gradient-to-br from-green-400 to-emerald-600 shadow-lg shadow-green-500/20 group-hover:scale-110 transition-transform`}>
-                                        <CheckCircle className="w-3.5 h-3.5 text-white" />
+                                <li key={idx} className="flex items-start gap-3 md:gap-4 p-3 hover:bg-white/5 rounded-lg transition-colors group">
+                                    <div className={`mt-0.5 md:mt-1 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center bg-gradient-to-br from-green-400 to-emerald-600 shadow-lg shadow-green-500/20 group-hover:scale-110 transition-transform shrink-0`}>
+                                        <CheckCircle className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" />
                                     </div>
-                                    <span className="text-lg text-gray-200 leading-snug">{item}</span>
+                                    <span className="text-base md:text-lg text-gray-200 leading-snug">{item}</span>
                                 </li>
                             ))}
                         </ul>
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN: CTA Form - Narrower (5/12 = 42%) */}
-                <div id="columna-formulario" className="lg:col-span-5 sticky top-24">
+                {/* RIGHT COLUMN: CTA Form - Order 1 on Mobile (Top) */}
+                <div id="columna-formulario" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-5 lg:sticky lg:top-24 order-1 lg:order-2'}`}>
                      <SmartCTA fullWidth={true} />
                 </div>
              </div>
@@ -1061,8 +1106,8 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
          <RegistrationModal />
          
          <header id="cabecera-webinar" className={`relative py-24 lg:py-32 ${ds.heroGradient}`}>
-            <div className="w-full max-w-[75em] mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
-                <div className="order-2 lg:order-1">
+            <div className={`w-full max-w-[75em] mx-auto px-6 grid gap-16 items-center ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
+                <div className={`${isMobilePreview ? 'order-2' : 'order-2 lg:order-1'}`}>
                     <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-bold mb-6`}>
                         <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span> EN VIVO
                     </div>
@@ -1095,7 +1140,7 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
                     </div>
                 </div>
 
-                <div className="order-1 lg:order-2">
+                <div className={`${isMobilePreview ? 'order-1' : 'order-1 lg:order-2'}`}>
                     <SmartCTA fullWidth={true} />
                 </div>
             </div>
@@ -1185,8 +1230,8 @@ export const LivePage: React.FC<LivePageProps> = ({ content }) => {
         
         {/* Minimal content below fold for SEO/Info */}
         <div className="bg-gray-50 py-12 border-t border-gray-200">
-            <div className="max-w-4xl mx-auto px-6 opacity-70 hover:opacity-100 transition duration-500">
-                 <div className="grid md:grid-cols-2 gap-8">
+            <div className={`max-w-4xl mx-auto px-6 opacity-70 hover:opacity-100 transition duration-500`}>
+                 <div className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
                      <div>
                          <h4 className="font-bold text-gray-900 mb-2">Sobre Nosotros</h4>
                          <p className="text-sm text-gray-500">{content.footer.copyright}</p>

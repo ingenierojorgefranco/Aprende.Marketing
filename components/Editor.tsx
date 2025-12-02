@@ -827,7 +827,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
              <div className={`bg-white shadow-2xl transition-all duration-500 ease-in-out overflow-hidden relative transform-gpu ${fullScreenPreview && previewMode === 'desktop' ? 'w-full h-full rounded-none border-0' : previewMode === 'mobile' ? 'w-[375px] h-[700px] rounded-[40px] border-[8px] border-gray-900' : 'w-full h-full rounded-lg border-[8px] border-gray-900'}`}>
                 {previewMode === 'mobile' && !fullScreenPreview && <div className="absolute top-0 left-0 w-full h-6 bg-black z-50 flex justify-center"><div className="w-20 h-4 bg-black rounded-b-xl"></div></div>}
                 <div id="preview-viewport" className="w-full h-full overflow-y-auto bg-white scrollbar-hide">
-                    <LivePage content={content} />
+                    <LivePage content={content} isMobilePreview={previewMode === 'mobile'} />
                 </div>
              </div>
         </div>
