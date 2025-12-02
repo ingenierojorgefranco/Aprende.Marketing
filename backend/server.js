@@ -19,33 +19,28 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 
 // ======================================================
-//  LOGGING BÁSICO
+//  LOGGING
 // ======================================================
 app.use((req, res, next) => {
-  console.log(`[API REQUEST] ${req.method} ${req.path}`);
+  console.log(`[API] ${req.method} ${req.path}`);
   next();
 });
 
 // ======================================================
-//  MIDDLEWARE PARA DETECTAR SUBDOMINIO (TENANT)
+//  MULTI-TENANT: DETECTAR SUBDOMINIO
 // ======================================================
 app.use((req, res, next) => {
   const host = req.hostname || req.headers.host || '';
   let tenant = null;
 
   try {
-    const base = BASE_DOMAIN;
-
-    if (!host) {
+    if (host === BASE_DOMAIN || host === `www.${BASE_DOMAIN}`) {
       tenant = null;
-    } else if (host === base || host === `www.${base}`) {
-      tenant = null;
-    } else if (host.endsWith(`.${base}`)) {
-      const withoutBase = host.slice(0, -(`.${base}`).length);
-      tenant = withoutBase.split('.')[0];
+    } else if (host.endsWith(`.${BASE_DOMAIN}`)) {
+      const sub = host.replace(`.${BASE_DOMAIN}`, '');
+      tenant = sub.split('.')[0];
     }
   } catch (e) {
-    console.error('[TENANT] Error detectando subdominio:', e);
     tenant = null;
   }
 
@@ -56,39 +51,32 @@ app.use((req, res, next) => {
 // ======================================================
 //  HELPERS AUTH
 // ======================================================
-
 const createToken = (user) => {
   const payload = {
     id: user.id,
     email: user.email,
     role: user.role || 'user',
   };
-
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 };
 
 // ======================================================
-//  RUTAS DE AUTH (REGISTRO / LOGIN / ME)
+//  AUTH: REGISTER
 // ======================================================
-
-// REGISTER
 app.post('/api/auth/register', async (req, res) => {
   const { name, email, password, role } = req.body;
 
-  if (!name || !email || !password) {
-    return res
-      .status(400)
-      .json({ error: 'Nombre, email y contraseña son obligatorios' });
-  }
+  if (!name || !email || !password)
+    return res.status(400).json({ error: 'Nombre, email y contraseña son obligatorios' });
 
   try {
     const [existing] = await pool.query(
       'SELECT id FROM users WHERE email = ?',
       [email]
     );
-    if (existing.length > 0) {
+
+    if (existing.length > 0)
       return res.status(409).json({ error: 'Ya existe un usuario con ese email' });
-    }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
@@ -106,46 +94,39 @@ app.post('/api/auth/register', async (req, res) => {
 
     const token = createToken(newUser);
 
-    res.status(201).json({
-      user: newUser,
-      token,
-    });
+    res.status(201).json({ user: newUser, token });
   } catch (error) {
-    console.error('[AUTH] Error en /register:', error);
+    console.error('[AUTH] Error register:', error);
     res.status(500).json({ error: 'Error interno en registro' });
   }
 });
 
-// LOGIN (handler reutilizable)
+// ======================================================
+//  AUTH: LOGIN
+// ======================================================
 const loginHandler = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res
-      .status(400)
-      .json({ error: 'Email y contraseña son obligatorios' });
-  }
+  if (!email || !password)
+    return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
 
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, password_hash, role, is_active FROM users WHERE email = ?',
+      'SELECT id, name, email, password_hash, role, is_active, public_subdomain FROM users WHERE email = ?',
       [email]
     );
 
-    if (rows.length === 0) {
+    if (rows.length === 0)
       return res.status(401).json({ error: 'Credenciales incorrectas' });
-    }
 
     const user = rows[0];
 
-    if (!user.is_active) {
+    if (!user.is_active)
       return res.status(403).json({ error: 'Usuario inactivo' });
-    }
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch) {
+    if (!isMatch)
       return res.status(401).json({ error: 'Credenciales incorrectas' });
-    }
 
     await pool.query('UPDATE users SET last_login_at = NOW() WHERE id = ?', [
       user.id,
@@ -156,6 +137,7 @@ const loginHandler = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      public_subdomain: user.public_subdomain
     };
 
     const token = createToken(userResponse);
@@ -165,7 +147,7 @@ const loginHandler = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error('[AUTH] Error en login:', error.message);
+    console.error('[AUTH] Error login:', error.message);
     res.status(500).json({ error: 'Error de conexión con base de datos' });
   }
 };
@@ -173,57 +155,49 @@ const loginHandler = async (req, res) => {
 app.post('/api/auth/login', loginHandler);
 app.post('/api/login', loginHandler);
 
-// GET ME
+// ======================================================
+//  AUTH: ME
+// ======================================================
 app.get('/api/auth/me', authMiddleware, async (req, res) => {
   try {
-    const { id } = req.user;
-
     const [rows] = await pool.query(
       'SELECT id, name, email, role, is_active, public_subdomain, created_at, last_login_at FROM users WHERE id = ?',
-      [id]
+      [req.user.id]
     );
 
-    if (rows.length === 0) {
+    if (rows.length === 0)
       return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
 
     res.json(rows[0]);
   } catch (error) {
-    console.error('[AUTH] Error en /me:', error);
+    console.error('[AUTH] Error me:', error);
     res.status(500).json({ error: 'Error interno en /me' });
   }
 });
 
 // ======================================================
-//  RUTA GEMINI AI
+//  GEMINI AI
 // ======================================================
-
 app.post('/api/gemini', async (req, res) => {
   try {
     const { model, contents, config } = req.body;
     const generatedText = await generateContent(model, contents, config);
     res.json({ text: generatedText });
   } catch (error) {
-    console.error('Error en /api/gemini:', error);
-    res.status(500).json({
-      error: 'Error procesando solicitud de IA',
-      details: error.message,
-    });
+    console.error('Error AI:', error);
+    res.status(500).json({ error: 'Error IA', details: error.message });
   }
 });
 
 // ======================================================
-//  RUTA PÚBLICA PARA LANDING EN SUBDOMINIO
-//  GET /api/public/pages/:slug
+//  RUTA PÚBLICA PARA LANDINGS
 // ======================================================
-
 app.get('/api/public/pages/:slug', async (req, res) => {
   const tenant = req.tenantSubdomain;
   const slug = req.params.slug;
 
-  if (!tenant) {
+  if (!tenant)
     return res.status(400).json({ error: 'No se detectó subdominio' });
-  }
 
   try {
     const [rows] = await pool.query(
@@ -239,36 +213,30 @@ app.get('/api/public/pages/:slug', async (req, res) => {
       [tenant, slug]
     );
 
-    if (rows.length === 0) {
+    if (rows.length === 0)
       return res.status(404).json({ error: 'Landing no encontrada' });
-    }
 
     const page = rows[0];
 
     if (typeof page.content === 'string') {
-      try {
-        page.content = JSON.parse(page.content);
-      } catch {}
+      try { page.content = JSON.parse(page.content); } catch {}
     }
 
     res.json(page);
   } catch (error) {
-    console.error('[PUBLIC] Error cargando landing:', error);
+    console.error('[PUBLIC] Error landing:', error);
     res.status(500).json({ error: 'Error interno cargando landing' });
   }
 });
 
 // ======================================================
-//  RUTAS PRIVADAS (LANDINGS)
+//  CRUD PRIVADO LANDINGS
 // ======================================================
-
-// GET /api/pages (solo las del usuario)
 app.get('/api/pages', authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id;
     const [rows] = await pool.query(
       'SELECT * FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC',
-      [userId]
+      [req.user.id]
     );
     res.json(rows);
   } catch (error) {
@@ -276,17 +244,17 @@ app.get('/api/pages', authMiddleware, async (req, res) => {
   }
 });
 
-// Crear landing
 app.post('/api/pages', authMiddleware, async (req, res) => {
   const { name, niche, goal, subdomain, content } = req.body;
-  const userId = req.user.id;
 
   try {
     const contentString = JSON.stringify(content);
 
     const [result] = await pool.query(
-      'INSERT INTO landing_pages (user_id, name, niche, goal, subdomain, content, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
-      [userId, name, niche, goal, subdomain, contentString, false]
+      `INSERT INTO landing_pages 
+       (user_id, name, niche, goal, subdomain, content, is_published, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [req.user.id, name, niche, goal, subdomain, contentString, false]
     );
 
     res.json({ id: result.insertId, message: 'Página creada con éxito' });
@@ -295,27 +263,24 @@ app.post('/api/pages', authMiddleware, async (req, res) => {
   }
 });
 
-// Actualizar landing
 app.put('/api/pages/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   const { content, isPublished, name, niche } = req.body;
-  const userId = req.user.id;
 
   try {
     const [check] = await pool.query(
       'SELECT id FROM landing_pages WHERE id = ? AND user_id = ?',
-      [id, userId]
+      [id, req.user.id]
     );
 
-    if (check.length === 0) {
+    if (check.length === 0)
       return res.status(403).json({ error: 'No tienes permiso para editar esta página' });
-    }
-
-    const contentString = JSON.stringify(content);
 
     await pool.query(
-      'UPDATE landing_pages SET content = ?, is_published = ?, name = COALESCE(?, name), niche = COALESCE(?, niche) WHERE id = ?',
-      [contentString, isPublished, name, niche, id]
+      `UPDATE landing_pages
+       SET content = ?, is_published = ?, name = COALESCE(?, name), niche = COALESCE(?, niche)
+       WHERE id = ?`,
+      [JSON.stringify(content), isPublished, name, niche, id]
     );
 
     res.json({ message: 'Página actualizada correctamente' });
@@ -324,38 +289,30 @@ app.put('/api/pages/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// Eliminar landing
 app.delete('/api/pages/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
-  const userId = req.user.id;
 
   try {
     const [check] = await pool.query(
       'SELECT id FROM landing_pages WHERE id = ? AND user_id = ?',
-      [id, userId]
+      [id, req.user.id]
     );
 
-    if (check.length === 0) {
+    if (check.length === 0)
       return res.status(403).json({ error: 'No tienes permiso para eliminar esta página' });
-    }
 
     await pool.query('DELETE FROM landing_pages WHERE id = ?', [id]);
-
-    res.json({ message: 'Página eliminada correctamente' });
+    res.json({ message: 'Página eliminada' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
 // ======================================================
-//  LEADS (PRIVADO + PÚBLICO PARA CAPTURAR)
+//  LEADS
 // ======================================================
-
-// Leads privados
 app.get('/api/leads', authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id;
-
     const [rows] = await pool.query(
       `
       SELECT l.*, p.name AS page_name
@@ -364,16 +321,14 @@ app.get('/api/leads', authMiddleware, async (req, res) => {
       WHERE p.user_id = ?
       ORDER BY l.captured_at DESC
       `,
-      [userId]
+      [req.user.id]
     );
-
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Captura pública de lead
 app.post('/api/leads', async (req, res) => {
   const { pageId, name, email } = req.body;
 
@@ -397,16 +352,12 @@ app.post('/api/leads', async (req, res) => {
 // ======================================================
 //  ARTÍCULOS
 // ======================================================
-
 app.get('/api/articles', authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id;
-
     const [rows] = await pool.query(
       'SELECT * FROM articles WHERE user_id = ? ORDER BY created_at DESC',
-      [userId]
+      [req.user.id]
     );
-
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -415,12 +366,12 @@ app.get('/api/articles', authMiddleware, async (req, res) => {
 
 app.post('/api/articles', authMiddleware, async (req, res) => {
   const { title, description, content_html, keyword, seo_score } = req.body;
-  const userId = req.user.id;
 
   try {
     const [result] = await pool.query(
-      'INSERT INTO articles (user_id, title, description, content_html, keyword, seo_score, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
-      [userId, title, description, content_html, keyword, seo_score]
+      `INSERT INTO articles (user_id, title, description, content_html, keyword, seo_score, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, NOW())`,
+      [req.user.id, title, description, content_html, keyword, seo_score]
     );
 
     res.json({ id: result.insertId, message: 'Artículo guardado' });
@@ -430,7 +381,7 @@ app.post('/api/articles', authMiddleware, async (req, res) => {
 });
 
 // ======================================================
-//  ENDPOINT DE TESTEO DE DB
+//  HEALTH + TEST DB
 // ======================================================
 app.get('/api/test-db', async (req, res) => {
   try {
@@ -441,32 +392,25 @@ app.get('/api/test-db', async (req, res) => {
   }
 });
 
-// ======================================================
-//  HEALTH CHECK PARA CLOUD RUN
-// ======================================================
-app.get('/healthz', (req, res) => {
-  res.status(200).send('OK');
-});
+app.get('/healthz', (req, res) => res.status(200).send('OK'));
 
 // ======================================================
-//  SERVIR FRONTEND COMPILADO (SPA React)
+//  SERVIR FRONTEND
 // ======================================================
 const frontendDistPath = path.join(__dirname, '..', 'dist');
 app.use(express.static(frontendDistPath));
 
 app.get('*', (req, res) => {
-  // Si es una ruta de API inexistente
-  if (req.path.startsWith('/api')) {
-    return res.status(404).json({ error: 'API Endpoint Not Found' });
-  }
+  if (req.path.startsWith('/api'))
+    return res.status(404).json({ error: 'API Not Found' });
 
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
 // ======================================================
-//  INCIO DEL SERVIDOR
+//  START SERVER
 // ======================================================
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor escuchando en puerto ${PORT}`);
-  console.log(`🌍 Dominio base: ${BASE_DOMAIN}`);
+  console.log(`🚀 Servidor listo en puerto ${PORT}`);
+  console.log(`🌍 Dominio base multi-tenant: ${BASE_DOMAIN}`);
 });
