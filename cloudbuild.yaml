@@ -13,17 +13,17 @@ steps:
       - "push"
       - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/plataformadeventacom/plataformadeventacom:$SHORT_SHA"
 
-  # 3) Deploy SIEMPRE a Cloud Run en europe-west1 (Bélgica)
+  # 3) Deploy a Cloud Run en europe-west1 (OJO: región cambiada)
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: gcloud
     args:
       - "run"
       - "deploy"
-      - "aprende-marketing-app"   # <--- nuevo servicio "bueno"
+      - "plataformadeventacom"   # mismo nombre de servicio
       - "--image"
       - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/plataformadeventacom/plataformadeventacom:$SHORT_SHA"
       - "--region"
-      - "europe-west1"            # <--- región que SÍ permite dominios
+      - "europe-west1"           # <- ANTES era europe-southwest1
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
