@@ -16,10 +16,14 @@ import { api } from './services/api';
 import { getCurrentUser, logout } from './services/auth';
 
 // --- WRAPPER FOR EDITOR TO HANDLE URL PARAMS ---
-const EditorRouteWrapper: React.FC<{ 
+// Using regular function instead of React.FC to avoid implicit children requirement in some TS configs
+const EditorRouteWrapper = ({ 
+  pages, 
+  onSave 
+}: { 
   pages: LandingPage[], 
   onSave: (p: LandingPage) => Promise<void> 
-}> = ({ pages, onSave }) => {
+}) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   // Ensure pages are loaded before finding

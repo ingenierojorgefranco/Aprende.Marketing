@@ -195,14 +195,17 @@ app.post('/api/gemini', async (req, res) => {
 });
 
 // ======================================================
-//  RUTAS API EXISTENTES
+//  RUTAS API EXISTENTES (PROTEGIDAS)
 // ======================================================
 
-// 2. LANDING PAGES
-app.get('/api/pages', async (req, res) => {
+// 2. LANDING PAGES (Protegido por authMiddleware)
+// Obtener solo las páginas del usuario logueado
+app.get('/api/pages', authMiddleware, async (req, res) => {
   try {
+    const userId = req.user.id;
     const [rows] = await pool.query(
-      'SELECT * FROM landing_pages ORDER BY created_at DESC'
+      'SELECT * FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC',
+      [userId]
     );
     res.json(rows);
   } catch (error) {
@@ -211,45 +214,67 @@ app.get('/api/pages', async (req, res) => {
   }
 });
 
-app.post('/api/pages', async (req, res) => {
-  const { name, niche, goal, subdomain, content, userId } = req.body;
+// Crear página asociada al usuario logueado
+app.post('/api/pages', authMiddleware, async (req, res) => {
+  const { name, niche, goal, subdomain, content } = req.body;
+  const userId = req.user.id; // Obtenido del token
+
   try {
+    // Content se guarda como JSON string. La base de datos puede ser JSON type o LONGTEXT.
+    const contentString = JSON.stringify(content);
+    
     const [result] = await pool.query(
-      'INSERT INTO landing_pages (user_id, name, niche, goal, subdomain, content, is_published) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [userId || 1, name, niche, goal, subdomain, JSON.stringify(content), false]
+      'INSERT INTO landing_pages (user_id, name, niche, goal, subdomain, content, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
+      [userId, name, niche, goal, subdomain, contentString, false]
     );
-    res.json({ id: result.insertId, message: 'Página creada' });
+    res.json({ id: result.insertId, message: 'Página creada con éxito' });
   } catch (error) {
     console.error('Error creating page:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-app.put('/api/pages/:id', async (req, res) => {
+// Actualizar página (verificando propiedad)
+app.put('/api/pages/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
-  const { content, isPublished } = req.body;
+  const { content, isPublished, name, niche } = req.body; // Añadido name y niche para updates completos
+  const userId = req.user.id;
+
   try {
+    // Primero verificamos que la página pertenezca al usuario
+    const [check] = await pool.query('SELECT id FROM landing_pages WHERE id = ? AND user_id = ?', [id, userId]);
+    if (check.length === 0) {
+        return res.status(403).json({ error: 'No tienes permiso para editar esta página o no existe' });
+    }
+
+    const contentString = JSON.stringify(content);
+    
+    // Actualizamos
     await pool.query(
-      'UPDATE landing_pages SET content = ?, is_published = ? WHERE id = ?',
-      [JSON.stringify(content), isPublished, id]
+      'UPDATE landing_pages SET content = ?, is_published = ?, name = COALESCE(?, name), niche = COALESCE(?, niche) WHERE id = ?',
+      [contentString, isPublished, name, niche, id]
     );
-    res.json({ message: 'Página actualizada' });
+    res.json({ message: 'Página actualizada correctamente' });
   } catch (error) {
     console.error('Error updating page:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// 3. LEADS
-app.get('/api/leads', async (req, res) => {
+// 3. LEADS (Público para capturar, Protegido para leer)
+app.get('/api/leads', authMiddleware, async (req, res) => {
   try {
+    const userId = req.user.id;
+    // Obtener leads solo de las páginas que pertenecen al usuario
     const [rows] = await pool.query(
       `
       SELECT l.*, p.name as page_name 
       FROM leads l 
-      LEFT JOIN landing_pages p ON l.page_id = p.id 
+      JOIN landing_pages p ON l.page_id = p.id 
+      WHERE p.user_id = ?
       ORDER BY l.captured_at DESC
-    `
+      `,
+      [userId]
     );
     res.json(rows);
   } catch (error) {
@@ -257,11 +282,12 @@ app.get('/api/leads', async (req, res) => {
   }
 });
 
+// Endpoint público para que el formulario de la landing page guarde el lead
 app.post('/api/leads', async (req, res) => {
   const { pageId, name, email } = req.body;
   try {
     await pool.query(
-      'INSERT INTO leads (page_id, name, email) VALUES (?, ?, ?)',
+      'INSERT INTO leads (page_id, name, email, captured_at) VALUES (?, ?, ?, NOW())',
       [pageId, name, email]
     );
     await pool.query(
@@ -270,15 +296,18 @@ app.post('/api/leads', async (req, res) => {
     );
     res.json({ message: 'Lead capturado' });
   } catch (error) {
+    console.error("Error capturando lead:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// 4. ARTÍCULOS
-app.get('/api/articles', async (req, res) => {
+// 4. ARTÍCULOS (Protegido)
+app.get('/api/articles', authMiddleware, async (req, res) => {
   try {
+    const userId = req.user.id;
     const [rows] = await pool.query(
-      'SELECT * FROM articles ORDER BY created_at DESC'
+      'SELECT * FROM articles WHERE user_id = ? ORDER BY created_at DESC',
+      [userId]
     );
     res.json(rows);
   } catch (error) {
@@ -286,12 +315,13 @@ app.get('/api/articles', async (req, res) => {
   }
 });
 
-app.post('/api/articles', async (req, res) => {
-  const { title, description, content_html, keyword, seo_score, user_id } = req.body;
+app.post('/api/articles', authMiddleware, async (req, res) => {
+  const { title, description, content_html, keyword, seo_score } = req.body;
+  const userId = req.user.id;
   try {
     const [result] = await pool.query(
-      'INSERT INTO articles (user_id, title, description, content_html, keyword, seo_score) VALUES (?, ?, ?, ?, ?, ?)',
-      [user_id || 1, title, description, content_html, keyword, seo_score]
+      'INSERT INTO articles (user_id, title, description, content_html, keyword, seo_score, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+      [userId, title, description, content_html, keyword, seo_score]
     );
     res.json({ id: result.insertId, message: 'Artículo guardado' });
   } catch (error) {

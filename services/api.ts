@@ -155,7 +155,6 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
 
     try {
         // Implementar Promise.race para timeout efectivo de 3 segundos
-        // Si el backend se cuelga, esto cortará la conexión y forzará el catch
         const timeoutPromise = new Promise((_, reject) => 
             setTimeout(() => reject(new Error("Timeout: Servidor tardó demasiado")), 3000)
         );
@@ -165,7 +164,6 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
         const res = await Promise.race([fetchPromise, timeoutPromise]) as Response;
 
         if (!res.ok) {
-            // Intentar leer el error
             let errorMsg = res.statusText;
             try {
                 const errBody = await res.json();
@@ -187,11 +185,19 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     }
 };
 
+// --- HELPER PARA HEADERS CON TOKEN ---
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('plataformadeventacom_token');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : ''
+    };
+};
+
 export const api = {
   getBaseUrl: getBaseUrl,
   isUsingMockData: () => isOfflineMode || FORCE_MOCK_DATA,
 
-  // --- NUEVA FUNCIÓN LOGIN ---
   login: async (email: string, password: string, logCallback?: (msg: string) => void): Promise<User> => {
       const log = (msg: string) => { if (logCallback) logCallback(msg); console.log(msg); };
 
@@ -200,21 +206,29 @@ export const api = {
       try {
           // Intentar conexión real
           log(`[API] Fetching: /api/login`);
-          const user = await fetchWithFallback('/login', {
+          const user = await fetchWithFallback('/auth/login', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email, password })
           });
           
-          log(`[API] Login exitoso. Usuario: ${user.name}`);
-          return user;
+          log(`[API] Login exitoso. Usuario: ${user.user.name}`);
+          
+          // IMPORTANTE: Guardar token aquí si el componente no lo hace, 
+          // pero auth.ts ya lo maneja. Asumimos que esta llamada viene de un contexto 
+          // que guarda el token (services/auth.ts).
+          // Sin embargo, para api.ts puro, la respuesta trae { user, token }.
+          if (user.token) {
+              localStorage.setItem('plataformadeventacom_token', user.token);
+          }
+          
+          return user.user;
 
       } catch (error: any) {
           log(`[API] Error de conexión: ${error.message}`);
           
           // FALLBACK OFFLINE DURO
-          // Si el usuario es el demo, permitimos entrar aunque no haya BD
-          if (email === 'admin@plataformadeventa.com' && password === 'password123') {
+          if (email === 'admin@plataformadeventa.com' && password === 'MiPasswordSuperSegura123') {
               log(`[OFFLINE] Credenciales demo detectadas. Activando modo offline de emergencia.`);
               isOfflineMode = true;
               return {
@@ -230,13 +244,17 @@ export const api = {
 
   getPages: async (): Promise<LandingPage[]> => {
     try {
-        const pages = await fetchWithFallback('/pages');
+        const pages = await fetchWithFallback('/pages', {
+            method: 'GET',
+            headers: getAuthHeaders()
+        });
         return pages.map((p: any) => ({
             ...p,
             content: typeof p.content === 'string' ? JSON.parse(p.content) : p.content,
             createdAt: new Date(p.created_at || p.createdAt)
         }));
     } catch (e) {
+        console.warn("Usando páginas mock por error de red.");
         return [...mockPages];
     }
   },
@@ -245,18 +263,18 @@ export const api = {
     try {
         const data = await fetchWithFallback('/pages', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify({
                 name: page.name,
                 niche: page.niche,
                 goal: page.goal,
                 subdomain: page.subdomain,
-                content: page.content,
-                userId: 1
+                content: page.content // El backend hará JSON.stringify
             })
         });
         return { ...page, id: data.id.toString() };
     } catch (e) {
+        console.warn("Guardando página en mock temporalmente.");
         const newPage = { ...page, id: Date.now().toString() };
         mockPages.push(newPage);
         return newPage;
@@ -267,8 +285,10 @@ export const api = {
     try {
         await fetchWithFallback(`/pages/${page.id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify({
+                name: page.name,
+                niche: page.niche,
                 content: page.content,
                 isPublished: page.isPublished
             })
@@ -282,7 +302,9 @@ export const api = {
 
   getLeads: async (): Promise<Lead[]> => {
       try {
-          return await fetchWithFallback('/leads');
+          return await fetchWithFallback('/leads', {
+              headers: getAuthHeaders()
+          });
       } catch (e) {
           return [];
       }
@@ -302,7 +324,9 @@ export const api = {
 
   getArticles: async (): Promise<Article[]> => {
       try {
-          const articles = await fetchWithFallback('/articles');
+          const articles = await fetchWithFallback('/articles', {
+              headers: getAuthHeaders()
+          });
           return articles.map((a: any) => ({
               id: a.id.toString(),
               title: a.title,
@@ -321,14 +345,13 @@ export const api = {
       try {
           const saved = await fetchWithFallback('/articles', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: getAuthHeaders(),
               body: JSON.stringify({
                   title: article.title,
                   description: article.description,
                   content_html: article.contentHtml,
                   keyword: article.keyword,
-                  seo_score: article.seoScore,
-                  user_id: 1
+                  seo_score: article.seoScore
               })
           });
           return { 

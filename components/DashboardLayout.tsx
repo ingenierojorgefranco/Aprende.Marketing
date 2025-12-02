@@ -17,11 +17,11 @@ type MenuItem = {
   subItems?: { label: string; path: string; icon?: any }[];
 };
 
-export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
+export const DashboardLayout = ({
   user,
   onLogout,
   isOffline,
-}) => {
+}: DashboardLayoutProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMenu, setExpandedMenu] = useState<string | null>('mid-landing');
   const location = useLocation();
