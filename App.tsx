@@ -329,7 +329,7 @@ const App: React.FC = () => {
     if (user && location.pathname.startsWith('/dashboard')) {
       loadData();
     }
-  }, [user, location.pathname]);
+  }, [user, location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
     if (myPages.length > 0) return;
@@ -465,8 +465,7 @@ const App: React.FC = () => {
     <>
     <Routes>
       {/* RUTA PÚBLICA PARA LANDING EN SUBDOMINIO */}
-      //<Route path="/lp/:slug" element={<PublicLandingView />} />
-      import { PublicLandingView } from './components/PublicLandingView';
+      <Route path="/lp/:slug" element={<PublicLandingView />} />
 
       {/* RUTAS PÚBLICAS */}
       <Route path="/" element={<PublicHome user={user} onLogout={handleLogout} />} />
