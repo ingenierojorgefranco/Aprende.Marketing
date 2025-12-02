@@ -1,4 +1,5 @@
 steps:
+  # 1) Build de la imagen
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "build"
@@ -6,24 +7,28 @@ steps:
       - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/plataformadeventacom/plataformadeventacom:$SHORT_SHA"
       - "."
 
+  # 2) Push a Artifact Registry
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
       - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/plataformadeventacom/plataformadeventacom:$SHORT_SHA"
 
+  # 3) Deploy SIEMPRE a Cloud Run en europe-west1 (Bélgica)
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: gcloud
     args:
       - "run"
       - "deploy"
-      - "plataformadeventacom"
+      - "aprende-marketing-app"   # <--- nuevo servicio "bueno"
       - "--image"
       - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/plataformadeventacom/plataformadeventacom:$SHORT_SHA"
       - "--region"
-      - "europe-southwest1"
+      - "europe-west1"            # <--- región que SÍ permite dominios
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
+      - "--add-cloudsql-instances"
+      - "gen-lang-client-0436624801:europe-southwest1:plataformadeventacom-sql"
 
 images:
   - "europe-southwest1-docker.pkg.dev/$PROJECT_ID/plataformadeventacom/plataformadeventacom:$SHORT_SHA"
