@@ -465,7 +465,8 @@ const App: React.FC = () => {
     <>
     <Routes>
       {/* RUTA PÚBLICA PARA LANDING EN SUBDOMINIO */}
-      <Route path="/lp/:slug" element={<PublicLandingView />} />
+      //<Route path="/lp/:slug" element={<PublicLandingView />} />
+      import { PublicLandingView } from './components/PublicLandingView';
 
       {/* RUTAS PÚBLICAS */}
       <Route path="/" element={<PublicHome user={user} onLogout={handleLogout} />} />
