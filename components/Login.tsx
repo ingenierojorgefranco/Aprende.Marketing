@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, Lock, Loader2, AlertCircle, Database, WifiOff } from 'lucide-react';
 import { User } from '../types';
@@ -11,8 +12,8 @@ interface LoginProps {
 type LoginMode = 'db' | 'offline';
 
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const [email, setEmail] = useState('admin@plataformadeventa.com');
-  const [password, setPassword] = useState('MiPasswordSuperSegura123'); // la que usaste al registrar
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<LoginMode>('db'); 
@@ -37,7 +38,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       const offlineUser: User = {
         id: 'offline-demo',
         name: 'Usuario Demo (Offline)',
-        email,
+        email: email || 'demo@offline.com',
       };
       
       onLogin(offlineUser);
@@ -75,7 +76,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     const offlineUser: User = {
       id: 'force-off',
       name: 'Demo User (Forzado)',
-      email,
+      email: email || 'forced@demo.com',
     };
     onLogin(offlineUser);
     navigate('/dashboard');
@@ -154,6 +155,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
               required
               disabled={loading}
+              placeholder="admin@ejemplo.com"
             />
           </div>
           <div>
@@ -167,6 +169,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
               required
               disabled={loading}
+              placeholder="••••••••"
             />
           </div>
           <button
