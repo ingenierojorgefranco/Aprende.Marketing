@@ -3,56 +3,98 @@ import { useParams } from "react-router-dom";
 import { LandingPage } from "../types";
 import { Loader2, AlertTriangle } from "lucide-react";
 
-// Helper robusto para obtener la URL base de la API
-const getApiBaseUrl = () => {
-  // 1. Prioridad: Variable de entorno VITE_API_URL
-  const envUrl = (import.meta as any).env?.VITE_API_URL;
-  if (envUrl) {
-    // Asegurar que no termine en slash
-    const cleanUrl = envUrl.replace(/\/$/, '');
-    // Si ya termina en /api, devolverlo tal cual
-    if (cleanUrl.endsWith('/api')) return cleanUrl;
-    // Si no, agregar /api
-    return `${cleanUrl}/api`;
-  }
-  
-  // 2. Fallback: URL relativa si estamos en el mismo dominio
-  return "/api";
+// Forzamos API en el mismo dominio bajo /api
+const API_BASE = "/api";
+
+type DebugInfo = {
+  endpoint: string;
+  status?: number;
+  contentType?: string | null;
+  rawBodySnippet?: string;
+  userSlug?: string;
+  slug?: string;
 };
 
-const API_BASE = getApiBaseUrl();
-
 export const PublicLandingView: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug, userSlug } = useParams<{ slug: string; userSlug?: string }>();
+
   const [page, setPage] = useState<LandingPage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [debug, setDebug] = useState<DebugInfo | null>(null);
 
   useEffect(() => {
     const fetchPage = async () => {
       if (!slug) {
         setError("Slug no proporcionado.");
         setLoading(false);
+        setDebug({
+          endpoint: "(no se llamó API porque no hay slug)",
+          userSlug,
+          slug,
+        });
         return;
       }
+
+      // Construimos endpoint según si hay userSlug
+      const endpoint = userSlug
+        ? `${API_BASE}/public/pages/by-user/${encodeURIComponent(
+            userSlug
+          )}/${encodeURIComponent(slug)}`
+        : `${API_BASE}/public/pages/${encodeURIComponent(slug)}`;
+
+      console.log("[PublicLandingView] userSlug:", userSlug, "slug:", slug);
+      console.log("[PublicLandingView] Fetching:", endpoint);
 
       try {
         setLoading(true);
         setError(null);
+        setDebug({
+          endpoint,
+          userSlug,
+          slug,
+        });
 
-        const res = await fetch(`${API_BASE}/public/pages/${slug}`);
+        const res = await fetch(endpoint);
 
         const contentType = res.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") === -1) {
-             throw new Error("La respuesta del servidor no es JSON (posible error de ruta API).");
+        let rawSnippet = "";
+
+        // Intentamos leer texto SI hay error o content-type sospechoso
+        if (!res.ok || !contentType || !contentType.includes("application/json")) {
+          try {
+            const raw = await res.text();
+            rawSnippet = raw.slice(0, 400); // solo los primeros 400 chars
+          } catch {
+            rawSnippet = "(no se pudo leer el cuerpo de la respuesta)";
+          }
+
+          const debugInfo: DebugInfo = {
+            endpoint,
+            status: res.status,
+            contentType,
+            rawBodySnippet: rawSnippet,
+            userSlug,
+            slug,
+          };
+          console.error("[PublicLandingView] Error response debug:", debugInfo);
+          setDebug(debugInfo);
         }
 
         if (!res.ok) {
           if (res.status === 404) {
             setError("Landing no encontrada o no publicada.");
+          } else if (res.status === 400) {
+            setError("Configuración de dominio o usuario inválida.");
           } else {
-            setError(`Error cargando landing (HTTP ${res.status})`);
+            setError(`Error cargando landing (HTTP ${res.status}).`);
           }
+          setLoading(false);
+          return;
+        }
+
+        if (!contentType || !contentType.includes("application/json")) {
+          setError("La API devolvió una respuesta no válida (no es JSON).");
           setLoading(false);
           return;
         }
@@ -76,16 +118,34 @@ export const PublicLandingView: React.FC = () => {
         };
 
         setPage(normalized);
+        // Si todo salió bien, mantenemos algo de debug básico
+        setDebug((prev) => ({
+          ...(prev || {}),
+          endpoint,
+          status: res.status,
+          contentType,
+          userSlug,
+          slug,
+        }));
       } catch (e: any) {
         console.error("Error cargando landing pública:", e);
-        setError("No se pudo cargar la página. Verifica la conexión.");
+        setError("Error interno cargando la landing.");
+        setDebug((prev) => ({
+          ...(prev || {}),
+          endpoint,
+          userSlug,
+          slug,
+          rawBodySnippet:
+            (prev && prev.rawBodySnippet) ||
+            "Error de red o fallo inesperado en fetch.",
+        }));
       } finally {
         setLoading(false);
       }
     };
 
     fetchPage();
-  }, [slug]);
+  }, [slug, userSlug]);
 
   if (loading) {
     return (
@@ -104,6 +164,48 @@ export const PublicLandingView: React.FC = () => {
         <p className="text-gray-400 mb-4">
           {error || "Landing no disponible."}
         </p>
+
+        {/* Bloque de debug visible para ti */}
+        {debug && (
+          <div className="mt-6 w-full max-w-3xl text-left">
+            <div className="text-xs uppercase tracking-widest text-gray-500 mb-2">
+              DEBUG TÉCNICO (solo para desarrollo)
+            </div>
+            <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 overflow-x-auto text-xs font-mono text-gray-200">
+              <p>
+                <span className="text-gray-500">userSlug:</span>{" "}
+                {debug.userSlug || "(sin userSlug en URL)"}
+              </p>
+              <p>
+                <span className="text-gray-500">slug:</span>{" "}
+                {debug.slug || "(sin slug en URL)"}
+              </p>
+              <p className="mt-2">
+                <span className="text-gray-500">endpoint:</span>{" "}
+                {debug.endpoint}
+              </p>
+              {typeof debug.status !== "undefined" && (
+                <p>
+                  <span className="text-gray-500">status:</span> {debug.status}
+                </p>
+              )}
+              {typeof debug.contentType !== "undefined" && (
+                <p>
+                  <span className="text-gray-500">content-type:</span>{" "}
+                  {debug.contentType || "(vacío)"}
+                </p>
+              )}
+              {debug.rawBodySnippet && (
+                <>
+                  <p className="mt-3 text-gray-500">respuesta (snippet):</p>
+                  <pre className="mt-1 whitespace-pre-wrap break-words">
+                    {debug.rawBodySnippet}
+                  </pre>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
