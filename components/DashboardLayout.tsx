@@ -1,6 +1,8 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { User } from '../types';
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 
 interface DashboardLayoutProps {
@@ -33,6 +35,15 @@ export const DashboardLayout = ({
       label: 'Panel Principal', 
       icon: LayoutDashboard, 
       path: '/dashboard'
+    },
+    {
+      id: 'projects',
+      label: 'Mis Proyectos',
+      icon: Briefcase,
+      subItems: [
+        { label: 'Ver Proyectos', path: '/dashboard/projects', icon: List },
+        { label: 'Crear Proyecto', path: '/dashboard/projects/create', icon: Plus }
+      ]
     },
     {
       id: 'mid-landing',

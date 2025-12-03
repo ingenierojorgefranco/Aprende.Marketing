@@ -1,4 +1,5 @@
 
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -35,7 +36,28 @@ const initDb = async () => {
         UNIQUE KEY unique_page_date (page_id, date)
       )
     `);
-    console.log("✅ [DB] Tabla 'daily_analytics' verificada/creada.");
+
+    // Tabla de Proyectos (Nueva Estrategia)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS projects (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        niche VARCHAR(255),
+        description TEXT,
+        target_audience TEXT,
+        brand_tone VARCHAR(100),
+        product_name VARCHAR(255),
+        main_goal VARCHAR(255),
+        pain_points JSON,
+        key_benefits JSON,
+        affiliate_links JSON,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+
+    console.log("✅ [DB] Tablas 'daily_analytics' y 'projects' verificadas.");
   } catch (err) {
     console.error("⚠️ [DB] Error verificando tablas:", err.message);
   }
@@ -223,6 +245,54 @@ app.post('/api/gemini', async (req, res) => {
   } catch (error) {
     console.error('Error AI:', error);
     res.status(500).json({ error: 'Error IA', details: error.message });
+  }
+});
+
+// ======================================================
+//  PROYECTOS (NUEVO MODULO)
+// ======================================================
+app.get('/api/projects', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM projects WHERE user_id = ? ORDER BY created_at DESC',
+      [req.user.id]
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('[PROJECTS] Error fetching:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/projects', authMiddleware, async (req, res) => {
+  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks } = req.body;
+
+  try {
+    const [result] = await pool.query(
+      `INSERT INTO projects 
+       (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [
+        req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, 
+        JSON.stringify(painPoints || []), 
+        JSON.stringify(keyBenefits || []), 
+        JSON.stringify(affiliateLinks || [])
+      ]
+    );
+    res.json({ id: result.insertId, message: 'Proyecto creado con éxito' });
+  } catch (error) {
+    console.error('[PROJECTS] Error creating:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/projects/:id', authMiddleware, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM projects WHERE id = ? AND user_id = ?', [id, req.user.id]);
+    res.json({ message: 'Proyecto eliminado' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

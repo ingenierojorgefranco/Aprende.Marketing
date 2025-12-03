@@ -1,6 +1,6 @@
 
 
-import { LandingPage, Lead, GeneratedPageContent, Article, User } from "../types";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project } from "../types";
 
 // --- HELPER PARA OBTENER BASE URL ---
 const getBaseUrl = () => {
@@ -27,122 +27,10 @@ const API_URL = getBaseUrl();
 const FORCE_MOCK_DATA = false;
 let isOfflineMode = false;
 
-// --- MOCK DATA (CONTENIDO DEMO - ESPECIALISTA EN MICROBLADING 2.0) ---
-let mockPages: LandingPage[] = [
-    {
-        id: 'demo-microblading-2',
-        name: 'Especialista en Microblading 2.0',
-        niche: 'Belleza y Estética',
-        goal: 'Registro a Clase / Captación',
-        isPublished: true,
-        subdomain: 'especialista-cejas.plataformadeventa.com',
-        visits: 1250,
-        conversions: 315,
-        createdAt: new Date(),
-        content: {
-            palette: 'elegant-purple',
-            structure: 'classic-sales',
-            targetAudience: 'Mujeres emprendedoras que buscan independencia financiera en el mundo de la belleza.',
-            destination: { type: 'form' },
-            brandName: 'Brow<b>Master</b> 2.0',
-            brandIcon: 'Feather',
-            topTagline: '🔥 Nueva Certificación 2024 - Cupos Limitados',
-            navCta: 'Reservar Beca',
-            navLinks: [
-                { label: 'La Técnica 2.0', href: '#seccion-introduccion' },
-                { label: 'Beneficios', href: '#seccion-beneficios' },
-                { label: 'Resultados', href: '#seccion-testimonios' },
-                { label: 'Tu Mentora', href: '#seccion-instructor' }
-            ],
-            testimonialTitle: 'Historias de éxito real:',
-            testimonialSubtitle: 'Ellas pasaron de cero a expertas en menos de 30 días.',
-            logoSvg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#d8b4fe;stop-opacity:1" /><stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" /></linearGradient></defs><path d="M32 2C15.4 2 2 15.4 2 32s13.4 30 30 30 30-13.4 30-30S48.6 2 32 2zm0 56C17.6 58 6 46.4 6 32S17.6 6 32 6s26 11.6 26 26-11.6 26-26 26z" fill="url(#grad1)"/><path d="M32 14c-6.6 0-12 5.4-12 12 0 4.8 2.8 9 7 11v9c0 1.1.9 2 2 2h6c1.1 0 2-.9 2-2v-9c4.2-2 7-6.2 7-11 0-6.6-5.4-12-12-12zm0 20c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="#fff"/></svg>',
-            hero: { 
-                headline: 'Conviértete en <b>Especialista en Microblading</b> y Genera Altos Ingresos', 
-                subheadline: 'Descubre la metodología exacta para dominar el diseño de cejas hiper-realistas. Sin necesidad de experiencia previa y con baja inversión inicial.', 
-                ctaText: '¡Regístrate a la Clase Gratis!',
-                heroImage: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-                videoTitle: 'Técnica Pelo a Pelo 2.0',
-                videoDuration: 'Ver Demo (12 Min)',
-                spotsLeft: '¡Solo 4 Becas Disponibles!',
-                socialProofCount: '3,102'
-            },
-            intro: { 
-                title: '¿Por qué especializarte en Microblading ahora?', 
-                description: 'La industria de la belleza permanente ha crecido un 300% este año, convirtiéndose en una de las profesiones mejor pagadas del sector estético. Nuestra técnica 2.0 se enfoca en la naturalidad extrema, lo que los clientes realmente buscan hoy.',
-                items: [
-                    { title: 'Acabado Natural', description: 'Trazos finos que imitan el vello real a la perfección.' },
-                    { title: 'Durabilidad', description: 'Resultados perfectos por 12 a 18 meses.' },
-                    { title: 'Seguridad', description: 'Técnica no invasiva que protege la piel del cliente.' }
-                ]
-            },
-            benefits: { 
-                title: 'Tu Camino al Éxito Profesional', 
-                subtitle: 'Hemos diseñado este programa para darte todo lo que necesitas para triunfar:',
-                items: [
-                    { title: 'Alta Rentabilidad', description: 'Genera entre $150 y $400 USD por cada cliente atendido.', icon: 'DollarSign', color: 'green' },
-                    { title: 'Técnica Actualizada', description: 'Aprende el patrón Hyper-Realism que es tendencia mundial.', icon: 'Sparkles', color: 'purple' },
-                    { title: 'Libertad Total', description: 'Tú decides cuándo trabajar y cuánto ganar.', icon: 'Target', color: 'orange' },
-                    { title: 'Certificación Avalada', description: 'Diploma profesional con validez internacional.', icon: 'Award', color: 'blue' }
-                ] 
-            },
-            whatYouWillLearn: { 
-                title: 'Temario del Entrenamiento:',
-                icon: 'BookOpen',
-                items: [
-                    'Introducción a la Piel y Anatomía',
-                    'Visajismo y Diseño de Cejas',
-                    'Colorimetría Aplicada (Tonos y Pigmentos)',
-                    'Práctica en Látex (Patrones)',
-                    'Procedimiento en Modelo Real',
-                    'Cuidados, Cicatrización y Retoques',
-                    'Marketing para Conseguir Clientes en Instagram'
-                ] 
-            },
-            testimonials: [
-                { name: 'Camila Torres', location: 'México DF', text: 'En solo 2 meses ya tengo mi agenda llena. El curso pagó mi inversión en la primera semana.', rating: 5 },
-                { name: 'Sofia R.', location: 'Medellín', text: 'Me encantó la pedagogía. Laura explica todo con mucha paciencia y detalle. La naturalidad es increíble.', rating: 5 },
-                { name: 'Elena García', location: 'Madrid', text: 'Había tomado otros cursos pero ninguno como este. Ahora me siento segura trabajando con clientes reales.', rating: 5 }
-            ],
-            faq: [
-                { question: "¿Necesito saber dibujar para aprender?", answer: "No. Usamos herramientas de medición y plantillas de diseño que facilitan el proceso para cualquier persona." },
-                { question: "¿Cuánto puedo ganar como especialista?", answer: "Una sesión promedio cuesta $200 USD. Con solo 3 clientes a la semana, superas los $2,000 USD mensuales fácilmente." },
-                { question: "¿El curso es 100% online?", answer: "Sí, tienes acceso de por vida a las lecciones en video HD para verlas a tu ritmo y repetir las veces que quieras." },
-                { question: "¿Incluye certificación?", answer: "Sí, al finalizar y aprobar tus prácticas recibirás tu diploma digital listo para imprimir." }
-            ],
-            instructor: { 
-                name: 'Laura Sofía Méndez', 
-                bio: 'Master Internacional en Micropigmentación con más de 10 años de experiencia. Ha formado a más de 3,000 alumnas en Latinoamérica y Europa. Fundadora de BrowMaster Academy y creadora de la técnica "Natural Flow".',
-                badgeText: 'Master Trainer',
-                badgeSubtext: '10 Años Exp.',
-                statsStudents: '3.1k+ Alumnas',
-                statsRating: '5.0 Calificación'
-            },
-            footer: { 
-                copyright: '© 2024 BrowMaster Academy. Todos los derechos reservados.',
-                contact: 'soporte@browmaster.com',
-                socials: {
-                    instagram: 'https://instagram.com',
-                    facebook: 'https://facebook.com'
-                }
-            },
-            thankYouMessage: '¡Registro Exitoso! Revisa tu correo para acceder a la clase.',
-            redirectUrl: ''
-        }
-    }
-];
-
-let mockArticles: Article[] = [
-    {
-        id: 'demo-article-1',
-        title: 'Microblading vs. Efecto Polvo: ¿Cuál elegir?',
-        description: 'Guía completa para entender las diferencias y asesorar a tus clientas.',
-        keyword: 'Microblading',
-        contentHtml: '<h1>Diferencias Clave</h1><p>El microblading simula pelos, mientras que el efecto polvo simula maquillaje...</p>',
-        seoScore: 88,
-        createdAt: new Date()
-    }
-];
+// --- MOCK DATA ---
+let mockPages: LandingPage[] = [];
+let mockArticles: Article[] = [];
+let mockProjects: Project[] = []; // Mock para proyectos
 
 // --- FUNCIÓN FETCH CON TIMEOUT Y RETRY LOGIC ---
 const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
@@ -152,7 +40,6 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     const url = `${API_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
 
     try {
-        // Aumentado a 15 segundos para evitar falsos offline en conexiones lentas o cold starts
         const timeoutPromise = new Promise((_, reject) => 
             setTimeout(() => reject(new Error("Timeout: Servidor tardó demasiado")), 15000)
         );
@@ -221,7 +108,6 @@ export const api = {
       } catch (error: any) {
           log(`[API] Error de conexión: ${error.message}`);
           
-          // FALLBACK OFFLINE DURO
           if (email === 'admin@plataformadeventa.com' && password === 'MiPasswordSuperSegura123') {
               log(`[OFFLINE] Credenciales demo detectadas. Activando modo offline de emergencia.`);
               isOfflineMode = true;
@@ -244,12 +130,11 @@ export const api = {
         });
         return pages.map((p: any) => ({
             ...p,
-            id: String(p.id), // Asegurar que el ID sea string (MySQL devuelve INT)
+            id: String(p.id),
             content: typeof p.content === 'string' ? JSON.parse(p.content) : p.content,
             createdAt: new Date(p.created_at || p.createdAt)
         }));
     } catch (e) {
-        console.warn("Usando páginas mock por error de red.");
         return [...mockPages];
     }
   },
@@ -264,12 +149,11 @@ export const api = {
                 niche: page.niche,
                 goal: page.goal,
                 subdomain: page.subdomain,
-                content: page.content // El backend hará JSON.stringify
+                content: page.content
             })
         });
         return { ...page, id: data.id.toString() };
     } catch (e) {
-        console.warn("Guardando página en mock temporalmente.");
         const newPage = { ...page, id: Date.now().toString() };
         mockPages.push(newPage);
         return newPage;
@@ -302,9 +186,59 @@ export const api = {
             headers: getAuthHeaders()
         });
     } catch (e) {
-        // Mock fallback
         mockPages = mockPages.filter(p => p.id !== id);
     }
+  },
+
+  // --- MÉTODOS DE PROYECTOS ---
+  getProjects: async (): Promise<Project[]> => {
+      try {
+          const projects = await fetchWithFallback('/projects', {
+              method: 'GET',
+              headers: getAuthHeaders()
+          });
+          return projects.map((p: any) => ({
+              ...p,
+              id: String(p.id),
+              painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : p.pain_points,
+              keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : p.key_benefits,
+              affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : p.affiliate_links,
+              targetAudience: p.target_audience,
+              brandTone: p.brand_tone,
+              productName: p.product_name,
+              mainGoal: p.main_goal,
+              createdAt: new Date(p.created_at || p.createdAt)
+          }));
+      } catch (e) {
+          console.warn("Usando proyectos mock por error de red");
+          return [...mockProjects];
+      }
+  },
+
+  createProject: async (project: Omit<Project, 'id' | 'createdAt'>): Promise<Project> => {
+      try {
+          const data = await fetchWithFallback('/projects', {
+              method: 'POST',
+              headers: getAuthHeaders(),
+              body: JSON.stringify(project)
+          });
+          return { ...project, id: data.id.toString(), createdAt: new Date() };
+      } catch (e) {
+          const newProject: Project = { ...project, id: Date.now().toString(), createdAt: new Date() };
+          mockProjects.push(newProject);
+          return newProject;
+      }
+  },
+
+  deleteProject: async (id: string): Promise<void> => {
+      try {
+          await fetchWithFallback(`/projects/${id}`, {
+              method: 'DELETE',
+              headers: getAuthHeaders()
+          });
+      } catch (e) {
+          mockProjects = mockProjects.filter(p => p.id !== id);
+      }
   },
 
   getLeads: async (): Promise<Lead[]> => {
@@ -329,7 +263,6 @@ export const api = {
      }
   },
   
-  // NUEVO METODO PARA OBTENER ANALITICAS SEMANALES REALES
   getWeeklyAnalytics: async (): Promise<{date: string, visits: number, conversions: number}[]> => {
       try {
           const data = await fetchWithFallback('/analytics/weekly', {
@@ -337,7 +270,6 @@ export const api = {
           });
           return data;
       } catch (e) {
-          // Si falla, devolvemos array vacío (no mock para no confundir al usuario que quiere datos reales)
           console.error("Error fetching analytics", e);
           return [];
       }
@@ -393,7 +325,6 @@ export const api = {
   
   testConnection: async (): Promise<{ success: boolean; message: string }> => {
       try {
-          // Usamos fetchWithFallback para que gestione el flag global de offline
           const data = await fetchWithFallback('/test-db');
           return { success: true, message: data.message };
       } catch (error: any) {

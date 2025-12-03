@@ -1,8 +1,10 @@
 
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../services/geminiService';
-import { GeneratedPageContent, LandingPage, ColorPalette, StructureType, DestinationConfig, DestinationType } from '../types';
-import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText } from 'lucide-react';
+import { api } from '../services/api'; // Import api to fetch projects
+import { GeneratedPageContent, LandingPage, ColorPalette, StructureType, DestinationConfig, DestinationType, Project } from '../types';
+import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase } from 'lucide-react';
 
 interface GeneratorProps {
   onPageGenerated: (page: LandingPage) => void;
@@ -11,8 +13,10 @@ interface GeneratorProps {
 export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: Info, 2: Structure/Design
+  const [userProjects, setUserProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] = useState<string>('');
+
   const [formData, setFormData] = useState({
-    // Niche removed from UI, will use pageName as context for AI
     goal: 'Captar Leads',
     targetAudience: '',
     pageName: '',
@@ -24,6 +28,37 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
     structure: 'classic-sales' as StructureType
   });
   const [error, setError] = useState('');
+
+  // Load projects on mount
+  useEffect(() => {
+    const fetchProjects = async () => {
+        try {
+            const projects = await api.getProjects();
+            setUserProjects(projects);
+        } catch (e) {
+            console.error("Failed to load projects", e);
+        }
+    };
+    fetchProjects();
+  }, []);
+
+  // Handle project selection
+  const handleProjectSelect = (projectId: string) => {
+      setSelectedProject(projectId);
+      const proj = userProjects.find(p => p.id === projectId);
+      
+      if (proj) {
+          // Auto-fill form data based on project strategy
+          setFormData(prev => ({
+              ...prev,
+              pageName: proj.name, // Can be edited
+              targetAudience: proj.targetAudience || '',
+              // Pre-select destination if links exist
+              destinationType: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? 'external_url' : 'form',
+              destinationUrl: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks[0].url : '',
+          }));
+      }
+  };
 
   const goals = [
     'Captar Leads (Registro)',
@@ -55,6 +90,9 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         whatsappMessage: formData.whatsappMessage
     };
 
+    // Find full project object if selected
+    const projectContext = userProjects.find(p => p.id === selectedProject);
+
     try {
       const content: GeneratedPageContent = await generateLandingPageContent(
         finalNiche,
@@ -63,7 +101,8 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         formData.destinationType === 'form' ? 'Registro' : formData.destinationType === 'whatsapp' ? 'Contacto Directo' : 'Venta Externa',
         formData.palette,
         formData.structure,
-        destinationConfig
+        destinationConfig,
+        projectContext // PASS THE PROJECT CONTEXT HERE
       );
 
       const newPage: LandingPage = {
@@ -208,8 +247,29 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
 
         {step === 1 && (
           <div className="space-y-6 text-gray-200 animate-in fade-in slide-in-from-right-4 duration-300">
+            
+            {/* PROJECT SELECTOR STRATEGY */}
+            <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700 border-dashed">
+                <label className="block text-sm font-bold text-white mb-2 flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-primary" /> Cargar Estrategia de un Proyecto (Opcional)
+                </label>
+                <select 
+                    value={selectedProject}
+                    onChange={(e) => handleProjectSelect(e.target.value)}
+                    className="w-full bg-black border border-gray-600 rounded-lg px-3 py-2 text-white outline-none focus:border-primary"
+                >
+                    <option value="">-- Seleccionar Proyecto Existente --</option>
+                    {userProjects.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                </select>
+                <p className="text-xs text-gray-400 mt-2">
+                    Si seleccionas un proyecto, usaremos su nicho, audiencia, tono de marca y enlaces para generar el contenido automáticamente.
+                </p>
+            </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Nombre del Proyecto</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Nombre del Sitio / Página</label>
               <input
                 type="text"
                 className="w-full px-4 py-3 bg-black border border-gray-800 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-white"
@@ -306,6 +366,20 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                             value={formData.destinationUrl}
                             onChange={(e) => setFormData({...formData, destinationUrl: e.target.value})}
                         />
+                        {userProjects.find(p => p.id === selectedProject)?.affiliateLinks && (
+                            <div className="mt-2 text-xs">
+                                <span className="text-gray-400 mr-2">Sugerencias del proyecto:</span>
+                                {userProjects.find(p => p.id === selectedProject)?.affiliateLinks.map((link, i) => (
+                                    <button 
+                                        key={i} 
+                                        onClick={() => setFormData({...formData, destinationUrl: link.url})}
+                                        className="text-blue-400 hover:underline mr-3"
+                                    >
+                                        {link.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
 

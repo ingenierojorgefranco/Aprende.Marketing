@@ -139,6 +139,7 @@ export interface LandingPage {
   createdAt: Date;
   visits: number;
   conversions: number;
+  user_id?: string;
 }
 
 export interface Article {
@@ -175,4 +176,30 @@ export interface WhatsAppContact {
   botEnabled: boolean;
   lastMessage: string;
   unreadCount: number;
+}
+
+// --- PROJECT SYSTEM TYPES ---
+
+export interface AffiliateLink {
+  label: string; // e.g. "Checkout Principal", "Webinar"
+  url: string;
+}
+
+export interface Project {
+  id: string;
+  name: string; // e.g. "Curso de Uñas Pro"
+  niche: string; // e.g. "Belleza / Manicure"
+  description: string; // Internal description
+  targetAudience: string; // "Mujeres de 25-40 años que quieren emprender"
+  brandTone: string; // "Amigable, Profesional, Urgente"
+  productName: string; // "Masterclass Uñas Premium"
+  
+  // Strategy Assets
+  mainGoal: string; // "Venta Directa"
+  painPoints: string[]; // ["No tienen tiempo", "Cursos caros", "Miedo a empezar"]
+  keyBenefits: string[]; // ["Certificado Incluido", "Acceso de por vida", "Baja inversión"]
+  
+  affiliateLinks: AffiliateLink[]; // Centralized links
+  
+  createdAt: Date;
 }

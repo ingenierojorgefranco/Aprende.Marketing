@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from "react";
 import {
   Routes,
@@ -20,6 +21,8 @@ import { EmailMarketing } from "./components/EmailMarketing";
 import { ContentGenerator } from "./components/ContentGenerator";
 import { ArticlesList } from "./components/ArticlesList";
 import { PublicLandingView } from "./components/PublicLandingView";
+import { ProjectWizard } from "./components/ProjectWizard"; // New Component
+import { ProjectsList } from "./components/ProjectsList"; // New Component
 
 import { User, LandingPage, Article } from "./types";
 import {
@@ -345,6 +348,10 @@ const App: React.FC = () => {
           }
         >
           <Route index element={<DashboardHome pages={myPages} />} />
+
+          {/* PROJECT ROUTES */}
+          <Route path="projects" element={<ProjectsList />} />
+          <Route path="projects/create" element={<ProjectWizard />} />
 
           <Route
             path="pages"

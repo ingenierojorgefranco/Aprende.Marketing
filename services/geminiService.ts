@@ -1,4 +1,6 @@
-import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig } from "../types";
+
+
+import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../types";
 import { api } from "./api"; // Usamos la configuración centralizada de API
 
 // Mock Type Enum to replace @google/genai SDK dependency on frontend
@@ -52,7 +54,8 @@ export const generateLandingPageContent = async (
   offerType: string,
   palette: ColorPalette,
   structure: StructureType,
-  destination: DestinationConfig
+  destination: DestinationConfig,
+  projectContext?: Project // NEW PARAMETER
 ): Promise<GeneratedPageContent> => {
   
   // Contexto específico para el prompt
@@ -65,11 +68,28 @@ export const generateLandingPageContent = async (
     ctaContext = "El objetivo es redirigir a una página de ventas externa o checkout.";
   }
 
+  // ENRICH PROMPT WITH PROJECT DATA IF AVAILABLE
+  let projectStrategy = "";
+  if (projectContext) {
+      projectStrategy = `
+      CONTEXTO ESTRATÉGICO DEL PROYECTO (PRIORIDAD ALTA):
+      - Nombre del Producto: "${projectContext.productName}"
+      - Tono de Voz de Marca: "${projectContext.brandTone}" (Usa este tono en todo el copy).
+      - Dolores del Cliente (Pain Points): ${projectContext.painPoints?.join(", ")}.
+      - Beneficios Clave (Key Benefits): ${projectContext.keyBenefits?.join(", ")}.
+      - Descripción del Proyecto: ${projectContext.description}.
+      
+      Usa esta información para personalizar profundamente los textos, haciéndolos resonar con la audiencia específica definida.
+      `;
+  }
+
   const prompt = `Actúa como un experto en copywriting, diseño y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
   El objetivo es "${goal}". La audiencia objetivo es "${targetAudience}".
   La oferta es de tipo "${offerType}".
   ${ctaContext}
   
+  ${projectStrategy}
+
   IMPORTANTE: Independientemente de la estructura visual elegida, DEBES generar contenido rico y detallado para TODAS las secciones. No omitas ninguna sección.
   
   Genera campos específicos:
@@ -293,7 +313,29 @@ export const generateArticleOutline = async (title: string, objective: string): 
     }
 };
 
-export const generateFullArticle = async (title: string, outline: string[], objective: string, ctaLink: string, keyword: string): Promise<string> => {
+export const generateFullArticle = async (
+    title: string, 
+    outline: string[], 
+    objective: string, 
+    ctaLink: string, 
+    keyword: string,
+    projectContext?: Project // NEW PARAMETER
+): Promise<string> => {
+    
+    // Enrich with Project Context
+    let projectStrategy = "";
+    if (projectContext) {
+        projectStrategy = `
+        CONTEXTO DEL PROYECTO:
+        - Tono de Voz: "${projectContext.brandTone}"
+        - Producto a promocionar: "${projectContext.productName}"
+        - Puntos de Dolor: ${projectContext.painPoints?.join(", ")}.
+        - Beneficios Clave: ${projectContext.keyBenefits?.join(", ")}.
+        
+        Usa este contexto para que el artículo no sea genérico, sino enfocado en vender este producto específico.
+        `;
+    }
+
     const prompt = `Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este título y esquema.
     
     Título: "${title}"
@@ -302,6 +344,8 @@ export const generateFullArticle = async (title: string, outline: string[], obje
     ${keyword ? `Keyword SEO: "${keyword}" (Úsala de forma natural)` : ''}
     CTA Link: "${ctaLink}" (Insértalo de forma persuasiva al final o en un punto clave).
     
+    ${projectStrategy}
+
     Formato: HTML (usa <h1>, <h2>, <h3>, <p>, <ul>, <li>, <strong>, <a href="...">).
     Estilo: Profesional, educativo y persuasivo. Párrafos cortos.
     Idioma: Español Neutro.

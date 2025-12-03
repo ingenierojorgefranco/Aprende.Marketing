@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../services/geminiService';
-import { BookOpen, Search, List, FileText, Download, Copy, Check, RefreshCw, ArrowLeft, ArrowRight, Wand2, BarChart, ChevronRight, Type, Link as LinkIcon, Sparkles, Save } from 'lucide-react';
-import { Article } from '../types';
+import { api } from '../services/api';
+import { BookOpen, Search, List, FileText, Download, Copy, Check, RefreshCw, ArrowLeft, ArrowRight, Wand2, BarChart, ChevronRight, Type, Link as LinkIcon, Sparkles, Save, Briefcase } from 'lucide-react';
+import { Article, Project } from '../types';
 
 interface ContentGeneratorProps {
     onSave?: (article: Omit<Article, 'id' | 'createdAt'>) => Promise<void>;
@@ -18,6 +19,10 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [topic, setTopic] = useState('');
   const [objective, setObjective] = useState('');
   const [keyword, setKeyword] = useState('');
+
+  // Projects Integration
+  const [userProjects, setUserProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] = useState<string>('');
   
   const [titleIdeas, setTitleIdeas] = useState<ArticleTitleIdea[]>([]);
   const [selectedTitle, setSelectedTitle] = useState<ArticleTitleIdea | null>(null);
@@ -31,6 +36,34 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [seoScore, setSeoScore] = useState(0);
   const [wordCount, setWordCount] = useState(0);
   const [keywordDensity, setKeywordDensity] = useState(0);
+
+  // Load projects on mount
+  useEffect(() => {
+    const fetchProjects = async () => {
+        try {
+            const projects = await api.getProjects();
+            setUserProjects(projects);
+        } catch (e) {
+            console.error("Failed to load projects", e);
+        }
+    };
+    fetchProjects();
+  }, []);
+
+  const handleProjectSelect = (projectId: string) => {
+      setSelectedProject(projectId);
+      const proj = userProjects.find(p => p.id === projectId);
+      
+      if (proj) {
+          // Auto-fill context
+          setTopic(proj.niche || '');
+          setObjective(proj.mainGoal ? `Atraer clientes interesados en ${proj.mainGoal}` : '');
+          
+          if (proj.affiliateLinks && proj.affiliateLinks.length > 0) {
+              setCtaLink(proj.affiliateLinks[0].url);
+          }
+      }
+  };
 
   // --- ACTIONS ---
 
@@ -65,8 +98,12 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const handleGenerateArticle = async () => {
       if (!selectedTitle) return;
       setLoading(true);
+
+      // Pass project context to generator if selected
+      const projectContext = userProjects.find(p => p.id === selectedProject);
+
       try {
-          const content = await generateFullArticle(selectedTitle.title, outline, objective, ctaLink || '#', keyword);
+          const content = await generateFullArticle(selectedTitle.title, outline, objective, ctaLink || '#', keyword, projectContext);
           setArticleContent(content);
           setStep(4);
           analyzeSeo(content);
@@ -159,6 +196,26 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
               <h2 className="text-3xl font-bold text-white mb-2">¿Sobre qué quieres escribir hoy?</h2>
               <p className="text-gray-400">Define el tema y deja que la IA estructure el éxito de tu contenido.</p>
           </div>
+
+          {/* PROJECT SELECTOR STRATEGY */}
+          <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700 border-dashed">
+                <label className="block text-sm font-bold text-white mb-2 flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-primary" /> Cargar Contexto de Proyecto (Opcional)
+                </label>
+                <select 
+                    value={selectedProject}
+                    onChange={(e) => handleProjectSelect(e.target.value)}
+                    className="w-full bg-black border border-gray-600 rounded-lg px-3 py-2 text-white outline-none focus:border-primary"
+                >
+                    <option value="">-- Seleccionar Proyecto Existente --</option>
+                    {userProjects.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                </select>
+                <p className="text-xs text-gray-400 mt-2">
+                    Al seleccionar un proyecto, la IA adoptará el tono de voz de tu marca y enfocará el artículo en tus objetivos.
+                </p>
+            </div>
 
           <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 shadow-xl space-y-6">
               <div>
