@@ -1,3 +1,5 @@
+
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User } from "../types";
 
 // --- HELPER PARA OBTENER BASE URL ---
@@ -325,6 +327,20 @@ export const api = {
      } catch (e) {
          console.log("Lead guardado en Mock:", { pageId, name, email });
      }
+  },
+  
+  // NUEVO METODO PARA OBTENER ANALITICAS SEMANALES REALES
+  getWeeklyAnalytics: async (): Promise<{date: string, visits: number, conversions: number}[]> => {
+      try {
+          const data = await fetchWithFallback('/analytics/weekly', {
+              headers: getAuthHeaders()
+          });
+          return data;
+      } catch (e) {
+          // Si falla, devolvemos array vacío (no mock para no confundir al usuario que quiere datos reales)
+          console.error("Error fetching analytics", e);
+          return [];
+      }
   },
 
   getArticles: async (): Promise<Article[]> => {

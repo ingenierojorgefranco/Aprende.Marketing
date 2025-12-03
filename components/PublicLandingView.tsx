@@ -57,7 +57,17 @@ export const PublicLandingView: React.FC = () => {
           slug,
         });
 
-        const res = await fetch(endpoint);
+        // OBTENER TOKEN: Para no contar visita propia
+        const token = localStorage.getItem("plataformadeventacom_token");
+        const headers: HeadersInit = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const res = await fetch(endpoint, {
+          method: "GET",
+          headers: headers,
+        });
 
         const contentType = res.headers.get("content-type");
         let rawSnippet = "";

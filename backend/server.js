@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -19,6 +20,29 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 
 // ======================================================
+//  INICIALIZACIÓN DB (Tablas necesarias)
+// ======================================================
+const initDb = async () => {
+  try {
+    // Tabla para analíticas diarias (Histórico)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS daily_analytics (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        page_id INT NOT NULL,
+        date DATE NOT NULL,
+        visits INT DEFAULT 0,
+        conversions INT DEFAULT 0,
+        UNIQUE KEY unique_page_date (page_id, date)
+      )
+    `);
+    console.log("✅ [DB] Tabla 'daily_analytics' verificada/creada.");
+  } catch (err) {
+    console.error("⚠️ [DB] Error verificando tablas:", err.message);
+  }
+};
+initDb();
+
+// ======================================================
 //  LOGGING
 // ======================================================
 app.use((req, res, next) => {
@@ -28,7 +52,6 @@ app.use((req, res, next) => {
 
 // ======================================================
 //  REDIRECCIÓN WWW → DOMINIO RAÍZ
-//  Si entra por www.aprende.marketing, lo mandamos a https://aprende.marketing
 // ======================================================
 app.use((req, res, next) => {
   const host = req.hostname || req.headers.host || '';
@@ -204,7 +227,7 @@ app.post('/api/gemini', async (req, res) => {
 });
 
 // ======================================================
-//  RUTA PÚBLICA PARA LANDINGS (UPDATED)
+//  RUTA PÚBLICA PARA LANDINGS
 // ======================================================
 app.get('/api/public/pages/:slug', async (req, res) => {
   const tenant = req.tenantSubdomain;
@@ -216,9 +239,7 @@ app.get('/api/public/pages/:slug', async (req, res) => {
     let query = '';
     let params = [];
 
-    // Lógica dual:
     if (tenant) {
-      // 1. Acceso por Subdominio (ej: cliente.aprende.marketing)
       query = `
         SELECT lp.*
         FROM landing_pages lp
@@ -230,8 +251,6 @@ app.get('/api/public/pages/:slug', async (req, res) => {
       `;
       params = [tenant, `${slug}%`];
     } else {
-      // 2. Acceso por Ruta (ej: aprende.marketing/admin/lp/especialista-cejas)
-      // Buscamos si la columna 'subdomain' es exactamente el slug O si empieza por el slug (ej: especialista-cejas.generatorlanding.com)
       query = `
         SELECT lp.*
         FROM landing_pages lp
@@ -245,25 +264,81 @@ app.get('/api/public/pages/:slug', async (req, res) => {
     const [rows] = await pool.query(query, params);
 
     if (rows.length === 0) {
-      console.log(`[PUBLIC] 404 - Página no encontrada o no publicada para slug: ${slug}`);
       return res.status(404).json({ error: 'Landing no encontrada o no publicada' });
     }
 
     const page = rows[0];
-    console.log(`[PUBLIC] 200 - Página encontrada: ${page.name} (ID: ${page.id})`);
 
-    // Parse content JSON safely
     if (typeof page.content === 'string') {
       try { page.content = JSON.parse(page.content); } catch {}
     }
 
-    // Incrementar visitas de forma asíncrona (no bloqueante)
-    pool.query('UPDATE landing_pages SET visits = visits + 1 WHERE id = ?', [page.id]).catch(console.error);
+    // --- LOGICA DE VISITAS ---
+    let shouldCountVisit = true;
+    const authHeader = req.headers['authorization'];
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        // Si el dueño visita su propia página, NO contamos la visita
+        if (decoded.id === page.user_id) {
+          shouldCountVisit = false;
+        }
+      } catch (err) {}
+    }
+
+    if (shouldCountVisit) {
+      // 1. Contador Total (Legacy - se mantiene para mostrar el total histórico)
+      pool.query('UPDATE landing_pages SET visits = visits + 1 WHERE id = ?', [page.id]).catch(console.error);
+      
+      // 2. Contador Diario (Analytics - Nuevo)
+      // Si ya existe registro hoy para esta página, suma 1. Si no, crea la fila.
+      pool.query(`
+        INSERT INTO daily_analytics (page_id, date, visits, conversions)
+        VALUES (?, CURDATE(), 1, 0)
+        ON DUPLICATE KEY UPDATE visits = visits + 1
+      `, [page.id]).catch(err => console.error("[ANALYTICS] Error updating daily visits:", err));
+    }
 
     res.json(page);
   } catch (error) {
     console.error('[PUBLIC] Error landing:', error);
     res.status(500).json({ error: 'Error interno cargando landing' });
+  }
+});
+
+// ======================================================
+//  ANALYTICS ENDPOINT (NUEVO)
+// ======================================================
+app.get('/api/analytics/weekly', authMiddleware, async (req, res) => {
+  try {
+    // Obtenemos las analíticas de los últimos 7 días agrupadas por fecha
+    // Solo para las páginas que pertenecen al usuario logueado
+    const [rows] = await pool.query(`
+      SELECT 
+        da.date,
+        SUM(da.visits) as total_visits,
+        SUM(da.conversions) as total_conversions
+      FROM daily_analytics da
+      JOIN landing_pages lp ON da.page_id = lp.id
+      WHERE lp.user_id = ?
+        AND da.date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+      GROUP BY da.date
+      ORDER BY da.date ASC
+    `, [req.user.id]);
+
+    // Formateamos para que el frontend reciba algo limpio
+    const data = rows.map(r => ({
+      date: r.date, 
+      visits: parseInt(r.total_visits || 0),
+      conversions: parseInt(r.total_conversions || 0)
+    }));
+
+    res.json(data);
+  } catch (error) {
+    console.error('[ANALYTICS] Error fetching weekly stats:', error);
+    res.status(500).json({ error: 'Error obteniendo analíticas' });
   }
 });
 
@@ -371,15 +446,24 @@ app.post('/api/leads', async (req, res) => {
   const { pageId, name, email } = req.body;
 
   try {
+    // 1. Guardar Lead
     await pool.query(
       'INSERT INTO leads (page_id, name, email, captured_at) VALUES (?, ?, ?, NOW())',
       [pageId, name, email]
     );
 
+    // 2. Actualizar Conversión Total
     await pool.query(
       'UPDATE landing_pages SET conversions = conversions + 1 WHERE id = ?',
       [pageId]
     );
+
+    // 3. Actualizar Conversión Diaria (Analytics)
+    await pool.query(`
+        INSERT INTO daily_analytics (page_id, date, visits, conversions)
+        VALUES (?, CURDATE(), 0, 1)
+        ON DUPLICATE KEY UPDATE conversions = conversions + 1
+      `, [pageId]).catch(err => console.error("[ANALYTICS] Error updating daily conversions:", err));
 
     res.json({ message: 'Lead capturado' });
   } catch (error) {

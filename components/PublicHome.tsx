@@ -77,7 +77,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
             Especializado para Productos de Hotmart ®
           </div>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-8 tracking-tight leading-tight">
-            Vende tus Infoproductos <br />
+            Vende tus Infoproductos<br />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-red-500 to-purple-600">
               En Piloto Automático
             </span>

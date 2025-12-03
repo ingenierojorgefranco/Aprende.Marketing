@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Routes,
@@ -387,11 +388,16 @@ const App: React.FC = () => {
                               {page.niche}
                             </p>
                           </div>
-                          <div
-                            className={`w-3 h-3 rounded-full ${
-                              page.isPublished ? "bg-green-500" : "bg-orange-500"
+                          {/* Etiqueta de Estado Mejorada */}
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${
+                              page.isPublished
+                                ? "bg-green-500/10 text-green-400 border-green-500/20"
+                                : "bg-orange-500/10 text-orange-400 border-orange-500/20"
                             }`}
-                          />
+                          >
+                            {page.isPublished ? "Publicada" : "En Borrador"}
+                          </span>
                         </div>
                         <div className="text-sm text-gray-400 mb-6 space-y-1">
                           <p>Visitas: {page.visits}</p>
