@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType } from '../types';
 import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid } from 'lucide-react';
 import { LivePage } from './LivePage';
 
-// --- UI COMPONENTS EXTRACTED TO FIX FOCUS ISSUE ---
-// Moving these outside the Editor component prevents React from re-creating them on every render,
-// which was causing the input focus to be lost after every keystroke.
+// --- UI COMPONENTS EXTRACTED ---
 
 const SectionHeader = ({ id, title, icon: Icon, openSection, toggleSection }: { id: string, title: string, icon: any, openSection: string | null, toggleSection: (id: string) => void }) => (
     <button 
@@ -117,20 +115,18 @@ const ColorPicker = ({ selected, onChange }: { selected?: string, onChange: (col
     );
 };
 
-// --- RICH TEXT COMPONENT ---
-// Fix: Explicitly add className and id to interface to resolve type errors
+// --- RICH TEXT COMPONENT (FIXED: USES useRef) ---
 interface RichTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
     value: string;
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
     className?: string;
-    id?: string;
 }
 
-const RichTextArea = ({ value, onChange, className, id, ...props }: RichTextAreaProps) => {
-    const uniqueId = id || `rta-${Math.random().toString(36).substr(2, 9)}`;
+const RichTextArea = ({ value, onChange, className, ...props }: RichTextAreaProps) => {
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const insertTag = (tagOpen: string, tagClose: string) => {
-        const textarea = document.getElementById(uniqueId) as HTMLTextAreaElement;
+        const textarea = textareaRef.current;
         if (!textarea) return;
 
         const start = textarea.selectionStart;
@@ -142,17 +138,19 @@ const RichTextArea = ({ value, onChange, className, id, ...props }: RichTextArea
 
         const newValue = `${before}${tagOpen}${selected}${tagClose}${after}`;
         
-        // Create a synthetic event to trigger onChange
+        // Synthetic event
         const event = {
-            target: { value: newValue }
+            target: { value: newValue },
+            currentTarget: { value: newValue }
         } as React.ChangeEvent<HTMLTextAreaElement>;
         
         onChange(event);
 
-        // Restore focus and selection (roughly)
         setTimeout(() => {
-            textarea.focus();
-            textarea.setSelectionRange(start + tagOpen.length, end + tagOpen.length);
+            if (textareaRef.current) {
+                textareaRef.current.focus();
+                textareaRef.current.setSelectionRange(start + tagOpen.length, end + tagOpen.length);
+            }
         }, 0);
     };
 
@@ -165,7 +163,7 @@ const RichTextArea = ({ value, onChange, className, id, ...props }: RichTextArea
                 <button onClick={() => insertTag('<br/>', '')} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white text-xs font-mono">BR</button>
             </div>
             <textarea 
-                id={uniqueId}
+                ref={textareaRef}
                 className={`w-full bg-gray-900 border border-gray-800 rounded-b-lg px-3 py-2 text-white text-sm focus:border-primary outline-none transition resize-none min-h-[80px] ${className}`} 
                 value={value}
                 onChange={onChange}
@@ -175,7 +173,6 @@ const RichTextArea = ({ value, onChange, className, id, ...props }: RichTextArea
     );
 };
 
-
 interface EditorProps {
   page: LandingPage;
   onSave: (updatedPage: LandingPage) => Promise<void>;
@@ -183,12 +180,10 @@ interface EditorProps {
 }
 
 export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
-  // State for Content & Configuration
   const [content, setContent] = useState<GeneratedPageContent>(page.content);
   const [pageName, setPageName] = useState(page.name);
   const [niche, setNiche] = useState(page.niche);
   
-  // UI State
   const [activeTab, setActiveTab] = useState<'content' | 'design' | 'settings'>('content');
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [fullScreenPreview, setFullScreenPreview] = useState(false);
@@ -196,16 +191,13 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   
-  // Accordion state for content sections
   const [openSection, setOpenSection] = useState<string | null>('header');
 
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? null : section);
   };
 
-  // --- HELPER FUNCTIONS FOR UPDATING CONTENT ---
-
-  // 1. Update Simple Object Fields (Hero, Intro, Footer)
+  // --- HELPER FUNCTIONS ---
   const updateNestedField = (section: keyof GeneratedPageContent, field: string, value: string) => {
     setContent(prev => ({
       ...prev,
@@ -216,13 +208,10 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
     }));
   };
 
-  // 2. Update Array of Objects (Benefits, Testimonials, FAQ, NavLinks)
   const updateArrayItem = (section: keyof GeneratedPageContent, index: number, field: string, value: any) => {
     setContent(prev => {
       const newArray = [...(prev[section] as any)]; 
-      // Some sections like benefits have a wrapper 'items', others are direct arrays like testimonials
       if (section === 'benefits' || section === 'whatYouWillLearn' || section === 'intro') {
-         // This helper is specifically for direct arrays or handled differently below
          return prev; 
       }
       newArray[index] = { ...newArray[index], [field]: value };
@@ -230,7 +219,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
     });
   };
 
-  // 3. Update 'Benefits' specific structure (title + items array)
   const updateBenefitItem = (index: number, field: 'title' | 'description' | 'icon' | 'color', value: string) => {
     setContent(prev => {
         const newItems = [...prev.benefits.items];
@@ -239,7 +227,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
     });
   };
 
-  // 3b. Update 'Intro' items specific structure
   const updateIntroItem = (index: number, field: 'title' | 'description', value: string) => {
     setContent(prev => {
         const newItems = [...(prev.intro.items || [])];
@@ -248,7 +235,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
     });
   };
 
-  // 4. Update 'WhatYouWillLearn' (Simple String Array inside object)
   const updateLearnItem = (index: number, value: string) => {
     setContent(prev => {
         const newItems = [...prev.whatYouWillLearn.items];
@@ -257,7 +243,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
     });
   };
   
-  // 5. Update Socials specific structure
   const updateSocials = (platform: 'facebook' | 'instagram' | 'twitter', value: string) => {
     setContent(prev => ({
       ...prev,
@@ -270,8 +255,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       }
     }));
   };
-
-  // --- ADD/REMOVE ITEMS ---
 
   const addItem = (section: 'benefits' | 'whatYouWillLearn' | 'testimonials' | 'faq' | 'navLinks' | 'introItems') => {
       setContent(prev => {
@@ -360,7 +343,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       });
   };
 
-  // Constants 
   const palettes: { id: ColorPalette; name: string; colors: string }[] = [
     { id: 'modern-blue', name: 'Azul Tech', colors: 'bg-blue-500' },
     { id: 'elegant-purple', name: 'Púrpura', colors: 'bg-purple-600' },

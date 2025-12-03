@@ -76,7 +76,10 @@ export const generateLandingPageContent = async (
   - brandName: Nombre corto y pegadizo para la marca del sitio (ej: "NicheMaster").
   - topTagline: Una frase corta y llamativa para la parte superior (ej: "🔥 Clase Gratuita Online - [Tema]").
   - navCta: Un texto MUY corto (máximo 3 palabras) para el botón del menú superior (ej: "Reservar Cupo", "Ingresar Ahora").
-  - navLinks: Genera 3 enlaces de navegación estándar (ej: Label: "Beneficios", href: "#seccion-beneficios").
+  - navLinks: Genera EXACTAMENTE 3 enlaces de navegación que coincidan con la estructura de la página. USA ESTRICTAMENTE ESTOS 'href' para que funcionen los anclajes del menú (no inventes otros hashtags):
+       1. Label: (Algo relacionado a Beneficios/Descubre), href: "#seccion-beneficios"
+       2. Label: (Algo relacionado a Testimonios/Resultados), href: "#seccion-testimonios"
+       3. Label: (Algo relacionado al Experto/Instructor), href: "#seccion-instructor"
   - testimonialTitle: Un título persuasivo para los testimonios (ej: "Ellas ya cambiaron su historia:", "Resultados reales de alumnos:").
   - logoSvg: Genera el código crudo string de un elemento <svg> completo. El diseño debe ser PREMIUM, ESTILIZADO y COLORIDO (usa <defs> con <linearGradient> para dar profundidad y profesionalismo). Debe relacionarse visualmente con el nicho "${niche}". NO uses 'currentColor' ni 'fill="none"', usa colores hex o gradientes que contrasten bien sobre fondo oscuro o claro. viewBox="0 0 64 64".
   
