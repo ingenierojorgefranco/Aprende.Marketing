@@ -204,7 +204,7 @@ app.post('/api/gemini', async (req, res) => {
 });
 
 // ======================================================
-//  RUTA PÚBLICA PARA LANDINGS
+//  RUTA PÚBLICA PARA LANDINGS (por subdominio: admin.aprende.marketing)
 // ======================================================
 app.get('/api/public/pages/:slug', async (req, res) => {
   const tenant = req.tenantSubdomain;
@@ -240,6 +240,50 @@ app.get('/api/public/pages/:slug', async (req, res) => {
   } catch (error) {
     console.error('[PUBLIC] Error landing:', error);
     res.status(500).json({ error: 'Error interno cargando landing' });
+  }
+});
+
+// ======================================================
+//  NUEVA RUTA PÚBLICA PARA LANDINGS POR USUARIO + SLUG (PATH-BASED)
+//  Ejemplo: GET /api/public/pages/by-user/admin/especialista-cejas
+//  Usa users.public_subdomain = 'admin' y landing_pages.subdomain = 'especialista-cejas'
+// ======================================================
+app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
+  const userSlug = req.params.userSlug;
+  const slug = req.params.slug;
+
+  if (!userSlug || !slug) {
+    return res.status(400).json({ error: 'userSlug y slug son obligatorios' });
+  }
+
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT lp.*
+      FROM landing_pages lp
+      INNER JOIN users u ON u.id = lp.user_id
+      WHERE u.public_subdomain = ?
+        AND lp.subdomain = ?
+        AND lp.is_published = 1
+      LIMIT 1
+      `,
+      [userSlug, slug]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Landing no encontrada para este usuario' });
+    }
+
+    const page = rows[0];
+
+    if (typeof page.content === 'string') {
+      try { page.content = JSON.parse(page.content); } catch {}
+    }
+
+    res.json(page);
+  } catch (error) {
+    console.error('[PUBLIC] Error landing (by-user):', error);
+    res.status(500).json({ error: 'Error interno cargando landing by-user' });
   }
 });
 
