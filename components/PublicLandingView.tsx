@@ -20,9 +20,17 @@ export const PublicLandingView: React.FC = () => {
       }
 
       try {
+        setLoading(true);
+        setError(null);
+
         const res = await fetch(`${API_BASE}/public/pages/${slug}`);
+
         if (!res.ok) {
-          setError("Landing no encontrada o no publicada.");
+          if (res.status === 404) {
+            setError("Landing no encontrada o no publicada.");
+          } else {
+            setError(`Error cargando landing (HTTP ${res.status})`);
+          }
           setLoading(false);
           return;
         }
@@ -47,7 +55,8 @@ export const PublicLandingView: React.FC = () => {
 
         setPage(normalized);
       } catch (e: any) {
-        setError("Error interno cargando landing.");
+        console.error("Error cargando landing pública:", e);
+        setError("Error interno cargando la landing.");
       } finally {
         setLoading(false);
       }
@@ -192,9 +201,7 @@ export const PublicLandingView: React.FC = () => {
                   key={idx}
                   className="bg-gray-900/70 border border-gray-800 rounded-xl p-5 hover:border-primary/60 transition"
                 >
-                  <h4 className="font-semibold mb-2 text-white">
-                    {b.title}
-                  </h4>
+                  <h4 className="font-semibold mb-2 text-white">{b.title}</h4>
                   <p className="text-sm text-gray-300">{b.description}</p>
                 </div>
               ))}
@@ -217,9 +224,7 @@ export const PublicLandingView: React.FC = () => {
                 >
                   <p className="mb-3">&ldquo;{t.text}&rdquo;</p>
                   <p className="text-xs text-gray-400">
-                    <span className="font-semibold text-white">
-                      {t.name}
-                    </span>{" "}
+                    <span className="font-semibold text-white">{t.name}</span>{" "}
                     {t.location ? `· ${t.location}` : ""}
                   </p>
                 </div>
