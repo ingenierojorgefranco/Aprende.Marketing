@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Target, User, Zap, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, MagicWand } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Target, User, Zap, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, Wand2 } from 'lucide-react';
 import { api } from '../services/api';
 import { generateProjectStrategy } from '../services/geminiService';
 import { AffiliateLink } from '../types';
