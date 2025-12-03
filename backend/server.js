@@ -22,14 +22,13 @@ app.use(bodyParser.json({ limit: '10mb' }));
 //  LOGGING
 // ======================================================
 app.use((req, res, next) => {
-  console.log(
-    `[API] ${req.method} ${req.path} (host: ${req.hostname || req.headers.host})`
-  );
+  console.log(`[API] ${req.method} ${req.path} (host: ${req.hostname || req.headers.host})`);
   next();
 });
 
 // ======================================================
 //  REDIRECCIÓN WWW → DOMINIO RAÍZ
+//  Si entra por www.aprende.marketing, lo mandamos a https://aprende.marketing
 // ======================================================
 app.use((req, res, next) => {
   const host = req.hostname || req.headers.host || '';
@@ -42,7 +41,7 @@ app.use((req, res, next) => {
 });
 
 // ======================================================
-//  MULTI-TENANT: DETECTAR SUBDOMINIO (para quien lo use)
+//  MULTI-TENANT: DETECTAR SUBDOMINIO
 // ======================================================
 app.use((req, res, next) => {
   const host = req.hostname || req.headers.host || '';
@@ -82,9 +81,7 @@ app.post('/api/auth/register', async (req, res) => {
   const { name, email, password, role } = req.body;
 
   if (!name || !email || !password)
-    return res
-      .status(400)
-      .json({ error: 'Nombre, email y contraseña son obligatorios' });
+    return res.status(400).json({ error: 'Nombre, email y contraseña son obligatorios' });
 
   try {
     const [existing] = await pool.query(
@@ -93,9 +90,7 @@ app.post('/api/auth/register', async (req, res) => {
     );
 
     if (existing.length > 0)
-      return res
-        .status(409)
-        .json({ error: 'Ya existe un usuario con ese email' });
+      return res.status(409).json({ error: 'Ya existe un usuario con ese email' });
 
     const passwordHash = await bcrypt.hash(password, 10);
 
@@ -127,9 +122,7 @@ const loginHandler = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password)
-    return res
-      .status(400)
-      .json({ error: 'Email y contraseña son obligatorios' });
+    return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
 
   try {
     const [rows] = await pool.query(
@@ -158,7 +151,7 @@ const loginHandler = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      public_subdomain: user.public_subdomain,
+      public_subdomain: user.public_subdomain
     };
 
     const token = createToken(userResponse);
@@ -211,94 +204,61 @@ app.post('/api/gemini', async (req, res) => {
 });
 
 // ======================================================
-//  LANDINGS PÚBLICAS (NUEVA RUTA PATH-BASED POR USUARIO)
-//  /api/public/pages/by-user/:userSlug/:slug
-//  userSlug → users.public_subdomain
-//  slug     → landing_pages.subdomain
-// ======================================================
-app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
-  const { userSlug, slug } = req.params;
-
-  if (!userSlug || !slug) {
-    return res
-      .status(400)
-      .json({ error: 'Faltan parámetros userSlug o slug' });
-  }
-
-  try {
-    const [rows] = await pool.query(
-      `
-      SELECT lp.*
-      FROM landing_pages lp
-      INNER JOIN users u ON u.id = lp.user_id
-      WHERE u.public_subdomain = ?
-        AND lp.subdomain = ?
-        AND lp.is_published = 1
-      LIMIT 1
-      `,
-      [userSlug, slug]
-    );
-
-    if (rows.length === 0) {
-      return res
-        .status(404)
-        .json({ error: 'Landing no encontrada para ese usuario' });
-    }
-
-    const page = rows[0];
-
-    if (typeof page.content === 'string') {
-      try {
-        page.content = JSON.parse(page.content);
-      } catch {
-        // ignorar error de parseo, se envía tal cual
-      }
-    }
-
-    res.json(page);
-  } catch (error) {
-    console.error('[PUBLIC by-user] Error landing:', error);
-    res.status(500).json({ error: 'Error interno cargando landing' });
-  }
-});
-
-// ======================================================
-//  LANDINGS PÚBLICAS (RUTA ANTIGUA BASADA EN SUBDOMINIO HOST)
-//  /api/public/pages/:slug  → usa req.tenantSubdomain
+//  RUTA PÚBLICA PARA LANDINGS (UPDATED)
 // ======================================================
 app.get('/api/public/pages/:slug', async (req, res) => {
   const tenant = req.tenantSubdomain;
   const slug = req.params.slug;
 
-  if (!tenant)
-    return res.status(400).json({ error: 'No se detectó subdominio' });
+  console.log(`[PUBLIC] Buscando página. Slug: "${slug}", Tenant detectado: "${tenant || 'N/A'}"`);
 
   try {
-    const [rows] = await pool.query(
-      `
-      SELECT lp.*
-      FROM landing_pages lp
-      INNER JOIN users u ON u.id = lp.user_id
-      WHERE u.public_subdomain = ?
-        AND lp.subdomain = ?
-        AND lp.is_published = 1
-      LIMIT 1
-      `,
-      [tenant, slug]
-    );
+    let query = '';
+    let params = [];
 
-    if (rows.length === 0)
-      return res.status(404).json({ error: 'Landing no encontrada' });
+    // Lógica dual:
+    if (tenant) {
+      // 1. Acceso por Subdominio (ej: cliente.aprende.marketing)
+      query = `
+        SELECT lp.*
+        FROM landing_pages lp
+        INNER JOIN users u ON u.id = lp.user_id
+        WHERE u.public_subdomain = ?
+          AND lp.subdomain LIKE ?
+          AND lp.is_published = 1
+        LIMIT 1
+      `;
+      params = [tenant, `${slug}%`];
+    } else {
+      // 2. Acceso por Ruta (ej: aprende.marketing/admin/lp/especialista-cejas)
+      // Buscamos si la columna 'subdomain' es exactamente el slug O si empieza por el slug (ej: especialista-cejas.generatorlanding.com)
+      query = `
+        SELECT lp.*
+        FROM landing_pages lp
+        WHERE (lp.subdomain = ? OR lp.subdomain LIKE ?)
+          AND lp.is_published = 1
+        LIMIT 1
+      `;
+      params = [slug, `${slug}.%`];
+    }
+
+    const [rows] = await pool.query(query, params);
+
+    if (rows.length === 0) {
+      console.log(`[PUBLIC] 404 - Página no encontrada o no publicada para slug: ${slug}`);
+      return res.status(404).json({ error: 'Landing no encontrada o no publicada' });
+    }
 
     const page = rows[0];
+    console.log(`[PUBLIC] 200 - Página encontrada: ${page.name} (ID: ${page.id})`);
 
+    // Parse content JSON safely
     if (typeof page.content === 'string') {
-      try {
-        page.content = JSON.parse(page.content);
-      } catch {
-        // ignorar error
-      }
+      try { page.content = JSON.parse(page.content); } catch {}
     }
+
+    // Incrementar visitas de forma asíncrona (no bloqueante)
+    pool.query('UPDATE landing_pages SET visits = visits + 1 WHERE id = ?', [page.id]).catch(console.error);
 
     res.json(page);
   } catch (error) {
@@ -329,11 +289,9 @@ app.post('/api/pages', authMiddleware, async (req, res) => {
     const contentString = JSON.stringify(content);
 
     const [result] = await pool.query(
-      `
-      INSERT INTO landing_pages 
+      `INSERT INTO landing_pages 
        (user_id, name, niche, goal, subdomain, content, is_published, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
-      `,
+       VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
       [req.user.id, name, niche, goal, subdomain, contentString, false]
     );
 
@@ -354,16 +312,12 @@ app.put('/api/pages/:id', authMiddleware, async (req, res) => {
     );
 
     if (check.length === 0)
-      return res
-        .status(403)
-        .json({ error: 'No tienes permiso para editar esta página' });
+      return res.status(403).json({ error: 'No tienes permiso para editar esta página' });
 
     await pool.query(
-      `
-      UPDATE landing_pages
-      SET content = ?, is_published = ?, name = COALESCE(?, name), niche = COALESCE(?, niche)
-      WHERE id = ?
-      `,
+      `UPDATE landing_pages
+       SET content = ?, is_published = ?, name = COALESCE(?, name), niche = COALESCE(?, niche)
+       WHERE id = ?`,
       [JSON.stringify(content), isPublished, name, niche, id]
     );
 
@@ -383,9 +337,7 @@ app.delete('/api/pages/:id', authMiddleware, async (req, res) => {
     );
 
     if (check.length === 0)
-      return res
-        .status(403)
-        .json({ error: 'No tienes permiso para eliminar esta página' });
+      return res.status(403).json({ error: 'No tienes permiso para eliminar esta página' });
 
     await pool.query('DELETE FROM landing_pages WHERE id = ?', [id]);
     res.json({ message: 'Página eliminada' });
@@ -455,10 +407,8 @@ app.post('/api/articles', authMiddleware, async (req, res) => {
 
   try {
     const [result] = await pool.query(
-      `
-      INSERT INTO articles (user_id, title, description, content_html, keyword, seo_score, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, NOW())
-      `,
+      `INSERT INTO articles (user_id, title, description, content_html, keyword, seo_score, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, NOW())`,
       [req.user.id, title, description, content_html, keyword, seo_score]
     );
 

@@ -287,12 +287,11 @@ const App: React.FC = () => {
   return (
     <>
       <Routes>
-        {/* LANDINGS PÚBLICAS */}
-        {/* Ruta antigua: /lp/:slug  (si quieres seguir usándola) */}
+        {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug Y SUBDOMINIOS */}
+        <Route path="/admin/lp/:slug" element={<PublicLandingView />} />
+        
+        {/* Fallback antiguo para compatibilidad */}
         <Route path="/lp/:slug" element={<PublicLandingView />} />
-
-        {/* Ruta nueva: /:userSlug/lp/:slug → aprende.marketing/pepito/lp/landing */}
-        <Route path="/:userSlug/lp/:slug" element={<PublicLandingView />} />
 
         {/* RUTAS PÚBLICAS */}
         <Route
@@ -386,6 +385,17 @@ const App: React.FC = () => {
                           >
                             <PenTool className="w-4 h-4" /> Editar Página
                           </button>
+                          
+                          {/* Botón para ver la Landing Page Publicada */}
+                          <a
+                            href={`/admin/lp/${page.subdomain.split('.')[0]}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full py-2 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 flex items-center justify-center gap-2 hover:text-white transition text-sm"
+                          >
+                            <LayoutTemplate className="w-4 h-4" /> Ver Online
+                          </a>
+
                           <button
                             onClick={() => setPageToDelete(page)}
                             className="w-full py-2 border border-red-900/30 rounded-lg text-red-500/70 hover:bg-red-900/10 hover:text-red-500 hover:border-red-900/50 flex items-center justify-center gap-2 transition text-sm"

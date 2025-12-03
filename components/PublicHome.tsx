@@ -25,7 +25,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center font-bold text-white text-lg">P</div>
-            <span className="text-xl font-bold tracking-tight">PlataformaDeVenta<span className="text-gray-400 font-normal">.com</span></span>
+            <span className="text-xl font-bold tracking-tight">Aprende.<span className="text-gray-400 font-normal">Marketing</span></span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
             <button onClick={() => scrollToSection('features')} className="hover:text-white transition">Herramientas</button>

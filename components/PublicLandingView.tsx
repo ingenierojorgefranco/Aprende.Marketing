@@ -6,8 +6,7 @@ import { Loader2, AlertTriangle } from "lucide-react";
 const API_BASE = (import.meta as any).env?.VITE_API_URL || "/api";
 
 export const PublicLandingView: React.FC = () => {
-  const { slug, userSlug } = useParams<{ slug: string; userSlug?: string }>();
-
+  const { slug } = useParams<{ slug: string }>();
   const [page, setPage] = useState<LandingPage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,25 +23,11 @@ export const PublicLandingView: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        // Si viene userSlug en la URL → usamos la ruta path-based:
-        //   GET /api/public/pages/by-user/:userSlug/:slug
-        //
-        // Si NO viene userSlug → usamos la ruta antigua:
-        //   GET /api/public/pages/:slug
-        // que depende del subdominio (admin.aprende.marketing, etc.)
-        const endpoint = userSlug
-          ? `${API_BASE}/public/pages/by-user/${encodeURIComponent(
-              userSlug
-            )}/${encodeURIComponent(slug)}`
-          : `${API_BASE}/public/pages/${encodeURIComponent(slug)}`;
-
-        const res = await fetch(endpoint);
+        const res = await fetch(`${API_BASE}/public/pages/${slug}`);
 
         if (!res.ok) {
           if (res.status === 404) {
             setError("Landing no encontrada o no publicada.");
-          } else if (res.status === 400) {
-            setError("Configuración de dominio o usuario inválida.");
           } else {
             setError(`Error cargando landing (HTTP ${res.status})`);
           }
@@ -78,7 +63,7 @@ export const PublicLandingView: React.FC = () => {
     };
 
     fetchPage();
-  }, [slug, userSlug]);
+  }, [slug]);
 
   if (loading) {
     return (
