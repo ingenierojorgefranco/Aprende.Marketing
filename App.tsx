@@ -352,6 +352,7 @@ const App: React.FC = () => {
           {/* PROJECT ROUTES */}
           <Route path="projects" element={<ProjectsList />} />
           <Route path="projects/create" element={<ProjectWizard />} />
+          <Route path="projects/edit/:id" element={<ProjectWizard />} />
 
           <Route
             path="pages"

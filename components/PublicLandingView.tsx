@@ -1,4 +1,5 @@
 
+
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { LandingPage } from "../types";
@@ -7,6 +8,9 @@ import { LivePage } from "./LivePage"; // Importamos el motor de renderizado
 
 // Forzamos API en el mismo dominio bajo /api
 const API_BASE = "/api";
+
+// CAMBIAR A TRUE SOLO PARA DESARROLLO / DEBUG VISUAL
+const SHOW_DEBUG_UI = false;
 
 type DebugInfo = {
   endpoint: string;
@@ -177,8 +181,8 @@ export const PublicLandingView: React.FC = () => {
           {error || "Landing no disponible."}
         </p>
 
-        {/* Bloque de debug visible para ti */}
-        {debug && (
+        {/* Bloque de debug visible SOLO si SHOW_DEBUG_UI es true */}
+        {SHOW_DEBUG_UI && debug && (
           <div className="mt-6 w-full max-w-3xl text-left">
             <div className="text-xs uppercase tracking-widest text-gray-500 mb-2">
               DEBUG TÉCNICO (solo para desarrollo)

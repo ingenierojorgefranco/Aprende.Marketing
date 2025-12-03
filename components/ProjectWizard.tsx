@@ -1,14 +1,19 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Target, User, Zap, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles } from 'lucide-react';
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Save, Target, User, Zap, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, MagicWand } from 'lucide-react';
 import { api } from '../services/api';
-import { Project, AffiliateLink } from '../types';
+import { generateProjectStrategy } from '../services/geminiService';
+import { AffiliateLink } from '../types';
 
 export const ProjectWizard: React.FC = () => {
     const navigate = useNavigate();
+    const { id } = useParams<{ id: string }>(); // Si hay ID, estamos editando
+    
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [loadingAI, setLoadingAI] = useState(false);
     
     // Form State
     const [name, setName] = useState('');
@@ -24,6 +29,39 @@ export const ProjectWizard: React.FC = () => {
     const [keyBenefits, setKeyBenefits] = useState<string[]>(['']);
     
     const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([{ label: 'Checkout Principal', url: '' }]);
+
+    // AI Suggestions State
+    const [suggestedPainPoints, setSuggestedPainPoints] = useState<string[]>([]);
+    const [suggestedBenefits, setSuggestedBenefits] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (id) {
+            loadProject(id);
+        }
+    }, [id]);
+
+    const loadProject = async (projectId: string) => {
+        setLoading(true);
+        try {
+            const proj = await api.getProjectById(projectId);
+            if (proj) {
+                setName(proj.name);
+                setNiche(proj.niche);
+                setProductName(proj.productName);
+                setDescription(proj.description);
+                setTargetAudience(proj.targetAudience);
+                setMainGoal(proj.mainGoal);
+                setBrandTone(proj.brandTone);
+                setPainPoints(proj.painPoints && proj.painPoints.length > 0 ? proj.painPoints : ['']);
+                setKeyBenefits(proj.keyBenefits && proj.keyBenefits.length > 0 ? proj.keyBenefits : ['']);
+                setAffiliateLinks(proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks : [{ label: 'Checkout Principal', url: '' }]);
+            }
+        } catch (error) {
+            console.error("Error loading project", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleAddItem = (setter: React.Dispatch<React.SetStateAction<string[]>>, items: string[]) => {
         setter([...items, '']);
@@ -46,23 +84,69 @@ export const ProjectWizard: React.FC = () => {
         setAffiliateLinks(newLinks);
     };
 
+    const handleGenerateIdeas = async () => {
+        if (!name || !niche || !productName) {
+            alert("Por favor completa los datos del paso 1 antes de pedir ayuda a la IA.");
+            setStep(1);
+            return;
+        }
+
+        setLoadingAI(true);
+        try {
+            const strategy = await generateProjectStrategy(name, niche, productName, description);
+            
+            // Si la audiencia está vacía, sugerir
+            if (!targetAudience) setTargetAudience(strategy.targetAudience);
+            
+            // Guardar sugerencias para que el usuario haga clic y agregue
+            setSuggestedPainPoints(strategy.painPoints);
+            setSuggestedBenefits(strategy.keyBenefits);
+
+        } catch (error) {
+            alert("No se pudo generar ideas. Intenta de nuevo.");
+        } finally {
+            setLoadingAI(false);
+        }
+    };
+
+    const addSuggestion = (type: 'pain' | 'benefit', text: string) => {
+        if (type === 'pain') {
+            const current = painPoints.filter(p => p.trim() !== '');
+            setPainPoints([...current, text]);
+            setSuggestedPainPoints(suggestedPainPoints.filter(p => p !== text)); // Remover de sugeridos
+        } else {
+            const current = keyBenefits.filter(b => b.trim() !== '');
+            setKeyBenefits([...current, text]);
+            setSuggestedBenefits(suggestedBenefits.filter(b => b !== text)); // Remover de sugeridos
+        }
+    };
+
     const saveProject = async () => {
         if (!name || !niche) return alert('Por favor completa al menos el nombre y el nicho.');
         
         setLoading(true);
+        const projectData = {
+            name,
+            niche,
+            description,
+            targetAudience,
+            brandTone,
+            productName,
+            mainGoal,
+            painPoints: painPoints.filter(p => p.trim() !== ''),
+            keyBenefits: keyBenefits.filter(b => b.trim() !== ''),
+            affiliateLinks: affiliateLinks.filter(l => l.url.trim() !== '')
+        };
+
         try {
-            await api.createProject({
-                name,
-                niche,
-                description,
-                targetAudience,
-                brandTone,
-                productName,
-                mainGoal,
-                painPoints: painPoints.filter(p => p.trim() !== ''),
-                keyBenefits: keyBenefits.filter(b => b.trim() !== ''),
-                affiliateLinks: affiliateLinks.filter(l => l.url.trim() !== '')
-            });
+            if (id) {
+                // UPDATE
+                await api.updateProject(id, projectData);
+                alert('Proyecto actualizado correctamente.');
+            } else {
+                // CREATE
+                await api.createProject(projectData);
+            }
             navigate('/dashboard/projects');
         } catch (error) {
             console.error(error);
@@ -71,6 +155,14 @@ export const ProjectWizard: React.FC = () => {
             setLoading(false);
         }
     };
+
+    if (loading && id) {
+        return (
+            <div className="flex items-center justify-center h-64 text-white">
+                <Loader2 className="w-8 h-8 animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-4xl mx-auto pb-12">
@@ -83,7 +175,7 @@ export const ProjectWizard: React.FC = () => {
                 <div className="bg-gray-800/50 p-6 border-b border-gray-800 flex justify-between items-center">
                     <div>
                         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-primary" /> Crear Nuevo Proyecto
+                            <Sparkles className="w-5 h-5 text-primary" /> {id ? 'Editar Proyecto' : 'Crear Nuevo Proyecto'}
                         </h2>
                         <p className="text-sm text-gray-400">Paso {step} de 4</p>
                     </div>
@@ -145,9 +237,19 @@ export const ProjectWizard: React.FC = () => {
 
                     {step === 2 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                            <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
-                                <Target className="w-5 h-5 text-red-400" /> Estrategia y Audiencia
-                            </h3>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <Target className="w-5 h-5 text-red-400" /> Estrategia y Audiencia
+                                </h3>
+                                <button 
+                                    onClick={handleGenerateIdeas}
+                                    disabled={loadingAI}
+                                    className="text-sm bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg flex items-center gap-2 transition"
+                                >
+                                    {loadingAI ? <Loader2 className="w-4 h-4 animate-spin"/> : <Sparkles className="w-4 h-4"/>}
+                                    Generar Ideas con IA
+                                </button>
+                            </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-2">Público Objetivo (Avatar)</label>
@@ -175,6 +277,23 @@ export const ProjectWizard: React.FC = () => {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-2">Dolores Principales (Pain Points)</label>
+                                
+                                {/* AI Suggestions Area */}
+                                {suggestedPainPoints.length > 0 && (
+                                    <div className="mb-4 flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2">
+                                        <span className="text-xs text-purple-400 w-full font-bold flex items-center gap-1"><Sparkles className="w-3 h-3"/> Sugerencias IA (Clic para agregar):</span>
+                                        {suggestedPainPoints.map((s, i) => (
+                                            <button 
+                                                key={i} 
+                                                onClick={() => addSuggestion('pain', s)}
+                                                className="bg-purple-900/30 hover:bg-purple-900/50 text-purple-200 text-xs px-3 py-1 rounded-full border border-purple-800 transition text-left"
+                                            >
+                                                + {s}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
                                 {painPoints.map((point, idx) => (
                                     <div key={idx} className="flex gap-2 mb-2">
                                         <input 
@@ -209,6 +328,23 @@ export const ProjectWizard: React.FC = () => {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-2">Beneficios Clave / Promesas (Golden Nuggets)</label>
+
+                                {/* AI Suggestions Area */}
+                                {suggestedBenefits.length > 0 && (
+                                    <div className="mb-4 flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2">
+                                        <span className="text-xs text-purple-400 w-full font-bold flex items-center gap-1"><Sparkles className="w-3 h-3"/> Sugerencias IA (Clic para agregar):</span>
+                                        {suggestedBenefits.map((s, i) => (
+                                            <button 
+                                                key={i} 
+                                                onClick={() => addSuggestion('benefit', s)}
+                                                className="bg-purple-900/30 hover:bg-purple-900/50 text-purple-200 text-xs px-3 py-1 rounded-full border border-purple-800 transition text-left"
+                                            >
+                                                + {s}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
                                 {keyBenefits.map((benefit, idx) => (
                                     <div key={idx} className="flex gap-2 mb-2">
                                         <input 
@@ -283,7 +419,7 @@ export const ProjectWizard: React.FC = () => {
                     ) : (
                         <button onClick={saveProject} disabled={loading} className="px-8 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-green-900/20">
                             {loading ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
-                            Guardar Proyecto
+                            {id ? 'Actualizar Proyecto' : 'Guardar Proyecto'}
                         </button>
                     )}
                 </div>

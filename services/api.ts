@@ -131,6 +131,8 @@ export const api = {
         return pages.map((p: any) => ({
             ...p,
             id: String(p.id),
+            // Aseguramos que isPublished lea tanto camelCase (mock) como snake_case (db)
+            isPublished: !!(p.isPublished || p.is_published),
             content: typeof p.content === 'string' ? JSON.parse(p.content) : p.content,
             createdAt: new Date(p.created_at || p.createdAt)
         }));
@@ -215,6 +217,30 @@ export const api = {
       }
   },
 
+  getProjectById: async (id: string): Promise<Project | null> => {
+      try {
+          const p = await fetchWithFallback(`/projects/${id}`, {
+              method: 'GET',
+              headers: getAuthHeaders()
+          });
+          return {
+              ...p,
+              id: String(p.id),
+              painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : p.pain_points,
+              keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : p.key_benefits,
+              affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : p.affiliate_links,
+              targetAudience: p.target_audience,
+              brandTone: p.brand_tone,
+              productName: p.product_name,
+              mainGoal: p.main_goal,
+              createdAt: new Date(p.created_at || p.createdAt)
+          };
+      } catch (e) {
+          const found = mockProjects.find(p => p.id === id);
+          return found || null;
+      }
+  },
+
   createProject: async (project: Omit<Project, 'id' | 'createdAt'>): Promise<Project> => {
       try {
           const data = await fetchWithFallback('/projects', {
@@ -227,6 +253,18 @@ export const api = {
           const newProject: Project = { ...project, id: Date.now().toString(), createdAt: new Date() };
           mockProjects.push(newProject);
           return newProject;
+      }
+  },
+
+  updateProject: async (id: string, project: Omit<Project, 'id' | 'createdAt'>): Promise<void> => {
+      try {
+          await fetchWithFallback(`/projects/${id}`, {
+              method: 'PUT',
+              headers: getAuthHeaders(),
+              body: JSON.stringify(project)
+          });
+      } catch (e) {
+          mockProjects = mockProjects.map(p => p.id === id ? { ...project, id, createdAt: p.createdAt } : p);
       }
   },
 

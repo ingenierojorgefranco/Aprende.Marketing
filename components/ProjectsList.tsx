@@ -1,9 +1,10 @@
 
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Project } from '../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar } from 'lucide-react';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2 } from 'lucide-react';
 
 export const ProjectsList: React.FC = () => {
     const navigate = useNavigate();
@@ -78,7 +79,8 @@ export const ProjectsList: React.FC = () => {
                     {projects.map((project) => (
                         <div 
                             key={project.id}
-                            className="bg-gray-900 rounded-xl border border-gray-800 hover:border-blue-500/50 transition duration-300 group flex flex-col h-full relative overflow-hidden"
+                            onClick={() => navigate(`/dashboard/projects/edit/${project.id}`)}
+                            className="bg-gray-900 rounded-xl border border-gray-800 hover:border-blue-500/50 transition duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer"
                         >
                             <div className="absolute top-0 left-0 w-1 h-full bg-blue-600 opacity-0 group-hover:opacity-100 transition"></div>
                             
@@ -87,15 +89,23 @@ export const ProjectsList: React.FC = () => {
                                     <div className="bg-blue-900/30 text-blue-400 text-xs px-2 py-1 rounded border border-blue-900/50 font-bold uppercase tracking-wider">
                                         {project.mainGoal || "Proyecto"}
                                     </div>
-                                    <button 
-                                        onClick={(e) => handleDelete(project.id, e)}
-                                        className="text-gray-600 hover:text-red-500 transition"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                                    <div className="flex gap-2">
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/projects/edit/${project.id}`); }}
+                                            className="text-gray-600 hover:text-blue-500 transition"
+                                        >
+                                            <Edit2 className="w-4 h-4" />
+                                        </button>
+                                        <button 
+                                            onClick={(e) => handleDelete(project.id, e)}
+                                            className="text-gray-600 hover:text-red-500 transition"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </div>
                                 
-                                <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">{project.name}</h3>
+                                <h3 className="text-xl font-bold text-white mb-2 line-clamp-1 group-hover:text-blue-400 transition">{project.name}</h3>
                                 <p className="text-sm text-gray-400 mb-4 line-clamp-2 min-h-[40px]">
                                     {project.description || "Sin descripción"}
                                 </p>

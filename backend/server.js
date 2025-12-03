@@ -264,6 +264,19 @@ app.get('/api/projects', authMiddleware, async (req, res) => {
   }
 });
 
+app.get('/api/projects/:id', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM projects WHERE id = ? AND user_id = ?',
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
+    res.json(rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/api/projects', authMiddleware, async (req, res) => {
   const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks } = req.body;
 
@@ -282,6 +295,34 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
     res.json({ id: result.insertId, message: 'Proyecto creado con éxito' });
   } catch (error) {
     console.error('[PROJECTS] Error creating:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/projects/:id', authMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks } = req.body;
+
+  try {
+    // Verificar propiedad
+    const [check] = await pool.query('SELECT id FROM projects WHERE id = ? AND user_id = ?', [id, req.user.id]);
+    if (check.length === 0) return res.status(403).json({ error: 'No autorizado' });
+
+    await pool.query(
+      `UPDATE projects 
+       SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?
+       WHERE id=? AND user_id=?`,
+      [
+        name, niche, description, targetAudience, brandTone, productName, mainGoal,
+        JSON.stringify(painPoints || []),
+        JSON.stringify(keyBenefits || []),
+        JSON.stringify(affiliateLinks || []),
+        id, req.user.id
+      ]
+    );
+    res.json({ message: 'Proyecto actualizado con éxito' });
+  } catch (error) {
+    console.error('[PROJECTS] Error updating:', error);
     res.status(500).json({ error: error.message });
   }
 });
