@@ -32,7 +32,7 @@ import {
 import { api } from "./services/api";
 import { getCurrentUser, logout } from "./services/auth";
 
-// --- WRAPPER FOR EDITOR TO HANDLE URL PARAMS ---
+// --- WRAPPER PARA EDITOR (maneja :id en la URL) ---
 const EditorRouteWrapper = ({
   pages,
   onSave,
@@ -77,7 +77,7 @@ const EditorRouteWrapper = ({
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
 
-  // Data State
+  // Estado de datos
   const [myPages, setMyPages] = useState<LandingPage[]>([]);
   const [myArticles, setMyArticles] = useState<Article[]>([]);
 
@@ -85,14 +85,14 @@ const App: React.FC = () => {
   const [isOffline, setIsOffline] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Deletion Modal State
+  // Modal de eliminación
   const [pageToDelete, setPageToDelete] = useState<LandingPage | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 1. Restaurar sesión al cargar la app
+  // Restaurar sesión al inicio
   useEffect(() => {
     const restoreSession = async () => {
       const token = localStorage.getItem("plataformadeventacom_token");
@@ -112,12 +112,14 @@ const App: React.FC = () => {
           logout();
         }
       }
+
       setAuthLoading(false);
     };
+
     restoreSession();
   }, []);
 
-  // 2. Cargar datos si estamos en una ruta protegida (dashboard)
+  // Cargar datos cuando entramos a /dashboard
   useEffect(() => {
     if (user && location.pathname.startsWith("/dashboard")) {
       loadData();
@@ -162,7 +164,7 @@ const App: React.FC = () => {
     navigate("/");
   };
 
-  // --- PAGE HANDLERS ----
+  // --- HANDLERS PÁGINAS ---
   const handlePageGenerated = async (page: LandingPage) => {
     try {
       setLoading(true);
@@ -170,7 +172,7 @@ const App: React.FC = () => {
       setMyPages((prev) => [...prev, savedPage]);
       setIsOffline(api.isUsingMockData());
       navigate(`/dashboard/editor/${savedPage.id}`);
-    } catch (e) {
+    } catch {
       alert("Error guardando la página");
     } finally {
       setLoading(false);
@@ -184,7 +186,7 @@ const App: React.FC = () => {
         prev.map((p) => (p.id === updatedPage.id ? updatedPage : p))
       );
       setIsOffline(api.isUsingMockData());
-    } catch (e) {
+    } catch {
       alert("Error actualizando la página");
     }
   };
@@ -196,14 +198,14 @@ const App: React.FC = () => {
       await api.deletePage(pageToDelete.id);
       setMyPages((prev) => prev.filter((p) => p.id !== pageToDelete.id));
       setPageToDelete(null);
-    } catch (e) {
+    } catch {
       alert("Error eliminando la página.");
     } finally {
       setDeleting(false);
     }
   };
 
-  // --- ARTICLE HANDLERS ---
+  // --- HANDLERS ARTÍCULOS ---
   const handleArticleSave = async (
     articleData: Omit<Article, "id" | "createdAt">
   ) => {
@@ -224,6 +226,7 @@ const App: React.FC = () => {
     );
   }
 
+  // Ruta protegida
   const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
     if (!user) {
       return <Navigate to="/login" replace />;
@@ -231,6 +234,7 @@ const App: React.FC = () => {
     return <>{children}</>;
   };
 
+  // Modal eliminación
   const DeleteModal = () => {
     if (!pageToDelete) return null;
     return (
@@ -330,6 +334,7 @@ const App: React.FC = () => {
                     Crear Nueva
                   </button>
                 </div>
+
                 {loading ? (
                   <div className="text-center py-20 text-white flex flex-col items-center">
                     <Loader2 className="w-10 h-10 animate-spin mb-4 text-primary" />
@@ -400,9 +405,7 @@ const App: React.FC = () => {
           <Route path="email" element={<EmailMarketing />} />
           <Route
             path="content-creator"
-            element={
-              <ContentGenerator onSave={handleArticleSave} />
-            }
+            element={<ContentGenerator onSave={handleArticleSave} />}
           />
           <Route
             path="articles"
@@ -437,7 +440,7 @@ const App: React.FC = () => {
           />
         </Route>
 
-        {/* CUALQUIER OTRA RUTA -> REDIRIGIR */}
+        {/* CUALQUIER OTRA RUTA → HOME */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
