@@ -2,25 +2,21 @@ import { LandingPage, Lead, GeneratedPageContent, Article, User } from "../types
 
 // --- HELPER PARA OBTENER BASE URL ---
 const getBaseUrl = () => {
-    let url = '/api';
-    try {
-        // En Vite
-        if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) {
-            url = import.meta.env.VITE_API_URL;
-        }
-    } catch (e) {
-        // Fallback seguro
+    // 1. Prioridad: Variable de entorno VITE_API_URL
+    const anyImportMeta = import.meta as any;
+    const envUrl = anyImportMeta?.env?.VITE_API_URL;
+
+    if (envUrl) {
+        // Asegurar que no termine en slash
+        const cleanUrl = envUrl.replace(/\/$/, '');
+        // Si ya termina en /api, devolverlo tal cual
+        if (cleanUrl.endsWith('/api')) return cleanUrl;
+        // Si no, agregar /api
+        return `${cleanUrl}/api`;
     }
     
-    // Limpiar trailing slash si existe
-    url = url.replace(/\/+$/, '');
-    
-    // Si la URL no termina en /api, añadimos /api
-    if (!url.endsWith('/api')) {
-        url = `${url}/api`;
-    }
-    
-    return url;
+    // 2. Fallback: URL relativa si estamos en el mismo dominio
+    return "/api";
 };
 
 const API_URL = getBaseUrl();
@@ -214,10 +210,6 @@ export const api = {
           
           log(`[API] Login exitoso. Usuario: ${user.user.name}`);
           
-          // IMPORTANTE: Guardar token aquí si el componente no lo hace, 
-          // pero auth.ts ya lo maneja. Asumimos que esta llamada viene de un contexto 
-          // que guarda el token (services/auth.ts).
-          // Sin embargo, para api.ts puro, la respuesta trae { user, token }.
           if (user.token) {
               localStorage.setItem('plataformadeventacom_token', user.token);
           }

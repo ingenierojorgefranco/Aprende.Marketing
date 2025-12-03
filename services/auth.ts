@@ -4,11 +4,15 @@
 const getApiBaseUrl = (): string => {
   // import.meta puede no estar definido en algunos entornos
   const anyImportMeta = import.meta as any;
+  const envUrl = anyImportMeta?.env?.VITE_API_URL;
 
-  const env = anyImportMeta?.env || {};
-
-  if (env.VITE_API_URL) {
-    return env.VITE_API_URL as string;
+  if (envUrl) {
+    // Asegurar que no termine en slash
+    const cleanUrl = envUrl.replace(/\/$/, '');
+    // Si ya termina en /api, devolverlo tal cual
+    if (cleanUrl.endsWith('/api')) return cleanUrl;
+    // Si no, agregar /api
+    return `${cleanUrl}/api`;
   }
 
   // fallback razonable: mismo host + /api

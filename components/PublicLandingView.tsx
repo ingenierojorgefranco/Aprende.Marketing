@@ -3,7 +3,24 @@ import { useParams } from "react-router-dom";
 import { LandingPage } from "../types";
 import { Loader2, AlertTriangle } from "lucide-react";
 
-const API_BASE = (import.meta as any).env?.VITE_API_URL || "/api";
+// Helper robusto para obtener la URL base de la API
+const getApiBaseUrl = () => {
+  // 1. Prioridad: Variable de entorno VITE_API_URL
+  const envUrl = (import.meta as any).env?.VITE_API_URL;
+  if (envUrl) {
+    // Asegurar que no termine en slash
+    const cleanUrl = envUrl.replace(/\/$/, '');
+    // Si ya termina en /api, devolverlo tal cual
+    if (cleanUrl.endsWith('/api')) return cleanUrl;
+    // Si no, agregar /api
+    return `${cleanUrl}/api`;
+  }
+  
+  // 2. Fallback: URL relativa si estamos en el mismo dominio
+  return "/api";
+};
+
+const API_BASE = getApiBaseUrl();
 
 export const PublicLandingView: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -24,6 +41,11 @@ export const PublicLandingView: React.FC = () => {
         setError(null);
 
         const res = await fetch(`${API_BASE}/public/pages/${slug}`);
+
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") === -1) {
+             throw new Error("La respuesta del servidor no es JSON (posible error de ruta API).");
+        }
 
         if (!res.ok) {
           if (res.status === 404) {
@@ -56,7 +78,7 @@ export const PublicLandingView: React.FC = () => {
         setPage(normalized);
       } catch (e: any) {
         console.error("Error cargando landing pública:", e);
-        setError("Error interno cargando la landing.");
+        setError("No se pudo cargar la página. Verifica la conexión.");
       } finally {
         setLoading(false);
       }

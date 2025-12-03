@@ -28,6 +28,7 @@ import {
   Trash2,
   AlertTriangle,
   X,
+  MapPin,
 } from "lucide-react";
 import { api } from "./services/api";
 import { getCurrentUser, logout } from "./services/auth";
@@ -72,6 +73,26 @@ const EditorRouteWrapper = ({
       onBack={() => navigate("/dashboard/pages")}
     />
   );
+};
+
+// Componente 404 para Debug
+const NotFoundPage = () => {
+    const location = useLocation();
+    return (
+        <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6">
+            <AlertTriangle className="w-16 h-16 text-yellow-500 mb-4" />
+            <h1 className="text-3xl font-bold mb-2">404 - Ruta no encontrada</h1>
+            <p className="text-gray-400 mb-6">No se encontró contenido para esta dirección.</p>
+            
+            <div className="bg-gray-900 p-4 rounded-lg font-mono text-sm text-gray-300 border border-gray-800 mb-6 max-w-lg break-all">
+                <p><span className="text-blue-400">Path actual:</span> {location.pathname}</p>
+            </div>
+            
+            <a href="/" className="px-6 py-3 bg-primary rounded-lg font-bold hover:bg-indigo-600 transition">
+                Ir al Inicio
+            </a>
+        </div>
+    );
 };
 
 const App: React.FC = () => {
@@ -454,8 +475,8 @@ const App: React.FC = () => {
           />
         </Route>
 
-        {/* CUALQUIER OTRA RUTA → HOME */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* CUALQUIER OTRA RUTA → 404 (EVITA LOOPS) */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
       <DeleteModal />
