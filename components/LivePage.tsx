@@ -297,7 +297,7 @@ export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = f
     return (
       <h1 
         id="titulo-principal"
-        className={`font-extrabold text-white tracking-tight mb-6 leading-[1.15] max-w-4xl mx-auto ${isMobilePreview ? 'text-3xl' : 'text-3xl md:text-5xl lg:text-7xl'}`}
+        className={`font-extrabold text-white tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`}
         dangerouslySetInnerHTML={{ __html: htmlContent }}
       />
     );
@@ -367,7 +367,7 @@ export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = f
                 
                 <LeadCaptureForm btnClass={ds.primaryBtn} btnText={content.hero.ctaText} />
                 
-                <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500 text-center mb-6">
+                <div className="mt-4 flex items-center justify-center gap-2 text-xs text-white-500 text-center mb-6">
                     <Lock className="w-3 h-3 flex-shrink-0" /> Tus datos están 100% seguros. No hacemos spam.
                 </div>
 
@@ -526,32 +526,36 @@ export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = f
             ${isScrolled ? `${ds.navStickyBg} fixed top-0 left-0` : 'absolute top-0 left-0 bg-transparent border-b border-white/5 backdrop-blur-sm'}
         `}
       >
-          <div className="w-full max-w-[75em] mx-auto px-6 py-4 flex justify-between items-center relative">
-            <div id="logo-marca" className={`flex items-center gap-3 font-bold text-xl md:text-2xl tracking-tight transition-colors duration-300 ${currentTextColor}`}>
-              {/* Logo en Círculo Destacado */}
-              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform border-2 border-white/20 ${ds.logoBg}`}>
+          <div className="w-full max-w-[75em] mx-auto px-6 py-4 flex justify-between items-center relative gap-4">
+            {/* Logo y Marca: flex-1 y min-w-0 para permitir que el texto se trunque si es necesario, sin empujar el menú */}
+            <div id="logo-marca" className={`flex items-center gap-2 md:gap-3 font-bold tracking-tight transition-colors duration-300 ${currentTextColor} flex-1 min-w-0 mr-2`}>
+              {/* Logo en Círculo Destacado (Fixed width/height via shrink-0) */}
+              <div className={`w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform border-2 border-white/20 flex-shrink-0 ${ds.logoBg}`}>
                  {content.brandIcon ? getIcon(content.brandIcon, <Sparkles className="w-5 h-5 md:w-6 md:h-6" />) : (
                     content.logoSvg ? (
                         <div 
-                          className="w-6 h-6 md:w-7 md:h-7" 
+                          className="w-5 h-5 md:w-7 md:h-7" 
                           dangerouslySetInnerHTML={{ __html: content.logoSvg }} 
                         />
-                     ) : <Anchor className="w-5 h-5 md:w-6 md:h-6 text-current" /> 
+                     ) : <Anchor className="w-4 h-4 md:w-6 md:h-6 text-current" /> 
                  )}
               </div>
               
-              <span className="truncate max-w-[150px] md:max-w-none">{renderBrandName(content.brandName || "Brand")}</span>
+              {/* Brand Name with smaller text on mobile and truncation */}
+              <span className="truncate text-sm sm:text-lg md:text-2xl leading-tight">
+                {renderBrandName(content.brandName || "Brand")}
+              </span>
             </div>
             
             {/* Desktop Menu - Condicionado por isMobilePreview para ocultarlo en la vista previa movil */}
-            <div id="enlaces-navegacion" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-sm font-medium transition-colors duration-300 ${currentTextColor} opacity-90`}>
+            <div id="enlaces-navegacion" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-sm font-medium transition-colors duration-300 ${currentTextColor} opacity-90 flex-shrink-0`}>
               {navLinks.map((link, i) => (
                   <a key={i} href={link.href} className="hover:opacity-100 transition">{link.label}</a>
               ))}
             </div>
             
-            {/* Mobile Actions */}
-            <div className="flex items-center gap-2">
+            {/* Mobile Actions (Menu + CTA) - Fixed size to prevent shrinking */}
+            <div className="flex items-center gap-2 flex-shrink-0">
                 <button 
                 id="cta-navbar" 
                 onClick={() => setShowModal(true)}
@@ -1020,7 +1024,6 @@ export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = f
                  {/* Top Tagline / Banner */}
                  <div id="contenedor-tagline" className="flex justify-center mb-6 lg:mb-8">
                      <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md ${ds.heroText} shadow-lg shadow-white/5 hover:scale-105 transition-transform duration-300`}>
-                          <span className="flex h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse shadow-sm shadow-red-500"></span>
                           <span className="text-xs md:text-sm font-black uppercase tracking-wider">
                               {content.topTagline || "🔥 Oferta por tiempo limitado"}
                           </span>

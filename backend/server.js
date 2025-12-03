@@ -22,7 +22,21 @@ app.use(bodyParser.json({ limit: '10mb' }));
 //  LOGGING
 // ======================================================
 app.use((req, res, next) => {
-  console.log(`[API] ${req.method} ${req.path}`);
+  console.log(`[API] ${req.method} ${req.path} (host: ${req.hostname || req.headers.host})`);
+  next();
+});
+
+// ======================================================
+//  REDIRECCIÓN WWW → DOMINIO RAÍZ
+//  Si entra por www.aprende.marketing, lo mandamos a https://aprende.marketing
+// ======================================================
+app.use((req, res, next) => {
+  const host = req.hostname || req.headers.host || '';
+  if (host === `www.${BASE_DOMAIN}`) {
+    const targetUrl = `https://${BASE_DOMAIN}${req.originalUrl || ''}`;
+    console.log(`[REDIRECT] ${host} -> ${targetUrl}`);
+    return res.redirect(301, targetUrl);
+  }
   next();
 });
 
