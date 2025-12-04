@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { LandingPage } from "../types";
-import { Loader2, AlertTriangle, RefreshCw, Terminal, Copy, Database } from "lucide-react";
+import { Loader2, AlertTriangle, RefreshCw, Terminal, Copy } from "lucide-react";
 
 // Helper para obtener la URL base correcta de la API
 const getApiBase = () => {
@@ -21,16 +21,14 @@ export const CustomDomainLandingView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   
   // Variables de diagnóstico
-  const [apiMissing, setApiMissing] = useState(false);
   const [dbStatus, setDbStatus] = useState<string>("Comprobando...");
-  const [debugInfo, setDebugInfo] = useState<any>({});
+  const [debugInfo, setDebugInfo] = useState<Record<string, any>>({});
 
   useEffect(() => {
     const init = async () => {
       setLoading(true);
       
       // PASO 1: Check de Conexión a BD
-      let dbCheckPassed = false;
       const dbCheckUrl = `${API_BASE}/debug/db-status`;
       
       try {
@@ -38,17 +36,16 @@ export const CustomDomainLandingView: React.FC = () => {
           const dbData = await dbRes.json();
           if (dbData.db_connected) {
               setDbStatus("Conectada ✅");
-              dbCheckPassed = true;
           } else {
               setDbStatus(`Error de conexión: ${dbData.error || 'Desconocido'}`);
           }
-          setDebugInfo(prev => ({ ...prev, dbCheck: dbData }));
-      } catch (e) {
+          setDebugInfo((prev: Record<string, any>) => ({ ...prev, dbCheck: dbData }));
+      } catch (e: unknown) {
           setDbStatus("Fallo al contactar endpoint de debug ❌");
-          setDebugInfo(prev => ({ ...prev, dbCheckError: e.toString() }));
+          setDebugInfo((prev: Record<string, any>) => ({ ...prev, dbCheckError: String(e) }));
       }
 
-      // PASO 2: Cargar Landing (Solo si DB respondió, aunque intentamos igual)
+      // PASO 2: Cargar Landing
       const host = typeof window !== "undefined" ? window.location.hostname : "";
       const endpoint = `${API_BASE}/public/pages/by-domain?domain=${encodeURIComponent(host)}`;
       console.log(`[CustomDomainLandingView] Buscando landing para: ${host}`);
@@ -58,11 +55,10 @@ export const CustomDomainLandingView: React.FC = () => {
           endpoint,
           timestamp: new Date().toISOString()
       };
-      setDebugInfo(prev => ({ ...prev, ...startDebug }));
+      setDebugInfo((prev: Record<string, any>) => ({ ...prev, ...startDebug }));
 
       try {
         setError(null);
-        setApiMissing(false);
 
         const res = await fetch(endpoint);
         
@@ -85,14 +81,13 @@ export const CustomDomainLandingView: React.FC = () => {
             contentType,
             responseBody: errorData || successData
         };
-        setDebugInfo(prev => ({ ...prev, mainRequest: debugPayload }));
+        setDebugInfo((prev: Record<string, any>) => ({ ...prev, mainRequest: debugPayload }));
 
         if (!res.ok) {
             let errorMsg = "Error cargando la página";
             
             if (errorData) {
-                if (errorData.error && errorData.error.includes("Endpoint Not Found")) {
-                    setApiMissing(true);
+                if (errorData.error && String(errorData.error).includes("Endpoint Not Found")) {
                     throw new Error(`El servidor backend NO reconoció la ruta. (Versión detectada: ${errorData.server_version || 'Desconocida'})`);
                 }
                 errorMsg = errorData.error || errorMsg;
@@ -125,7 +120,7 @@ export const CustomDomainLandingView: React.FC = () => {
         setPage(normalized);
       } catch (e: any) {
         console.error("Error cargando landing:", e);
-        setError(e.message);
+        setError(e.message || "Error desconocido");
       } finally {
         setLoading(false);
       }

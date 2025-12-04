@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = "v2_diagnostic_db_check"; // CAMBIO: Versión actualizada
+const SERVER_VERSION = "v2_diagnostic_db_check"; 
 
 // Configuración para Cloud Run (Proxy)
 app.enable('trust proxy');
