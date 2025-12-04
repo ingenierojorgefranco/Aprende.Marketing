@@ -138,7 +138,7 @@ const App: React.FC = () => {
 
   
 
-  // Restaurar sesión al inicio
+  // Restaurar sesión al inicio 
   useEffect(() => {
     const restoreSession = async () => {
       const token = localStorage.getItem("plataformadeventacom_token");
