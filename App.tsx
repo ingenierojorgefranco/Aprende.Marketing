@@ -136,7 +136,7 @@ const App: React.FC = () => {
     host.includes("aprende.marketing") ||
     host.includes("plataformadeventa.com");
 
-  console.log("el host es ". host)
+  
 
   // Restaurar sesión al inicio
   useEffect(() => {
