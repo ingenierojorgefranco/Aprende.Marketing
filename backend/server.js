@@ -750,7 +750,7 @@ app.post('/api/leads', async (req, res) => {
 });
 
 // ======================================================
-//  ARTÍCULOS
+//  ARTÍCULOS 
 // ======================================================
 app.get('/api/articles', authMiddleware, async (req, res) => {
   try {
