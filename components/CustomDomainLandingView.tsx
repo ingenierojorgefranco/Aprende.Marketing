@@ -35,9 +35,11 @@ export const CustomDomainLandingView: React.FC = () => {
 
   useEffect(() => {
     const fetchPage = async () => {
-      const endpoint = `${API_BASE}/public/pages/by-domain`;
-      const host =
-        typeof window !== "undefined" ? window.location.hostname : "(no-window)";
+      // FIX: Pasamos el dominio actual como query param, ya que el backend en Cloud Run
+      // verá su propio dominio y no el dominio personalizado en req.hostname.
+      const host = typeof window !== "undefined" ? window.location.hostname : "(no-window)";
+      
+      const endpoint = `${API_BASE}/public/pages/by-domain?domain=${encodeURIComponent(host)}`;
 
       console.log("[CustomDomainLandingView] host:", host);
       console.log("[CustomDomainLandingView] Fetching:", endpoint);

@@ -392,7 +392,8 @@ app.delete('/api/projects/:id', authMiddleware, async (req, res) => {
 
 // 1. RUTA: POR DOMINIO CUSTOM (/api/public/pages/by-domain)
 app.get('/api/public/pages/by-domain', async (req, res) => {
-  let host = req.hostname || req.headers.host || '';
+  // Fix: Priorizar parámetro query 'domain' porque en Cloud Run req.hostname es el de Google
+  let host = req.query.domain || req.hostname || req.headers.host || '';
 
   if (host.includes(':')) {
     host = host.split(':')[0];
@@ -401,7 +402,7 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
     host = host.slice(4);
   }
 
-  console.log('[PUBLIC/by-domain] Host normalizado:', host);
+  console.log('[PUBLIC/by-domain] Buscando landing para dominio:', host);
 
   try {
     const [rows] = await pool.query(
@@ -416,6 +417,7 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
     );
 
     if (rows.length === 0) {
+      console.log(`[PUBLIC/by-domain] 404 No encontrado para: ${host}`);
       return res
         .status(404)
         .json({ error: 'No hay landing asociada a este dominio' });
@@ -802,7 +804,7 @@ app.use(express.static(frontendDistPath));
 
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api'))
-    return res.status(404).json({ error: 'API Not Found' });
+    return res.status(404).json({ error: 'API Endpoint Not Found' });
 
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
