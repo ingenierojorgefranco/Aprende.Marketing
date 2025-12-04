@@ -126,15 +126,16 @@ const App: React.FC = () => {
   // --- DETECCIÓN DE DOMINIO INTELIGENTE ---
   const host = typeof window !== "undefined" ? window.location.hostname : "localhost";
 
-  // Lógica: Si es localhost, IP local, o los dominios principales de la APP, 
-  // cargamos la App Principal. Si es cualquier OTRO dominio, asumimos que es de un cliente.
+  // Lógica: Si el dominio NO contiene palabras clave de nuestra app principal, asumimos que es un dominio de cliente.
+  // Esto reemplaza el mapa hardcodeado anterior.
   const isMainAppDomain = 
     host === "localhost" ||
     host === "" ||
     host.includes("localhost") || 
     host.includes("127.0.0.1") || 
     host.includes("aprende.marketing") ||
-    host.includes("plataformadeventacom");
+    host.includes("plataformadeventacom") ||
+    host.includes("run.app"); // Para URLs temporales de Cloud Run
 
   // Restaurar sesión al inicio
   useEffect(() => {

@@ -14,6 +14,10 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
+const SERVER_VERSION = "v_debug_2024_01"; // Identificador de versión para debug
+
+// Configuración para Cloud Run (Proxy)
+app.enable('trust proxy');
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -65,11 +69,13 @@ initDb();
 
 // Middleware de Debug Global: Imprime CADA petición que llega
 app.use((req, res, next) => {
-  console.log(`\n⬇️ [INCOMING REQUEST] --------------------------------`);
+  console.log(`\n⬇️ [INCOMING REQUEST] ${new Date().toISOString()} ----------------`);
+  console.log(`SERVER VERSION: ${SERVER_VERSION}`);
   console.log(`METHOD: ${req.method}`);
   console.log(`URL:    ${req.originalUrl}`);
-  console.log(`HOST:   ${req.headers.host}`);
+  console.log(`PATH:   ${req.path}`);
   console.log(`QUERY:  ${JSON.stringify(req.query)}`);
+  console.log(`IP:     ${req.ip}`);
   next();
 });
 
@@ -97,7 +103,8 @@ app.use((req, res, next) => {
 
 // 1. RUTA: POR DOMINIO CUSTOM (Específica)
 app.get('/api/public/pages/by-domain', async (req, res) => {
-  console.log(`🔍 [ROUTER] Matched /api/public/pages/by-domain`);
+  console.log(`🔍 [ROUTER] MATCHED: /api/public/pages/by-domain`);
+  console.log(`   -> Params:`, req.query);
   
   let host = req.query.domain || req.hostname || req.headers.host || '';
   
@@ -105,7 +112,7 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
   if (host.includes(':')) host = host.split(':')[0];
   if (host.startsWith('www.')) host = host.slice(4);
 
-  console.log(`   -> Buscando en DB por custom_domain = '${host}'`);
+  console.log(`   -> Buscando landing para custom_domain: '${host}'`);
 
   try {
     const [rows] = await pool.query(
@@ -113,13 +120,14 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
       [host]
     );
 
-    console.log(`   -> Resultado DB: ${rows.length} filas encontradas.`);
+    console.log(`   -> Resultado DB: ${rows.length} filas.`);
 
     if (rows.length === 0) {
-      console.log(`   -> 404: No hay landing publicada para ${host}`);
+      console.log(`   -> 404: No encontrada en DB.`);
       return res.status(404).json({ 
         error: 'No hay landing asociada a este dominio',
-        debug_domain_searched: host
+        searched_domain: host,
+        server_version: SERVER_VERSION
       });
     }
 
@@ -128,7 +136,10 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
       try { page.content = JSON.parse(page.content); } catch {}
     }
 
-    console.log(`   -> 200: Landing encontrada ID ${page.id}`);
+    // Registrar visita asíncronamente
+    pool.query('UPDATE landing_pages SET visits = visits + 1 WHERE id = ?', [page.id]).catch(err => console.error("Error updating visits:", err));
+    
+    console.log(`   -> 200: Landing ID ${page.id} enviada.`);
     res.json(page);
   } catch (error) {
     console.error('🔥 [ERROR CRÍTICO] /by-domain:', error);
@@ -139,7 +150,7 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
 // 2. RUTA: POR USUARIO + SLUG
 app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
   const { userSlug, slug } = req.params;
-  console.log(`🔍 [ROUTER] Matched /by-user/${userSlug}/${slug}`);
+  console.log(`🔍 [ROUTER] MATCHED: /by-user/${userSlug}/${slug}`);
   try {
     const [rows] = await pool.query(
       `SELECT lp.* FROM landing_pages lp
@@ -156,6 +167,7 @@ app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
     }
     res.json(page);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error interno' });
   }
 });
@@ -163,10 +175,14 @@ app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
 // 3. RUTA: SLUG GENÉRICO / SUBDOMINIO (Catch-all de páginas)
 app.get('/api/public/pages/:slug', async (req, res) => {
   const slug = req.params.slug;
-  // EVITAR conflicto con "by-domain" si Express lo confunde (aunque el orden arriba lo previene)
-  if (slug === 'by-domain') return res.status(404).json({error: 'Invalid slug'});
+  
+  // PROTECCIÓN: Si por alguna razón el router de Express confunde by-domain, lo atrapamos aquí.
+  if (slug === 'by-domain') {
+     console.warn("⚠️ [ROUTER] 'by-domain' cayó en catch-all :slug. Esto indica un error de orden en rutas.");
+     return res.status(404).json({error: "Router Error: 'by-domain' shadowed by slug param"});
+  }
 
-  console.log(`🔍 [ROUTER] Matched /api/public/pages/:slug (slug=${slug})`);
+  console.log(`🔍 [ROUTER] MATCHED: /api/public/pages/:slug (slug=${slug})`);
   const tenant = req.tenantSubdomain;
 
   try {
@@ -190,12 +206,11 @@ app.get('/api/public/pages/:slug', async (req, res) => {
       try { page.content = JSON.parse(page.content); } catch {}
     }
 
-    // Registrar visita
     pool.query('UPDATE landing_pages SET visits = visits + 1 WHERE id = ?', [page.id]).catch(console.error);
-    pool.query(`INSERT INTO daily_analytics (page_id, date, visits, conversions) VALUES (?, CURDATE(), 1, 0) ON DUPLICATE KEY UPDATE visits = visits + 1`, [page.id]).catch(console.error);
 
     res.json(page);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error interno' });
   }
 });
@@ -218,6 +233,7 @@ app.post('/api/auth/login', async (req, res) => {
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ user: { id: user.id, name: user.name, email: user.email }, token });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error de servidor' });
   }
 });
@@ -286,7 +302,6 @@ app.get('/api/projects/:id', authMiddleware, async (req, res) => {
   res.json(rows[0]);
 });
 app.post('/api/projects', authMiddleware, async (req, res) => {
-  // ... lógica de creación simplificada para brevedad, usando la misma lógica que tenías
   const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks } = req.body;
   const [result] = await pool.query(
     `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
@@ -307,7 +322,7 @@ app.delete('/api/projects/:id', authMiddleware, async (req, res) => {
   res.json({ success: true });
 });
 
-// Analytics, Leads, Artículos (Mantener lógica existente simplificada en este bloque para no alargar)
+// Analytics, Leads, Artículos
 app.get('/api/analytics/weekly', authMiddleware, async (req, res) => {
   const [rows] = await pool.query(`SELECT da.date, SUM(da.visits) as total_visits, SUM(da.conversions) as total_conversions FROM daily_analytics da JOIN landing_pages lp ON da.page_id = lp.id WHERE lp.user_id = ? AND da.date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY da.date`, [req.user.id]);
   res.json(rows.map(r => ({ date: r.date, visits: parseInt(r.total_visits), conversions: parseInt(r.total_conversions) })));
@@ -337,6 +352,32 @@ app.get('/api/test-db', async (req, res) => {
   try { await pool.query('SELECT 1'); res.json({ message: 'OK' }); } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// Debug Route: List all registered routes
+app.get('/api/debug-routes', (req, res) => {
+  const routes = [];
+  app._router.stack.forEach((middleware) => {
+      if (middleware.route) { // routes registered directly on the app
+          routes.push({
+              path: middleware.route.path,
+              methods: middleware.route.methods
+          });
+      } else if (middleware.name === 'router') { // router middleware 
+          middleware.handle.stack.forEach((handler) => {
+              if (handler.route) {
+                  routes.push({
+                      path: handler.route.path,
+                      methods: handler.route.methods
+                  });
+              }
+          });
+      }
+  });
+  res.json({
+    server_version: SERVER_VERSION,
+    routes
+  });
+});
+
 // ======================================================
 //  SERVIR FRONTEND (CATCH-ALL FINAL)
 // ======================================================
@@ -346,8 +387,13 @@ app.use(express.static(frontendDistPath));
 app.get('*', (req, res) => {
   // Si empieza por /api y no coincidió con nada arriba, es 404
   if (req.path.startsWith('/api')) {
-    console.warn(`⚠️ [API 404] Ruta NO encontrada por el Router: ${req.method} ${req.path}`);
-    return res.status(404).json({ error: 'API Endpoint Not Found' });
+    console.warn(`⚠️ [API 404] Ruta NO encontrada (Catch-All): ${req.method} ${req.path}`);
+    return res.status(404).json({ 
+      error: 'API Endpoint Not Found',
+      server_version: SERVER_VERSION,
+      debug_path: req.path,
+      debug_method: req.method
+    });
   }
   // Cualquier otra cosa, servir index.html
   res.sendFile(path.join(frontendDistPath, 'index.html'));
@@ -355,4 +401,6 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor escuchando en puerto ${PORT}`);
+  console.log(`ℹ️  Versión del Servidor: ${SERVER_VERSION}`);
+  console.log(`ℹ️  Ruta /api/public/pages/by-domain registrada: ${!!app._router.stack.find(r => r.route && r.route.path === '/api/public/pages/by-domain')}`);
 });

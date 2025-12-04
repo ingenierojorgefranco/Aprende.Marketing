@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { LandingPage } from "../types";
-import { Loader2, AlertTriangle, RefreshCw, Terminal } from "lucide-react";
+import { Loader2, AlertTriangle, RefreshCw, Terminal, Copy } from "lucide-react";
 
 // Helper para obtener la URL base correcta de la API
 const getApiBase = () => {
@@ -33,11 +33,12 @@ export const CustomDomainLandingView: React.FC = () => {
       const endpoint = `${API_BASE}/public/pages/by-domain?domain=${encodeURIComponent(host)}`;
       console.log(`[CustomDomainLandingView] Buscando landing para: ${host}`);
 
-      setDebugInfo({
+      const startDebug = {
           host,
           endpoint,
           timestamp: new Date().toISOString()
-      });
+      };
+      setDebugInfo(startDebug);
 
       try {
         setLoading(true);
@@ -46,34 +47,47 @@ export const CustomDomainLandingView: React.FC = () => {
 
         const res = await fetch(endpoint);
         
-        setDebugInfo((prev: any) => ({
-            ...prev,
-            status: res.status,
-            statusText: res.statusText
-        }));
+        // Intentar leer el cuerpo sea como sea para debug
+        let errorData = null;
+        let successData = null;
+        
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+             const json = await res.json();
+             if (!res.ok) errorData = json;
+             else successData = json;
+        } else {
+             const text = await res.text();
+             if (!res.ok) errorData = { rawText: text.slice(0, 500) };
+        }
 
-        // Manejo específico para el error 404 de API no encontrada vs Landing no encontrada
+        const debugPayload = {
+            ...startDebug,
+            status: res.status,
+            statusText: res.statusText,
+            contentType,
+            responseBody: errorData || successData
+        };
+        setDebugInfo(debugPayload);
+
+        // Manejo específico para el error 404
         if (!res.ok) {
             let errorMsg = "Error cargando la página";
-            try {
-                const errData = await res.json();
-                
-                // Si el backend devuelve "API Endpoint Not Found", significa que el servidor no tiene la ruta implementada
-                if (errData.error === "API Endpoint Not Found") {
+            
+            if (errorData) {
+                // Check específico si el backend devuelve "API Endpoint Not Found"
+                if (errorData.error === "API Endpoint Not Found") {
                     setApiMissing(true);
-                    throw new Error("El servidor backend no tiene habilitada la ruta de dominios personalizados.");
+                    throw new Error("El servidor backend NO reconoció la ruta /api/public/pages/by-domain.");
                 }
-                
-                errorMsg = errData.error || errorMsg;
-                setDebugInfo((prev: any) => ({ ...prev, responseBody: errData }));
-            } catch (jsonErr) {
-                // Si no es JSON, probablemente sea el 404 de HTML del catch-all si algo está muy mal
-                if (res.status === 404) errorMsg = "Página no encontrada";
+                errorMsg = errorData.error || errorMsg;
+            } else if (res.status === 404) {
+                errorMsg = "Recurso no encontrado (404)";
             }
             throw new Error(errorMsg);
         }
 
-        const data = await res.json();
+        const data = successData;
 
         // Normalizar datos
         let parsedContent: any = data.content;
@@ -106,6 +120,11 @@ export const CustomDomainLandingView: React.FC = () => {
     fetchPage();
   }, []);
 
+  const copyDebug = () => {
+      navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2));
+      alert("Diagnóstico copiado al portapapeles");
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
@@ -124,24 +143,20 @@ export const CustomDomainLandingView: React.FC = () => {
             
             <p className="text-gray-400 mb-6 leading-relaxed">
               {apiMissing 
-                ? "Error de conexión con el Servidor."
+                ? "Error CRÍTICO: El servidor no tiene la ruta configurada."
                 : (error || "No hay ninguna landing asociada a este dominio.")}
             </p>
 
             {/* DEBUG PANEL */}
-            <div className="bg-black/50 border border-gray-800 rounded p-4 text-left text-xs font-mono text-gray-300 mb-6 overflow-x-auto">
-                <div className="flex items-center gap-2 mb-2 text-gray-500 border-b border-gray-800 pb-1">
-                    <Terminal className="w-3 h-3" /> Diagnóstico Técnico
+            <div className="bg-black/50 border border-gray-800 rounded p-4 text-left text-xs font-mono text-gray-300 mb-6 overflow-x-auto relative group">
+                <div className="flex items-center justify-between gap-2 mb-2 text-gray-500 border-b border-gray-800 pb-1">
+                    <span className="flex items-center gap-2"><Terminal className="w-3 h-3" /> Diagnóstico Técnico</span>
+                    <button onClick={copyDebug} className="hover:text-white"><Copy className="w-3 h-3"/></button>
                 </div>
-                <p><span className="text-blue-400">Host:</span> {debugInfo.host}</p>
-                <p><span className="text-blue-400">Endpoint:</span> {debugInfo.endpoint}</p>
-                <p><span className="text-blue-400">Status:</span> <span className={debugInfo.status === 200 ? 'text-green-400' : 'text-red-400'}>{debugInfo.status || 'N/A'}</span></p>
-                {apiMissing && (
-                     <p className="text-red-400 mt-2 font-bold">CAUSA: Ruta de API no encontrada en Backend.</p>
-                )}
-                {error === 'No hay landing asociada a este dominio' && (
-                     <p className="text-yellow-400 mt-2">CAUSA: El dominio apunta al servidor, pero no hay registro en la tabla 'landing_pages' con custom_domain='{debugInfo.host}'.</p>
-                )}
+                
+                <pre className="whitespace-pre-wrap break-all text-[10px] text-gray-400">
+                    {JSON.stringify(debugInfo, null, 2)}
+                </pre>
             </div>
 
             <button 
@@ -160,14 +175,10 @@ export const CustomDomainLandingView: React.FC = () => {
   }
 
   // Renderizar contenido
-  // (Nota: Idealmente usaríamos <LivePage /> importado, pero para mantener la simplicidad y evitar errores de importación circular en este snippet, renderizamos el fallback robusto)
-  
   const content: any = page.content;
   const hero = content.hero || {};
   const brandName = content.brandName || page.name;
 
-  // Import dinámico visual si LivePage no está disponible en el scope inmediato del archivo.
-  // En tu proyecto real, asegúrate de importar LivePage arriba.
   return (
     <div className="min-h-screen bg-black text-white font-sans">
       <section className="relative overflow-hidden bg-gradient-to-b from-gray-900 to-black min-h-screen flex flex-col items-center justify-center p-6 text-center">
