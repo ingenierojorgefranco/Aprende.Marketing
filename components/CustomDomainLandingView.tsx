@@ -94,7 +94,8 @@ export const CustomDomainLandingView: React.FC = () => {
 
         setPage(normalized);
         setDebug((prev) => ({
-          ...(prev || {}),
+          ...(prev || { endpoint, host }),
+          endpoint, // Explicitly set to satisfy required type
           status: res.status,
           contentType,
           host,
@@ -103,7 +104,8 @@ export const CustomDomainLandingView: React.FC = () => {
         console.error("Error cargando landing por dominio:", e);
         setError("Error interno cargando la landing.");
         setDebug((prev) => ({
-          ...(prev || {}),
+          ...(prev || { endpoint, host }),
+          endpoint, // Explicitly set to satisfy required type
           rawBodySnippet:
             (prev && prev.rawBodySnippet) ||
             "Error de red o fallo inesperado en fetch.",
