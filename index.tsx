@@ -8,14 +8,13 @@ if (!rootElement) {
 throw new Error("Could not find root element to mount to");
 }
 
-// Detectar entorno: local usa HashRouter, cualquier dominio real usa BrowserRouter
-const hostname =
-typeof window !== "undefined" ? window.location.hostname : "";
+// Detectar si estamos en producción real (dominio)
+const isProductionDomain =
+typeof window !== "undefined" &&
+window.location.hostname.includes("aprende.marketing");
 
-const isLocal =
-hostname === "localhost" || hostname === "127.0.0.1";
-
-const Router = isLocal ? HashRouter : BrowserRouter;
+// Elegir Router dinámicamente
+const Router = isProductionDomain ? BrowserRouter : HashRouter;
 
 const root = ReactDOM.createRoot(rootElement);
 root.render(
