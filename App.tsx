@@ -127,7 +127,6 @@ const App: React.FC = () => {
   const host = typeof window !== "undefined" ? window.location.hostname : "localhost";
 
   // Lógica: Si el dominio NO contiene palabras clave de nuestra app principal, asumimos que es un dominio de cliente.
-  // Esto reemplaza el mapa hardcodeado anterior.
   const isMainAppDomain = 
     host === "localhost" ||
     host === "" ||

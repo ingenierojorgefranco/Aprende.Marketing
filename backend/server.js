@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = "v_debug_2024_01"; // Identificador de versión para debug
+const SERVER_VERSION = "v2_diagnostic_db_check"; // CAMBIO: Versión actualizada
 
 // Configuración para Cloud Run (Proxy)
 app.enable('trust proxy');
@@ -27,6 +27,10 @@ app.use(bodyParser.json({ limit: '10mb' }));
 // ======================================================
 const initDb = async () => {
   try {
+    // Test de conexión inicial
+    const [rows] = await pool.query('SELECT 1 as val');
+    console.log(`✅ [DB STARTUP] Conexión exitosa. Test value: ${rows[0].val}`);
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS daily_analytics (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -67,15 +71,8 @@ initDb();
 //  LOGGING & MIDDLEWARE
 // ======================================================
 
-// Middleware de Debug Global: Imprime CADA petición que llega
 app.use((req, res, next) => {
-  console.log(`\n⬇️ [INCOMING REQUEST] ${new Date().toISOString()} ----------------`);
-  console.log(`SERVER VERSION: ${SERVER_VERSION}`);
-  console.log(`METHOD: ${req.method}`);
-  console.log(`URL:    ${req.originalUrl}`);
-  console.log(`PATH:   ${req.path}`);
-  console.log(`QUERY:  ${JSON.stringify(req.query)}`);
-  console.log(`IP:     ${req.ip}`);
+  console.log(`\n⬇️ [REQ ${SERVER_VERSION}] ${req.method} ${req.originalUrl}`);
   next();
 });
 
@@ -96,23 +93,49 @@ app.use((req, res, next) => {
 });
 
 // ======================================================
-//  RUTAS PÚBLICAS (PRIORIDAD ALTA)
+//  RUTAS DE DIAGNÓSTICO (PRIORIDAD MÁXIMA)
 // ======================================================
 
-// IMPORTANTE: Definir rutas estáticas ANTES de las rutas con parámetros como :slug
+// 1. Verificar estado del servidor y DB explícitamente
+app.get('/api/debug/db-status', async (req, res) => {
+    console.log("🔍 [DEBUG] Ejecutando check de DB...");
+    try {
+        const [rows] = await pool.query('SELECT 1 as val');
+        
+        // Verificar si la tabla landing_pages existe y tiene datos
+        const [countRows] = await pool.query('SELECT COUNT(*) as count FROM landing_pages');
+        
+        console.log("✅ [DEBUG] DB OK.");
+        res.json({ 
+            status: 'online', 
+            db_connected: true, 
+            server_version: SERVER_VERSION,
+            landing_pages_count: countRows[0].count 
+        });
+    } catch (e) {
+        console.error("❌ [DEBUG] DB Error:", e);
+        res.status(500).json({ 
+            status: 'error', 
+            db_connected: false, 
+            error: e.message,
+            server_version: SERVER_VERSION 
+        });
+    }
+});
 
-// 1. RUTA: POR DOMINIO CUSTOM (Específica)
+// ======================================================
+//  RUTAS PÚBLICAS
+// ======================================================
+
+// 2. RUTA: POR DOMINIO CUSTOM (Específica)
 app.get('/api/public/pages/by-domain', async (req, res) => {
   console.log(`🔍 [ROUTER] MATCHED: /api/public/pages/by-domain`);
-  console.log(`   -> Params:`, req.query);
   
   let host = req.query.domain || req.hostname || req.headers.host || '';
-  
-  // Limpieza de host
   if (host.includes(':')) host = host.split(':')[0];
   if (host.startsWith('www.')) host = host.slice(4);
 
-  console.log(`   -> Buscando landing para custom_domain: '${host}'`);
+  console.log(`   -> Buscando landing para dominio: '${host}'`);
 
   try {
     const [rows] = await pool.query(
@@ -120,12 +143,11 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
       [host]
     );
 
-    console.log(`   -> Resultado DB: ${rows.length} filas.`);
+    console.log(`   -> Filas encontradas: ${rows.length}`);
 
     if (rows.length === 0) {
-      console.log(`   -> 404: No encontrada en DB.`);
       return res.status(404).json({ 
-        error: 'No hay landing asociada a este dominio',
+        error: 'No hay landing asociada a este dominio en la BD',
         searched_domain: host,
         server_version: SERVER_VERSION
       });
@@ -136,21 +158,19 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
       try { page.content = JSON.parse(page.content); } catch {}
     }
 
-    // Registrar visita asíncronamente
+    // Registrar visita sin esperar
     pool.query('UPDATE landing_pages SET visits = visits + 1 WHERE id = ?', [page.id]).catch(err => console.error("Error updating visits:", err));
     
-    console.log(`   -> 200: Landing ID ${page.id} enviada.`);
     res.json(page);
   } catch (error) {
     console.error('🔥 [ERROR CRÍTICO] /by-domain:', error);
-    res.status(500).json({ error: 'Error interno del servidor', details: error.message });
+    res.status(500).json({ error: 'Error interno consultando BD', details: error.message, server_version: SERVER_VERSION });
   }
 });
 
-// 2. RUTA: POR USUARIO + SLUG
+// 3. RUTA: POR USUARIO + SLUG
 app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
   const { userSlug, slug } = req.params;
-  console.log(`🔍 [ROUTER] MATCHED: /by-user/${userSlug}/${slug}`);
   try {
     const [rows] = await pool.query(
       `SELECT lp.* FROM landing_pages lp
@@ -172,17 +192,11 @@ app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
   }
 });
 
-// 3. RUTA: SLUG GENÉRICO / SUBDOMINIO (Catch-all de páginas)
+// 4. RUTA: SLUG GENÉRICO / SUBDOMINIO (Catch-all de páginas)
 app.get('/api/public/pages/:slug', async (req, res) => {
   const slug = req.params.slug;
-  
-  // PROTECCIÓN: Si por alguna razón el router de Express confunde by-domain, lo atrapamos aquí.
-  if (slug === 'by-domain') {
-     console.warn("⚠️ [ROUTER] 'by-domain' cayó en catch-all :slug. Esto indica un error de orden en rutas.");
-     return res.status(404).json({error: "Router Error: 'by-domain' shadowed by slug param"});
-  }
+  if (slug === 'by-domain') return res.status(404).json({error: "Router conflict: use /by-domain endpoint"});
 
-  console.log(`🔍 [ROUTER] MATCHED: /api/public/pages/:slug (slug=${slug})`);
   const tenant = req.tenantSubdomain;
 
   try {
@@ -237,7 +251,6 @@ app.post('/api/auth/login', async (req, res) => {
     res.status(500).json({ error: 'Error de servidor' });
   }
 });
-// Alias para compatibilidad
 app.post('/api/login', (req, res) => res.redirect(307, '/api/auth/login'));
 
 app.get('/api/auth/me', authMiddleware, async (req, res) => {
@@ -262,12 +275,11 @@ app.post('/api/gemini', async (req, res) => {
   }
 });
 
-// CRUD Páginas
+// API Pages
 app.get('/api/pages', authMiddleware, async (req, res) => {
   const [rows] = await pool.query('SELECT * FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
   res.json(rows);
 });
-
 app.post('/api/pages', authMiddleware, async (req, res) => {
   const { name, niche, goal, subdomain, content } = req.body;
   const [result] = await pool.query(
@@ -276,7 +288,6 @@ app.post('/api/pages', authMiddleware, async (req, res) => {
   );
   res.json({ id: result.insertId });
 });
-
 app.put('/api/pages/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   const { content, isPublished, name, niche } = req.body;
@@ -286,13 +297,12 @@ app.put('/api/pages/:id', authMiddleware, async (req, res) => {
   );
   res.json({ success: true });
 });
-
 app.delete('/api/pages/:id', authMiddleware, async (req, res) => {
   await pool.query('DELETE FROM landing_pages WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
   res.json({ success: true });
 });
 
-// CRUD Proyectos
+// API Projects
 app.get('/api/projects', authMiddleware, async (req, res) => {
   const [rows] = await pool.query('SELECT * FROM projects WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
   res.json(rows);
@@ -322,7 +332,7 @@ app.delete('/api/projects/:id', authMiddleware, async (req, res) => {
   res.json({ success: true });
 });
 
-// Analytics, Leads, Artículos
+// Analytics & Others
 app.get('/api/analytics/weekly', authMiddleware, async (req, res) => {
   const [rows] = await pool.query(`SELECT da.date, SUM(da.visits) as total_visits, SUM(da.conversions) as total_conversions FROM daily_analytics da JOIN landing_pages lp ON da.page_id = lp.id WHERE lp.user_id = ? AND da.date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY da.date`, [req.user.id]);
   res.json(rows.map(r => ({ date: r.date, visits: parseInt(r.total_visits), conversions: parseInt(r.total_conversions) })));
@@ -347,35 +357,8 @@ app.post('/api/leads', async (req, res) => {
   res.json({ success: true });
 });
 
-// Test DB
 app.get('/api/test-db', async (req, res) => {
   try { await pool.query('SELECT 1'); res.json({ message: 'OK' }); } catch(e) { res.status(500).json({ error: e.message }); }
-});
-
-// Debug Route: List all registered routes
-app.get('/api/debug-routes', (req, res) => {
-  const routes = [];
-  app._router.stack.forEach((middleware) => {
-      if (middleware.route) { // routes registered directly on the app
-          routes.push({
-              path: middleware.route.path,
-              methods: middleware.route.methods
-          });
-      } else if (middleware.name === 'router') { // router middleware 
-          middleware.handle.stack.forEach((handler) => {
-              if (handler.route) {
-                  routes.push({
-                      path: handler.route.path,
-                      methods: handler.route.methods
-                  });
-              }
-          });
-      }
-  });
-  res.json({
-    server_version: SERVER_VERSION,
-    routes
-  });
 });
 
 // ======================================================
@@ -385,22 +368,19 @@ const frontendDistPath = path.join(__dirname, '..', 'dist');
 app.use(express.static(frontendDistPath));
 
 app.get('*', (req, res) => {
-  // Si empieza por /api y no coincidió con nada arriba, es 404
   if (req.path.startsWith('/api')) {
-    console.warn(`⚠️ [API 404] Ruta NO encontrada (Catch-All): ${req.method} ${req.path}`);
+    // Si llega aquí es porque NINGUNA ruta anterior hizo match
+    console.warn(`⚠️ [404] Ruta API desconocida: ${req.path}`);
     return res.status(404).json({ 
-      error: 'API Endpoint Not Found',
+      error: 'API Endpoint Not Found (Backend v2)', 
       server_version: SERVER_VERSION,
-      debug_path: req.path,
-      debug_method: req.method
+      path: req.path
     });
   }
-  // Cualquier otra cosa, servir index.html
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor escuchando en puerto ${PORT}`);
-  console.log(`ℹ️  Versión del Servidor: ${SERVER_VERSION}`);
-  console.log(`ℹ️  Ruta /api/public/pages/by-domain registrada: ${!!app._router.stack.find(r => r.route && r.route.path === '/api/public/pages/by-domain')}`);
+  console.log(`🚀 Servidor V2 listo en puerto ${PORT}`);
+  console.log(`ℹ️  Versión: ${SERVER_VERSION}`);
 });

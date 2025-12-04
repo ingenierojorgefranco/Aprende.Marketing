@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { LandingPage } from "../types";
-import { Loader2, AlertTriangle, RefreshCw, Terminal, Copy } from "lucide-react";
+import { Loader2, AlertTriangle, RefreshCw, Terminal, Copy, Database } from "lucide-react";
 
 // Helper para obtener la URL base correcta de la API
 const getApiBase = () => {
@@ -22,14 +22,34 @@ export const CustomDomainLandingView: React.FC = () => {
   
   // Variables de diagnóstico
   const [apiMissing, setApiMissing] = useState(false);
+  const [dbStatus, setDbStatus] = useState<string>("Comprobando...");
   const [debugInfo, setDebugInfo] = useState<any>({});
 
   useEffect(() => {
-    const fetchPage = async () => {
-      // Usar window.location.hostname para detectar el dominio personalizado (ej: bajardepeso.online)
-      const host = typeof window !== "undefined" ? window.location.hostname : "";
+    const init = async () => {
+      setLoading(true);
       
-      // Llamamos al endpoint específico que busca por custom_domain
+      // PASO 1: Check de Conexión a BD
+      let dbCheckPassed = false;
+      const dbCheckUrl = `${API_BASE}/debug/db-status`;
+      
+      try {
+          const dbRes = await fetch(dbCheckUrl);
+          const dbData = await dbRes.json();
+          if (dbData.db_connected) {
+              setDbStatus("Conectada ✅");
+              dbCheckPassed = true;
+          } else {
+              setDbStatus(`Error de conexión: ${dbData.error || 'Desconocido'}`);
+          }
+          setDebugInfo(prev => ({ ...prev, dbCheck: dbData }));
+      } catch (e) {
+          setDbStatus("Fallo al contactar endpoint de debug ❌");
+          setDebugInfo(prev => ({ ...prev, dbCheckError: e.toString() }));
+      }
+
+      // PASO 2: Cargar Landing (Solo si DB respondió, aunque intentamos igual)
+      const host = typeof window !== "undefined" ? window.location.hostname : "";
       const endpoint = `${API_BASE}/public/pages/by-domain?domain=${encodeURIComponent(host)}`;
       console.log(`[CustomDomainLandingView] Buscando landing para: ${host}`);
 
@@ -38,16 +58,14 @@ export const CustomDomainLandingView: React.FC = () => {
           endpoint,
           timestamp: new Date().toISOString()
       };
-      setDebugInfo(startDebug);
+      setDebugInfo(prev => ({ ...prev, ...startDebug }));
 
       try {
-        setLoading(true);
         setError(null);
         setApiMissing(false);
 
         const res = await fetch(endpoint);
         
-        // Intentar leer el cuerpo sea como sea para debug
         let errorData = null;
         let successData = null;
         
@@ -62,23 +80,20 @@ export const CustomDomainLandingView: React.FC = () => {
         }
 
         const debugPayload = {
-            ...startDebug,
             status: res.status,
             statusText: res.statusText,
             contentType,
             responseBody: errorData || successData
         };
-        setDebugInfo(debugPayload);
+        setDebugInfo(prev => ({ ...prev, mainRequest: debugPayload }));
 
-        // Manejo específico para el error 404
         if (!res.ok) {
             let errorMsg = "Error cargando la página";
             
             if (errorData) {
-                // Check específico si el backend devuelve "API Endpoint Not Found"
-                if (errorData.error === "API Endpoint Not Found") {
+                if (errorData.error && errorData.error.includes("Endpoint Not Found")) {
                     setApiMissing(true);
-                    throw new Error("El servidor backend NO reconoció la ruta /api/public/pages/by-domain.");
+                    throw new Error(`El servidor backend NO reconoció la ruta. (Versión detectada: ${errorData.server_version || 'Desconocida'})`);
                 }
                 errorMsg = errorData.error || errorMsg;
             } else if (res.status === 404) {
@@ -89,7 +104,6 @@ export const CustomDomainLandingView: React.FC = () => {
 
         const data = successData;
 
-        // Normalizar datos
         let parsedContent: any = data.content;
         if (typeof parsedContent === "string") {
           try { parsedContent = JSON.parse(parsedContent); } catch {}
@@ -117,7 +131,7 @@ export const CustomDomainLandingView: React.FC = () => {
       }
     };
 
-    fetchPage();
+    init();
   }, []);
 
   const copyDebug = () => {
@@ -129,7 +143,8 @@ export const CustomDomainLandingView: React.FC = () => {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
         <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
-        <p className="animate-pulse text-gray-400">Cargando contenido...</p>
+        <p className="animate-pulse text-gray-400">Conectando al servidor...</p>
+        <p className="text-xs text-gray-600 mt-2">Estado BD: {dbStatus}</p>
       </div>
     );
   }
@@ -141,11 +156,13 @@ export const CustomDomainLandingView: React.FC = () => {
             <AlertTriangle className="w-12 h-12 text-yellow-500 mb-6 mx-auto" />
             <h1 className="text-2xl font-bold mb-3 text-white">No se pudo cargar la página</h1>
             
-            <p className="text-gray-400 mb-6 leading-relaxed">
-              {apiMissing 
-                ? "Error CRÍTICO: El servidor no tiene la ruta configurada."
-                : (error || "No hay ninguna landing asociada a este dominio.")}
+            <p className="text-gray-400 mb-2 leading-relaxed font-bold">
+               {error}
             </p>
+            
+            <div className={`text-xs mb-6 px-3 py-1 rounded-full inline-block ${dbStatus.includes('✅') ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
+                Estado Base de Datos: {dbStatus}
+            </div>
 
             {/* DEBUG PANEL */}
             <div className="bg-black/50 border border-gray-800 rounded p-4 text-left text-xs font-mono text-gray-300 mb-6 overflow-x-auto relative group">
@@ -165,10 +182,6 @@ export const CustomDomainLandingView: React.FC = () => {
             >
                 <RefreshCw className="w-4 h-4" /> Reintentar
             </button>
-        </div>
-        
-        <div className="mt-8 text-xs text-gray-600">
-            PlataformaDeVenta.com &copy; {new Date().getFullYear()}
         </div>
       </div>
     );
