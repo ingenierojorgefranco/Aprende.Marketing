@@ -14,20 +14,33 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v3_projects_db_persistence'; // Versión para debug
+const SERVER_VERSION = 'v4_db_sync_fix'; 
 
-app.enable('trust proxy'); // Importante para Cloud Run/Proxies
+app.enable('trust proxy');
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 
 // ======================================================
+//  LOGGING
+// ======================================================
+app.use((req, res, next) => {
+  console.log(
+    `[API] ${req.method} ${req.path} (host: ${req.hostname || req.headers.host})`
+  );
+  next();
+});
+
+// ======================================================
 //  INICIALIZACIÓN DB (Tablas necesarias)
 // ======================================================
 const initDb = async () => {
-  console.log(`[DB] Iniciando verificación de tablas... (Versión: ${SERVER_VERSION})`);
+  console.log(`[DB] ⏳ Iniciando inicialización de base de datos (Versión: ${SERVER_VERSION})...`);
   const connection = await pool.getConnection();
   try {
+    // Desactivar checks de llaves foráneas temporalmente para evitar errores si las tablas se crean en desorden
+    await connection.query('SET FOREIGN_KEY_CHECKS = 0');
+
     // 1. Tabla de Usuarios (Base)
     await connection.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -42,6 +55,7 @@ const initDb = async () => {
         last_login_at DATETIME
       )
     `);
+    console.log("✅ [DB] Tabla 'users' verificada.");
     
     // 2. Tabla de Landing Pages
     await connection.query(`
@@ -61,6 +75,7 @@ const initDb = async () => {
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       )
     `);
+    console.log("✅ [DB] Tabla 'landing_pages' verificada.");
 
     // 3. Tabla para Analíticas Diarias
     await connection.query(`
@@ -75,7 +90,7 @@ const initDb = async () => {
       )
     `);
 
-    // 4. Tabla de Proyectos (Estrategias) - AQUI ESTABA EL PROBLEMA
+    // 4. Tabla de Proyectos (Estrategias)
     await connection.query(`
       CREATE TABLE IF NOT EXISTS projects (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -95,6 +110,7 @@ const initDb = async () => {
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       )
     `);
+    console.log("✅ [DB] Tabla 'projects' verificada.");
 
     // 5. Tabla de Artículos
     await connection.query(`
@@ -124,24 +140,18 @@ const initDb = async () => {
       )
     `);
 
-    console.log("✅ [DB] Todas las tablas verificadas correctamente.");
+    // Reactivar checks de llaves foráneas
+    await connection.query('SET FOREIGN_KEY_CHECKS = 1');
+
+    console.log("🚀 [DB] Inicialización completa. Todas las tablas están listas.");
   } catch (err) {
-    console.error("⚠️ [DB] Error verificando tablas:", err.message);
+    console.error("⚠️ [DB] Error CRÍTICO verificando tablas:", err);
+    console.error("⚠️ [DB] Detalles:", err.message);
+    // No matamos el proceso, pero el servidor podría fallar al consultar
   } finally {
     connection.release();
   }
 };
-initDb();
-
-// ======================================================
-//  LOGGING
-// ======================================================
-app.use((req, res, next) => {
-  console.log(
-    `[API] ${req.method} ${req.path} (host: ${req.hostname || req.headers.host})`
-  );
-  next();
-});
 
 // ======================================================
 //  REDIRECCIÓN WWW → DOMINIO RAÍZ
@@ -313,6 +323,8 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
     productName, mainGoal, painPoints, keyBenefits, affiliateLinks
   } = req.body;
 
+  console.log('[PROJECTS] Creando proyecto:', name);
+
   try {
     const [result] = await pool.query(
       `INSERT INTO projects 
@@ -332,6 +344,7 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
         JSON.stringify(affiliateLinks || []),
       ]
     );
+    console.log('[PROJECTS] Proyecto guardado con ID:', result.insertId);
     res.json({ id: result.insertId, message: 'Proyecto guardado exitosamente' });
   } catch (error) {
     console.error('[PROJECTS] Error creating:', error);
@@ -422,7 +435,7 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
 
     if (rows.length === 0) {
       return res.status(404).json({ 
-          error: 'API Endpoint Not Found', // Mensaje genérico para frontend catch
+          error: 'API Endpoint Not Found',
           debug_message: 'No landing associated with this domain',
           debug_host: host,
           server_version: SERVER_VERSION
@@ -558,7 +571,7 @@ app.get('/api/leads', authMiddleware, async (req, res) => {
 });
 
 // ======================================================
-//  START
+//  START SERVER (Sequential Sync)
 // ======================================================
 const frontendDistPath = path.join(__dirname, '..', 'dist');
 app.use(express.static(frontendDistPath));
@@ -567,6 +580,12 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
+// IMPORTANTE: Primero inicializar DB, luego escuchar
+initDb().then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
+    });
+}).catch(err => {
+    console.error("❌ Falló la inicialización del servidor:", err);
+    process.exit(1);
 });

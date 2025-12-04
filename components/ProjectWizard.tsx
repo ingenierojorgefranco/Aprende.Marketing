@@ -146,11 +146,17 @@ export const ProjectWizard: React.FC = () => {
             } else {
                 // CREATE
                 await api.createProject(projectData);
+                // alert('Proyecto guardado exitosamente.'); 
             }
             navigate('/dashboard/projects');
         } catch (error) {
             console.error(error);
-            alert('Error al guardar el proyecto.');
+            if (api.isUsingMockData()) {
+                alert("Advertencia: No se pudo conectar a la base de datos. El proyecto se guardó localmente y se perderá al recargar.");
+                navigate('/dashboard/projects');
+            } else {
+                alert('Error al guardar el proyecto en la Base de Datos. Revisa tu conexión.');
+            }
         } finally {
             setLoading(false);
         }

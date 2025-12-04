@@ -54,7 +54,9 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
         return await res.json();
     } catch (error: any) {
         if (!isOfflineMode) {
-            console.warn(`⚠️ [API] Fallo conexión a ${url}: ${error.message}. Cambiando a Modo Offline.`);
+            console.warn(`⚠️ [API] Fallo conexión a ${url}: ${error.message}.`);
+            console.warn(`⚠️ [API] !!! ACTIVANDO MODO OFFLINE TEMPORAL !!!`);
+            console.warn(`⚠️ [API] Los datos NO se guardarán en la Base de Datos real.`);
         }
         isOfflineMode = true;
         throw error;
@@ -211,11 +213,15 @@ export const api = {
               body: JSON.stringify(project)
           });
           return { ...project, id: data.id.toString(), createdAt: new Date() };
-      } catch (e) {
+      } catch (e: any) {
           console.error("Fallo creando proyecto en BD", e);
-          const newProject: Project = { ...project, id: Date.now().toString(), createdAt: new Date() };
-          mockProjects.push(newProject);
-          return newProject;
+          if (isOfflineMode) {
+              console.warn("Guardando proyecto en memoria local (se perderá al recargar).");
+              const newProject: Project = { ...project, id: Date.now().toString(), createdAt: new Date() };
+              mockProjects.push(newProject);
+              return newProject;
+          }
+          throw e; // Relanzar error para que UI se entere
       }
   },
 
@@ -227,7 +233,10 @@ export const api = {
               body: JSON.stringify(project)
           });
       } catch (e) {
-          mockProjects = mockProjects.map(p => p.id === id ? { ...project, id, createdAt: p.createdAt } : p);
+           if (isOfflineMode) {
+                mockProjects = mockProjects.map(p => p.id === id ? { ...project, id, createdAt: p.createdAt } : p);
+           }
+           throw e;
       }
   },
 
