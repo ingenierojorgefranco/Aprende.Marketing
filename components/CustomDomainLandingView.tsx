@@ -1,11 +1,23 @@
+
 import React, { useEffect, useState } from "react";
 import { LandingPage } from "../types";
 import { Loader2, AlertTriangle } from "lucide-react";
 
-const API_BASE =
-  (import.meta as any).env?.VITE_API_URL && (import.meta as any).env.VITE_API_URL !== ""
-    ? (import.meta as any).env.VITE_API_URL
-    : "/api";
+// Helper para obtener la URL base correcta de la API
+const getApiBase = () => {
+  const envUrl = (import.meta as any).env?.VITE_API_URL;
+  if (envUrl && envUrl.trim() !== "") {
+      const cleanUrl = envUrl.replace(/\/$/, '');
+      // Si ya termina en /api, devolverlo tal cual
+      if (cleanUrl.endsWith('/api')) return cleanUrl;
+      // Si no, agregar /api
+      return `${cleanUrl}/api`;
+  }
+  // Fallback: URL relativa si estamos en el mismo dominio
+  return "/api";
+};
+
+const API_BASE = getApiBase();
 
 type DebugInfo = {
   endpoint: string;
@@ -42,6 +54,7 @@ export const CustomDomainLandingView: React.FC = () => {
         const contentType = res.headers.get("content-type");
         let rawSnippet = "";
 
+        // Si la respuesta no es OK o no es JSON, leemos el texto para debug
         if (!res.ok || !contentType || !contentType.includes("application/json")) {
           try {
             const raw = await res.text();
@@ -200,7 +213,7 @@ export const CustomDomainLandingView: React.FC = () => {
   const logoSvg: string | undefined = content.logoSvg;
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white font-sans">
       <section className="relative overflow-hidden bg-gradient-to-b from-black via-gray-950 to-black">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full blur-3xl" />
@@ -253,9 +266,9 @@ export const CustomDomainLandingView: React.FC = () => {
 
               <a
                 href={
-                  content.destination?.type === "external"
+                  content.destination?.type === "external_url"
                     ? content.destination.url
-                    : "#lead-form"
+                    : "#"
                 }
                 className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-primary hover:bg-indigo-500 text-white font-semibold text-sm md:text-base shadow-lg shadow-indigo-500/30 transition"
               >
