@@ -19,7 +19,6 @@ import { EmailMarketing } from "./components/EmailMarketing";
 import { ContentGenerator } from "./components/ContentGenerator";
 import { ArticlesList } from "./components/ArticlesList";
 import { PublicLandingView } from "./components/PublicLandingView";
-import { CustomDomainLandingView } from "./components/CustomDomainLandingView";
 import { ProjectWizard } from "./components/ProjectWizard";
 import { ProjectsList } from "./components/ProjectsList";
 
@@ -123,18 +122,14 @@ const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // --- DETECCIÓN DE DOMINIO INTELIGENTE ---
-  const host = typeof window !== "undefined" ? window.location.hostname : "localhost";
-
-  // Lógica: Si el dominio NO contiene palabras clave de nuestra app principal, asumimos que es un dominio de cliente.
-  const isMainAppDomain = 
-    host === "localhost" ||
-    host === "" ||
-    host.includes("localhost") || 
-    host.includes("127.0.0.1") || 
-    host.includes("aprende.marketing") ||
-    host.includes("plataformadeventacom") ||
-    host.includes("run.app"); // Para URLs temporales de Cloud Run
+  // --- DETECCIÓN DE DOMINIO PERSONALIZADO → SLUG DE LANDING ---
+  const host =
+    typeof window !== "undefined" ? window.location.hostname : "";
+  const CUSTOM_DOMAIN_LANDING_MAP: Record<string, string> = {
+    "bajardepeso.online": "baja-de-peso-online",
+    "www.bajardepeso.online": "baja-de-peso-online",
+  };
+  const customLandingSlug = CUSTOM_DOMAIN_LANDING_MAP[host];
 
   // Restaurar sesión al inicio
   useEffect(() => {
@@ -335,15 +330,16 @@ const App: React.FC = () => {
         <Route path="/admin/lp/:slug" element={<PublicLandingView />} />
         <Route path="/lp/:slug" element={<PublicLandingView />} />
 
-        {/* RUTA PRINCIPAL (Raíz) */}
+        {/* RUTA PRINCIPAL:
+            - Dominio principal → Home pública
+            - Dominio personalizado (ej: bajardepeso.online) → renderiza la landing asignada directamente
+        */}
         <Route
           path="/"
           element={
-            !isMainAppDomain ? (
-              // Si NO es dominio principal (es bajardepeso.online), cargamos la vista dinámica de BD
-              <CustomDomainLandingView />
+            customLandingSlug ? (
+              <PublicLandingView forcedSlug={customLandingSlug} />
             ) : (
-              // Si ES dominio principal (localhost, aprende.marketing), cargamos el Home de la App
               <PublicHome user={user} onLogout={handleLogout} />
             )
           }
