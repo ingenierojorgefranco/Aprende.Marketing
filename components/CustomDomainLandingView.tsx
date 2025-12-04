@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { LandingPage } from "../types";
 import { Loader2, AlertTriangle } from "lucide-react";
 
-const API_BASE = "/api";
+const API_BASE =
+  (import.meta as any).env?.VITE_API_URL && (import.meta as any).env.VITE_API_URL !== ""
+    ? (import.meta as any).env.VITE_API_URL
+    : "/api";
 
 type DebugInfo = {
   endpoint: string;
@@ -76,6 +79,19 @@ export const CustomDomainLandingView: React.FC = () => {
 
         const data = await res.json();
 
+        let parsedContent: any = data.content;
+        if (typeof parsedContent === "string") {
+          try {
+            parsedContent = JSON.parse(parsedContent);
+          } catch (e) {
+            console.error(
+              "[CustomDomainLandingView] Error parseando content JSON:",
+              e
+            );
+            parsedContent = {};
+          }
+        }
+
         const normalized: LandingPage = {
           id: data.id?.toString() ?? "custom-domain",
           name: data.name || "Landing sin título",
@@ -86,16 +102,13 @@ export const CustomDomainLandingView: React.FC = () => {
           visits: data.visits ?? 0,
           conversions: data.conversions ?? 0,
           createdAt: data.created_at ? new Date(data.created_at) : new Date(),
-          content:
-            typeof data.content === "string"
-              ? JSON.parse(data.content)
-              : data.content,
+          content: parsedContent,
         };
 
         setPage(normalized);
         setDebug((prev) => ({
           ...(prev || { endpoint, host }),
-          endpoint, // Explicitly set to satisfy required type
+          endpoint,
           status: res.status,
           contentType,
           host,
@@ -105,7 +118,7 @@ export const CustomDomainLandingView: React.FC = () => {
         setError("Error interno cargando la landing.");
         setDebug((prev) => ({
           ...(prev || { endpoint, host }),
-          endpoint, // Explicitly set to satisfy required type
+          endpoint,
           rawBodySnippet:
             (prev && prev.rawBodySnippet) ||
             "Error de red o fallo inesperado en fetch.",

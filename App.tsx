@@ -122,6 +122,15 @@ const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // --- DETECCIÓN DE DOMINIO PERSONALIZADO → SLUG DE LANDING ---
+  const host =
+    typeof window !== "undefined" ? window.location.hostname : "";
+  const CUSTOM_DOMAIN_LANDING_MAP: Record<string, string> = {
+    "bajardepeso.online": "especialista-cejas",
+    "www.bajardepeso.online": "especialista-cejas",
+  };
+  const customLandingSlug = CUSTOM_DOMAIN_LANDING_MAP[host];
+
   // Restaurar sesión al inicio
   useEffect(() => {
     const restoreSession = async () => {
@@ -321,11 +330,23 @@ const App: React.FC = () => {
         <Route path="/admin/lp/:slug" element={<PublicLandingView />} />
         <Route path="/lp/:slug" element={<PublicLandingView />} />
 
-        {/* RUTAS PÚBLICAS */}
+        {/* RUTA PRINCIPAL:
+            - Dominio principal → Home pública
+            - Dominio personalizado (ej: bajardepeso.online) → redirige a landing asignada */}
         <Route
           path="/"
-          element={<PublicHome user={user} onLogout={handleLogout} />}
+          element={
+            customLandingSlug ? (
+              <Navigate
+                to={`/admin/lp/${customLandingSlug}`}
+                replace
+              />
+            ) : (
+              <PublicHome user={user} onLogout={handleLogout} />
+            )
+          }
         />
+
         <Route
           path="/login"
           element={
