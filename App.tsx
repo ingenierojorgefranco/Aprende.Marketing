@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import {
   Routes,
@@ -21,8 +19,8 @@ import { EmailMarketing } from "./components/EmailMarketing";
 import { ContentGenerator } from "./components/ContentGenerator";
 import { ArticlesList } from "./components/ArticlesList";
 import { PublicLandingView } from "./components/PublicLandingView";
-import { ProjectWizard } from "./components/ProjectWizard"; // New Component
-import { ProjectsList } from "./components/ProjectsList"; // New Component
+import { ProjectWizard } from "./components/ProjectWizard";
+import { ProjectsList } from "./components/ProjectsList";
 
 import { User, LandingPage, Article } from "./types";
 import {
@@ -32,7 +30,6 @@ import {
   Trash2,
   AlertTriangle,
   X,
-  MapPin,
 } from "lucide-react";
 import { api } from "./services/api";
 import { getCurrentUser, logout } from "./services/auth";
@@ -81,22 +78,30 @@ const EditorRouteWrapper = ({
 
 // Componente 404 para Debug
 const NotFoundPage = () => {
-    const location = useLocation();
-    return (
-        <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6">
-            <AlertTriangle className="w-16 h-16 text-yellow-500 mb-4" />
-            <h1 className="text-3xl font-bold mb-2">404 - Ruta no encontrada</h1>
-            <p className="text-gray-400 mb-6">No se encontró contenido para esta dirección.</p>
-            
-            <div className="bg-gray-900 p-4 rounded-lg font-mono text-sm text-gray-300 border border-gray-800 mb-6 max-w-lg break-all">
-                <p><span className="text-blue-400">Path actual:</span> {location.pathname}</p>
-            </div>
-            
-            <a href="/" className="px-6 py-3 bg-primary rounded-lg font-bold hover:bg-indigo-600 transition">
-                Ir al Inicio
-            </a>
-        </div>
-    );
+  const location = useLocation();
+  return (
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6">
+      <AlertTriangle className="w-16 h-16 text-yellow-500 mb-4" />
+      <h1 className="text-3xl font-bold mb-2">404 - Ruta no encontrada</h1>
+      <p className="text-gray-400 mb-6">
+        No se encontró contenido para esta dirección.
+      </p>
+
+      <div className="bg-gray-900 p-4 rounded-lg font-mono text-sm text-gray-300 border border-gray-800 mb-6 max-w-lg break-all">
+        <p>
+          <span className="text-blue-400">Path actual:</span>{" "}
+          {location.pathname}
+        </p>
+      </div>
+
+      <a
+        href="/"
+        className="px-6 py-3 bg-primary rounded-lg font-bold hover:bg-indigo-600 transition"
+      >
+        Ir al Inicio
+      </a>
+    </div>
+  );
 };
 
 const App: React.FC = () => {
@@ -312,10 +317,8 @@ const App: React.FC = () => {
   return (
     <>
       <Routes>
-        {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug Y SUBDOMINIOS */}
+        {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug Y /lp/:slug */}
         <Route path="/admin/lp/:slug" element={<PublicLandingView />} />
-        
-        {/* Fallback antiguo para compatibilidad */}
         <Route path="/lp/:slug" element={<PublicLandingView />} />
 
         {/* RUTAS PÚBLICAS */}
@@ -382,64 +385,71 @@ const App: React.FC = () => {
                   </div>
                 ) : (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {myPages.map((page) => (
-                      <div
-                        key={page.id}
-                        className="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-800 hover:border-primary transition group relative"
-                      >
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h3 className="font-bold text-lg text-white">
-                              {page.name}
-                            </h3>
-                            <p className="text-xs text-gray-500">
-                              {page.niche}
-                            </p>
-                          </div>
-                          {/* Etiqueta de Estado Mejorada */}
-                          <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${
-                              page.isPublished
-                                ? "bg-green-500/10 text-green-400 border-green-500/20"
-                                : "bg-orange-500/10 text-orange-400 border-orange-500/20"
-                            }`}
-                          >
-                            {page.isPublished ? "Publicada" : "En Borrador"}
-                          </span>
-                        </div>
-                        <div className="text-sm text-gray-400 mb-6 space-y-1">
-                          <p>Visitas: {page.visits}</p>
-                          <p>Conversiones: {page.conversions}</p>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          <button
-                            onClick={() =>
-                              navigate(`/dashboard/editor/${page.id}`)
-                            }
-                            className="w-full py-2 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 flex items-center justify-center gap-2 group-hover:border-primary group-hover:text-primary transition"
-                          >
-                            <PenTool className="w-4 h-4" /> Editar Página
-                          </button>
-                          
-                          {/* Botón para ver la Landing Page Publicada */}
-                          <a
-                            href={`/admin/lp/${page.subdomain.split('.')[0]}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full py-2 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 flex items-center justify-center gap-2 hover:text-white transition text-sm"
-                          >
-                            <LayoutTemplate className="w-4 h-4" /> Ver Online
-                          </a>
+                    {myPages.map((page) => {
+                      const baseSlug = page.subdomain
+                        ? page.subdomain.split(".")[0]
+                        : page.id;
+                      const publicUrl = `/admin/lp/${baseSlug}`;
 
-                          <button
-                            onClick={() => setPageToDelete(page)}
-                            className="w-full py-2 border border-red-900/30 rounded-lg text-red-500/70 hover:bg-red-900/10 hover:text-red-500 hover:border-red-900/50 flex items-center justify-center gap-2 transition text-sm"
-                          >
-                            <Trash2 className="w-4 h-4" /> Eliminar Página
-                          </button>
+                      return (
+                        <div
+                          key={page.id}
+                          className="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-800 hover:border-primary transition group relative"
+                        >
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h3 className="font-bold text-lg text-white">
+                                {page.name}
+                              </h3>
+                              <p className="text-xs text-gray-500">
+                                {page.niche}
+                              </p>
+                            </div>
+                            {/* Etiqueta de Estado Mejorada */}
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${
+                                page.isPublished
+                                  ? "bg-green-500/10 text-green-400 border-green-500/20"
+                                  : "bg-orange-500/10 text-orange-400 border-orange-500/20"
+                              }`}
+                            >
+                              {page.isPublished ? "Publicada" : "En Borrador"}
+                            </span>
+                          </div>
+                          <div className="text-sm text-gray-400 mb-6 space-y-1">
+                            <p>Visitas: {page.visits}</p>
+                            <p>Conversiones: {page.conversions}</p>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <button
+                              onClick={() =>
+                                navigate(`/dashboard/editor/${page.id}`)
+                              }
+                              className="w-full py-2 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 flex items-center justify-center gap-2 group-hover:border-primary group-hover:text-primary transition"
+                            >
+                              <PenTool className="w-4 h-4" /> Editar Página
+                            </button>
+
+                            {/* Botón para ver la Landing Page Publicada */}
+                            <a
+                              href={publicUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full py-2 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 flex items-center justify-center gap-2 hover:text-white transition text-sm"
+                            >
+                              <LayoutTemplate className="w-4 h-4" /> Ver Online
+                            </a>
+
+                            <button
+                              onClick={() => setPageToDelete(page)}
+                              className="w-full py-2 border border-red-900/30 rounded-lg text-red-500/70 hover:bg-red-900/10 hover:text-red-500 hover:border-red-900/50 flex items-center justify-center gap-2 transition text-sm"
+                            >
+                              <Trash2 className="w-4 h-4" /> Eliminar Página
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

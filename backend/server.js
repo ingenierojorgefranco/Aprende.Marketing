@@ -1,5 +1,3 @@
-
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -68,12 +66,14 @@ initDb();
 //  LOGGING
 // ======================================================
 app.use((req, res, next) => {
-  console.log(`[API] ${req.method} ${req.path} (host: ${req.hostname || req.headers.host})`);
+  console.log(
+    `[API] ${req.method} ${req.path} (host: ${req.hostname || req.headers.host})`
+  );
   next();
 });
 
 // ======================================================
-//  REDIRECCIÓN WWW → DOMINIO RAÍZ
+//  REDIRECCIÓN WWW → DOMINIO RAÍZ (solo dominio base)
 // ======================================================
 app.use((req, res, next) => {
   const host = req.hostname || req.headers.host || '';
@@ -86,7 +86,7 @@ app.use((req, res, next) => {
 });
 
 // ======================================================
-//  MULTI-TENANT: DETECTAR SUBDOMINIO
+//  MULTI-TENANT: DETECTAR SUBDOMINIO (*.aprende.marketing)
 // ======================================================
 app.use((req, res, next) => {
   const host = req.hostname || req.headers.host || '';
@@ -126,7 +126,9 @@ app.post('/api/auth/register', async (req, res) => {
   const { name, email, password, role } = req.body;
 
   if (!name || !email || !password)
-    return res.status(400).json({ error: 'Nombre, email y contraseña son obligatorios' });
+    return res
+      .status(400)
+      .json({ error: 'Nombre, email y contraseña son obligatorios' });
 
   try {
     const [existing] = await pool.query(
@@ -167,7 +169,9 @@ const loginHandler = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password)
-    return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
+    return res
+      .status(400)
+      .json({ error: 'Email y contraseña son obligatorios' });
 
   try {
     const [rows] = await pool.query(
@@ -196,7 +200,7 @@ const loginHandler = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      public_subdomain: user.public_subdomain
+      public_subdomain: user.public_subdomain,
     };
 
     const token = createToken(userResponse);
@@ -270,7 +274,8 @@ app.get('/api/projects/:id', authMiddleware, async (req, res) => {
       'SELECT * FROM projects WHERE id = ? AND user_id = ?',
       [req.params.id, req.user.id]
     );
-    if (rows.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
+    if (rows.length === 0)
+      return res.status(404).json({ error: 'Proyecto no encontrado' });
     res.json(rows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -278,7 +283,18 @@ app.get('/api/projects/:id', authMiddleware, async (req, res) => {
 });
 
 app.post('/api/projects', authMiddleware, async (req, res) => {
-  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks } = req.body;
+  const {
+    name,
+    niche,
+    description,
+    targetAudience,
+    brandTone,
+    productName,
+    mainGoal,
+    painPoints,
+    keyBenefits,
+    affiliateLinks,
+  } = req.body;
 
   try {
     const [result] = await pool.query(
@@ -286,10 +302,17 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
        (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [
-        req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, 
-        JSON.stringify(painPoints || []), 
-        JSON.stringify(keyBenefits || []), 
-        JSON.stringify(affiliateLinks || [])
+        req.user.id,
+        name,
+        niche,
+        description,
+        targetAudience,
+        brandTone,
+        productName,
+        mainGoal,
+        JSON.stringify(painPoints || []),
+        JSON.stringify(keyBenefits || []),
+        JSON.stringify(affiliateLinks || []),
       ]
     );
     res.json({ id: result.insertId, message: 'Proyecto creado con éxito' });
@@ -301,23 +324,44 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
 
 app.put('/api/projects/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
-  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks } = req.body;
+  const {
+    name,
+    niche,
+    description,
+    targetAudience,
+    brandTone,
+    productName,
+    mainGoal,
+    painPoints,
+    keyBenefits,
+    affiliateLinks,
+  } = req.body;
 
   try {
-    // Verificar propiedad
-    const [check] = await pool.query('SELECT id FROM projects WHERE id = ? AND user_id = ?', [id, req.user.id]);
-    if (check.length === 0) return res.status(403).json({ error: 'No autorizado' });
+    const [check] = await pool.query(
+      'SELECT id FROM projects WHERE id = ? AND user_id = ?',
+      [id, req.user.id]
+    );
+    if (check.length === 0)
+      return res.status(403).json({ error: 'No autorizado' });
 
     await pool.query(
       `UPDATE projects 
        SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?
        WHERE id=? AND user_id=?`,
       [
-        name, niche, description, targetAudience, brandTone, productName, mainGoal,
+        name,
+        niche,
+        description,
+        targetAudience,
+        brandTone,
+        productName,
+        mainGoal,
         JSON.stringify(painPoints || []),
         JSON.stringify(keyBenefits || []),
         JSON.stringify(affiliateLinks || []),
-        id, req.user.id
+        id,
+        req.user.id,
       ]
     );
     res.json({ message: 'Proyecto actualizado con éxito' });
@@ -330,7 +374,10 @@ app.put('/api/projects/:id', authMiddleware, async (req, res) => {
 app.delete('/api/projects/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   try {
-    await pool.query('DELETE FROM projects WHERE id = ? AND user_id = ?', [id, req.user.id]);
+    await pool.query('DELETE FROM projects WHERE id = ? AND user_id = ?', [
+      id,
+      req.user.id,
+    ]);
     res.json({ message: 'Proyecto eliminado' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -338,13 +385,17 @@ app.delete('/api/projects/:id', authMiddleware, async (req, res) => {
 });
 
 // ======================================================
-//  RUTA PÚBLICA PARA LANDINGS
+//  RUTA PÚBLICA PARA LANDINGS (slug + subdominio / base)
 // ======================================================
 app.get('/api/public/pages/:slug', async (req, res) => {
   const tenant = req.tenantSubdomain;
   const slug = req.params.slug;
 
-  console.log(`[PUBLIC] Buscando página. Slug: "${slug}", Tenant detectado: "${tenant || 'N/A'}"`);
+  console.log(
+    `[PUBLIC] Buscando página. Slug: "${slug}", Tenant detectado: "${
+      tenant || 'N/A'
+    }"`
+  );
 
   try {
     let query = '';
@@ -375,13 +426,17 @@ app.get('/api/public/pages/:slug', async (req, res) => {
     const [rows] = await pool.query(query, params);
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'Landing no encontrada o no publicada' });
+      return res
+        .status(404)
+        .json({ error: 'Landing no encontrada o no publicada' });
     }
 
     const page = rows[0];
 
     if (typeof page.content === 'string') {
-      try { page.content = JSON.parse(page.content); } catch {}
+      try {
+        page.content = JSON.parse(page.content);
+      } catch {}
     }
 
     // --- LOGICA DE VISITAS ---
@@ -392,7 +447,6 @@ app.get('/api/public/pages/:slug', async (req, res) => {
       const token = authHeader.split(' ')[1];
       try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        // Si el dueño visita su propia página, NO contamos la visita
         if (decoded.id === page.user_id) {
           shouldCountVisit = false;
         }
@@ -400,16 +454,26 @@ app.get('/api/public/pages/:slug', async (req, res) => {
     }
 
     if (shouldCountVisit) {
-      // 1. Contador Total (Legacy - se mantiene para mostrar el total histórico)
-      pool.query('UPDATE landing_pages SET visits = visits + 1 WHERE id = ?', [page.id]).catch(console.error);
-      
-      // 2. Contador Diario (Analytics - Nuevo)
-      // Si ya existe registro hoy para esta página, suma 1. Si no, crea la fila.
-      pool.query(`
+      // 1. Contador Total (legacy)
+      pool
+        .query('UPDATE landing_pages SET visits = visits + 1 WHERE id = ?', [
+          page.id,
+        ])
+        .catch(console.error);
+
+      // 2. Contador Diario
+      pool
+        .query(
+          `
         INSERT INTO daily_analytics (page_id, date, visits, conversions)
         VALUES (?, CURDATE(), 1, 0)
         ON DUPLICATE KEY UPDATE visits = visits + 1
-      `, [page.id]).catch(err => console.error("[ANALYTICS] Error updating daily visits:", err));
+      `,
+          [page.id]
+        )
+        .catch((err) =>
+          console.error('[ANALYTICS] Error updating daily visits:', err)
+        );
     }
 
     res.json(page);
@@ -420,13 +484,110 @@ app.get('/api/public/pages/:slug', async (req, res) => {
 });
 
 // ======================================================
+//  RUTA PÚBLICA: POR USUARIO + SLUG EN PATH
+//  /api/public/pages/by-user/:userSlug/:slug
+// ======================================================
+app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
+  const { userSlug, slug } = req.params;
+
+  console.log(
+    `[PUBLIC/by-user] userSlug="${userSlug}", slug="${slug}"`
+  );
+
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT lp.*
+      FROM landing_pages lp
+      INNER JOIN users u ON u.id = lp.user_id
+      WHERE u.public_subdomain = ?
+        AND lp.subdomain = ?
+        AND lp.is_published = 1
+      LIMIT 1
+      `,
+      [userSlug, slug]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Landing no encontrada' });
+    }
+
+    const page = rows[0];
+    if (typeof page.content === 'string') {
+      try {
+        page.content = JSON.parse(page.content);
+      } catch {}
+    }
+
+    // NO contamos visita aquí (se puede reutilizar lógica de arriba si quieres)
+
+    res.json(page);
+  } catch (error) {
+    console.error('[PUBLIC] Error landing by-user:', error);
+    res
+      .status(500)
+      .json({ error: 'Error interno cargando landing por usuario' });
+  }
+});
+
+// ======================================================
+//  RUTA PÚBLICA: POR DOMINIO CUSTOM
+//  /api/public/pages/by-domain
+// ======================================================
+app.get('/api/public/pages/by-domain', async (req, res) => {
+  let host = req.hostname || req.headers.host || '';
+
+  if (host.includes(':')) {
+    host = host.split(':')[0];
+  }
+  if (host.startsWith('www.')) {
+    host = host.slice(4);
+  }
+
+  console.log('[PUBLIC/by-domain] Host normalizado:', host);
+
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT lp.*
+      FROM landing_pages lp
+      WHERE lp.custom_domain = ?
+        AND lp.is_published = 1
+      LIMIT 1
+      `,
+      [host]
+    );
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: 'No hay landing asociada a este dominio' });
+    }
+
+    const page = rows[0];
+    if (typeof page.content === 'string') {
+      try {
+        page.content = JSON.parse(page.content);
+      } catch {}
+    }
+
+    // Aquí también podrías contar visitas específicas de dominio si quieres
+    res.json(page);
+  } catch (error) {
+    console.error('[PUBLIC] Error landing by-domain:', error);
+    res
+      .status(500)
+      .json({ error: 'Error interno cargando landing por dominio' });
+  }
+});
+
+// ======================================================
 //  ANALYTICS ENDPOINT (NUEVO)
 // ======================================================
 app.get('/api/analytics/weekly', authMiddleware, async (req, res) => {
   try {
-    // Obtenemos las analíticas de los últimos 7 días agrupadas por fecha
-    // Solo para las páginas que pertenecen al usuario logueado
-    const [rows] = await pool.query(`
+    const [rows] = await pool.query(
+      `
       SELECT 
         da.date,
         SUM(da.visits) as total_visits,
@@ -437,13 +598,14 @@ app.get('/api/analytics/weekly', authMiddleware, async (req, res) => {
         AND da.date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
       GROUP BY da.date
       ORDER BY da.date ASC
-    `, [req.user.id]);
+    `,
+      [req.user.id]
+    );
 
-    // Formateamos para que el frontend reciba algo limpio
-    const data = rows.map(r => ({
-      date: r.date, 
+    const data = rows.map((r) => ({
+      date: r.date,
       visits: parseInt(r.total_visits || 0),
-      conversions: parseInt(r.total_conversions || 0)
+      conversions: parseInt(r.total_conversions || 0),
     }));
 
     res.json(data);
@@ -498,7 +660,9 @@ app.put('/api/pages/:id', authMiddleware, async (req, res) => {
     );
 
     if (check.length === 0)
-      return res.status(403).json({ error: 'No tienes permiso para editar esta página' });
+      return res
+        .status(403)
+        .json({ error: 'No tienes permiso para editar esta página' });
 
     await pool.query(
       `UPDATE landing_pages
@@ -523,7 +687,9 @@ app.delete('/api/pages/:id', authMiddleware, async (req, res) => {
     );
 
     if (check.length === 0)
-      return res.status(403).json({ error: 'No tienes permiso para eliminar esta página' });
+      return res
+        .status(403)
+        .json({ error: 'No tienes permiso para eliminar esta página' });
 
     await pool.query('DELETE FROM landing_pages WHERE id = ?', [id]);
     res.json({ message: 'Página eliminada' });
@@ -557,24 +723,28 @@ app.post('/api/leads', async (req, res) => {
   const { pageId, name, email } = req.body;
 
   try {
-    // 1. Guardar Lead
     await pool.query(
       'INSERT INTO leads (page_id, name, email, captured_at) VALUES (?, ?, ?, NOW())',
       [pageId, name, email]
     );
 
-    // 2. Actualizar Conversión Total
     await pool.query(
       'UPDATE landing_pages SET conversions = conversions + 1 WHERE id = ?',
       [pageId]
     );
 
-    // 3. Actualizar Conversión Diaria (Analytics)
-    await pool.query(`
+    await pool
+      .query(
+        `
         INSERT INTO daily_analytics (page_id, date, visits, conversions)
         VALUES (?, CURDATE(), 0, 1)
         ON DUPLICATE KEY UPDATE conversions = conversions + 1
-      `, [pageId]).catch(err => console.error("[ANALYTICS] Error updating daily conversions:", err));
+      `,
+        [pageId]
+      )
+      .catch((err) =>
+        console.error('[ANALYTICS] Error updating daily conversions:', err)
+      );
 
     res.json({ message: 'Lead capturado' });
   } catch (error) {
