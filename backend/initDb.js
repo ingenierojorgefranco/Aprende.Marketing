@@ -1,6 +1,41 @@
 const pool = require('./db');
 
 /**
+ * Helper para añadir columnas de forma segura en MySQL (idempotente)
+ * Ignora el error 1060 (Duplicate column name)
+ */
+const addColumnSafe = async (connection, tableName, columnDef) => {
+    try {
+        await connection.query(`ALTER TABLE ${tableName} ADD COLUMN ${columnDef}`);
+        console.log(`[DB] Columna añadida a ${tableName}: ${columnDef.split(' ')[0]}`);
+    } catch (err) {
+        // Error 1060: Duplicate column name
+        if (err.code === 'ER_DUP_FIELDNAME' || err.errno === 1060) {
+            // Ignorar, ya existe
+        } else {
+            console.warn(`[DB] Error no crítico añadiendo columna a ${tableName}:`, err.message);
+        }
+    }
+};
+
+/**
+ * Helper para añadir Constraints de forma segura
+ */
+const addConstraintSafe = async (connection, tableName, constraintName, constraintDef) => {
+    try {
+        await connection.query(`ALTER TABLE ${tableName} ADD CONSTRAINT ${constraintName} ${constraintDef}`);
+        console.log(`[DB] Constraint ${constraintName} añadida a ${tableName}`);
+    } catch (err) {
+        // Ignorar si ya existe (código varía, solemos atrapar todos los no críticos)
+        if (err.message.includes('Duplicate') || err.errno === 1061 || err.code === 'ER_DUP_KEY') {
+             // Ignorar
+        } else {
+             console.warn(`[DB] Error no crítico añadiendo constraint ${constraintName}:`, err.message);
+        }
+    }
+};
+
+/**
  * Función dedicada para verificar y crear las tablas necesarias en la base de datos.
  * Se ejecuta automáticamente al iniciar el servidor.
  */
@@ -117,26 +152,23 @@ const initDb = async () => {
             try {
                 // Para 'articles', intentamos añadir columnas si ya existe la tabla pero es vieja
                 if (table.name === 'articles') {
-                    // Check if exists
+                    // Ver si existe
                     const [exists] = await connection.query(`SHOW TABLES LIKE 'articles'`);
                     if (exists.length > 0) {
-                        try {
-                            await connection.query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS page_id INT NULL`);
-                            await connection.query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS slug VARCHAR(255)`);
-                            await connection.query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS featured_image VARCHAR(500)`);
-                            await connection.query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS meta_title VARCHAR(255)`);
-                            await connection.query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS meta_description TEXT`);
-                            await connection.query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'published'`);
-                            await connection.query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS published_at DATETIME DEFAULT CURRENT_TIMESTAMP`);
-                            // Intentar añadir FK si no existe (esto puede fallar si ya existe, ignoramos error)
-                            try {
-                                await connection.query(`ALTER TABLE articles ADD CONSTRAINT fk_articles_page FOREIGN KEY (page_id) REFERENCES landing_pages(id) ON DELETE SET NULL`);
-                            } catch (e) {}
-                            console.log('✅ [DB Init] Tabla articles actualizada con nuevas columnas.');
-                        } catch (e) {
-                            console.log('⚠️ [DB Init] No se pudieron añadir columnas a articles (quizás ya existen).');
-                        }
+                        // Tabla existe, intentamos añadir columnas una por una de forma segura
+                        await addColumnSafe(connection, 'articles', "page_id INT NULL");
+                        await addColumnSafe(connection, 'articles', "slug VARCHAR(255)");
+                        await addColumnSafe(connection, 'articles', "featured_image VARCHAR(500)");
+                        await addColumnSafe(connection, 'articles', "meta_title VARCHAR(255)");
+                        await addColumnSafe(connection, 'articles', "meta_description TEXT");
+                        await addColumnSafe(connection, 'articles', "status VARCHAR(50) DEFAULT 'published'");
+                        await addColumnSafe(connection, 'articles', "published_at DATETIME DEFAULT CURRENT_TIMESTAMP");
+                        
+                        await addConstraintSafe(connection, 'articles', 'fk_articles_page', 'FOREIGN KEY (page_id) REFERENCES landing_pages(id) ON DELETE SET NULL');
+                        
+                        console.log('✅ [DB Init] Tabla articles verificada y actualizada.');
                     } else {
+                        // Tabla no existe, crearla normal
                         await connection.query(table.query);
                         console.log(`✅ [DB Init] Tabla creada: ${table.name}`);
                     }
@@ -146,7 +178,7 @@ const initDb = async () => {
                 }
             } catch (err) {
                 console.error(`❌ [DB Init] Error en tabla ${table.name}:`, err.message);
-                throw err;
+                // No relanzamos el error para permitir que siga con las otras tablas
             }
         }
 

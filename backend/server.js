@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v7_blog_system'; 
+const SERVER_VERSION = 'v7_blog_fix_deploy'; 
 
 app.enable('trust proxy');
 
@@ -491,12 +491,13 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
-// IMPORTANTE: Ejecutar initDb antes de abrir el puerto para asegurar tablas
+// IMPORTANTE: Ejecutar initDb pero NO matar el proceso si falla para permitir que Cloud Run arranque
 initDb().then(() => {
+    console.log('✅ Base de datos inicializada correctamente.');
+}).catch(err => {
+    console.error("⚠️ Error inicializando base de datos (iniciando servidor en modo degradado):", err.message);
+}).finally(() => {
     app.listen(PORT, () => {
       console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
     });
-}).catch(err => {
-    console.error("❌ Falló la inicialización crítica de la base de datos:", err);
-    process.exit(1);
 });
