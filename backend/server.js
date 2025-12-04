@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const pool = require('./db');
+const initDb = require('./initDb'); // Importar módulo dedicado
 const { generateContent } = require('./geminiService');
 const { authMiddleware } = require('./authMiddleware');
 
@@ -14,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v4_db_sync_fix'; 
+const SERVER_VERSION = 'v5_modular_init'; 
 
 app.enable('trust proxy');
 
@@ -30,128 +31,6 @@ app.use((req, res, next) => {
   );
   next();
 });
-
-// ======================================================
-//  INICIALIZACIÓN DB (Tablas necesarias)
-// ======================================================
-const initDb = async () => {
-  console.log(`[DB] ⏳ Iniciando inicialización de base de datos (Versión: ${SERVER_VERSION})...`);
-  const connection = await pool.getConnection();
-  try {
-    // Desactivar checks de llaves foráneas temporalmente para evitar errores si las tablas se crean en desorden
-    await connection.query('SET FOREIGN_KEY_CHECKS = 0');
-
-    // 1. Tabla de Usuarios (Base)
-    await connection.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL UNIQUE,
-        password_hash VARCHAR(255) NOT NULL,
-        role VARCHAR(50) DEFAULT 'user',
-        is_active BOOLEAN DEFAULT TRUE,
-        public_subdomain VARCHAR(255) UNIQUE,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        last_login_at DATETIME
-      )
-    `);
-    console.log("✅ [DB] Tabla 'users' verificada.");
-    
-    // 2. Tabla de Landing Pages
-    await connection.query(`
-      CREATE TABLE IF NOT EXISTS landing_pages (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        name VARCHAR(255),
-        niche VARCHAR(255),
-        goal VARCHAR(255),
-        subdomain VARCHAR(255),
-        custom_domain VARCHAR(255),
-        content JSON,
-        is_published BOOLEAN DEFAULT FALSE,
-        visits INT DEFAULT 0,
-        conversions INT DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `);
-    console.log("✅ [DB] Tabla 'landing_pages' verificada.");
-
-    // 3. Tabla para Analíticas Diarias
-    await connection.query(`
-      CREATE TABLE IF NOT EXISTS daily_analytics (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        page_id INT NOT NULL,
-        date DATE NOT NULL,
-        visits INT DEFAULT 0,
-        conversions INT DEFAULT 0,
-        UNIQUE KEY unique_page_date (page_id, date),
-        FOREIGN KEY (page_id) REFERENCES landing_pages(id) ON DELETE CASCADE
-      )
-    `);
-
-    // 4. Tabla de Proyectos (Estrategias)
-    await connection.query(`
-      CREATE TABLE IF NOT EXISTS projects (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        niche VARCHAR(255),
-        description TEXT,
-        target_audience TEXT,
-        brand_tone VARCHAR(100),
-        product_name VARCHAR(255),
-        main_goal VARCHAR(255),
-        pain_points JSON,
-        key_benefits JSON,
-        affiliate_links JSON,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `);
-    console.log("✅ [DB] Tabla 'projects' verificada.");
-
-    // 5. Tabla de Artículos
-    await connection.query(`
-      CREATE TABLE IF NOT EXISTS articles (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        title VARCHAR(255),
-        description TEXT,
-        content_html LONGTEXT,
-        keyword VARCHAR(255),
-        seo_score INT DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `);
-
-    // 6. Tabla de Leads
-    await connection.query(`
-      CREATE TABLE IF NOT EXISTS leads (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        page_id INT NOT NULL,
-        name VARCHAR(255),
-        email VARCHAR(255),
-        captured_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        synced BOOLEAN DEFAULT FALSE,
-        FOREIGN KEY (page_id) REFERENCES landing_pages(id) ON DELETE CASCADE
-      )
-    `);
-
-    // Reactivar checks de llaves foráneas
-    await connection.query('SET FOREIGN_KEY_CHECKS = 1');
-
-    console.log("🚀 [DB] Inicialización completa. Todas las tablas están listas.");
-  } catch (err) {
-    console.error("⚠️ [DB] Error CRÍTICO verificando tablas:", err);
-    console.error("⚠️ [DB] Detalles:", err.message);
-    // No matamos el proceso, pero el servidor podría fallar al consultar
-  } finally {
-    connection.release();
-  }
-};
 
 // ======================================================
 //  REDIRECCIÓN WWW → DOMINIO RAÍZ
@@ -404,7 +283,7 @@ app.delete('/api/projects/:id', authMiddleware, async (req, res) => {
 //  RUTAS PÚBLICAS LANDINGS (PRIORIDAD ALTA)
 // ======================================================
 
-// 1. DIAGNÓSTICO (Nuevo)
+// 1. DIAGNÓSTICO
 app.get('/api/debug/db-status', async (req, res) => {
   try {
       const [rows] = await pool.query('SELECT 1 as val');
@@ -580,12 +459,13 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
-// IMPORTANTE: Primero inicializar DB, luego escuchar
+// IMPORTANTE: Ejecutar initDb antes de abrir el puerto
 initDb().then(() => {
     app.listen(PORT, () => {
       console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
     });
 }).catch(err => {
-    console.error("❌ Falló la inicialización del servidor:", err);
+    console.error("❌ Falló la inicialización crítica de la base de datos:", err);
+    // En Cloud Run, si el proceso sale, la instancia se reinicia.
     process.exit(1);
 });
