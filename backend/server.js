@@ -385,8 +385,103 @@ app.delete('/api/projects/:id', authMiddleware, async (req, res) => {
 });
 
 // ======================================================
-//  RUTA PÚBLICA PARA LANDINGS (slug + subdominio / base)
+//  RUTAS PÚBLICAS LANDINGS
+//  IMPORTANTE: El orden es crítico. Las rutas específicas
+//  deben ir ANTES que las rutas genéricas con :slug
 // ======================================================
+
+// 1. RUTA: POR DOMINIO CUSTOM (/api/public/pages/by-domain)
+app.get('/api/public/pages/by-domain', async (req, res) => {
+  let host = req.hostname || req.headers.host || '';
+
+  if (host.includes(':')) {
+    host = host.split(':')[0];
+  }
+  if (host.startsWith('www.')) {
+    host = host.slice(4);
+  }
+
+  console.log('[PUBLIC/by-domain] Host normalizado:', host);
+
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT lp.*
+      FROM landing_pages lp
+      WHERE lp.custom_domain = ?
+        AND lp.is_published = 1
+      LIMIT 1
+      `,
+      [host]
+    );
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: 'No hay landing asociada a este dominio' });
+    }
+
+    const page = rows[0];
+    if (typeof page.content === 'string') {
+      try {
+        page.content = JSON.parse(page.content);
+      } catch {}
+    }
+
+    res.json(page);
+  } catch (error) {
+    console.error('[PUBLIC] Error landing by-domain:', error);
+    res
+      .status(500)
+      .json({ error: 'Error interno cargando landing por dominio' });
+  }
+});
+
+// 2. RUTA: POR USUARIO + SLUG (/api/public/pages/by-user/:userSlug/:slug)
+app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
+  const { userSlug, slug } = req.params;
+
+  console.log(
+    `[PUBLIC/by-user] userSlug="${userSlug}", slug="${slug}"`
+  );
+
+  try {
+    const [rows] = await pool.query(
+      `
+      SELECT lp.*
+      FROM landing_pages lp
+      INNER JOIN users u ON u.id = lp.user_id
+      WHERE u.public_subdomain = ?
+        AND lp.subdomain = ?
+        AND lp.is_published = 1
+      LIMIT 1
+      `,
+      [userSlug, slug]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Landing no encontrada' });
+    }
+
+    const page = rows[0];
+    if (typeof page.content === 'string') {
+      try {
+        page.content = JSON.parse(page.content);
+      } catch {}
+    }
+
+    res.json(page);
+  } catch (error) {
+    console.error('[PUBLIC] Error landing by-user:', error);
+    res
+      .status(500)
+      .json({ error: 'Error interno cargando landing por usuario' });
+  }
+});
+
+// 3. RUTA: SLUG GENÉRICO (/api/public/pages/:slug)
+// Esta ruta atrapa todo lo que coincida con /api/public/pages/ALGO
+// Por eso debe ir al final de este bloque.
 app.get('/api/public/pages/:slug', async (req, res) => {
   const tenant = req.tenantSubdomain;
   const slug = req.params.slug;
@@ -480,104 +575,6 @@ app.get('/api/public/pages/:slug', async (req, res) => {
   } catch (error) {
     console.error('[PUBLIC] Error landing:', error);
     res.status(500).json({ error: 'Error interno cargando landing' });
-  }
-});
-
-// ======================================================
-//  RUTA PÚBLICA: POR USUARIO + SLUG EN PATH
-//  /api/public/pages/by-user/:userSlug/:slug
-// ======================================================
-app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
-  const { userSlug, slug } = req.params;
-
-  console.log(
-    `[PUBLIC/by-user] userSlug="${userSlug}", slug="${slug}"`
-  );
-
-  try {
-    const [rows] = await pool.query(
-      `
-      SELECT lp.*
-      FROM landing_pages lp
-      INNER JOIN users u ON u.id = lp.user_id
-      WHERE u.public_subdomain = ?
-        AND lp.subdomain = ?
-        AND lp.is_published = 1
-      LIMIT 1
-      `,
-      [userSlug, slug]
-    );
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'Landing no encontrada' });
-    }
-
-    const page = rows[0];
-    if (typeof page.content === 'string') {
-      try {
-        page.content = JSON.parse(page.content);
-      } catch {}
-    }
-
-    // NO contamos visita aquí (se puede reutilizar lógica de arriba si quieres)
-
-    res.json(page);
-  } catch (error) {
-    console.error('[PUBLIC] Error landing by-user:', error);
-    res
-      .status(500)
-      .json({ error: 'Error interno cargando landing por usuario' });
-  }
-});
-
-// ======================================================
-//  RUTA PÚBLICA: POR DOMINIO CUSTOM
-//  /api/public/pages/by-domain
-// ======================================================
-app.get('/api/public/pages/by-domain', async (req, res) => {
-  let host = req.hostname || req.headers.host || '';
-
-  if (host.includes(':')) {
-    host = host.split(':')[0];
-  }
-  if (host.startsWith('www.')) {
-    host = host.slice(4);
-  }
-
-  console.log('[PUBLIC/by-domain] Host normalizado:', host);
-
-  try {
-    const [rows] = await pool.query(
-      `
-      SELECT lp.*
-      FROM landing_pages lp
-      WHERE lp.custom_domain = ?
-        AND lp.is_published = 1
-      LIMIT 1
-      `,
-      [host]
-    );
-
-    if (rows.length === 0) {
-      return res
-        .status(404)
-        .json({ error: 'No hay landing asociada a este dominio' });
-    }
-
-    const page = rows[0];
-    if (typeof page.content === 'string') {
-      try {
-        page.content = JSON.parse(page.content);
-      } catch {}
-    }
-
-    // Aquí también podrías contar visitas específicas de dominio si quieres
-    res.json(page);
-  } catch (error) {
-    console.error('[PUBLIC] Error landing by-domain:', error);
-    res
-      .status(500)
-      .json({ error: 'Error interno cargando landing por dominio' });
   }
 });
 
