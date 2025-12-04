@@ -1,5 +1,7 @@
+
+
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { LandingPage } from "../types";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { LivePage } from "./LivePage"; // Importamos el motor de renderizado
@@ -25,6 +27,7 @@ interface PublicLandingViewProps {
 
 export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug }) => {
   const { slug: paramSlug, userSlug } = useParams<{ slug: string; userSlug?: string }>();
+  const location = useLocation();
   
   // Prioritize passed prop (for custom domain root) over URL param
   const activeSlug = forcedSlug || paramSlug;
@@ -33,6 +36,25 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [debug, setDebug] = useState<DebugInfo | null>(null);
+
+  // BLOG ROUTING LOGIC
+  // Detect if we are in /blog or /blog/article-slug
+  // We need to parse the URL relative to the landing base.
+  // If custom domain: /blog -> blog list
+  // If subdomain path: /lp/:slug/blog -> blog list
+  let viewMode: 'home' | 'blog-list' | 'blog-post' = 'home';
+  let articleSlug = '';
+
+  const pathSegments = location.pathname.split('/').filter(Boolean);
+  const lastSegment = pathSegments[pathSegments.length - 1];
+  const secondLastSegment = pathSegments[pathSegments.length - 2];
+
+  if (lastSegment === 'blog') {
+      viewMode = 'blog-list';
+  } else if (secondLastSegment === 'blog') {
+      viewMode = 'blog-post';
+      articleSlug = lastSegment;
+  }
 
   useEffect(() => {
     const fetchPage = async () => {
@@ -48,13 +70,20 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
       }
 
       // Construimos endpoint según si hay userSlug
-      const endpoint = userSlug
-        ? `${API_BASE}/public/pages/by-user/${encodeURIComponent(
-            userSlug
-          )}/${encodeURIComponent(activeSlug)}`
-        : `${API_BASE}/public/pages/${encodeURIComponent(activeSlug)}`;
+      // OJO: Si es custom domain, usamos by-domain. Si es ruta path, usamos by-user o by-slug generic.
+      let endpoint = '';
+      
+      if (forcedSlug) {
+          // Es custom domain logic (forcedSlug viene del mapeo de dominio)
+          // Pero la logica original usaba by-domain con el host.
+          // Aqui reutilizamos el endpoint generico de slug para simplificar si ya tenemos el slug resuelto.
+          endpoint = `${API_BASE}/public/pages/${encodeURIComponent(activeSlug)}`;
+      } else if (userSlug) {
+          endpoint = `${API_BASE}/public/pages/by-user/${encodeURIComponent(userSlug)}/${encodeURIComponent(activeSlug)}`;
+      } else {
+          endpoint = `${API_BASE}/public/pages/${encodeURIComponent(activeSlug)}`;
+      }
 
-      console.log("[PublicLandingView] userSlug:", userSlug, "slug:", activeSlug);
       console.log("[PublicLandingView] Fetching:", endpoint);
 
       try {
@@ -79,43 +108,9 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
         });
 
         const contentType = res.headers.get("content-type");
-        let rawSnippet = "";
-
-        // Intentamos leer texto SI hay error o content-type sospechoso
-        if (!res.ok || !contentType || !contentType.includes("application/json")) {
-          try {
-            const raw = await res.text();
-            rawSnippet = raw.slice(0, 400); // solo los primeros 400 chars
-          } catch {
-            rawSnippet = "(no se pudo leer el cuerpo de la respuesta)";
-          }
-
-          const debugInfo: DebugInfo = {
-            endpoint,
-            status: res.status,
-            contentType,
-            rawBodySnippet: rawSnippet,
-            userSlug,
-            slug: activeSlug,
-          };
-          console.error("[PublicLandingView] Error response debug:", debugInfo);
-          setDebug(debugInfo);
-        }
-
+        
         if (!res.ok) {
-          if (res.status === 404) {
-            setError("Landing no encontrada o no publicada.");
-          } else if (res.status === 400) {
-            setError("Configuración de dominio o usuario inválida.");
-          } else {
-            setError(`Error cargando landing (HTTP ${res.status}).`);
-          }
-          setLoading(false);
-          return;
-        }
-
-        if (!contentType || !contentType.includes("application/json")) {
-          setError("La API devolvió una respuesta no válida (no es JSON).");
+          setError(`Landing no encontrada (HTTP ${res.status}).`);
           setLoading(false);
           return;
         }
@@ -139,40 +134,22 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
         };
 
         setPage(normalized);
-        // Si todo salió bien, mantenemos algo de debug básico
-        setDebug((prev) => ({
-          ...(prev || {}),
-          endpoint,
-          status: res.status,
-          contentType,
-          userSlug,
-          slug: activeSlug,
-        }));
       } catch (e: any) {
         console.error("Error cargando landing pública:", e);
         setError("Error interno cargando la landing.");
-        setDebug((prev) => ({
-          ...(prev || {}),
-          endpoint,
-          userSlug,
-          slug: activeSlug,
-          rawBodySnippet:
-            (prev && prev.rawBodySnippet) ||
-            "Error de red o fallo inesperado en fetch.",
-        }));
       } finally {
         setLoading(false);
       }
     };
 
     fetchPage();
-  }, [activeSlug, userSlug]);
+  }, [activeSlug, userSlug, forcedSlug]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
         <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
-        <p>Cargando landing...</p>
+        <p>Cargando contenido...</p>
       </div>
     );
   }
@@ -185,52 +162,17 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
         <p className="text-gray-400 mb-4">
           {error || "Landing no disponible."}
         </p>
-
-        {/* Bloque de debug visible SOLO si SHOW_DEBUG_UI es true */}
-        {SHOW_DEBUG_UI && debug && (
-          <div className="mt-6 w-full max-w-3xl text-left">
-            <div className="text-xs uppercase tracking-widest text-gray-500 mb-2">
-              DEBUG TÉCNICO (solo para desarrollo)
-            </div>
-            <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 overflow-x-auto text-xs font-mono text-gray-200">
-              <p>
-                <span className="text-gray-500">userSlug:</span>{" "}
-                {debug.userSlug || "(sin userSlug en URL)"}
-              </p>
-              <p>
-                <span className="text-gray-500">slug:</span>{" "}
-                {debug.slug || "(sin slug en URL)"}
-              </p>
-              <p className="mt-2">
-                <span className="text-gray-500">endpoint:</span>{" "}
-                {debug.endpoint}
-              </p>
-              {typeof debug.status !== "undefined" && (
-                <p>
-                  <span className="text-gray-500">status:</span> {debug.status}
-                </p>
-              )}
-              {typeof debug.contentType !== "undefined" && (
-                <p>
-                  <span className="text-gray-500">content-type:</span>{" "}
-                  {debug.contentType || "(vacío)"}
-                </p>
-              )}
-              {debug.rawBodySnippet && (
-                <>
-                  <p className="mt-3 text-gray-500">respuesta (snippet):</p>
-                  <pre className="mt-1 whitespace-pre-wrap break-words">
-                    {debug.rawBodySnippet}
-                  </pre>
-                </>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     );
   }
 
-  // USAMOS EL MOTOR DE RENDERIZADO "LivePage" PARA QUE SEA IDÉNTICO AL EDITOR
-  return <LivePage content={page.content} />;
+  // USAMOS EL MOTOR DE RENDERIZADO "LivePage"
+  // Pasamos el viewMode y articleSlug para que LivePage sepa qué renderizar (Home, Lista Blog, Post Blog)
+  return <LivePage 
+            content={page.content} 
+            pageId={page.id} 
+            viewMode={viewMode} 
+            articleSlug={articleSlug}
+            basePath={userSlug ? `/lp/${userSlug}/${activeSlug}` : forcedSlug ? '' : `/lp/${activeSlug}`} // Base path for links
+         />;
 };

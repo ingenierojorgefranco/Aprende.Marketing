@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../services/geminiService';
 import { api } from '../services/api';
-import { BookOpen, Search, List, FileText, Download, Copy, Check, RefreshCw, ArrowLeft, ArrowRight, Wand2, BarChart, ChevronRight, Type, Link as LinkIcon, Sparkles, Save, Briefcase } from 'lucide-react';
-import { Article, Project } from '../types';
+import { BookOpen, Search, List, FileText, Download, Copy, Check, RefreshCw, ArrowLeft, ArrowRight, Wand2, BarChart, ChevronRight, Type, Link as LinkIcon, Sparkles, Save, Briefcase, Calendar, Image, Globe, Eye } from 'lucide-react';
+import { Article, Project, LandingPage } from '../types';
 
 interface ContentGeneratorProps {
     onSave?: (article: Omit<Article, 'id' | 'createdAt'>) => Promise<void>;
@@ -24,6 +24,10 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [userProjects, setUserProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('');
   
+  // Landing Pages Integration (Para vincular articulo)
+  const [userPages, setUserPages] = useState<LandingPage[]>([]);
+  const [selectedPageId, setSelectedPageId] = useState<string>('');
+
   const [titleIdeas, setTitleIdeas] = useState<ArticleTitleIdea[]>([]);
   const [selectedTitle, setSelectedTitle] = useState<ArticleTitleIdea | null>(null);
   
@@ -32,22 +36,34 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   
   const [articleContent, setArticleContent] = useState('');
   
+  // SEO & Meta fields
+  const [slug, setSlug] = useState('');
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
+  const [featuredImage, setFeaturedImage] = useState('');
+  const [publishDate, setPublishDate] = useState(new Date().toISOString().split('T')[0]);
+  const [status, setStatus] = useState<'published' | 'draft' | 'scheduled'>('published');
+  
   // SEO Metrics State
   const [seoScore, setSeoScore] = useState(0);
   const [wordCount, setWordCount] = useState(0);
   const [keywordDensity, setKeywordDensity] = useState(0);
 
-  // Load projects on mount
+  // Load projects and pages on mount
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchContext = async () => {
         try {
-            const projects = await api.getProjects();
+            const [projects, pages] = await Promise.all([
+                api.getProjects(),
+                api.getPages()
+            ]);
             setUserProjects(projects);
+            setUserPages(pages);
         } catch (e) {
-            console.error("Failed to load projects", e);
+            console.error("Failed to load context data", e);
         }
     };
-    fetchProjects();
+    fetchContext();
   }, []);
 
   const handleProjectSelect = (projectId: string) => {
@@ -63,6 +79,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
               setCtaLink(proj.affiliateLinks[0].url);
           }
       }
+  };
+
+  const handleTitleSelect = (idea: ArticleTitleIdea) => {
+      handleSelectTitle(idea);
+      // Auto-generate basic metadata from title
+      setMetaTitle(idea.title);
+      setMetaDescription(idea.description);
+      setSlug(idea.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
   };
 
   // --- ACTIONS ---
@@ -119,13 +143,20 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       setSaving(true);
       try {
           await onSave({
+              pageId: selectedPageId || undefined,
               title: selectedTitle.title,
+              slug: slug || selectedTitle.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
               description: selectedTitle.description,
               contentHtml: articleContent,
+              featuredImage: featuredImage,
               keyword: keyword,
-              seoScore: seoScore
+              seoScore: seoScore,
+              metaTitle: metaTitle,
+              metaDescription: metaDescription,
+              status: status,
+              publishedAt: new Date(publishDate)
           });
-          alert("Artículo guardado en tu biblioteca.");
+          alert("Artículo guardado y vinculado correctamente.");
       } catch (e) {
           alert("Error guardando el artículo.");
       } finally {
@@ -193,29 +224,45 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const renderStep1 = () => (
       <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="text-center mb-10">
-              <h2 className="text-3xl font-bold text-white mb-2">¿Sobre qué quieres escribir hoy?</h2>
-              <p className="text-gray-400">Define el tema y deja que la IA estructure el éxito de tu contenido.</p>
+              <h2 className="text-3xl font-bold text-white mb-2">Generador de Artículos IA</h2>
+              <p className="text-gray-400">Crea contenido optimizado para tu blog en segundos.</p>
           </div>
 
-          {/* PROJECT SELECTOR STRATEGY */}
-          <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700 border-dashed">
-                <label className="block text-sm font-bold text-white mb-2 flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-primary" /> Cargar Contexto de Proyecto (Opcional)
-                </label>
-                <select 
-                    value={selectedProject}
-                    onChange={(e) => handleProjectSelect(e.target.value)}
-                    className="w-full bg-black border border-gray-600 rounded-lg px-3 py-2 text-white outline-none focus:border-primary"
-                >
-                    <option value="">-- Seleccionar Proyecto Existente --</option>
-                    {userProjects.map(p => (
-                        <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                </select>
-                <p className="text-xs text-gray-400 mt-2">
-                    Al seleccionar un proyecto, la IA adoptará el tono de voz de tu marca y enfocará el artículo en tus objetivos.
-                </p>
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+               {/* PROJECT SELECTOR */}
+               <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700 border-dashed">
+                    <label className="block text-xs font-bold text-white mb-2 flex items-center gap-2">
+                        <Briefcase className="w-3 h-3 text-primary" /> Contexto (Proyecto)
+                    </label>
+                    <select 
+                        value={selectedProject}
+                        onChange={(e) => handleProjectSelect(e.target.value)}
+                        className="w-full bg-black border border-gray-600 rounded-lg px-3 py-2 text-white outline-none focus:border-primary text-sm"
+                    >
+                        <option value="">-- Ninguno --</option>
+                        {userProjects.map(p => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* LANDING PAGE SELECTOR */}
+                <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700 border-dashed">
+                    <label className="block text-xs font-bold text-white mb-2 flex items-center gap-2">
+                        <Globe className="w-3 h-3 text-green-400" /> Publicar en (Landing Page)
+                    </label>
+                    <select 
+                        value={selectedPageId}
+                        onChange={(e) => setSelectedPageId(e.target.value)}
+                        className="w-full bg-black border border-gray-600 rounded-lg px-3 py-2 text-white outline-none focus:border-green-500 text-sm"
+                    >
+                        <option value="">-- Sin vincular --</option>
+                        {userPages.map(p => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                    </select>
+                </div>
+          </div>
 
           <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 shadow-xl space-y-6">
               <div>
@@ -283,7 +330,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
               {titleIdeas.map((idea, idx) => (
                   <div 
                     key={idx}
-                    onClick={() => handleSelectTitle(idea)}
+                    onClick={() => handleTitleSelect(idea)}
                     className="bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-blue-500/50 p-6 rounded-xl cursor-pointer transition group relative overflow-hidden"
                   >
                       <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition"></div>
@@ -377,13 +424,13 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                       <div className="bg-blue-100 text-blue-600 p-2 rounded-lg"><FileText className="w-5 h-5" /></div>
                       <div>
                           <h3 className="font-bold text-gray-800 text-sm line-clamp-1">{selectedTitle?.title}</h3>
-                          <p className="text-xs text-gray-500">Generado por AI</p>
+                          <p className="text-xs text-gray-500">{selectedPageId ? 'Vinculado a Landing Page' : 'Borrador sin vincular'}</p>
                       </div>
                   </div>
                   <div className="flex gap-2">
                       {onSave && (
                         <button onClick={handleSaveArticle} disabled={saving} className="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 rounded-lg hover:bg-gray-700 transition text-sm font-medium mr-2">
-                             {saving ? <RefreshCw className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>} Guardar
+                             {saving ? <RefreshCw className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>} Publicar
                         </button>
                       )}
                       <button onClick={copyToClipboard} className="text-gray-600 hover:text-blue-600 p-2 rounded-lg hover:bg-blue-50 transition" title="Copiar HTML"><Copy className="w-5 h-5" /></button>
@@ -399,7 +446,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                     dangerouslySetInnerHTML={{ __html: articleContent }}
                     onInput={(e) => {
                         const newContent = e.currentTarget.innerHTML;
-                        // Avoid constant state updates for performance, but needed for copy/download
                         setArticleContent(newContent);
                         analyzeSeo(newContent);
                     }}
@@ -407,54 +453,132 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
               </div>
           </div>
 
-          {/* Sidebar SEO */}
-          <div className="w-full lg:w-80 space-y-6">
-              <div className="bg-gray-900 rounded-2xl border border-gray-800 p-6 shadow-lg">
+          {/* Sidebar SEO & Settings */}
+          <div className="w-full lg:w-80 space-y-4 overflow-y-auto pr-2">
+              
+              {/* PUBLICATION SETTINGS */}
+              <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 shadow-lg">
+                  <h3 className="text-white font-bold mb-4 flex items-center gap-2 text-sm">
+                      <Globe className="w-4 h-4 text-blue-400" /> Configuración
+                  </h3>
+                  
+                  <div className="space-y-3">
+                      <div>
+                          <label className="text-xs text-gray-400 block mb-1">Landing Page Vinculada</label>
+                          <select 
+                            value={selectedPageId}
+                            onChange={(e) => setSelectedPageId(e.target.value)}
+                            className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white"
+                          >
+                             <option value="">-- Sin Vincular --</option>
+                             {userPages.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                          </select>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                           <div>
+                                <label className="text-xs text-gray-400 block mb-1">Estado</label>
+                                <select 
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value as any)}
+                                    className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white"
+                                >
+                                    <option value="published">Publicado</option>
+                                    <option value="draft">Borrador</option>
+                                    <option value="scheduled">Programado</option>
+                                </select>
+                           </div>
+                           <div>
+                                <label className="text-xs text-gray-400 block mb-1">Fecha</label>
+                                <input 
+                                    type="date" 
+                                    value={publishDate}
+                                    onChange={(e) => setPublishDate(e.target.value)}
+                                    className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white"
+                                />
+                           </div>
+                      </div>
+
+                      <div>
+                            <label className="text-xs text-gray-400 block mb-1">Imagen Destacada (URL)</label>
+                            <div className="flex gap-1">
+                                <input 
+                                    type="text" 
+                                    value={featuredImage}
+                                    onChange={(e) => setFeaturedImage(e.target.value)}
+                                    placeholder="https://..."
+                                    className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white"
+                                />
+                                {featuredImage && <img src={featuredImage} className="w-8 h-8 object-cover rounded border border-gray-700" alt="Preview" />}
+                            </div>
+                      </div>
+                  </div>
+              </div>
+
+              {/* SEO METADATA */}
+              <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 shadow-lg">
+                  <h3 className="text-white font-bold mb-4 flex items-center gap-2 text-sm">
+                      <Search className="w-4 h-4 text-purple-400" /> Metadatos SEO
+                  </h3>
+                  <div className="space-y-3">
+                      <div>
+                          <label className="text-xs text-gray-400 block mb-1">Slug (URL)</label>
+                          <input 
+                            value={slug}
+                            onChange={(e) => setSlug(e.target.value)}
+                            className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white font-mono"
+                          />
+                      </div>
+                      <div>
+                          <label className="text-xs text-gray-400 block mb-1">Meta Title</label>
+                          <input 
+                            value={metaTitle}
+                            onChange={(e) => setMetaTitle(e.target.value)}
+                            className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white"
+                          />
+                      </div>
+                      <div>
+                          <label className="text-xs text-gray-400 block mb-1">Meta Description</label>
+                          <textarea 
+                            value={metaDescription}
+                            onChange={(e) => setMetaDescription(e.target.value)}
+                            className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white h-16 resize-none"
+                          />
+                      </div>
+                  </div>
+              </div>
+
+              {/* SEO SCORE */}
+              <div className="bg-gray-900 rounded-xl border border-gray-800 p-6 shadow-lg">
                   <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                      <BarChart className="w-5 h-5 text-green-400" /> Análisis SEO
+                      <BarChart className="w-5 h-5 text-green-400" /> Score SEO
                   </h3>
                   
                   {/* Score Circle */}
                   <div className="flex flex-col items-center mb-6">
-                      <div className="relative w-32 h-32 flex items-center justify-center">
+                      <div className="relative w-24 h-24 flex items-center justify-center">
                           <svg className="w-full h-full" viewBox="0 0 36 36">
                               <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#374151" strokeWidth="3" />
                               <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={seoScore > 80 ? '#22c55e' : seoScore > 50 ? '#eab308' : '#ef4444'} strokeWidth="3" strokeDasharray={`${seoScore}, 100`} className="animate-[spin_1s_ease-out_reverse]" />
                           </svg>
                           <div className="absolute flex flex-col items-center">
-                              <span className="text-3xl font-bold text-white">{Math.round(seoScore)}</span>
-                              <span className="text-[10px] text-gray-400">PUNTOS</span>
+                              <span className="text-2xl font-bold text-white">{Math.round(seoScore)}</span>
                           </div>
                       </div>
                   </div>
 
-                  <div className="space-y-4">
-                      <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-400">Palabras</span>
-                          <span className="text-white font-bold">{wordCount}</span>
+                  <div className="space-y-2 pt-2 border-t border-gray-800">
+                      <div className="flex items-center gap-2 text-xs text-gray-300">
+                          {wordCount > 600 ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
+                          Longitud ({wordCount} palabras)
                       </div>
-                      <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-400">Densidad Keyword</span>
-                          <span className={`font-bold ${keywordDensity > 0.5 && keywordDensity < 2.5 ? 'text-green-400' : 'text-yellow-400'}`}>{keywordDensity}%</span>
+                      <div className="flex items-center gap-2 text-xs text-gray-300">
+                          {keywordDensity > 0.5 ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
+                          Densidad Keyword ({keywordDensity}%)
                       </div>
-                      
-                      <div className="pt-4 border-t border-gray-800 space-y-2">
-                          <div className="flex items-center gap-2 text-xs text-gray-300">
-                              {wordCount > 600 ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
-                              Longitud adecuada ({'>'}600)
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-gray-300">
-                              {keywordDensity > 0 ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
-                              Keyword presente
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-gray-300">
-                              {articleContent.includes('<h2>') ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
-                              Estructura de Encabezados
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-gray-300">
-                              {articleContent.includes(ctaLink) ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
-                              Enlace CTA insertado
-                          </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-300">
+                          {metaDescription.length > 50 ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
+                          Meta Description
                       </div>
                   </div>
               </div>
@@ -463,7 +587,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                 onClick={() => setStep(1)} 
                 className="w-full py-3 border border-gray-700 hover:bg-gray-800 rounded-xl text-gray-400 hover:text-white transition text-sm flex items-center justify-center gap-2"
               >
-                  <RefreshCw className="w-4 h-4" /> Crear Nuevo Artículo
+                  <RefreshCw className="w-4 h-4" /> Crear Nuevo
               </button>
           </div>
       </div>

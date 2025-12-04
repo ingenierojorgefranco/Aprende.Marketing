@@ -55,8 +55,6 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     } catch (error: any) {
         if (!isOfflineMode) {
             console.warn(`⚠️ [API] Fallo conexión a ${url}: ${error.message}.`);
-            console.warn(`⚠️ [API] !!! ACTIVANDO MODO OFFLINE TEMPORAL !!!`);
-            console.warn(`⚠️ [API] Los datos NO se guardarán en la Base de Datos real.`);
         }
         isOfflineMode = true;
         throw error;
@@ -154,18 +152,15 @@ export const api = {
     }
   },
 
-  // --- MÉTODOS DE PROYECTOS (ESTRATEGIAS) ---
   getProjects: async (): Promise<Project[]> => {
       try {
           const projects = await fetchWithFallback('/projects', {
               method: 'GET',
               headers: getAuthHeaders()
           });
-          // Mapeo crucial de snake_case (DB) a camelCase (Frontend)
           return projects.map((p: any) => ({
               ...p,
               id: String(p.id),
-              // DB usa snake_case, Frontend usa camelCase
               painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : (p.pain_points || p.painPoints),
               keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits),
               affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks),
@@ -176,7 +171,6 @@ export const api = {
               createdAt: new Date(p.created_at || p.createdAt)
           }));
       } catch (e) {
-          console.warn("Fallo cargando proyectos, usando mock");
           return [...mockProjects];
       }
   },
@@ -200,8 +194,7 @@ export const api = {
               createdAt: new Date(p.created_at || p.createdAt)
           };
       } catch (e) {
-          const found = mockProjects.find(p => p.id === id);
-          return found || null;
+          return mockProjects.find(p => p.id === id) || null;
       }
   },
 
@@ -214,14 +207,12 @@ export const api = {
           });
           return { ...project, id: data.id.toString(), createdAt: new Date() };
       } catch (e: any) {
-          console.error("Fallo creando proyecto en BD", e);
           if (isOfflineMode) {
-              console.warn("Guardando proyecto en memoria local (se perderá al recargar).");
               const newProject: Project = { ...project, id: Date.now().toString(), createdAt: new Date() };
               mockProjects.push(newProject);
               return newProject;
           }
-          throw e; // Relanzar error para que UI se entere
+          throw e;
       }
   },
 
@@ -265,11 +256,18 @@ export const api = {
           const articles = await fetchWithFallback('/articles', { headers: getAuthHeaders() });
           return articles.map((a: any) => ({
               id: a.id.toString(),
+              pageId: a.page_id ? a.page_id.toString() : undefined,
               title: a.title,
+              slug: a.slug,
               description: a.description,
               contentHtml: a.content_html,
+              featuredImage: a.featured_image,
               keyword: a.keyword,
               seoScore: a.seo_score,
+              metaTitle: a.meta_title,
+              metaDescription: a.meta_description,
+              status: a.status || 'published',
+              publishedAt: new Date(a.published_at || a.created_at),
               createdAt: new Date(a.created_at)
           }));
       } catch (e) { return [...mockArticles]; }
@@ -281,11 +279,18 @@ export const api = {
               method: 'POST',
               headers: getAuthHeaders(),
               body: JSON.stringify({
+                  page_id: article.pageId,
                   title: article.title,
+                  slug: article.slug,
                   description: article.description,
                   content_html: article.contentHtml,
+                  featured_image: article.featuredImage,
                   keyword: article.keyword,
-                  seo_score: article.seoScore
+                  seo_score: article.seoScore,
+                  meta_title: article.metaTitle,
+                  meta_description: article.metaDescription,
+                  status: article.status,
+                  published_at: article.publishedAt
               })
           });
           return { ...article, id: saved.id.toString(), createdAt: new Date() };
@@ -294,6 +299,42 @@ export const api = {
           mockArticles.push(newArticle);
           return newArticle;
       }
+  },
+
+  getPublicBlogArticles: async (pageId: string): Promise<Article[]> => {
+      try {
+          const articles = await fetchWithFallback(`/public/pages/${pageId}/blog`);
+          return articles.map((a: any) => ({
+              id: a.id.toString(),
+              title: a.title,
+              slug: a.slug,
+              description: a.description,
+              featuredImage: a.featured_image,
+              publishedAt: new Date(a.published_at),
+              contentHtml: '' // No fetch content in list
+          } as Article));
+      } catch (e) { return []; }
+  },
+
+  getPublicArticle: async (slug: string): Promise<Article | null> => {
+      try {
+          const article = await fetchWithFallback(`/public/articles/${slug}`);
+          return {
+              id: article.id.toString(),
+              title: article.title,
+              slug: article.slug,
+              description: article.description,
+              contentHtml: article.content_html,
+              featuredImage: article.featured_image,
+              metaTitle: article.meta_title,
+              metaDescription: article.meta_description,
+              publishedAt: new Date(article.published_at),
+              status: article.status,
+              createdAt: new Date(article.created_at),
+              keyword: '',
+              seoScore: 0
+          };
+      } catch (e) { return null; }
   },
   
   testConnection: async (): Promise<{ success: boolean; message: string }> => {

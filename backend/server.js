@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const pool = require('./db');
-const initDb = require('./initDb'); // Importar módulo dedicado
+const initDb = require('./initDb'); // Módulo dedicado
 const { generateContent } = require('./geminiService');
 const { authMiddleware } = require('./authMiddleware');
 
@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v5_modular_init'; 
+const SERVER_VERSION = 'v7_blog_system'; 
 
 app.enable('trust proxy');
 
@@ -202,8 +202,6 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
     productName, mainGoal, painPoints, keyBenefits, affiliateLinks
   } = req.body;
 
-  console.log('[PROJECTS] Creando proyecto:', name);
-
   try {
     const [result] = await pool.query(
       `INSERT INTO projects 
@@ -223,7 +221,6 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
         JSON.stringify(affiliateLinks || []),
       ]
     );
-    console.log('[PROJECTS] Proyecto guardado con ID:', result.insertId);
     res.json({ id: result.insertId, message: 'Proyecto guardado exitosamente' });
   } catch (error) {
     console.error('[PROJECTS] Error creating:', error);
@@ -239,7 +236,6 @@ app.put('/api/projects/:id', authMiddleware, async (req, res) => {
   } = req.body;
 
   try {
-    // Verificar propiedad
     const [check] = await pool.query('SELECT id FROM projects WHERE id = ? AND user_id = ?', [id, req.user.id]);
     if (check.length === 0) return res.status(403).json({ error: 'No autorizado o no encontrado' });
 
@@ -264,7 +260,6 @@ app.put('/api/projects/:id', authMiddleware, async (req, res) => {
     );
     res.json({ message: 'Proyecto actualizado correctamente' });
   } catch (error) {
-    console.error('[PROJECTS] Error updating:', error);
     res.status(500).json({ error: 'Error actualizando proyecto' });
   }
 });
@@ -304,8 +299,6 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
   if (host.includes(':')) host = host.split(':')[0];
   if (host.startsWith('www.')) host = host.slice(4);
 
-  console.log(`[PUBLIC] Buscando landing para dominio: ${host}`);
-
   try {
     const [rows] = await pool.query(
       'SELECT * FROM landing_pages WHERE custom_domain = ? AND is_published = 1 LIMIT 1',
@@ -315,24 +308,19 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({ 
           error: 'API Endpoint Not Found',
-          debug_message: 'No landing associated with this domain',
-          debug_host: host,
           server_version: SERVER_VERSION
       });
     }
 
     const page = rows[0];
-    // Tracking visita
     pool.query('UPDATE landing_pages SET visits = visits + 1 WHERE id = ?', [page.id]).catch(console.error);
     
-    // Parse content
     if (typeof page.content === 'string') {
         try { page.content = JSON.parse(page.content); } catch {}
     }
     
     res.json(page);
   } catch (error) {
-    console.error('[PUBLIC] Error:', error);
     res.status(500).json({ error: 'Error interno', server_version: SERVER_VERSION });
   }
 });
@@ -374,6 +362,38 @@ app.get('/api/public/pages/:slug', async (req, res) => {
     res.status(500).json({ error: 'Error interno' });
   }
 });
+
+// 5. BLOG PÚBLICO
+app.get('/api/public/pages/:pageId/blog', async (req, res) => {
+    const { pageId } = req.params;
+    try {
+        const [rows] = await pool.query(
+            `SELECT id, title, slug, description, featured_image, published_at 
+             FROM articles 
+             WHERE page_id = ? AND status = 'published' AND published_at <= NOW()
+             ORDER BY published_at DESC`,
+            [pageId]
+        );
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.get('/api/public/articles/:slug', async (req, res) => {
+    const { slug } = req.params;
+    try {
+        const [rows] = await pool.query(
+            `SELECT * FROM articles WHERE slug = ? AND status = 'published' LIMIT 1`,
+            [slug]
+        );
+        if(rows.length === 0) return res.status(404).json({ error: "Artículo no encontrado" });
+        res.json(rows[0]);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 
 // ======================================================
 //  LANDING PAGES CRUD
@@ -428,14 +448,26 @@ app.get('/api/articles', authMiddleware, async (req, res) => {
 });
 
 app.post('/api/articles', authMiddleware, async (req, res) => {
-  const { title, description, content_html, keyword, seo_score } = req.body;
+  const { title, description, content_html, keyword, seo_score, page_id, slug, featured_image, meta_title, meta_description, status, published_at } = req.body;
+  
+  // Generar slug si no existe
+  let finalSlug = slug;
+  if (!finalSlug && title) {
+      finalSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+
   try {
     const [resDb] = await pool.query(
-      'INSERT INTO articles (user_id, title, description, content_html, keyword, seo_score, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
-      [req.user.id, title, description, content_html, keyword, seo_score]
+      `INSERT INTO articles 
+      (user_id, page_id, title, slug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, status, published_at, created_at) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [req.user.id, page_id || null, title, finalSlug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, status || 'published', published_at || new Date()]
     );
     res.json({ id: resDb.insertId });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) { 
+      console.error(e);
+      res.status(500).json({ error: e.message }); 
+  }
 });
 
 app.get('/api/leads', authMiddleware, async (req, res) => {
@@ -459,13 +491,12 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
-// IMPORTANTE: Ejecutar initDb antes de abrir el puerto
+// IMPORTANTE: Ejecutar initDb antes de abrir el puerto para asegurar tablas
 initDb().then(() => {
     app.listen(PORT, () => {
       console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
     });
 }).catch(err => {
     console.error("❌ Falló la inicialización crítica de la base de datos:", err);
-    // En Cloud Run, si el proceso sale, la instancia se reinicia.
     process.exit(1);
 });

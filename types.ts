@@ -144,11 +144,18 @@ export interface LandingPage {
 
 export interface Article {
   id: string;
+  pageId?: string; // Link to a landing page
   title: string;
+  slug: string;
   description: string;
   contentHtml: string;
+  featuredImage?: string;
   keyword: string;
   seoScore: number;
+  metaTitle?: string;
+  metaDescription?: string;
+  status: 'published' | 'draft' | 'scheduled';
+  publishedAt: Date;
   createdAt: Date;
 }
 
