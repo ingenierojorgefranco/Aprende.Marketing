@@ -134,11 +134,9 @@ const App: React.FC = () => {
     host.includes("localhost") || 
     host.includes("127.0.0.1") || 
     host.includes("aprende.marketing") ||
-    host.includes("plataformadeventa.com");
+    host.includes("plataformadeventacom");
 
-  
-
-  // Restaurar sesión al inicio 
+  // Restaurar sesión al inicio
   useEffect(() => {
     const restoreSession = async () => {
       const token = localStorage.getItem("plataformadeventacom_token");

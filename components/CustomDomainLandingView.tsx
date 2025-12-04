@@ -36,7 +36,7 @@ export const CustomDomainLandingView: React.FC = () => {
   useEffect(() => {
     const fetchPage = async () => {
       // FIX: Pasamos el dominio actual como query param, ya que el backend en Cloud Run
-      // verá su propio dominio y no el dominio personalizado en req.hostname.
+      // verá su propio dominio y no el dominio personalizado en req.hostname. 
       const host = typeof window !== "undefined" ? window.location.hostname : "(no-window)";
       
       const endpoint = `${API_BASE}/public/pages/by-domain?domain=${encodeURIComponent(host)}`;
@@ -55,30 +55,40 @@ export const CustomDomainLandingView: React.FC = () => {
         const res = await fetch(endpoint);
         const contentType = res.headers.get("content-type");
         let rawSnippet = "";
+        let errJson: any = {};
 
-        // Si la respuesta no es OK o no es JSON, leemos el texto para debug
-        if (!res.ok || !contentType || !contentType.includes("application/json")) {
-          try {
-            const raw = await res.text();
-            rawSnippet = raw.slice(0, 400);
-          } catch {
-            rawSnippet = "(no se pudo leer el cuerpo de la respuesta)";
-          }
+        // Intentar parsear JSON de error si existe
+        if (!res.ok) {
+            try {
+                errJson = await res.json();
+            } catch {
+                // Fallback a texto
+                try {
+                    rawSnippet = await res.text();
+                    rawSnippet = rawSnippet.slice(0, 400);
+                } catch {}
+            }
+        }
 
-          const debugInfo: DebugInfo = {
+        const debugInfo: DebugInfo = {
             endpoint,
             status: res.status,
             contentType,
-            rawBodySnippet: rawSnippet,
+            rawBodySnippet: rawSnippet || JSON.stringify(errJson),
             host,
-          };
+        };
+        
+        if (!res.ok) {
           console.error("[CustomDomainLandingView] Error response debug:", debugInfo);
           setDebug(debugInfo);
-        }
 
-        if (!res.ok) {
           if (res.status === 404) {
-            setError("No hay ninguna landing asociada a este dominio.");
+            // Diferenciar entre "Ruta de API no encontrada" y "Landing no encontrada"
+            if (errJson.error === 'API Endpoint Not Found') {
+                setError("Error de Configuración: La ruta de la API no existe en el servidor. Es probable que necesites volver a desplegar el backend.");
+            } else {
+                setError("No hay ninguna landing asociada a este dominio.");
+            }
           } else {
             setError(`Error cargando landing (HTTP ${res.status}).`);
           }
