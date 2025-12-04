@@ -8,10 +8,11 @@ if (!rootElement) {
 throw new Error("Could not find root element to mount to");
 }
 
-// Detectar si estamos en producción real (dominio)
+// Detectar si estamos en producción real o en el dominio personalizado
 const isProductionDomain =
-typeof window !== "undefined" &&
-window.location.hostname.includes("aprende.marketing");
+  typeof window !== "undefined" &&
+  (window.location.hostname.includes("aprende.marketing") || 
+   window.location.hostname.includes("bajardepeso.online"));
 
 // Elegir Router dinámicamente
 const Router = isProductionDomain ? BrowserRouter : HashRouter;

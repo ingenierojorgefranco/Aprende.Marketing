@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { LandingPage } from "../types";
@@ -21,8 +19,15 @@ type DebugInfo = {
   slug?: string;
 };
 
-export const PublicLandingView: React.FC = () => {
-  const { slug, userSlug } = useParams<{ slug: string; userSlug?: string }>();
+interface PublicLandingViewProps {
+  forcedSlug?: string;
+}
+
+export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug }) => {
+  const { slug: paramSlug, userSlug } = useParams<{ slug: string; userSlug?: string }>();
+  
+  // Prioritize passed prop (for custom domain root) over URL param
+  const activeSlug = forcedSlug || paramSlug;
 
   const [page, setPage] = useState<LandingPage | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,13 +36,13 @@ export const PublicLandingView: React.FC = () => {
 
   useEffect(() => {
     const fetchPage = async () => {
-      if (!slug) {
+      if (!activeSlug) {
         setError("Slug no proporcionado.");
         setLoading(false);
         setDebug({
           endpoint: "(no se llamó API porque no hay slug)",
           userSlug,
-          slug,
+          slug: activeSlug,
         });
         return;
       }
@@ -46,10 +51,10 @@ export const PublicLandingView: React.FC = () => {
       const endpoint = userSlug
         ? `${API_BASE}/public/pages/by-user/${encodeURIComponent(
             userSlug
-          )}/${encodeURIComponent(slug)}`
-        : `${API_BASE}/public/pages/${encodeURIComponent(slug)}`;
+          )}/${encodeURIComponent(activeSlug)}`
+        : `${API_BASE}/public/pages/${encodeURIComponent(activeSlug)}`;
 
-      console.log("[PublicLandingView] userSlug:", userSlug, "slug:", slug);
+      console.log("[PublicLandingView] userSlug:", userSlug, "slug:", activeSlug);
       console.log("[PublicLandingView] Fetching:", endpoint);
 
       try {
@@ -58,7 +63,7 @@ export const PublicLandingView: React.FC = () => {
         setDebug({
           endpoint,
           userSlug,
-          slug,
+          slug: activeSlug,
         });
 
         // OBTENER TOKEN: Para no contar visita propia
@@ -91,7 +96,7 @@ export const PublicLandingView: React.FC = () => {
             contentType,
             rawBodySnippet: rawSnippet,
             userSlug,
-            slug,
+            slug: activeSlug,
           };
           console.error("[PublicLandingView] Error response debug:", debugInfo);
           setDebug(debugInfo);
@@ -118,12 +123,12 @@ export const PublicLandingView: React.FC = () => {
         const data = await res.json();
 
         const normalized: LandingPage = {
-          id: data.id?.toString() ?? slug,
+          id: data.id?.toString() ?? activeSlug,
           name: data.name || "Landing sin título",
           niche: data.niche || "",
           goal: data.goal || "",
           isPublished: !!data.is_published,
-          subdomain: data.subdomain || slug,
+          subdomain: data.subdomain || activeSlug,
           visits: data.visits ?? 0,
           conversions: data.conversions ?? 0,
           createdAt: data.created_at ? new Date(data.created_at) : new Date(),
@@ -141,7 +146,7 @@ export const PublicLandingView: React.FC = () => {
           status: res.status,
           contentType,
           userSlug,
-          slug,
+          slug: activeSlug,
         }));
       } catch (e: any) {
         console.error("Error cargando landing pública:", e);
@@ -150,7 +155,7 @@ export const PublicLandingView: React.FC = () => {
           ...(prev || {}),
           endpoint,
           userSlug,
-          slug,
+          slug: activeSlug,
           rawBodySnippet:
             (prev && prev.rawBodySnippet) ||
             "Error de red o fallo inesperado en fetch.",
@@ -161,7 +166,7 @@ export const PublicLandingView: React.FC = () => {
     };
 
     fetchPage();
-  }, [slug, userSlug]);
+  }, [activeSlug, userSlug]);
 
   if (loading) {
     return (

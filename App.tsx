@@ -332,15 +332,13 @@ const App: React.FC = () => {
 
         {/* RUTA PRINCIPAL:
             - Dominio principal → Home pública
-            - Dominio personalizado (ej: bajardepeso.online) → redirige a landing asignada */}
+            - Dominio personalizado (ej: bajardepeso.online) → renderiza la landing asignada directamente
+        */}
         <Route
           path="/"
           element={
             customLandingSlug ? (
-              <Navigate
-                to={`/admin/lp/${customLandingSlug}`}
-                replace
-              />
+              <PublicLandingView forcedSlug={customLandingSlug} />
             ) : (
               <PublicHome user={user} onLogout={handleLogout} />
             )
