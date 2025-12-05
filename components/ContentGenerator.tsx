@@ -1,6 +1,6 @@
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../services/geminiService';
 import { api } from '../services/api';
 import { BookOpen, Search, List, FileText, Download, Copy, Check, RefreshCw, ArrowLeft, ArrowRight, Wand2, BarChart, ChevronRight, Type, Link as LinkIcon, Sparkles, Save, Briefcase, Calendar, Image, Globe, Eye, Trash2, GripVertical, Heading1, Heading2, Heading3, Heading4 } from 'lucide-react';
@@ -35,6 +35,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [ctaLink, setCtaLink] = useState('');
   
   const [articleContent, setArticleContent] = useState('');
+  // Ref para el editor para evitar re-renders cíclicos que causan pantalla blanca
+  const editorRef = useRef<HTMLDivElement>(null);
   
   // SEO & Meta fields
   const [slug, setSlug] = useState('');
@@ -61,14 +63,25 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                 api.getProjects(),
                 api.getPages()
             ]);
-            setUserProjects(projects);
-            setUserPages(pages);
+            setUserProjects(projects || []);
+            setUserPages(pages || []);
         } catch (e) {
             console.error("Failed to load context data", e);
         }
     };
     fetchContext();
   }, []);
+
+  // Initialize Editor Content safely when entering Step 4
+  useEffect(() => {
+    if (step === 4 && editorRef.current) {
+        // Solo inyectar HTML si el editor está vacío para no sobrescribir trabajo en curso
+        if (!editorRef.current.innerHTML || editorRef.current.innerHTML === '<br>') {
+            editorRef.current.innerHTML = articleContent;
+        }
+        analyzeSeo(articleContent);
+    }
+  }, [step, articleContent]);
 
   const handleProjectSelect = (projectId: string) => {
       setSelectedProject(projectId);
@@ -100,8 +113,12 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     setLoading(true);
     try {
         const titles = await generateArticleTitles(topic, objective, keyword);
-        setTitleIdeas(titles);
-        setStep(2);
+        if (Array.isArray(titles)) {
+            setTitleIdeas(titles);
+            setStep(2);
+        } else {
+            alert("La IA no devolvió el formato esperado. Intenta de nuevo.");
+        }
     } catch (e) {
         alert("Error generando títulos.");
     } finally {
@@ -114,8 +131,13 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       setLoading(true);
       try {
           const generatedOutline = await generateArticleOutline(idea.title, objective);
-          setOutline(generatedOutline);
-          setStep(3);
+          if (Array.isArray(generatedOutline)) {
+              setOutline(generatedOutline);
+              setStep(3);
+          } else {
+              setOutline(["H2: Introducción", "H2: Contenido Principal", "H2: Conclusión"]); // Fallback
+              setStep(3);
+          }
       } catch (e) {
           alert("Error generando esquema.");
       } finally {
@@ -132,9 +154,9 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
       try {
           const content = await generateFullArticle(selectedTitle.title, outline, objective, ctaLink || '#', keyword, projectContext);
-          setArticleContent(content);
+          setArticleContent(content || "<p>Error en la generación. Intenta de nuevo.</p>");
           setStep(4);
-          analyzeSeo(content);
+          // SEO analysis is triggered by useEffect when step changes
       } catch (e) {
           alert("Error escribiendo artículo.");
       } finally {
@@ -168,8 +190,16 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       }
   };
 
+  const handleEditorInput = (e: React.FormEvent<HTMLDivElement>) => {
+      const newContent = e.currentTarget.innerHTML;
+      setArticleContent(newContent);
+      analyzeSeo(newContent);
+  };
+
   // --- HIERARCHY HELPERS ---
   const getHeadingInfo = (text: string) => {
+      if (!text || typeof text !== 'string') return { level: 2, content: "Sección sin título", tag: 'H2' };
+      
       const match = text.match(/^(H[1-6]):\s*(.*)/i);
       if (match) {
           return {
@@ -205,13 +235,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
           e.preventDefault();
           return;
       }
-      
       setDraggedItemIndex(index);
       e.dataTransfer.effectAllowed = "move";
-      
-      // Calculate block size for visualization (optional, just for logic mostly)
-      // const size = getBlockSize(index, outline);
-      // We could set a custom drag image here
   };
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
@@ -290,9 +315,10 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
   // --- SEO ANALYSIS ---
   const analyzeSeo = (content: string) => {
-      // Simple Mock Analysis
+      if (!content) return;
+
       const text = content.replace(/<[^>]*>?/gm, ''); // Strip HTML
-      const words = text.split(/\s+/).length;
+      const words = text.split(/\s+/).filter(w => w.length > 0).length;
       setWordCount(words);
 
       let score = 50; // Base score
@@ -303,28 +329,30 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
       // Keyword factor
       let density = 0;
-      if (keyword) {
+      if (keyword && words > 0) {
           const regex = new RegExp(keyword, 'gi');
           const matches = text.match(regex);
           const count = matches ? matches.length : 0;
           density = (count / words) * 100;
-          setKeywordDensity(parseFloat(density.toFixed(2)));
           
           if (count > 2) score += 20;
           if (content.toLowerCase().includes(`<h1>`)) score += 5; // H1 exists (assumed in content or separate)
       } else {
-          setKeywordDensity(0);
-          score += 10; // Bonus for not stuffing if no keyword? No, just neutral.
+          score += 10; // Neutral bonus
       }
 
       // Headers factor
       if (content.includes('<h2>')) score += 5;
       
-      setSeoScore(Math.min(100, score));
+      // Safety checks
+      if (isNaN(density) || !isFinite(density)) density = 0;
+      setKeywordDensity(parseFloat(density.toFixed(2)));
+      setSeoScore(Math.min(100, Math.max(0, score)));
   };
 
   const copyToClipboard = () => {
-      navigator.clipboard.writeText(articleContent);
+      if (!editorRef.current) return;
+      navigator.clipboard.writeText(editorRef.current.innerHTML);
       alert("HTML copiado al portapapeles");
   };
 
@@ -492,7 +520,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                       const { level, content, tag } = getHeadingInfo(item);
                       
                       // Calculate indentation margin based on heading level
-                      // H1 = 0, H2 = 4, H3 = 8, H4 = 12
                       const indentClass = level === 1 ? '' : level === 2 ? 'ml-4' : level === 3 ? 'ml-10' : 'ml-16';
                       
                       // Visual drop indicator (Top Border)
@@ -601,7 +628,12 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   );
 
   // STEP 4: EDITOR & RESULTS
-  const renderStep4 = () => (
+  const renderStep4 = () => {
+    // Cálculo seguro del stroke para el SVG del score
+    const validSeoScore = isNaN(seoScore) ? 0 : seoScore;
+    const strokeColor = validSeoScore > 80 ? '#22c55e' : validSeoScore > 50 ? '#eab308' : '#ef4444';
+    
+    return (
       <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)] animate-in fade-in zoom-in-95 duration-500">
           
           {/* Main Editor */}
@@ -626,17 +658,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                   </div>
               </div>
               
-              {/* Content Editable Area */}
+              {/* Content Editable Area (Uncontrolled ref-based to prevent crash) */}
               <div className="flex-1 overflow-y-auto p-8 bg-white">
                   <div 
+                    ref={editorRef}
                     className="prose prose-lg max-w-none text-gray-800 focus:outline-none"
                     contentEditable
-                    dangerouslySetInnerHTML={{ __html: articleContent }}
-                    onInput={(e) => {
-                        const newContent = e.currentTarget.innerHTML;
-                        setArticleContent(newContent);
-                        analyzeSeo(newContent);
-                    }}
+                    onInput={handleEditorInput}
+                    suppressContentEditableWarning={true}
                   />
               </div>
           </div>
@@ -747,10 +776,10 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                       <div className="relative w-24 h-24 flex items-center justify-center">
                           <svg className="w-full h-full" viewBox="0 0 36 36">
                               <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#374151" strokeWidth="3" />
-                              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={seoScore > 80 ? '#22c55e' : seoScore > 50 ? '#eab308' : '#ef4444'} strokeWidth="3" strokeDasharray={`${seoScore}, 100`} className="animate-[spin_1s_ease-out_reverse]" />
+                              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={strokeColor} strokeWidth="3" strokeDasharray={`${validSeoScore}, 100`} className="animate-[spin_1s_ease-out_reverse]" />
                           </svg>
                           <div className="absolute flex flex-col items-center">
-                              <span className="text-2xl font-bold text-white">{Math.round(seoScore)}</span>
+                              <span className="text-2xl font-bold text-white">{Math.round(validSeoScore)}</span>
                           </div>
                       </div>
                   </div>
@@ -779,7 +808,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
               </button>
           </div>
       </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-full">
