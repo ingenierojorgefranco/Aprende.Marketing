@@ -171,6 +171,8 @@ const initDb = async () => {
         await addColumnSafe(connection, 'articles', "published_at DATETIME DEFAULT CURRENT_TIMESTAMP");
         // Migración crítica solicitada: Agregar page_id si falta
         await addColumnSafe(connection, 'articles', "page_id INT NULL");
+        // Asegurar que content_html exista (algunas versiones previas usaban 'content')
+        await addColumnSafe(connection, 'articles', "content_html LONGTEXT");
         
         // Reactivar checks
         await connection.query('SET FOREIGN_KEY_CHECKS = 1');
