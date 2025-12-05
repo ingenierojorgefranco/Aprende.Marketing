@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import {
   Routes,
@@ -248,13 +246,11 @@ const App: React.FC = () => {
 
   // --- HANDLERS ARTÍCULOS ---
   const handleArticleSave = async (
-    articleData: any // Flexible to handle update via internal logic if ID is present but not passed here directly as param if using internal logic
+    articleData: Omit<Article, "id" | "createdAt">
   ) => {
     try {
-        // En este punto, ContentGenerator ya ha llamado a la API internamente para crear o actualizar.
-        // Solo necesitamos refrescar el estado local.
-        const articles = await api.getArticles();
-        setMyArticles(articles);
+      const savedArticle = await api.saveArticle(articleData);
+      setMyArticles((prev) => [...prev, savedArticle]);
     } catch (e) {
       console.error(e);
       throw e;
@@ -330,21 +326,25 @@ const App: React.FC = () => {
   return (
     <>
       <Routes>
-        {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug Y /lp/:slug */}
-        <Route path="/admin/lp/:slug" element={<PublicLandingView />} />
-        <Route path="/lp/:slug" element={<PublicLandingView />} />
+        {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug/* Y /lp/:slug/* para blogs */}
+        <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
+        <Route path="/lp/:slug/*" element={<PublicLandingView />} />
 
         {/* RUTA PRINCIPAL:
             - Dominio principal → Home pública
             - Dominio personalizado (ej: bajardepeso.online) → renderiza la landing asignada directamente
+            - El wildcard * al final permite manejar /blog y /blog/slug
         */}
         <Route
-          path="/"
+          path="/*"
           element={
             customLandingSlug ? (
               <PublicLandingView forcedSlug={customLandingSlug} />
             ) : (
-              <PublicHome user={user} onLogout={handleLogout} />
+              <Routes>
+                  <Route path="/" element={<PublicHome user={user} onLogout={handleLogout} />} />
+                  <Route path="*" element={<NotFoundPage />} />
+              </Routes>
             )
           }
         />
@@ -489,11 +489,6 @@ const App: React.FC = () => {
             path="content-creator"
             element={<ContentGenerator onSave={handleArticleSave} />}
           />
-          {/* RUTA DE EDICIÓN DE ARTÍCULOS */}
-          <Route
-            path="articles/edit/:id"
-            element={<ContentGenerator onSave={handleArticleSave} />}
-          />
           <Route
             path="articles"
             element={
@@ -526,9 +521,6 @@ const App: React.FC = () => {
             }
           />
         </Route>
-
-        {/* CUALQUIER OTRA RUTA → 404 (EVITA LOOPS) */}
-        <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
       <DeleteModal />

@@ -1,9 +1,6 @@
-
-
 import React from 'react';
 import { Article } from '../types';
 import { BookOpen, Calendar, Search, Edit2, BarChart, FileText, Globe, Clock, Eye, ExternalLink } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 interface ArticlesListProps {
   articles: Article[];
@@ -11,8 +8,6 @@ interface ArticlesListProps {
 }
 
 export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNew }) => {
-  const navigate = useNavigate();
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -115,10 +110,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
                 </div>
                 
                 <div className="p-3 bg-gray-950 border-t border-gray-800 grid grid-cols-2 gap-2">
-                    <button 
-                        onClick={() => navigate(`/dashboard/articles/edit/${article.id}`)}
-                        className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg py-2 text-xs font-bold transition flex items-center justify-center gap-2 border border-transparent"
-                    >
+                    <button className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg py-2 text-xs font-bold transition flex items-center justify-center gap-2 border border-transparent">
                         <Edit2 className="w-3.5 h-3.5" /> EDITAR
                     </button>
                     
