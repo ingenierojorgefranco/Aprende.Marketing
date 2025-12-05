@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../services/geminiService';
 import { api } from '../services/api';
@@ -150,9 +151,10 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const handleSaveArticle = async () => {
     if (!selectedTitle || !onSave) return;
     
+    // START SAVE PROCESS
     setIsLogModalOpen(true);
     setSaveStatus('saving');
-    setSaveLogs([]);
+    setSaveLogs([]); // Reset logs
     addLog("Iniciando secuencia de guardado...");
 
     // Aseguramos que pageId sea undefined o null si está vacío, para que la BD lo procese bien
@@ -181,17 +183,16 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
           addLog(`Aviso: Artículo sin vincular a Landing Page (page_id: null)`);
       }
       
-      addLog(`Endpoint Objetivo: /api/articles`);
-      // No logueamos todo el contenido HTML para no saturar el modal
       addLog(`Payload Metadata: ${JSON.stringify({ ...articlePayload, contentHtml: '[CONTENIDO HTML OCULTO]' }, null, 2)}`);
       
+      // CALL API
       await onSave(articlePayload);
       
       addLog("✅ Respuesta del Servidor: 200 OK");
       addLog("✅ Artículo guardado exitosamente en la base de datos.");
       setSaveStatus('success');
 
-      // NO cerramos el modal automáticamente. El usuario decide qué hacer.
+      // IMPORTANT: Modal stays open. User clicks "Aceptar" to navigate.
     } catch (e: any) {
       addLog("❌ ERROR CRÍTICO AL GUARDAR");
       addLog(`Mensaje: ${e.message}`);
@@ -200,6 +201,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
          addLog(`Server Response: ${JSON.stringify(e.response.data)}`);
       }
       setSaveStatus('error');
+      // Modal stays open to show error.
     }
   };
 

@@ -276,31 +276,27 @@ export const api = {
   },
 
   saveArticle: async (article: Omit<Article, 'id' | 'createdAt'>): Promise<Article> => {
-      try {
-          const saved = await fetchWithFallback('/articles', {
-              method: 'POST',
-              headers: getAuthHeaders(),
-              body: JSON.stringify({
-                  page_id: article.pageId,
-                  title: article.title,
-                  slug: article.slug,
-                  description: article.description,
-                  content_html: article.contentHtml,
-                  featured_image: article.featuredImage,
-                  keyword: article.keyword,
-                  seo_score: article.seoScore,
-                  meta_title: article.metaTitle,
-                  meta_description: article.metaDescription,
-                  status: article.status,
-                  published_at: article.publishedAt
-              })
-          });
-          return { ...article, id: saved.id.toString(), createdAt: new Date() };
-      } catch (e) {
-          const newArticle: Article = { ...article, id: Date.now().toString(), createdAt: new Date() };
-          mockArticles.push(newArticle);
-          return newArticle;
-      }
+      // IMPORTANT: No try-catch wrapper here that swallows errors. 
+      // If fetchWithFallback fails, it must throw so ContentGenerator sees the error log.
+      const saved = await fetchWithFallback('/articles', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+              page_id: article.pageId,
+              title: article.title,
+              slug: article.slug,
+              description: article.description,
+              content_html: article.contentHtml,
+              featured_image: article.featuredImage,
+              keyword: article.keyword,
+              seo_score: article.seoScore,
+              meta_title: article.metaTitle,
+              meta_description: article.metaDescription,
+              status: article.status,
+              published_at: article.publishedAt
+          })
+      });
+      return { ...article, id: saved.id.toString(), createdAt: new Date() };
   },
 
   getPublicBlogArticles: async (pageId: string): Promise<Article[]> => {
