@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v12_debug_articles'; 
+const SERVER_VERSION = 'v13_date_fix'; 
 
 app.enable('trust proxy');
 
@@ -586,11 +586,15 @@ app.post('/api/articles', authMiddleware, async (req, res) => {
     // Validar page_id: Si llega como string vacío, convertir a null
     const validPageId = (page_id && page_id !== "") ? page_id : null;
 
+    // FIX: Convertir fecha ISO string a Objeto Date para que mysql2 la formatee correctamente
+    // Si no se hace esto, mysql en modo estricto rechaza 'YYYY-MM-DDTHH:mm:ss.sssZ' como DATETIME válido
+    const validPublishedAt = published_at ? new Date(published_at) : new Date();
+
     const [resDb] = await pool.query(
       `INSERT INTO articles 
       (user_id, page_id, title, slug, description, content_html, featured_image, keyword, seo_score, meta_title, meta_description, status, published_at, created_at) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [req.user.id, validPageId, title, finalSlug, description, content_html, featured_image, keyword, seo_score, meta_title, meta_description, status || 'published', published_at || new Date()]
+      [req.user.id, validPageId, title, finalSlug, description, content_html, featured_image, keyword, seo_score, meta_title, meta_description, status || 'published', validPublishedAt]
     );
     
     console.log("✅ [API POST /articles] Artículo guardado con ID:", resDb.insertId);
