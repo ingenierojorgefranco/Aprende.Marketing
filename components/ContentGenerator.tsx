@@ -1,7 +1,10 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../services/geminiService';
 import { api } from '../services/api';
 import { Article, Project, LandingPage } from '../types';
+import { useParams, useNavigate } from 'react-router-dom';
 
 // Importing Sub-Components
 import { Step1Inputs } from './content-generator/Step1Inputs';
@@ -9,14 +12,19 @@ import { Step2Titles } from './content-generator/Step2Titles';
 import { Step3Outline } from './content-generator/Step3Outline';
 import { Step4Editor } from './content-generator/Step4Editor';
 import { SaveLogModal } from './content-generator/SaveLogModal';
+import { Loader2 } from 'lucide-react';
 
 interface ContentGeneratorProps {
     onSave?: (article: Omit<Article, 'id' | 'createdAt'>) => Promise<void>;
 }
 
 export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) => {
+  const { id } = useParams<{ id: string }>(); // ID for edit mode
+  const navigate = useNavigate();
+
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(!!id);
   
   // Data State
   const [topic, setTopic] = useState('');
@@ -52,7 +60,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [saveLogs, setSaveLogs] = useState<string[]>([]);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 
-  // Initial Load
+  // Load projects and pages context
   useEffect(() => {
     const fetchContext = async () => {
       try {
@@ -68,6 +76,60 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     };
     fetchContext();
   }, []);
+
+  // Load existing article if editing
+  useEffect(() => {
+      if (!id) return;
+      
+      const loadArticle = async () => {
+          setInitialLoading(true);
+          try {
+              const article = await api.getArticleById(id);
+              if (article) {
+                  // Map article data to state
+                  setTopic(article.keyword || article.title); // Fallback topic
+                  setKeyword(article.keyword || '');
+                  setSelectedPageId(article.pageId || '');
+                  
+                  // Construct a synthetic Title Idea for the editor
+                  const syntheticTitle: ArticleTitleIdea = {
+                      title: article.title,
+                      description: article.description
+                  };
+                  setSelectedTitle(syntheticTitle);
+                  
+                  // Content
+                  setArticleContent(article.contentHtml);
+                  
+                  // Metadata
+                  setSlug(article.slug);
+                  setMetaTitle(article.metaTitle || article.title);
+                  setMetaDescription(article.metaDescription || article.description);
+                  setFeaturedImage(article.featuredImage || '');
+                  setStatus(article.status as any || 'published');
+                  setSeoScore(article.seoScore || 0);
+                  
+                  if (article.publishedAt) {
+                      setPublishDate(new Date(article.publishedAt).toISOString().split('T')[0]);
+                  }
+
+                  // Skip to Editor Step
+                  setStep(4);
+              } else {
+                  alert("Artículo no encontrado");
+                  navigate('/dashboard/articles');
+              }
+          } catch (e) {
+              console.error(e);
+              alert("Error cargando artículo");
+              navigate('/dashboard/articles');
+          } finally {
+              setInitialLoading(false);
+          }
+      };
+
+      loadArticle();
+  }, [id, navigate]);
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -146,7 +208,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   };
 
   const handleSaveArticle = async () => {
-    if (!selectedTitle || !onSave) return;
+    if (!selectedTitle) return;
     
     setIsLogModalOpen(true);
     setSaveStatus('saving');
@@ -169,19 +231,31 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     };
 
     try {
-      addLog("Validando datos...");
-      addLog(`Endpoint Objetivo: /api/articles`);
-      addLog(`PAYLOAD:\n${JSON.stringify(articlePayload, null, 2)}`);
+      if (id) {
+          // UPDATE EXISTING
+          addLog(`Actualizando artículo ID: ${id}...`);
+          await api.updateArticle(id, articlePayload);
+          addLog("Actualización exitosa en base de datos.");
+      } else {
+          // CREATE NEW
+          addLog("Creando nuevo artículo...");
+          await api.saveArticle(articlePayload);
+          addLog("Guardado exitoso en base de datos.");
+      }
+
+      // Refresh parent list via callback if provided (generic refresh)
+      if (onSave) {
+          await onSave(articlePayload); 
+      }
       
-      await onSave(articlePayload);
-      
-      addLog("Respuesta del Servidor: 200 OK");
-      addLog("Guardado exitoso en base de datos.");
       setSaveStatus('success');
 
       setTimeout(() => {
         if (saveStatus !== 'error') setIsLogModalOpen(false);
+        // Optional: navigate back to list if needed
+        // navigate('/dashboard/articles');
       }, 2500);
+
     } catch (e: any) {
       addLog("❌ ERROR CRÍTICO");
       addLog(`Mensaje: ${e.message}`);
@@ -192,6 +266,15 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       setSaveStatus('error');
     }
   };
+
+  if (initialLoading) {
+      return (
+          <div className="flex flex-col items-center justify-center h-full text-white">
+              <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
+              <p>Cargando artículo para edición...</p>
+          </div>
+      );
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -254,7 +337,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
           setSeoScore={setSeoScore}
           onSave={handleSaveArticle}
           saving={saveStatus === 'saving'}
-          onBack={() => setStep(3)}
+          onBack={() => setStep(3)} // Note: Back button logic is slightly weird when editing, user might not want to re-gen structure.
         />
       )}
 

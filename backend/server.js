@@ -565,6 +565,17 @@ app.get('/api/articles', authMiddleware, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+app.get('/api/articles/:id', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM articles WHERE id = ? AND user_id = ?',
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Artículo no encontrado' });
+    res.json(rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 app.post('/api/articles', authMiddleware, async (req, res) => {
   const { title, description, content_html, keyword, seo_score, page_id, slug, featured_image, meta_title, meta_description, status, published_at } = req.body;
   
@@ -585,6 +596,30 @@ app.post('/api/articles', authMiddleware, async (req, res) => {
   } catch (e) { 
       console.error("[DB Insert Error] Falló el guardado del artículo:", e);
       res.status(500).json({ error: e.message }); 
+  }
+});
+
+app.put('/api/articles/:id', authMiddleware, async (req, res) => {
+  const { title, description, content_html, keyword, seo_score, page_id, slug, featured_image, meta_title, meta_description, status, published_at } = req.body;
+  const { id } = req.params;
+
+  try {
+    const [check] = await pool.query('SELECT id FROM articles WHERE id = ? AND user_id = ?', [id, req.user.id]);
+    if (check.length === 0) return res.status(403).json({ error: 'No autorizado' });
+
+    await pool.query(
+      `UPDATE articles SET 
+       page_id=?, title=?, slug=?, description=?, content_html=?, featured_image=?, keyword=?, seo_score=?, meta_title=?, meta_description=?, status=?, published_at=?
+       WHERE id=? AND user_id=?`,
+      [
+        page_id || null, title, slug, description, content_html, featured_image, keyword, seo_score, meta_title, meta_description, status, published_at,
+        id, req.user.id
+      ]
+    );
+    res.json({ message: 'Artículo actualizado' });
+  } catch (e) {
+    console.error("[DB Update Error] Falló la actualización del artículo:", e);
+    res.status(500).json({ error: e.message });
   }
 });
 
