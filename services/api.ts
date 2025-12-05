@@ -34,8 +34,9 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     const url = `${API_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
 
     try {
+        // Aumentado a 90 segundos para permitir generaciones largas de artículos
         const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("Timeout: Servidor tardó demasiado")), 15000)
+            setTimeout(() => reject(new Error("Timeout: Servidor tardó demasiado")), 90000)
         );
 
         const fetchPromise = fetch(url, options);

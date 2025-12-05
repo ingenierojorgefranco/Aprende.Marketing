@@ -260,7 +260,31 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
   const handleDeleteItem = (index: number) => {
       if (index === 0) return alert("No puedes eliminar el Título Principal (H1).");
-      const newOutline = outline.filter((_, i) => i !== index);
+
+      const parentInfo = getHeadingInfo(outline[index]);
+      
+      // Calculate children count
+      let childrenCount = 0;
+      for (let i = index + 1; i < outline.length; i++) {
+          const childInfo = getHeadingInfo(outline[i]);
+          if (childInfo.level > parentInfo.level) {
+              childrenCount++;
+          } else {
+              break;
+          }
+      }
+
+      if (childrenCount > 0) {
+          const confirmDelete = window.confirm(
+              `Este bloque contiene ${childrenCount} sub-secciones (H${parentInfo.level + 1}...). ` +
+              `¿Estás seguro de que quieres eliminar TODO el bloque de contenidos?`
+          );
+          if (!confirmDelete) return;
+      }
+
+      // Remove item + children
+      const newOutline = [...outline];
+      newOutline.splice(index, 1 + childrenCount);
       setOutline(newOutline);
   };
 
@@ -436,6 +460,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                       <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition"></div>
                       <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition">{idea.title}</h3>
                       <p className="text-sm text-gray-400">{idea.description}</p>
+                      <span className="text-xs text-gray-600 mt-2 block">{idea.title.length} caracteres</span>
                   </div>
               ))}
           </div>
@@ -459,7 +484,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
           <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
               <div className="p-6 border-b border-gray-800 bg-gray-800/50">
                   <h2 className="text-xl font-bold text-white mb-1">Estructura del Artículo</h2>
-                  <p className="text-sm text-gray-400">Arrastra para reordenar bloques completos (H2 mueve sus H3, etc).</p>
+                  <p className="text-sm text-gray-400">Arrastra para reordenar bloques completos. <span className="text-yellow-400">Nota: Al eliminar un título padre, se eliminarán sus hijos.</span></p>
               </div>
               
               <div className="p-6 space-y-1">

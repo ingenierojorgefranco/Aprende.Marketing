@@ -314,8 +314,10 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
     El objetivo del artículo es: "${objective}".
     ${keyword ? `Palabra clave principal: "${keyword}"` : ''}
     
+    REGLA OBLIGATORIA: Los títulos NO pueden superar los 60 caracteres de longitud. Deben ser cortos, impactantes y directos.
+    
     Devuelve un JSON array de objetos con:
-    - title: El título propuesto (H1).
+    - title: El título propuesto (H1) (Máximo 60 caracteres).
     - description: Breve explicación del enfoque o ángulo de este artículo (1 frase).
     `;
 
@@ -340,21 +342,28 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
 
 export const generateArticleOutline = async (title: string, objective: string): Promise<string[]> => {
     const prompt = `Actúa como un arquitecto de contenido SEO experto.
-    Crea una estructura (outline) PROFUNDA y OPTIMIZADA para un artículo de blog titulado: "${title}".
+    Crea una estructura (outline) OBLIGATORIA para un artículo de blog titulado: "${title}".
     Objetivo: "${objective}".
     
-    Reglas de Estructura:
-    1. DEBES usar etiquetas H1, H2, H3 y H4 explícitas al inicio de cada string.
-    2. El primer elemento DEBE ser "H1: ${title}".
-    3. Crea una jerarquía lógica profunda:
-       - H2 para secciones principales.
-       - H3 para sub-temas dentro de H2.
-       - H4 para detalles específicos o listas dentro de H3.
-    4. Ejemplo de estructura deseada: H1, H2, H3, H3, H2, H3, H4, H4, H2, H3, H2.
-    5. Asegura que cubra la intención de búsqueda completa.
-    
+    DEBES SEGUIR ESTRICTAMENTE ESTA ESTRUCTURA (No añadas ni quites nada fuera de este patrón):
+    1. H1: [Título Principal]
+    2. H2: [Título de Atención: Gancho fuerte relacionado al problema]
+    3. H3: [Título que apoya/expande la Atención]
+    4. H3: [Titulo que concluye la sección de Atención]
+    5. H2: [Título de Interés: Datos, curiosidades o profundización]
+    6. H3: [Título que apoya el Interés]
+    7. H3: [Titulo que concluye el Interés]
+    8. H2: [Título de Deseo: La solución o transformación]
+    9. H3: [Título que apoya el Deseo]
+    10. H3: [Titulo que concluye el Deseo]
+    11. H4: [Conclusión del Deseo: Beneficio final]
+    12. H2: [Título de Acción (CTA): Qué debe hacer ahora]
+    13. H3: [Título que apoya la Acción/Urgencia]
+    14. H3: [Titulo que concluye la Acción]
+    15. H4: [Recomendación Final: Cierre]
+
     Devuelve SOLO un JSON array de strings.
-    Ejemplo de formato de items: "H1: Título Principal", "H2: Introducción", "H3: Beneficio Clave 1", etc.`;
+    Ejemplo de formato de items: "H1: Título...", "H2: Atención...", etc.`;
 
     const schema = {
         type: Type.ARRAY,
@@ -392,10 +401,10 @@ export const generateFullArticle = async (
         `;
     }
 
-    const prompt = `Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este título y esquema estructural.
+    const prompt = `Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este título y esquema estructural OBLIGATORIO.
     
     Título: "${title}"
-    Esquema Estructural: ${JSON.stringify(outline)}
+    Esquema Estructural (SÍGUELO AL PIE DE LA LETRA): ${JSON.stringify(outline)}
     Objetivo: "${objective}"
     ${keyword ? `Keyword SEO: "${keyword}" (Úsala de forma natural)` : ''}
     CTA Link: "${ctaLink}" (Insértalo de forma persuasiva al final o en un punto clave).
@@ -406,12 +415,13 @@ export const generateFullArticle = async (
     Estilo: Profesional, educativo y persuasivo. Párrafos cortos.
     Idioma: Español Neutro.
     
-    NO incluyas <html>, <head> o <body>, solo el contenido del artículo.`;
+    NO incluyas <html>, <head> o <body>, solo el contenido del artículo dentro de un <div>.
+    Asegúrate de desarrollar contenido para CADA UNO de los puntos del esquema.`;
 
     try {
         const response = await callGeminiBackend(prompt);
         return response.text || "<p>Error generando el artículo.</p>";
     } catch (e) {
-        return `<p>Error de conexión.</p>`;
+        return `<p>Error de conexión o timeout generando el artículo. Intenta con un tema más corto.</p>`;
     }
 };
