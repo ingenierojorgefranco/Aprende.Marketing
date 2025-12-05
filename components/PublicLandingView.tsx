@@ -26,7 +26,7 @@ interface PublicLandingViewProps {
 }
 
 export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug }) => {
-  const { slug: paramSlug, userSlug } = useParams<{ slug: string; userSlug?: string }>();
+  const { slug: paramSlug, userSlug, "*": wildCard } = useParams<{ slug: string; userSlug?: string; "*": string }>();
   const location = useLocation();
   
   // Prioritize passed prop (for custom domain root) over URL param
@@ -38,22 +38,28 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
   const [debug, setDebug] = useState<DebugInfo | null>(null);
 
   // BLOG ROUTING LOGIC
-  // Detect if we are in /blog or /blog/article-slug
-  // We need to parse the URL relative to the landing base.
-  // If custom domain: /blog -> blog list
-  // If subdomain path: /lp/:slug/blog -> blog list
+  // Detect if we are in /blog or /blog/article-slug using the wildcard parameter
   let viewMode: 'home' | 'blog-list' | 'blog-post' = 'home';
   let articleSlug = '';
 
-  const pathSegments = location.pathname.split('/').filter(Boolean);
-  const lastSegment = pathSegments[pathSegments.length - 1];
-  const secondLastSegment = pathSegments[pathSegments.length - 2];
-
-  if (lastSegment === 'blog') {
-      viewMode = 'blog-list';
-  } else if (secondLastSegment === 'blog') {
-      viewMode = 'blog-post';
-      articleSlug = lastSegment;
+  // If using wildcard router
+  if (wildCard) {
+      if (wildCard === 'blog' || wildCard === 'blog/') {
+          viewMode = 'blog-list';
+      } else if (wildCard.startsWith('blog/')) {
+          viewMode = 'blog-post';
+          articleSlug = wildCard.replace('blog/', '');
+      }
+  } 
+  // If custom domain and path based routing logic (fallback)
+  else if (location.pathname.includes('/blog')) {
+      const parts = location.pathname.split('/blog');
+      if (parts[1] && parts[1] !== '/' && parts[1] !== '') {
+          viewMode = 'blog-post';
+          articleSlug = parts[1].startsWith('/') ? parts[1].substring(1) : parts[1];
+      } else {
+          viewMode = 'blog-list';
+      }
   }
 
   useEffect(() => {
@@ -166,13 +172,19 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
     );
   }
 
+  // Construct base path for navigation
+  const basePath = userSlug 
+    ? `/lp/${userSlug}/${activeSlug}` 
+    : forcedSlug 
+        ? '' // Root if forced (custom domain) 
+        : `/admin/lp/${activeSlug}`; // or /lp/slug
+
   // USAMOS EL MOTOR DE RENDERIZADO "LivePage"
-  // Pasamos el viewMode y articleSlug para que LivePage sepa qué renderizar (Home, Lista Blog, Post Blog)
   return <LivePage 
             content={page.content} 
             pageId={page.id} 
             viewMode={viewMode} 
             articleSlug={articleSlug}
-            basePath={userSlug ? `/lp/${userSlug}/${activeSlug}` : forcedSlug ? '' : `/lp/${activeSlug}`} // Base path for links
+            basePath={basePath} 
          />;
 };

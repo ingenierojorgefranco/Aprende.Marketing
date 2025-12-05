@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Article } from '../types';
-import { BookOpen, Calendar, Search, Edit2, BarChart, FileText, Globe, Clock } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, BarChart, FileText, Globe, Clock, Eye } from 'lucide-react';
 
 interface ArticlesListProps {
   articles: Article[];
@@ -97,9 +97,22 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
               </div>
               
               <div className="p-4 border-t border-gray-800 bg-gray-900/50 rounded-b-xl flex justify-between items-center">
-                  <button className="text-gray-400 hover:text-white text-sm font-medium transition flex items-center gap-2">
-                      <Edit2 className="w-4 h-4" /> Editar
-                  </button>
+                  <div className="flex gap-2">
+                    <button className="text-gray-400 hover:text-white text-sm font-medium transition flex items-center gap-2">
+                        <Edit2 className="w-4 h-4" /> Editar
+                    </button>
+                    {article.pageSubdomain && (
+                        <a 
+                            href={`/admin/lp/${article.pageSubdomain}/blog/${article.slug}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-gray-400 hover:text-green-400 text-sm font-medium transition flex items-center gap-2"
+                            title="Ver en vivo"
+                        >
+                            <Eye className="w-4 h-4" /> Ver
+                        </a>
+                    )}
+                  </div>
                   <button className="text-primary hover:text-indigo-400 text-sm font-medium transition flex items-center gap-2">
                       <BarChart className="w-4 h-4" /> Ver Análisis
                   </button>

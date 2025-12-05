@@ -126,8 +126,8 @@ const App: React.FC = () => {
   const host =
     typeof window !== "undefined" ? window.location.hostname : "";
   const CUSTOM_DOMAIN_LANDING_MAP: Record<string, string> = {
-    "bajardepeso.online": "baja-de-peso-online",
-    "www.bajardepeso.online": "baja-de-peso-online",
+    "bajardepeso.online": "especialista-cejas",
+    "www.bajardepeso.online": "especialista-cejas",
   };
   const customLandingSlug = CUSTOM_DOMAIN_LANDING_MAP[host];
 
@@ -326,21 +326,25 @@ const App: React.FC = () => {
   return (
     <>
       <Routes>
-        {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug Y /lp/:slug */}
-        <Route path="/admin/lp/:slug" element={<PublicLandingView />} />
-        <Route path="/lp/:slug" element={<PublicLandingView />} />
+        {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug/* Y /lp/:slug/* para blogs */}
+        <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
+        <Route path="/lp/:slug/*" element={<PublicLandingView />} />
 
         {/* RUTA PRINCIPAL:
             - Dominio principal → Home pública
             - Dominio personalizado (ej: bajardepeso.online) → renderiza la landing asignada directamente
+            - El wildcard * al final permite manejar /blog y /blog/slug
         */}
         <Route
-          path="/"
+          path="/*"
           element={
             customLandingSlug ? (
               <PublicLandingView forcedSlug={customLandingSlug} />
             ) : (
-              <PublicHome user={user} onLogout={handleLogout} />
+              <Routes>
+                  <Route path="/" element={<PublicHome user={user} onLogout={handleLogout} />} />
+                  <Route path="*" element={<NotFoundPage />} />
+              </Routes>
             )
           }
         />
@@ -517,9 +521,6 @@ const App: React.FC = () => {
             }
           />
         </Route>
-
-        {/* CUALQUIER OTRA RUTA → 404 (EVITA LOOPS) */}
-        <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
       <DeleteModal />

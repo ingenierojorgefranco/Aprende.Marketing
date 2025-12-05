@@ -145,6 +145,7 @@ export interface LandingPage {
 export interface Article {
   id: string;
   pageId?: string; // Link to a landing page
+  pageSubdomain?: string; // Subdomain/Slug of the linked page for URL construction
   title: string;
   slug: string;
   description: string;

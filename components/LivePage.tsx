@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, ColorPalette, StructureType, Article } from '../types';
 import { CheckCircle, Star, PlayCircle, User, MessageCircle, ArrowRight, Lock, ShieldCheck, Zap, BarChart, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Award, Users, DollarSign, FileText, Briefcase, BookOpen, ScanFace, Palette, Feather, Plus, Minus, HelpCircle, X, Rocket, Target, Globe, Menu, Calendar, ArrowLeft, Clock } from 'lucide-react';
@@ -496,7 +498,7 @@ const Navbar = ({ content, ds, isMobilePreview, setShowModal, hasBlog, basePath 
         // Handle internal Blog links
         if (href === '/blog') {
             e.preventDefault();
-            // Redirect using window.location for now, assuming client side routing will handle it if mapped, otherwise reload is fine
+            // Redirect using window.location if necessary or relative path
             window.location.href = basePath ? `${basePath}/blog` : '/blog';
             return;
         }
@@ -510,9 +512,8 @@ const Navbar = ({ content, ds, isMobilePreview, setShowModal, hasBlog, basePath 
                 setIsMenuOpen(false);
             } else {
                 // If we are in blog view, we might need to go home first
-                if (window.location.pathname.includes('/blog')) {
-                    window.location.href = basePath || '/';
-                }
+                // Use basePath to construct home link
+                window.location.href = basePath || '/';
             }
         } else {
              // External link
@@ -950,10 +951,19 @@ const BlogGridSection = ({ articles, ds, isDark, basePath }: any) => {
 const BlogPostView = ({ article, ds, isDark, basePath }: any) => {
     if (!article) return <div className="py-32 text-center text-white">Cargando artículo...</div>;
 
+    // Handle back button action - if coming from outside, go to blog list
+    const goBack = () => {
+        if(basePath) {
+             window.location.href = `${basePath}/blog`;
+        } else {
+             window.history.back();
+        }
+    };
+
     return (
         <article className={`min-h-screen pt-32 pb-24 ${isDark ? 'bg-[#0f0f0f]' : 'bg-white'}`}>
              <div className="w-full max-w-4xl mx-auto px-6">
-                 <button onClick={() => window.history.back()} className={`mb-8 flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}>
+                 <button onClick={goBack} className={`mb-8 flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}>
                      <ArrowLeft className="w-4 h-4" /> Volver al Blog
                  </button>
 

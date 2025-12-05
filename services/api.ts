@@ -258,6 +258,7 @@ export const api = {
           return articles.map((a: any) => ({
               id: a.id.toString(),
               pageId: a.page_id ? a.page_id.toString() : undefined,
+              pageSubdomain: a.page_subdomain, // Mapped from join
               title: a.title,
               slug: a.slug,
               description: a.description,

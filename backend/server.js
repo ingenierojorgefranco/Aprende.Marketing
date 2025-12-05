@@ -530,7 +530,15 @@ app.delete('/api/pages/:id', authMiddleware, async (req, res) => {
 // ======================================================
 app.get('/api/articles', authMiddleware, async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM articles WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
+    // JOIN with landing_pages to get subdomain for dashboard links
+    const [rows] = await pool.query(
+        `SELECT a.*, lp.subdomain as page_subdomain 
+         FROM articles a 
+         LEFT JOIN landing_pages lp ON a.page_id = lp.id 
+         WHERE a.user_id = ? 
+         ORDER BY a.created_at DESC`, 
+        [req.user.id]
+    );
     res.json(rows);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
