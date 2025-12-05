@@ -335,8 +335,9 @@ const App: React.FC = () => {
     <>
       <Routes>
         {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug Y /lp/:slug */}
-        <Route path="/admin/lp/:slug" element={<PublicLandingView />} />
-        <Route path="/lp/:slug" element={<PublicLandingView />} />
+        {/* AGREGADO /* PARA SOPORTAR SUBRUTAS COMO /blog */}
+        <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
+        <Route path="/lp/:slug/*" element={<PublicLandingView />} />
 
         {/* RUTA PRINCIPAL:
             - Dominio principal → Home pública
