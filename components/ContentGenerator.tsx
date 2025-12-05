@@ -79,9 +79,21 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
         if (!editorRef.current.innerHTML || editorRef.current.innerHTML === '<br>') {
             editorRef.current.innerHTML = articleContent;
         }
+        // Force initial analysis
         analyzeSeo(articleContent);
     }
-  }, [step, articleContent]);
+  }, [step]); // Removed articleContent dependency to avoid loops, explicit analysis triggers only
+
+  // DEBOUNCED SEO ANALYSIS
+  useEffect(() => {
+    if (step !== 4) return;
+    
+    const handler = setTimeout(() => {
+        analyzeSeo(articleContent);
+    }, 800); // 800ms delay to prevent freezing on large texts
+
+    return () => clearTimeout(handler);
+  }, [articleContent, keyword, step]);
 
   const handleProjectSelect = (projectId: string) => {
       setSelectedProject(projectId);
@@ -156,7 +168,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
           const content = await generateFullArticle(selectedTitle.title, outline, objective, ctaLink || '#', keyword, projectContext);
           setArticleContent(content || "<p>Error en la generación. Intenta de nuevo.</p>");
           setStep(4);
-          // SEO analysis is triggered by useEffect when step changes
       } catch (e) {
           alert("Error escribiendo artículo.");
       } finally {
@@ -182,18 +193,19 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
               status: status,
               publishedAt: new Date(publishDate)
           });
-          alert("Artículo guardado y vinculado correctamente.");
+          alert("Artículo guardado correctamente.");
       } catch (e) {
-          alert("Error guardando el artículo.");
+          console.error(e);
+          alert("Error guardando el artículo. Verifica la consola.");
       } finally {
           setSaving(false);
       }
   };
 
   const handleEditorInput = (e: React.FormEvent<HTMLDivElement>) => {
+      // Just update state, analysis is handled by debounce effect
       const newContent = e.currentTarget.innerHTML;
       setArticleContent(newContent);
-      analyzeSeo(newContent);
   };
 
   // --- HIERARCHY HELPERS ---
@@ -314,11 +326,15 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   };
 
   // --- SEO ANALYSIS ---
+  const escapeRegExp = (string: string) => {
+    return string ? string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+  };
+
   const analyzeSeo = (content: string) => {
-      if (!content) return;
+      if (!content || typeof content !== 'string') return;
 
       const text = content.replace(/<[^>]*>?/gm, ''); // Strip HTML
-      const words = text.split(/\s+/).filter(w => w.length > 0).length;
+      const words = text ? text.split(/\s+/).filter(w => w && w.length > 0).length : 0;
       setWordCount(words);
 
       let score = 50; // Base score
@@ -329,13 +345,18 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
       // Keyword factor
       let density = 0;
-      if (keyword && words > 0) {
-          const regex = new RegExp(keyword, 'gi');
-          const matches = text.match(regex);
-          const count = matches ? matches.length : 0;
-          density = (count / words) * 100;
-          
-          if (count > 2) score += 20;
+      if (keyword && keyword.trim().length > 0 && words > 0) {
+          const escapedKeyword = escapeRegExp(keyword);
+          try {
+              const regex = new RegExp(escapedKeyword, 'gi');
+              const matches = text.match(regex);
+              const count = matches ? matches.length : 0;
+              density = (count / words) * 100;
+              
+              if (count > 2) score += 20;
+          } catch(e) {
+              console.warn("Invalid regex in SEO analysis", e);
+          }
           if (content.toLowerCase().includes(`<h1>`)) score += 5; // H1 exists (assumed in content or separate)
       } else {
           score += 10; // Neutral bonus
@@ -776,43 +797,36 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                       <div className="relative w-24 h-24 flex items-center justify-center">
                           <svg className="w-full h-full" viewBox="0 0 36 36">
                               <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#374151" strokeWidth="3" />
-                              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={strokeColor} strokeWidth="3" strokeDasharray={`${validSeoScore}, 100`} className="animate-[spin_1s_ease-out_reverse]" />
+                              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={strokeColor} strokeWidth="3" strokeDasharray={`${validSeoScore}, 100`} className="transition-all duration-1000 ease-out" />
                           </svg>
                           <div className="absolute flex flex-col items-center">
-                              <span className="text-2xl font-bold text-white">{Math.round(validSeoScore)}</span>
+                              <span className="text-3xl font-bold text-white">{validSeoScore}</span>
+                              <span className="text-[10px] text-gray-500 uppercase">Puntos</span>
                           </div>
                       </div>
                   </div>
 
-                  <div className="space-y-2 pt-2 border-t border-gray-800">
-                      <div className="flex items-center gap-2 text-xs text-gray-300">
-                          {wordCount > 600 ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
-                          Longitud ({wordCount} palabras)
+                  <div className="space-y-3">
+                      <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Palabras</span>
+                          <span className="text-white font-bold">{wordCount}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-300">
-                          {keywordDensity > 0.5 ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
-                          Densidad Keyword ({keywordDensity}%)
+                      <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Densidad Keyword</span>
+                          <span className={`font-bold ${keywordDensity > 2.5 ? 'text-red-400' : 'text-white'}`}>{keywordDensity}%</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-300">
-                          {metaDescription.length > 50 ? <Check className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border border-gray-600" />}
-                          Meta Description
+                      <div className="text-xs text-gray-500 mt-2 bg-black/20 p-2 rounded">
+                          {wordCount > 600 ? <span className="text-green-400 flex items-center gap-1"><Check className="w-3 h-3"/> Longitud óptima</span> : <span className="text-yellow-500">Intenta escribir más de 600 palabras</span>}
                       </div>
                   </div>
               </div>
-              
-              <button 
-                onClick={() => setStep(1)} 
-                className="w-full py-3 border border-gray-700 hover:bg-gray-800 rounded-xl text-gray-400 hover:text-white transition text-sm flex items-center justify-center gap-2"
-              >
-                  <RefreshCw className="w-4 h-4" /> Crear Nuevo
-              </button>
           </div>
       </div>
     );
   };
 
   return (
-    <div className="min-h-full">
+    <div className="min-h-screen text-white">
         {step === 1 && renderStep1()}
         {step === 2 && renderStep2()}
         {step === 3 && renderStep3()}

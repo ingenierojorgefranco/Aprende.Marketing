@@ -1,3 +1,5 @@
+
+
 const { GoogleGenAI } = require("@google/genai");
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -27,7 +29,19 @@ const generateContent = async (model, contents, config = {}) => {
             config: config
         });
 
-        return response.text;
+        // Safe extraction of text, handling cases where it might be undefined/blocked
+        if (response) {
+            try {
+                // Accessing .text might throw if the response was blocked by safety filters
+                return response.text || "";
+            } catch (textError) {
+                console.warn("⚠️ [GEMINI] Could not access response.text (possibly blocked):", textError.message);
+                return "";
+            }
+        }
+        
+        return "";
+
     } catch (error) {
         console.error("❌ [GEMINI SERVICE ERROR]:", error);
         throw error;

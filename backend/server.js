@@ -15,12 +15,17 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v8_article_fix'; 
+const SERVER_VERSION = 'v11_large_payload_fix_express'; 
 
 app.enable('trust proxy');
 
 app.use(cors());
-app.use(bodyParser.json({ limit: '10mb' }));
+
+// INCREASED LIMITS FOR LARGE ARTICLES (Both Express and BodyParser)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 // ======================================================
 //  LOGGING
@@ -203,7 +208,8 @@ app.post('/api/gemini', async (req, res) => {
     res.json({ text: generatedText });
   } catch (error) {
     console.error('Error AI:', error);
-    res.status(500).json({ error: 'Error IA', details: error.message });
+    // Devolvemos JSON válido incluso en error para evitar crash en frontend
+    res.status(500).json({ error: 'Error IA', details: error.message, text: '' });
   }
 });
 

@@ -1,4 +1,5 @@
 
+
 import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, ColorPalette, StructureType, Article } from '../types';
 import { CheckCircle, Star, PlayCircle, User, MessageCircle, ArrowRight, Lock, ShieldCheck, Zap, BarChart, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Award, Users, DollarSign, FileText, Briefcase, BookOpen, ScanFace, Palette, Feather, Plus, Minus, HelpCircle, X, Rocket, Target, Globe, Menu, Calendar, ArrowLeft, Clock } from 'lucide-react';
@@ -26,6 +27,10 @@ const getIcon = (name: string | undefined, defaultIcon: any) => {
 
 // Helper for rendering rich text descriptions
 const renderRichText = (text: string, className: string = "") => {
+    // Safety check for undefined text
+    if (!text || typeof text !== 'string') {
+      return null;
+    }
     const formattedText = text ? text.replace(/\n/g, '<br />') : '';
     return (
       <div 
@@ -38,6 +43,8 @@ const renderRichText = (text: string, className: string = "") => {
 // Helper to render headline with specific gradient styling from <b> tags
 // FIX: Force text-white class to ensure titles are visible on dark backgrounds
 const renderStyledHeadline = (text: string, isMobilePreview: boolean, forceWhite: boolean = true) => {
+    if (!text || typeof text !== 'string') return null; // Safe guard for undefined/null text
+    
     const htmlContent = text.replace(
       /<b>(.*?)<\/b>/g, 
       '<span class="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-orange-600">$1</span>'
@@ -388,901 +395,541 @@ const SmartCTA = ({ content, ds, fullWidth = false, centered = false, isMobilePr
               `}
             >
                 <span className="relative z-10 flex items-center justify-center gap-3">
-                  {dest.type === 'whatsapp' && <MessageCircle className="w-5 h-5" />}
-                  {content.hero.ctaText}
-                  {dest.type === 'external_url' && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+                   {content.hero.ctaText} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition" />
                 </span>
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 blur-md"></div>
+                <div className="absolute inset-0 h-full w-full scale-0 rounded-full transition-all duration-300 group-hover:scale-100 group-hover:bg-white/20"></div>
             </button>
-            <p className={`mt-4 text-sm opacity-70 ${content.palette === 'minimal-mono' ? 'text-gray-500' : ds.heroText}`}>
-                <span className="inline-flex items-center gap-1">
-                    <ShieldCheck className="w-4 h-4" /> Garantía de satisfacción
-                </span>
-            </p>
-        </div>
-    );
-};
-
-const FeatureCard = ({ item, idx, ds, content, isDark }: any) => {
-    let gradientClass = "bg-gradient-to-br from-blue-500 to-indigo-600 shadow-blue-500/50";
-    if (item.color === 'purple') gradientClass = "bg-gradient-to-br from-purple-500 to-pink-500 shadow-purple-500/50";
-    if (item.color === 'green') gradientClass = "bg-gradient-to-br from-emerald-400 to-green-600 shadow-emerald-500/50";
-    if (item.color === 'orange') gradientClass = "bg-gradient-to-br from-amber-400 to-orange-600 shadow-orange-500/50";
-    if (item.color === 'red') gradientClass = "bg-gradient-to-br from-red-500 to-rose-600 shadow-rose-500/50";
-    if (item.color === 'teal') gradientClass = "bg-gradient-to-br from-teal-400 to-cyan-600 shadow-cyan-500/50";
-    if (item.color === 'yellow') gradientClass = "bg-gradient-to-br from-yellow-400 to-amber-600 shadow-amber-500/50";
-
-    if (!item.color && content.palette !== 'minimal-mono') {
-        const defaults = [
-            "bg-gradient-to-br from-blue-500 to-indigo-600 shadow-blue-500/50",
-            "bg-gradient-to-br from-purple-500 to-pink-500 shadow-purple-500/50",
-            "bg-gradient-to-br from-amber-400 to-orange-600 shadow-orange-500/50",
-            "bg-gradient-to-br from-emerald-400 to-green-600 shadow-emerald-500/50"
-        ];
-        gradientClass = defaults[idx % defaults.length];
-    }
-
-    const iconClass = content.palette === 'minimal-mono' 
-        ? "bg-gray-900 text-white shadow-xl" 
-        : `${gradientClass} shadow-2xl`;
-
-    const IconComponent = getIcon(item.icon, idx === 0 ? <DollarSign className="w-10 h-10 text-white" /> : 
-        idx === 1 ? <FileText className="w-10 h-10 text-white" /> : 
-        idx === 2 ? <Briefcase className="w-10 h-10 text-white" /> :
-        <Award className="w-10 h-10 text-white" />
-    );
-
-    return (
-        <div 
-            id={`tarjeta-beneficio-${idx}`}
-            className={`
-                p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 flex flex-col items-start
-                ${ds.cardBg}
-            `}
-        >
-            <div className={`${iconClass} w-20 h-20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 p-4`}>
-                <div className="text-white w-full h-full">
-                    {IconComponent}
-                </div>
+            <div className="mt-3 flex items-center justify-center gap-2 text-xs text-gray-500">
+                <ShieldCheck className="w-4 h-4 text-green-500" /> Garantía de satisfacción 100%
             </div>
-            <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.title}</h3>
-            {renderRichText(item.description, `leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`)}
         </div>
     );
 };
 
-const Navbar = ({ content, ds, isMobilePreview, setShowModal, hasBlog, basePath }: any) => {
-    const [isScrolled, setIsScrolled] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-    const baseTextColorClass = content.palette === 'minimal-mono' ? 'text-black' : 'text-white';
-    const stickyTextColorClass = ds.navStickyText || 'text-gray-900'; 
-    const currentTextColor = isScrolled ? stickyTextColorClass : baseTextColorClass;
-
-    const navLinks = content.navLinks || [
-        { label: 'Descubre', href: '#seccion-introduccion' },
-        { label: 'Beneficios', href: '#seccion-beneficios' },
-        { label: 'Experto', href: '#seccion-instructor' }
-    ];
+// --- BLOG LIST VIEW ---
+const BlogListView = ({ pageId, basePath }: { pageId: string, basePath: string }) => {
+    const [articles, setArticles] = useState<Article[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const handleScroll = () => {
-            const container = document.getElementById('preview-viewport');
-            // If container is null (e.g. public view), use window scroll
-            const scrollY = container ? container.scrollTop : window.scrollY;
-            setIsScrolled(scrollY > 20);
-        };
-
-        const container = document.getElementById('preview-viewport');
-        if (container) {
-            container.addEventListener('scroll', handleScroll);
-        }
-        window.addEventListener('scroll', handleScroll);
-
-        return () => {
-            if (container) {
-                container.removeEventListener('scroll', handleScroll);
+        const fetchArticles = async () => {
+            try {
+                const data = await api.getPublicBlogArticles(pageId);
+                setArticles(data);
+            } catch (e) {
+                console.error("Error fetching articles", e);
+            } finally {
+                setLoading(false);
             }
-            window.removeEventListener('scroll', handleScroll);
         };
-    }, []);
+        fetchArticles();
+    }, [pageId]);
 
-    const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-        // Handle internal Blog links
-        if (href === '/blog') {
-            e.preventDefault();
-            // Redirect using relative path which should be handled by App.tsx router or browser default
-            window.location.href = basePath ? `${basePath}/blog` : '/blog';
-            return;
-        }
+    if (loading) return <div className="p-10 text-center"><span className="animate-spin">⌛</span> Cargando artículos...</div>;
 
-        if (href.startsWith('#')) {
-            e.preventDefault();
-            const id = href.substring(1);
-            const element = document.getElementById(id);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-                setIsMenuOpen(false);
-            } else {
-                // If we are in blog view, we might need to go home first
-                window.location.href = basePath ? basePath : '/';
-            }
-        }
-    };
-
-    const renderBrandName = (text: string) => {
-         const htmlContent = text.replace(
-           /<b>(.*?)<\/b>/g, 
-           `<span class="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-orange-500 font-extrabold">$1</span>`
-         );
-         return <span dangerouslySetInnerHTML={{ __html: htmlContent }} />;
-    };
-
-    // FIX: Inject Blog link cleanly
-    const displayedLinks = [...navLinks];
-    if (hasBlog && !displayedLinks.some((l: any) => l.href === '/blog')) {
-        displayedLinks.push({ label: 'Blog', href: '/blog' });
-    }
-
-    return (
-      <nav 
-        id="barra-navegacion"
-        className={`
-            w-full z-50 transition-all duration-300
-            ${isScrolled ? `${ds.navStickyBg} fixed top-0 left-0` : 'absolute top-0 left-0 bg-transparent border-b border-white/5 backdrop-blur-sm'}
-        `}
-      >
-          <div className="w-full max-w-[75em] mx-auto px-6 py-4 flex justify-between items-center relative gap-4">
-            <div id="logo-marca" 
-                 onClick={() => window.location.href = basePath || '/'}
-                 className={`flex items-center gap-2 md:gap-3 font-bold tracking-tight transition-colors duration-300 ${currentTextColor} flex-1 min-w-0 mr-2 cursor-pointer`}>
-              <div className={`w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform border-2 border-white/20 flex-shrink-0 ${ds.logoBg}`}>
-                 {content.brandIcon ? getIcon(content.brandIcon, <Sparkles className="w-5 h-5 md:w-6 md:h-6" />) : (
-                    content.logoSvg ? (
-                        <div 
-                          className="w-5 h-5 md:w-7 md:h-7" 
-                          dangerouslySetInnerHTML={{ __html: content.logoSvg }} 
-                        />
-                     ) : <Anchor className="w-4 h-4 md:w-6 md:h-6 text-current" /> 
-                 )}
-              </div>
-              <span className="truncate text-sm sm:text-lg md:text-2xl leading-tight">
-                {renderBrandName(content.brandName || "Brand")}
-              </span>
-            </div>
-            
-            <div id="enlaces-navegacion" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-sm font-medium transition-colors duration-300 ${currentTextColor} opacity-90 flex-shrink-0`}>
-              {displayedLinks.map((link: any, i: number) => (
-                  <a key={i} href={link.href} onClick={(e) => scrollToSection(e, link.href)} className="hover:opacity-100 transition cursor-pointer">{link.label}</a>
-              ))}
-            </div>
-            
-            <div className="flex items-center gap-2 flex-shrink-0">
-                <button 
-                id="cta-navbar" 
-                onClick={() => setShowModal(true)}
-                className={`${isMobilePreview ? 'hidden' : 'hidden md:block'} px-4 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition shadow-sm ${ds.primaryBtn} ${content.palette === 'minimal-mono' && !isScrolled ? '' : 'bg-white text-black hover:bg-gray-100 border-none'}`}
-                >
-                {content.navCta || "Regístrate"}
-                </button>
-
-                <button 
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className={`${isMobilePreview ? 'flex' : 'md:hidden flex'} items-center justify-center p-2 rounded-lg transition-colors ${currentTextColor} hover:bg-white/10`}
-                >
-                    {isMenuOpen ? <X className="w-6 h-6"/> : <Menu className="w-6 h-6"/>}
-                </button>
-            </div>
-          </div>
-
-          {isMenuOpen && (
-              <div className={`${isMobilePreview ? 'flex' : 'md:hidden flex'} absolute top-full left-0 w-full ${ds.navStickyBg || 'bg-white'} border-b border-gray-100 shadow-xl p-6 flex-col gap-4 animate-in slide-in-from-top-2 z-40`}>
-                  {displayedLinks.map((link: any, i: number) => (
-                      <a 
-                        key={i} 
-                        href={link.href} 
-                        onClick={(e) => scrollToSection(e, link.href)}
-                        className={`text-lg font-medium py-3 border-b border-gray-100/50 last:border-0 hover:pl-2 transition-all ${ds.navStickyText || 'text-gray-900'} cursor-pointer`}
-                      >
-                          {link.label}
-                      </a>
-                  ))}
-                  
-                  <div className="pt-4 mt-2 border-t border-gray-100/20 w-full">
-                     <button
-                        onClick={() => { setShowModal(true); setIsMenuOpen(false); }}
-                        className={`w-full py-3 rounded-xl font-bold text-center shadow-lg ${ds.primaryBtn}`}
-                     >
-                        {content.navCta || "Regístrate"}
-                     </button>
-                  </div>
-              </div>
-          )}
-      </nav>
-    );
-};
-
-const Footer = ({ content, ds, isDark, isMobilePreview }: any) => {
-    const { socials } = content.footer;
-    const navLinks = content.navLinks || [
-        { label: 'Descubre', href: '#seccion-introduccion' },
-        { label: 'Beneficios', href: '#seccion-beneficios' },
-        { label: 'Experto', href: '#seccion-instructor' }
-    ];
-
-    const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-        if (!href.startsWith('#')) return;
-        e.preventDefault();
-        const id = href.substring(1);
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
-
-    return (
-        <footer id="pie-de-pagina" className={`${isDark ? 'bg-black border-t border-gray-900' : 'bg-gray-900 text-white border-t border-gray-800'} py-16`}>
-            <div className="w-full max-w-[75em] mx-auto px-6">
-                <div className={`grid gap-12 mb-12 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-4'}`}>
-                    <div className={`${isMobilePreview ? '' : 'col-span-2'}`}>
-                    <div id="footer-logo" className="flex items-center gap-2 mb-4">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md border border-white/10 ${ds.logoBg}`}>
-                             {content.brandIcon ? getIcon(content.brandIcon, <Sparkles className="w-5 h-5"/>) : (
-                                content.logoSvg ? <div className="w-6 h-6" dangerouslySetInnerHTML={{ __html: content.logoSvg }} /> : <Anchor className="w-5 h-5"/>
-                             )}
-                        </div>
-                        <h4 className="text-2xl font-bold" dangerouslySetInnerHTML={{__html: content.brandName || "PlataformaDeVenta.com"}}></h4>
-                    </div>
-                    <p className="text-gray-400 max-w-xs leading-relaxed">{content.footer.copyright}</p>
-                    <div id="redes-sociales" className="flex gap-4 mt-6">
-                        {socials?.facebook && <a href={socials.facebook} className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition"><Facebook className="w-5 h-5" /></a>}
-                        {socials?.instagram && <a href={socials.instagram} className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition"><Instagram className="w-5 h-5" /></a>}
-                        {socials?.twitter && <a href={socials.twitter} className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition"><Twitter className="w-5 h-5" /></a>}
-                    </div>
-                    </div>
-                    <div>
-                        <h5 className="font-bold mb-4 text-lg">Enlaces</h5>
-                        <ul className="space-y-3 text-gray-400">
-                            {navLinks.map((link: any, i: number) => (
-                                <li key={i}><a href={link.href} onClick={(e) => scrollToSection(e, link.href)} className="hover:text-white transition cursor-pointer">{link.label}</a></li>
-                            ))}
-                        </ul>
-                    </div>
-                    <div>
-                        <h5 className="font-bold mb-4 text-lg">Contacto</h5>
-                        <ul className="space-y-3 text-gray-400">
-                            <li className="flex items-center gap-2"><Mail className="w-4 h-4"/> {content.footer.contact || 'info@empresa.com'}</li>
-                            <li><a href="#" className="hover:text-white transition">Política de Privacidad</a></li>
-                            <li><a href="#" className="hover:text-white transition">Términos de Uso</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div className="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
-                    &copy; {new Date().getFullYear()} Todos los derechos reservados.
-                </div>
-            </div>
-        </footer>
-    );
-};
-
-const RegistrationModal = ({ showModal, setShowModal, content, ds }: any) => {
-    if (!showModal) return null;
-    return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowModal(false)}></div>
-            <div className="bg-white rounded-2xl w-full max-w-md relative z-10 overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-                <div className={`p-6 ${ds.heroGradient} text-white relative`}>
-                     <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 text-white/70 hover:text-white bg-white/10 rounded-full p-1"><X className="w-5 h-5"/></button>
-                     <h3 className="text-xl font-bold mb-1">¡Casi estás dentro!</h3>
-                     <p className="text-sm opacity-90">Completa tus datos para liberar tu acceso.</p>
-                </div>
-                <div className="p-6">
-                    <LeadCaptureForm btnClass={ds.primaryBtn} btnText={content.hero.ctaText || "Finalizar Registro"} />
-                    <p className="text-xs text-center text-gray-400 mt-4">Tus datos están protegidos.</p>
-                </div>
-            </div>
+    if (articles.length === 0) return (
+        <div className="py-20 text-center">
+            <h2 className="text-2xl font-bold mb-2 text-gray-700">Aún no hay artículos</h2>
+            <p className="text-gray-500">Vuelve pronto para ver nuevas publicaciones.</p>
         </div>
     );
-};
 
-const IntroSection = ({ content, ds, isMobilePreview }: any) => (
-    <section id="seccion-introduccion" className={`py-16 md:py-24 ${ds.introBg || 'bg-white'}`}>
-        <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className={`grid gap-12 items-center ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
-                <div className="order-2 md:order-1">
-                    <h2 className={`text-3xl md:text-4xl font-bold mb-6 ${content.palette.includes('dark') ? 'text-white' : 'text-gray-900'}`}>
-                        {content.intro.title}
-                    </h2>
-                    {renderRichText(content.intro.description, `text-lg leading-relaxed mb-8 ${content.palette.includes('dark') ? 'text-gray-300' : 'text-gray-600'}`)}
-                    
-                    {content.intro.items && content.intro.items.length > 0 && (
-                        <div className="space-y-4">
-                            {content.intro.items.map((item: any, i: number) => (
-                                <div key={i} className={`p-4 rounded-xl border ${content.palette.includes('dark') ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
-                                    <h4 className={`font-bold mb-1 ${content.palette.includes('dark') ? 'text-white' : 'text-gray-900'}`}>{item.title}</h4>
-                                    <p className={`text-sm ${content.palette.includes('dark') ? 'text-gray-400' : 'text-gray-600'}`}>{item.description}</p>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-                <div className={`order-1 md:order-2 relative ${content.palette.includes('dark') ? 'bg-white/5' : 'bg-gray-100'} rounded-2xl min-h-[300px] flex items-center justify-center`}>
-                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/10 rounded-2xl pointer-events-none"></div>
-                    {/* Placeholder for Intro Image if exists or generic icon */}
-                    <BookOpen className={`w-24 h-24 opacity-20 ${content.palette.includes('dark') ? 'text-white' : 'text-gray-900'}`} />
-                </div>
-            </div>
-        </div>
-    </section>
-);
-
-const BenefitsSection = ({ content, ds, isDark, isMobilePreview }: any) => (
-    <section id="seccion-beneficios" className={`py-20 ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
-        <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-                <h2 className={`text-3xl md:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    {content.benefits.title}
-                </h2>
-                {content.benefits.subtitle && <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{content.benefits.subtitle}</p>}
+    return (
+        <div className="max-w-5xl mx-auto px-6 py-12">
+            <div className="text-center mb-12">
+                <h2 className="text-4xl font-bold mb-4 text-gray-900">Blog & Recursos</h2>
+                <div className="w-20 h-1 bg-primary mx-auto rounded-full"></div>
             </div>
             
-            <div className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
-                {content.benefits.items.map((item: any, idx: number) => (
-                    <FeatureCard key={idx} item={item} idx={idx} ds={ds} content={content} isDark={isDark} />
-                ))}
-            </div>
-        </div>
-    </section>
-);
-
-const StepsSection = ({ content, ds, isDark, isMobilePreview }: any) => {
-    if (!content.intro?.items || content.intro.items.length === 0) return null;
-    return (
-        <section className={`py-20 ${ds.stepsBg || (isDark ? 'bg-gray-900' : 'bg-blue-50/50')}`}>
-            <div className="w-full max-w-[75em] mx-auto px-6">
-                <div className="text-center mb-16">
-                    <h2 className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>¿Cómo funciona?</h2>
-                </div>
-                <div className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                    {content.intro.items.slice(0, 3).map((item: any, idx: number) => (
-                        <div key={idx} className="relative">
-                            <div className={`text-6xl font-black absolute -top-8 left-0 opacity-10 ${isDark ? 'text-white' : 'text-gray-900'}`}>0{idx+1}</div>
-                            <div className="relative z-10 pt-4">
-                                <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.title}</h3>
-                                <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{item.description}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-};
-
-const InstructorSection = ({ content, ds, isMobilePreview }: any) => (
-    <section id="seccion-instructor" className={`py-20 ${ds.mentorBg || 'bg-gray-900'} text-white relative overflow-hidden`}>
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none"></div>
-        <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
-            <div className={`flex flex-col md:flex-row items-center gap-12 ${isMobilePreview ? 'flex-col' : ''}`}>
-                <div className="w-full md:w-1/3">
-                    {/* FIX: Ensure image is visible with specific fallback logic */}
-                    <div className="aspect-[3/4] rounded-2xl bg-gray-700 relative overflow-hidden shadow-2xl border border-white/10">
-                         {content.instructor.imageUrl ? (
-                             <img 
-                                src={content.instructor.imageUrl} 
-                                alt={content.instructor.name} 
-                                className="w-full h-full object-cover relative z-10" 
-                                onError={(e) => {
-                                    // Fallback if image fails to load
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                }}
-                             />
-                         ) : (
-                             <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-600">
-                                 <User className="w-24 h-24" />
-                             </div>
-                         )}
-                         <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black via-black/80 to-transparent p-6 z-20">
-                             <div className="text-white font-bold text-xl">{content.instructor.name}</div>
-                             <div className="text-gray-400 text-sm">{content.instructor.badgeText || "Instructor"}</div>
-                         </div>
-                    </div>
-                </div>
-                <div className="w-full md:w-2/3">
-                    <div className="inline-block px-4 py-1 rounded-full bg-white/10 border border-white/20 text-sm mb-6">
-                        {content.instructor.badgeSubtext || "Experto del Sector"}
-                    </div>
-                    {/* FIX: Ensure text is white */}
-                    <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">Conoce a tu Mentor</h2>
-                    {renderRichText(content.instructor.bio, "text-lg text-gray-300 leading-relaxed mb-8")}
-                    
-                    <div className="grid grid-cols-2 gap-8 border-t border-white/10 pt-8">
-                        <div>
-                            <div className="text-3xl font-bold text-white mb-1">{content.instructor.statsStudents || "5k+"}</div>
-                            <div className="text-gray-400 text-sm">Estudiantes activos</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold text-white mb-1">{content.instructor.statsRating || "4.9/5"}</div>
-                            <div className="text-gray-400 text-sm">Calificación promedio</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-);
-
-const TestimonialsSection = ({ content, ds, isDark, isMobilePreview }: any) => (
-    <section id="seccion-testimonios" className={`py-20 ${ds.testimonialBg || (isDark ? 'bg-black' : 'bg-gray-50')}`}>
-        <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className="text-center mb-16">
-                <h2 className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    {content.testimonialTitle || "Historias de éxito"}
-                </h2>
-                {content.testimonialSubtitle && <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{content.testimonialSubtitle}</p>}
-            </div>
-            
-            <div className={`grid gap-6 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                {content.testimonials.map((t: any, idx: number) => (
-                    <div key={idx} className={`p-6 rounded-2xl relative ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-lg border border-gray-100'}`}>
-                        <div className="flex gap-1 text-yellow-500 mb-4">
-                            {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`w-4 h-4 ${i < t.rating ? 'fill-current' : 'text-gray-300'}`} />
-                            ))}
-                        </div>
-                        {renderRichText(t.text, `text-sm leading-relaxed mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`)}
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-600">
-                                {t.name.charAt(0)}
-                            </div>
-                            <div>
-                                <div className={`font-bold text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>{t.name}</div>
-                                {t.location && <div className="text-xs text-gray-500">{t.location}</div>}
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    </section>
-);
-
-const FAQSection = ({ content, ds, isDark }: any) => {
-    const [openIndex, setOpenIndex] = useState<number | null>(null);
-    return (
-        <section id="seccion-faq" className={`py-20 ${ds.faqBg || (isDark ? 'bg-gray-900' : 'bg-white')}`}>
-            <div className="w-full max-w-3xl mx-auto px-6">
-                <h2 className={`text-3xl font-bold text-center mb-12 ${isDark ? 'text-white' : 'text-gray-900'}`}>Preguntas Frecuentes</h2>
-                <div className="space-y-4">
-                    {content.faq.map((item: any, idx: number) => (
-                        <div key={idx} className={`rounded-xl overflow-hidden transition-all ${isDark ? 'bg-gray-800' : 'bg-gray-50'}`}>
-                            <button 
-                                onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                                className="w-full flex items-center justify-between p-5 text-left font-bold"
-                            >
-                                <span className={`${isDark ? 'text-white' : 'text-gray-900'}`}>{item.question}</span>
-                                {openIndex === idx ? <Minus className="w-5 h-5 text-gray-500"/> : <Plus className="w-5 h-5 text-gray-500"/>}
-                            </button>
-                            {openIndex === idx && (
-                                <div className={`p-5 pt-0 text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                                    {renderRichText(item.answer)}
-                                </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {articles.map(article => (
+                    <a key={article.id} href={`${basePath}/blog/${article.slug}`} className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition duration-300 border border-gray-100 overflow-hidden flex flex-col">
+                        <div className="h-48 overflow-hidden bg-gray-100 relative">
+                            {article.featuredImage ? (
+                                <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-300"><FileText className="w-12 h-12"/></div>
                             )}
+                            <div className="absolute top-4 left-4 bg-white/90 backdrop-blur text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider text-gray-700">
+                                Artículo
+                            </div>
                         </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-};
-
-const FinalCTASection = ({ content, ds, isMobilePreview }: any) => (
-    <section className={`py-24 relative overflow-hidden ${ds.heroGradient}`}>
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="w-full max-w-4xl mx-auto px-6 text-center relative z-10">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">
-                {content.hero.headline.replace(/<\/?[^>]+(>|$)/g, "")}
-            </h2>
-            <div className="flex justify-center">
-                <SmartCTA content={content} ds={ds} fullWidth={false} isMobilePreview={isMobilePreview} />
+                        <div className="p-6 flex-1 flex flex-col">
+                            <div className="text-xs text-gray-500 mb-3 flex items-center gap-2">
+                                <Calendar className="w-3 h-3" /> {new Date(article.publishedAt).toLocaleDateString()}
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary transition line-clamp-2">{article.title}</h3>
+                            <p className="text-gray-600 text-sm line-clamp-3 mb-4 flex-1">{article.description}</p>
+                            <span className="text-primary font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition">
+                                Leer Artículo <ArrowRight className="w-4 h-4" />
+                            </span>
+                        </div>
+                    </a>
+                ))}
             </div>
         </div>
-    </section>
-);
-
-// --- BLOG COMPONENTS ---
-
-const BlogGridSection = ({ articles, ds, isDark, basePath }: any) => {
-    return (
-        <section className={`py-24 ${isDark ? 'bg-[#0f0f0f]' : 'bg-white'} min-h-screen pt-32`}>
-             <div className="w-full max-w-[75em] mx-auto px-6">
-                 <div className="text-center mb-16">
-                     <h2 className={`text-3xl md:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Blog & Novedades</h2>
-                     <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                         Descubre contenido exclusivo para complementar tu aprendizaje.
-                     </p>
-                 </div>
-
-                 {articles.length === 0 ? (
-                     <div className="text-center py-20 opacity-50">
-                         <p>No hay artículos publicados aún.</p>
-                     </div>
-                 ) : (
-                     <div className="grid md:grid-cols-3 gap-8">
-                         {articles.map((article: Article) => (
-                             <a 
-                                key={article.id} 
-                                href={basePath ? `${basePath}/blog/${article.slug}` : `/blog/${article.slug}`}
-                                className={`group rounded-xl overflow-hidden border transition hover:-translate-y-2 shadow-lg ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100 hover:shadow-xl'}`}
-                             >
-                                 <div className="aspect-video bg-gray-200 relative overflow-hidden">
-                                     {article.featuredImage ? (
-                                         <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                                     ) : (
-                                         <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-600">
-                                             <FileText className="w-12 h-12" />
-                                         </div>
-                                     )}
-                                 </div>
-                                 <div className="p-6">
-                                     <div className="text-xs text-blue-500 font-bold mb-2 flex items-center gap-1">
-                                         <Calendar className="w-3 h-3" /> {new Date(article.publishedAt).toLocaleDateString()}
-                                     </div>
-                                     <h3 className={`text-xl font-bold mb-3 leading-tight ${isDark ? 'text-white group-hover:text-blue-400' : 'text-gray-900 group-hover:text-blue-600'}`}>
-                                         {article.title}
-                                     </h3>
-                                     <p className={`text-sm line-clamp-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                                         {article.description}
-                                     </p>
-                                     <div className={`mt-4 font-bold text-sm flex items-center gap-1 ${isDark ? 'text-white' : 'text-black'}`}>
-                                         Leer artículo <ArrowRight className="w-4 h-4" />
-                                     </div>
-                                 </div>
-                             </a>
-                         ))}
-                     </div>
-                 )}
-             </div>
-        </section>
     );
 };
 
-const BlogPostView = ({ article, ds, isDark, basePath }: any) => {
-    if (!article) return <div className="py-32 text-center text-white">Cargando artículo...</div>;
+// --- SINGLE ARTICLE VIEW ---
+const ArticleView = ({ slug }: { slug: string }) => {
+    const [article, setArticle] = useState<Article | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    // Handle back button action - if coming from outside, go to blog list
-    const goBack = () => {
-        if(basePath) {
-             window.location.href = `${basePath}/blog`;
-        } else {
-             window.history.back();
-        }
-    };
+    useEffect(() => {
+        const fetchArticle = async () => {
+            try {
+                const data = await api.getPublicArticle(slug);
+                setArticle(data);
+            } catch (e) {
+                console.error("Error fetching article", e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchArticle();
+    }, [slug]);
+
+    if (loading) return <div className="p-20 text-center"><span className="animate-spin">⌛</span> Cargando artículo...</div>;
+    if (!article) return <div className="p-20 text-center text-red-500">Artículo no encontrado</div>;
 
     return (
-        <article className={`min-h-screen pt-32 pb-24 ${isDark ? 'bg-[#0f0f0f]' : 'bg-white'}`}>
-             <div className="w-full max-w-4xl mx-auto px-6">
-                 <button onClick={goBack} className={`mb-8 flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}>
-                     <ArrowLeft className="w-4 h-4" /> Volver al Blog
-                 </button>
-
-                 <header className="mb-12 text-center">
-                     <div className="flex items-center justify-center gap-2 text-sm text-blue-500 font-bold mb-4">
-                         <Calendar className="w-4 h-4" /> {new Date(article.publishedAt).toLocaleDateString()}
+        <article className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl overflow-hidden my-10 border border-gray-100">
+            {article.featuredImage && (
+                <div className="h-[400px] w-full relative">
+                     <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover" />
+                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                     <div className="absolute bottom-0 left-0 p-8 text-white">
+                        <div className="flex items-center gap-4 text-sm mb-2 opacity-90">
+                            <span className="bg-primary px-3 py-1 rounded-full font-bold">Blog</span>
+                            <span className="flex items-center gap-1"><Calendar className="w-4 h-4"/> {new Date(article.publishedAt).toLocaleDateString()}</span>
+                            <span className="flex items-center gap-1"><Clock className="w-4 h-4"/> 5 min lectura</span>
+                        </div>
+                        <h1 className="text-3xl md:text-5xl font-extrabold leading-tight shadow-black drop-shadow-lg">{article.title}</h1>
                      </div>
-                     <h1 className={`text-3xl md:text-5xl font-black mb-6 leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                         {article.title}
-                     </h1>
-                     <p className={`text-xl leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                         {article.description}
-                     </p>
-                 </header>
+                </div>
+            )}
+            
+            {!article.featuredImage && (
+                <div className="p-8 border-b border-gray-100 bg-gray-50">
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">{article.title}</h1>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                         <span className="flex items-center gap-1"><Calendar className="w-4 h-4"/> {new Date(article.publishedAt).toLocaleDateString()}</span>
+                    </div>
+                </div>
+            )}
 
-                 {article.featuredImage && (
-                     <div className="rounded-2xl overflow-hidden shadow-2xl mb-12 aspect-video">
-                         <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover" />
-                     </div>
-                 )}
-
-                 <div 
-                    className={`prose prose-lg max-w-none ${isDark ? 'prose-invert' : ''}`}
-                    dangerouslySetInnerHTML={{ __html: article.contentHtml }}
-                 />
-             </div>
+            <div 
+                className="prose prose-lg max-w-none p-8 md:p-12 text-gray-800 leading-relaxed font-serif"
+                dangerouslySetInnerHTML={{ __html: article.contentHtml }}
+            />
+            
+            <div className="bg-gray-50 p-8 border-t border-gray-200 text-center">
+                <p className="font-bold text-gray-900 mb-2">¿Te gustó este artículo?</p>
+                <div className="flex justify-center gap-4">
+                    <button className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"><Facebook className="w-5 h-5"/></button>
+                    <button className="p-2 rounded-full bg-sky-500 text-white hover:bg-sky-600 transition"><Twitter className="w-5 h-5"/></button>
+                    <button className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600 transition"><MessageCircle className="w-5 h-5"/></button>
+                </div>
+            </div>
         </article>
     );
 };
 
-
-// --- MAIN COMPONENT ---
-
-export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = false, pageId, viewMode = 'home', articleSlug, basePath }) => {
-  const ds = getDesignSystem(content.palette);
-  const structure: StructureType = content.structure || 'classic-sales'; 
-  const isDark = content.palette === 'dark-luxury';
-  const [showModal, setShowModal] = useState(false);
+export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = false, pageId, viewMode = 'home', articleSlug, basePath = '' }) => {
+  const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  // Blog State
-  const [blogArticles, setBlogArticles] = useState<Article[]>([]);
-  const [currentArticle, setCurrentArticle] = useState<Article | null>(null);
-  const [hasBlog, setHasBlog] = useState(false);
+  // Safe default for arrays to prevent map errors
+  const navLinks = content.navLinks || [];
+  const benefits = content.benefits?.items || [];
+  const testimonials = content.testimonials || [];
+  const faq = content.faq || [];
+  const introItems = content.intro?.items || [];
 
-  useEffect(() => {
-      if (pageId && !isMobilePreview) {
-          api.getPublicBlogArticles(pageId).then(articles => {
-              if (articles.length > 0) {
-                  setBlogArticles(articles);
-                  setHasBlog(true);
-              }
-          });
-      }
-  }, [pageId, isMobilePreview]);
+  const toggleAccordion = (index: number) => {
+    setActiveAccordion(activeAccordion === index ? null : index);
+  };
 
-  useEffect(() => {
-      if (viewMode === 'blog-post' && articleSlug) {
-          api.getPublicArticle(articleSlug).then(article => {
-              setCurrentArticle(article);
-          });
-      }
-  }, [viewMode, articleSlug]);
+  const ds = getDesignSystem(content.palette);
 
-  // Si el modo es BLOG, renderizamos layout de blog
-  if (viewMode === 'blog-list') {
+  // --- BLOG ROUTING RENDER ---
+  if (viewMode === 'blog-list' && pageId) {
       return (
-          <div id="layout-blog-list" className={`min-h-screen font-sans ${ds.bg}`}>
-               <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} hasBlog={hasBlog} basePath={basePath} />
-               <RegistrationModal showModal={showModal} setShowModal={setShowModal} content={content} ds={ds} />
-               <BlogGridSection articles={blogArticles} ds={ds} isDark={isDark} basePath={basePath} />
-               <Footer content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
+          <div className={`${ds.bg} min-h-screen font-sans`}>
+               {/* Simplified Header for Blog */}
+               <nav className={`${ds.navStickyBg} sticky top-0 z-50 transition-all duration-300`}>
+                  <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+                      <a href={basePath || '/'} className="flex items-center gap-2 font-bold text-xl tracking-tight text-gray-800">
+                          <ArrowLeft className="w-5 h-5" /> Volver al Inicio
+                      </a>
+                  </div>
+               </nav>
+               <BlogListView pageId={pageId} basePath={basePath} />
           </div>
       );
   }
 
-  if (viewMode === 'blog-post') {
+  if (viewMode === 'blog-post' && articleSlug) {
       return (
-          <div id="layout-blog-post" className={`min-h-screen font-sans ${ds.bg}`}>
-               <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} hasBlog={hasBlog} basePath={basePath} />
-               <RegistrationModal showModal={showModal} setShowModal={setShowModal} content={content} ds={ds} />
-               <BlogPostView article={currentArticle} ds={ds} isDark={isDark} basePath={basePath} />
-               <Footer content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
+          <div className={`${ds.bg} min-h-screen font-sans`}>
+               <nav className={`${ds.navStickyBg} sticky top-0 z-50 transition-all duration-300`}>
+                  <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+                      <a href={`${basePath}/blog`} className="flex items-center gap-2 font-bold text-xl tracking-tight text-gray-800">
+                          <ArrowLeft className="w-5 h-5" /> Volver al Blog
+                      </a>
+                  </div>
+               </nav>
+               <ArticleView slug={articleSlug} />
           </div>
       );
   }
 
-  // --- STRUCTURE 1: CLASSIC SALES (HOME) ---
-  if (structure === 'classic-sales') {
-    return (
-      <div id="layout-ventas-clasica" className={`min-h-screen font-sans selection:bg-pink-500 selection:text-white ${ds.bg} scroll-smooth`}>
-        {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} hasBlog={hasBlog} basePath={basePath} />}
-        <RegistrationModal showModal={showModal} setShowModal={setShowModal} content={content} ds={ds} />
-        
-        <header id="seccion-hero" className={`relative pb-12 overflow-hidden scroll-mt-24 ${ds.heroGradient} ${isMobilePreview ? 'pt-28' : 'pt-24 lg:pt-48 lg:pb-32'}`}>
-          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] opacity-30 pointer-events-none ${ds.blobColor}`}></div>
-          {content.palette === 'minimal-mono' && <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>}
+  // --- STANDARD LANDING PAGE RENDER ---
 
-          <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
-             <div id="contenedor-titulares" className="text-center max-w-5xl mx-auto mb-10 lg:mb-16">
-                 <div id="contenedor-tagline" className="flex justify-center mb-6 lg:mb-8">
-                     <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md ${ds.heroText} shadow-lg shadow-white/5 hover:scale-105 transition-transform duration-300`}>
-                          <span className="text-xs md:text-sm font-black uppercase tracking-wider">
-                              {content.topTagline || "🔥 Oferta por tiempo limitado"}
-                          </span>
-                      </div>
-                 </div>
-                 
-                 {/* FORCE WHITE TEXT FOR HERO TITLES ON DARK BACKGROUNDS */}
-                 {renderStyledHeadline(content.hero.headline, isMobilePreview, true)}
+  const Navbar = () => (
+    <nav className={`${ds.navStickyBg} sticky top-0 z-50 transition-all duration-300`}>
+        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center gap-2 font-bold text-xl tracking-tight cursor-pointer">
+                {content.brandIcon ? getIcon(content.brandIcon, <Sparkles className="w-6 h-6" />) : <div className={`w-8 h-8 rounded-lg ${ds.logoBg} flex items-center justify-center`}>{content.brandName?.charAt(0)}</div>}
+                <span className={ds.navStickyText}>{content.brandName}</span>
+            </div>
 
-                  {renderRichText(content.hero.subheadline, `font-light opacity-90 max-w-3xl mx-auto leading-relaxed ${ds.heroText} ${isMobilePreview ? 'text-lg' : 'text-lg md:text-2xl'}`)}
-             </div>
-
-             <div className={`grid gap-8 items-start ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-12 lg:gap-12'}`}>
+            {/* Desktop Links */}
+            <div className="hidden md:flex items-center gap-8">
+                {navLinks.map((link, i) => (
+                    <a key={i} href={link.href} className={`text-sm font-medium ${ds.navStickyText} opacity-80 hover:opacity-100 hover:scale-105 transition`}>{link.label}</a>
+                ))}
                 
-                <div id="columna-lista-beneficios" className={`${isMobilePreview ? 'w-full order-2' : 'lg:col-span-7 text-left order-2 lg:order-1'}`}>
-                    <div id="tarjeta-video-clase" className={`relative w-full aspect-video h-auto rounded-2xl overflow-hidden mb-8 shadow-2xl border border-white/10 group cursor-pointer`}>
-                        <img
-                            src={content.hero.heroImage || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"}
-                            alt="Clase Gratuita"
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90"></div>
+                {/* Blog Link if pageId exists */}
+                {pageId && (
+                    <a href={`${basePath}/blog`} className={`text-sm font-medium ${ds.navStickyText} opacity-80 hover:opacity-100 hover:scale-105 transition flex items-center gap-1`}>
+                        <BookOpen className="w-4 h-4" /> Blog
+                    </a>
+                )}
 
-                        <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 flex items-center gap-4">
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-500/20 backdrop-blur-md flex items-center justify-center border border-blue-400/30 group-hover:scale-110 transition-transform">
-                                 <PlayCircle className="w-5 h-5 md:w-6 md:h-6 text-blue-400 fill-blue-400/20" />
-                            </div>
-                            <div>
-                                <p className="text-white font-bold text-base md:text-lg">{content.hero.videoTitle || "Clase Gratuita: Estrategia Exclusiva"}</p>
-                                <p className="text-gray-300 text-xs md:text-sm">{content.hero.videoDuration || "Duración: 45 Minutos"}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-8 shadow-lg">
-                        <h3 className="text-xl md:text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                             <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                                 {content.whatYouWillLearn.icon ? getIcon(content.whatYouWillLearn.icon, <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-yellow-400" />) : <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-yellow-400" />}
-                             </div>
-                             {content.whatYouWillLearn.title}
-                        </h3>
-                        <ul className="space-y-4">
-                            {content.whatYouWillLearn.items.map((item: any, idx: number) => (
-                                <li key={idx} className="flex items-start gap-3 md:gap-4 p-3 hover:bg-white/5 rounded-lg transition-colors group">
-                                    <div className={`mt-0.5 md:mt-1 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center bg-gradient-to-br from-green-400 to-emerald-600 shadow-lg shadow-green-500/20 group-hover:scale-110 transition-transform shrink-0`}>
-                                        <CheckCircle className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" />
-                                    </div>
-                                    <span className="text-base md:text-lg text-gray-200 leading-snug">{item}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-
-                <div id="columna-formulario" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-5 lg:sticky lg:top-24 order-1 lg:order-2'}`}>
-                     <SmartCTA content={content} ds={ds} fullWidth={true} isMobilePreview={isMobilePreview} />
-                </div>
-             </div>
-          </div>
-        </header>
-
-        <TestimonialsSection content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
-        <IntroSection content={content} ds={ds} isMobilePreview={isMobilePreview} />
-        <BenefitsSection content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
-        <StepsSection content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
-        <FAQSection content={content} ds={ds} isDark={isDark} />
-        <InstructorSection content={content} ds={ds} isMobilePreview={isMobilePreview} />
-        <FinalCTASection content={content} ds={ds} isMobilePreview={isMobilePreview} />
-        <Footer content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
-      </div>
-    );
-  }
-
-  // --- STRUCTURE 2: WEBINAR FUNNEL ---
-  if (structure === 'webinar-funnel') {
-    return (
-      <div id="layout-webinar" className={`min-h-screen font-sans ${ds.bg} scroll-smooth`}>
-         {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} hasBlog={hasBlog} basePath={basePath} />}
-         <RegistrationModal showModal={showModal} setShowModal={setShowModal} content={content} ds={ds} />
-         
-         <header id="seccion-hero" className={`relative py-24 lg:py-32 scroll-mt-24 ${ds.heroGradient}`}>
-            <div className={`w-full max-w-[75em] mx-auto px-6 grid gap-16 items-center ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
-                <div className={`${isMobilePreview ? 'order-2' : 'order-2 lg:order-1'}`}>
-                    <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-bold mb-6`}>
-                        <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span> EN VIVO
-                    </div>
-                    {renderStyledHeadline(content.hero.headline, isMobilePreview, true)}
-                    {renderRichText(content.hero.subheadline, `text-xl opacity-90 mb-8 leading-relaxed ${ds.heroText}`)}
-                    
-                    <div className="space-y-4 mb-8">
-                         <div className="flex items-center gap-3 text-gray-300">
-                             <User className="w-5 h-5 text-gray-400" /> 
-                             <span className="text-white">Impartido por: <strong>{content.instructor.name}</strong></span>
-                         </div>
-                         <div className="flex items-center gap-3 text-gray-300">
-                             <Target className="w-5 h-5 text-gray-400" />
-                             <span className="text-white">Para: <strong>{content.targetAudience || "Emprendedores"}</strong></span>
-                         </div>
-                    </div>
-
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                        <h4 className="text-white font-bold mb-4 flex items-center gap-2">
-                            <Zap className="w-4 h-4 text-yellow-400" /> Lo que aprenderás:
-                        </h4>
-                        <ul className="grid gap-3">
-                            {content.whatYouWillLearn.items.slice(0, 3).map((item: string, i: number) => (
-                                <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                                    <CheckCircle className="w-4 h-4 text-green-400 shrink-0 mt-0.5" />
-                                    {item}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-
-                <div className={`${isMobilePreview ? 'order-1' : 'order-1 lg:order-2'}`}>
-                    <SmartCTA content={content} ds={ds} fullWidth={true} isMobilePreview={isMobilePreview} />
-                </div>
-            </div>
-         </header>
-
-         <InstructorSection content={content} ds={ds} isMobilePreview={isMobilePreview} />
-         <BenefitsSection content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
-         <TestimonialsSection content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
-         <FAQSection content={content} ds={ds} isDark={isDark} />
-         <FinalCTASection content={content} ds={ds} isMobilePreview={isMobilePreview} />
-         <Footer content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
-      </div>
-    );
-  }
-
-  // --- STRUCTURE 3: VSL (Video Sales Letter) ---
-  if (structure === 'vsl-focused') {
-    return (
-        <div id="layout-vsl" className={`min-h-screen font-sans ${ds.bg}`}>
-            {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} hasBlog={hasBlog} basePath={basePath} />}
-            <RegistrationModal showModal={showModal} setShowModal={setShowModal} content={content} ds={ds} />
-
-            <div id="seccion-hero" className={`py-12 scroll-mt-24 ${ds.heroGradient}`}>
-                <div className="w-full max-w-4xl mx-auto px-6 text-center">
-                    {renderStyledHeadline(content.hero.headline, isMobilePreview, true)}
-                </div>
+                <button 
+                  onClick={() => document.getElementById('contenedor-boton-cta')?.scrollIntoView({behavior: 'smooth'})}
+                  className={`px-5 py-2.5 rounded-full font-bold text-sm transition transform hover:scale-105 ${ds.primaryBtn}`}
+                >
+                    {content.navCta}
+                </button>
             </div>
 
-            <div className="w-full max-w-5xl mx-auto px-6 -mt-8 mb-16 relative z-10">
-                <div className="aspect-video bg-black rounded-xl shadow-2xl border-4 border-gray-800 overflow-hidden relative group">
-                     <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
-                         <PlayCircle className="w-20 h-20 text-white opacity-50 group-hover:opacity-100 transition duration-300 scale-95 group-hover:scale-100 cursor-pointer" />
-                         <p className="absolute bottom-4 text-gray-500 text-sm">El video de ventas se cargaría aquí</p>
-                     </div>
-                </div>
-                <div className="mt-8 text-center max-w-2xl mx-auto">
-                    <SmartCTA content={content} ds={ds} fullWidth={false} isMobilePreview={isMobilePreview} />
-                </div>
-            </div>
-
-            <div className="max-w-4xl mx-auto">
-                <BenefitsSection content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
-                <div className="my-12 h-px bg-gray-200"></div>
-                <TestimonialsSection content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
-                <FAQSection content={content} ds={ds} isDark={isDark} />
-                <FinalCTASection content={content} ds={ds} isMobilePreview={isMobilePreview} />
-            </div>
-            
-            <Footer content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
+            {/* Mobile Menu Toggle */}
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-gray-600">
+                {mobileMenuOpen ? <X /> : <Menu />}
+            </button>
         </div>
-    );
-  }
 
-  // --- STRUCTURE 4: MINIMAL CAPTURE ---
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+            <div className="md:hidden bg-white border-b border-gray-100 p-4 space-y-4 shadow-xl">
+                 {navLinks.map((link, i) => (
+                    <a key={i} href={link.href} onClick={() => setMobileMenuOpen(false)} className="block text-gray-800 font-medium py-2">{link.label}</a>
+                ))}
+                {pageId && (
+                     <a href={`${basePath}/blog`} className="block text-gray-800 font-medium py-2 flex items-center gap-2"><BookOpen className="w-4 h-4"/> Blog</a>
+                )}
+                 <button className={`w-full py-3 rounded-lg font-bold ${ds.primaryBtn}`}>{content.navCta}</button>
+            </div>
+        )}
+    </nav>
+  );
+
   return (
-    <div id="layout-minimalista" className={`min-h-screen font-sans flex flex-col ${ds.bg}`}>
-        <div id="seccion-hero" className="flex-1 flex flex-col justify-center py-12 relative overflow-hidden scroll-mt-24">
-             <div className={`absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 blur-[80px] ${ds.blobColor}`}></div>
-             
-             <div className="w-full max-w-lg mx-auto px-6 relative z-10 text-center">
-                  <div className={`w-16 h-16 mx-auto mb-8 rounded-2xl flex items-center justify-center shadow-lg ${ds.logoBg}`}>
-                      {content.brandIcon ? getIcon(content.brandIcon, <Sparkles className="w-8 h-8"/>) : (
-                         content.logoSvg ? <div className="w-8 h-8" dangerouslySetInnerHTML={{ __html: content.logoSvg }} /> : <Anchor className="w-8 h-8"/>
-                      )}
-                  </div>
-                  
-                  <h1 className={`text-3xl md:text-4xl font-bold mb-4 ${content.palette === 'minimal-mono' ? 'text-black' : ds.heroText.replace('text-white', 'text-gray-900')}`}>
-                      {content.hero.headline.replace(/<\/?[^>]+(>|$)/g, "")}
-                  </h1>
-                  <p className="text-gray-500 mb-8 leading-relaxed">
-                      {content.hero.subheadline}
-                  </p>
+    <div className={`min-h-screen font-sans selection:bg-blue-500/30 ${ds.bg} text-slate-800 overflow-x-hidden`}>
+      <Navbar />
 
-                  <div className="bg-white p-1 rounded-2xl shadow-xl border border-gray-100">
-                      <SmartCTA content={content} ds={ds} fullWidth={true} isMobilePreview={isMobilePreview} />
-                  </div>
+      {/* Hero Section */}
+      <header className={`relative pt-12 pb-20 md:pt-24 md:pb-32 overflow-hidden ${ds.heroGradient}`}>
+         {/* Background Elements */}
+         <div className="absolute inset-0 opacity-20 pointer-events-none">
+             <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] ${ds.blobColor} mix-blend-screen opacity-30 animate-pulse`} />
+             <div className={`absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full blur-[100px] ${ds.blobColor} mix-blend-screen opacity-20`} />
+         </div>
 
-                  <p className="mt-8 text-xs text-gray-400">
-                      &copy; {new Date().getFullYear()} {content.brandName ? content.brandName.replace(/<\/?[^>]+(>|$)/g, "") : "Company"}.
-                  </p>
-             </div>
-        </div>
-        
-        <div className="bg-gray-50 py-12 border-t border-gray-200">
-            <div className={`max-w-4xl mx-auto px-6 opacity-70 hover:opacity-100 transition duration-500`}>
-                 <div className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
-                     <div>
-                         <h4 className="font-bold text-gray-900 mb-2">Sobre Nosotros</h4>
-                         <p className="text-sm text-gray-500">{content.footer.copyright}</p>
+         <div className="container mx-auto px-6 relative z-10">
+            {/* Top Tagline */}
+            {content.topTagline && (
+                <div className="flex justify-center mb-8 animate-in fade-in slide-in-from-top-4 duration-700">
+                    <span className="px-4 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white text-xs md:text-sm font-bold uppercase tracking-wider shadow-lg flex items-center gap-2">
+                         <Zap className="w-3 h-3 text-yellow-400 fill-yellow-400 animate-pulse" /> {content.topTagline}
+                    </span>
+                </div>
+            )}
+
+            {/* Main Hero Content */}
+            <div className={`text-center max-w-5xl mx-auto mb-12 animate-in zoom-in-95 duration-700 delay-100`}>
+                 {renderStyledHeadline(content.hero.headline, isMobilePreview)}
+                 
+                 <div className={`text-lg md:text-2xl mb-10 leading-relaxed max-w-3xl mx-auto opacity-90 font-light ${ds.heroText}`}>
+                      {renderRichText(content.hero.subheadline)}
+                 </div>
+
+                 {/* Structure Logic */}
+                 {content.structure === 'classic-sales' && (
+                     <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+                          <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} />
+                          {content.hero.videoDuration && (
+                             <div className={`flex items-center gap-3 px-6 py-3 rounded-full ${ds.secondaryBtn} backdrop-blur-sm transition hover:bg-white/10`}>
+                                 <PlayCircle className="w-5 h-5" />
+                                 <span className="font-semibold">{content.hero.videoTitle || "Ver clase"}</span>
+                                 <span className="text-xs opacity-70 border-l border-white/30 pl-3 ml-1">{content.hero.videoDuration}</span>
+                             </div>
+                          )}
                      </div>
-                     <div>
-                         <h4 className="font-bold text-gray-900 mb-2">Contacto</h4>
-                         <p className="text-sm text-gray-500">{content.footer.contact}</p>
-                     </div>
-                     {hasBlog && (
-                        <div>
-                            <h4 className="font-bold text-gray-900 mb-2">Blog</h4>
-                            <a href={basePath ? `${basePath}/blog` : `/blog`} className="text-sm text-blue-600 hover:underline">Ver artículos recientes</a>
+                 )}
+            </div>
+
+            {/* Visual Asset (Video/Image) */}
+            <div className="relative max-w-5xl mx-auto mt-12 group animate-in slide-in-from-bottom-8 duration-1000 delay-300">
+                <div className={`absolute -inset-1 rounded-[2rem] bg-gradient-to-r ${ds.iconGradient} opacity-30 blur-lg group-hover:opacity-50 transition duration-500`}></div>
+                <div className="relative rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/10 aspect-video bg-gray-900">
+                     {content.hero.heroImage ? (
+                        <img src={content.hero.heroImage} alt="Hero" className="w-full h-full object-cover transform group-hover:scale-105 transition duration-700" />
+                     ) : (
+                        <div className="w-full h-full flex items-center justify-center flex-col gap-4 bg-gray-900/50 backdrop-blur text-white">
+                            <PlayCircle className="w-20 h-20 opacity-80" />
+                            <p className="font-medium text-lg">Video de Alta Conversión</p>
                         </div>
                      )}
-                 </div>
+                     
+                     {/* Overlay Stats */}
+                     <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between pointer-events-none">
+                          <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 text-white text-xs font-bold flex items-center gap-2">
+                               <Users className="w-3 h-3 text-green-400" /> {content.hero.socialProofCount || "1,200"} viendo ahora
+                          </div>
+                     </div>
+                </div>
             </div>
-        </div>
+
+            {/* VSL Structure Extra CTA */}
+            {content.structure === 'vsl-focused' && (
+                <div className="mt-12 max-w-md mx-auto animate-in fade-in slide-in-from-bottom-4 delay-500">
+                     <SmartCTA content={content} ds={ds} fullWidth isMobilePreview={isMobilePreview} />
+                </div>
+            )}
+         </div>
+         
+         {/* Wave Divider */}
+         <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none transform translate-y-1">
+             <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" className={`relative block w-[calc(100%+1.3px)] h-[60px] md:h-[100px] ${ds.introBg.replace('bg-', 'fill-')}`}>
+                 <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" className="opacity-50"></path>
+                 <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,60.25V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"></path>
+             </svg>
+         </div>
+      </header>
+
+      {/* Intro / Problem Agitation */}
+      <section className={`${ds.introBg} text-white py-20 relative z-10`}>
+           <div className="container mx-auto px-6 max-w-5xl">
+               <div className="grid md:grid-cols-2 gap-12 items-center">
+                   <div>
+                       <h2 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">{content.intro.title}</h2>
+                       <div className="text-gray-300 space-y-4 leading-relaxed text-lg">
+                           {renderRichText(content.intro.description)}
+                       </div>
+                   </div>
+                   <div className="space-y-4">
+                       {introItems.map((item, i) => (
+                           <div key={i} className="flex gap-4 bg-white/5 p-5 rounded-xl border border-white/10 hover:bg-white/10 transition">
+                               <div className={`w-10 h-10 rounded-full ${ds.iconBg} flex items-center justify-center shrink-0`}>
+                                   <X className="w-5 h-5" />
+                               </div>
+                               <div>
+                                   <h4 className="font-bold text-lg mb-1">{item.title}</h4>
+                                   <p className="text-sm text-gray-400">{renderRichText(item.description)}</p>
+                               </div>
+                           </div>
+                       ))}
+                   </div>
+               </div>
+           </div>
+      </section>
+
+      {/* Benefits Section (Cards) */}
+      <section id="seccion-beneficios" className={`py-20 md:py-32 ${ds.bg} relative overflow-hidden`}>
+          <div className="container mx-auto px-6 relative z-10">
+              <div className="text-center max-w-3xl mx-auto mb-16">
+                  <span className={`text-sm font-bold uppercase tracking-widest ${ds.accentText}`}>La Solución Definitiva</span>
+                  <h2 className="text-4xl md:text-5xl font-bold mt-2 mb-6 text-gray-900">{content.benefits.title}</h2>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                  {benefits.map((benefit, i) => (
+                      <div key={i} className={`group p-8 rounded-[2rem] transition duration-300 hover:-translate-y-2 ${ds.cardBg}`}>
+                          <div className={`w-14 h-14 rounded-2xl mb-6 flex items-center justify-center shadow-lg transform group-hover:rotate-6 transition duration-300 ${benefit.color ? `bg-${benefit.color}-100 text-${benefit.color}-600` : ds.iconBg}`}>
+                              {getIcon(benefit.icon, <CheckCircle className="w-7 h-7" />)}
+                          </div>
+                          <h3 className="text-xl font-bold mb-3 text-gray-800">{benefit.title}</h3>
+                          <div className="text-gray-600 leading-relaxed">
+                              {renderRichText(benefit.description)}
+                          </div>
+                      </div>
+                  ))}
+              </div>
+          </div>
+      </section>
+
+      {/* What You Will Learn (List) */}
+      <section className="py-20 bg-white border-y border-gray-100">
+          <div className="container mx-auto px-6 max-w-4xl">
+              <div className="bg-gray-50 rounded-[2.5rem] p-8 md:p-12 shadow-inner border border-gray-200">
+                  <div className="text-center mb-10">
+                       <h2 className="text-3xl font-bold text-gray-900 flex items-center justify-center gap-3">
+                           {getIcon(content.whatYouWillLearn.icon, <BookOpen className="w-8 h-8 text-blue-600" />)}
+                           {content.whatYouWillLearn.title}
+                       </h2>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
+                      {(content.whatYouWillLearn.items || []).map((item, i) => (
+                          <div key={i} className="flex items-start gap-3">
+                              <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-1" />
+                              <span className="text-gray-700 font-medium">{item}</span>
+                          </div>
+                      ))}
+                  </div>
+              </div>
+          </div>
+      </section>
+
+      {/* Testimonials */}
+      <section id="seccion-testimonios" className={`${ds.testimonialBg} py-24 text-white relative overflow-hidden`}>
+           {/* Background Grid */}
+           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
+           
+           <div className="container mx-auto px-6 relative z-10">
+               <div className="text-center mb-16">
+                   <h2 className="text-3xl md:text-5xl font-bold mb-4">{content.testimonialTitle}</h2>
+                   {content.testimonialSubtitle && <p className="text-gray-400 text-lg">{content.testimonialSubtitle}</p>}
+               </div>
+
+               <div className="grid md:grid-cols-3 gap-8">
+                   {testimonials.map((t, i) => (
+                       <div key={i} className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 hover:bg-white/10 transition duration-300">
+                           <div className="flex gap-1 mb-4">
+                               {[...Array(5)].map((_, starI) => (
+                                   <Star key={starI} className={`w-4 h-4 ${starI < t.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`} />
+                               ))}
+                           </div>
+                           <div className="text-gray-300 mb-6 italic leading-relaxed">"{renderRichText(t.text)}"</div>
+                           <div className="flex items-center gap-4 border-t border-white/10 pt-4">
+                               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-600 flex items-center justify-center font-bold text-sm">
+                                   {t.name.charAt(0)}
+                               </div>
+                               <div>
+                                   <p className="font-bold text-white text-sm">{t.name}</p>
+                                   <p className="text-xs text-gray-500">{t.location || 'Alumno Verificado'}</p>
+                               </div>
+                           </div>
+                       </div>
+                   ))}
+               </div>
+           </div>
+      </section>
+
+      {/* Instructor / Authority */}
+      <section id="seccion-instructor" className={`${ds.mentorBg} py-20 text-white relative`}>
+           <div className="container mx-auto px-6 max-w-5xl">
+               <div className="bg-white/5 rounded-3xl p-8 md:p-12 border border-white/10 flex flex-col md:flex-row items-center gap-12">
+                   <div className="w-48 h-48 md:w-64 md:h-64 shrink-0 relative">
+                        <div className={`absolute inset-0 bg-gradient-to-br ${ds.iconGradient} rounded-full blur-2xl opacity-40`}></div>
+                        <div className="relative w-full h-full rounded-full border-4 border-white/20 overflow-hidden bg-gray-800">
+                             <img src={content.instructor.imageUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80"} alt={content.instructor.name} className="w-full h-full object-cover" />
+                        </div>
+                        {content.instructor.badgeText && (
+                            <div className="absolute bottom-2 right-2 bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-yellow-300">
+                                {content.instructor.badgeText}
+                            </div>
+                        )}
+                   </div>
+                   <div className="text-center md:text-left flex-1">
+                       <h2 className="text-3xl font-bold mb-2">{content.instructor.name}</h2>
+                       <p className={`text-sm font-bold uppercase tracking-widest mb-6 ${ds.accentText}`}>{content.instructor.badgeSubtext || "Experto del Sector"}</p>
+                       <div className="text-gray-300 leading-relaxed mb-8">
+                           {renderRichText(content.instructor.bio)}
+                       </div>
+                       
+                       <div className="grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
+                           <div>
+                               <div className="text-2xl font-bold">{content.instructor.statsStudents || "5,000+"}</div>
+                               <div className="text-xs text-gray-400 uppercase">Alumnos</div>
+                           </div>
+                           <div>
+                               <div className="text-2xl font-bold">{content.instructor.statsRating || "4.9/5"}</div>
+                               <div className="text-xs text-gray-400 uppercase">Calificación</div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+           </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className={`py-20 ${ds.faqBg}`}>
+          <div className="container mx-auto px-6 max-w-3xl">
+              <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">Preguntas Frecuentes</h2>
+              <div className="space-y-4">
+                  {faq.map((item, i) => (
+                      <div key={i} className={`rounded-xl border border-gray-200 overflow-hidden ${ds.faqItemBg}`}>
+                          <button 
+                            onClick={() => toggleAccordion(i)}
+                            className="w-full flex items-center justify-between p-5 text-left font-bold text-gray-800 hover:bg-gray-50 transition"
+                          >
+                              {item.question}
+                              {activeAccordion === i ? <Minus className="w-5 h-5 text-blue-500" /> : <Plus className="w-5 h-5 text-gray-400" />}
+                          </button>
+                          <div className={`overflow-hidden transition-all duration-300 ${activeAccordion === i ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                              <div className="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-100 mt-2">
+                                  {renderRichText(item.answer)}
+                              </div>
+                          </div>
+                      </div>
+                  ))}
+              </div>
+          </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className={`py-24 text-center ${ds.heroGradient} relative overflow-hidden`}>
+           <div className="absolute inset-0 opacity-30 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+           <div className="container mx-auto px-6 relative z-10">
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-8 max-w-4xl mx-auto leading-tight">
+                    ¿Listo para transformar tus resultados?
+                </h2>
+                <div className="flex justify-center">
+                    <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} />
+                </div>
+                {content.hero.spotsLeft && (
+                     <p className="mt-6 text-yellow-300 font-bold animate-pulse">{content.hero.spotsLeft}</p>
+                )}
+           </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+           <div className="container mx-auto px-6 text-center">
+                <div className="flex items-center justify-center gap-2 mb-6 text-white font-bold text-xl">
+                    {content.brandIcon ? getIcon(content.brandIcon, <Sparkles className="w-5 h-5" />) : <div className="w-8 h-8 rounded bg-white/10 flex items-center justify-center">{content.brandName?.charAt(0)}</div>}
+                    {content.brandName}
+                </div>
+                
+                <div className="flex justify-center gap-6 mb-8">
+                     {content.footer.socials?.facebook && <a href={content.footer.socials.facebook} className="hover:text-white transition"><Facebook className="w-5 h-5"/></a>}
+                     {content.footer.socials?.instagram && <a href={content.footer.socials.instagram} className="hover:text-white transition"><Instagram className="w-5 h-5"/></a>}
+                     {content.footer.socials?.twitter && <a href={content.footer.socials.twitter} className="hover:text-white transition"><Twitter className="w-5 h-5"/></a>}
+                </div>
+
+                <p className="mb-4 text-sm opacity-60">{content.footer.copyright}</p>
+                <div className="flex justify-center gap-4 text-xs opacity-50">
+                    <a href="#" className="hover:underline">Políticas de Privacidad</a>
+                    <a href="#" className="hover:underline">Términos de Servicio</a>
+                    <a href="#" className="hover:underline">{content.footer.contact}</a>
+                </div>
+           </div>
+      </footer>
     </div>
   );
 };
