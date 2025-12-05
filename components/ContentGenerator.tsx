@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../services/geminiService';
 import { api } from '../services/api';
 import { Article, Project, LandingPage } from '../types';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 // Importing Sub-Components
 import { Step1Inputs } from './content-generator/Step1Inputs';
@@ -19,6 +19,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const { id: editArticleId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   
   // Data State
   const [topic, setTopic] = useState('');
@@ -207,7 +208,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     try {
       addLog("Validando datos...");
       addLog(`Endpoint Objetivo: ${editArticleId ? `/api/articles/${editArticleId}` : '/api/articles'}`);
-      addLog(`PAYLOAD:\n${JSON.stringify(articlePayload, null, 2)}`);
       
       await onSave(articlePayload);
       
@@ -216,8 +216,11 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       setSaveStatus('success');
 
       setTimeout(() => {
-        if (saveStatus !== 'error') setIsLogModalOpen(false);
-      }, 2500);
+        if (saveStatus !== 'error') {
+            setIsLogModalOpen(false);
+            navigate('/dashboard/articles'); // REDIRECT AFTER SUCCESS
+        }
+      }, 1500);
     } catch (e: any) {
       addLog("❌ ERROR CRÍTICO");
       addLog(`Mensaje: ${e.message}`);
@@ -291,6 +294,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
           onSave={handleSaveArticle}
           saving={saveStatus === 'saving'}
           onBack={() => setStep(3)}
+          isEditing={!!editArticleId}
         />
       )}
 
