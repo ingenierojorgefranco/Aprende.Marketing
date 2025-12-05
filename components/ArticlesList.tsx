@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Article } from '../types';
 import { BookOpen, Calendar, Search, Edit2, BarChart, FileText, Globe, Clock, Eye, ExternalLink } from 'lucide-react';
@@ -48,6 +47,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
                 ? article.pageSubdomain.replace('.generatorlanding.com', '') 
                 : article.pageId;
              
+             // Solo generar URL si tenemos algún identificador válido de la página
              const publicUrl = pageSlug ? `/admin/lp/${pageSlug}/blog/${article.slug}` : '#';
 
              return (

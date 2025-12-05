@@ -1,5 +1,3 @@
-
-
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../types";
 import { api } from "./api"; // Usamos la configuración centralizada de API
 
@@ -401,22 +399,27 @@ export const generateFullArticle = async (
         `;
     }
 
+    // MODIFIED PROMPT FOR TESTING LIMITS (200 CHARS)
     const prompt = `Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este título y esquema estructural OBLIGATORIO.
     
     Título: "${title}"
-    Esquema Estructural (SÍGUELO AL PIE DE LA LETRA): ${JSON.stringify(outline)}
+    Esquema Estructural: ${JSON.stringify(outline)}
     Objetivo: "${objective}"
-    ${keyword ? `Keyword SEO: "${keyword}" (Úsala de forma natural)` : ''}
-    CTA Link: "${ctaLink}" (Insértalo de forma persuasiva al final o en un punto clave).
+    ${keyword ? `Keyword SEO: "${keyword}"` : ''}
+    CTA Link: "${ctaLink}"
     
     ${projectStrategy}
 
+    MODO PRUEBA ACTIVADO:
+    OBLIGATORIO: El artículo final NO DEBE superar los 200 caracteres en total.
+    Escribe SOLO un párrafo muy breve o un resumen ejecutivo que cumpla con la estructura pero de forma extremademente condensada para propósitos de debugging.
+    Asegúrate de incluir las etiquetas HTML básicas (<h1>, <p>).
+
     Formato: HTML (usa <h1>, <h2>, <h3>, <h4>, <p>, <ul>, <li>, <strong>, <a href="...">).
-    Estilo: Profesional, educativo y persuasivo. Párrafos cortos.
+    Estilo: Profesional, educativo y persuasivo.
     Idioma: Español Neutro.
     
-    NO incluyas <html>, <head> o <body>, solo el contenido del artículo dentro de un <div>.
-    Asegúrate de desarrollar contenido para CADA UNO de los puntos del esquema.`;
+    NO incluyas <html>, <head> o <body>, solo el contenido del artículo dentro de un <div>.`;
 
     try {
         const response = await callGeminiBackend(prompt);
