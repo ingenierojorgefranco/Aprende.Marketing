@@ -1,9 +1,7 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../services/geminiService';
 import { api } from '../services/api';
-import { BookOpen, Search, List, FileText, Download, Copy, Check, RefreshCw, ArrowLeft, ArrowRight, Wand2, BarChart, ChevronRight, Type, Link as LinkIcon, Sparkles, Save, Briefcase, Calendar, Image, Globe, Eye, Trash2, GripVertical, Heading1, Heading2, Heading3, Heading4 } from 'lucide-react';
+import { BookOpen, Search, List, FileText, Download, Copy, Check, RefreshCw, ArrowLeft, ArrowRight, Wand2, BarChart, ChevronRight, Type, Link as LinkIcon, Sparkles, Save, Briefcase, Calendar, Image, Globe, Eye, Trash2, GripVertical, Heading1, Heading2, Heading3, Heading4, AlertTriangle, X } from 'lucide-react';
 import { Article, Project, LandingPage } from '../types';
 
 interface ContentGeneratorProps {
@@ -14,6 +12,9 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  // Error Handling State
+  const [saveError, setSaveError] = useState<string | null>(null);
   
   // Data State
   const [topic, setTopic] = useState('');
@@ -177,8 +178,12 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
   const handleSaveArticle = async () => {
       if (!selectedTitle || !onSave) return;
+      
       setSaving(true);
+      setSaveError(null); // Resetear errores previos
+
       try {
+          // Intentar guardar en base de datos
           await onSave({
               pageId: selectedPageId || undefined,
               title: selectedTitle.title,
@@ -193,10 +198,19 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
               status: status,
               publishedAt: new Date(publishDate)
           });
-          alert("Artículo guardado correctamente.");
-      } catch (e) {
-          console.error(e);
-          alert("Error guardando el artículo. Verifica la consola.");
+          
+          alert("Artículo guardado correctamente en la Base de Datos.");
+      } catch (e: any) {
+          console.error("Error Saving Article:", e);
+          
+          // Capturar el mensaje exacto del error para mostrarlo
+          let errorMsg = "Error desconocido.";
+          if (typeof e === 'string') errorMsg = e;
+          else if (e instanceof Error) errorMsg = e.message;
+          else if (e?.error) errorMsg = e.error;
+          else errorMsg = JSON.stringify(e);
+
+          setSaveError(errorMsg);
       } finally {
           setSaving(false);
       }
@@ -826,11 +840,53 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   };
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="min-h-screen text-white relative">
         {step === 1 && renderStep1()}
         {step === 2 && renderStep2()}
         {step === 3 && renderStep3()}
         {step === 4 && renderStep4()}
+
+        {/* --- ERROR MODAL --- */}
+        {saveError && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+                <div className="bg-gray-900 border border-red-800 rounded-xl max-w-lg w-full shadow-2xl overflow-hidden">
+                    <div className="bg-red-900/30 p-4 border-b border-red-800 flex items-center justify-between">
+                        <h3 className="text-red-400 font-bold flex items-center gap-2">
+                            <AlertTriangle className="w-5 h-5" /> Error al Guardar Artículo
+                        </h3>
+                        <button onClick={() => setSaveError(null)} className="text-gray-400 hover:text-white">
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                    
+                    <div className="p-6">
+                         <p className="text-gray-300 mb-4 text-sm">
+                            El artículo <strong>no se ha guardado</strong> en la base de datos. Esto puede deberse a un problema de conexión o a un error en el servidor.
+                         </p>
+                         
+                         <div className="bg-black rounded-lg p-4 border border-gray-800 font-mono text-xs text-red-300 overflow-x-auto max-h-40">
+                            <strong>Detalle del error:</strong><br/>
+                            {saveError}
+                         </div>
+                    </div>
+
+                    <div className="bg-gray-800 p-4 flex justify-end gap-3">
+                         <button 
+                             onClick={() => setSaveError(null)}
+                             className="px-4 py-2 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 transition text-sm"
+                         >
+                             Cancelar
+                         </button>
+                         <button 
+                             onClick={handleSaveArticle}
+                             className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold transition flex items-center gap-2 text-sm shadow-lg shadow-red-900/30"
+                         >
+                             <RefreshCw className="w-4 h-4" /> Reintentar Guardado
+                         </button>
+                    </div>
+                </div>
+            </div>
+        )}
     </div>
   );
 };

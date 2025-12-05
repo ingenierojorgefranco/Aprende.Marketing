@@ -43,8 +43,12 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {articles.map((article) => {
              // Construcción de la URL pública
-             const pageSlug = article.pageSubdomain ? article.pageSubdomain.replace('.generatorlanding.com', '') : article.pageId;
-             const publicUrl = `/admin/lp/${pageSlug}/blog/${article.slug}`;
+             // Prioriza el subdominio limpio. Si no existe, usa el pageId como fallback (el backend ahora soporta ID).
+             const pageSlug = article.pageSubdomain 
+                ? article.pageSubdomain.replace('.generatorlanding.com', '') 
+                : article.pageId;
+             
+             const publicUrl = pageSlug ? `/admin/lp/${pageSlug}/blog/${article.slug}` : '#';
 
              return (
                 <div key={article.id} className="bg-gray-900 rounded-xl border border-gray-800 hover:border-primary/50 transition duration-300 group flex flex-col h-full overflow-hidden">
@@ -110,7 +114,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
                         <Edit2 className="w-3.5 h-3.5" /> EDITAR
                     </button>
                     
-                    {article.pageId && (
+                    {article.pageId && pageSlug && (
                         <a 
                             href={publicUrl} 
                             target="_blank" 

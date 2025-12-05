@@ -401,14 +401,29 @@ app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
   }
 });
 
-// 4. GENERIC SLUG
+// 4. GENERIC SLUG (Modified to support ID lookup fallback)
 app.get('/api/public/pages/:slug', async (req, res) => {
   const { slug } = req.params;
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM landing_pages WHERE (subdomain = ? OR subdomain LIKE ?) AND is_published = 1 LIMIT 1',
-      [slug, `${slug}.%`]
-    );
+    let rows = [];
+
+    // Attempt to lookup by ID if the slug is numeric
+    // This solves issues where frontend links use ID as a fallback when subdomain is missing
+    if (/^\d+$/.test(slug)) {
+       [rows] = await pool.query(
+           'SELECT * FROM landing_pages WHERE id = ? AND is_published = 1 LIMIT 1',
+           [slug]
+       );
+    }
+
+    // If not found by ID (or slug wasn't numeric), try by subdomain/slug
+    if (rows.length === 0) {
+        [rows] = await pool.query(
+          'SELECT * FROM landing_pages WHERE (subdomain = ? OR subdomain LIKE ?) AND is_published = 1 LIMIT 1',
+          [slug, `${slug}.%`]
+        );
+    }
+
     if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
     
     const page = rows[0];
@@ -537,6 +552,7 @@ app.delete('/api/pages/:id', authMiddleware, async (req, res) => {
 app.get('/api/articles', authMiddleware, async (req, res) => {
   try {
     // JOIN with landing_pages to get subdomain for dashboard links
+    // IMPORTANT: Ensure we fetch subdomain. If subdomain is NULL, page_subdomain will be NULL.
     const [rows] = await pool.query(
         `SELECT a.*, lp.subdomain as page_subdomain 
          FROM articles a 
