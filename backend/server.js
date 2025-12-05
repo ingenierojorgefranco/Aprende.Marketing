@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v7_blog_fix_deploy'; 
+const SERVER_VERSION = 'v7_analytics_fix'; 
 
 app.enable('trust proxy');
 
@@ -65,6 +65,28 @@ app.use((req, res, next) => {
   req.tenantSubdomain = tenant;
   next();
 });
+
+// ======================================================
+//  HELPERS ANALYTICS
+// ======================================================
+const recordVisit = async (pageId) => {
+    try {
+        // 1. Actualizar contador total (Histórico)
+        await pool.query('UPDATE landing_pages SET visits = visits + 1 WHERE id = ?', [pageId]);
+        
+        // 2. Insertar/Actualizar en historial diario (YYYY-MM-DD) para la gráfica
+        const today = new Date().toISOString().split('T')[0];
+        await pool.query(
+            `INSERT INTO daily_analytics (page_id, date, visits, conversions) 
+             VALUES (?, ?, 1, 0) 
+             ON DUPLICATE KEY UPDATE visits = visits + 1`,
+            [pageId, today]
+        );
+    } catch (error) {
+        // No bloqueamos la respuesta si falla el analytics
+        console.error(`[Analytics] Error registrando visita para página ${pageId}:`, error.message);
+    }
+};
 
 // ======================================================
 //  HELPERS AUTH
@@ -313,7 +335,9 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
     }
 
     const page = rows[0];
-    pool.query('UPDATE landing_pages SET visits = visits + 1 WHERE id = ?', [page.id]).catch(console.error);
+    
+    // REGISTRAR VISITA (Incluye Analytics)
+    recordVisit(page.id);
     
     if (typeof page.content === 'string') {
         try { page.content = JSON.parse(page.content); } catch {}
@@ -338,6 +362,10 @@ app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
 
     if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
     const page = rows[0];
+
+    // REGISTRAR VISITA (Incluye Analytics)
+    recordVisit(page.id);
+
     if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
     res.json(page);
   } catch (e) {
@@ -356,6 +384,10 @@ app.get('/api/public/pages/:slug', async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
     
     const page = rows[0];
+
+    // REGISTRAR VISITA (Incluye Analytics)
+    recordVisit(page.id);
+
     if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
     res.json(page);
   } catch (e) {
@@ -394,6 +426,38 @@ app.get('/api/public/articles/:slug', async (req, res) => {
     }
 });
 
+// ======================================================
+//  ANALYTICS (NEW)
+// ======================================================
+app.get('/api/analytics/weekly', authMiddleware, async (req, res) => {
+  try {
+    // Obtener datos de los últimos 7 días para todas las páginas del usuario
+    const [rows] = await pool.query(`
+        SELECT 
+            da.date, 
+            SUM(da.visits) as visits, 
+            SUM(da.conversions) as conversions
+        FROM daily_analytics da
+        JOIN landing_pages lp ON da.page_id = lp.id
+        WHERE lp.user_id = ? 
+          AND da.date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        GROUP BY da.date
+        ORDER BY da.date ASC
+    `, [req.user.id]);
+
+    // Formatear fechas para que el frontend las entienda fácil (YYYY-MM-DD)
+    const formatted = rows.map(r => ({
+        date: new Date(r.date).toISOString().split('T')[0],
+        visits: Number(r.visits),
+        conversions: Number(r.conversions)
+    }));
+    
+    res.json(formatted);
+  } catch (e) {
+    console.error('[Analytics] Error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // ======================================================
 //  LANDING PAGES CRUD
