@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { GeneratedPageContent, ColorPalette, StructureType, Article } from '../types';
-import { CheckCircle, Star, PlayCircle, User, MessageCircle, ArrowRight, Lock, ShieldCheck, Zap, BarChart, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Award, Users, DollarSign, FileText, Briefcase, BookOpen, ScanFace, Palette, Feather, Plus, Minus, HelpCircle, X, Rocket, Target, Globe, Menu, Calendar, ArrowLeft, Clock } from 'lucide-react';
-import { api } from '../services/api';
+import { GeneratedPageContent, ColorPalette, StructureType } from '../types';
+import { CheckCircle, Star, PlayCircle, User, MessageCircle, ArrowRight, Lock, ShieldCheck, Zap, BarChart, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Award, Users, DollarSign, FileText, Briefcase, BookOpen, ScanFace, Palette, Feather, Plus, Minus, HelpCircle, X, Rocket, Target, Globe, Menu } from 'lucide-react';
 
 interface LivePageProps {
   content: GeneratedPageContent;
   isMobilePreview?: boolean;
-  pageId?: string; // Para buscar artículos del blog
-  viewMode?: 'home' | 'blog-list' | 'blog-post';
-  articleSlug?: string;
-  basePath?: string; // Para construir URLs relativas del blog
 }
 
 // Icon Mapping
@@ -456,7 +451,7 @@ const FeatureCard = ({ item, idx, ds, content, isDark }: any) => {
     );
 };
 
-const Navbar = ({ content, ds, isMobilePreview, setShowModal, hasBlog, basePath }: any) => {
+const Navbar = ({ content, ds, isMobilePreview, setShowModal }: any) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -493,30 +488,18 @@ const Navbar = ({ content, ds, isMobilePreview, setShowModal, hasBlog, basePath 
     }, []);
 
     const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-        // Handle internal Blog links
-        if (href === '/blog') {
-            e.preventDefault();
-            // Redirect using window.location for now, assuming client side routing will handle it if mapped, otherwise reload is fine
-            window.location.href = basePath ? `${basePath}/blog` : '/blog';
-            return;
-        }
-
+        e.preventDefault();
+        // Remove hash to get ID
         if (href.startsWith('#')) {
-            e.preventDefault();
             const id = href.substring(1);
             const element = document.getElementById(id);
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth' });
                 setIsMenuOpen(false);
-            } else {
-                // If we are in blog view, we might need to go home first
-                if (window.location.pathname.includes('/blog')) {
-                    window.location.href = basePath || '/';
-                }
             }
         } else {
-             // External link
-             // window.location.href = href;
+            // External link
+            window.location.href = href;
         }
     };
 
@@ -528,12 +511,6 @@ const Navbar = ({ content, ds, isMobilePreview, setShowModal, hasBlog, basePath 
          return <span dangerouslySetInnerHTML={{ __html: htmlContent }} />;
     };
 
-    // Inject Blog link if exists and not already present
-    const displayedLinks = [...navLinks];
-    if (hasBlog && !displayedLinks.some((l: any) => l.href === '/blog')) {
-        displayedLinks.push({ label: 'Blog', href: '/blog' });
-    }
-
     return (
       <nav 
         id="barra-navegacion"
@@ -543,9 +520,7 @@ const Navbar = ({ content, ds, isMobilePreview, setShowModal, hasBlog, basePath 
         `}
       >
           <div className="w-full max-w-[75em] mx-auto px-6 py-4 flex justify-between items-center relative gap-4">
-            <div id="logo-marca" 
-                 onClick={() => window.location.href = basePath || '/'}
-                 className={`flex items-center gap-2 md:gap-3 font-bold tracking-tight transition-colors duration-300 ${currentTextColor} flex-1 min-w-0 mr-2 cursor-pointer`}>
+            <div id="logo-marca" className={`flex items-center gap-2 md:gap-3 font-bold tracking-tight transition-colors duration-300 ${currentTextColor} flex-1 min-w-0 mr-2`}>
               <div className={`w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform border-2 border-white/20 flex-shrink-0 ${ds.logoBg}`}>
                  {content.brandIcon ? getIcon(content.brandIcon, <Sparkles className="w-5 h-5 md:w-6 md:h-6" />) : (
                     content.logoSvg ? (
@@ -562,7 +537,7 @@ const Navbar = ({ content, ds, isMobilePreview, setShowModal, hasBlog, basePath 
             </div>
             
             <div id="enlaces-navegacion" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-sm font-medium transition-colors duration-300 ${currentTextColor} opacity-90 flex-shrink-0`}>
-              {displayedLinks.map((link: any, i: number) => (
+              {navLinks.map((link: any, i: number) => (
                   <a key={i} href={link.href} onClick={(e) => scrollToSection(e, link.href)} className="hover:opacity-100 transition cursor-pointer">{link.label}</a>
               ))}
             </div>
@@ -587,7 +562,7 @@ const Navbar = ({ content, ds, isMobilePreview, setShowModal, hasBlog, basePath 
 
           {isMenuOpen && (
               <div className={`${isMobilePreview ? 'flex' : 'md:hidden flex'} absolute top-full left-0 w-full ${ds.navStickyBg || 'bg-white'} border-b border-gray-100 shadow-xl p-6 flex-col gap-4 animate-in slide-in-from-top-2 z-40`}>
-                  {displayedLinks.map((link: any, i: number) => (
+                  {navLinks.map((link: any, i: number) => (
                       <a 
                         key={i} 
                         href={link.href} 
@@ -621,12 +596,13 @@ const Footer = ({ content, ds, isDark, isMobilePreview }: any) => {
     ];
 
     const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-        if (!href.startsWith('#')) return;
         e.preventDefault();
-        const id = href.substring(1);
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
+        if (href.startsWith('#')) {
+            const id = href.substring(1);
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
         }
     };
 
@@ -675,20 +651,90 @@ const Footer = ({ content, ds, isDark, isMobilePreview }: any) => {
     );
 };
 
+const FAQSection = ({ content, ds, isDark }: any) => {
+    const [openIndex, setOpenIndex] = useState<number | null>(0);
+    const questions = content.faq || [];
+
+    return (
+        <section id="seccion-faq" className={`py-24 scroll-mt-24 ${ds.faqBg}`}>
+            <div className="w-full max-w-4xl mx-auto px-6">
+                <div className="text-center mb-16">
+                    <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        Preguntas Frecuentes
+                    </h2>
+                    <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                        Resolvemos tus dudas para que tomes la mejor decisión.
+                    </p>
+                </div>
+
+                <div className="space-y-4">
+                    {questions.map((q: any, idx: number) => (
+                        <div 
+                            key={idx}
+                            className={`rounded-xl border transition-all duration-300 overflow-hidden ${
+                                openIndex === idx 
+                                ? `shadow-lg border-opacity-0 ${isDark ? 'bg-gray-800' : 'bg-white'}` 
+                                : `border-transparent ${ds.faqItemBg} hover:bg-opacity-80`
+                            }`}
+                        >
+                            <button 
+                                onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                                className="w-full flex items-center justify-between p-6 text-left"
+                            >
+                                <span className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                                    {q.question}
+                                </span>
+                                <div className={`p-2 rounded-full ${openIndex === idx ? 'bg-gray-200 text-gray-800' : 'bg-transparent text-gray-400'}`}>
+                                    {openIndex === idx ? <Minus className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}
+                                </div>
+                            </button>
+                            <div 
+                                className={`
+                                    transition-all duration-300 ease-in-out px-6
+                                    ${openIndex === idx ? 'max-h-48 pb-6 opacity-100' : 'max-h-0 opacity-0'}
+                                `}
+                            >
+                                {renderRichText(q.answer, `leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-600'}`)}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+};
+
 const RegistrationModal = ({ showModal, setShowModal, content, ds }: any) => {
     if (!showModal) return null;
+
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowModal(false)}></div>
-            <div className="bg-white rounded-2xl w-full max-w-md relative z-10 overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-                <div className={`p-6 ${ds.heroGradient} text-white relative`}>
-                     <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 text-white/70 hover:text-white bg-white/10 rounded-full p-1"><X className="w-5 h-5"/></button>
-                     <h3 className="text-xl font-bold mb-1">¡Casi estás dentro!</h3>
-                     <p className="text-sm opacity-90">Completa tus datos para liberar tu acceso.</p>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div 
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+                onClick={() => setShowModal(false)}
+            ></div>
+            
+            <div className="relative bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-300">
+                <button 
+                    onClick={() => setShowModal(false)}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-white transition"
+                >
+                    <X className="w-6 h-6" />
+                </button>
+                
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-500/50">
+                    {content.hero.spotsLeft || "¡Cupos Limitados!"}
                 </div>
-                <div className="p-6">
-                    <LeadCaptureForm btnClass={ds.primaryBtn} btnText={content.hero.ctaText || "Finalizar Registro"} />
-                    <p className="text-xs text-center text-gray-400 mt-4">Tus datos están protegidos.</p>
+
+                <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold text-white mb-2">Reserva tu Cupo</h3>
+                    <p className="text-gray-300 text-sm">Completa el formulario para acceder ahora.</p>
+                </div>
+                
+                <LeadCaptureForm btnClass={ds.primaryBtn} btnText={content.navCta || "Ingresar Ahora"} />
+
+                <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-400">
+                    <Lock className="w-3 h-3" /> Datos seguros y encriptados.
                 </div>
             </div>
         </div>
@@ -696,30 +742,65 @@ const RegistrationModal = ({ showModal, setShowModal, content, ds }: any) => {
 };
 
 const IntroSection = ({ content, ds, isMobilePreview }: any) => (
-    <section id="seccion-introduccion" className={`py-16 md:py-24 ${ds.introBg || 'bg-white'}`}>
+    <section id="seccion-introduccion" className={`py-24 relative overflow-hidden scroll-mt-24 ${ds.introBg}`}>
+        <BackgroundPattern palette={content.palette} />
         <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className={`grid gap-12 items-center ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
-                <div className="order-2 md:order-1">
-                    <h2 className={`text-3xl md:text-4xl font-bold mb-6 ${content.palette.includes('dark') ? 'text-white' : 'text-gray-900'}`}>
+            <div className={`grid gap-12 items-center ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
+                <div id="contenedor-imagen-intro" className="relative">
+                     <div className={`absolute top-0 left-0 w-2/3 h-2/3 -translate-x-4 -translate-y-4 rounded-3xl opacity-20 ${ds.blobColor}`}></div>
+                     
+                     <div className="relative">
+                        <img 
+                            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                            alt="Intro" 
+                            className="relative z-10 rounded-3xl shadow-2xl w-full object-cover aspect-[4/3]" 
+                        />
+                        
+                        <div className="absolute -bottom-6 -right-6 z-20 bg-white rounded-2xl p-4 shadow-xl max-w-[200px] border border-gray-100 hidden md:block transform rotate-2 hover:rotate-0 transition-transform duration-300">
+                            <div className="flex items-start gap-3">
+                                <div className={`w-2 h-12 rounded-full ${content.palette === 'elegant-purple' ? 'bg-purple-500' : 'bg-pink-500'} shrink-0`}></div>
+                                <div>
+                                    <p className="text-xs font-bold text-gray-900 leading-snug">
+                                        "El arte de las uñas artificiales es la nueva mina de oro de la belleza"
+                                    </p>
+                                    <div className="flex gap-1 mt-2">
+                                        {[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
+                </div>
+                
+                <div id="contenedor-texto-intro" className="relative z-10">
+                    <span className={`inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider mb-6 bg-white/10 text-white`}>
+                        Descubre Más
+                    </span>
+                    <h2 className={`text-3xl md:text-4xl font-black mb-8 leading-tight text-white`}>
                         {content.intro.title}
                     </h2>
-                    {renderRichText(content.intro.description, `text-lg leading-relaxed mb-8 ${content.palette.includes('dark') ? 'text-gray-300' : 'text-gray-600'}`)}
-                    
-                    {content.intro.items && content.intro.items.length > 0 && (
-                        <div className="space-y-4">
-                            {content.intro.items.map((item: any, i: number) => (
-                                <div key={i} className={`p-4 rounded-xl border ${content.palette.includes('dark') ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
-                                    <h4 className={`font-bold mb-1 ${content.palette.includes('dark') ? 'text-white' : 'text-gray-900'}`}>{item.title}</h4>
-                                    <p className={`text-sm ${content.palette.includes('dark') ? 'text-gray-400' : 'text-gray-600'}`}>{item.description}</p>
+                    <div className={`space-y-6 text-lg leading-relaxed text-gray-300`}>
+                        {renderRichText(content.intro.description)}
+                    </div>
+
+                    <div className="mt-10 space-y-4">
+                        {(content.intro.items || [
+                            { title: 'Visajismo Personalizado', description: 'Diseño único basado en la estructura ósea y muscular del cliente.' },
+                            { title: 'Pigmentología Avanzada', description: 'Mezclas exactas para evitar tonos rojos o azules con el tiempo.' },
+                            { title: 'Técnica Pelo a Pelo', description: 'Creación de volumen y realismo indetectable a simple vista.' }
+                        ]).map((item: any, i: number) => (
+                            <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition">
+                                <div className={`p-3 rounded-lg flex-shrink-0 ${i === 0 ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : i === 1 ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
+                                   {i === 0 ? <ScanFace className="w-6 h-6" /> : i === 1 ? <Palette className="w-6 h-6" /> : <Feather className="w-6 h-6" />}
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-                <div className={`order-1 md:order-2 relative ${content.palette.includes('dark') ? 'bg-white/5' : 'bg-gray-100'} rounded-2xl min-h-[300px] flex items-center justify-center`}>
-                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/10 rounded-2xl pointer-events-none"></div>
-                    {/* Placeholder for Intro Image if exists or generic icon */}
-                    <BookOpen className={`w-24 h-24 opacity-20 ${content.palette.includes('dark') ? 'text-white' : 'text-gray-900'}`} />
+                                <div>
+                                   <h4 className="text-white font-bold text-lg mb-1">{item.title}</h4>
+                                   {renderRichText(item.description, "text-gray-400 text-sm leading-snug")}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -727,17 +808,20 @@ const IntroSection = ({ content, ds, isMobilePreview }: any) => (
 );
 
 const BenefitsSection = ({ content, ds, isDark, isMobilePreview }: any) => (
-    <section id="seccion-beneficios" className={`py-20 ${isDark ? 'bg-black' : 'bg-gray-50'}`}>
+    <section id="seccion-beneficios" className={`py-24 scroll-mt-24 ${isDark ? 'bg-[#0f0f0f]' : 'bg-white'}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-                <h2 className={`text-3xl md:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <div className="text-center mb-16">
+                <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     {content.benefits.title}
                 </h2>
-                {content.benefits.subtitle && <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{content.benefits.subtitle}</p>}
+                <p className={`text-lg max-w-2xl mx-auto mt-4 leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {content.benefits.subtitle || "Recibe el arsenal completo de recursos que han llevado a nuestras alumnas a facturar desde su primer mes."}
+                </p>
+                <div className={`h-1.5 w-24 rounded-full mx-auto mt-6 ${ds.blobColor}`}></div>
             </div>
             
-            <div className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
-                {content.benefits.items.map((item: any, idx: number) => (
+            <div id="grid-beneficios" className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
+                {(content.benefits.items || []).map((item: any, idx: number) => (
                     <FeatureCard key={idx} item={item} idx={idx} ds={ds} content={content} isDark={isDark} />
                 ))}
             </div>
@@ -745,99 +829,125 @@ const BenefitsSection = ({ content, ds, isDark, isMobilePreview }: any) => (
     </section>
 );
 
-const StepsSection = ({ content, ds, isDark, isMobilePreview }: any) => {
-    if (!content.intro?.items || content.intro.items.length === 0) return null;
-    return (
-        <section className={`py-20 ${ds.stepsBg || (isDark ? 'bg-gray-900' : 'bg-blue-50/50')}`}>
-            <div className="w-full max-w-[75em] mx-auto px-6">
-                <div className="text-center mb-16">
-                    <h2 className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>¿Cómo funciona?</h2>
-                </div>
-                <div className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                    {content.intro.items.slice(0, 3).map((item: any, idx: number) => (
-                        <div key={idx} className="relative">
-                            <div className={`text-6xl font-black absolute -top-8 left-0 opacity-10 ${isDark ? 'text-white' : 'text-gray-900'}`}>0{idx+1}</div>
-                            <div className="relative z-10 pt-4">
-                                <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.title}</h3>
-                                <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{item.description}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+const StepsSection = ({ content, ds, isDark, isMobilePreview }: any) => (
+    <section id="seccion-pasos" className={`py-24 relative scroll-mt-24 ${ds.stepsBg}`}>
+        <div className="w-full max-w-[75em] mx-auto px-6">
+            <div className="text-center mb-16">
+                <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    Acceder a tu Transformación es Muy Fácil
+                </h2>
+                <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    En solo 3 simples pasos estarás dentro de la clase que puede cambiar tu carrera.
+                </p>
             </div>
-        </section>
-    );
-};
 
-const InstructorSection = ({ content, ds, isMobilePreview }: any) => (
-    <section id="seccion-instructor" className={`py-20 ${ds.mentorBg || 'bg-gray-900'} text-white relative overflow-hidden`}>
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none"></div>
-        <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
-            <div className={`flex flex-col md:flex-row items-center gap-12 ${isMobilePreview ? 'flex-col' : ''}`}>
-                <div className="w-full md:w-1/3">
-                    <div className="aspect-[3/4] rounded-2xl bg-gray-700 relative overflow-hidden shadow-2xl border border-white/10">
-                         {content.instructor.imageUrl ? (
-                             <img src={content.instructor.imageUrl} alt={content.instructor.name} className="w-full h-full object-cover" />
-                         ) : (
-                             <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-600">
-                                 <User className="w-24 h-24" />
-                             </div>
-                         )}
-                         <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent p-6">
-                             <div className="text-white font-bold">{content.instructor.name}</div>
-                             <div className="text-gray-400 text-sm">{content.instructor.badgeText || "Instructor"}</div>
+            <div className={`relative grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
+                 {!isMobilePreview && (
+                     <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-1 bg-gray-200 z-0 opacity-50"></div>
+                 )}
+                 
+                 {[
+                    { num: 1, title: "Regístrate Ahora", text: "Completa el formulario con tu nombre y correo. Es 100% gratis y seguro." },
+                    { num: 2, title: "Confirma tu Correo", text: "Revisa tu bandeja de entrada y haz clic en el enlace para asegurar tu cupo." },
+                    { num: 3, title: "Acceso Instantáneo", text: "Recibirás el acceso a la clase y a tu E-book de regalo de inmediato. ¡Aprende a tu ritmo!" }
+                 ].map((step, i) => (
+                    <div key={i} className={`relative z-10 flex flex-col items-center text-center p-8 rounded-2xl shadow-lg border transition hover:-translate-y-2 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
+                         <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white mb-6 bg-gradient-to-br ${ds.stepGradient} shadow-lg shadow-purple-500/30`}>
+                             {step.num}
                          </div>
+                         <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>{step.title}</h3>
+                         <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{step.text}</p>
                     </div>
-                </div>
-                <div className="w-full md:w-2/3">
-                    <div className="inline-block px-4 py-1 rounded-full bg-white/10 border border-white/20 text-sm mb-6">
-                        {content.instructor.badgeSubtext || "Experto del Sector"}
-                    </div>
-                    <h2 className="text-3xl md:text-5xl font-bold mb-6">Conoce a tu Mentor</h2>
-                    {renderRichText(content.instructor.bio, "text-lg text-gray-300 leading-relaxed mb-8")}
-                    
-                    <div className="grid grid-cols-2 gap-8 border-t border-white/10 pt-8">
-                        <div>
-                            <div className="text-3xl font-bold text-white mb-1">{content.instructor.statsStudents || "5k+"}</div>
-                            <div className="text-gray-400 text-sm">Estudiantes activos</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold text-white mb-1">{content.instructor.statsRating || "4.9/5"}</div>
-                            <div className="text-gray-400 text-sm">Calificación promedio</div>
-                        </div>
-                    </div>
-                </div>
+                 ))}
             </div>
         </div>
     </section>
 );
 
+const InstructorSection = ({ content, ds, isMobilePreview }: any) => (
+    <section id="seccion-instructor" className={`py-24 relative overflow-hidden scroll-mt-24 ${ds.mentorBg}`}>
+         <div className={`absolute top-1/2 left-0 md:left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] opacity-30 ${ds.blobColor}`}></div>
+         
+         <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
+            <div className={`flex flex-col items-center gap-12 ${isMobilePreview ? '' : 'md:flex-row md:gap-20'}`}>
+                <div className="relative group shrink-0">
+                     <div className={`absolute inset-0 rounded-full blur-md opacity-70 group-hover:opacity-100 transition duration-500 ${ds.blobColor}`}></div>
+                     
+                     <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl z-10">
+                        <img 
+                            src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                            alt="Instructor"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                     </div>
+                     
+                     <div className="absolute bottom-4 right-4 z-20 bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl shadow-lg flex items-center gap-2">
+                         <Award className="w-6 h-6 text-yellow-400" />
+                         <div>
+                             <p className="text-[10px] text-white uppercase font-bold tracking-wider">{content.instructor.badgeText || "Top Rated"}</p>
+                             <p className="text-xs text-white/80">{content.instructor.badgeSubtext || "Mentor 2024"}</p>
+                         </div>
+                     </div>
+                </div>
+
+                <div className={`text-center flex-1 ${isMobilePreview ? '' : 'md:text-left'}`}>
+                    <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-2 opacity-80">Conoce a tu Mentora</h4>
+                    <h2 className={`text-4xl md:text-6xl font-black mb-6 ${ds.accentText}`}>
+                        {content.instructor.name}
+                    </h2>
+                    {renderRichText(content.instructor.bio, `text-gray-300 text-lg leading-relaxed mb-8 max-w-2xl font-light ${isMobilePreview ? 'mx-auto' : 'mx-auto md:mx-0'}`)}
+                    
+                    <div className={`flex flex-wrap justify-center gap-4 ${isMobilePreview ? '' : 'md:justify-start'}`}>
+                        <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-full flex items-center gap-3">
+                            <Users className="w-5 h-5 text-gray-400" />
+                            <span className="text-white font-bold">{content.instructor.statsStudents || "5k+ Alumnos"}</span>
+                        </div>
+                        <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-full flex items-center gap-3">
+                            <Star className="w-5 h-5 text-yellow-500" />
+                            <span className="text-white font-bold">{content.instructor.statsRating || "4.9/5 Rating"}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+    </section>
+);
+
 const TestimonialsSection = ({ content, ds, isDark, isMobilePreview }: any) => (
-    <section id="seccion-testimonios" className={`py-20 ${ds.testimonialBg || (isDark ? 'bg-black' : 'bg-gray-50')}`}>
+    <section id="seccion-testimonios" className={`py-20 border-b scroll-mt-24 ${isDark ? 'border-white/5' : 'border-gray-900/10'} ${ds.testimonialBg}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className="text-center mb-16">
-                <h2 className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    {content.testimonialTitle || "Historias de éxito"}
-                </h2>
-                {content.testimonialSubtitle && <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{content.testimonialSubtitle}</p>}
+            <div className="text-center mb-12">
+                 <h2 className={`text-3xl md:text-4xl font-bold text-white mb-4`}>
+                    {content.testimonialTitle || "Transformaron su pasión en Éxito"}
+                 </h2>
+                 <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+                    {content.testimonialSubtitle || "Ellas ya dieron el paso. Ahora es tu turno."}
+                 </p>
             </div>
             
             <div className={`grid gap-6 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                {content.testimonials.map((t: any, idx: number) => (
-                    <div key={idx} className={`p-6 rounded-2xl relative ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-lg border border-gray-100'}`}>
-                        <div className="flex gap-1 text-yellow-500 mb-4">
-                            {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`w-4 h-4 ${i < t.rating ? 'fill-current' : 'text-gray-300'}`} />
-                            ))}
-                        </div>
-                        {renderRichText(t.text, `text-sm leading-relaxed mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`)}
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-600">
-                                {t.name.charAt(0)}
+                {(content.testimonials || []).map((t: any, i: number) => (
+                    <div key={i} className={`p-6 rounded-2xl flex flex-col gap-4 shadow-xl transition hover:-translate-y-1 backdrop-blur-sm bg-white/5 border border-white/10`}>
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden border border-white/20">
+                                <img src={`https://randomuser.me/api/portraits/thumb/women/${i+30}.jpg`} alt="User" className="w-full h-full" />
                             </div>
                             <div>
-                                <div className={`font-bold text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>{t.name}</div>
-                                {t.location && <div className="text-xs text-gray-500">{t.location}</div>}
+                                <p className={`font-bold text-white leading-tight`}>{t.name}</p>
+                                {t.location && <p className="text-xs text-gray-400">{t.location}</p>}
+                            </div>
+                        </div>
+                        <div>
+                            {renderRichText(t.text, "text-base leading-relaxed text-gray-300 italic")}
+                            <div className="flex text-yellow-400 mt-3 gap-1">
+                                {[...Array(5)].map((_, starI) => (
+                                    <Star 
+                                        key={starI} 
+                                        className="w-4 h-4" 
+                                        fill={starI < t.rating ? "currentColor" : "none"} 
+                                        stroke="currentColor"
+                                    />
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -847,204 +957,39 @@ const TestimonialsSection = ({ content, ds, isDark, isMobilePreview }: any) => (
     </section>
 );
 
-const FAQSection = ({ content, ds, isDark }: any) => {
-    const [openIndex, setOpenIndex] = useState<number | null>(null);
-    return (
-        <section id="seccion-faq" className={`py-20 ${ds.faqBg || (isDark ? 'bg-gray-900' : 'bg-white')}`}>
-            <div className="w-full max-w-3xl mx-auto px-6">
-                <h2 className={`text-3xl font-bold text-center mb-12 ${isDark ? 'text-white' : 'text-gray-900'}`}>Preguntas Frecuentes</h2>
-                <div className="space-y-4">
-                    {content.faq.map((item: any, idx: number) => (
-                        <div key={idx} className={`rounded-xl overflow-hidden transition-all ${isDark ? 'bg-gray-800' : 'bg-gray-50'}`}>
-                            <button 
-                                onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                                className="w-full flex items-center justify-between p-5 text-left font-bold"
-                            >
-                                <span className={`${isDark ? 'text-white' : 'text-gray-900'}`}>{item.question}</span>
-                                {openIndex === idx ? <Minus className="w-5 h-5 text-gray-500"/> : <Plus className="w-5 h-5 text-gray-500"/>}
-                            </button>
-                            {openIndex === idx && (
-                                <div className={`p-5 pt-0 text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                                    {renderRichText(item.answer)}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-};
-
 const FinalCTASection = ({ content, ds, isMobilePreview }: any) => (
-    <section className={`py-24 relative overflow-hidden ${ds.heroGradient}`}>
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="w-full max-w-4xl mx-auto px-6 text-center relative z-10">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">
-                {content.hero.headline.replace(/<\/?[^>]+(>|$)/g, "")}
+    <section id="seccion-cta-final" className={`py-24 relative overflow-hidden scroll-mt-24 ${ds.testimonialBg}`}>
+        <div className={`absolute top-0 left-0 w-96 h-96 rounded-full blur-[100px] opacity-20 -translate-x-1/2 -translate-y-1/2 ${ds.blobColor}`}></div>
+        <div className={`absolute bottom-0 right-0 w-96 h-96 rounded-full blur-[100px] opacity-20 translate-x-1/2 translate-y-1/2 ${ds.blobColor}`}></div>
+
+        <div className="w-full max-w-[75em] mx-auto px-6 text-center relative z-10">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                ¿Lista para cambiar tu vida?
             </h2>
-            <div className="flex justify-center">
-                <SmartCTA content={content} ds={ds} fullWidth={false} isMobilePreview={isMobilePreview} />
+            <p className="text-gray-300 text-lg mb-10 max-w-2xl mx-auto">
+                No dejes pasar esta oportunidad. El acceso a la certificación y los bonos exclusivos termina pronto.
+            </p>
+            
+            <div className="max-w-md mx-auto">
+                <SmartCTA content={content} ds={ds} fullWidth={true} isMobilePreview={isMobilePreview} />
             </div>
         </div>
     </section>
 );
 
-// --- BLOG COMPONENTS ---
-
-const BlogGridSection = ({ articles, ds, isDark, basePath }: any) => {
-    return (
-        <section className={`py-24 ${isDark ? 'bg-[#0f0f0f]' : 'bg-white'} min-h-screen pt-32`}>
-             <div className="w-full max-w-[75em] mx-auto px-6">
-                 <div className="text-center mb-16">
-                     <h2 className={`text-3xl md:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Blog & Novedades</h2>
-                     <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                         Descubre contenido exclusivo para complementar tu aprendizaje.
-                     </p>
-                 </div>
-
-                 {articles.length === 0 ? (
-                     <div className="text-center py-20 opacity-50">
-                         <p>No hay artículos publicados aún.</p>
-                     </div>
-                 ) : (
-                     <div className="grid md:grid-cols-3 gap-8">
-                         {articles.map((article: Article) => (
-                             <a 
-                                key={article.id} 
-                                href={basePath ? `${basePath}/blog/${article.slug}` : `/blog/${article.slug}`}
-                                className={`group rounded-xl overflow-hidden border transition hover:-translate-y-2 shadow-lg ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100 hover:shadow-xl'}`}
-                             >
-                                 <div className="aspect-video bg-gray-200 relative overflow-hidden">
-                                     {article.featuredImage ? (
-                                         <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                                     ) : (
-                                         <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-600">
-                                             <FileText className="w-12 h-12" />
-                                         </div>
-                                     )}
-                                 </div>
-                                 <div className="p-6">
-                                     <div className="text-xs text-blue-500 font-bold mb-2 flex items-center gap-1">
-                                         <Calendar className="w-3 h-3" /> {new Date(article.publishedAt).toLocaleDateString()}
-                                     </div>
-                                     <h3 className={`text-xl font-bold mb-3 leading-tight ${isDark ? 'text-white group-hover:text-blue-400' : 'text-gray-900 group-hover:text-blue-600'}`}>
-                                         {article.title}
-                                     </h3>
-                                     <p className={`text-sm line-clamp-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                                         {article.description}
-                                     </p>
-                                     <div className={`mt-4 font-bold text-sm flex items-center gap-1 ${isDark ? 'text-white' : 'text-black'}`}>
-                                         Leer artículo <ArrowRight className="w-4 h-4" />
-                                     </div>
-                                 </div>
-                             </a>
-                         ))}
-                     </div>
-                 )}
-             </div>
-        </section>
-    );
-};
-
-const BlogPostView = ({ article, ds, isDark, basePath }: any) => {
-    if (!article) return <div className="py-32 text-center text-white">Cargando artículo...</div>;
-
-    return (
-        <article className={`min-h-screen pt-32 pb-24 ${isDark ? 'bg-[#0f0f0f]' : 'bg-white'}`}>
-             <div className="w-full max-w-4xl mx-auto px-6">
-                 <button onClick={() => window.history.back()} className={`mb-8 flex items-center gap-2 text-sm font-medium ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}>
-                     <ArrowLeft className="w-4 h-4" /> Volver al Blog
-                 </button>
-
-                 <header className="mb-12 text-center">
-                     <div className="flex items-center justify-center gap-2 text-sm text-blue-500 font-bold mb-4">
-                         <Calendar className="w-4 h-4" /> {new Date(article.publishedAt).toLocaleDateString()}
-                     </div>
-                     <h1 className={`text-3xl md:text-5xl font-black mb-6 leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                         {article.title}
-                     </h1>
-                     <p className={`text-xl leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                         {article.description}
-                     </p>
-                 </header>
-
-                 {article.featuredImage && (
-                     <div className="rounded-2xl overflow-hidden shadow-2xl mb-12 aspect-video">
-                         <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover" />
-                     </div>
-                 )}
-
-                 <div 
-                    className={`prose prose-lg max-w-none ${isDark ? 'prose-invert' : ''}`}
-                    dangerouslySetInnerHTML={{ __html: article.contentHtml }}
-                 />
-             </div>
-        </article>
-    );
-};
-
-
 // --- MAIN COMPONENT ---
 
-export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = false, pageId, viewMode = 'home', articleSlug, basePath }) => {
+export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = false }) => {
   const ds = getDesignSystem(content.palette);
   const structure: StructureType = content.structure || 'classic-sales'; 
   const isDark = content.palette === 'dark-luxury';
   const [showModal, setShowModal] = useState(false);
-  
-  // Blog State
-  const [blogArticles, setBlogArticles] = useState<Article[]>([]);
-  const [currentArticle, setCurrentArticle] = useState<Article | null>(null);
-  const [hasBlog, setHasBlog] = useState(false);
 
-  useEffect(() => {
-      if (pageId && !isMobilePreview) {
-          api.getPublicBlogArticles(pageId).then(articles => {
-              if (articles.length > 0) {
-                  setBlogArticles(articles);
-                  setHasBlog(true);
-              }
-          });
-      }
-  }, [pageId, isMobilePreview]);
-
-  useEffect(() => {
-      if (viewMode === 'blog-post' && articleSlug) {
-          api.getPublicArticle(articleSlug).then(article => {
-              setCurrentArticle(article);
-          });
-      }
-  }, [viewMode, articleSlug]);
-
-  // Si el modo es BLOG, renderizamos layout de blog
-  if (viewMode === 'blog-list') {
-      return (
-          <div id="layout-blog-list" className={`min-h-screen font-sans ${ds.bg}`}>
-               <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} hasBlog={hasBlog} basePath={basePath} />
-               <RegistrationModal showModal={showModal} setShowModal={setShowModal} content={content} ds={ds} />
-               <BlogGridSection articles={blogArticles} ds={ds} isDark={isDark} basePath={basePath} />
-               <Footer content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
-          </div>
-      );
-  }
-
-  if (viewMode === 'blog-post') {
-      return (
-          <div id="layout-blog-post" className={`min-h-screen font-sans ${ds.bg}`}>
-               <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} hasBlog={hasBlog} basePath={basePath} />
-               <RegistrationModal showModal={showModal} setShowModal={setShowModal} content={content} ds={ds} />
-               <BlogPostView article={currentArticle} ds={ds} isDark={isDark} basePath={basePath} />
-               <Footer content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
-          </div>
-      );
-  }
-
-  // --- STRUCTURE 1: CLASSIC SALES (HOME) ---
+  // --- STRUCTURE 1: CLASSIC SALES ---
   if (structure === 'classic-sales') {
     return (
       <div id="layout-ventas-clasica" className={`min-h-screen font-sans selection:bg-pink-500 selection:text-white ${ds.bg} scroll-smooth`}>
-        {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} hasBlog={hasBlog} basePath={basePath} />}
+        {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} />}
         <RegistrationModal showModal={showModal} setShowModal={setShowModal} content={content} ds={ds} />
         
         <header id="seccion-hero" className={`relative pb-12 overflow-hidden scroll-mt-24 ${ds.heroGradient} ${isMobilePreview ? 'pt-28' : 'pt-24 lg:pt-48 lg:pb-32'}`}>
@@ -1131,7 +1076,7 @@ export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = f
   if (structure === 'webinar-funnel') {
     return (
       <div id="layout-webinar" className={`min-h-screen font-sans ${ds.bg} scroll-smooth`}>
-         {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} hasBlog={hasBlog} basePath={basePath} />}
+         {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} />}
          <RegistrationModal showModal={showModal} setShowModal={setShowModal} content={content} ds={ds} />
          
          <header id="seccion-hero" className={`relative py-24 lg:py-32 scroll-mt-24 ${ds.heroGradient}`}>
@@ -1189,7 +1134,7 @@ export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = f
   if (structure === 'vsl-focused') {
     return (
         <div id="layout-vsl" className={`min-h-screen font-sans ${ds.bg}`}>
-            {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} hasBlog={hasBlog} basePath={basePath} />}
+            {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} setShowModal={setShowModal} />}
             <RegistrationModal showModal={showModal} setShowModal={setShowModal} content={content} ds={ds} />
 
             <div id="seccion-hero" className={`py-12 scroll-mt-24 ${ds.heroGradient}`}>
@@ -1264,12 +1209,6 @@ export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = f
                          <h4 className="font-bold text-gray-900 mb-2">Contacto</h4>
                          <p className="text-sm text-gray-500">{content.footer.contact}</p>
                      </div>
-                     {hasBlog && (
-                        <div>
-                            <h4 className="font-bold text-gray-900 mb-2">Blog</h4>
-                            <a href={basePath ? `${basePath}/blog` : `/blog`} className="text-sm text-blue-600 hover:underline">Ver artículos recientes</a>
-                        </div>
-                     )}
                  </div>
             </div>
         </div>
