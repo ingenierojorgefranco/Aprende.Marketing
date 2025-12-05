@@ -1,8 +1,7 @@
 
-
 import React from 'react';
 import { Article } from '../types';
-import { BookOpen, Calendar, Search, Edit2, BarChart, FileText, Globe, Clock, Eye } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, BarChart, FileText, Globe, Clock, Eye, ExternalLink } from 'lucide-react';
 
 interface ArticlesListProps {
   articles: Article[];
@@ -42,83 +41,90 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {articles.map((article) => (
-            <div key={article.id} className="bg-gray-900 rounded-xl border border-gray-800 hover:border-primary/50 transition duration-300 group flex flex-col h-full overflow-hidden">
-              {article.featuredImage && (
-                  <div className="h-32 w-full bg-gray-800 relative overflow-hidden">
-                      <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition" />
-                  </div>
-              )}
-              
-              <div className="p-6 flex-1">
-                <div className="flex justify-between items-start mb-4">
-                    <div className="flex flex-col gap-1">
-                        <div className="bg-gray-800 text-gray-400 text-xs px-2 py-1 rounded flex items-center gap-1 w-fit">
-                            <Calendar className="w-3 h-3" />
-                            {new Date(article.publishedAt || article.createdAt).toLocaleDateString()}
+          {articles.map((article) => {
+             // Construcción de la URL pública
+             const pageSlug = article.pageSubdomain ? article.pageSubdomain.replace('.generatorlanding.com', '') : article.pageId;
+             const publicUrl = `/admin/lp/${pageSlug}/blog/${article.slug}`;
+
+             return (
+                <div key={article.id} className="bg-gray-900 rounded-xl border border-gray-800 hover:border-primary/50 transition duration-300 group flex flex-col h-full overflow-hidden">
+                {article.featuredImage && (
+                    <div className="h-40 w-full bg-gray-800 relative overflow-hidden">
+                        <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
+                    </div>
+                )}
+                
+                <div className="p-6 flex-1 flex flex-col">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="flex flex-col gap-1">
+                            <div className="bg-gray-800 text-gray-400 text-xs px-2 py-1 rounded flex items-center gap-1 w-fit border border-gray-700">
+                                <Calendar className="w-3 h-3" />
+                                {new Date(article.publishedAt || article.createdAt).toLocaleDateString()}
+                            </div>
+                            {article.status === 'scheduled' && (
+                                <div className="text-xs text-orange-400 flex items-center gap-1 font-bold">
+                                    <Clock className="w-3 h-3" /> Programado
+                                </div>
+                            )}
                         </div>
-                        {article.status === 'scheduled' && (
-                             <div className="text-xs text-orange-400 flex items-center gap-1">
-                                 <Clock className="w-3 h-3" /> Programado
-                             </div>
-                        )}
+                        
+                        <div className={`text-[10px] font-bold px-2 py-1 rounded border uppercase tracking-wider ${
+                            article.seoScore >= 80 ? 'bg-green-900/30 text-green-400 border-green-900/50' :
+                            article.seoScore >= 50 ? 'bg-yellow-900/30 text-yellow-400 border-yellow-900/50' :
+                            'bg-red-900/30 text-red-400 border-red-900/50'
+                        }`}>
+                            SEO: {article.seoScore}
+                        </div>
                     </div>
                     
-                    <div className={`text-xs font-bold px-2 py-1 rounded border ${
-                        article.seoScore >= 80 ? 'bg-green-900/30 text-green-400 border-green-900/50' :
-                        article.seoScore >= 50 ? 'bg-yellow-900/30 text-yellow-400 border-yellow-900/50' :
-                        'bg-red-900/30 text-red-400 border-red-900/50'
-                    }`}>
-                        SEO: {article.seoScore}
-                    </div>
-                </div>
-                
-                <h3 className="text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-primary transition">
-                  {article.title}
-                </h3>
-                <p className="text-gray-500 text-sm line-clamp-3 mb-4">
-                  {article.description}
-                </p>
-                
-                <div className="space-y-1">
-                    {article.pageId && (
-                        <div className="flex items-center gap-2 text-xs text-blue-400">
-                            <Globe className="w-3 h-3" />
-                            Vinculado a Landing
+                    <h3 className="text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-primary transition leading-tight">
+                    {article.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm line-clamp-3 mb-4 flex-1">
+                    {article.description}
+                    </p>
+                    
+                    <div className="space-y-2 mt-auto pt-4 border-t border-gray-800/50">
+                        {article.pageId ? (
+                            <div className="flex items-center gap-2 text-xs text-blue-400">
+                                <Globe className="w-3 h-3" />
+                                Vinculado a: <span className="text-gray-300 font-medium truncate max-w-[150px]">{article.pageSubdomain || "Landing Page"}</span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 text-xs text-gray-600">
+                                <Globe className="w-3 h-3" /> Sin vincular
+                            </div>
+                        )}
+                        {article.keyword && (
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <Search className="w-3 h-3" />
+                            Keyword: <span className="text-gray-300">{article.keyword}</span>
                         </div>
-                    )}
-                    {article.keyword && (
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <Search className="w-3 h-3" />
-                        Keyword: <span className="text-gray-300">{article.keyword}</span>
+                        )}
                     </div>
-                    )}
                 </div>
-              </div>
-              
-              <div className="p-4 border-t border-gray-800 bg-gray-900/50 rounded-b-xl flex justify-between items-center">
-                  <div className="flex gap-2">
-                    <button className="text-gray-400 hover:text-white text-sm font-medium transition flex items-center gap-2">
-                        <Edit2 className="w-4 h-4" /> Editar
+                
+                <div className="p-3 bg-gray-950 border-t border-gray-800 grid grid-cols-2 gap-2">
+                    <button className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg py-2 text-xs font-bold transition flex items-center justify-center gap-2 border border-transparent">
+                        <Edit2 className="w-3.5 h-3.5" /> EDITAR
                     </button>
-                    {article.pageSubdomain && (
+                    
+                    {article.pageId && (
                         <a 
-                            href={`/admin/lp/${article.pageSubdomain}/blog/${article.slug}`} 
+                            href={publicUrl} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-gray-400 hover:text-green-400 text-sm font-medium transition flex items-center gap-2"
-                            title="Ver en vivo"
+                            className="bg-gray-800 hover:bg-primary hover:text-white text-gray-300 rounded-lg py-2 text-xs font-bold transition flex items-center justify-center gap-2 border border-gray-700 hover:border-primary"
+                            title="Ver artículo online"
                         >
-                            <Eye className="w-4 h-4" /> Ver
+                            <ExternalLink className="w-3.5 h-3.5" /> VER ARTÍCULO
                         </a>
                     )}
-                  </div>
-                  <button className="text-primary hover:text-indigo-400 text-sm font-medium transition flex items-center gap-2">
-                      <BarChart className="w-4 h-4" /> Ver Análisis
-                  </button>
-              </div>
-            </div>
-          ))}
+                </div>
+                </div>
+             );
+          })}
         </div>
       )}
     </div>

@@ -1,5 +1,4 @@
 
-
 import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, ColorPalette, StructureType, Article } from '../types';
 import { CheckCircle, Star, PlayCircle, User, MessageCircle, ArrowRight, Lock, ShieldCheck, Zap, BarChart, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Award, Users, DollarSign, FileText, Briefcase, BookOpen, ScanFace, Palette, Feather, Plus, Minus, HelpCircle, X, Rocket, Target, Globe, Menu, Calendar, ArrowLeft, Clock } from 'lucide-react';
@@ -37,7 +36,8 @@ const renderRichText = (text: string, className: string = "") => {
 };
 
 // Helper to render headline with specific gradient styling from <b> tags
-const renderStyledHeadline = (text: string, isMobilePreview: boolean) => {
+// FIX: Force text-white class to ensure titles are visible on dark backgrounds
+const renderStyledHeadline = (text: string, isMobilePreview: boolean, forceWhite: boolean = true) => {
     const htmlContent = text.replace(
       /<b>(.*?)<\/b>/g, 
       '<span class="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-orange-600">$1</span>'
@@ -46,7 +46,7 @@ const renderStyledHeadline = (text: string, isMobilePreview: boolean) => {
     return (
       <h1 
         id="titulo-principal"
-        className={`font-extrabold text-white tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`}
+        className={`font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${forceWhite ? 'text-white' : ''} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`}
         dangerouslySetInnerHTML={{ __html: htmlContent }}
       />
     );
@@ -313,13 +313,6 @@ const getDesignSystem = (palette: ColorPalette) => {
 
 // --- EXTRACTED SUB-COMPONENTS ---
 
-const BackgroundPattern = ({ palette }: { palette: ColorPalette }) => {
-    if (palette === 'minimal-mono') {
-        return <div id="fondo-patron" className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none opacity-70"></div>;
-    }
-    return null;
-};
-
 const LeadCaptureForm = ({ btnClass, btnText }: { btnClass: string, btnText: string }) => (
     <div className="space-y-4 relative z-10">
         <div className="relative">
@@ -498,7 +491,7 @@ const Navbar = ({ content, ds, isMobilePreview, setShowModal, hasBlog, basePath 
         // Handle internal Blog links
         if (href === '/blog') {
             e.preventDefault();
-            // Redirect using window.location if necessary or relative path
+            // Redirect using relative path which should be handled by App.tsx router or browser default
             window.location.href = basePath ? `${basePath}/blog` : '/blog';
             return;
         }
@@ -512,12 +505,8 @@ const Navbar = ({ content, ds, isMobilePreview, setShowModal, hasBlog, basePath 
                 setIsMenuOpen(false);
             } else {
                 // If we are in blog view, we might need to go home first
-                // Use basePath to construct home link
-                window.location.href = basePath || '/';
+                window.location.href = basePath ? basePath : '/';
             }
-        } else {
-             // External link
-             // window.location.href = href;
         }
     };
 
@@ -529,7 +518,7 @@ const Navbar = ({ content, ds, isMobilePreview, setShowModal, hasBlog, basePath 
          return <span dangerouslySetInnerHTML={{ __html: htmlContent }} />;
     };
 
-    // Inject Blog link if exists and not already present
+    // FIX: Inject Blog link cleanly
     const displayedLinks = [...navLinks];
     if (hasBlog && !displayedLinks.some((l: any) => l.href === '/blog')) {
         displayedLinks.push({ label: 'Blog', href: '/blog' });
@@ -776,16 +765,25 @@ const InstructorSection = ({ content, ds, isMobilePreview }: any) => (
         <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
             <div className={`flex flex-col md:flex-row items-center gap-12 ${isMobilePreview ? 'flex-col' : ''}`}>
                 <div className="w-full md:w-1/3">
+                    {/* FIX: Ensure image is visible with specific fallback logic */}
                     <div className="aspect-[3/4] rounded-2xl bg-gray-700 relative overflow-hidden shadow-2xl border border-white/10">
                          {content.instructor.imageUrl ? (
-                             <img src={content.instructor.imageUrl} alt={content.instructor.name} className="w-full h-full object-cover" />
+                             <img 
+                                src={content.instructor.imageUrl} 
+                                alt={content.instructor.name} 
+                                className="w-full h-full object-cover relative z-10" 
+                                onError={(e) => {
+                                    // Fallback if image fails to load
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                }}
+                             />
                          ) : (
                              <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-600">
                                  <User className="w-24 h-24" />
                              </div>
                          )}
-                         <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent p-6">
-                             <div className="text-white font-bold">{content.instructor.name}</div>
+                         <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black via-black/80 to-transparent p-6 z-20">
+                             <div className="text-white font-bold text-xl">{content.instructor.name}</div>
                              <div className="text-gray-400 text-sm">{content.instructor.badgeText || "Instructor"}</div>
                          </div>
                     </div>
@@ -794,7 +792,8 @@ const InstructorSection = ({ content, ds, isMobilePreview }: any) => (
                     <div className="inline-block px-4 py-1 rounded-full bg-white/10 border border-white/20 text-sm mb-6">
                         {content.instructor.badgeSubtext || "Experto del Sector"}
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-bold mb-6">Conoce a tu Mentor</h2>
+                    {/* FIX: Ensure text is white */}
+                    <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">Conoce a tu Mentor</h2>
                     {renderRichText(content.instructor.bio, "text-lg text-gray-300 leading-relaxed mb-8")}
                     
                     <div className="grid grid-cols-2 gap-8 border-t border-white/10 pt-8">
@@ -1071,7 +1070,8 @@ export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = f
                       </div>
                  </div>
                  
-                 {renderStyledHeadline(content.hero.headline, isMobilePreview)}
+                 {/* FORCE WHITE TEXT FOR HERO TITLES ON DARK BACKGROUNDS */}
+                 {renderStyledHeadline(content.hero.headline, isMobilePreview, true)}
 
                   {renderRichText(content.hero.subheadline, `font-light opacity-90 max-w-3xl mx-auto leading-relaxed ${ds.heroText} ${isMobilePreview ? 'text-lg' : 'text-lg md:text-2xl'}`)}
              </div>
@@ -1150,7 +1150,7 @@ export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = f
                     <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-bold mb-6`}>
                         <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span> EN VIVO
                     </div>
-                    {renderStyledHeadline(content.hero.headline, isMobilePreview)}
+                    {renderStyledHeadline(content.hero.headline, isMobilePreview, true)}
                     {renderRichText(content.hero.subheadline, `text-xl opacity-90 mb-8 leading-relaxed ${ds.heroText}`)}
                     
                     <div className="space-y-4 mb-8">
@@ -1204,7 +1204,7 @@ export const LivePage: React.FC<LivePageProps> = ({ content, isMobilePreview = f
 
             <div id="seccion-hero" className={`py-12 scroll-mt-24 ${ds.heroGradient}`}>
                 <div className="w-full max-w-4xl mx-auto px-6 text-center">
-                    {renderStyledHeadline(content.hero.headline, isMobilePreview)}
+                    {renderStyledHeadline(content.hero.headline, isMobilePreview, true)}
                 </div>
             </div>
 
