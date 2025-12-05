@@ -302,6 +302,7 @@ export const LivePage: React.FC<LivePageProps> = ({
   const [blogArticles, setBlogArticles] = useState<Article[]>([]);
   const [currentArticle, setCurrentArticle] = useState<Article | null>(null);
   const [blogLoading, setBlogLoading] = useState(false);
+  const [hasBlogArticles, setHasBlogArticles] = useState(false);
 
   useEffect(() => {
      if (viewMode === 'blog-list' && pageId) {
@@ -310,6 +311,17 @@ export const LivePage: React.FC<LivePageProps> = ({
      } else if (viewMode === 'blog-post' && articleSlug) {
          setBlogLoading(true);
          api.getPublicArticle(articleSlug).then(setCurrentArticle).finally(() => setBlogLoading(false));
+     }
+
+     // Check if there are active articles to show "Blog" in the menu
+     if (pageId) {
+        api.getPublicBlogArticles(pageId)
+           .then(articles => {
+               if (articles && articles.length > 0) {
+                   setHasBlogArticles(true);
+               }
+           })
+           .catch(() => { /* Ignore error, just don't show link */ });
      }
   }, [viewMode, pageId, articleSlug]);
 
@@ -511,11 +523,23 @@ export const LivePage: React.FC<LivePageProps> = ({
     const currentTextColor = isScrolled ? stickyTextColorClass : baseTextColorClass;
 
     // Default Links if none provided
-    const navLinks = content.navLinks || [
+    const navLinksRaw = content.navLinks || [
         { label: 'Descubre', href: '#seccion-introduccion' },
         { label: 'Beneficios', href: '#seccion-beneficios' },
         { label: 'Experto', href: '#seccion-instructor' }
     ];
+
+    // Prepare navigation links and add Blog if needed
+    const navLinks = [...navLinksRaw];
+    if (hasBlogArticles) {
+        // Construct the correct blog URL relative to base path
+        const blogUrl = basePath ? (basePath === '' ? '/blog' : `${basePath}/blog`) : '#';
+        
+        // Ensure not adding duplicate 'Blog' item
+        if (!navLinks.some(link => link.label.toLowerCase() === 'blog')) {
+            navLinks.push({ label: 'Blog', href: blogUrl });
+        }
+    }
 
     useEffect(() => {
         const handleScroll = () => {
