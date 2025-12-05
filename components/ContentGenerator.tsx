@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../services/geminiService';
 import { api } from '../services/api';
 import { Article, Project, LandingPage } from '../types';
+import { useParams } from 'react-router-dom';
 
 // Importing Sub-Components
 import { Step1Inputs } from './content-generator/Step1Inputs';
@@ -11,12 +12,13 @@ import { Step4Editor } from './content-generator/Step4Editor';
 import { SaveLogModal } from './content-generator/SaveLogModal';
 
 interface ContentGeneratorProps {
-    onSave?: (article: Omit<Article, 'id' | 'createdAt'>) => Promise<void>;
+    onSave?: (article: any) => Promise<void>;
 }
 
 export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const { id: editArticleId } = useParams<{ id: string }>();
   
   // Data State
   const [topic, setTopic] = useState('');
@@ -68,6 +70,39 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     };
     fetchContext();
   }, []);
+
+  // Load Article if Editing
+  useEffect(() => {
+    if (editArticleId) {
+        const loadArticle = async () => {
+            setLoading(true);
+            try {
+                const article = await api.getArticleById(editArticleId);
+                if (article) {
+                    setArticleContent(article.contentHtml);
+                    setSelectedTitle({ title: article.title, description: article.description });
+                    setSlug(article.slug);
+                    setMetaTitle(article.metaTitle || article.title);
+                    setMetaDescription(article.metaDescription || article.description);
+                    setFeaturedImage(article.featuredImage || '');
+                    setKeyword(article.keyword);
+                    setStatus(article.status);
+                    setPublishDate(new Date(article.publishedAt).toISOString().split('T')[0]);
+                    setSelectedPageId(article.pageId || '');
+                    setSeoScore(article.seoScore);
+                    
+                    // Si estamos editando, saltamos directo al editor
+                    setStep(4);
+                }
+            } catch (e) {
+                console.error("Error cargando artículo:", e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadArticle();
+    }
+  }, [editArticleId]);
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -154,6 +189,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     addLog("Iniciando secuencia de guardado...");
 
     const articlePayload = {
+      id: editArticleId, // Incluir ID si es edición
       pageId: selectedPageId || undefined,
       title: selectedTitle.title,
       slug: slug || selectedTitle.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
@@ -170,7 +206,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
     try {
       addLog("Validando datos...");
-      addLog(`Endpoint Objetivo: /api/articles`);
+      addLog(`Endpoint Objetivo: ${editArticleId ? `/api/articles/${editArticleId}` : '/api/articles'}`);
       addLog(`PAYLOAD:\n${JSON.stringify(articlePayload, null, 2)}`);
       
       await onSave(articlePayload);

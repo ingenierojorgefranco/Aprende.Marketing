@@ -246,11 +246,19 @@ const App: React.FC = () => {
 
   // --- HANDLERS ARTÍCULOS ---
   const handleArticleSave = async (
-    articleData: Omit<Article, "id" | "createdAt">
+    articleData: any
   ) => {
     try {
-      const savedArticle = await api.saveArticle(articleData);
-      setMyArticles((prev) => [...prev, savedArticle]);
+      if (articleData.id) {
+          // UPDATE
+          await api.updateArticle(articleData.id, articleData);
+          // Actualizar lista local
+          setMyArticles((prev) => prev.map(a => a.id === articleData.id ? { ...a, ...articleData } : a));
+      } else {
+          // CREATE
+          const savedArticle = await api.saveArticle(articleData);
+          setMyArticles((prev) => [...prev, savedArticle]);
+      }
     } catch (e) {
       console.error(e);
       throw e;
@@ -326,25 +334,21 @@ const App: React.FC = () => {
   return (
     <>
       <Routes>
-        {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug/* Y /lp/:slug/* para blogs */}
-        <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
-        <Route path="/lp/:slug/*" element={<PublicLandingView />} />
+        {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug Y /lp/:slug */}
+        <Route path="/admin/lp/:slug" element={<PublicLandingView />} />
+        <Route path="/lp/:slug" element={<PublicLandingView />} />
 
         {/* RUTA PRINCIPAL:
             - Dominio principal → Home pública
             - Dominio personalizado (ej: bajardepeso.online) → renderiza la landing asignada directamente
-            - El wildcard * al final permite manejar /blog y /blog/slug
         */}
         <Route
-          path="/*"
+          path="/"
           element={
             customLandingSlug ? (
               <PublicLandingView forcedSlug={customLandingSlug} />
             ) : (
-              <Routes>
-                  <Route path="/" element={<PublicHome user={user} onLogout={handleLogout} />} />
-                  <Route path="*" element={<NotFoundPage />} />
-              </Routes>
+              <PublicHome user={user} onLogout={handleLogout} />
             )
           }
         />
@@ -485,10 +489,16 @@ const App: React.FC = () => {
           />
           <Route path="whatsapp" element={<WhatsAppCRM />} />
           <Route path="email" element={<EmailMarketing />} />
+          
           <Route
             path="content-creator"
             element={<ContentGenerator onSave={handleArticleSave} />}
           />
+          <Route
+            path="articles/edit/:id"
+            element={<ContentGenerator onSave={handleArticleSave} />}
+          />
+
           <Route
             path="articles"
             element={
@@ -521,6 +531,9 @@ const App: React.FC = () => {
             }
           />
         </Route>
+
+        {/* CUALQUIER OTRA RUTA → 404 (EVITA LOOPS) */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
       <DeleteModal />

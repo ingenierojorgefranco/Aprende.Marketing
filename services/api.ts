@@ -275,6 +275,28 @@ export const api = {
       } catch (e) { return [...mockArticles]; }
   },
 
+  getArticleById: async (id: string): Promise<Article | null> => {
+    try {
+        const a = await fetchWithFallback(`/articles/${id}`, { headers: getAuthHeaders() });
+        return {
+              id: a.id.toString(),
+              pageId: a.page_id ? a.page_id.toString() : undefined,
+              title: a.title,
+              slug: a.slug,
+              description: a.description,
+              contentHtml: a.content_html,
+              featuredImage: a.featured_image,
+              keyword: a.keyword,
+              seoScore: a.seo_score,
+              metaTitle: a.meta_title,
+              metaDescription: a.meta_description,
+              status: a.status || 'published',
+              publishedAt: new Date(a.published_at || a.created_at),
+              createdAt: new Date(a.created_at)
+        };
+    } catch (e) { return mockArticles.find(a => a.id === id) || null; }
+  },
+
   saveArticle: async (article: Omit<Article, 'id' | 'createdAt'>): Promise<Article> => {
       try {
           const saved = await fetchWithFallback('/articles', {
@@ -301,6 +323,31 @@ export const api = {
           mockArticles.push(newArticle);
           return newArticle;
       }
+  },
+
+  updateArticle: async (id: string, article: Partial<Article>): Promise<void> => {
+    try {
+        await fetchWithFallback(`/articles/${id}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                  page_id: article.pageId,
+                  title: article.title,
+                  slug: article.slug,
+                  description: article.description,
+                  content_html: article.contentHtml,
+                  featured_image: article.featuredImage,
+                  keyword: article.keyword,
+                  seo_score: article.seoScore,
+                  meta_title: article.metaTitle,
+                  meta_description: article.metaDescription,
+                  status: article.status,
+                  published_at: article.publishedAt
+            })
+        });
+    } catch (e) {
+        mockArticles = mockArticles.map(a => a.id === id ? { ...a, ...article } : a);
+    }
   },
 
   getPublicBlogArticles: async (pageId: string): Promise<Article[]> => {
