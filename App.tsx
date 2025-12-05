@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Routes,
@@ -251,21 +250,10 @@ const App: React.FC = () => {
   ) => {
     try {
       const savedArticle = await api.saveArticle(articleData);
-      
-      // FIX: Inject subdomain manually so link generation works immediately
-      let pageSubdomain = undefined;
-      if (savedArticle.pageId) {
-          const linkedPage = myPages.find(p => p.id === savedArticle.pageId);
-          if (linkedPage) {
-              pageSubdomain = linkedPage.subdomain;
-              savedArticle.pageSubdomain = pageSubdomain;
-          }
-      }
-      
       setMyArticles((prev) => [...prev, savedArticle]);
     } catch (e) {
       console.error(e);
-      throw e; // Important: Throw to let ContentGenerator know it failed
+      throw e;
     }
   };
 
@@ -338,13 +326,14 @@ const App: React.FC = () => {
   return (
     <>
       <Routes>
-        {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug Y /lp/:slug */}
+        {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug/* Y /lp/:slug/* para blogs */}
         <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
         <Route path="/lp/:slug/*" element={<PublicLandingView />} />
 
         {/* RUTA PRINCIPAL:
             - Dominio principal → Home pública
             - Dominio personalizado (ej: bajardepeso.online) → renderiza la landing asignada directamente
+            - El wildcard * al final permite manejar /blog y /blog/slug
         */}
         <Route
           path="/*"
@@ -353,8 +342,8 @@ const App: React.FC = () => {
               <PublicLandingView forcedSlug={customLandingSlug} />
             ) : (
               <Routes>
-                 <Route path="/" element={<PublicHome user={user} onLogout={handleLogout} />} />
-                 <Route path="*" element={<NotFoundPage />} />
+                  <Route path="/" element={<PublicHome user={user} onLogout={handleLogout} />} />
+                  <Route path="*" element={<NotFoundPage />} />
               </Routes>
             )
           }

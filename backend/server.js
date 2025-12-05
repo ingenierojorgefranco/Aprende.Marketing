@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v13_date_fix'; 
+const SERVER_VERSION = 'v11_large_payload_fix_express'; 
 
 app.enable('trust proxy');
 
@@ -568,14 +568,6 @@ app.get('/api/articles', authMiddleware, async (req, res) => {
 app.post('/api/articles', authMiddleware, async (req, res) => {
   const { title, description, content_html, keyword, seo_score, page_id, slug, featured_image, meta_title, meta_description, status, published_at } = req.body;
   
-  // Debug Log
-  console.log("📝 [API POST /articles] Recibido payload:", { 
-      title, 
-      slug, 
-      page_id, 
-      contentLength: content_html ? content_html.length : 0 
-  });
-
   // Generar slug si no existe
   let finalSlug = slug;
   if (!finalSlug && title) {
@@ -583,33 +575,16 @@ app.post('/api/articles', authMiddleware, async (req, res) => {
   }
 
   try {
-    // Validar page_id: Si llega como string vacío, convertir a null
-    const validPageId = (page_id && page_id !== "") ? page_id : null;
-
-    // FIX: Convertir fecha ISO string a Objeto Date para que mysql2 la formatee correctamente
-    // Si no se hace esto, mysql en modo estricto rechaza 'YYYY-MM-DDTHH:mm:ss.sssZ' como DATETIME válido
-    const validPublishedAt = published_at ? new Date(published_at) : new Date();
-
     const [resDb] = await pool.query(
       `INSERT INTO articles 
-      (user_id, page_id, title, slug, description, content_html, featured_image, keyword, seo_score, meta_title, meta_description, status, published_at, created_at) 
+      (user_id, page_id, title, slug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, status, published_at, created_at) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [req.user.id, validPageId, title, finalSlug, description, content_html, featured_image, keyword, seo_score, meta_title, meta_description, status || 'published', validPublishedAt]
+      [req.user.id, page_id || null, title, finalSlug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, status || 'published', published_at || new Date()]
     );
-    
-    console.log("✅ [API POST /articles] Artículo guardado con ID:", resDb.insertId);
-    
-    res.json({ 
-        id: resDb.insertId,
-        slug: finalSlug,
-        page_id: validPageId,
-        message: "Guardado exitosamente" 
-    });
-
+    res.json({ id: resDb.insertId });
   } catch (e) { 
-      console.error("❌ [DB Insert Error] Falló el guardado del artículo:", e.message);
-      // Enviar el mensaje exacto de SQL para debug en frontend
-      res.status(500).json({ error: e.message, sqlCode: e.code }); 
+      console.error("[DB Insert Error] Falló el guardado del artículo:", e);
+      res.status(500).json({ error: e.message }); 
   }
 });
 

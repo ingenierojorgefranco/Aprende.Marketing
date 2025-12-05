@@ -43,13 +43,12 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
           {articles.map((article) => {
              // Construcción de la URL pública
              // Prioriza el subdominio limpio. Si no existe, usa el pageId como fallback (el backend ahora soporta ID).
-             // Esto soluciona el problema de enlaces rotos si el subdominio no se guardó o recuperó correctamente.
-             const pageIdentifier = article.pageSubdomain 
+             const pageSlug = article.pageSubdomain 
                 ? article.pageSubdomain.replace('.generatorlanding.com', '') 
                 : article.pageId;
              
              // Solo generar URL si tenemos algún identificador válido de la página
-             const publicUrl = pageIdentifier ? `/admin/lp/${pageIdentifier}/blog/${article.slug}` : '#';
+             const publicUrl = pageSlug ? `/admin/lp/${pageSlug}/blog/${article.slug}` : '#';
 
              return (
                 <div key={article.id} className="bg-gray-900 rounded-xl border border-gray-800 hover:border-primary/50 transition duration-300 group flex flex-col h-full overflow-hidden">
@@ -94,7 +93,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
                         {article.pageId ? (
                             <div className="flex items-center gap-2 text-xs text-blue-400">
                                 <Globe className="w-3 h-3" />
-                                Vinculado a: <span className="text-gray-300 font-medium truncate max-w-[150px]">{article.pageSubdomain || `ID: ${article.pageId}`}</span>
+                                Vinculado a: <span className="text-gray-300 font-medium truncate max-w-[150px]">{article.pageSubdomain || "Landing Page"}</span>
                             </div>
                         ) : (
                             <div className="flex items-center gap-2 text-xs text-gray-600">
@@ -115,7 +114,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
                         <Edit2 className="w-3.5 h-3.5" /> EDITAR
                     </button>
                     
-                    {article.pageId && (
+                    {article.pageId && pageSlug && (
                         <a 
                             href={publicUrl} 
                             target="_blank" 

@@ -1,9 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../services/geminiService';
 import { api } from '../services/api';
 import { Article, Project, LandingPage } from '../types';
-import { useNavigate } from 'react-router-dom';
 
 // Importing Sub-Components
 import { Step1Inputs } from './content-generator/Step1Inputs';
@@ -17,7 +15,6 @@ interface ContentGeneratorProps {
 }
 
 export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) => {
-  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   
@@ -151,17 +148,13 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const handleSaveArticle = async () => {
     if (!selectedTitle || !onSave) return;
     
-    // START SAVE PROCESS
     setIsLogModalOpen(true);
     setSaveStatus('saving');
-    setSaveLogs([]); // Reset logs
+    setSaveLogs([]);
     addLog("Iniciando secuencia de guardado...");
 
-    // Aseguramos que pageId sea undefined o null si está vacío, para que la BD lo procese bien
-    const finalPageId = (selectedPageId && selectedPageId.trim() !== "") ? selectedPageId : undefined;
-
     const articlePayload = {
-      pageId: finalPageId,
+      pageId: selectedPageId || undefined,
       title: selectedTitle.title,
       slug: slug || selectedTitle.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       description: selectedTitle.description,
@@ -177,37 +170,27 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
     try {
       addLog("Validando datos...");
-      if (finalPageId) {
-          addLog(`Vinculando a Página ID: ${finalPageId}`);
-      } else {
-          addLog(`Aviso: Artículo sin vincular a Landing Page (page_id: null)`);
-      }
+      addLog(`Endpoint Objetivo: /api/articles`);
+      addLog(`PAYLOAD:\n${JSON.stringify(articlePayload, null, 2)}`);
       
-      addLog(`Payload Metadata: ${JSON.stringify({ ...articlePayload, contentHtml: '[CONTENIDO HTML OCULTO]' }, null, 2)}`);
-      
-      // CALL API
       await onSave(articlePayload);
       
-      addLog("✅ Respuesta del Servidor: 200 OK");
-      addLog("✅ Artículo guardado exitosamente en la base de datos.");
+      addLog("Respuesta del Servidor: 200 OK");
+      addLog("Guardado exitoso en base de datos.");
       setSaveStatus('success');
 
-      // IMPORTANT: Modal stays open. User clicks "Aceptar" to navigate.
+      setTimeout(() => {
+        if (saveStatus !== 'error') setIsLogModalOpen(false);
+      }, 2500);
     } catch (e: any) {
-      addLog("❌ ERROR CRÍTICO AL GUARDAR");
+      addLog("❌ ERROR CRÍTICO");
       addLog(`Mensaje: ${e.message}`);
       if (e.response) {
-         addLog(`Status Code: ${e.response.status}`);
-         addLog(`Server Response: ${JSON.stringify(e.response.data)}`);
+         addLog(`Status: ${e.response.status}`);
+         addLog(`Data: ${JSON.stringify(e.response.data)}`);
       }
       setSaveStatus('error');
-      // Modal stays open to show error.
     }
-  };
-
-  const handleGoToLibrary = () => {
-      setIsLogModalOpen(false);
-      navigate('/dashboard/articles');
   };
 
   return (
@@ -281,7 +264,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
         saveLogs={saveLogs}
         onClose={() => setIsLogModalOpen(false)}
         onRetry={handleSaveArticle}
-        onNavigateToLibrary={handleGoToLibrary}
       />
     </div>
   );

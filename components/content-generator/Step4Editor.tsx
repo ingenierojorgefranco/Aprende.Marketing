@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { ArticleTitleIdea } from '../../services/geminiService';
 import { LandingPage } from '../../types';
@@ -133,12 +132,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
             </div>
           </div>
           <div className="flex gap-2">
-            <button 
-              type="button" 
-              onClick={(e) => { e.preventDefault(); onSave(); }} 
-              disabled={saving} 
-              className="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 rounded-lg hover:bg-gray-700 transition text-sm font-medium mr-2"
-            >
+            <button onClick={onSave} disabled={saving} className="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 rounded-lg hover:bg-gray-700 transition text-sm font-medium mr-2">
               {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Publicar
             </button>
             <button onClick={copyToClipboard} className="text-gray-600 hover:text-blue-600 p-2 rounded-lg hover:bg-blue-50 transition" title="Copiar HTML"><Copy className="w-5 h-5" /></button>
