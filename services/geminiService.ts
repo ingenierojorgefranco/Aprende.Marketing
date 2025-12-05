@@ -339,15 +339,22 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
 };
 
 export const generateArticleOutline = async (title: string, objective: string): Promise<string[]> => {
-    const prompt = `Crea un esquema (outline) detallado para un artículo de blog titulado: "${title}".
+    const prompt = `Actúa como un arquitecto de contenido SEO experto.
+    Crea una estructura (outline) PROFUNDA y OPTIMIZADA para un artículo de blog titulado: "${title}".
     Objetivo: "${objective}".
     
-    Incluye:
-    - Introducción (gancho)
-    - Títulos H2 y H3 lógicos
-    - Conclusión
+    Reglas de Estructura:
+    1. DEBES usar etiquetas H1, H2, H3 y H4 explícitas al inicio de cada string.
+    2. El primer elemento DEBE ser "H1: ${title}".
+    3. Crea una jerarquía lógica profunda:
+       - H2 para secciones principales.
+       - H3 para sub-temas dentro de H2.
+       - H4 para detalles específicos o listas dentro de H3.
+    4. Ejemplo de estructura deseada: H1, H2, H3, H3, H2, H3, H4, H4, H2, H3, H2.
+    5. Asegura que cubra la intención de búsqueda completa.
     
-    Devuelve SOLO un JSON array de strings, donde cada string es un encabezado o sección.`;
+    Devuelve SOLO un JSON array de strings.
+    Ejemplo de formato de items: "H1: Título Principal", "H2: Introducción", "H3: Beneficio Clave 1", etc.`;
 
     const schema = {
         type: Type.ARRAY,
@@ -385,17 +392,17 @@ export const generateFullArticle = async (
         `;
     }
 
-    const prompt = `Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este título y esquema.
+    const prompt = `Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este título y esquema estructural.
     
     Título: "${title}"
-    Esquema: ${JSON.stringify(outline)}
+    Esquema Estructural: ${JSON.stringify(outline)}
     Objetivo: "${objective}"
     ${keyword ? `Keyword SEO: "${keyword}" (Úsala de forma natural)` : ''}
     CTA Link: "${ctaLink}" (Insértalo de forma persuasiva al final o en un punto clave).
     
     ${projectStrategy}
 
-    Formato: HTML (usa <h1>, <h2>, <h3>, <p>, <ul>, <li>, <strong>, <a href="...">).
+    Formato: HTML (usa <h1>, <h2>, <h3>, <h4>, <p>, <ul>, <li>, <strong>, <a href="...">).
     Estilo: Profesional, educativo y persuasivo. Párrafos cortos.
     Idioma: Español Neutro.
     

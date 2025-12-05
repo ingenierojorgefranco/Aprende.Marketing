@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../services/geminiService';
 import { api } from '../services/api';
-import { BookOpen, Search, List, FileText, Download, Copy, Check, RefreshCw, ArrowLeft, ArrowRight, Wand2, BarChart, ChevronRight, Type, Link as LinkIcon, Sparkles, Save, Briefcase, Calendar, Image, Globe, Eye, Trash2, GripVertical } from 'lucide-react';
+import { BookOpen, Search, List, FileText, Download, Copy, Check, RefreshCw, ArrowLeft, ArrowRight, Wand2, BarChart, ChevronRight, Type, Link as LinkIcon, Sparkles, Save, Briefcase, Calendar, Image, Globe, Eye, Trash2, GripVertical, Heading1, Heading2, Heading3, Heading4 } from 'lucide-react';
 import { Article, Project, LandingPage } from '../types';
 
 interface ContentGeneratorProps {
@@ -51,6 +51,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
   // Drag & Drop State
   const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // Load projects and pages on mount
   useEffect(() => {
@@ -167,36 +168,98 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       }
   };
 
+  // --- HIERARCHY HELPERS ---
+  const getHeadingInfo = (text: string) => {
+      const match = text.match(/^(H[1-6]):\s*(.*)/i);
+      if (match) {
+          return {
+              level: parseInt(match[1].replace('H', '')),
+              content: match[2],
+              tag: match[1].toUpperCase()
+          };
+      }
+      // Fallback: Default to H2 if not specified, except if it looks like title
+      return { level: 2, content: text, tag: 'H2' };
+  };
+
+  // Find how many items belong to the current block (children)
+  const getBlockSize = (startIndex: number, items: string[]): number => {
+      const parentInfo = getHeadingInfo(items[startIndex]);
+      let size = 1; // Includes self
+
+      for (let i = startIndex + 1; i < items.length; i++) {
+          const childInfo = getHeadingInfo(items[i]);
+          if (childInfo.level > parentInfo.level) {
+              size++;
+          } else {
+              break; // Found a sibling or higher level, block ends
+          }
+      }
+      return size;
+  };
+
   // --- DRAG & DROP HANDLERS ---
   const handleDragStart = (e: React.DragEvent, index: number) => {
+      // Prevent dragging H1 (index 0)
+      if (index === 0) {
+          e.preventDefault();
+          return;
+      }
+      
       setDraggedItemIndex(index);
       e.dataTransfer.effectAllowed = "move";
-      // Hack para que la imagen fantasma del drag no incluya el fondo completo si es muy grande
-      // e.dataTransfer.setDragImage(e.currentTarget as Element, 20, 20);
+      
+      // Calculate block size for visualization (optional, just for logic mostly)
+      // const size = getBlockSize(index, outline);
+      // We could set a custom drag image here
   };
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
-      e.preventDefault(); // Necesario para permitir el drop
+      e.preventDefault(); // Necessary to allow dropping
+      
+      // H1 (index 0) cannot be dropped onto or above
+      if (index === 0) {
+          e.dataTransfer.dropEffect = "none";
+          setDragOverIndex(null);
+          return;
+      }
+
+      setDragOverIndex(index);
       e.dataTransfer.dropEffect = "move";
   };
 
-  const handleDrop = (e: React.DragEvent, index: number) => {
+  const handleDragLeave = () => {
+      setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
       e.preventDefault();
-      if (draggedItemIndex === null || draggedItemIndex === index) return;
+      setDragOverIndex(null);
+
+      if (draggedItemIndex === null || draggedItemIndex === targetIndex) return;
+      if (targetIndex === 0) return; // Cannot drop above H1
 
       const newOutline = [...outline];
-      const itemToMove = newOutline[draggedItemIndex];
       
-      // Remover del indice anterior
-      newOutline.splice(draggedItemIndex, 1);
-      // Insertar en el nuevo indice
-      newOutline.splice(index, 0, itemToMove);
+      // Calculate the block to move
+      const blockSize = getBlockSize(draggedItemIndex, outline);
+      const itemsToMove = newOutline.splice(draggedItemIndex, blockSize);
+      
+      // Adjust target index if we removed items before it
+      let adjustedTargetIndex = targetIndex;
+      if (draggedItemIndex < targetIndex) {
+          adjustedTargetIndex -= blockSize;
+      }
+
+      // Insert the block at the new position
+      newOutline.splice(adjustedTargetIndex, 0, ...itemsToMove);
       
       setOutline(newOutline);
       setDraggedItemIndex(null);
   };
 
   const handleDeleteItem = (index: number) => {
+      if (index === 0) return alert("No puedes eliminar el Título Principal (H1).");
       const newOutline = outline.filter((_, i) => i !== index);
       setOutline(newOutline);
   };
@@ -396,57 +459,91 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
           <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
               <div className="p-6 border-b border-gray-800 bg-gray-800/50">
                   <h2 className="text-xl font-bold text-white mb-1">Estructura del Artículo</h2>
-                  <p className="text-sm text-gray-400">Arrastra para reordenar, edita el texto o elimina secciones.</p>
+                  <p className="text-sm text-gray-400">Arrastra para reordenar bloques completos (H2 mueve sus H3, etc).</p>
               </div>
               
-              <div className="p-6 space-y-3">
-                  {outline.map((item, idx) => (
-                      <div 
-                        key={idx} 
-                        className={`flex items-center gap-3 bg-black/30 p-3 rounded-lg border transition-all ${draggedItemIndex === idx ? 'opacity-50 border-blue-500' : 'border-gray-800 hover:border-gray-700'}`}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, idx)}
-                        onDragOver={(e) => handleDragOver(e, idx)}
-                        onDrop={(e) => handleDrop(e, idx)}
-                      >
-                          <div className="cursor-grab active:cursor-grabbing text-gray-600 hover:text-gray-300">
-                              <GripVertical className="w-5 h-5" />
-                          </div>
-                          
-                          <div className="w-6 h-6 rounded-full bg-blue-900/30 text-blue-400 flex items-center justify-center text-xs font-bold shrink-0 select-none">
-                              {idx + 1}
-                          </div>
-                          
-                          <input 
-                            value={item}
-                            onChange={(e) => {
-                                const newOutline = [...outline];
-                                newOutline[idx] = e.target.value;
-                                setOutline(newOutline);
-                            }}
-                            className="flex-1 bg-transparent text-gray-200 outline-none text-sm"
-                          />
+              <div className="p-6 space-y-1">
+                  {outline.map((item, idx) => {
+                      const { level, content, tag } = getHeadingInfo(item);
+                      
+                      // Calculate indentation margin based on heading level
+                      // H1 = 0, H2 = 4, H3 = 8, H4 = 12
+                      const indentClass = level === 1 ? '' : level === 2 ? 'ml-4' : level === 3 ? 'ml-10' : 'ml-16';
+                      
+                      // Visual drop indicator (Top Border)
+                      const isDragOver = dragOverIndex === idx;
 
-                          <button 
-                             onClick={() => handleDeleteItem(idx)}
-                             className="text-gray-600 hover:text-red-500 p-1 rounded transition"
-                             title="Eliminar sección"
-                          >
-                             <Trash2 className="w-4 h-4" />
-                          </button>
-                      </div>
-                  ))}
-                  
-                  <div className="mt-4 flex justify-center">
-                        <button 
-                            onClick={() => setOutline([...outline, "Nueva Sección"])}
-                            className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 py-2"
+                      // Styles for hierarchy
+                      const headingStyle = level === 1 ? 'border-l-4 border-blue-500 bg-blue-900/20' : 
+                                           level === 2 ? 'border-l-2 border-gray-600 bg-gray-800/50' : 
+                                           'border-l border-gray-700 bg-black/20';
+
+                      return (
+                        <div 
+                            key={idx}
+                            draggable={level !== 1} // H1 is locked
+                            onDragStart={(e) => handleDragStart(e, idx)}
+                            onDragOver={(e) => handleDragOver(e, idx)}
+                            onDragLeave={handleDragLeave}
+                            onDrop={(e) => handleDrop(e, idx)}
+                            className={`
+                                relative flex items-center gap-3 p-3 rounded transition-all
+                                ${indentClass}
+                                ${headingStyle}
+                                ${draggedItemIndex === idx ? 'opacity-30' : ''}
+                                ${isDragOver ? 'border-t-2 border-t-primary mt-1 pt-3' : 'border-gray-800 border-t border-b-0'}
+                            `}
                         >
-                            + Añadir Sección
+                            <div className={`cursor-grab active:cursor-grabbing text-gray-600 hover:text-gray-300 ${level === 1 ? 'invisible' : ''}`}>
+                                <GripVertical className="w-4 h-4" />
+                            </div>
+                            
+                            {/* Heading Badge */}
+                            <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider min-w-[30px] text-center
+                                ${level === 1 ? 'bg-blue-600 text-white' : 
+                                  level === 2 ? 'bg-gray-700 text-gray-200' : 
+                                  level === 3 ? 'bg-gray-800 text-gray-400' : 'bg-transparent text-gray-500 border border-gray-700'}
+                            `}>
+                                {tag}
+                            </div>
+                            
+                            <input 
+                                value={item} // Raw string "H2: Title"
+                                onChange={(e) => {
+                                    const newOutline = [...outline];
+                                    newOutline[idx] = e.target.value;
+                                    setOutline(newOutline);
+                                }}
+                                className={`flex-1 bg-transparent outline-none ${level === 1 ? 'text-lg font-bold text-white' : 'text-sm text-gray-300'}`}
+                            />
+
+                            <button 
+                                onClick={() => handleDeleteItem(idx)}
+                                className={`text-gray-600 hover:text-red-500 p-1 rounded transition ${level === 1 ? 'invisible' : ''}`}
+                                title="Eliminar sección"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </div>
+                      );
+                  })}
+                  
+                  <div className="mt-6 flex justify-center gap-4">
+                        <button 
+                            onClick={() => setOutline([...outline, "H2: Nueva Sección"])}
+                            className="text-xs bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-lg flex items-center gap-1 transition"
+                        >
+                            + H2
+                        </button>
+                        <button 
+                            onClick={() => setOutline([...outline, "H3: Nuevo Subtítulo"])}
+                            className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-2 rounded-lg flex items-center gap-1 transition"
+                        >
+                            + H3
                         </button>
                   </div>
 
-                  <div className="mt-6 pt-6 border-t border-gray-800">
+                  <div className="mt-8 pt-6 border-t border-gray-800">
                       <label className="block text-sm font-medium text-gray-300 mb-2">Enlace de Llamado a la Acción (CTA)</label>
                       <div className="flex gap-2">
                           <div className="relative flex-1">
@@ -468,7 +565,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                   <button 
                     onClick={handleGenerateArticle}
                     disabled={loading}
-                    className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition flex items-center gap-2"
+                    className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition flex items-center gap-2 shadow-lg shadow-blue-900/30"
                   >
                       {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Type className="w-5 h-5" />}
                       Redactar Artículo Completo
