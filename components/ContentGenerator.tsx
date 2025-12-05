@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../services/geminiService';
 import { api } from '../services/api';
-import { BookOpen, Search, List, FileText, Download, Copy, Check, RefreshCw, ArrowLeft, ArrowRight, Wand2, BarChart, ChevronRight, Type, Link as LinkIcon, Sparkles, Save, Briefcase, Calendar, Image, Globe, Eye } from 'lucide-react';
+import { BookOpen, Search, List, FileText, Download, Copy, Check, RefreshCw, ArrowLeft, ArrowRight, Wand2, BarChart, ChevronRight, Type, Link as LinkIcon, Sparkles, Save, Briefcase, Calendar, Image, Globe, Eye, Trash2, GripVertical } from 'lucide-react';
 import { Article, Project, LandingPage } from '../types';
 
 interface ContentGeneratorProps {
@@ -48,6 +48,9 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [seoScore, setSeoScore] = useState(0);
   const [wordCount, setWordCount] = useState(0);
   const [keywordDensity, setKeywordDensity] = useState(0);
+
+  // Drag & Drop State
+  const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
 
   // Load projects and pages on mount
   useEffect(() => {
@@ -162,6 +165,40 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       } finally {
           setSaving(false);
       }
+  };
+
+  // --- DRAG & DROP HANDLERS ---
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+      setDraggedItemIndex(index);
+      e.dataTransfer.effectAllowed = "move";
+      // Hack para que la imagen fantasma del drag no incluya el fondo completo si es muy grande
+      // e.dataTransfer.setDragImage(e.currentTarget as Element, 20, 20);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+      e.preventDefault(); // Necesario para permitir el drop
+      e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = (e: React.DragEvent, index: number) => {
+      e.preventDefault();
+      if (draggedItemIndex === null || draggedItemIndex === index) return;
+
+      const newOutline = [...outline];
+      const itemToMove = newOutline[draggedItemIndex];
+      
+      // Remover del indice anterior
+      newOutline.splice(draggedItemIndex, 1);
+      // Insertar en el nuevo indice
+      newOutline.splice(index, 0, itemToMove);
+      
+      setOutline(newOutline);
+      setDraggedItemIndex(null);
+  };
+
+  const handleDeleteItem = (index: number) => {
+      const newOutline = outline.filter((_, i) => i !== index);
+      setOutline(newOutline);
   };
 
   // --- SEO ANALYSIS ---
@@ -359,15 +396,27 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
           <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
               <div className="p-6 border-b border-gray-800 bg-gray-800/50">
                   <h2 className="text-xl font-bold text-white mb-1">Estructura del Artículo</h2>
-                  <p className="text-sm text-gray-400">Revisa y ajusta los puntos clave antes de escribir.</p>
+                  <p className="text-sm text-gray-400">Arrastra para reordenar, edita el texto o elimina secciones.</p>
               </div>
               
               <div className="p-6 space-y-3">
                   {outline.map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-3 bg-black/30 p-3 rounded-lg border border-gray-800">
-                          <div className="w-6 h-6 rounded-full bg-blue-900/30 text-blue-400 flex items-center justify-center text-xs font-bold">
+                      <div 
+                        key={idx} 
+                        className={`flex items-center gap-3 bg-black/30 p-3 rounded-lg border transition-all ${draggedItemIndex === idx ? 'opacity-50 border-blue-500' : 'border-gray-800 hover:border-gray-700'}`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, idx)}
+                        onDragOver={(e) => handleDragOver(e, idx)}
+                        onDrop={(e) => handleDrop(e, idx)}
+                      >
+                          <div className="cursor-grab active:cursor-grabbing text-gray-600 hover:text-gray-300">
+                              <GripVertical className="w-5 h-5" />
+                          </div>
+                          
+                          <div className="w-6 h-6 rounded-full bg-blue-900/30 text-blue-400 flex items-center justify-center text-xs font-bold shrink-0 select-none">
                               {idx + 1}
                           </div>
+                          
                           <input 
                             value={item}
                             onChange={(e) => {
@@ -377,9 +426,26 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                             }}
                             className="flex-1 bg-transparent text-gray-200 outline-none text-sm"
                           />
+
+                          <button 
+                             onClick={() => handleDeleteItem(idx)}
+                             className="text-gray-600 hover:text-red-500 p-1 rounded transition"
+                             title="Eliminar sección"
+                          >
+                             <Trash2 className="w-4 h-4" />
+                          </button>
                       </div>
                   ))}
                   
+                  <div className="mt-4 flex justify-center">
+                        <button 
+                            onClick={() => setOutline([...outline, "Nueva Sección"])}
+                            className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 py-2"
+                        >
+                            + Añadir Sección
+                        </button>
+                  </div>
+
                   <div className="mt-6 pt-6 border-t border-gray-800">
                       <label className="block text-sm font-medium text-gray-300 mb-2">Enlace de Llamado a la Acción (CTA)</label>
                       <div className="flex gap-2">

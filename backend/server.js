@@ -88,6 +88,24 @@ const recordVisit = async (pageId) => {
     }
 };
 
+/**
+ * Verifica si la petición viene de un usuario logueado (Admin/Dueño).
+ * Si tiene token válido, retorna TRUE.
+ */
+const isAdminRequest = (req) => {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return false; // No hay token -> Es visitante
+    }
+    const token = authHeader.replace('Bearer ', '').trim();
+    try {
+        jwt.verify(token, JWT_SECRET);
+        return true; // Token válido -> Es admin
+    } catch (e) {
+        return false; // Token inválido -> Es visitante
+    }
+};
+
 // ======================================================
 //  HELPERS AUTH
 // ======================================================
@@ -336,8 +354,10 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
 
     const page = rows[0];
     
-    // REGISTRAR VISITA (Incluye Analytics)
-    recordVisit(page.id);
+    // REGISTRAR VISITA SOLO SI NO ES ADMIN
+    if (!isAdminRequest(req)) {
+        recordVisit(page.id);
+    }
     
     if (typeof page.content === 'string') {
         try { page.content = JSON.parse(page.content); } catch {}
@@ -363,8 +383,10 @@ app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
     const page = rows[0];
 
-    // REGISTRAR VISITA (Incluye Analytics)
-    recordVisit(page.id);
+    // REGISTRAR VISITA SOLO SI NO ES ADMIN
+    if (!isAdminRequest(req)) {
+        recordVisit(page.id);
+    }
 
     if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
     res.json(page);
@@ -385,8 +407,10 @@ app.get('/api/public/pages/:slug', async (req, res) => {
     
     const page = rows[0];
 
-    // REGISTRAR VISITA (Incluye Analytics)
-    recordVisit(page.id);
+    // REGISTRAR VISITA SOLO SI NO ES ADMIN
+    if (!isAdminRequest(req)) {
+        recordVisit(page.id);
+    }
 
     if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
     res.json(page);
