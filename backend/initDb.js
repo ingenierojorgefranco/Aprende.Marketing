@@ -169,6 +169,8 @@ const initDb = async () => {
         await addColumnSafe(connection, 'articles', "meta_description TEXT");
         await addColumnSafe(connection, 'articles', "status VARCHAR(50) DEFAULT 'published'");
         await addColumnSafe(connection, 'articles', "published_at DATETIME DEFAULT CURRENT_TIMESTAMP");
+        // Migración crítica solicitada: Agregar page_id si falta
+        await addColumnSafe(connection, 'articles', "page_id INT NULL");
         
         // Reactivar checks
         await connection.query('SET FOREIGN_KEY_CHECKS = 1');

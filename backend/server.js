@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v7_analytics_fix'; 
+const SERVER_VERSION = 'v8_article_fix'; 
 
 app.enable('trust proxy');
 
@@ -561,7 +561,7 @@ app.post('/api/articles', authMiddleware, async (req, res) => {
     );
     res.json({ id: resDb.insertId });
   } catch (e) { 
-      console.error(e);
+      console.error("[DB Insert Error] Falló el guardado del artículo:", e);
       res.status(500).json({ error: e.message }); 
   }
 });
