@@ -307,20 +307,12 @@ export interface ArticleTitleIdea {
 }
 
 export const generateArticleTitles = async (topic: string, objective: string, keyword: string): Promise<ArticleTitleIdea[]> => {
-    const prompt = `Actúa como un Copywriter de clase mundial especializado en títulos virales y alto CTR.
-    Genera EXACTAMENTE 4 ideas de títulos persuasivos para un artículo sobre: "${topic}".
+    // Prompt optimizado y cortado para velocidad
+    const prompt = `Genera 4 títulos virales (max 80 chars) para un artículo sobre: "${topic}".
     Objetivo: "${objective}".
-    ${keyword ? `Keyword: "${keyword}"` : ''}
-
-    REGLAS DE ORO (ESTRICTAS):
-    1. Longitud: MÁXIMO 80 caracteres por título.
-    2. Formato: Solo devuelve el texto del título. NUNCA generes párrafos o resúmenes en el campo de título.
-    3. Estilo: Usa curiosidad, beneficio directo, listas o preguntas provocadoras. Deben ser irresistibles de cliquear.
-
-    Devuelve un JSON array de objetos con:
-    - title: El título propuesto (H1) (Máximo 80 caracteres).
-    - description: Breve explicación del enfoque o ángulo de este artículo (1 frase).
-    `;
+    ${keyword ? `Keyword SEO: "${keyword}"` : ''}
+    
+    Devuelve JSON Array: [{ "title": "...", "description": "..." }]`;
 
     const schema = {
         type: Type.ARRAY,
@@ -335,9 +327,17 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
 
     try {
         const response = await callGeminiBackend(prompt, schema);
-        return JSON.parse(response.text || "[]");
+        if (!response.text) throw new Error("No response text");
+        return JSON.parse(response.text);
     } catch (e) {
-        return [];
+        console.warn("Fallo IA en títulos, usando fallback local para no bloquear.", e);
+        // Fallback rápido si falla la IA
+        return [
+            { title: `Guía esencial sobre ${topic}`, description: "Todo lo que necesitas saber." },
+            { title: `${topic}: Estrategias probadas`, description: "Enfoque práctico." },
+            { title: `5 secretos de ${topic}`, description: "Lista de consejos." },
+            { title: `Cómo dominar ${topic}`, description: "Tutorial paso a paso." }
+        ];
     }
 };
 
