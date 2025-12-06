@@ -591,7 +591,21 @@ app.post('/api/articles', authMiddleware, async (req, res) => {
       `INSERT INTO articles 
       (user_id, page_id, title, slug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, status, published_at, created_at) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [req.user.id, page_id || null, title, finalSlug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, status || 'published', published_at || new Date()]
+      [
+        req.user.id, 
+        page_id || null, 
+        title, 
+        finalSlug, 
+        description, 
+        content_html, 
+        keyword, 
+        seo_score, 
+        featured_image, 
+        meta_title, 
+        meta_description, 
+        status || 'published', 
+        published_at ? new Date(published_at) : new Date() // Fix: Convert string to Date
+      ]
     );
     res.json({ id: resDb.insertId });
   } catch (e) { 
@@ -619,8 +633,20 @@ app.put('/api/articles/:id', authMiddleware, async (req, res) => {
         page_id=?, title=?, slug=?, description=?, content_html=?, featured_image=?, keyword=?, seo_score=?, meta_title=?, meta_description=?, status=?, published_at=?
        WHERE id=? AND user_id=?`,
       [
-        page_id || null, title, finalSlug, description, content_html, featured_image, keyword, seo_score, meta_title, meta_description, status, published_at,
-        id, req.user.id
+        page_id || null, 
+        title, 
+        finalSlug, 
+        description, 
+        content_html, 
+        featured_image, 
+        keyword, 
+        seo_score, 
+        meta_title, 
+        meta_description, 
+        status, 
+        published_at ? new Date(published_at) : new Date(), // Fix: Convert string to Date
+        id, 
+        req.user.id
       ]
     );
     res.json({ message: 'Artículo actualizado' });
