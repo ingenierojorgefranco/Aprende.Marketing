@@ -48,7 +48,8 @@ export const getDesignSystem = (palette: ColorPalette) => {
         stepsBg: 'bg-blue-50/50',
         stepGradient: 'from-blue-500 to-blue-700',
         faqBg: 'bg-white',
-        faqItemBg: 'bg-slate-50'
+        faqItemBg: 'bg-slate-50',
+        textColor: 'text-blue-600' // Added for blog card titles
       };
     case 'elegant-purple': 
       return {
@@ -71,7 +72,8 @@ export const getDesignSystem = (palette: ColorPalette) => {
         stepsBg: 'bg-purple-50',
         stepGradient: 'from-purple-500 to-pink-500',
         faqBg: 'bg-purple-50/30',
-        faqItemBg: 'bg-white'
+        faqItemBg: 'bg-white',
+        textColor: 'text-purple-600'
       };
     case 'energetic-orange': 
       return {
@@ -94,7 +96,8 @@ export const getDesignSystem = (palette: ColorPalette) => {
         stepsBg: 'bg-orange-50',
         stepGradient: 'from-orange-500 to-red-500',
         faqBg: 'bg-orange-50/50',
-        faqItemBg: 'bg-white'
+        faqItemBg: 'bg-white',
+        textColor: 'text-orange-600'
       };
     case 'nature-green': 
       return {
@@ -117,7 +120,8 @@ export const getDesignSystem = (palette: ColorPalette) => {
         stepsBg: 'bg-stone-100',
         stepGradient: 'from-green-500 to-emerald-600',
         faqBg: 'bg-stone-100',
-        faqItemBg: 'bg-white'
+        faqItemBg: 'bg-white',
+        textColor: 'text-green-700'
       };
     case 'dark-luxury': 
       return {
@@ -140,7 +144,8 @@ export const getDesignSystem = (palette: ColorPalette) => {
         stepsBg: 'bg-[#111]',
         stepGradient: 'from-yellow-600 to-amber-700',
         faqBg: 'bg-[#0a0a0a]',
-        faqItemBg: 'bg-[#111]'
+        faqItemBg: 'bg-[#111]',
+        textColor: 'text-yellow-600'
       };
     case 'ocean-teal': 
       return {
@@ -163,7 +168,8 @@ export const getDesignSystem = (palette: ColorPalette) => {
         stepsBg: 'bg-cyan-50',
         stepGradient: 'from-cyan-400 to-teal-500',
         faqBg: 'bg-cyan-50/50',
-        faqItemBg: 'bg-white'
+        faqItemBg: 'bg-white',
+        textColor: 'text-cyan-700'
       };
     case 'crimson-red': 
       return {
@@ -186,7 +192,8 @@ export const getDesignSystem = (palette: ColorPalette) => {
         stepsBg: 'bg-rose-50',
         stepGradient: 'from-red-500 to-rose-600',
         faqBg: 'bg-rose-50/30',
-        faqItemBg: 'bg-white'
+        faqItemBg: 'bg-white',
+        textColor: 'text-rose-700'
       };
     case 'corporate-slate': 
       return {
@@ -209,7 +216,8 @@ export const getDesignSystem = (palette: ColorPalette) => {
         stepsBg: 'bg-slate-100',
         stepGradient: 'from-slate-600 to-slate-800',
         faqBg: 'bg-slate-100',
-        faqItemBg: 'bg-white'
+        faqItemBg: 'bg-white',
+        textColor: 'text-slate-700'
       };
     case 'gold-prestige': 
       return {
@@ -232,7 +240,8 @@ export const getDesignSystem = (palette: ColorPalette) => {
         stepsBg: 'bg-yellow-50',
         stepGradient: 'from-yellow-500 to-amber-600',
         faqBg: 'bg-orange-50/20',
-        faqItemBg: 'bg-white'
+        faqItemBg: 'bg-white',
+        textColor: 'text-yellow-700'
       };
     case 'minimal-mono': 
       return {
@@ -255,7 +264,8 @@ export const getDesignSystem = (palette: ColorPalette) => {
         stepsBg: 'bg-gray-50',
         stepGradient: 'from-gray-800 to-black',
         faqBg: 'bg-gray-50',
-        faqItemBg: 'bg-white'
+        faqItemBg: 'bg-white',
+        textColor: 'text-gray-900'
       };
     default: 
        return {
@@ -278,7 +288,8 @@ export const getDesignSystem = (palette: ColorPalette) => {
         stepsBg: 'bg-blue-50/50',
         stepGradient: 'from-blue-500 to-blue-700',
         faqBg: 'bg-white',
-        faqItemBg: 'bg-slate-50'
+        faqItemBg: 'bg-slate-50',
+        textColor: 'text-blue-600'
       };
   }
 };
@@ -1051,18 +1062,25 @@ export const LivePage: React.FC<LivePageProps> = ({
   if (viewMode === 'blog-list' || viewMode === 'blog-post') {
       const isDark = content.palette === 'dark-luxury';
       return (
-          <div className={`min-h-screen font-sans ${ds.bg} ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>
-              <Navbar />
-              <SingleBlog 
-                  content={content} 
-                  viewMode={viewMode} 
-                  pageId={pageId} 
-                  articleSlug={articleSlug}
-                  basePath={basePath} 
-                  designSystem={ds}
-                  isDark={isDark}
-              />
-              <Footer />
+          <div className={`min-h-screen font-sans selection:bg-pink-500 selection:text-white ${ds.bg} scroll-smooth relative overflow-hidden`}>
+              {/* Background Base - Use Landing Page Background Logic */}
+              <div className={`absolute inset-0 ${ds.heroGradient} opacity-100 z-0`}></div>
+              {/* Decor */}
+              <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full blur-[120px] opacity-30 pointer-events-none ${ds.blobColor}`}></div>
+              
+              <div className="relative z-10">
+                  <Navbar />
+                  <SingleBlog 
+                      content={content} 
+                      viewMode={viewMode} 
+                      pageId={pageId} 
+                      articleSlug={articleSlug}
+                      basePath={basePath} 
+                      designSystem={ds}
+                      isDark={isDark}
+                  />
+                  <Footer />
+              </div>
           </div>
       );
   }
