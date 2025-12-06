@@ -84,7 +84,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                     setSelectedTitle({ title: article.title, description: article.description });
                     setSlug(article.slug);
                     setMetaTitle(article.metaTitle || article.title);
-                    setMetaDescription(article.metaDescription || article.description);
+                    // FIX: Ensure metaDescription is never null/undefined to prevent .length errors
+                    setMetaDescription(article.metaDescription || article.description || '');
                     setFeaturedImage(article.featuredImage || '');
                     setKeyword(article.keyword);
                     setStatus(article.status);
@@ -146,7 +147,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     setSelectedTitle(idea);
     // Metadata defaults
     setMetaTitle(idea.title);
-    setMetaDescription(idea.description);
+    setMetaDescription(idea.description || '');
     setSlug(idea.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
 
     setLoading(true);
@@ -177,6 +178,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       setArticleContent(result.html || "<p>Error en la generación.</p>");
       if (result.metaDescription) {
           setMetaDescription(result.metaDescription);
+      } else {
+          setMetaDescription('');
       }
       
       setStep(4);

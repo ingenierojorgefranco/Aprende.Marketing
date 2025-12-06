@@ -343,15 +343,15 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
             <div className="pt-2 border-t border-gray-800 mt-2">
                 <div className="flex justify-between items-center mb-1">
                     <label className="text-xs text-gray-400">Meta Descripción</label>
-                    <span className={`text-[10px] ${metaDescription.length > 155 ? 'text-red-400 font-bold' : 'text-gray-500'}`}>
-                        {metaDescription.length}/155
+                    <span className={`text-[10px] ${(metaDescription || '').length > 155 ? 'text-red-400 font-bold' : 'text-gray-500'}`}>
+                        {(metaDescription || '').length}/155
                     </span>
                 </div>
                 <textarea
-                    value={metaDescription}
+                    value={metaDescription || ''}
                     onChange={(e) => setMetaDescription(e.target.value)}
                     rows={4}
-                    className={`w-full bg-black border rounded px-2 py-1.5 text-xs text-white outline-none resize-none ${metaDescription.length > 155 ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-blue-500'}`}
+                    className={`w-full bg-black border rounded px-2 py-1.5 text-xs text-white outline-none resize-none ${(metaDescription || '').length > 155 ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-blue-500'}`}
                     placeholder="Resumen atractivo para Google..."
                 />
                 <p className="text-[10px] text-gray-500 mt-1 italic">
