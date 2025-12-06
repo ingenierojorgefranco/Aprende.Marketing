@@ -24,6 +24,7 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
 }) => {
   const [blogArticles, setBlogArticles] = useState<Article[]>([]);
   const [currentArticle, setCurrentArticle] = useState<Article | null>(null);
+  const [recommendedArticles, setRecommendedArticles] = useState<Article[]>([]);
   const [blogLoading, setBlogLoading] = useState(false);
   
   // Pagination State
@@ -36,7 +37,18 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
          api.getPublicBlogArticles(pageId).then(setBlogArticles).finally(() => setBlogLoading(false));
      } else if (viewMode === 'blog-post' && articleSlug) {
          setBlogLoading(true);
-         api.getPublicArticle(articleSlug).then(setCurrentArticle).finally(() => setBlogLoading(false));
+         api.getPublicArticle(articleSlug).then(article => {
+             setCurrentArticle(article);
+             // Cargar recomendados si tenemos el pageId
+             if (pageId && article) {
+                 api.getPublicBlogArticles(pageId).then(allArticles => {
+                     // Filtrar el actual, mezclar y tomar 3
+                     const others = allArticles.filter(a => a.id !== article.id);
+                     const shuffled = others.sort(() => 0.5 - Math.random());
+                     setRecommendedArticles(shuffled.slice(0, 3));
+                 });
+             }
+         }).finally(() => setBlogLoading(false));
      }
   }, [viewMode, pageId, articleSlug]);
 
@@ -133,38 +145,33 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
               </div>
           ) : currentArticle ? (
               // DETALLE ARTICULO
-              <article className="animate-in fade-in max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+              <article className="animate-in fade-in max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
                   
-                  {/* Article Header Image */}
+                  {/* Article Header Image - CLEAN (Sin texto encima) */}
                   {currentArticle.featuredImage ? (
-                      <div className="h-64 md:h-96 w-full relative">
+                      <div className="h-64 md:h-[400px] w-full relative">
                           <img src={currentArticle.featuredImage} alt={currentArticle.title} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                          <div className="absolute bottom-0 left-0 p-8 w-full">
-                                <div className="flex items-center gap-4 text-white/80 text-sm mb-2">
-                                    <span className="flex items-center gap-1"><Calendar className="w-4 h-4"/> {new Date(currentArticle.publishedAt).toLocaleDateString()}</span>
-                                    {currentArticle.keyword && <span className="bg-white/20 px-2 py-0.5 rounded text-xs backdrop-blur-sm">{currentArticle.keyword}</span>}
-                                </div>
-                                <h1 className="text-3xl md:text-5xl font-black text-white leading-tight mb-2 shadow-black drop-shadow-lg">{currentArticle.title}</h1>
-                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                       </div>
-                  ) : (
-                      <div className="p-8 pb-0">
-                          <h1 className={`text-3xl md:text-5xl font-black mb-6 leading-tight text-gray-900`}>{currentArticle.title}</h1>
-                          <div className="flex items-center gap-4 text-gray-500 text-sm mb-8 border-b border-gray-100 pb-8">
-                               <span className="flex items-center gap-1"><Calendar className="w-4 h-4"/> {new Date(currentArticle.publishedAt).toLocaleDateString()}</span>
-                          </div>
-                      </div>
-                  )}
+                  ) : null}
 
                   <div className="p-8 md:p-12">
                       <a href={`${basePath || ''}/blog`} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 mb-8 transition font-medium">
                           <ArrowLeft className="w-4 h-4" /> Volver al Blog
                       </a>
 
+                      {/* Header Content MOVED HERE */}
+                      <div className="text-center mb-10">
+                          <div className="flex items-center justify-center gap-4 text-gray-500 text-sm mb-4">
+                                <span className="flex items-center gap-1"><Calendar className="w-4 h-4"/> {new Date(currentArticle.publishedAt).toLocaleDateString()}</span>
+                                {currentArticle.keyword && <span className="bg-gray-100 px-2 py-0.5 rounded text-xs text-gray-600 border border-gray-200">{currentArticle.keyword}</span>}
+                          </div>
+                          <h1 className="text-3xl md:text-5xl font-black text-gray-900 leading-tight mb-6">{currentArticle.title}</h1>
+                      </div>
+
                       {/* Display Meta Description as Lead Text */}
                       {(currentArticle.metaDescription || currentArticle.description) && (
-                          <p className="text-xl text-gray-700 leading-relaxed mb-8 font-serif italic border-l-4 border-gray-800 pl-6 py-2 bg-gray-50 rounded-r-lg">
+                          <p className="text-xl text-gray-700 leading-relaxed mb-10 font-serif italic border-l-4 border-gray-800 pl-6 py-2 bg-gray-50 rounded-r-lg">
                               {currentArticle.metaDescription || currentArticle.description}
                           </p>
                       )}
@@ -179,6 +186,30 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
                               Ver Oferta Principal
                           </a>
                       </div>
+
+                      {/* RECOMMENDED READING SECTION */}
+                      {recommendedArticles.length > 0 && (
+                          <div className="mt-20 pt-10 border-t border-gray-200">
+                              <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Te recomendamos leer también</h3>
+                              <div className="grid md:grid-cols-3 gap-6">
+                                  {recommendedArticles.map(rec => (
+                                      <a key={rec.id} href={`${basePath || ''}/blog/${rec.slug}`} className="group block bg-gray-50 rounded-xl overflow-hidden hover:shadow-md transition border border-gray-100">
+                                          <div className="h-32 overflow-hidden bg-gray-200 relative">
+                                              {rec.featuredImage ? (
+                                                  <img src={rec.featuredImage} alt={rec.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                                              ) : (
+                                                  <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 text-xs">Sin Imagen</div>
+                                              )}
+                                          </div>
+                                          <div className="p-4">
+                                              <h4 className="font-bold text-gray-900 text-sm mb-2 line-clamp-2 group-hover:text-blue-600 transition">{rec.title}</h4>
+                                              <span className="text-xs text-blue-600 font-bold flex items-center gap-1">Leer más <ArrowRight className="w-3 h-3"/></span>
+                                          </div>
+                                      </a>
+                                  ))}
+                              </div>
+                          </div>
+                      )}
                   </div>
               </article>
           ) : (
