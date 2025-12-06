@@ -89,7 +89,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
                     {article.title}
                     </h3>
                     <p className="text-gray-500 text-sm line-clamp-3 mb-4 flex-1">
-                    {article.description}
+                    {article.metaDescription || article.description}
                     </p>
                     
                     <div className="space-y-2 mt-auto pt-4 border-t border-gray-800/50">

@@ -171,8 +171,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     const projectContext = userProjects.find(p => p.id === selectedProject);
 
     try {
-      const content = await generateFullArticle(selectedTitle.title, outline, objective, ctaLink || '#', keyword, projectContext);
-      setArticleContent(content || "<p>Error en la generación.</p>");
+      const result = await generateFullArticle(selectedTitle.title, outline, objective, ctaLink || '#', keyword, projectContext);
+      
+      // Handle the object response
+      setArticleContent(result.html || "<p>Error en la generación.</p>");
+      if (result.metaDescription) {
+          setMetaDescription(result.metaDescription);
+      }
+      
       setStep(4);
     } catch (e) {
       alert("Error escribiendo artículo.");
@@ -291,6 +297,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
           keyword={keyword}
           seoScore={seoScore}
           setSeoScore={setSeoScore}
+          metaDescription={metaDescription}
+          setMetaDescription={setMetaDescription}
           onSave={handleSaveArticle}
           saving={saveStatus === 'saving'}
           onBack={() => setStep(3)}

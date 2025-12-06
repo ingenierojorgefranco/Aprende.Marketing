@@ -383,7 +383,7 @@ export const generateFullArticle = async (
     ctaLink: string, 
     keyword: string,
     projectContext?: Project // NEW PARAMETER
-): Promise<string> => {
+): Promise<{ html: string; metaDescription: string }> => {
     
     // Enrich with Project Context
     let projectStrategy = "";
@@ -399,7 +399,6 @@ export const generateFullArticle = async (
         `;
     }
 
-    // MODIFIED PROMPT FOR TESTING LIMITS (200 CHARS)
     const prompt = `Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este título y esquema estructural OBLIGATORIO.
     
     Título: "${title}"
@@ -410,21 +409,36 @@ export const generateFullArticle = async (
     
     ${projectStrategy}
 
-    MODO PRUEBA ACTIVADO:
-    OBLIGATORIO: El artículo final NO DEBE superar los 200 caracteres en total.
-    Escribe SOLO un párrafo muy breve o un resumen ejecutivo que cumpla con la estructura pero de forma extremademente condensada para propósitos de debugging.
-    Asegúrate de incluir las etiquetas HTML básicas (<h1>, <p>).
-
-    Formato: HTML (usa <h1>, <h2>, <h3>, <h4>, <p>, <ul>, <li>, <strong>, <a href="...">).
-    Estilo: Profesional, educativo y persuasivo.
-    Idioma: Español Neutro.
+    INSTRUCCIONES ADICIONALES:
+    1. Genera también una 'metaDescription' optimizada para SEO.
+       - Debe tener MÁXIMO 155 caracteres.
+       - Debe ser persuasiva.
+       - Debe incluir un llamado a la acción (CTA) al final (ej: "¡Entra aquí!", "Lee más.").
     
-    NO incluyas <html>, <head> o <body>, solo el contenido del artículo dentro de un <div>.`;
+    Formato de Salida JSON:
+    {
+      "html": "Código HTML del artículo (usa <h1>, <h2>, <p>, <ul>, <li>, <strong>, <a href='...'>). NO incluyas <html> o <body>.",
+      "metaDescription": "Texto plano de la meta descripción."
+    }
+    
+    Idioma: Español Neutro.`;
+
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            html: { type: Type.STRING },
+            metaDescription: { type: Type.STRING }
+        },
+        required: ["html", "metaDescription"]
+    };
 
     try {
-        const response = await callGeminiBackend(prompt);
-        return response.text || "<p>Error generando el artículo.</p>";
+        const response = await callGeminiBackend(prompt, schema);
+        if (response.text) {
+            return JSON.parse(response.text);
+        }
+        return { html: "<p>Error generando el artículo.</p>", metaDescription: "" };
     } catch (e) {
-        return `<p>Error de conexión o timeout generando el artículo. Intenta con un tema más corto.</p>`;
+        return { html: `<p>Error de conexión o timeout generando el artículo. Intenta con un tema más corto.</p>`, metaDescription: "" };
     }
 };
