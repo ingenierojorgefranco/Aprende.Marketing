@@ -307,15 +307,18 @@ export interface ArticleTitleIdea {
 }
 
 export const generateArticleTitles = async (topic: string, objective: string, keyword: string): Promise<ArticleTitleIdea[]> => {
-    const prompt = `Actúa como un experto SEO y Content Manager.
-    Genera 5 ideas de títulos atractivos y optimizados para SEO para un artículo sobre el tema: "${topic}".
-    El objetivo del artículo es: "${objective}".
-    ${keyword ? `Palabra clave principal: "${keyword}"` : ''}
-    
-    REGLA OBLIGATORIA: Los títulos NO pueden superar los 60 caracteres de longitud. Deben ser cortos, impactantes y directos.
-    
+    const prompt = `Actúa como un Copywriter de clase mundial especializado en títulos virales y alto CTR.
+    Genera EXACTAMENTE 4 ideas de títulos persuasivos para un artículo sobre: "${topic}".
+    Objetivo: "${objective}".
+    ${keyword ? `Keyword: "${keyword}"` : ''}
+
+    REGLAS DE ORO (ESTRICTAS):
+    1. Longitud: MÁXIMO 80 caracteres por título.
+    2. Formato: Solo devuelve el texto del título. NUNCA generes párrafos o resúmenes en el campo de título.
+    3. Estilo: Usa curiosidad, beneficio directo, listas o preguntas provocadoras. Deben ser irresistibles de cliquear.
+
     Devuelve un JSON array de objetos con:
-    - title: El título propuesto (H1) (Máximo 60 caracteres).
+    - title: El título propuesto (H1) (Máximo 80 caracteres).
     - description: Breve explicación del enfoque o ángulo de este artículo (1 frase).
     `;
 
