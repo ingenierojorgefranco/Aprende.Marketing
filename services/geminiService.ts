@@ -1,3 +1,4 @@
+
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../types";
 import { api } from "./api"; // Usamos la configuración centralizada de API
 
@@ -307,10 +308,14 @@ export interface ArticleTitleIdea {
 }
 
 export const generateArticleTitles = async (topic: string, objective: string, keyword: string): Promise<ArticleTitleIdea[]> => {
-    // Prompt optimizado y cortado para velocidad
-    const prompt = `Genera 4 títulos virales (max 80 chars) para un artículo sobre: "${topic}".
+    // Prompt optimizado con restricciones estrictas para evitar texto basura (ej: chars count)
+    const prompt = `Genera 4 títulos virales para un artículo sobre: "${topic}".
     Objetivo: "${objective}".
     ${keyword ? `Keyword SEO: "${keyword}"` : ''}
+
+    REGLAS ESTRICTAS:
+    1. Longitud máxima: 80 caracteres.
+    2. En el campo 'title' devuelve SOLO el texto del título. NO escribas la longitud entre paréntesis ni explicaciones (ej: NO pongas "(70 chars)").
     
     Devuelve JSON Array: [{ "title": "...", "description": "..." }]`;
 
