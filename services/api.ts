@@ -358,6 +358,7 @@ export const api = {
               title: a.title,
               slug: a.slug,
               description: a.description,
+              metaDescription: a.meta_description, // Add this mapping
               featuredImage: a.featured_image,
               publishedAt: new Date(a.published_at),
               contentHtml: '' // No fetch content in list

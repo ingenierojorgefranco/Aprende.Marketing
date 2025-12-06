@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, ColorPalette, StructureType, Article } from '../types';
 import { api } from '../services/api';
@@ -529,7 +531,7 @@ export const LivePage: React.FC<LivePageProps> = ({
     ];
 
     // Prepare navigation links and add Blog if needed
-    const navLinks = [...navLinksRaw];
+    let navLinks = [...navLinksRaw];
     if (hasBlogArticles) {
         // Construct the correct blog URL relative to base path
         const blogUrl = basePath ? (basePath === '' ? '/blog' : `${basePath}/blog`) : '#';
@@ -538,6 +540,20 @@ export const LivePage: React.FC<LivePageProps> = ({
         if (!navLinks.some(link => link.label.toLowerCase() === 'blog')) {
             navLinks.push({ label: 'Blog', href: blogUrl });
         }
+    }
+
+    // FIX: Anchor links on Blog Pages
+    // When inside a blog page, anchors like "#features" won't work because sections aren't rendered.
+    // We must prepend the basePath to redirect to the main landing page first.
+    if (viewMode === 'blog-list' || viewMode === 'blog-post') {
+        navLinks = navLinks.map(link => {
+            if (link.href.startsWith('#')) {
+                const prefix = basePath || '/'; // Fallback to root if basePath is empty (custom domain root)
+                // Avoid double slash if prefix is '/' and href is '#...' -> '/#...' is fine
+                return { ...link, href: `${prefix === '/' ? '' : prefix}${link.href}` };
+            }
+            return link;
+        });
     }
 
     useEffect(() => {

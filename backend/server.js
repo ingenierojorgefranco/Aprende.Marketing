@@ -445,7 +445,7 @@ app.get('/api/public/pages/:pageId/blog', async (req, res) => {
     const { pageId } = req.params;
     try {
         const [rows] = await pool.query(
-            `SELECT id, title, slug, description, featured_image, published_at 
+            `SELECT id, title, slug, description, meta_description, featured_image, published_at 
              FROM articles 
              WHERE page_id = ? AND status = 'published' AND published_at <= NOW()
              ORDER BY published_at DESC`,
