@@ -50,8 +50,11 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
                 ? article.pageSubdomain.replace('.generatorlanding.com', '') 
                 : article.pageId;
              
-             // Solo generar URL si tenemos algún identificador válido de la página
-             const publicUrl = pageSlug ? `/admin/lp/${pageSlug}/blog/${article.slug}` : '#';
+             // URL pública del Artículo
+             const articleUrl = pageSlug ? `/admin/lp/${pageSlug}/blog/${article.slug}` : '#';
+             
+             // URL pública de la Landing Page Principal
+             const landingUrl = pageSlug ? `/admin/lp/${pageSlug}` : '#';
 
              return (
                 <div key={article.id} className="bg-gray-900 rounded-xl border border-gray-800 hover:border-primary/50 transition duration-300 group flex flex-col h-full overflow-hidden">
@@ -96,7 +99,16 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
                         {article.pageId ? (
                             <div className="flex items-center gap-2 text-xs text-blue-400">
                                 <Globe className="w-3 h-3" />
-                                Vinculado a: <span className="text-gray-300 font-medium truncate max-w-[150px]">{article.pageSubdomain || "Landing Page"}</span>
+                                Vinculado a: 
+                                <a 
+                                    href={landingUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer" 
+                                    className="text-blue-400 hover:text-blue-300 hover:underline font-medium truncate max-w-[150px] transition"
+                                    title="Ir a Landing Page"
+                                >
+                                    {article.pageName || article.pageSubdomain || "Landing Page"}
+                                </a>
                             </div>
                         ) : (
                             <div className="flex items-center gap-2 text-xs text-gray-600">
@@ -122,7 +134,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
                     
                     {article.pageId && pageSlug && (
                         <a 
-                            href={publicUrl} 
+                            href={articleUrl} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="bg-gray-800 hover:bg-primary hover:text-white text-gray-300 rounded-lg py-2 text-xs font-bold transition flex items-center justify-center gap-2 border border-gray-700 hover:border-primary"

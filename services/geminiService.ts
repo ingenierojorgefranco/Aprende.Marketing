@@ -1,4 +1,5 @@
 
+
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../types";
 import { api } from "./api"; // Usamos la configuración centralizada de API
 
@@ -315,9 +316,10 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
 
     REGLAS ESTRICTAS:
     1. Longitud máxima: 80 caracteres.
-    2. En el campo 'title' devuelve SOLO el texto del título. NO escribas la longitud entre paréntesis ni explicaciones (ej: NO pongas "(70 chars)").
+    2. En el campo 'title' devuelve SOLO el texto del título. NO escribas la longitud entre paréntesis ni explicaciones.
+    3. NO generes descripciones. Deja el campo 'description' como una cadena vacía "". Solo queremos los títulos.
     
-    Devuelve JSON Array: [{ "title": "...", "description": "..." }]`;
+    Devuelve JSON Array: [{ "title": "...", "description": "" }]`;
 
     const schema = {
         type: Type.ARRAY,
@@ -338,10 +340,10 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
         console.warn("Fallo IA en títulos, usando fallback local para no bloquear.", e);
         // Fallback rápido si falla la IA
         return [
-            { title: `Guía esencial sobre ${topic}`, description: "Todo lo que necesitas saber." },
-            { title: `${topic}: Estrategias probadas`, description: "Enfoque práctico." },
-            { title: `5 secretos de ${topic}`, description: "Lista de consejos." },
-            { title: `Cómo dominar ${topic}`, description: "Tutorial paso a paso." }
+            { title: `Guía esencial sobre ${topic}`, description: "" },
+            { title: `${topic}: Estrategias probadas`, description: "" },
+            { title: `5 secretos de ${topic}`, description: "" },
+            { title: `Cómo dominar ${topic}`, description: "" }
         ];
     }
 };

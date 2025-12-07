@@ -259,6 +259,7 @@ export const api = {
               id: a.id.toString(),
               pageId: a.page_id ? a.page_id.toString() : undefined,
               pageSubdomain: a.page_subdomain, // Mapped from join
+              pageName: a.page_name, // Mapped from join
               title: a.title,
               slug: a.slug,
               description: a.description,

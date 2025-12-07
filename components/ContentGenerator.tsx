@@ -116,6 +116,21 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     setSaveLogs(prev => [...prev, `[${timestamp}] ${message}`]);
   };
 
+  // --- CLEAN SLUG GENERATOR ---
+  const generateCleanSlug = (text: string) => {
+      const stopWords = new Set(['y', 'la', 'el', 'en', 'de', 'del', 'un', 'una', 'por', 'con', 'los', 'las', 'al', 'a']);
+      return text
+        .toString()
+        .normalize('NFD') // Normalize special chars
+        .replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove non-alphanumeric except space and hyphen
+        .split(/\s+/)
+        .filter(word => !stopWords.has(word) && word.length > 0)
+        .join('-');
+  };
+
   // --- HANDLERS ---
 
   const handleProjectSelect = (projectId: string) => {
@@ -155,7 +170,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     // Metadata defaults
     setMetaTitle(idea.title);
     setMetaDescription(idea.description || '');
-    setSlug(idea.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
+    setSlug(generateCleanSlug(idea.title)); // Use clean generator
 
     setLoading(true);
     try {
@@ -209,7 +224,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       id: editArticleId, // Incluir ID si es edición
       pageId: selectedPageId || undefined,
       title: articleTitle, // Use editable title
-      slug: slug || articleTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      slug: slug || generateCleanSlug(articleTitle), // Fallback clean slug
       description: metaDescription || '',
       contentHtml: articleContent,
       featuredImage: featuredImage,
@@ -309,13 +324,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
           featuredImage={featuredImage}
           setFeaturedImage={setFeaturedImage}
           keyword={keyword}
+          setKeyword={setKeyword} // Passed down
           seoScore={seoScore}
           setSeoScore={setSeoScore}
           metaDescription={metaDescription}
           setMetaDescription={setMetaDescription}
           onSave={handleSaveArticle}
           saving={saveStatus === 'saving'}
-          onBack={() => setStep(3)}
+          onBack={() => editArticleId ? navigate('/dashboard/articles') : setStep(3)} // Custom logic for Edit Mode
           isEditing={!!editArticleId}
         />
       )}

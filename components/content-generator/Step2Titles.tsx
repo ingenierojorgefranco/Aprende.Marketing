@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArticleTitleIdea } from '../../services/geminiService';
-import { ArrowLeft, RefreshCw } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Sparkles } from 'lucide-react';
 
 interface Step2TitlesProps {
   titleIdeas: ArticleTitleIdea[];
@@ -16,18 +16,22 @@ export const Step2Titles: React.FC<Step2TitlesProps> = ({ titleIdeas, onSelectTi
         <ArrowLeft className="w-4 h-4" /> Volver
       </button>
 
-      <h2 className="text-2xl font-bold text-white mb-6">Selecciona el mejor enfoque</h2>
+      <h2 className="text-2xl font-bold text-white mb-2">Selecciona el mejor enfoque</h2>
+      <p className="text-gray-400 mb-8 flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-primary" /> Hemos analizado tu tema y optimizado estos títulos para maximizar el CTR y las visitas.
+      </p>
 
       <div className="grid md:grid-cols-2 gap-4">
         {titleIdeas.map((idea, idx) => (
           <div
             key={idx}
             onClick={() => onSelectTitle(idea)}
-            className="bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-blue-500/50 p-6 rounded-xl cursor-pointer transition group relative overflow-hidden"
+            className="bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-blue-500/50 p-6 rounded-xl cursor-pointer transition group relative overflow-hidden flex flex-col justify-center min-h-[120px]"
           >
             <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition"></div>
-            <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition">{idea.title}</h3>
-            <p className="text-sm text-gray-400">{idea.description}</p>
+            <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition leading-snug">{idea.title}</h3>
+            {/* Description hidden as requested */}
+            {/* <p className="text-sm text-gray-400">{idea.description}</p> */}
             <span className="text-xs text-gray-600 mt-2 block">{idea.title.length} caracteres</span>
           </div>
         ))}

@@ -553,8 +553,9 @@ app.get('/api/articles', authMiddleware, async (req, res) => {
   try {
     // JOIN with landing_pages to get subdomain for dashboard links
     // IMPORTANT: Ensure we fetch subdomain. If subdomain is NULL, page_subdomain will be NULL.
+    // ADDED: lp.name as page_name
     const [rows] = await pool.query(
-        `SELECT a.*, lp.subdomain as page_subdomain 
+        `SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name 
          FROM articles a 
          LEFT JOIN landing_pages lp ON a.page_id = lp.id 
          WHERE a.user_id = ? 

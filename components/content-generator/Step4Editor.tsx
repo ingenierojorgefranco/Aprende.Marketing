@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArticleTitleIdea } from '../../services/geminiService';
 import { LandingPage } from '../../types';
-import { FileText, Save, Copy, Download, RefreshCw, Globe, BarChart, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Undo, Redo, Type, Palette, Eraser, Heading1, Heading2, Heading3, Check, X, Calendar } from 'lucide-react';
+import { FileText, Save, Copy, Download, RefreshCw, Globe, BarChart, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Undo, Redo, Type, Palette, Eraser, Heading2, Heading3, Check, X, Calendar, Search } from 'lucide-react';
 
 interface Step4EditorProps {
   articleContent: string;
@@ -21,6 +21,7 @@ interface Step4EditorProps {
   featuredImage: string;
   setFeaturedImage: (val: string) => void;
   keyword: string;
+  setKeyword?: (val: string) => void; // New Prop
   seoScore: number;
   setSeoScore: (score: number) => void;
   metaDescription: string;
@@ -43,7 +44,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
   status, setStatus,
   publishDate, setPublishDate,
   featuredImage, setFeaturedImage,
-  keyword, seoScore, setSeoScore,
+  keyword, setKeyword, seoScore, setSeoScore,
   metaDescription, setMetaDescription,
   onSave, saving, isEditing
 }) => {
@@ -76,6 +77,25 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
     }, 800);
     return () => clearTimeout(handler);
   }, [articleContent, keyword, articleTitle]);
+
+  // --- CLEAN SLUG HELPER (Internal) ---
+  const handleSlugBlur = () => {
+      const stopWords = new Set(['y', 'la', 'el', 'en', 'de', 'del', 'un', 'una', 'por', 'con', 'los', 'las', 'al', 'a']);
+      const cleaned = slug
+        .toString()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .split(/\s+/) // Split on any whitespace first if user pasted spaces
+        .join('-')    // Convert spaces to hyphens temporarily
+        .split('-')   // Split by hyphen to filter words
+        .filter(word => !stopWords.has(word) && word.length > 0)
+        .join('-');
+      
+      setSlug(cleaned);
+  };
 
   // --- FORMATTER ---
   const formatHTML = (html: string) => {
@@ -399,10 +419,26 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                <input 
                   type="text" 
                   value={slug} 
-                  onChange={(e) => setSlug(e.target.value)} 
+                  onChange={(e) => setSlug(e.target.value)}
+                  onBlur={handleSlugBlur}
                   placeholder="mi-titulo-genial"
                   className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
                />
+            </div>
+
+            {/* Keyword Input */}
+            <div>
+                <label className="text-xs text-gray-400 block mb-1">Palabra Clave (SEO)</label>
+                <div className="relative">
+                    <input
+                        type="text"
+                        value={keyword}
+                        onChange={(e) => setKeyword && setKeyword(e.target.value)}
+                        className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 pl-7 text-xs text-white outline-none focus:border-green-500"
+                        placeholder="ej: marketing digital"
+                    />
+                    <Search className="absolute top-2 left-2 w-3 h-3 text-gray-500" />
+                </div>
             </div>
 
             {/* Meta Description Input */}
