@@ -107,7 +107,7 @@ export const Step3Outline: React.FC<Step3OutlineProps> = ({
   };
 
   return (
-    <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-right-8 duration-500">
+    <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-right-8 duration-500">
       <button onClick={onBack} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm">
         <ArrowLeft className="w-4 h-4" /> Volver
       </button>
