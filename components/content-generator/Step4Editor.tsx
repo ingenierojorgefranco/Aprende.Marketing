@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArticleTitleIdea } from '../../services/geminiService';
 import { LandingPage } from '../../types';
-import { FileText, Save, Copy, Download, RefreshCw, Globe, BarChart, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Undo, Redo, Type, Palette, Eraser, Heading1, Heading2, Heading3 } from 'lucide-react';
+import { FileText, Save, Copy, Download, RefreshCw, Globe, BarChart, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Undo, Redo, Type, Palette, Eraser, Heading1, Heading2, Heading3, Check, X, Calendar } from 'lucide-react';
 
 interface Step4EditorProps {
   articleContent: string;
   setArticleContent: (content: string) => void;
   selectedTitle: ArticleTitleIdea | null;
+  articleTitle: string;
+  setArticleTitle: (title: string) => void;
+  slug: string;
+  setSlug: (slug: string) => void;
   selectedPageId: string;
   setSelectedPageId: (id: string) => void;
   userPages: LandingPage[];
@@ -24,11 +28,17 @@ interface Step4EditorProps {
   onSave: () => void;
   saving: boolean;
   onBack: () => void;
-  isEditing: boolean; // Nueva prop para saber si es edición
+  isEditing: boolean;
+}
+
+interface SeoCheckItem {
+    label: string;
+    passed: boolean;
 }
 
 export const Step4Editor: React.FC<Step4EditorProps> = ({
   articleContent, setArticleContent, selectedTitle,
+  articleTitle, setArticleTitle, slug, setSlug,
   selectedPageId, setSelectedPageId, userPages,
   status, setStatus,
   publishDate, setPublishDate,
@@ -38,10 +48,11 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
   onSave, saving, isEditing
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
   const [wordCount, setWordCount] = useState(0);
-  const [keywordDensity, setKeywordDensity] = useState(0);
   const [showSourceCode, setShowSourceCode] = useState(false);
   const [activeFormats, setActiveFormats] = useState<string[]>([]);
+  const [seoChecklist, setSeoChecklist] = useState<SeoCheckItem[]>([]);
 
   // Initialize Editor Content
   useEffect(() => {
@@ -51,13 +62,57 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
     }
   }, []);
 
+  // Sync Content when toggling Visual mode back
+  useEffect(() => {
+      if (!showSourceCode && editorRef.current) {
+          editorRef.current.innerHTML = articleContent;
+      }
+  }, [showSourceCode]);
+
   // Debounced SEO Analysis
   useEffect(() => {
     const handler = setTimeout(() => {
       analyzeSeo(articleContent);
     }, 800);
     return () => clearTimeout(handler);
-  }, [articleContent, keyword]);
+  }, [articleContent, keyword, articleTitle]);
+
+  // --- FORMATTER ---
+  const formatHTML = (html: string) => {
+    let formatted = '';
+    const reg = /(>)(<)(\/*)/g;
+    const xml = html.replace(reg, '$1\r\n$2$3');
+    let pad = 0;
+    xml.split('\r\n').forEach((node) => {
+        let indent = 0;
+        if (node.match(/.+<\/\w[^>]*>$/)) {
+            indent = 0;
+        } else if (node.match(/^<\/\w/)) {
+            if (pad !== 0) pad -= 1;
+        } else if (node.match(/^<\w[^>]*[^\/]>.*$/)) {
+            indent = 1;
+        } else {
+            indent = 0;
+        }
+
+        let padding = '';
+        for (let i = 0; i < pad; i++) {
+            padding += '  ';
+        }
+
+        formatted += padding + node + '\r\n';
+        pad += indent;
+    });
+    return formatted.trim();
+  };
+
+  const toggleSourceCode = () => {
+      if (!showSourceCode) {
+          // Switch to Source: Format content
+          setArticleContent(formatHTML(articleContent));
+      }
+      setShowSourceCode(!showSourceCode);
+  };
 
   // --- EDITOR FUNCTIONALITY ---
 
@@ -83,9 +138,6 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
 
   const handleSourceCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setArticleContent(e.target.value);
-    if (editorRef.current) {
-        editorRef.current.innerHTML = e.target.value;
-    }
   };
 
   const insertLink = () => {
@@ -112,30 +164,66 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
     const words = text ? text.split(/\s+/).filter(w => w.length > 0).length : 0;
     setWordCount(words);
 
-    let score = 50;
-    if (words > 600) score += 20;
-    else if (words > 300) score += 10;
+    let score = 0;
+    const checks: SeoCheckItem[] = [];
 
-    let density = 0;
-    if (keyword && keyword.trim().length > 0 && words > 0) {
-      const escapedKeyword = escapeRegExp(keyword);
-      try {
-        const regex = new RegExp(escapedKeyword, 'gi');
-        const matches = text.match(regex);
-        const count = matches ? matches.length : 0;
-        density = (count / words) * 100;
-        if (count > 2) score += 20;
-      } catch (e) { }
-      if (content.toLowerCase().includes(`<h1>`)) score += 5;
+    // Rule 1: Title Length
+    if (articleTitle && articleTitle.length >= 10 && articleTitle.length <= 70) {
+        score += 15;
+        checks.push({ label: "Longitud del Título (10-70 car.)", passed: true });
     } else {
-      score += 10;
+        checks.push({ label: "Longitud del Título (10-70 car.)", passed: false });
     }
 
-    if (content.includes('<h2>')) score += 5;
-    
-    // Safety
-    if (isNaN(density)) density = 0;
-    setKeywordDensity(parseFloat(density.toFixed(2)));
+    // Rule 2: Word Count
+    if (words > 300) {
+        score += 25;
+        checks.push({ label: "Contenido extenso (> 300 palabras)", passed: true });
+    } else {
+        checks.push({ label: "Contenido extenso (> 300 palabras)", passed: false });
+    }
+
+    // Rule 3: Keyword in Title
+    let keywordInTitle = false;
+    if (keyword && articleTitle.toLowerCase().includes(keyword.toLowerCase())) {
+        keywordInTitle = true;
+        score += 20;
+    }
+    checks.push({ label: "Palabra clave en el Título", passed: keywordInTitle });
+
+    // Rule 4: Subheadings
+    if (content.includes('<h2>')) {
+        score += 10;
+        checks.push({ label: "Uso de subtítulos (H2)", passed: true });
+    } else {
+        checks.push({ label: "Uso de subtítulos (H2)", passed: false });
+    }
+
+    // Rule 5: Keyword Density (Simplified)
+    let densityPassed = false;
+    if (keyword && words > 0) {
+        const escapedKeyword = escapeRegExp(keyword);
+        try {
+            const regex = new RegExp(escapedKeyword, 'gi');
+            const matches = text.match(regex);
+            const count = matches ? matches.length : 0;
+            if (count > 0) {
+                densityPassed = true;
+                score += 20;
+            }
+        } catch(e) {}
+    }
+    checks.push({ label: "Palabra clave en el contenido", passed: densityPassed });
+
+    // Rule 6: Image
+    if (content.includes('<img') || featuredImage) {
+        score += 10;
+        checks.push({ label: "Contiene imágenes", passed: true });
+    } else {
+        checks.push({ label: "Contiene imágenes", passed: false });
+    }
+
+    setSeoChecklist(checks);
     setSeoScore(Math.min(100, Math.max(0, score)));
   };
 
@@ -152,14 +240,14 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
     const fileDownload = document.createElement("a");
     document.body.appendChild(fileDownload);
     fileDownload.href = source;
-    fileDownload.download = `${selectedTitle?.title || 'articulo'}.doc`;
+    fileDownload.download = `${articleTitle || 'articulo'}.doc`;
     fileDownload.click();
     document.body.removeChild(fileDownload);
   };
 
-  // SEO Visualization
+  // SEO Score Color
   const validSeoScore = isNaN(seoScore) ? 0 : seoScore;
-  const strokeColor = validSeoScore > 80 ? '#22c55e' : validSeoScore > 50 ? '#eab308' : '#ef4444';
+  const scoreColor = validSeoScore > 80 ? 'text-green-500' : validSeoScore > 50 ? 'text-yellow-500' : 'text-red-500';
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)] animate-in fade-in zoom-in-95 duration-500">
@@ -172,7 +260,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
           <div className="flex items-center gap-2">
             <div className="bg-blue-100 text-blue-600 p-2 rounded-lg"><FileText className="w-5 h-5" /></div>
             <div>
-              <h3 className="font-bold text-gray-800 text-sm line-clamp-1">{selectedTitle?.title || "Sin título"}</h3>
+              <h3 className="font-bold text-gray-800 text-sm line-clamp-1">{articleTitle || "Sin título"}</h3>
               <p className="text-xs text-gray-500">{selectedPageId ? 'Vinculado a Landing Page' : 'Borrador sin vincular'}</p>
             </div>
           </div>
@@ -252,7 +340,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
         {/* Source Code Toggle */}
         <div className="bg-gray-50 border-b border-gray-200 px-3 py-1 flex justify-end">
              <button 
-                onClick={() => setShowSourceCode(!showSourceCode)}
+                onClick={toggleSourceCode}
                 className={`text-xs flex items-center gap-1 px-2 py-1 rounded transition ${showSourceCode ? 'bg-blue-100 text-blue-700 font-bold' : 'text-gray-500 hover:text-gray-800'}`}
              >
                  <Code className="w-3 h-3" /> {showSourceCode ? 'Volver a Visual' : 'Ver Código Fuente'}
@@ -266,6 +354,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                  className="w-full h-full p-6 font-mono text-sm text-gray-800 bg-gray-50 outline-none resize-none"
                  value={articleContent}
                  onChange={handleSourceCodeChange}
+                 spellCheck={false}
               />
           ) : (
               <div
@@ -288,19 +377,67 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
             <Globe className="w-4 h-4 text-blue-400" /> Configuración
           </h3>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
+            
+            {/* Title Input */}
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Landing Page Vinculada</label>
-              <select
-                value={selectedPageId}
-                onChange={(e) => setSelectedPageId(e.target.value)}
-                className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500"
-              >
-                <option value="">-- Sin Vincular --</option>
-                {userPages.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
+               <div className="flex justify-between mb-1">
+                   <label className="text-xs text-gray-400">Título Artículo (H1)</label>
+                   <span className="text-[10px] text-gray-500">{articleTitle.length}/70</span>
+               </div>
+               <input 
+                  type="text" 
+                  value={articleTitle} 
+                  onChange={(e) => setArticleTitle(e.target.value)} 
+                  className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500"
+               />
             </div>
 
+            {/* Slug Input */}
+            <div>
+               <label className="text-xs text-gray-400 block mb-1">Slug (URL amigable)</label>
+               <input 
+                  type="text" 
+                  value={slug} 
+                  onChange={(e) => setSlug(e.target.value)} 
+                  placeholder="mi-titulo-genial"
+                  className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+               />
+            </div>
+
+            {/* Meta Description Input */}
+            <div>
+                <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs text-gray-400">Meta Descripción</label>
+                    <span className={`text-[10px] ${(metaDescription || '').length > 155 ? 'text-red-400 font-bold' : 'text-gray-500'}`}>
+                        {(metaDescription || '').length}/155
+                    </span>
+                </div>
+                <textarea
+                    value={metaDescription || ''}
+                    onChange={(e) => setMetaDescription(e.target.value)}
+                    rows={3}
+                    className={`w-full bg-black border rounded px-2 py-1.5 text-xs text-white outline-none resize-none ${(metaDescription || '').length > 155 ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-blue-500'}`}
+                    placeholder="Resumen atractivo para Google..."
+                />
+            </div>
+
+            {/* Publication Date */}
+            <div>
+                <label className="text-xs text-gray-400 block mb-1">Fecha de Publicación</label>
+                <div className="relative group cursor-pointer" onClick={() => dateInputRef.current?.showPicker()}>
+                    <Calendar className="absolute top-1.5 left-2 w-4 h-4 text-gray-500 group-hover:text-blue-400 pointer-events-none" />
+                    <input
+                    ref={dateInputRef}
+                    type="date"
+                    value={publishDate}
+                    onChange={(e) => setPublishDate(e.target.value)}
+                    className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 pl-8 text-xs text-white outline-none focus:border-blue-500 cursor-pointer"
+                    />
+                </div>
+            </div>
+
+            {/* Status & Page Link */}
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-xs text-gray-400 block mb-1">Estado</label>
@@ -315,13 +452,15 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 </select>
               </div>
               <div>
-                <label className="text-xs text-gray-400 block mb-1">Fecha</label>
-                <input
-                  type="date"
-                  value={publishDate}
-                  onChange={(e) => setPublishDate(e.target.value)}
-                  className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500"
-                />
+                <label className="text-xs text-gray-400 block mb-1">Vincular a Page</label>
+                <select
+                    value={selectedPageId}
+                    onChange={(e) => setSelectedPageId(e.target.value)}
+                    className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500"
+                >
+                    <option value="">-- Ninguna --</option>
+                    {userPages.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
               </div>
             </div>
 
@@ -339,52 +478,38 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
               </div>
             </div>
 
-            {/* Meta Description Input */}
-            <div className="pt-2 border-t border-gray-800 mt-2">
-                <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs text-gray-400">Meta Descripción</label>
-                    <span className={`text-[10px] ${(metaDescription || '').length > 155 ? 'text-red-400 font-bold' : 'text-gray-500'}`}>
-                        {(metaDescription || '').length}/155
-                    </span>
-                </div>
-                <textarea
-                    value={metaDescription || ''}
-                    onChange={(e) => setMetaDescription(e.target.value)}
-                    rows={4}
-                    className={`w-full bg-black border rounded px-2 py-1.5 text-xs text-white outline-none resize-none ${(metaDescription || '').length > 155 ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-blue-500'}`}
-                    placeholder="Resumen atractivo para Google..."
-                />
-                <p className="text-[10px] text-gray-500 mt-1 italic">
-                    Incluye un llamado a la acción (CTA) para mejorar el CTR.
-                </p>
-            </div>
           </div>
         </div>
 
-        {/* SEO Score */}
+        {/* SEO Score Checklist */}
         <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 shadow-lg">
-          <h3 className="text-white font-bold mb-4 flex items-center gap-2 text-sm">
-            <BarChart className="w-4 h-4 text-green-400" /> SEO Score
-          </h3>
-
-          <div className="flex items-center justify-center mb-4 relative">
-            <svg className="w-24 h-24 transform -rotate-90">
-              <circle cx="48" cy="48" r="40" stroke="#374151" strokeWidth="8" fill="transparent" />
-              <circle cx="48" cy="48" r="40" stroke={strokeColor} strokeWidth="8" fill="transparent" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * validSeoScore) / 100} className="transition-all duration-1000 ease-out" />
-            </svg>
-            <span className="absolute text-2xl font-bold text-white">{validSeoScore}</span>
+          <div className="flex justify-between items-center mb-4">
+             <h3 className="text-white font-bold flex items-center gap-2 text-sm">
+                <BarChart className="w-4 h-4 text-green-400" /> SEO Score
+             </h3>
+             <span className={`text-xl font-bold ${scoreColor}`}>{validSeoScore}/100</span>
           </div>
 
-          <div className="space-y-2 text-xs">
-            <div className="flex justify-between text-gray-400">
-              <span>Palabras:</span> <span className="text-white font-mono">{wordCount}</span>
-            </div>
-            <div className="flex justify-between text-gray-400">
-              <span>Densidad Keyword:</span> <span className="text-white font-mono">{keywordDensity}%</span>
-            </div>
-            <div className="flex justify-between text-gray-400">
-              <span>Legibilidad:</span> <span className="text-green-400">Buena</span>
-            </div>
+          <div className="space-y-2">
+             {seoChecklist.map((check, idx) => (
+                 <div key={idx} className="flex items-center gap-2 text-xs">
+                     {check.passed ? (
+                         <div className="bg-green-900/50 p-0.5 rounded-full border border-green-500/50">
+                             <Check className="w-3 h-3 text-green-400" />
+                         </div>
+                     ) : (
+                         <div className="bg-gray-800 p-0.5 rounded-full border border-gray-600">
+                             <X className="w-3 h-3 text-gray-500" />
+                         </div>
+                     )}
+                     <span className={check.passed ? 'text-gray-300' : 'text-gray-500'}>{check.label}</span>
+                 </div>
+             ))}
+          </div>
+          
+          <div className="mt-4 pt-4 border-t border-gray-800 flex justify-between text-xs text-gray-400">
+              <span>Palabras: <b className="text-white">{wordCount}</b></span>
+              <span>Keyword: <b className="text-white">{keyword}</b></span>
           </div>
         </div>
       </div>

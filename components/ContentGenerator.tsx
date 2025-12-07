@@ -35,6 +35,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   // Content Generation State
   const [titleIdeas, setTitleIdeas] = useState<ArticleTitleIdea[]>([]);
   const [selectedTitle, setSelectedTitle] = useState<ArticleTitleIdea | null>(null);
+  const [articleTitle, setArticleTitle] = useState(''); // Editable Title
   const [outline, setOutline] = useState<string[]>([]);
   const [ctaLink, setCtaLink] = useState('');
   const [articleContent, setArticleContent] = useState('');
@@ -81,7 +82,11 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                 const article = await api.getArticleById(editArticleId);
                 if (article) {
                     setArticleContent(article.contentHtml);
+                    
+                    // Set title logic
                     setSelectedTitle({ title: article.title, description: article.description });
+                    setArticleTitle(article.title);
+                    
                     setSlug(article.slug);
                     setMetaTitle(article.metaTitle || article.title);
                     // FIX: Ensure metaDescription is never null/undefined to prevent .length errors
@@ -145,6 +150,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
   const handleSelectTitle = async (idea: ArticleTitleIdea) => {
     setSelectedTitle(idea);
+    setArticleTitle(idea.title); // Initialize editable title
+    
     // Metadata defaults
     setMetaTitle(idea.title);
     setMetaDescription(idea.description || '');
@@ -191,7 +198,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   };
 
   const handleSaveArticle = async () => {
-    if (!selectedTitle || !onSave) return;
+    if (!articleTitle || !onSave) return;
     
     setIsLogModalOpen(true);
     setSaveStatus('saving');
@@ -201,9 +208,9 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     const articlePayload = {
       id: editArticleId, // Incluir ID si es edición
       pageId: selectedPageId || undefined,
-      title: selectedTitle.title,
-      slug: slug || selectedTitle.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      description: selectedTitle.description,
+      title: articleTitle, // Use editable title
+      slug: slug || articleTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      description: metaDescription || '',
       contentHtml: articleContent,
       featuredImage: featuredImage,
       keyword: keyword,
@@ -288,6 +295,10 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
           articleContent={articleContent}
           setArticleContent={setArticleContent}
           selectedTitle={selectedTitle}
+          articleTitle={articleTitle}
+          setArticleTitle={setArticleTitle}
+          slug={slug}
+          setSlug={setSlug}
           selectedPageId={selectedPageId}
           setSelectedPageId={setSelectedPageId}
           userPages={userPages}

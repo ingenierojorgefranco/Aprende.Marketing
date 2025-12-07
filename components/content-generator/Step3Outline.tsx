@@ -107,15 +107,15 @@ export const Step3Outline: React.FC<Step3OutlineProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-right-8 duration-500">
+    <div className="w-full max-w-[95%] xl:max-w-7xl mx-auto animate-in fade-in slide-in-from-right-8 duration-500">
       <button onClick={onBack} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm">
         <ArrowLeft className="w-4 h-4" /> Volver
       </button>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+      <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl">
         <div className="p-6 border-b border-gray-800 bg-gray-800/50">
           <h2 className="text-xl font-bold text-white mb-1">Estructura del Artículo</h2>
-          <p className="text-sm text-gray-400">Arrastra para reordenar bloques completos.</p>
+          <p className="text-sm text-gray-400">Arrastra para reordenar bloques completos. El contenido se generará basado en este orden.</p>
         </div>
 
         <div className="p-6 space-y-1">
