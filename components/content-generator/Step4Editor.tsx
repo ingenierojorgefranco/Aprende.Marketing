@@ -281,18 +281,11 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
             <div className="bg-blue-100 text-blue-600 p-2 rounded-lg"><FileText className="w-5 h-5" /></div>
             <div>
               <h3 className="font-bold text-gray-800 text-sm line-clamp-1">{articleTitle || "Sin título"}</h3>
-              <p className="text-xs text-gray-500">{selectedPageId ? 'Vinculado a Landing Page' : 'Borrador sin vincular'}</p>
+              {/* Removed: Vinculado a Landing Page text */}
             </div>
           </div>
           <div className="flex gap-2">
-            <button 
-                onClick={onSave} 
-                disabled={saving} 
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition text-sm font-bold text-white shadow-md ${saving ? 'bg-gray-400' : isEditing ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
-            >
-              {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 
-              {saving ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Publicar Artículo'}
-            </button>
+            {/* Removed: Save Button from Top Bar */}
             <div className="h-8 w-px bg-gray-300 mx-1"></div>
             <button onClick={copyToClipboard} className="text-gray-600 hover:text-blue-600 p-2 rounded-lg hover:bg-blue-50 transition" title="Copiar HTML"><Copy className="w-5 h-5" /></button>
             <button onClick={downloadDoc} className="text-gray-600 hover:text-blue-600 p-2 rounded-lg hover:bg-blue-50 transition" title="Descargar Word"><Download className="w-5 h-5" /></button>
@@ -399,66 +392,17 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
 
           <div className="space-y-4">
             
-            {/* Title Input */}
-            <div>
-               <div className="flex justify-between mb-1">
-                   <label className="text-xs text-gray-400">Título Artículo (H1)</label>
-                   <span className="text-[10px] text-gray-500">{articleTitle.length}/70</span>
-               </div>
-               <input 
-                  type="text" 
-                  value={articleTitle} 
-                  onChange={(e) => setArticleTitle(e.target.value)} 
-                  className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500"
-               />
-            </div>
+            {/* 1. SAVE BUTTON (Moved here) */}
+            <button 
+                onClick={onSave} 
+                disabled={saving} 
+                className={`w-full flex justify-center items-center gap-2 px-4 py-3 rounded-lg transition text-sm font-bold text-white shadow-md ${saving ? 'bg-gray-400' : isEditing ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+            >
+              {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 
+              {saving ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Publicar Artículo'}
+            </button>
 
-            {/* Slug Input */}
-            <div>
-               <label className="text-xs text-gray-400 block mb-1">Slug (URL amigable)</label>
-               <input 
-                  type="text" 
-                  value={slug} 
-                  onChange={(e) => setSlug(e.target.value)}
-                  onBlur={handleSlugBlur}
-                  placeholder="mi-titulo-genial"
-                  className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
-               />
-            </div>
-
-            {/* Keyword Input */}
-            <div>
-                <label className="text-xs text-gray-400 block mb-1">Palabra Clave (SEO)</label>
-                <div className="relative">
-                    <input
-                        type="text"
-                        value={keyword}
-                        onChange={(e) => setKeyword && setKeyword(e.target.value)}
-                        className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 pl-7 text-xs text-white outline-none focus:border-green-500"
-                        placeholder="ej: marketing digital"
-                    />
-                    <Search className="absolute top-2 left-2 w-3 h-3 text-gray-500" />
-                </div>
-            </div>
-
-            {/* Meta Description Input */}
-            <div>
-                <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs text-gray-400">Meta Descripción</label>
-                    <span className={`text-[10px] ${(metaDescription || '').length > 155 ? 'text-red-400 font-bold' : 'text-gray-500'}`}>
-                        {(metaDescription || '').length}/155
-                    </span>
-                </div>
-                <textarea
-                    value={metaDescription || ''}
-                    onChange={(e) => setMetaDescription(e.target.value)}
-                    rows={3}
-                    className={`w-full bg-black border rounded px-2 py-1.5 text-xs text-white outline-none resize-none ${(metaDescription || '').length > 155 ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-blue-500'}`}
-                    placeholder="Resumen atractivo para Google..."
-                />
-            </div>
-
-            {/* Publication Date */}
+            {/* 2. Publication Date */}
             <div>
                 <label className="text-xs text-gray-400 block mb-1">Fecha de Publicación</label>
                 <div className="relative group cursor-pointer" onClick={() => dateInputRef.current?.showPicker()}>
@@ -473,7 +417,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 </div>
             </div>
 
-            {/* Status & Page Link */}
+            {/* 3. Status & Page Link */}
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-xs text-gray-400 block mb-1">Estado</label>
@@ -500,6 +444,34 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
               </div>
             </div>
 
+            {/* 4. Title Input */}
+            <div>
+               <div className="flex justify-between mb-1">
+                   <label className="text-xs text-gray-400">Título Artículo (H1)</label>
+                   <span className="text-[10px] text-gray-500">{articleTitle.length}/70</span>
+               </div>
+               <input 
+                  type="text" 
+                  value={articleTitle} 
+                  onChange={(e) => setArticleTitle(e.target.value)} 
+                  className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500"
+               />
+            </div>
+
+            {/* 5. Slug Input */}
+            <div>
+               <label className="text-xs text-gray-400 block mb-1">Slug (URL amigable)</label>
+               <input 
+                  type="text" 
+                  value={slug} 
+                  onChange={(e) => setSlug(e.target.value)}
+                  onBlur={handleSlugBlur}
+                  placeholder="mi-titulo-genial"
+                  className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+               />
+            </div>
+
+            {/* 6. Featured Image */}
             <div>
               <label className="text-xs text-gray-400 block mb-1">Imagen Destacada (URL)</label>
               <div className="flex gap-1">
@@ -514,6 +486,23 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
               </div>
             </div>
 
+            {/* Meta Description Input */}
+            <div>
+                <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs text-gray-400">Meta Descripción</label>
+                    <span className={`text-[10px] ${(metaDescription || '').length > 155 ? 'text-red-400 font-bold' : 'text-gray-500'}`}>
+                        {(metaDescription || '').length}/155
+                    </span>
+                </div>
+                <textarea
+                    value={metaDescription || ''}
+                    onChange={(e) => setMetaDescription(e.target.value)}
+                    rows={3}
+                    className={`w-full bg-black border rounded px-2 py-1.5 text-xs text-white outline-none resize-none ${(metaDescription || '').length > 155 ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-blue-500'}`}
+                    placeholder="Resumen atractivo para Google..."
+                />
+            </div>
+
           </div>
         </div>
 
@@ -524,6 +513,21 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 <BarChart className="w-4 h-4 text-green-400" /> SEO Score
              </h3>
              <span className={`text-xl font-bold ${scoreColor}`}>{validSeoScore}/100</span>
+          </div>
+
+          {/* Keyword Input Moved Here */}
+          <div className="mb-4">
+                <label className="text-xs text-gray-400 block mb-1">Palabra Clave (SEO)</label>
+                <div className="relative">
+                    <input
+                        type="text"
+                        value={keyword}
+                        onChange={(e) => setKeyword && setKeyword(e.target.value)}
+                        className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 pl-7 text-xs text-white outline-none focus:border-green-500"
+                        placeholder="ej: marketing digital"
+                    />
+                    <Search className="absolute top-2 left-2 w-3 h-3 text-gray-500" />
+                </div>
           </div>
 
           <div className="space-y-2">
@@ -545,7 +549,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
           
           <div className="mt-4 pt-4 border-t border-gray-800 flex justify-between text-xs text-gray-400">
               <span>Palabras: <b className="text-white">{wordCount}</b></span>
-              <span>Keyword: <b className="text-white">{keyword}</b></span>
+              {/* Removed Keyword display from here */}
           </div>
         </div>
       </div>
