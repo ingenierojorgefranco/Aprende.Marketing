@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Article } from '../types';
-import { BookOpen, Calendar, Search, Edit2, BarChart, FileText, Globe, Clock, Eye, ExternalLink } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, BarChart, FileText, Globe, Clock, Eye, ExternalLink, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
 
 interface ArticlesListProps {
   articles: Article[];
@@ -10,6 +11,23 @@ interface ArticlesListProps {
 
 export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNew }) => {
   const navigate = useNavigate();
+  // Estado local para manejar el refresco inmediato tras borrar, ya que props es read-only
+  const [localArticles, setLocalArticles] = useState<Article[]>(articles);
+
+  useEffect(() => {
+      setLocalArticles(articles);
+  }, [articles]);
+
+  const handleDelete = async (id: string) => {
+      if (window.confirm("¿Estás seguro de que deseas eliminar este artículo? Esta acción no se puede deshacer.")) {
+          try {
+              await api.deleteArticle(id);
+              setLocalArticles(prev => prev.filter(a => a.id !== id));
+          } catch (error) {
+              alert("Error eliminando el artículo. Por favor intenta de nuevo.");
+          }
+      }
+  };
 
   return (
     <div className="space-y-6">
@@ -27,7 +45,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
         </button>
       </div>
 
-      {articles.length === 0 ? (
+      {localArticles.length === 0 ? (
         <div className="text-center py-24 bg-gray-900 rounded-xl border border-dashed border-gray-700 flex flex-col items-center justify-center">
           <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4">
             <FileText className="w-8 h-8 text-gray-600" />
@@ -43,7 +61,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {articles.map((article) => {
+          {localArticles.map((article) => {
              // Construcción de la URL pública
              // Prioriza el subdominio limpio. Si no existe, usa el pageId como fallback (el backend ahora soporta ID).
              const pageSlug = article.pageSubdomain 
@@ -124,10 +142,10 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
                     </div>
                 </div>
                 
-                <div className="p-3 bg-gray-950 border-t border-gray-800 grid grid-cols-2 gap-2">
+                <div className="p-3 bg-gray-950 border-t border-gray-800 flex items-center gap-2">
                     <button 
                         onClick={() => navigate(`/dashboard/articles/edit/${article.id}`)}
-                        className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg py-2 text-xs font-bold transition flex items-center justify-center gap-2 border border-transparent"
+                        className="flex-1 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg py-2 text-xs font-bold transition flex items-center justify-center gap-2 border border-transparent"
                     >
                         <Edit2 className="w-3.5 h-3.5" /> EDITAR
                     </button>
@@ -137,12 +155,20 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
                             href={articleUrl} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="bg-gray-800 hover:bg-primary hover:text-white text-gray-300 rounded-lg py-2 text-xs font-bold transition flex items-center justify-center gap-2 border border-gray-700 hover:border-primary"
+                            className="flex-1 bg-gray-800 hover:bg-primary hover:text-white text-gray-300 rounded-lg py-2 text-xs font-bold transition flex items-center justify-center gap-2 border border-gray-700 hover:border-primary"
                             title="Ver artículo online"
                         >
-                            <ExternalLink className="w-3.5 h-3.5" /> VER ARTÍCULO
+                            <ExternalLink className="w-3.5 h-3.5" /> VER
                         </a>
                     )}
+
+                    <button 
+                        onClick={() => handleDelete(article.id)}
+                        className="p-2 text-red-500 hover:bg-red-900/30 rounded-lg transition border border-transparent hover:border-red-900/50"
+                        title="Eliminar artículo"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
                 </div>
                 </div>
              );

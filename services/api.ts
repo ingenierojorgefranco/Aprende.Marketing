@@ -351,6 +351,14 @@ export const api = {
     }
   },
 
+  deleteArticle: async (id: string): Promise<void> => {
+    try {
+        await fetchWithFallback(`/articles/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+    } catch (e) {
+        mockArticles = mockArticles.filter(a => a.id !== id);
+    }
+  },
+
   getPublicBlogArticles: async (pageId: string): Promise<Article[]> => {
       try {
           const articles = await fetchWithFallback(`/public/pages/${pageId}/blog`);

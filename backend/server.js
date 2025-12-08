@@ -656,6 +656,16 @@ app.put('/api/articles/:id', authMiddleware, async (req, res) => {
   }
 });
 
+app.delete('/api/articles/:id', authMiddleware, async (req, res) => {
+  try {
+    const [result] = await pool.query('DELETE FROM articles WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'Artículo no encontrado' });
+    res.json({ message: 'Artículo eliminado' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/leads', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query(
