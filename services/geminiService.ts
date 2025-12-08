@@ -315,9 +315,10 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
     ${keyword ? `Keyword SEO: "${keyword}"` : ''}
 
     REGLAS ESTRICTAS:
-    1. Longitud máxima: 80 caracteres.
+    1. Longitud máxima: 60 caracteres por título.
     2. En el campo 'title' devuelve SOLO el texto del título. NO escribas la longitud entre paréntesis ni explicaciones.
     3. NO generes descripciones. Deja el campo 'description' como una cadena vacía "". Solo queremos los títulos.
+    4. NO devuelvas una lista enumerada dentro de un solo campo string. Cada título debe ser un objeto JSON distinto en el array.
     
     Devuelve JSON Array: [{ "title": "...", "description": "" }]`;
 
@@ -424,10 +425,11 @@ export const generateFullArticle = async (
        - Debe tener MÁXIMO 155 caracteres.
        - Debe ser persuasiva.
        - Debe incluir un llamado a la acción (CTA) al final (ej: "¡Entra aquí!", "Lee más.").
+    2. NO incluyas el Título Principal (H1) dentro de la respuesta 'html'. Empieza directamente con la introducción o el primer párrafo del cuerpo. El título se gestiona por separado en el sistema.
     
     Formato de Salida JSON:
     {
-      "html": "Código HTML del artículo (usa <h1>, <h2>, <p>, <ul>, <li>, <strong>, <a href='...'>). NO incluyas <html> o <body>.",
+      "html": "Código HTML del artículo (usa <h2>, <p>, <ul>, <li>, <strong>, <a href='...'>). NO incluyas <h1>, <html> o <body>.",
       "metaDescription": "Texto plano de la meta descripción."
     }
     

@@ -89,13 +89,21 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
           <label className="block text-sm font-medium text-gray-300 mb-2">Objetivo del Artículo</label>
           <div className="relative">
             <Wand2 className="absolute top-3.5 left-4 w-5 h-5 text-gray-500" />
-            <input
-              type="text"
+            <select
               value={objective}
               onChange={(e) => setObjective(e.target.value)}
-              className="w-full bg-black border border-gray-700 rounded-xl py-3 pl-12 pr-4 text-white focus:border-blue-500 outline-none transition"
-              placeholder="Ej: Atraer tráfico para vender mi curso online"
-            />
+              className="w-full bg-black border border-gray-700 rounded-xl py-3 pl-12 pr-4 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
+            >
+              <option value="" disabled>-- Selecciona un objetivo --</option>
+              <option value="Atraer Tráfico (SEO Informativo)">Atraer Tráfico (SEO Informativo)</option>
+              <option value="Venta Directa (Copy Persuasivo)">Venta Directa (Copy Persuasivo)</option>
+              <option value="Captación de Leads (Lead Magnet)">Captación de Leads (Lead Magnet)</option>
+              <option value="Redirigir a Landing Page (Página Puente)">Redirigir a Landing Page (Página Puente)</option>
+              <option value="Romper Objeciones (FAQ)">Romper Objeciones (FAQ)</option>
+              <option value="Autoridad / Branding">Autoridad / Branding</option>
+              <option value="Storytelling / Caso de Éxito">Storytelling / Caso de Éxito</option>
+              <option value="Review / Reseña de Producto">Review / Reseña de Producto</option>
+            </select>
           </div>
         </div>
 
