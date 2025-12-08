@@ -147,25 +147,13 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
               // DETALLE ARTICULO
               <article className="animate-in fade-in max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
                   
-                  {/* Article Header Image - CLEAN (Sin texto encima) */}
-                  {currentArticle.featuredImage ? (
-                      <div className="h-64 md:h-[400px] w-full relative">
-                          <img src={currentArticle.featuredImage} alt={currentArticle.title} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                      </div>
-                  ) : null}
-
                   <div className="p-8 md:p-12">
                       <a href={`${basePath || ''}/blog`} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 mb-8 transition font-medium">
                           <ArrowLeft className="w-4 h-4" /> Volver al Blog
                       </a>
 
-                      {/* Header Content MOVED HERE */}
+                      {/* Header Content */}
                       <div className="text-center mb-10">
-                          <div className="flex items-center justify-center gap-4 text-gray-500 text-sm mb-4">
-                                <span className="flex items-center gap-1"><Calendar className="w-4 h-4"/> {new Date(currentArticle.publishedAt).toLocaleDateString()}</span>
-                                {currentArticle.keyword && <span className="bg-gray-100 px-2 py-0.5 rounded text-xs text-gray-600 border border-gray-200">{currentArticle.keyword}</span>}
-                          </div>
                           <h1 className="text-3xl md:text-5xl font-black text-gray-900 leading-tight mb-6">{currentArticle.title}</h1>
                       </div>
 
@@ -174,6 +162,15 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
                           <p className="text-xl text-gray-700 leading-relaxed mb-10 font-serif italic border-l-4 border-gray-800 pl-6 py-2 bg-gray-50 rounded-r-lg">
                               {currentArticle.metaDescription || currentArticle.description}
                           </p>
+                      )}
+
+                      {/* Main Image moved below description */}
+                      {currentArticle.featuredImage && (
+                          <img 
+                              src={currentArticle.featuredImage} 
+                              alt={currentArticle.title} 
+                              className="w-full rounded-2xl shadow-2xl mb-12 object-cover aspect-video" 
+                          />
                       )}
 
                       <div className="prose prose-lg prose-indigo max-w-none text-gray-800" dangerouslySetInnerHTML={{ __html: currentArticle.contentHtml }} />

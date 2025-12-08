@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, ColorPalette, StructureType, Article } from '../types';
 import { api } from '../services/api';
@@ -596,7 +594,7 @@ export const LivePage: React.FC<LivePageProps> = ({
       >
           <div className="w-full max-w-[75em] mx-auto px-6 py-4 flex justify-between items-center relative gap-4">
             {/* Logo y Marca: flex-1 y min-w-0 para permitir que el texto se trunque si es necesario, sin empujar el menú */}
-            <div id="logo-marca" className={`flex items-center gap-2 md:gap-3 font-bold tracking-tight transition-colors duration-300 ${currentTextColor} flex-1 min-w-0 mr-2`}>
+            <a href={basePath || '/'} id="logo-marca" className={`flex items-center gap-2 md:gap-3 font-bold tracking-tight transition-colors duration-300 ${currentTextColor} flex-1 min-w-0 mr-2 hover:opacity-80`}>
               {/* Logo en Círculo Destacado (Fixed width/height via shrink-0) */}
               <div className={`w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform border-2 border-white/20 flex-shrink-0 ${ds.logoBg}`}>
                  {content.brandIcon ? getIcon(content.brandIcon, <Sparkles className="w-5 h-5 md:w-6 md:h-6" />) : (
@@ -613,7 +611,7 @@ export const LivePage: React.FC<LivePageProps> = ({
               <span className="truncate text-sm sm:text-lg md:text-2xl leading-tight">
                 {renderBrandName(content.brandName || "Brand")}
               </span>
-            </div>
+            </a>
             
             {/* Desktop Menu - Condicionado por isMobilePreview para ocultarlo en la vista previa movil */}
             <div id="enlaces-navegacion" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-sm font-medium transition-colors duration-300 ${currentTextColor} opacity-90 flex-shrink-0`}>
@@ -627,7 +625,7 @@ export const LivePage: React.FC<LivePageProps> = ({
                 <button 
                 id="cta-navbar" 
                 onClick={() => setShowModal(true)}
-                className={`${isMobilePreview ? 'hidden' : 'hidden md:block'} px-4 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition shadow-sm ${ds.primaryBtn} ${content.palette === 'minimal-mono' && !isScrolled ? '' : 'bg-white text-black hover:bg-gray-100 border-none'}`}
+                className={`${isMobilePreview ? 'hidden' : 'hidden md:block'} px-4 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition shadow-sm ${ds.primaryBtn} text-white hover:bg-gradient-to-r hover:from-green-500 hover:to-emerald-600 hover:text-white hover:shadow-lg hover:scale-105 hover:border-transparent`}
                 >
                 {content.navCta || "Regístrate"}
                 </button>
@@ -660,7 +658,7 @@ export const LivePage: React.FC<LivePageProps> = ({
                   <div className="pt-4 mt-2 border-t border-gray-100/20 w-full">
                      <button
                         onClick={() => { setShowModal(true); setIsMenuOpen(false); }}
-                        className={`w-full py-3 rounded-xl font-bold text-center shadow-lg ${ds.primaryBtn}`}
+                        className={`w-full py-3 rounded-xl font-bold text-center shadow-lg ${ds.primaryBtn} text-white hover:bg-gradient-to-r hover:from-green-500 hover:to-emerald-600 hover:shadow-lg hover:border-transparent`}
                      >
                         {content.navCta || "Regístrate"}
                      </button>

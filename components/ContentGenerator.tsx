@@ -3,6 +3,7 @@ import { generateArticleTitles, generateArticleOutline, generateFullArticle, Art
 import { api } from '../services/api';
 import { Article, Project, LandingPage } from '../types';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react'; // Added import
 
 // Importing Sub-Components
 import { Step1Inputs } from './content-generator/Step1Inputs';
@@ -262,6 +263,16 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       setSaveStatus('error');
     }
   };
+
+  // Prevent flash of Step 1 when loading existing article
+  if (loading && editArticleId) {
+      return (
+          <div className="flex items-center justify-center h-full">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <span className="ml-2 text-white">Cargando artículo...</span>
+          </div>
+      );
+  }
 
   return (
     <div className="h-full flex flex-col">
