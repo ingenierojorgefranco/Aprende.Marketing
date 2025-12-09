@@ -17,8 +17,8 @@ interface TemplateProps {
 
 export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
   const InstructorSection = () => (
-    <section id="seccion-instructor" className={`py-24 relative overflow-hidden ${ds.instructor.sectionBg}`}>
-         <div className={`absolute top-1/2 left-0 md:left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] opacity-30 ${ds.blobColor}`}></div>
+    <section id="instructor-section" className={`py-24 relative overflow-hidden ${ds.instructor.sectionBg}`}>
+         <div className={`absolute top-1/2 left-0 md:left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] ${ds.blobOpacity} ${ds.blobColor}`}></div>
          <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
             <div className={`flex flex-col items-center gap-12 ${isMobilePreview ? '' : 'md:flex-row md:gap-20'}`}>
                 <div className="relative group shrink-0">
@@ -30,7 +30,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                 <div className={`text-center flex-1 ${isMobilePreview ? '' : 'md:text-left'}`}>
                     <h4 className={`font-bold uppercase tracking-widest text-sm mb-2 opacity-80 ${ds.instructor.textColor}`}>Conoce a tu Mentora</h4>
                     <h2 className={`text-4xl md:text-6xl font-black mb-6 ${ds.instructor.titleColor}`}>{content.instructor.name}</h2>
-                    {renderRichText(content.instructor.bio, `text-lg leading-relaxed mb-8 max-w-2xl font-light ${ds.instructor.textColor} ${isMobilePreview ? 'mx-auto' : 'mx-auto md:mx-0'}`)}
+                    {renderRichText(content.instructor.bio, `text-lg leading-relaxed mb-8 max-w-2xl font-light ${ds.instructor.bioColor} ${isMobilePreview ? 'mx-auto' : 'mx-auto md:mx-0'}`)}
                 </div>
             </div>
          </div>
@@ -38,12 +38,12 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   );
 
   const BenefitsSection = () => (
-    <section id="seccion-beneficios" className={`py-24 ${ds.features.sectionBg}`}>
+    <section id="benefits-section" className={`py-24 ${ds.features.sectionBg}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className="text-center mb-16">
                 <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${ds.features.titleColor}`}>{content.benefits.title}</h2>
             </div>
-            <div id="grid-beneficios" className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
+            <div id="benefits-grid" className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.benefits.items || []).map((item, idx) => <FeatureCard key={idx} item={item} idx={idx} ds={ds} content={content} />)}
             </div>
         </div>
@@ -51,7 +51,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   );
 
   const TestimonialsSection = () => (
-    <section id="seccion-testimonios" className={`py-20 border-b ${ds.testimonials.sectionBg} ${ds.testimonials.sectionBorder}`}>
+    <section id="testimonials-section" className={`py-20 border-b ${ds.testimonials.sectionBg} ${ds.testimonials.sectionBorder}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className="text-center mb-12">
                  <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Transformaron su pasión en Éxito"}</h2>
@@ -74,7 +74,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
     const [openIndex, setOpenIndex] = React.useState<number | null>(0);
     const questions = content.faq || [];
     return (
-        <section id="seccion-faq" className={`py-24 ${ds.faq.sectionBg}`}>
+        <section id="faq-section" className={`py-24 ${ds.faq.sectionBg}`}>
             <div className="w-full max-w-4xl mx-auto px-6">
                 <div className="text-center mb-16"><h2 className={`text-3xl md:text-4xl font-bold mb-4 ${ds.faq.titleColor}`}>Preguntas Frecuentes</h2></div>
                 <div className="space-y-4">
@@ -91,28 +91,28 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   };
 
   const FinalCTASection = () => (
-    <section id="seccion-cta-final" className={`py-24 relative overflow-hidden ${ds.cta.sectionBg}`}>
+    <section id="final-cta-section" className={`py-24 relative overflow-hidden ${ds.cta.sectionBg}`}>
         <div className="w-full max-w-[75em] mx-auto px-6 text-center relative z-10">
-            <h2 className={`text-3xl md:text-5xl font-bold mb-6 ${ds.hero.titleColor.includes('white') ? 'text-white' : 'text-gray-900'}`}>¿Lista para cambiar tu vida?</h2>
+            <h2 className={`text-3xl md:text-5xl font-bold mb-6 ${ds.cta.sectionTitleColor}`}>¿Lista para cambiar tu vida?</h2>
             <div className="max-w-md mx-auto"><SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} /></div>
         </div>
     </section>
   );
 
   return (
-    <div id="layout-webinar" className={`min-h-screen font-sans ${ds.bg} scroll-smooth`}>
+    <div id="webinar-template-root" className={`min-h-screen font-sans ${ds.bg} scroll-smooth`}>
          {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />}
          
-         <header id="cabecera-webinar" className={`relative py-24 lg:py-32 ${ds.hero.bgGradient}`}>
+         <header id="webinar-hero" className={`relative py-24 lg:py-32 ${ds.hero.bgGradient}`}>
             <div className={`w-full max-w-[75em] mx-auto px-6 grid gap-16 items-center ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
-                <div className={`${isMobilePreview ? 'order-2' : 'order-2 lg:order-1'}`}>
-                    <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-bold mb-6`}>
-                        <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span> EN VIVO
+                <div id="hero-content" className={`${isMobilePreview ? 'order-2' : 'order-2 lg:order-1'}`}>
+                    <div id="webinar-live-badge" className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold mb-6 ${ds.badges.liveBg} ${ds.badges.liveText} ${ds.badges.liveBorder}`}>
+                        <span className="flex h-2 w-2 rounded-full bg-current animate-pulse"></span> EN VIVO
                     </div>
                     {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`)}
                     {renderRichText(content.hero.subheadline, `text-xl opacity-90 mb-8 leading-relaxed ${ds.hero.subtitleColor}`)}
                     
-                    <div className="space-y-4 mb-8">
+                    <div id="webinar-details" className="space-y-4 mb-8">
                          <div className={`flex items-center gap-3 ${ds.hero.subtitleColor}`}>
                              <User className="w-5 h-5 opacity-70" /> 
                              <span>Impartido por: <strong>{content.instructor.name}</strong></span>
@@ -123,14 +123,14 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                          </div>
                     </div>
 
-                    <div className={`border rounded-xl p-6 ${ds.features.cardBg} ${ds.features.cardBorder}`}>
+                    <div id="what-you-will-learn-card" className={`border rounded-xl p-6 ${ds.features.cardBg} ${ds.features.cardBorder}`}>
                         <h4 className={`font-bold mb-4 flex items-center gap-2 ${ds.features.titleColor}`}>
-                            <Zap className="w-4 h-4 text-yellow-400" /> Lo que aprenderás:
+                            <Zap className={`w-4 h-4 ${ds.decorations.starColor}`} /> Lo que aprenderás:
                         </h4>
                         <ul className="grid gap-3">
                             {content.whatYouWillLearn.items.slice(0, 3).map((item, i) => (
                                 <li key={i} className={`flex items-start gap-2 text-sm ${ds.features.descColor}`}>
-                                    <CheckCircle className="w-4 h-4 text-green-400 shrink-0 mt-0.5" />
+                                    <CheckCircle className={`w-4 h-4 shrink-0 mt-0.5 ${ds.decorations.checkColor}`} />
                                     {item}
                                 </li>
                             ))}
@@ -138,7 +138,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                     </div>
                 </div>
 
-                <div className={`${isMobilePreview ? 'order-1' : 'order-1 lg:order-2'}`}>
+                <div id="hero-cta" className={`${isMobilePreview ? 'order-1' : 'order-1 lg:order-2'}`}>
                     <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} />
                 </div>
             </div>
