@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType } from '../types';
-import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink } from 'lucide-react';
+import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle } from 'lucide-react';
 import { LivePage } from './LivePage';
 
 // --- UI COMPONENTS EXTRACTED ---
@@ -516,7 +516,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
 
                             {/* 4. Hero Image URL */}
                             <div>
-                                <Label>4. URL Imagen/Video</Label>
+                                <Label>4. URL Imagen/Portada Video</Label>
                                 <div className="flex gap-2">
                                     <Input value={content.hero.heroImage || ''} onChange={(e) => updateNestedField('hero', 'heroImage', e.target.value)} placeholder="https://..." />
                                     {content.hero.heroImage && <img src={content.hero.heroImage} alt="Preview" className="w-10 h-10 rounded border border-gray-700 object-cover" />}
@@ -720,6 +720,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                   {/* === TAB: DESIGN === */}
                   {activeTab === 'design' && (
                       <div className="space-y-8 animate-in slide-in-from-left-2 duration-200 p-2">
+                           {/* STRUCTURE SELECTION */}
                            <div>
                               <h3 className="text-white font-bold mb-4 flex items-center gap-2">
                                   <LayoutTemplate className="w-4 h-4 text-primary" /> Estructura
@@ -746,6 +747,30 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                               </div>
                            </div>
 
+                           {/* VSL Video Configuration - Only visible if structure is VSL */}
+                           {content.structure === 'vsl-focused' && (
+                                <div className="bg-gray-800 border border-primary/30 rounded-xl p-4 animate-in slide-in-from-top-2 shadow-lg shadow-primary/10">
+                                    <h3 className="text-white font-bold mb-3 flex items-center gap-2 text-sm">
+                                        <PlayCircle className="w-4 h-4 text-primary" /> Configuración del Video VSL
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <Label>URL del Video (YouTube, Vimeo, MP4)</Label>
+                                            <Input
+                                                value={content.hero.videoUrl || ''}
+                                                onChange={(e) => updateNestedField('hero', 'videoUrl', e.target.value)}
+                                                placeholder="https://www.youtube.com/watch?v=..."
+                                                className="bg-black border-gray-700 focus:border-primary"
+                                            />
+                                            <p className="text-[10px] text-gray-400 mt-1">
+                                                * Se detectará automáticamente si es YouTube/Vimeo para incrustarlo.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                           )}
+
+                           {/* COLOR PALETTE SELECTION */}
                            <div>
                               <h3 className="text-white font-bold mb-4 flex items-center gap-2">
                                   <Palette className="w-4 h-4 text-primary" /> Colores

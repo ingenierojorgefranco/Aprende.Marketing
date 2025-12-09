@@ -70,6 +70,7 @@ export interface GeneratedPageContent {
     subheadline: string;
     ctaText: string;
     heroImage?: string; // URL for the hero image/video cover
+    videoUrl?: string; // New: Actual video URL (YouTube, Vimeo, MP4)
     videoTitle?: string; // Title inside the image card e.g. "Clase Gratuita: Estrategia Exclusiva"
     videoDuration?: string; // e.g. "Duración: 45 Minutos"
     spotsLeft?: string; // e.g. "¡Quedan 7 cupos!"

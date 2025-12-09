@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
-import { User, Target, Zap, CheckCircle, Plus, Minus, ScanFace, Palette, Feather } from 'lucide-react';
+import { User, Target, Zap, CheckCircle, Plus, Minus, ScanFace, Palette, Feather, Star } from 'lucide-react';
 import { Navbar, Footer, SmartCTA, FeatureCard } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
 
@@ -18,26 +18,47 @@ interface TemplateProps {
 export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
   
   const IntroSection = () => (
-    <section id="intro-section" className={`py-16 ${ds.intro.sectionBg} border-b ${ds.intro.badgeBorder}`}>
+    <section id="intro-section" className={`py-20 ${ds.intro.sectionBg} border-b ${ds.intro.badgeBorder}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className="flex flex-col md:flex-row gap-12 items-center">
-                <div className="flex-1">
+            <div className={`grid gap-16 items-center ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
+                {/* Left: Text & Bullets */}
+                <div>
                     <span className={`inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border ${ds.intro.badgeBg} ${ds.intro.badgeText} ${ds.intro.badgeBorder}`}>Información del Evento</span>
                     <h2 className={`text-3xl font-bold mb-6 ${ds.intro.titleColor}`}>{content.intro.title}</h2>
-                    <div className={`text-lg leading-relaxed ${ds.intro.textColor}`}>{renderRichText(content.intro.description)}</div>
-                </div>
-                <div className="flex-1 space-y-4 w-full">
-                    {(content.intro.items || []).map((item, i) => (
-                        <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border ${ds.features.cardBg} ${ds.features.cardBorder}`}>
-                            <div className={`p-2 rounded-lg flex-shrink-0 ${ds.intro.bulletIconBg} ${ds.intro.bulletIconColor}`}>
-                                {i === 0 ? <ScanFace className="w-5 h-5" /> : i === 1 ? <Palette className="w-5 h-5" /> : <Feather className="w-5 h-5" />}
+                    <div className={`text-lg leading-relaxed mb-8 ${ds.intro.textColor}`}>{renderRichText(content.intro.description)}</div>
+                    
+                    <div className="space-y-4">
+                        {(content.intro.items || []).map((item, i) => (
+                            <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border ${ds.features.cardBg} ${ds.features.cardBorder}`}>
+                                <div className={`p-2 rounded-lg flex-shrink-0 ${ds.intro.bulletIconBg} ${ds.intro.bulletIconColor}`}>
+                                    {i === 0 ? <ScanFace className="w-5 h-5" /> : i === 1 ? <Palette className="w-5 h-5" /> : <Feather className="w-5 h-5" />}
+                                </div>
+                                <div>
+                                    <h4 className={`font-bold text-base mb-1 ${ds.features.titleColor}`}>{item.title}</h4>
+                                    {renderRichText(item.description, `text-sm leading-snug ${ds.features.descColor}`)}
+                                </div>
                             </div>
-                            <div>
-                                <h4 className={`font-bold text-base mb-1 ${ds.features.titleColor}`}>{item.title}</h4>
-                                {renderRichText(item.description, `text-sm leading-snug ${ds.features.descColor}`)}
+                        ))}
+                    </div>
+                </div>
+
+                {/* Right: Image with Floating Card */}
+                <div className="relative flex justify-center">
+                     <div className="relative w-full max-w-md">
+                        <div className={`absolute top-4 -right-4 w-full h-full rounded-3xl ${ds.blobColor} opacity-20`}></div>
+                        <img src={content.hero.heroImage || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Intro" className="relative z-10 rounded-2xl shadow-2xl w-full object-cover aspect-[4/5]" />
+                        
+                        {/* Floating Card */}
+                        <div className={`absolute -bottom-6 -left-6 z-20 rounded-xl p-4 shadow-xl max-w-[220px] border bg-white transform rotate-1 hover:rotate-0 transition-transform duration-300 ${ds.intro.floatingCardBg} ${ds.intro.floatingCardBorder}`}>
+                            <div className="flex items-start gap-3">
+                                <div className={`w-1.5 h-12 rounded-full bg-gradient-to-b from-blue-500 to-purple-600 shrink-0`}></div>
+                                <div>
+                                    <p className={`text-xs font-bold leading-snug ${ds.intro.floatingCardText}`}>"{content.intro.imageCardText || "Descubre este método exclusivo"}"</p>
+                                    <div className={`flex gap-0.5 mt-2 text-yellow-400`}>{[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 fill-current" />)}</div>
+                                </div>
                             </div>
                         </div>
-                    ))}
+                     </div>
                 </div>
             </div>
         </div>
@@ -157,9 +178,20 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
          <header id="webinar-hero" className={`relative py-24 lg:py-32 ${ds.hero.bgGradient}`}>
             <div className={`w-full max-w-[75em] mx-auto px-6 grid gap-16 items-center ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
                 <div id="hero-content" className={`${isMobilePreview ? 'order-2' : 'order-2 lg:order-1'}`}>
-                    <div id="webinar-live-badge" className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold mb-6 ${ds.badges.liveBg} ${ds.badges.liveText} ${ds.badges.liveBorder}`}>
-                        <span className="flex h-2 w-2 rounded-full bg-current animate-pulse"></span> EN VIVO
+                    
+                    <div className="flex flex-wrap gap-3 mb-6 items-center">
+                        <div id="webinar-live-badge" className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold ${ds.badges.liveBg} ${ds.badges.liveText} ${ds.badges.liveBorder}`}>
+                            <span className="flex h-2 w-2 rounded-full bg-current animate-pulse"></span> EN VIVO
+                        </div>
+                        
+                        {/* Optional Top Tagline Badge added here */}
+                        {content.topTagline && (
+                            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold ${ds.hero.badgeBg} ${ds.hero.badgeText} ${ds.hero.badgeBorder}`}>
+                                {content.topTagline}
+                            </div>
+                        )}
                     </div>
+
                     {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`, ds.hero.highlightGradient)}
                     {renderRichText(content.hero.subheadline, `text-xl opacity-90 mb-8 leading-relaxed ${ds.hero.subtitleColor}`)}
                     
