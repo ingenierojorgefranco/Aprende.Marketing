@@ -30,6 +30,8 @@ import {
   Trash2,
   AlertTriangle,
   X,
+  EyeOff,
+  Globe
 } from "lucide-react";
 import { api } from "./services/api";
 import { getCurrentUser, logout } from "./services/auth";
@@ -230,6 +232,16 @@ const App: React.FC = () => {
     }
   };
 
+  const handleTogglePublish = async (page: LandingPage) => {
+    try {
+        const updatedPage = { ...page, isPublished: !page.isPublished };
+        await api.updatePage(updatedPage);
+        setMyPages(prev => prev.map(p => p.id === page.id ? updatedPage : p));
+    } catch {
+        alert("Error actualizando el estado de publicación");
+    }
+  };
+
   const confirmDeletePage = async () => {
     if (!pageToDelete) return;
     setDeleting(true);
@@ -246,19 +258,11 @@ const App: React.FC = () => {
 
   // --- HANDLERS ARTÍCULOS ---
   const handleArticleSave = async (
-    articleData: any
+    articleData: Omit<Article, "id" | "createdAt">
   ) => {
     try {
-      if (articleData.id) {
-          // UPDATE
-          await api.updateArticle(articleData.id, articleData);
-          // Actualizar lista local
-          setMyArticles((prev) => prev.map(a => a.id === articleData.id ? { ...a, ...articleData } : a));
-      } else {
-          // CREATE
-          const savedArticle = await api.saveArticle(articleData);
-          setMyArticles((prev) => [...prev, savedArticle]);
-      }
+      const savedArticle = await api.saveArticle(articleData);
+      setMyArticles((prev) => [...prev, savedArticle]);
     } catch (e) {
       console.error(e);
       throw e;
@@ -335,9 +339,8 @@ const App: React.FC = () => {
     <>
       <Routes>
         {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug Y /lp/:slug */}
-        {/* AGREGADO /* PARA SOPORTAR SUBRUTAS COMO /blog */}
-        <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
-        <Route path="/lp/:slug/*" element={<PublicLandingView />} />
+        <Route path="/admin/lp/:slug" element={<PublicLandingView />} />
+        <Route path="/lp/:slug" element={<PublicLandingView />} />
 
         {/* RUTA PRINCIPAL:
             - Dominio principal → Home pública
@@ -389,14 +392,19 @@ const App: React.FC = () => {
             path="pages"
             element={
               <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold text-white">Mis Páginas</h2>
-                  <button
-                    onClick={() => navigate("/dashboard/generator")}
-                    className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition"
-                  >
-                    Crear Nueva
-                  </button>
+                <div>
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold text-white">Mis Páginas</h2>
+                    <button
+                      onClick={() => navigate("/dashboard/generator")}
+                      className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition"
+                    >
+                      Crear Nueva
+                    </button>
+                  </div>
+                  <p className="text-gray-400 mt-2 max-w-3xl">
+                    Gestiona tus landing pages: crea nuevas ofertas, edita el contenido y controla qué páginas están visibles al público.
+                  </p>
                 </div>
 
                 {loading ? (
@@ -469,6 +477,25 @@ const App: React.FC = () => {
                             </a>
 
                             <button
+                                onClick={() => handleTogglePublish(page)}
+                                className={`w-full py-2 border rounded-lg flex items-center justify-center gap-2 transition text-sm ${
+                                    page.isPublished 
+                                    ? 'border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10' 
+                                    : 'border-green-500/30 text-green-500 hover:bg-green-500/10'
+                                }`}
+                            >
+                                {page.isPublished ? (
+                                    <>
+                                        <EyeOff className="w-4 h-4" /> Despublicar
+                                    </>
+                                ) : (
+                                    <>
+                                        <Globe className="w-4 h-4" /> Publicar
+                                    </>
+                                )}
+                            </button>
+
+                            <button
                               onClick={() => setPageToDelete(page)}
                               className="w-full py-2 border border-red-900/30 rounded-lg text-red-500/70 hover:bg-red-900/10 hover:text-red-500 hover:border-red-900/50 flex items-center justify-center gap-2 transition text-sm"
                             >
@@ -490,16 +517,10 @@ const App: React.FC = () => {
           />
           <Route path="whatsapp" element={<WhatsAppCRM />} />
           <Route path="email" element={<EmailMarketing />} />
-          
           <Route
             path="content-creator"
             element={<ContentGenerator onSave={handleArticleSave} />}
           />
-          <Route
-            path="articles/edit/:id"
-            element={<ContentGenerator onSave={handleArticleSave} />}
-          />
-
           <Route
             path="articles"
             element={
