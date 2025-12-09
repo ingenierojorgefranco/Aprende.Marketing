@@ -23,11 +23,11 @@ export const renderRichText = (text: string, className: string = "") => {
     );
 };
 
-export const renderStyledHeadline = (text: string, className: string) => {
+export const renderStyledHeadline = (text: string, className: string, gradientClass: string = "from-secondary to-orange-600") => {
     // Replace <b> content </b> with the span gradient class
     const htmlContent = text.replace(
       /<b>(.*?)<\/b>/g, 
-      '<span class="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-orange-600">$1</span>'
+      `<span class="text-transparent bg-clip-text bg-gradient-to-r ${gradientClass}">$1</span>`
     );
     
     return (

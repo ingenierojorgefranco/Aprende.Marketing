@@ -101,7 +101,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
 
   return (
     <div id="webinar-template-root" className={`min-h-screen font-sans ${ds.bg} scroll-smooth`}>
-         {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />}
+         <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />
          
          <header id="webinar-hero" className={`relative py-24 lg:py-32 ${ds.hero.bgGradient}`}>
             <div className={`w-full max-w-[75em] mx-auto px-6 grid gap-16 items-center ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
@@ -109,7 +109,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                     <div id="webinar-live-badge" className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold mb-6 ${ds.badges.liveBg} ${ds.badges.liveText} ${ds.badges.liveBorder}`}>
                         <span className="flex h-2 w-2 rounded-full bg-current animate-pulse"></span> EN VIVO
                     </div>
-                    {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`)}
+                    {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`, ds.hero.highlightGradient)}
                     {renderRichText(content.hero.subheadline, `text-xl opacity-90 mb-8 leading-relaxed ${ds.hero.subtitleColor}`)}
                     
                     <div id="webinar-details" className="space-y-4 mb-8">

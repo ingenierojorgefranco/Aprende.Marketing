@@ -42,7 +42,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                     <div id="intro-bullets" className="mt-10 space-y-4">
                         {(content.intro.items || []).map((item, i) => (
                             <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border transition ${ds.features.cardBg} ${ds.features.cardBorder}`}>
-                                <div className={`p-3 rounded-lg flex-shrink-0 ${ds.features.iconContainer}`}>
+                                <div id={`intro-bullet-icon-${i}`} className={`p-3 rounded-lg flex-shrink-0 ${ds.intro.bulletIconBg} ${ds.intro.bulletIconColor}`}>
                                    {i === 0 ? <ScanFace className="w-6 h-6" /> : i === 1 ? <Palette className="w-6 h-6" /> : <Feather className="w-6 h-6" />}
                                 </div>
                                 <div><h4 className={`font-bold text-lg mb-1 ${ds.features.titleColor}`}>{item.title}</h4>{renderRichText(item.description, `text-sm leading-snug ${ds.features.descColor}`)}</div>
@@ -193,7 +193,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
 
   return (
     <div id="classic-template-root" className={`min-h-screen font-sans ${ds.selectionColor} ${ds.bg} scroll-smooth`}>
-        {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />}
+        <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />
         
         <header id="hero-section" className={`relative pb-12 overflow-hidden ${ds.hero.bgGradient} ${isMobilePreview ? 'pt-28' : 'pt-24 lg:pt-48 lg:pb-32'}`}>
           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] ${ds.blobOpacity} pointer-events-none ${ds.blobColor}`}></div>
@@ -206,7 +206,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                           <span className="text-xs md:text-sm font-black uppercase tracking-wider">{content.topTagline || "🔥 Oferta por tiempo limitado"}</span>
                       </div>
                  </div>
-                 {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`)}
+                 {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`, ds.hero.highlightGradient)}
                  {renderRichText(content.hero.subheadline, `font-light opacity-90 max-w-3xl mx-auto leading-relaxed ${ds.hero.subtitleColor} ${isMobilePreview ? 'text-lg' : 'text-lg md:text-2xl'}`)}
              </div>
 
@@ -251,9 +251,9 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
         <IntroSection />
         <BenefitsSection />
         <StepsSection />
-        <FAQSection />
         <InstructorSection />
         <FinalCTASection />
+        <FAQSection />
         <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} />
     </div>
   );

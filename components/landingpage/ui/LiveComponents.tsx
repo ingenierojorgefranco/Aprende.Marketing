@@ -12,10 +12,8 @@ export const Navbar = ({ content, ds, isMobilePreview, pageId, basePath, hasBlog
     const [showModal, setShowModal] = useState(false);
 
     // Navbar Logic
-    // If not scrolled, use title color (usually white on dark heros). If scrolled, use stickyText color.
-    // NOTE: Minimal Mono uses black text always, handled by DS.
-    const transparentTextColor = ds.hero.titleColor.includes('text-white') ? 'text-white' : 'text-gray-900';
-    const currentTextColor = isScrolled ? ds.nav.stickyText : transparentTextColor;
+    // Use ds.nav.transparentText for initial state, and ds.nav.stickyText for scrolled state.
+    const currentTextColor = isScrolled ? ds.nav.stickyText : ds.nav.transparentText;
     const currentBg = isScrolled ? `${ds.nav.stickyBg} ${ds.nav.stickyBorder} border-b` : 'bg-transparent border-b border-white/5';
 
     let navLinks = [...(content.navLinks || [])];

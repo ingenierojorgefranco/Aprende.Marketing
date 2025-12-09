@@ -68,11 +68,11 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
 
   return (
         <div id="vsl-template-root" className={`min-h-screen font-sans ${ds.bg}`}>
-            {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />}
+            <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />
             
             <div id="vsl-hero-bg" className={`py-12 ${ds.hero.bgGradient}`}>
                 <div className="w-full max-w-4xl mx-auto px-6 text-center">
-                    {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`)}
+                    {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`, ds.hero.highlightGradient)}
                 </div>
             </div>
 
