@@ -1,271 +1,233 @@
 
 import { ColorPalette } from '../../types';
 
-export const getDesignSystem = (palette: ColorPalette) => {
+// Definición de la interfaz del Sistema de Diseño para asegurar consistencia
+interface DesignSystem {
+  // Global
+  bg: string;
+  blobColor: string;
+  selectionColor: string;
+
+  // Navigation
+  nav: {
+    stickyBg: string;
+    stickyText: string;
+    stickyBorder: string;
+    logoBg: string;
+    linkHover: string;
+    mobileMenuBg: string;
+  };
+
+  // Hero Section
+  hero: {
+    bgGradient: string; // Puede ser un color sólido o gradiente
+    titleColor: string;
+    subtitleColor: string;
+    badgeBg: string;
+    badgeText: string;
+    badgeBorder: string;
+  };
+
+  // Buttons
+  buttons: {
+    primary: string; // Clases completas (bg, text, shadow, hover)
+    secondary: string;
+  };
+
+  // Feature Cards (Beneficios)
+  features: {
+    sectionBg: string;
+    cardBg: string;
+    cardBorder: string;
+    cardShadow: string;
+    iconContainer: string; // Estilo base del contenedor del icono
+    iconColor: string; // Color por defecto si no es específico
+    titleColor: string;
+    descColor: string;
+  };
+
+  // Testimonials
+  testimonials: {
+    sectionBg: string;
+    sectionBorder: string;
+    titleColor: string;
+    subtitleColor: string;
+    cardBg: string;
+    cardBorder: string;
+    cardShadow: string;
+    nameColor: string;
+    roleColor: string;
+    textColor: string;
+    starColor: string;
+  };
+
+  // Instructor / Mentor
+  instructor: {
+    sectionBg: string;
+    titleColor: string;
+    textColor: string;
+    badgeBg: string;
+    badgeText: string;
+    badgeBorder: string;
+    statBg: string;
+    statBorder: string;
+    statValueColor: string;
+    statLabelColor: string;
+  };
+
+  // CTA & Forms (Inputs, Boxes)
+  cta: {
+    sectionBg: string; // Para secciones finales
+    containerBg: string; // Caja del formulario
+    containerBorder: string;
+    titleColor: string;
+    textColor: string;
+    // Input Styles
+    inputBg: string;
+    inputBorder: string;
+    inputText: string;
+    inputPlaceholder: string;
+    inputRing: string; // Focus ring color
+  };
+
+  // FAQ
+  faq: {
+    sectionBg: string;
+    titleColor: string;
+    cardBg: string;
+    cardBorder: string;
+    questionColor: string;
+    answerColor: string;
+    iconBg: string;
+    iconColor: string;
+  };
+
+  // Footer
+  footer: {
+    bg: string;
+    borderTop: string;
+    titleColor: string;
+    textColor: string; // Texto general
+    copyrightColor: string;
+    socialBg: string;
+    socialIcon: string;
+  };
+}
+
+const BASE_DS: DesignSystem = {
+    // Valores por defecto (fallback)
+    bg: 'bg-white',
+    blobColor: 'bg-blue-500',
+    selectionColor: 'selection:bg-blue-500 selection:text-white',
+    nav: { stickyBg: 'bg-white', stickyText: 'text-gray-900', stickyBorder: 'border-gray-100', logoBg: 'bg-blue-600 text-white', linkHover: 'text-blue-600', mobileMenuBg: 'bg-white' },
+    hero: { bgGradient: 'bg-white', titleColor: 'text-gray-900', subtitleColor: 'text-gray-600', badgeBg: 'bg-blue-100', badgeText: 'text-blue-700', badgeBorder: 'border-blue-200' },
+    buttons: { primary: 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg', secondary: 'border border-gray-300 text-gray-700 hover:bg-gray-50' },
+    features: { sectionBg: 'bg-white', cardBg: 'bg-white', cardBorder: 'border-gray-100', cardShadow: 'shadow-lg', iconContainer: 'bg-blue-100', iconColor: 'text-blue-600', titleColor: 'text-gray-900', descColor: 'text-gray-600' },
+    testimonials: { sectionBg: 'bg-gray-50', sectionBorder: 'border-gray-200', titleColor: 'text-gray-900', subtitleColor: 'text-gray-600', cardBg: 'bg-white', cardBorder: 'border-gray-100', cardShadow: 'shadow-md', nameColor: 'text-gray-900', roleColor: 'text-gray-500', textColor: 'text-gray-700', starColor: 'text-yellow-400' },
+    instructor: { sectionBg: 'bg-gray-900', titleColor: 'text-white', textColor: 'text-gray-300', badgeBg: 'bg-white/10', badgeText: 'text-white', badgeBorder: 'border-white/20', statBg: 'bg-white/10', statBorder: 'border-white/10', statValueColor: 'text-white', statLabelColor: 'text-gray-400' },
+    cta: { sectionBg: 'bg-blue-600', containerBg: 'bg-white', containerBorder: 'border-transparent', titleColor: 'text-gray-900', textColor: 'text-gray-600', inputBg: 'bg-gray-50', inputBorder: 'border-gray-200', inputText: 'text-gray-900', inputPlaceholder: 'placeholder-gray-400', inputRing: 'focus:ring-blue-500' },
+    faq: { sectionBg: 'bg-white', titleColor: 'text-gray-900', cardBg: 'bg-gray-50', cardBorder: 'border-transparent', questionColor: 'text-gray-900', answerColor: 'text-gray-600', iconBg: 'bg-gray-200', iconColor: 'text-gray-600' },
+    footer: { bg: 'bg-gray-900', borderTop: 'border-gray-800', titleColor: 'text-white', textColor: 'text-gray-400', copyrightColor: 'text-gray-600', socialBg: 'bg-white/10', socialIcon: 'text-white' }
+};
+
+export const getDesignSystem = (palette: ColorPalette): DesignSystem => {
   switch (palette) {
     case 'modern-blue': 
       return {
+        ...BASE_DS,
         bg: 'bg-slate-50',
-        heroGradient: 'bg-gradient-to-br from-slate-900 via-[#0f172a] to-blue-900',
-        heroText: 'text-white',
-        accentText: 'text-blue-400',
-        primaryBtn: 'bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-500/30 text-white',
-        secondaryBtn: 'bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20',
-        cardBg: 'bg-white border border-slate-100 shadow-xl shadow-slate-200/50',
-        iconBg: 'bg-blue-100 text-blue-600',
         blobColor: 'bg-blue-500',
-        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-xl shadow-blue-900/10 border-b border-gray-100',
-        navStickyText: 'text-blue-900',
-        logoBg: 'bg-blue-600 text-white',
-        introBg: 'bg-[#0B1120]', 
-        testimonialBg: 'bg-[#0f172a]', 
-        mentorBg: 'bg-[#1e293b]', 
-        iconGradient: 'from-blue-500 to-blue-700',
-        stepsBg: 'bg-blue-50/50',
-        stepGradient: 'from-blue-500 to-blue-700',
-        faqBg: 'bg-white',
-        faqItemBg: 'bg-slate-50',
-        textColor: 'text-blue-600'
+        nav: { stickyBg: 'bg-white/90 backdrop-blur', stickyText: 'text-slate-900', stickyBorder: 'border-slate-100', logoBg: 'bg-blue-600 text-white', linkHover: 'text-blue-600', mobileMenuBg: 'bg-white' },
+        hero: { bgGradient: 'bg-gradient-to-br from-slate-900 via-[#0f172a] to-blue-900', titleColor: 'text-white', subtitleColor: 'text-blue-100', badgeBg: 'bg-blue-500/20', badgeText: 'text-blue-100', badgeBorder: 'border-blue-400/30' },
+        buttons: { primary: 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/30 font-bold', secondary: 'bg-white/10 border border-white/20 text-white hover:bg-white/20' },
+        features: { sectionBg: 'bg-slate-50', cardBg: 'bg-white', cardBorder: 'border-slate-100', cardShadow: 'shadow-xl shadow-slate-200/50', iconContainer: 'bg-blue-100 text-blue-600', iconColor: 'text-blue-600', titleColor: 'text-slate-900', descColor: 'text-slate-600' },
+        testimonials: { sectionBg: 'bg-[#0f172a]', sectionBorder: 'border-slate-800', titleColor: 'text-white', subtitleColor: 'text-slate-400', cardBg: 'bg-slate-800', cardBorder: 'border-slate-700', cardShadow: 'shadow-xl', nameColor: 'text-white', roleColor: 'text-blue-400', textColor: 'text-slate-300', starColor: 'text-yellow-400' },
+        instructor: { sectionBg: 'bg-[#1e293b]', titleColor: 'text-white', textColor: 'text-slate-300', badgeBg: 'bg-blue-500/20', badgeText: 'text-blue-200', badgeBorder: 'border-blue-500/30', statBg: 'bg-slate-800', statBorder: 'border-slate-700', statValueColor: 'text-white', statLabelColor: 'text-slate-400' },
+        cta: { sectionBg: 'bg-blue-600', containerBg: 'bg-white/10 backdrop-blur-md', containerBorder: 'border-white/20', titleColor: 'text-white', textColor: 'text-blue-100', inputBg: 'bg-slate-900/50', inputBorder: 'border-slate-700', inputText: 'text-white', inputPlaceholder: 'placeholder-slate-400', inputRing: 'focus:ring-blue-400' },
+        faq: { sectionBg: 'bg-white', titleColor: 'text-slate-900', cardBg: 'bg-slate-50', cardBorder: 'border-slate-100', questionColor: 'text-slate-900', answerColor: 'text-slate-600', iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
+        footer: { bg: 'bg-slate-900', borderTop: 'border-slate-800', titleColor: 'text-white', textColor: 'text-slate-400', copyrightColor: 'text-slate-600', socialBg: 'bg-slate-800', socialIcon: 'text-white' }
       };
+
     case 'elegant-purple': 
       return {
+        ...BASE_DS,
         bg: 'bg-[#FDFBFF]',
-        heroGradient: 'bg-[#1a0b2e]',
-        heroText: 'text-white',
-        accentText: 'text-purple-400',
-        primaryBtn: 'bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-pink-500/30 shadow-lg text-white',
-        secondaryBtn: 'bg-white text-purple-900 hover:bg-gray-100',
-        cardBg: 'bg-white border border-purple-50 shadow-lg shadow-purple-100/50',
-        iconBg: 'bg-purple-100 text-purple-600',
         blobColor: 'bg-purple-500',
-        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-xl shadow-purple-900/10 border-b border-purple-50',
-        navStickyText: 'text-purple-900',
-        logoBg: 'bg-purple-600 text-white',
-        introBg: 'bg-[#2e1065]', 
-        testimonialBg: 'bg-[#3b0764]', 
-        mentorBg: 'bg-[#4c1d95]', 
-        iconGradient: 'from-fuchsia-500 to-fuchsia-700',
-        stepsBg: 'bg-purple-50',
-        stepGradient: 'from-purple-500 to-pink-500',
-        faqBg: 'bg-purple-50/30',
-        faqItemBg: 'bg-white',
-        textColor: 'text-purple-600'
+        hero: { bgGradient: 'bg-[#1a0b2e]', titleColor: 'text-white', subtitleColor: 'text-purple-200', badgeBg: 'bg-purple-500/20', badgeText: 'text-purple-200', badgeBorder: 'border-purple-500/30' },
+        buttons: { primary: 'bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-pink-500/30 shadow-lg text-white font-bold', secondary: 'bg-white text-purple-900 hover:bg-gray-50 border border-purple-100' },
+        features: { sectionBg: 'bg-white', cardBg: 'bg-white', cardBorder: 'border-purple-50', cardShadow: 'shadow-lg shadow-purple-100/50', iconContainer: 'bg-purple-100 text-purple-600', iconColor: 'text-purple-600', titleColor: 'text-gray-900', descColor: 'text-gray-600' },
+        testimonials: { sectionBg: 'bg-[#3b0764]', sectionBorder: 'border-purple-900', titleColor: 'text-white', subtitleColor: 'text-purple-200', cardBg: 'bg-[#2e1065]', cardBorder: 'border-purple-800', cardShadow: 'shadow-xl', nameColor: 'text-white', roleColor: 'text-pink-400', textColor: 'text-purple-100', starColor: 'text-pink-500' },
+        instructor: { sectionBg: 'bg-[#4c1d95]', titleColor: 'text-white', textColor: 'text-purple-100', badgeBg: 'bg-white/10', badgeText: 'text-white', badgeBorder: 'border-white/20', statBg: 'bg-white/10', statBorder: 'border-white/10', statValueColor: 'text-white', statLabelColor: 'text-purple-200' },
+        cta: { sectionBg: 'bg-purple-900', containerBg: 'bg-white', containerBorder: 'border-purple-100', titleColor: 'text-purple-900', textColor: 'text-gray-600', inputBg: 'bg-purple-50', inputBorder: 'border-purple-100', inputText: 'text-purple-900', inputPlaceholder: 'placeholder-purple-400', inputRing: 'focus:ring-pink-500' },
+        faq: { sectionBg: 'bg-purple-50/30', titleColor: 'text-purple-900', cardBg: 'bg-white', cardBorder: 'border-purple-50', questionColor: 'text-purple-900', answerColor: 'text-gray-600', iconBg: 'bg-purple-100', iconColor: 'text-purple-600' },
+        footer: { bg: 'bg-[#1a0b2e]', borderTop: 'border-purple-900', titleColor: 'text-white', textColor: 'text-purple-300', copyrightColor: 'text-purple-500', socialBg: 'bg-purple-900', socialIcon: 'text-white' }
       };
-    case 'energetic-orange': 
-      return {
-        bg: 'bg-white', 
-        heroGradient: 'bg-gradient-to-br from-[#fff7ed] via-[#ffedd5] to-[#fed7aa]',
-        heroText: 'text-gray-900',
-        accentText: 'text-orange-600',
-        primaryBtn: 'bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg shadow-orange-500/30 border-t border-white/20',
-        secondaryBtn: 'bg-white border border-orange-200 text-orange-800 hover:bg-orange-50',
-        cardBg: 'bg-white border border-orange-100 shadow-xl shadow-orange-900/5', 
-        iconBg: 'bg-orange-50 text-orange-600',
-        blobColor: 'bg-orange-200',
-        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-lg shadow-orange-900/5 border-b border-orange-50',
-        navStickyText: 'text-gray-900',
-        logoBg: 'bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-orange-500/50',
-        introBg: 'bg-[#1c1917]', 
-        testimonialBg: 'bg-[#fff7ed]', 
-        mentorBg: 'bg-[#1c1917]', 
-        iconGradient: 'from-orange-500 to-amber-500',
-        stepsBg: 'bg-white',
-        stepGradient: 'from-orange-500 to-amber-500',
-        faqBg: 'bg-[#fff7ed]',
-        faqItemBg: 'bg-white border border-orange-100',
-        textColor: 'text-orange-900'
-      };
-    case 'nature-green': 
-      return {
-        bg: 'bg-stone-50',
-        heroGradient: 'bg-[#1c1917]',
-        heroText: 'text-stone-100',
-        accentText: 'text-green-400',
-        primaryBtn: 'bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-900/20',
-        secondaryBtn: 'border border-stone-600 text-stone-300 hover:text-white',
-        cardBg: 'bg-[#fafaf9] border border-stone-200 shadow-sm',
-        iconBg: 'bg-green-100 text-green-700',
-        blobColor: 'bg-green-500',
-        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-xl shadow-green-900/10 border-b border-stone-100',
-        navStickyText: 'text-stone-800',
-        logoBg: 'bg-green-600 text-white',
-        introBg: 'bg-[#064e3b]', 
-        testimonialBg: 'bg-[#022c22]',
-        mentorBg: 'bg-[#052e16]',
-        iconGradient: 'from-green-500 to-emerald-700',
-        stepsBg: 'bg-stone-100',
-        stepGradient: 'from-green-500 to-emerald-600',
-        faqBg: 'bg-stone-100',
-        faqItemBg: 'bg-white',
-        textColor: 'text-green-700'
-      };
+
     case 'dark-luxury': 
       return {
+        ...BASE_DS,
         bg: 'bg-[#0a0a0a]',
-        heroGradient: 'bg-black',
-        heroText: 'text-white',
-        accentText: 'text-yellow-500',
-        primaryBtn: 'bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-bold shadow-lg shadow-yellow-500/20',
-        secondaryBtn: 'border border-yellow-900/50 text-yellow-500 hover:bg-yellow-900/10',
-        cardBg: 'bg-[#111] border border-[#222] shadow-2xl',
-        iconBg: 'bg-yellow-900/20 text-yellow-500',
         blobColor: 'bg-yellow-600',
-        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-xl shadow-black/20 border-b border-gray-200',
-        navStickyText: 'text-black',
-        logoBg: 'bg-yellow-500 text-black',
-        introBg: 'bg-[#111111]',
-        testimonialBg: 'bg-black',
-        mentorBg: 'bg-[#1c1917]',
-        iconGradient: 'from-yellow-600 to-yellow-800',
-        stepsBg: 'bg-[#111]',
-        stepGradient: 'from-yellow-600 to-amber-700',
-        faqBg: 'bg-[#0a0a0a]',
-        faqItemBg: 'bg-[#111]',
-        textColor: 'text-yellow-600'
+        nav: { stickyBg: 'bg-black/90 backdrop-blur', stickyText: 'text-white', stickyBorder: 'border-white/10', logoBg: 'bg-yellow-500 text-black', linkHover: 'text-yellow-500', mobileMenuBg: 'bg-black border border-white/10' },
+        hero: { bgGradient: 'bg-black', titleColor: 'text-white', subtitleColor: 'text-gray-400', badgeBg: 'bg-yellow-500/10', badgeText: 'text-yellow-500', badgeBorder: 'border-yellow-500/30' },
+        buttons: { primary: 'bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-bold shadow-lg shadow-yellow-500/20', secondary: 'border border-yellow-900/50 text-yellow-500 hover:bg-yellow-900/10' },
+        features: { sectionBg: 'bg-[#0a0a0a]', cardBg: 'bg-[#111]', cardBorder: 'border-[#222]', cardShadow: 'shadow-2xl shadow-black', iconContainer: 'bg-yellow-900/20 text-yellow-500', iconColor: 'text-yellow-500', titleColor: 'text-white', descColor: 'text-gray-400' },
+        testimonials: { sectionBg: 'bg-black', sectionBorder: 'border-white/5', titleColor: 'text-white', subtitleColor: 'text-gray-500', cardBg: 'bg-[#161616]', cardBorder: 'border-white/5', cardShadow: 'shadow-none', nameColor: 'text-yellow-500', roleColor: 'text-gray-500', textColor: 'text-gray-300', starColor: 'text-yellow-600' },
+        instructor: { sectionBg: 'bg-[#111]', titleColor: 'text-white', textColor: 'text-gray-400', badgeBg: 'bg-yellow-500/10', badgeText: 'text-yellow-500', badgeBorder: 'border-yellow-500/20', statBg: 'bg-black', statBorder: 'border-white/5', statValueColor: 'text-white', statLabelColor: 'text-gray-500' },
+        cta: { sectionBg: 'bg-black', containerBg: 'bg-[#111]', containerBorder: 'border-white/10', titleColor: 'text-white', textColor: 'text-gray-400', inputBg: 'bg-black', inputBorder: 'border-white/10', inputText: 'text-white', inputPlaceholder: 'placeholder-gray-600', inputRing: 'focus:ring-yellow-500' },
+        faq: { sectionBg: 'bg-[#0a0a0a]', titleColor: 'text-white', cardBg: 'bg-[#111]', cardBorder: 'border-white/5', questionColor: 'text-white', answerColor: 'text-gray-400', iconBg: 'bg-yellow-900/20', iconColor: 'text-yellow-500' },
+        footer: { bg: 'bg-black', borderTop: 'border-white/10', titleColor: 'text-white', textColor: 'text-gray-500', copyrightColor: 'text-gray-700', socialBg: 'bg-[#111]', socialIcon: 'text-gray-400' }
       };
-    case 'ocean-teal': 
+
+    case 'energetic-orange':
       return {
-        bg: 'bg-cyan-50/30',
-        heroGradient: 'bg-gradient-to-br from-cyan-900 to-teal-900',
-        heroText: 'text-white',
-        accentText: 'text-cyan-300',
-        primaryBtn: 'bg-cyan-400 hover:bg-cyan-300 text-cyan-950 font-bold shadow-lg shadow-cyan-400/20',
-        secondaryBtn: 'border border-cyan-700 text-cyan-100',
-        cardBg: 'bg-white border border-cyan-100 shadow-lg shadow-cyan-100',
-        iconBg: 'bg-cyan-100 text-cyan-600',
-        blobColor: 'bg-cyan-400',
-        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-xl shadow-cyan-900/10 border-b border-cyan-50',
-        navStickyText: 'text-cyan-900',
-        logoBg: 'bg-cyan-400 text-cyan-950',
-        introBg: 'bg-[#0e7490]', 
-        testimonialBg: 'bg-[#164e63]',
-        mentorBg: 'bg-[#083344]',
-        iconGradient: 'from-cyan-500 to-teal-600',
-        stepsBg: 'bg-cyan-50',
-        stepGradient: 'from-cyan-400 to-teal-500',
-        faqBg: 'bg-cyan-50/50',
-        faqItemBg: 'bg-white',
-        textColor: 'text-cyan-700'
-      };
-    case 'crimson-red': 
-      return {
+        ...BASE_DS,
         bg: 'bg-white',
-        heroGradient: 'bg-[#881337]',
-        heroText: 'text-white',
-        accentText: 'text-rose-200',
-        primaryBtn: 'bg-white text-[#881337] font-bold hover:bg-rose-50 shadow-xl',
-        secondaryBtn: 'bg-rose-900 border border-rose-700 text-rose-200',
-        cardBg: 'bg-white border border-rose-100 shadow-xl shadow-rose-100',
-        iconBg: 'bg-rose-100 text-rose-700',
-        blobColor: 'bg-rose-500',
-        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-xl shadow-rose-900/10 border-b border-rose-50',
-        navStickyText: 'text-rose-900',
-        logoBg: 'bg-rose-600 text-white',
-        introBg: 'bg-[#881337]',
-        testimonialBg: 'bg-[#4c0519]',
-        mentorBg: 'bg-[#9f1239]',
-        iconGradient: 'from-red-600 to-rose-700',
-        stepsBg: 'bg-rose-50',
-        stepGradient: 'from-red-500 to-rose-600',
-        faqBg: 'bg-rose-50/30',
-        faqItemBg: 'bg-white',
-        textColor: 'text-rose-700'
+        blobColor: 'bg-orange-200',
+        hero: { bgGradient: 'bg-gradient-to-br from-[#fff7ed] via-[#ffedd5] to-[#fed7aa]', titleColor: 'text-gray-900', subtitleColor: 'text-orange-900/80', badgeBg: 'bg-orange-100', badgeText: 'text-orange-700', badgeBorder: 'border-orange-200' },
+        buttons: { primary: 'bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg shadow-orange-500/30', secondary: 'bg-white border border-orange-200 text-orange-800 hover:bg-orange-50' },
+        features: { sectionBg: 'bg-white', cardBg: 'bg-white', cardBorder: 'border-orange-100', cardShadow: 'shadow-xl shadow-orange-900/5', iconContainer: 'bg-orange-50 text-orange-600', iconColor: 'text-orange-600', titleColor: 'text-gray-900', descColor: 'text-gray-600' },
+        testimonials: { sectionBg: 'bg-[#fff7ed]', sectionBorder: 'border-orange-100', titleColor: 'text-gray-900', subtitleColor: 'text-orange-800/60', cardBg: 'bg-white', cardBorder: 'border-orange-50', cardShadow: 'shadow-md', nameColor: 'text-orange-900', roleColor: 'text-gray-500', textColor: 'text-gray-700', starColor: 'text-amber-500' },
+        instructor: { sectionBg: 'bg-[#1c1917]', titleColor: 'text-white', textColor: 'text-stone-300', badgeBg: 'bg-orange-600', badgeText: 'text-white', badgeBorder: 'border-orange-500', statBg: 'bg-white/10', statBorder: 'border-white/10', statValueColor: 'text-white', statLabelColor: 'text-stone-400' },
+        cta: { sectionBg: 'bg-orange-500', containerBg: 'bg-white', containerBorder: 'border-orange-100', titleColor: 'text-gray-900', textColor: 'text-gray-600', inputBg: 'bg-gray-50', inputBorder: 'border-gray-200', inputText: 'text-gray-900', inputPlaceholder: 'placeholder-gray-400', inputRing: 'focus:ring-orange-500' },
+        faq: { sectionBg: 'bg-[#fff7ed]', titleColor: 'text-gray-900', cardBg: 'bg-white', cardBorder: 'border-orange-100', questionColor: 'text-gray-900', answerColor: 'text-gray-600', iconBg: 'bg-orange-100', iconColor: 'text-orange-600' },
+        footer: { bg: 'bg-[#1c1917]', borderTop: 'border-stone-800', titleColor: 'text-white', textColor: 'text-stone-400', copyrightColor: 'text-stone-600', socialBg: 'bg-stone-800', socialIcon: 'text-white' }
       };
-    case 'corporate-slate': 
+
+    case 'minimal-mono':
       return {
-        bg: 'bg-slate-50',
-        heroGradient: 'bg-slate-800',
-        heroText: 'text-white',
-        accentText: 'text-slate-300',
-        primaryBtn: 'bg-slate-700 hover:bg-slate-600 text-white shadow-lg',
-        secondaryBtn: 'bg-transparent border border-white/20 text-white',
-        cardBg: 'bg-white border border-slate-200 shadow-md',
-        iconBg: 'bg-slate-100 text-slate-700',
-        blobColor: 'bg-slate-400',
-        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-xl shadow-slate-900/10 border-b border-slate-100',
-        navStickyText: 'text-slate-800',
-        logoBg: 'bg-slate-700 text-white',
-        introBg: 'bg-[#334155]',
-        testimonialBg: 'bg-[#020617]',
-        mentorBg: 'bg-[#1e293b]',
-        iconGradient: 'from-slate-600 to-slate-800',
-        stepsBg: 'bg-slate-100',
-        stepGradient: 'from-slate-600 to-slate-800',
-        faqBg: 'bg-slate-100',
-        faqItemBg: 'bg-white',
-        textColor: 'text-slate-700'
-      };
-    case 'gold-prestige': 
-      return {
-        bg: 'bg-[#fffcf5]',
-        heroGradient: 'bg-gradient-to-r from-yellow-700 to-yellow-600',
-        heroText: 'text-white',
-        accentText: 'text-yellow-200',
-        primaryBtn: 'bg-yellow-600 hover:bg-yellow-500 text-white shadow-lg',
-        secondaryBtn: 'bg-transparent border border-white/20 text-white',
-        cardBg: 'bg-white border border-yellow-100 shadow-lg',
-        iconBg: 'bg-yellow-50 text-yellow-600',
-        blobColor: 'bg-yellow-500',
-        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-xl shadow-yellow-900/10 border-b border-yellow-50',
-        navStickyText: 'text-yellow-900',
-        logoBg: 'bg-yellow-600 text-white',
-        introBg: 'bg-[#422006]',
-        testimonialBg: 'bg-[#1c1917]',
-        mentorBg: 'bg-[#451a03]',
-        iconGradient: 'from-yellow-600 to-amber-700',
-        stepsBg: 'bg-yellow-50',
-        stepGradient: 'from-yellow-500 to-amber-600',
-        faqBg: 'bg-orange-50/20',
-        faqItemBg: 'bg-white',
-        textColor: 'text-yellow-700'
-      };
-    case 'minimal-mono': 
-      return {
+        ...BASE_DS,
         bg: 'bg-white',
-        heroGradient: 'bg-white',
-        heroText: 'text-black',
-        accentText: 'text-gray-500',
-        primaryBtn: 'bg-black text-white hover:bg-gray-800 shadow-lg',
-        secondaryBtn: 'border border-gray-300 text-gray-600 hover:border-black hover:text-black',
-        cardBg: 'bg-white border border-gray-200 shadow-sm hover:shadow-md',
-        iconBg: 'bg-gray-100 text-black',
         blobColor: 'bg-gray-300',
-        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-xl shadow-black/10 border-b border-gray-100',
-        navStickyText: 'text-black',
-        logoBg: 'bg-black text-white',
-        introBg: 'bg-black',
-        testimonialBg: 'bg-black',
-        mentorBg: 'bg-black',
-        iconGradient: 'from-gray-700 to-black',
-        stepsBg: 'bg-gray-50',
-        stepGradient: 'from-gray-800 to-black',
-        faqBg: 'bg-gray-50',
-        faqItemBg: 'bg-white',
-        textColor: 'text-gray-900'
+        selectionColor: 'selection:bg-black selection:text-white',
+        nav: { stickyBg: 'bg-white/90 backdrop-blur', stickyText: 'text-black', stickyBorder: 'border-black/5', logoBg: 'bg-black text-white', linkHover: 'text-black font-bold', mobileMenuBg: 'bg-white border border-gray-200' },
+        hero: { bgGradient: 'bg-white', titleColor: 'text-black', subtitleColor: 'text-gray-500', badgeBg: 'bg-gray-100', badgeText: 'text-black', badgeBorder: 'border-gray-200' },
+        buttons: { primary: 'bg-black text-white hover:bg-gray-800 shadow-xl', secondary: 'border border-gray-300 text-gray-600 hover:border-black hover:text-black' },
+        features: { sectionBg: 'bg-white', cardBg: 'bg-white', cardBorder: 'border-gray-200', cardShadow: 'shadow-sm hover:shadow-md', iconContainer: 'bg-gray-100 text-black', iconColor: 'text-black', titleColor: 'text-black', descColor: 'text-gray-600' },
+        testimonials: { sectionBg: 'bg-gray-50', sectionBorder: 'border-gray-200', titleColor: 'text-black', subtitleColor: 'text-gray-500', cardBg: 'bg-white', cardBorder: 'border-gray-200', cardShadow: 'shadow-sm', nameColor: 'text-black', roleColor: 'text-gray-400', textColor: 'text-gray-800', starColor: 'text-black' },
+        instructor: { sectionBg: 'bg-white', titleColor: 'text-black', textColor: 'text-gray-600', badgeBg: 'bg-black', badgeText: 'text-white', badgeBorder: 'border-black', statBg: 'bg-gray-50', statBorder: 'border-gray-200', statValueColor: 'text-black', statLabelColor: 'text-gray-500' },
+        cta: { sectionBg: 'bg-white', containerBg: 'bg-white', containerBorder: 'border-gray-200 shadow-xl', titleColor: 'text-black', textColor: 'text-gray-500', inputBg: 'bg-gray-50', inputBorder: 'border-gray-200', inputText: 'text-black', inputPlaceholder: 'placeholder-gray-400', inputRing: 'focus:ring-black' },
+        faq: { sectionBg: 'bg-gray-50', titleColor: 'text-black', cardBg: 'bg-white', cardBorder: 'border-gray-200', questionColor: 'text-black', answerColor: 'text-gray-600', iconBg: 'bg-gray-200', iconColor: 'text-black' },
+        footer: { bg: 'bg-white', borderTop: 'border-gray-200', titleColor: 'text-black', textColor: 'text-gray-500', copyrightColor: 'text-gray-400', socialBg: 'bg-gray-100', socialIcon: 'text-black' }
       };
-    default: 
-       return {
-        bg: 'bg-slate-50',
-        heroGradient: 'bg-gradient-to-br from-slate-900 via-[#0f172a] to-blue-900',
-        heroText: 'text-white',
-        accentText: 'text-blue-400',
-        primaryBtn: 'bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-500/30 text-white',
-        secondaryBtn: 'bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20',
-        cardBg: 'bg-white border border-slate-100 shadow-xl shadow-slate-200/50',
-        iconBg: 'bg-blue-100 text-blue-600',
-        blobColor: 'bg-blue-500',
-        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-xl shadow-blue-900/10 border-b border-gray-100',
-        navStickyText: 'text-blue-900',
-        logoBg: 'bg-blue-600 text-white',
-        introBg: 'bg-[#0B1120]',
-        testimonialBg: 'bg-[#0f172a]',
-        mentorBg: 'bg-[#1e293b]',
-        iconGradient: 'from-blue-500 to-blue-700',
-        stepsBg: 'bg-blue-50/50',
-        stepGradient: 'from-blue-500 to-blue-700',
-        faqBg: 'bg-white',
-        faqItemBg: 'bg-slate-50',
-        textColor: 'text-blue-600'
+
+    case 'nature-green':
+      return {
+        ...BASE_DS,
+        bg: 'bg-stone-50',
+        blobColor: 'bg-green-500',
+        hero: { bgGradient: 'bg-[#1c1917]', titleColor: 'text-stone-100', subtitleColor: 'text-stone-400', badgeBg: 'bg-green-900/50', badgeText: 'text-green-400', badgeBorder: 'border-green-800' },
+        buttons: { primary: 'bg-green-700 hover:bg-green-600 text-white shadow-lg shadow-green-900/20', secondary: 'border border-stone-600 text-stone-300 hover:text-white' },
+        features: { sectionBg: 'bg-stone-50', cardBg: 'bg-[#fafaf9]', cardBorder: 'border-stone-200', cardShadow: 'shadow-sm', iconContainer: 'bg-green-100 text-green-700', iconColor: 'text-green-700', titleColor: 'text-stone-800', descColor: 'text-stone-600' },
+        testimonials: { sectionBg: 'bg-[#022c22]', sectionBorder: 'border-green-900', titleColor: 'text-white', subtitleColor: 'text-green-200', cardBg: 'bg-[#064e3b]', cardBorder: 'border-green-800', cardShadow: 'shadow-lg', nameColor: 'text-white', roleColor: 'text-green-300', textColor: 'text-green-50', starColor: 'text-green-400' },
+        instructor: { sectionBg: 'bg-[#052e16]', titleColor: 'text-white', textColor: 'text-green-100', badgeBg: 'bg-green-800', badgeText: 'text-white', badgeBorder: 'border-green-700', statBg: 'bg-green-900/50', statBorder: 'border-green-800', statValueColor: 'text-white', statLabelColor: 'text-green-300' },
+        cta: { sectionBg: 'bg-stone-100', containerBg: 'bg-white', containerBorder: 'border-stone-200', titleColor: 'text-stone-800', textColor: 'text-stone-500', inputBg: 'bg-stone-50', inputBorder: 'border-stone-200', inputText: 'text-stone-900', inputPlaceholder: 'placeholder-stone-400', inputRing: 'focus:ring-green-600' },
+        faq: { sectionBg: 'bg-stone-100', titleColor: 'text-stone-800', cardBg: 'bg-white', cardBorder: 'border-stone-200', questionColor: 'text-stone-900', answerColor: 'text-stone-600', iconBg: 'bg-green-100', iconColor: 'text-green-700' },
+        footer: { bg: 'bg-[#1c1917]', borderTop: 'border-stone-800', titleColor: 'text-white', textColor: 'text-stone-400', copyrightColor: 'text-stone-600', socialBg: 'bg-stone-800', socialIcon: 'text-stone-400' }
       };
+
+    default:
+        // Fallback a Modern Blue si no coincide
+        return getDesignSystem('modern-blue');
   }
 };

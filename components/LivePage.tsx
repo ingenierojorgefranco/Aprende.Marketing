@@ -52,7 +52,7 @@ export const LivePage: React.FC<LivePageProps> = ({
       return (
           <div className={`min-h-screen font-sans selection:bg-pink-500 selection:text-white ${ds.bg} scroll-smooth relative overflow-hidden`}>
               {/* Background Base - Use Landing Page Background Logic */}
-              <div className={`absolute inset-0 ${ds.heroGradient} opacity-100 z-0`}></div>
+              <div className={`absolute inset-0 ${ds.hero.bgGradient} opacity-100 z-0`}></div>
               {/* Decor */}
               <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full blur-[120px] opacity-30 pointer-events-none ${ds.blobColor}`}></div>
               
@@ -67,7 +67,7 @@ export const LivePage: React.FC<LivePageProps> = ({
                       designSystem={ds}
                       isDark={isDark}
                   />
-                  <Footer content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
+                  <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} />
               </div>
           </div>
       );

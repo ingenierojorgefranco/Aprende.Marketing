@@ -12,28 +12,28 @@ interface TemplateProps {
   pageId?: string;
   basePath?: string;
   hasBlogArticles: boolean;
-  isDark: boolean;
+  isDark?: boolean;
 }
 
-export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles, isDark }) => {
+export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
   const BenefitsSection = () => (
     <section id="seccion-beneficios" className="py-12">
-        <h2 className={`text-2xl md:text-3xl font-bold mb-8 text-center ${isDark ? 'text-white' : 'text-gray-900'}`}>{content.benefits.title}</h2>
+        <h2 className={`text-2xl md:text-3xl font-bold mb-8 text-center ${ds.features.titleColor}`}>{content.benefits.title}</h2>
         <div id="grid-beneficios" className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-            {(content.benefits.items || []).map((item, idx) => <FeatureCard key={idx} item={item} idx={idx} ds={ds} content={content} isDark={isDark} />)}
+            {(content.benefits.items || []).map((item, idx) => <FeatureCard key={idx} item={item} idx={idx} ds={ds} content={content} />)}
         </div>
     </section>
   );
 
   const TestimonialsSection = () => (
     <section id="seccion-testimonios" className="py-12">
-        <h2 className={`text-2xl md:text-3xl font-bold mb-8 text-center ${isDark ? 'text-white' : 'text-gray-900'}`}>{content.testimonialTitle || "Resultados"}</h2>
+        <h2 className={`text-2xl md:text-3xl font-bold mb-8 text-center ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Resultados"}</h2>
         <div className={`grid gap-6 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
             {(content.testimonials || []).map((t, i) => (
-                <div key={i} className={`p-6 rounded-2xl flex flex-col gap-4 shadow-xl transition hover:-translate-y-1 backdrop-blur-sm ${isDark ? 'bg-white/5 border border-white/10' : 'bg-white border border-gray-100'}`}>
+                <div key={i} className={`p-6 rounded-2xl flex flex-col gap-4 shadow-xl transition hover:-translate-y-1 backdrop-blur-sm border ${ds.testimonials.cardBg} ${ds.testimonials.cardBorder}`}>
                     <div>
-                        <p className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'} leading-tight`}>{t.name}</p>
-                        {renderRichText(t.text, `text-base leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-600'} italic`)}
+                        <p className={`font-bold leading-tight ${ds.testimonials.nameColor}`}>{t.name}</p>
+                        {renderRichText(t.text, `text-base leading-relaxed italic ${ds.testimonials.textColor}`)}
                     </div>
                 </div>
             ))}
@@ -46,12 +46,12 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
     const questions = content.faq || [];
     return (
         <section id="seccion-faq" className="py-12">
-            <h2 className={`text-2xl md:text-3xl font-bold mb-8 text-center ${isDark ? 'text-white' : 'text-gray-900'}`}>Preguntas Frecuentes</h2>
+            <h2 className={`text-2xl md:text-3xl font-bold mb-8 text-center ${ds.faq.titleColor}`}>Preguntas Frecuentes</h2>
             <div className="space-y-4">
                 {questions.map((q, idx) => (
-                    <div key={idx} className={`rounded-xl border transition-all duration-300 overflow-hidden ${openIndex === idx ? `shadow-lg border-opacity-0 ${isDark ? 'bg-gray-800' : 'bg-white'}` : `border-transparent ${ds.faqItemBg} hover:bg-opacity-80`}`}>
-                        <button onClick={() => setOpenIndex(openIndex === idx ? null : idx)} className="w-full flex items-center justify-between p-6 text-left"><span className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-800'}`}>{q.question}</span><div className={`p-2 rounded-full ${openIndex === idx ? 'bg-gray-200 text-gray-800' : 'bg-transparent text-gray-400'}`}>{openIndex === idx ? <Minus className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}</div></button>
-                        <div className={`transition-all duration-300 ease-in-out px-6 ${openIndex === idx ? 'max-h-48 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}>{renderRichText(q.answer, `leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-600'}`)}</div>
+                    <div key={idx} className={`rounded-xl border transition-all duration-300 overflow-hidden ${openIndex === idx ? `shadow-lg border-opacity-0 ${ds.faq.cardBg}` : `border-transparent ${ds.faq.cardBg} hover:bg-opacity-80`}`}>
+                        <button onClick={() => setOpenIndex(openIndex === idx ? null : idx)} className="w-full flex items-center justify-between p-6 text-left"><span className={`font-bold text-lg ${ds.faq.questionColor}`}>{q.question}</span><div className={`p-2 rounded-full ${ds.faq.iconBg} ${ds.faq.iconColor}`}>{openIndex === idx ? <Minus className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}</div></button>
+                        <div className={`transition-all duration-300 ease-in-out px-6 ${openIndex === idx ? 'max-h-48 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}>{renderRichText(q.answer, `leading-relaxed ${ds.faq.answerColor}`)}</div>
                     </div>
                 ))}
             </div>
@@ -61,7 +61,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
 
   const FinalCTASection = () => (
     <section id="seccion-cta-final" className="py-12 text-center">
-        <h2 className={`text-2xl md:text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-6`}>¿Listo para comenzar?</h2>
+        <h2 className={`text-2xl md:text-3xl font-bold mb-6 ${ds.hero.titleColor}`}>¿Listo para comenzar?</h2>
         <div className="max-w-md mx-auto"><SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} /></div>
     </section>
   );
@@ -70,9 +70,9 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
         <div id="layout-vsl" className={`min-h-screen font-sans ${ds.bg}`}>
             {content.palette !== 'minimal-mono' && <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />}
             
-            <div className={`py-12 ${ds.heroGradient}`}>
+            <div className={`py-12 ${ds.hero.bgGradient}`}>
                 <div className="w-full max-w-4xl mx-auto px-6 text-center">
-                    {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${ds.heroText} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`)}
+                    {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`)}
                 </div>
             </div>
 
@@ -96,7 +96,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
                 <FinalCTASection />
             </div>
             
-            <Footer content={content} ds={ds} isDark={isDark} isMobilePreview={isMobilePreview} />
+            <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} />
         </div>
   );
 };
