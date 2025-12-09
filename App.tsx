@@ -30,8 +30,8 @@ import {
   Trash2,
   AlertTriangle,
   X,
+  Globe,
   EyeOff,
-  Globe
 } from "lucide-react";
 import { api } from "./services/api";
 import { getCurrentUser, logout } from "./services/auth";
@@ -232,16 +232,6 @@ const App: React.FC = () => {
     }
   };
 
-  const handleTogglePublish = async (page: LandingPage) => {
-    try {
-        const updatedPage = { ...page, isPublished: !page.isPublished };
-        await api.updatePage(updatedPage);
-        setMyPages(prev => prev.map(p => p.id === page.id ? updatedPage : p));
-    } catch {
-        alert("Error actualizando el estado de publicación");
-    }
-  };
-
   const confirmDeletePage = async () => {
     if (!pageToDelete) return;
     setDeleting(true);
@@ -392,19 +382,14 @@ const App: React.FC = () => {
             path="pages"
             element={
               <div className="space-y-6">
-                <div>
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-2xl font-bold text-white">Mis Páginas</h2>
-                    <button
-                      onClick={() => navigate("/dashboard/generator")}
-                      className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition"
-                    >
-                      Crear Nueva
-                    </button>
-                  </div>
-                  <p className="text-gray-400 mt-2 max-w-3xl">
-                    Gestiona tus landing pages: crea nuevas ofertas, edita el contenido y controla qué páginas están visibles al público.
-                  </p>
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold text-white">Mis Páginas</h2>
+                  <button
+                    onClick={() => navigate("/dashboard/generator")}
+                    className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition"
+                  >
+                    Crear Nueva
+                  </button>
                 </div>
 
                 {loading ? (
@@ -477,22 +462,28 @@ const App: React.FC = () => {
                             </a>
 
                             <button
-                                onClick={() => handleTogglePublish(page)}
-                                className={`w-full py-2 border rounded-lg flex items-center justify-center gap-2 transition text-sm ${
-                                    page.isPublished 
-                                    ? 'border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10' 
-                                    : 'border-green-500/30 text-green-500 hover:bg-green-500/10'
-                                }`}
+                              onClick={() =>
+                                handlePageSave({
+                                  ...page,
+                                  isPublished: !page.isPublished,
+                                })
+                              }
+                              className={`w-full py-2 border rounded-lg flex items-center justify-center gap-2 transition text-sm ${
+                                page.isPublished
+                                  ? "border-yellow-900/30 text-yellow-500 hover:bg-yellow-900/10 hover:border-yellow-900/50"
+                                  : "border-green-900/30 text-green-500 hover:bg-green-900/10 hover:border-green-900/50"
+                              }`}
                             >
-                                {page.isPublished ? (
-                                    <>
-                                        <EyeOff className="w-4 h-4" /> Despublicar
-                                    </>
-                                ) : (
-                                    <>
-                                        <Globe className="w-4 h-4" /> Publicar
-                                    </>
-                                )}
+                              {page.isPublished ? (
+                                <>
+                                  <EyeOff className="w-4 h-4" /> Despublicar
+                                  Página
+                                </>
+                              ) : (
+                                <>
+                                  <Globe className="w-4 h-4" /> Publicar Página
+                                </>
+                              )}
                             </button>
 
                             <button
