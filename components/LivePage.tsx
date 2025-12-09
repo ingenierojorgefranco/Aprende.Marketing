@@ -77,27 +77,27 @@ export const getDesignSystem = (palette: ColorPalette) => {
       };
     case 'energetic-orange': 
       return {
-        bg: 'bg-white',
-        heroGradient: 'bg-gradient-to-br from-orange-500 to-red-600',
+        bg: 'bg-white', // Fondo general limpio
+        heroGradient: 'bg-gradient-to-br from-orange-600 via-orange-500 to-amber-500', // Gradiente Sunset Premium
         heroText: 'text-white',
-        accentText: 'text-yellow-200',
-        primaryBtn: 'bg-white text-orange-600 hover:bg-gray-100 shadow-lg',
-        secondaryBtn: 'bg-orange-700/50 text-white border border-orange-400/30',
-        cardBg: 'bg-white border border-orange-100 shadow-xl shadow-orange-100',
-        iconBg: 'bg-orange-100 text-orange-600',
-        blobColor: 'bg-yellow-400',
-        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-xl shadow-orange-900/10 border-b border-orange-50',
-        navStickyText: 'text-orange-800',
-        logoBg: 'bg-orange-500 text-white',
-        introBg: 'bg-[#431407]', 
-        testimonialBg: 'bg-[#7c2d12]', 
-        mentorBg: 'bg-[#2c1005]',
-        iconGradient: 'from-orange-500 to-red-600',
-        stepsBg: 'bg-orange-50',
-        stepGradient: 'from-orange-500 to-red-500',
-        faqBg: 'bg-orange-50/50',
-        faqItemBg: 'bg-white',
-        textColor: 'text-orange-600'
+        accentText: 'text-amber-200', // Acento suave
+        primaryBtn: 'bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg shadow-orange-500/30 border-t border-white/20',
+        secondaryBtn: 'bg-white/10 backdrop-blur-md border border-white/30 text-white hover:bg-white/20',
+        cardBg: 'bg-white border border-orange-100 shadow-xl shadow-orange-900/5', // Tarjetas limpias
+        iconBg: 'bg-orange-50 text-orange-600',
+        blobColor: 'bg-amber-500',
+        navStickyBg: 'bg-white/95 backdrop-blur-md shadow-lg shadow-orange-900/5 border-b border-orange-50',
+        navStickyText: 'text-gray-900',
+        logoBg: 'bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-orange-500/50',
+        introBg: 'bg-[#1c1917]', // Fondo oscuro premium (Stone 900) para la intro
+        testimonialBg: 'bg-[#fff7ed]', // Fondo claro (Orange 50) para testimonios
+        mentorBg: 'bg-[#1c1917]', // Fondo oscuro para mentor para contrastar con la imagen
+        iconGradient: 'from-orange-500 to-amber-500',
+        stepsBg: 'bg-white',
+        stepGradient: 'from-orange-500 to-amber-500',
+        faqBg: 'bg-[#fff7ed]',
+        faqItemBg: 'bg-white border border-orange-100',
+        textColor: 'text-orange-900'
       };
     case 'nature-green': 
       return {
@@ -1011,28 +1011,28 @@ export const LivePage: React.FC<LivePageProps> = ({
     <section id="seccion-testimonios" className={`py-20 border-b ${isDark ? 'border-white/5' : 'border-gray-900/10'} ${ds.testimonialBg}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className="text-center mb-12">
-                 <h2 className={`text-3xl md:text-4xl font-bold text-white mb-4`}>
+                 <h2 className={`text-3xl md:text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-4`}>
                     {content.testimonialTitle || "Transformaron su pasión en Éxito"}
                  </h2>
-                 <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+                 <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'} max-w-2xl mx-auto`}>
                     {content.testimonialSubtitle || "Ellas ya dieron el paso. Ahora es tu turno."}
                  </p>
             </div>
             
             <div className={`grid gap-6 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.testimonials || []).map((t, i) => (
-                    <div key={i} className={`p-6 rounded-2xl flex flex-col gap-4 shadow-xl transition hover:-translate-y-1 backdrop-blur-sm bg-white/5 border border-white/10`}>
+                    <div key={i} className={`p-6 rounded-2xl flex flex-col gap-4 shadow-xl transition hover:-translate-y-1 backdrop-blur-sm ${isDark ? 'bg-white/5 border border-white/10' : 'bg-white border border-gray-100'}`}>
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden border border-white/20">
                                 <img src={`https://randomuser.me/api/portraits/thumb/women/${i+30}.jpg`} alt="User" className="w-full h-full" />
                             </div>
                             <div>
-                                <p className={`font-bold text-white leading-tight`}>{t.name}</p>
+                                <p className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'} leading-tight`}>{t.name}</p>
                                 {t.location && <p className="text-xs text-gray-400">{t.location}</p>}
                             </div>
                         </div>
                         <div>
-                            {renderRichText(t.text, "text-base leading-relaxed text-gray-300 italic")}
+                            {renderRichText(t.text, `text-base leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-600'} italic`)}
                             <div className="flex text-yellow-400 mt-3 gap-1">
                                 {[...Array(5)].map((_, starI) => (
                                     <Star 
@@ -1058,10 +1058,10 @@ export const LivePage: React.FC<LivePageProps> = ({
         <div className={`absolute bottom-0 right-0 w-96 h-96 rounded-full blur-[100px] opacity-20 translate-x-1/2 translate-y-1/2 ${ds.blobColor}`}></div>
 
         <div className="w-full max-w-[75em] mx-auto px-6 text-center relative z-10">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+            <h2 className={`text-3xl md:text-5xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-6`}>
                 ¿Lista para cambiar tu vida?
             </h2>
-            <p className="text-gray-300 text-lg mb-10 max-w-2xl mx-auto">
+            <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} text-lg mb-10 max-w-2xl mx-auto`}>
                 No dejes pasar esta oportunidad. El acceso a la certificación y los bonos exclusivos termina pronto.
             </p>
             

@@ -1,8 +1,6 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { User } from '../types';
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 
 interface DashboardLayoutProps {
@@ -213,10 +211,19 @@ export const DashboardLayout = ({
       {/* Main Content */}
       <main className="flex-1 p-6 md:p-10 overflow-y-auto mt-16 md:mt-0 bg-black">
         {isOffline && (
-            <div className="mb-6 bg-yellow-900/30 border border-yellow-700 text-yellow-200 px-4 py-2 rounded-lg flex items-center gap-2 text-sm animate-in fade-in slide-in-from-top-2">
-               {/* @ts-ignore */}
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 2l20 20"/><path d="M8.56 2.69a10 10 0 0 1 8.13 13.54"/><path d="M10.83 17.17a6 6 0 0 1-5.66-3.87"/><path d="M13.62 2.11c.57.06 1.13.16 1.67.29"/><path d="M1.42 9a16 16 0 0 1 1.77-3.15"/></svg>
-                <span><strong>Modo Offline:</strong> No se pudo conectar a la Base de Datos. Usando almacenamiento local temporal.</span>
+            <div className="mb-6 bg-yellow-900/20 border border-yellow-700/50 text-yellow-200 px-6 py-4 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-2 shadow-lg shadow-yellow-900/10">
+               <div className="flex items-center gap-3">
+                   <div className="p-2 bg-yellow-500/20 rounded-full">
+                       <Database className="w-5 h-5 text-yellow-400" />
+                   </div>
+                   <div>
+                       <p className="font-bold text-sm md:text-base">MODO PRUEBAS (OFFLINE) - MICROBLADING DEMO</p>
+                       <p className="text-xs text-yellow-300/70">Estás trabajando con datos simulados. Los cambios se perderán al recargar.</p>
+                   </div>
+               </div>
+               <button onClick={onLogout} className="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 px-3 py-1.5 rounded-lg border border-yellow-500/30 transition">
+                   Salir
+               </button>
             </div>
         )}
         <Outlet />

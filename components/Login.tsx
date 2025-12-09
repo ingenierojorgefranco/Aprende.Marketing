@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Lock, Loader2, AlertCircle, Database, WifiOff } from 'lucide-react';
 import { User } from '../types';
 import { login as authLogin } from '../services/auth';
+import { api } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 interface LoginProps {
@@ -32,18 +32,24 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setLogs([]);
     addLog(`Iniciando proceso de login en modo: ${mode === 'db' ? 'Base de Datos' : 'Offline Demo'}`);
     
-    // 🟡 MODO OFFLINE: no llama a backend
+    // 🟡 MODO OFFLINE: no llama a backend, carga Mock Data
     if (mode === 'offline') {
-      addLog('Modo OFFLINE seleccionado.');
-      const offlineUser: User = {
-        id: 'offline-demo',
-        name: 'Usuario Demo (Offline)',
-        email: email || 'demo@offline.com',
-      };
+      addLog('Modo OFFLINE seleccionado. Activando entorno de pruebas...');
       
-      onLogin(offlineUser);
+      // Activar flag global en API
+      api.enableMockMode();
+      
+      // Usar login de api (que ahora responderá con datos mock)
+      try {
+          const mockUser = await api.login('demo@offline.com', 'dummy');
+          addLog('Mock User cargado exitosamente.');
+          onLogin(mockUser);
+          navigate('/dashboard'); 
+      } catch (e) {
+          addLog('Error cargando mock user (inesperado).');
+      }
+      
       setLoading(false);
-      navigate('/dashboard'); // Redirigir
       return;
     }
 
@@ -72,16 +78,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     }
   };
 
-  const handleForceOfflineClick = () => {
-    const offlineUser: User = {
-      id: 'force-off',
-      name: 'Demo User (Forzado)',
-      email: email || 'forced@demo.com',
-    };
-    onLogin(offlineUser);
-    navigate('/dashboard');
-  };
-
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 relative">
       <button
@@ -107,9 +103,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <button
               type="button"
               onClick={() => setMode('db')}
-              className={`flex items-center justify-center gap-1 px-3 py-2 rounded-lg border ${
+              className={`flex items-center justify-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
                 mode === 'db'
-                  ? 'border-primary bg-primary/10 text-primary'
+                  ? 'border-primary bg-primary/10 text-primary font-bold'
                   : 'border-gray-700 text-gray-400 hover:border-gray-500'
               }`}
               disabled={loading}
@@ -120,9 +116,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <button
               type="button"
               onClick={() => setMode('offline')}
-              className={`flex items-center justify-center gap-1 px-3 py-2 rounded-lg border ${
+              className={`flex items-center justify-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
                 mode === 'offline'
-                  ? 'border-yellow-400 bg-yellow-500/10 text-yellow-300'
+                  ? 'border-yellow-400 bg-yellow-500/10 text-yellow-300 font-bold'
                   : 'border-gray-700 text-gray-400 hover:border-gray-500'
               }`}
               disabled={loading}
@@ -152,10 +148,10 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
-              required
+              className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition disabled:opacity-50"
+              required={mode === 'db'}
               disabled={loading}
-              placeholder="admin@ejemplo.com"
+              placeholder={mode === 'offline' ? "Opcional en modo demo" : "admin@ejemplo.com"}
             />
           </div>
           <div>
@@ -166,8 +162,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
-              required
+              className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition disabled:opacity-50"
+              required={mode === 'db'}
               disabled={loading}
               placeholder="••••••••"
             />
@@ -175,25 +171,17 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary hover:bg-indigo-600 text-white font-bold py-3 rounded-lg transition shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2"
+            className={`w-full font-bold py-3 rounded-lg transition shadow-lg flex items-center justify-center gap-2 ${mode === 'offline' ? 'bg-yellow-600 hover:bg-yellow-500 text-white shadow-yellow-500/20' : 'bg-primary hover:bg-indigo-600 text-white shadow-indigo-500/20'}`}
           >
             {loading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" /> Conectando...
+                <Loader2 className="w-5 h-5 animate-spin" /> {mode === 'offline' ? 'Cargando Demo...' : 'Conectando...'}
               </>
             ) : (
-              'Ingresar'
+              mode === 'offline' ? 'Entrar en Modo Offline' : 'Ingresar'
             )}
           </button>
         </form>
-
-        <button
-          type="button"
-          onClick={handleForceOfflineClick}
-          className="mt-4 w-full text-xs text-gray-500 hover:text-white underline"
-        >
-          ¿Problemas de conexión? Entrar como Demo inmediato
-        </button>
       </div>
 
       {/* Console Logs for Debugging */}
