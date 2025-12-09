@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
-import { User, Target, Zap, CheckCircle, Plus, Minus } from 'lucide-react';
+import { User, Target, Zap, CheckCircle, Plus, Minus, ScanFace, Palette, Feather } from 'lucide-react';
 import { Navbar, Footer, SmartCTA, FeatureCard } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
 
@@ -16,6 +16,34 @@ interface TemplateProps {
 }
 
 export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
+  
+  const IntroSection = () => (
+    <section id="intro-section" className={`py-16 ${ds.intro.sectionBg} border-b ${ds.intro.badgeBorder}`}>
+        <div className="w-full max-w-[75em] mx-auto px-6">
+            <div className="flex flex-col md:flex-row gap-12 items-center">
+                <div className="flex-1">
+                    <span className={`inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border ${ds.intro.badgeBg} ${ds.intro.badgeText} ${ds.intro.badgeBorder}`}>Información del Evento</span>
+                    <h2 className={`text-3xl font-bold mb-6 ${ds.intro.titleColor}`}>{content.intro.title}</h2>
+                    <div className={`text-lg leading-relaxed ${ds.intro.textColor}`}>{renderRichText(content.intro.description)}</div>
+                </div>
+                <div className="flex-1 space-y-4 w-full">
+                    {(content.intro.items || []).map((item, i) => (
+                        <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border ${ds.features.cardBg} ${ds.features.cardBorder}`}>
+                            <div className={`p-2 rounded-lg flex-shrink-0 ${ds.intro.bulletIconBg} ${ds.intro.bulletIconColor}`}>
+                                {i === 0 ? <ScanFace className="w-5 h-5" /> : i === 1 ? <Palette className="w-5 h-5" /> : <Feather className="w-5 h-5" />}
+                            </div>
+                            <div>
+                                <h4 className={`font-bold text-base mb-1 ${ds.features.titleColor}`}>{item.title}</h4>
+                                {renderRichText(item.description, `text-sm leading-snug ${ds.features.descColor}`)}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    </section>
+  );
+
   const InstructorSection = () => (
     <section id="instructor-section" className={`py-24 relative overflow-hidden ${ds.instructor.sectionBg}`}>
          <div className={`absolute top-1/2 left-0 md:left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] ${ds.blobOpacity} ${ds.blobColor}`}></div>
@@ -45,6 +73,29 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
             </div>
             <div id="benefits-grid" className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.benefits.items || []).map((item, idx) => <FeatureCard key={idx} item={item} idx={idx} ds={ds} content={content} />)}
+            </div>
+        </div>
+    </section>
+  );
+
+  const StepsSection = () => (
+    <section id="steps-section" className={`py-20 ${ds.steps.sectionBg}`}>
+        <div className="w-full max-w-[75em] mx-auto px-6">
+            <div className="text-center mb-12">
+                <h2 className={`text-3xl font-bold mb-4 ${ds.steps.titleColor}`}>Asegura tu Cupo en 3 Pasos</h2>
+            </div>
+            <div className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
+                 {[
+                    { num: 1, title: "Regístrate Gratis", text: "Usa el formulario para apartar tu lugar." },
+                    { num: 2, title: "Revisa tu Correo", text: "Te enviaremos el link de acceso único." },
+                    { num: 3, title: "Conéctate en Vivo", text: "Asiste a la hora indicada y aprende." }
+                 ].map((step, i) => (
+                    <div key={i} className={`flex flex-col items-center text-center p-6 rounded-2xl border transition hover:-translate-y-1 ${ds.steps.cardBg} ${ds.steps.cardBorder}`}>
+                         <div className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold mb-4 ${ds.steps.iconContainer} ${ds.steps.numberColor}`}>{step.num}</div>
+                         <h3 className={`text-lg font-bold mb-2 ${ds.steps.titleColor}`}>{step.title}</h3>
+                         <p className={`text-sm ${ds.steps.textColor}`}>{step.text}</p>
+                    </div>
+                 ))}
             </div>
         </div>
     </section>
@@ -144,8 +195,10 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
             </div>
          </header>
 
+         <IntroSection />
          <InstructorSection />
          <BenefitsSection />
+         <StepsSection />
          <TestimonialsSection />
          <FAQSection />
          <FinalCTASection />
