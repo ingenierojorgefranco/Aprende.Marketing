@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType } from '../types';
-import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid } from 'lucide-react';
+import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink } from 'lucide-react';
 import { LivePage } from './LivePage';
 
 // --- UI COMPONENTS EXTRACTED ---
@@ -196,6 +196,10 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? null : section);
   };
+
+  // URL calculation for the "Ver Sitio" button
+  const baseSlug = page.subdomain ? page.subdomain.split('.')[0] : page.id;
+  const publicUrl = `/admin/lp/${baseSlug}`;
 
   // --- HELPER FUNCTIONS ---
   const updateNestedField = (section: keyof GeneratedPageContent, field: string, value: string) => {
@@ -408,7 +412,14 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
 
         <div className="flex items-center gap-3">
           {showSuccess && <span className="text-green-500 flex items-center gap-1 text-sm animate-pulse mr-2"><CheckCircle className="w-4 h-4" /> Guardado</span>}
-          <button onClick={() => handleSave(false)} disabled={saving} className="px-4 py-2 text-gray-300 text-sm font-medium hover:text-white transition">Guardar Borrador</button>
+          <a 
+            href={publicUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 text-gray-300 text-sm font-medium hover:text-white transition"
+          >
+            <ExternalLink className="w-4 h-4" /> Ver Sitio
+          </a>
           <button onClick={() => handleSave(true)} disabled={saving} className={`px-6 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 ${isPublished ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-primary hover:bg-indigo-600 text-white'}`}>
             {saving ? <span className="animate-spin">⌛</span> : <Globe className="w-4 h-4" />}
             {isPublished ? 'Actualizar Sitio' : 'Publicar Ahora'}
