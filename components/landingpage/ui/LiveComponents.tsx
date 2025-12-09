@@ -282,10 +282,25 @@ export const FeatureCard = ({ item, idx, ds, content }: { item: any, idx: number
     // Dynamic icon colors override if needed, otherwise use DS defaults
     const IconComponent = getIcon(item.icon, idx === 0 ? <DollarSign className="w-10 h-10" /> : idx === 1 ? <FileText className="w-10 h-10" /> : idx === 2 ? <Briefcase className="w-10 h-10" /> : <Award className="w-10 h-10" />);
 
+    // Map item.color string to Tailwind class safely
+    const colorMap: Record<string, string> = {
+        blue: 'text-blue-600',
+        purple: 'text-purple-600',
+        green: 'text-green-600',
+        orange: 'text-orange-600',
+        red: 'text-red-600',
+        teal: 'text-teal-600',
+        yellow: 'text-yellow-500',
+        indigo: 'text-indigo-600',
+        pink: 'text-pink-600'
+    };
+
+    const iconColorClass = (item.color && colorMap[item.color]) ? colorMap[item.color] : ds.features.iconColor;
+
     return (
         <div id={`feature-card-${idx}`} className={`p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 flex flex-col items-start ${ds.features.cardBg} ${ds.features.cardBorder} ${ds.features.cardShadow} border`}>
             <div id={`feature-icon-${idx}`} className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 p-4 ${ds.features.iconContainer}`}>
-                <div className={`w-full h-full ${ds.features.iconColor}`}>{IconComponent}</div>
+                <div className={`w-full h-full ${iconColorClass}`}>{IconComponent}</div>
             </div>
             <h3 id={`feature-title-${idx}`} className={`text-xl font-bold mb-3 ${ds.features.titleColor}`}>{item.title}</h3>
             {renderRichText(item.description, `leading-relaxed ${ds.features.descColor}`)}

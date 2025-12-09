@@ -68,7 +68,9 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
           <div className="max-w-4xl mx-auto px-6">
               <div className="text-center mb-12">
                   <h2 className={`text-2xl md:text-3xl font-bold mb-4 flex items-center justify-center gap-3 ${ds.features.titleColor}`}>
-                      {content.whatYouWillLearn.icon ? getIcon(content.whatYouWillLearn.icon, <BookOpen className="w-6 h-6"/>) : <BookOpen className="w-6 h-6"/>}
+                      <div className="w-8 h-8 shrink-0 flex items-center justify-center">
+                        {content.whatYouWillLearn.icon ? getIcon(content.whatYouWillLearn.icon, <BookOpen className="w-full h-full"/>) : <BookOpen className="w-full h-full"/>}
+                      </div>
                       {content.whatYouWillLearn.title || "Lo que aprenderás"}
                   </h2>
               </div>
