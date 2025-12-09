@@ -1,5 +1,5 @@
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project } from "../types";
-import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS } from "./mockData";
+import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS } from "./mockData";
 
 // --- HELPER PARA OBTENER BASE URL ---
 const getBaseUrl = () => {
@@ -68,6 +68,12 @@ export const api = {
       isMockMode = true;
       console.log("🟡 MODO MOCK ACTIVADO: Usando datos locales de prueba.");
   },
+
+  // Desactiva el modo de pruebas
+  disableMockMode: () => {
+      isMockMode = false;
+      console.log("🔴 MODO MOCK DESACTIVADO: Usando Base de Datos real.");
+  },
   
   isUsingMockData: () => isMockMode,
 
@@ -75,7 +81,13 @@ export const api = {
       if (isMockMode) {
           // Simular delay de red
           await new Promise(resolve => setTimeout(resolve, 800));
-          return MOCK_USER;
+          
+          // Validar credenciales estrictas del Mock
+          if (email === MOCK_CREDENTIALS.email && password === MOCK_CREDENTIALS.password) {
+              return MOCK_USER;
+          } else {
+              throw new Error("Credenciales inválidas para el Modo Offline Demo.");
+          }
       }
 
       const user = await fetchWithFallback('/auth/login', {

@@ -32,21 +32,22 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setLogs([]);
     addLog(`Iniciando proceso de login en modo: ${mode === 'db' ? 'Base de Datos' : 'Offline Demo'}`);
     
-    // 🟡 MODO OFFLINE: no llama a backend, carga Mock Data
+    // 🟡 MODO OFFLINE: no llama a backend, pero valida credenciales localmente
     if (mode === 'offline') {
-      addLog('Modo OFFLINE seleccionado. Activando entorno de pruebas...');
+      addLog('Modo OFFLINE seleccionado. Verificando credenciales locales...');
       
       // Activar flag global en API
       api.enableMockMode();
       
-      // Usar login de api (que ahora responderá con datos mock)
       try {
-          const mockUser = await api.login('demo@offline.com', 'dummy');
-          addLog('Mock User cargado exitosamente.');
+          // Intentar loguear con las credenciales ingresadas en el input
+          const mockUser = await api.login(email, password);
+          addLog('Credenciales correctas. Iniciando sesión offline...');
           onLogin(mockUser);
           navigate('/dashboard'); 
-      } catch (e) {
-          addLog('Error cargando mock user (inesperado).');
+      } catch (err: any) {
+          addLog(`Error Offline: ${err.message}`);
+          setError(err.message || 'Error de credenciales en modo offline.');
       }
       
       setLoading(false);
@@ -55,6 +56,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
     // 🔵 MODO BD: login real
     try {
+      // Asegurar que el modo mock esté desactivado
+      api.disableMockMode();
+      
       addLog('Llamando a backend /api/auth/login...');
       const { user } = await authLogin({ email, password });
 
@@ -149,9 +153,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition disabled:opacity-50"
-              required={mode === 'db'}
+              required
               disabled={loading}
-              placeholder={mode === 'offline' ? "Opcional en modo demo" : "admin@ejemplo.com"}
+              placeholder="admin@ejemplo.com"
             />
           </div>
           <div>
@@ -163,7 +167,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition disabled:opacity-50"
-              required={mode === 'db'}
+              required
               disabled={loading}
               placeholder="••••••••"
             />
@@ -175,7 +179,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           >
             {loading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" /> {mode === 'offline' ? 'Cargando Demo...' : 'Conectando...'}
+                <Loader2 className="w-5 h-5 animate-spin" /> Verificando...
               </>
             ) : (
               mode === 'offline' ? 'Entrar en Modo Offline' : 'Ingresar'

@@ -1,9 +1,14 @@
 import { User, Project, LandingPage, Article, Lead, GeneratedPageContent } from "../types";
 
+export const MOCK_CREDENTIALS = {
+  email: "admin@plataformadeventa.com",
+  password: "MiPasswordSuperSegura123"
+};
+
 export const MOCK_USER: User = {
   id: "mock-user-id",
   name: "Admin Microblading",
-  email: "admin@microblading.demo"
+  email: MOCK_CREDENTIALS.email
 };
 
 export const MOCK_PROJECTS: Project[] = [
