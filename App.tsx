@@ -30,6 +30,7 @@ import {
   Trash2,
   AlertTriangle,
   X,
+  Globe,
 } from "lucide-react";
 import { api } from "./services/api";
 import { getCurrentUser, logout } from "./services/auth";
@@ -227,6 +228,22 @@ const App: React.FC = () => {
       setIsOffline(api.isUsingMockData());
     } catch {
       alert("Error actualizando la página");
+    }
+  };
+
+  const handleTogglePublish = async (page: LandingPage) => {
+    const newStatus = !page.isPublished;
+    const updatedPage = { ...page, isPublished: newStatus };
+    try {
+      // Actualizamos en backend
+      await api.updatePage(updatedPage);
+      // Actualizamos estado local
+      setMyPages((prev) =>
+        prev.map((p) => (p.id === page.id ? updatedPage : p))
+      );
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo cambiar el estado de publicación.");
     }
   };
 
@@ -467,6 +484,20 @@ const App: React.FC = () => {
                             >
                               <LayoutTemplate className="w-4 h-4" /> Ver Online
                             </a>
+
+                            <button
+                              onClick={() => handleTogglePublish(page)}
+                              className={`w-full py-2 border rounded-lg flex items-center justify-center gap-2 transition text-sm ${
+                                page.isPublished
+                                  ? "border-orange-900/30 text-orange-500/70 hover:bg-orange-900/10 hover:text-orange-500 hover:border-orange-900/50"
+                                  : "border-green-900/30 text-green-500/70 hover:bg-green-900/10 hover:text-green-500 hover:border-green-900/50"
+                              }`}
+                            >
+                              <Globe className="w-4 h-4" />
+                              {page.isPublished
+                                ? "Despublicar Página"
+                                : "Publicar Página"}
+                            </button>
 
                             <button
                               onClick={() => setPageToDelete(page)}
