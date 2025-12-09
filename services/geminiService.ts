@@ -155,7 +155,9 @@ export const generateLandingPageContent = async (
   Estructura requerida del JSON:
   1. Hero: Título impactante (H1), subtítulo persuasivo y texto del botón principal (CTA). IMPORTANTE: En el campo 'headline', encierra la parte más importante o emocional de la frase entre etiquetas <b> y </b> (ejemplo: "¿Tu perro rompe cosas o <b>se porta mal?</b>").
   2. Testimonios: Genera 3 testimonios muy cortos (máximo 15 palabras) de clientes satisfechos, nombre y rating (5).
-  3. Intro: Explicación clara de qué es el producto/servicio ("Qué es").
+  3. Intro: Explicación clara de qué es el producto/servicio ("Qué es"). 
+     - Genera 'imageCardText': Una frase corta y persuasiva (máx 12 palabras) que iría sobre una imagen destacada (ej: "El secreto que los expertos no te cuentan").
+     - Genera 'items': 3 puntos clave (bullets) específicos de este nicho que expliquen características técnicas o beneficios únicos.
   4. Beneficios: Lista de 4 a 6 beneficios clave con títulos y descripciones cortas.
   5. Lo que aprenderás: Lista de 4 a 6 puntos clave (bullet points) de lo que obtendrá el usuario.
   6. FAQ: Genera 4 preguntas frecuentes con respuestas persuasivas que derriben objeciones de compra.
@@ -207,6 +209,17 @@ export const generateLandingPageContent = async (
         properties: {
         title: { type: Type.STRING },
         description: { type: Type.STRING },
+        imageCardText: { type: Type.STRING, description: "Short persuasive text over image" },
+        items: {
+            type: Type.ARRAY,
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    title: { type: Type.STRING },
+                    description: { type: Type.STRING }
+                }
+            }
+        }
         },
         required: ["title", "description"],
     },

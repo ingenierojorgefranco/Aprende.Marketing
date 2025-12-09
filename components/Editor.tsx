@@ -613,6 +613,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                         <SectionContent id="intro" openSection={openSection}>
                             <div><Label>Título de Sección</Label><Input value={content.intro.title} onChange={(e) => updateNestedField('intro', 'title', e.target.value)} /></div>
                             <div><Label>Descripción</Label><RichTextArea value={content.intro.description} onChange={(e) => updateNestedField('intro', 'description', e.target.value)} className="h-32" /></div>
+                            <div className="pt-2"><Label>Texto Tarjeta Flotante (Sobre Imagen)</Label><Input value={content.intro.imageCardText || ''} onChange={(e) => updateNestedField('intro', 'imageCardText', e.target.value)} placeholder="Ej: La nueva mina de oro..." /></div>
                             
                             <div className="pt-4 border-t border-gray-800">
                                 <Label>Puntos Clave (Bullets)</Label>

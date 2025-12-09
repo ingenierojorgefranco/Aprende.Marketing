@@ -77,21 +77,21 @@ export const getDesignSystem = (palette: ColorPalette) => {
       };
     case 'energetic-orange': 
       return {
-        bg: 'bg-white', // Fondo general limpio
-        heroGradient: 'bg-gradient-to-br from-orange-600 via-orange-500 to-amber-500', // Gradiente Sunset Premium
-        heroText: 'text-white',
-        accentText: 'text-amber-200', // Acento suave
+        bg: 'bg-white', 
+        heroGradient: 'bg-gradient-to-br from-[#fff7ed] via-[#ffedd5] to-[#fed7aa]', // Creamy sunset gradient
+        heroText: 'text-gray-900', // Dark text for contrast on cream
+        accentText: 'text-orange-600', // Vibrant orange accent
         primaryBtn: 'bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg shadow-orange-500/30 border-t border-white/20',
-        secondaryBtn: 'bg-white/10 backdrop-blur-md border border-white/30 text-white hover:bg-white/20',
-        cardBg: 'bg-white border border-orange-100 shadow-xl shadow-orange-900/5', // Tarjetas limpias
+        secondaryBtn: 'bg-white border border-orange-200 text-orange-800 hover:bg-orange-50', // Clean secondary
+        cardBg: 'bg-white border border-orange-100 shadow-xl shadow-orange-900/5', 
         iconBg: 'bg-orange-50 text-orange-600',
-        blobColor: 'bg-amber-500',
+        blobColor: 'bg-orange-200', // Pastel blob
         navStickyBg: 'bg-white/95 backdrop-blur-md shadow-lg shadow-orange-900/5 border-b border-orange-50',
         navStickyText: 'text-gray-900',
         logoBg: 'bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-orange-500/50',
-        introBg: 'bg-[#1c1917]', // Fondo oscuro premium (Stone 900) para la intro
-        testimonialBg: 'bg-[#fff7ed]', // Fondo claro (Orange 50) para testimonios
-        mentorBg: 'bg-[#1c1917]', // Fondo oscuro para mentor para contrastar con la imagen
+        introBg: 'bg-[#1c1917]', 
+        testimonialBg: 'bg-[#fff7ed]', 
+        mentorBg: 'bg-[#1c1917]', 
         iconGradient: 'from-orange-500 to-amber-500',
         stepsBg: 'bg-white',
         stepGradient: 'from-orange-500 to-amber-500',
@@ -337,7 +337,7 @@ export const LivePage: React.FC<LivePageProps> = ({
     return (
       <h1 
         id="titulo-principal"
-        className={`font-extrabold text-white tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`}
+        className={`font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${ds.heroText} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`}
         dangerouslySetInnerHTML={{ __html: htmlContent }}
       />
     );
@@ -519,7 +519,11 @@ export const LivePage: React.FC<LivePageProps> = ({
     // Use the specific sticky text color from design system
     const stickyTextColorClass = ds.navStickyText || 'text-gray-900'; 
 
-    const currentTextColor = isScrolled ? stickyTextColorClass : baseTextColorClass;
+    // Special case for energetic-orange: ensure text is always dark if header is light
+    const isHeaderLight = content.palette === 'energetic-orange' || content.palette === 'gold-prestige' || content.palette === 'nature-green' || content.palette === 'minimal-mono' || content.palette === 'crimson-red' || content.palette === 'ocean-teal';
+    const effectiveBaseColor = isHeaderLight ? 'text-gray-900' : baseTextColorClass;
+
+    const currentTextColor = isScrolled ? stickyTextColorClass : effectiveBaseColor;
 
     // Default Links if none provided
     const navLinksRaw = content.navLinks || [
@@ -589,7 +593,7 @@ export const LivePage: React.FC<LivePageProps> = ({
         id="barra-navegacion"
         className={`
             w-full z-50 transition-all duration-300
-            ${isScrolled ? `${ds.navStickyBg} fixed top-0 left-0` : 'absolute top-0 left-0 bg-transparent border-b border-white/5 backdrop-blur-sm'}
+            ${isScrolled ? `${ds.navStickyBg} fixed top-0 left-0` : 'absolute top-0 left-0 bg-transparent border-b border-black/5 backdrop-blur-sm'}
         `}
       >
           <div className="w-full max-w-[75em] mx-auto px-6 py-4 flex justify-between items-center relative gap-4">
@@ -840,13 +844,13 @@ export const LivePage: React.FC<LivePageProps> = ({
                             className="relative z-10 rounded-3xl shadow-2xl w-full object-cover aspect-[4/3]" 
                         />
                         
-                        {/* Floating Card for Beauty Niche */}
+                        {/* Floating Card - Dynamic Text */}
                         <div className="absolute -bottom-6 -right-6 z-20 bg-white rounded-2xl p-4 shadow-xl max-w-[200px] border border-gray-100 hidden md:block transform rotate-2 hover:rotate-0 transition-transform duration-300">
                             <div className="flex items-start gap-3">
                                 <div className={`w-2 h-12 rounded-full ${content.palette === 'elegant-purple' ? 'bg-purple-500' : 'bg-pink-500'} shrink-0`}></div>
                                 <div>
                                     <p className="text-xs font-bold text-gray-900 leading-snug">
-                                        "El arte de las uñas artificiales es la nueva mina de oro de la belleza"
+                                        "{content.intro.imageCardText || "Descubre este método exclusivo"}"
                                     </p>
                                     <div className="flex gap-1 mt-2">
                                         {[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
@@ -871,11 +875,7 @@ export const LivePage: React.FC<LivePageProps> = ({
 
                     {/* KEY POINTS BULLETS (Dynamic Items) */}
                     <div className="mt-10 space-y-4">
-                        {(content.intro.items || [
-                            { title: 'Visajismo Personalizado', description: 'Diseño único basado en la estructura ósea y muscular del cliente.' },
-                            { title: 'Pigmentología Avanzada', description: 'Mezclas exactas para evitar tonos rojos o azules con el tiempo.' },
-                            { title: 'Técnica Pelo a Pelo', description: 'Creación de volumen y realismo indetectable a simple vista.' }
-                        ]).map((item, i) => (
+                        {(content.intro.items || []).map((item, i) => (
                             <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition">
                                 <div className={`p-3 rounded-lg flex-shrink-0 ${i === 0 ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : i === 1 ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
                                    {i === 0 ? <ScanFace className="w-6 h-6" /> : i === 1 ? <Palette className="w-6 h-6" /> : <Feather className="w-6 h-6" />}

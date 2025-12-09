@@ -84,6 +84,7 @@ export interface GeneratedPageContent {
   intro: {
     title: string;
     description: string;
+    imageCardText?: string; // New: Text floating over the intro image
     items?: Array<{ title: string; description: string }>; // For the bullet points like Visajismo etc.
   };
   benefits: {
