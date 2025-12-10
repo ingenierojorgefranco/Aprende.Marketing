@@ -36,6 +36,7 @@ const initDb = async () => {
             role VARCHAR(50) DEFAULT 'user',
             is_active BOOLEAN DEFAULT TRUE,
             public_subdomain VARCHAR(255) UNIQUE,
+            plan_limits JSON NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             last_login_at DATETIME
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
@@ -169,9 +170,12 @@ const initDb = async () => {
         await addColumnSafe(connection, 'articles', "meta_description TEXT");
         await addColumnSafe(connection, 'articles', "status VARCHAR(50) DEFAULT 'published'");
         await addColumnSafe(connection, 'articles', "published_at DATETIME DEFAULT CURRENT_TIMESTAMP");
-        // Migración crítica solicitada: Agregar page_id si falta
         await addColumnSafe(connection, 'articles', "page_id INT NULL");
         
+        // --- NEW COLUMNS FOR USER MANAGEMENT ---
+        await addColumnSafe(connection, 'users', "role VARCHAR(50) DEFAULT 'user'");
+        await addColumnSafe(connection, 'users', "plan_limits JSON NULL");
+
         // Reactivar checks
         await connection.query('SET FOREIGN_KEY_CHECKS = 1');
         console.log('✨ [DB Init] Base de datos sincronizada correctamente.');

@@ -1,62 +1,74 @@
-
-
 import React, { useEffect, useState } from 'react';
-import { LandingPage } from '../types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { TrendingUp, Users, MousePointer, Loader2 } from 'lucide-react';
 import { api } from '../services/api';
 
-interface DashboardHomeProps {
-  pages: LandingPage[];
-}
+// Props removed, it fetches its own data now
+interface DashboardHomeProps {}
 
-export const DashboardHome: React.FC<DashboardHomeProps> = ({ pages }) => {
+export const DashboardHome: React.FC<DashboardHomeProps> = () => {
   const [analyticsData, setAnalyticsData] = useState<any[]>([]);
+  const [summaryData, setSummaryData] = useState({
+      totalVisits: 0,
+      totalConversions: 0,
+      totalPages: 0,
+      conversionRate: '0'
+  });
   const [loading, setLoading] = useState(true);
 
   // Helper para formatear fechas a "Lun", "Mar" etc.
   const formatDayName = (dateString: string) => {
       const date = new Date(dateString);
-      // Ajuste para zona horaria si es necesario, o usar UTC
       const days = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
-      // getUTCDay para asegurar consistencia con la fecha del servidor que suele ser YYYY-MM-DD
       return days[date.getUTCDay()];
   };
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
+    const fetchData = async () => {
         setLoading(true);
         try {
-            const data = await api.getWeeklyAnalytics();
+            // Fetch Summary and Weekly Chart Data in parallel
+            const [weeklyData, summary] = await Promise.all([
+                api.getWeeklyAnalytics(),
+                api.getAnalyticsSummary()
+            ]);
+
             // Formatear datos para la gráfica
-            const formatted = data.map(item => ({
+            const formatted = weeklyData.map(item => ({
                 name: formatDayName(item.date),
                 fullDate: item.date,
                 visits: item.visits,
                 conversions: item.conversions
             }));
-            
-            // Si la API devuelve pocos datos, rellenamos o mostramos lo que hay
             setAnalyticsData(formatted);
+
+            // Set Summary
+            const rate = summary.totalVisits > 0 
+                ? ((summary.totalConversions / summary.totalVisits) * 100).toFixed(1) 
+                : '0';
+                
+            setSummaryData({
+                totalVisits: summary.totalVisits,
+                totalConversions: summary.totalConversions,
+                totalPages: summary.totalPages,
+                conversionRate: rate
+            });
+
         } catch (error) {
-            console.error("Error cargando analíticas", error);
+            console.error("Error cargando dashboard", error);
         } finally {
             setLoading(false);
         }
     };
 
-    fetchAnalytics();
-  }, []); // Cargar solo al montar
-
-  const totalVisits = pages.reduce((acc, p) => acc + p.visits, 0);
-  const totalConversions = pages.reduce((acc, p) => acc + p.conversions, 0);
-  const conversionRate = totalVisits > 0 ? ((totalConversions / totalVisits) * 100).toFixed(1) : '0';
+    fetchData();
+  }, []);
 
   return (
-    <div className="space-y-8 text-white">
+    <div className="space-y-8 text-white animate-in fade-in slide-in-from-bottom-4">
       <div>
         <h1 className="text-3xl font-bold text-white">Panel de Control</h1>
-        <p className="text-gray-400">Bienvenido de nuevo. Aquí tienes el rendimiento de tus landing pages.</p>
+        <p className="text-gray-400">Bienvenido. Aquí tienes el rendimiento general de tus {summaryData.totalPages} landing pages.</p>
       </div>
 
       {/* Stats Cards */}
@@ -66,10 +78,9 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ pages }) => {
             <div className="p-3 bg-blue-900/30 rounded-lg">
               <Users className="w-6 h-6 text-blue-400" />
             </div>
-            {/* Indicador de tendencia estático por ahora */}
             <span className="text-gray-500 text-xs font-medium">Acumulado</span>
           </div>
-          <h3 className="text-2xl font-bold text-white">{totalVisits}</h3>
+          <h3 className="text-2xl font-bold text-white">{loading ? '...' : summaryData.totalVisits}</h3>
           <p className="text-gray-400 text-sm">Visitas Totales</p>
         </div>
 
@@ -80,7 +91,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ pages }) => {
             </div>
             <span className="text-gray-500 text-xs font-medium">Acumulado</span>
           </div>
-          <h3 className="text-2xl font-bold text-white">{totalConversions}</h3>
+          <h3 className="text-2xl font-bold text-white">{loading ? '...' : summaryData.totalConversions}</h3>
           <p className="text-gray-400 text-sm">Conversiones Totales</p>
         </div>
 
@@ -91,7 +102,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ pages }) => {
             </div>
             <span className="text-gray-500 text-xs font-medium">Global</span>
           </div>
-          <h3 className="text-2xl font-bold text-white">{conversionRate}%</h3>
+          <h3 className="text-2xl font-bold text-white">{loading ? '...' : summaryData.conversionRate}%</h3>
           <p className="text-gray-400 text-sm">Tasa de Conversión</p>
         </div>
       </div>
@@ -100,7 +111,6 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ pages }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-800">
           <h3 className="font-bold text-white mb-6">Tráfico Semanal (Últimos 7 días)</h3>
-          {/* Explicit height wrapper to fix Recharts width/height warning */}
           <div className="h-[300px] w-full flex items-center justify-center">
              {loading ? (
                  <div className="flex flex-col items-center text-gray-500">
@@ -136,7 +146,6 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ pages }) => {
 
         <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-800">
           <h3 className="font-bold text-white mb-6">Conversiones Diarias</h3>
-          {/* Explicit height wrapper to fix Recharts width/height warning */}
           <div className="h-[300px] w-full flex items-center justify-center">
              {loading ? (
                  <div className="flex flex-col items-center text-gray-500">

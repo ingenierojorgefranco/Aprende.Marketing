@@ -15,10 +15,26 @@ export enum ViewState {
   ARTICLES_LIST = 'ARTICLES_LIST'
 }
 
+export interface PlanFeatures {
+  whatsappBot: boolean;
+  blogGenerator: boolean;
+  emailMarketing: boolean;
+  removeBranding: boolean;
+}
+
+export interface PlanLimits {
+  planName: 'starter' | 'pro' | 'custom';
+  maxProjects: number;
+  maxLandings: number;
+  features: PlanFeatures;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
+  role?: 'admin' | 'user';
+  planLimits?: PlanLimits;
 }
 
 export type ColorPalette = 

@@ -1,22 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { Article } from '../types';
-import { BookOpen, Calendar, Search, Edit2, BarChart, FileText, Globe, Clock, Eye, ExternalLink, Trash2 } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 
+// No props needed now, handles its own data
 interface ArticlesListProps {
-  articles: Article[];
-  onCreateNew: () => void;
+  onCreateNew?: () => void; // Optional prop if passed from parent
 }
 
-export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNew }) => {
+export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   const navigate = useNavigate();
-  // Estado local para manejar el refresco inmediato tras borrar, ya que props es read-only
-  const [localArticles, setLocalArticles] = useState<Article[]>(articles);
+  const [localArticles, setLocalArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  // Load articles on mount
   useEffect(() => {
-      setLocalArticles(articles);
-  }, [articles]);
+      const fetchArticles = async () => {
+          setLoading(true);
+          try {
+              const data = await api.getArticles();
+              setLocalArticles(data);
+          } catch (e) {
+              console.error(e);
+          } finally {
+              setLoading(false);
+          }
+      };
+      fetchArticles();
+  }, []);
 
   const handleDelete = async (id: string) => {
       if (window.confirm("¿Estás seguro de que deseas eliminar este artículo? Esta acción no se puede deshacer.")) {
@@ -29,15 +41,29 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
       }
   };
 
+  const handleCreate = () => {
+      if (onCreateNew) onCreateNew();
+      else navigate("/dashboard/content-creator");
+  };
+
+  if (loading) {
+      return (
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+              <Loader2 className="w-10 h-10 animate-spin mb-4 text-primary" />
+              <p>Cargando artículos...</p>
+          </div>
+      );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-white">Biblioteca de Artículos</h2>
           <p className="text-gray-400 text-sm">Gestiona todo tu contenido generado por IA en un solo lugar.</p>
         </div>
         <button 
-          onClick={onCreateNew}
+          onClick={handleCreate}
           className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition flex items-center gap-2 font-medium"
         >
           <BookOpen className="w-4 h-4" />
@@ -53,7 +79,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
           <h3 className="text-white font-bold mb-1">No tienes artículos creados</h3>
           <p className="text-gray-400 text-sm mb-6">Usa el generador IA para crear tu primer post en segundos.</p>
           <button 
-            onClick={onCreateNew}
+            onClick={handleCreate}
             className="text-primary hover:text-white transition text-sm font-medium border border-primary hover:bg-primary px-4 py-2 rounded-lg"
           >
             Ir al Generador
@@ -63,7 +89,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ articles, onCreateNe
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {localArticles.map((article) => {
              // Construcción de la URL pública
-             // Prioriza el subdominio limpio. Si no existe, usa el pageId como fallback (el backend ahora soporta ID).
              const pageSlug = article.pageSubdomain 
                 ? article.pageSubdomain.replace('.generatorlanding.com', '') 
                 : article.pageId;

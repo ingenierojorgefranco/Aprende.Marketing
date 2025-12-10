@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '../types';
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 
 interface DashboardLayoutProps {
@@ -15,6 +15,7 @@ type MenuItem = {
   icon: any;
   path?: string;
   subItems?: { label: string; path: string; icon?: any }[];
+  adminOnly?: boolean;
 };
 
 export const DashboardLayout = ({
@@ -33,6 +34,13 @@ export const DashboardLayout = ({
       label: 'Panel Principal', 
       icon: LayoutDashboard, 
       path: '/dashboard'
+    },
+    {
+      id: 'admin',
+      label: 'Administración',
+      icon: Shield,
+      path: '/dashboard/admin',
+      adminOnly: true
     },
     {
       id: 'projects',
@@ -90,6 +98,9 @@ export const DashboardLayout = ({
   }, [location.pathname]);
 
   const NavItemRender: React.FC<{ item: MenuItem }> = ({ item }) => {
+    // Only render if user is admin or item is not adminOnly
+    if (item.adminOnly && user.role !== 'admin') return null;
+
     const hasSubItems = !!item.subItems;
     const isExpanded = expandedMenu === item.id;
     // Lógica para saber si está activo (coincidencia exacta o parcial para subitems)
@@ -168,12 +179,15 @@ export const DashboardLayout = ({
 
         <div className="p-4 border-t border-gray-800 bg-gray-900 z-10">
           <div className="flex items-center gap-3 px-4 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold uppercase">
               {user.name.charAt(0)}
             </div>
             <div className="text-sm overflow-hidden">
               <p className="font-semibold text-white truncate">{user.name}</p>
-              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              <div className="flex items-center gap-2">
+                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                  {user.role === 'admin' && <span className="text-[10px] bg-red-900/50 text-red-400 px-1 rounded">ADMIN</span>}
+              </div>
             </div>
           </div>
           <button

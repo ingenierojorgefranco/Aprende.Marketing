@@ -1,4 +1,4 @@
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project } from "../types";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS } from "./mockData";
 
 // --- HELPER PARA OBTENER BASE URL ---
@@ -110,6 +110,31 @@ export const api = {
         content: typeof p.content === 'string' ? JSON.parse(p.content) : p.content,
         createdAt: new Date(p.created_at || p.createdAt)
     }));
+  },
+
+  // New method for fetching single page by ID (needed for Editor route wrapper in lazy loading mode)
+  getPageById: async (id: string): Promise<LandingPage | null> => {
+      if (isMockMode) {
+          const page = localPages.find(p => p.id === id);
+          return page ? Promise.resolve(page) : Promise.resolve(null);
+      }
+      
+      // We reuse getPages and filter for now as backend doesn't have specific getPageById yet, 
+      // or we can add it. For now let's be efficient and filter here if needed, 
+      // BUT actually the backend DOES expose /api/public/pages/:slug which can work with ID
+      // However, that's public. For editing, we might need a specific endpoint or just fetch all and find.
+      // OPTIMIZATION: In a real large app, backend should have GET /api/pages/:id.
+      // Let's implement it using existing getPages logic for now, or assume the backend supports it if added.
+      // Since I can't guarantee backend change for GET /api/pages/:id in this turn without checking,
+      // I'll stick to fetching all pages for now (safer) OR I can update backend to support GET /api/pages/:id.
+      // Actually, I added /api/pages (list). I should probably add GET /api/pages/:id to backend or just fetch list.
+      // Given the prompt "optimize", fetching list is still better than fetching EVERYTHING on App load.
+      // But let's be cleaner and use getPages().then(find).
+      // Wait, I can just add GET /api/pages/:id to backend? No, let's keep it simple.
+      // I will assume getPages() is "okay" for now, or even better, let's add a todo.
+      
+      const pages = await api.getPages();
+      return pages.find(p => p.id === id) || null;
   },
 
   createPage: async (page: LandingPage): Promise<LandingPage> => {
@@ -268,6 +293,21 @@ export const api = {
           return Promise.resolve(data);
       }
       return await fetchWithFallback('/analytics/weekly', { headers: getAuthHeaders() });
+  },
+
+  getAnalyticsSummary: async (): Promise<{totalVisits: number, totalConversions: number, totalPages: number, totalArticles: number}> => {
+      if (isMockMode) {
+          // Calculate from local data
+          const totalVisits = localPages.reduce((acc, p) => acc + p.visits, 0);
+          const totalConversions = localPages.reduce((acc, p) => acc + p.conversions, 0);
+          return Promise.resolve({
+              totalVisits,
+              totalConversions,
+              totalPages: localPages.length,
+              totalArticles: localArticles.length
+          });
+      }
+      return await fetchWithFallback('/analytics/summary', { headers: getAuthHeaders() });
   },
 
   getArticles: async (): Promise<Article[]> => {
@@ -435,5 +475,43 @@ export const api = {
       } catch (error: any) {
           return { success: false, message: error.message };
       }
+  },
+
+  // --- ADMIN METHODS ---
+  getUsers: async (): Promise<User[]> => {
+      if (isMockMode) return Promise.resolve([MOCK_USER]); // En mock solo hay un user
+      return await fetchWithFallback('/admin/users', { headers: getAuthHeaders() });
+  },
+
+  updateUser: async (id: string, data: { role: string, planLimits: PlanLimits, isActive: boolean }): Promise<void> => {
+      if (isMockMode) {
+          // No op in mock
+          return Promise.resolve();
+      }
+      await fetchWithFallback(`/admin/users/${id}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(data)
+      });
+  },
+
+  deleteUser: async (id: string): Promise<void> => {
+      if (isMockMode) return Promise.resolve();
+      await fetchWithFallback(`/admin/users/${id}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+      });
+  },
+
+  // --- NEW: Lazy Load Admin User Resources ---
+  getAdminUserResources: async (userId: string, type: 'projects' | 'pages' | 'articles'): Promise<any[]> => {
+      if (isMockMode) {
+          // Simulate fetching filtered data locally
+          if (type === 'projects') return Promise.resolve([...localProjects]); // In mock all belong to admin
+          if (type === 'pages') return Promise.resolve([...localPages]);
+          if (type === 'articles') return Promise.resolve([...localArticles]);
+          return Promise.resolve([]);
+      }
+      return await fetchWithFallback(`/admin/users/${userId}/resources?type=${type}`, { headers: getAuthHeaders() });
   }
 };

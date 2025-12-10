@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v11_large_payload_fix_express'; 
+const SERVER_VERSION = 'v12_admin_system_express'; 
 
 app.enable('trust proxy');
 
@@ -112,7 +112,7 @@ const isAdminRequest = (req) => {
 };
 
 // ======================================================
-//  HELPERS AUTH
+//  HELPERS AUTH & PLANS
 // ======================================================
 const createToken = (user) => {
   const payload = {
@@ -121,6 +121,19 @@ const createToken = (user) => {
     role: user.role || 'user',
   };
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+};
+
+// Default limits for new users
+const DEFAULT_LIMITS = {
+    planName: 'starter',
+    maxProjects: 1,
+    maxLandings: 3,
+    features: {
+        whatsappBot: false,
+        blogGenerator: false,
+        emailMarketing: false,
+        removeBranding: false
+    }
 };
 
 // ======================================================
@@ -136,10 +149,10 @@ app.post('/api/auth/register', async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const [result] = await pool.query(
-      'INSERT INTO users (name, email, password_hash, role, is_active) VALUES (?, ?, ?, ?, 1)',
-      [name, email, passwordHash, role || 'user']
+      'INSERT INTO users (name, email, password_hash, role, is_active, plan_limits) VALUES (?, ?, ?, ?, 1, ?)',
+      [name, email, passwordHash, role || 'user', JSON.stringify(DEFAULT_LIMITS)]
     );
-    const newUser = { id: result.insertId, name, email, role: role || 'user' };
+    const newUser = { id: result.insertId, name, email, role: role || 'user', planLimits: DEFAULT_LIMITS };
     const token = createToken(newUser);
     res.status(201).json({ user: newUser, token });
   } catch (error) {
@@ -154,7 +167,7 @@ const loginHandler = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, password_hash, role, is_active, public_subdomain FROM users WHERE email = ?',
+      'SELECT id, name, email, password_hash, role, is_active, public_subdomain, plan_limits FROM users WHERE email = ?',
       [email]
     );
 
@@ -167,12 +180,19 @@ const loginHandler = async (req, res) => {
 
     await pool.query('UPDATE users SET last_login_at = NOW() WHERE id = ?', [user.id]);
 
+    let planLimits = DEFAULT_LIMITS;
+    if (user.plan_limits) {
+        // Ensure plan_limits is parsed if it's a string
+        planLimits = typeof user.plan_limits === 'string' ? JSON.parse(user.plan_limits) : user.plan_limits;
+    }
+
     const userResponse = {
       id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
       public_subdomain: user.public_subdomain,
+      planLimits: planLimits
     };
     const token = createToken(userResponse);
     res.json({ user: userResponse, token });
@@ -188,15 +208,123 @@ app.post('/api/login', loginHandler);
 app.get('/api/auth/me', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, role, is_active, public_subdomain FROM users WHERE id = ?',
+      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits FROM users WHERE id = ?',
       [req.user.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
-    res.json(rows[0]);
+    
+    const user = rows[0];
+    let planLimits = DEFAULT_LIMITS;
+    if (user.plan_limits) {
+        planLimits = typeof user.plan_limits === 'string' ? JSON.parse(user.plan_limits) : user.plan_limits;
+    }
+
+    res.json({
+        ...user,
+        planLimits: planLimits
+    });
   } catch (error) {
     res.status(500).json({ error: 'Error interno' });
   }
 });
+
+// ======================================================
+//  ADMIN API ENDPOINTS
+// ======================================================
+
+// Middleware for Admin Check
+const adminMiddleware = (req, res, next) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Acceso denegado. Se requieren permisos de Administrador.' });
+    }
+    next();
+};
+
+// List Users
+app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const [users] = await pool.query(
+            `SELECT id, name, email, role, is_active, plan_limits, created_at, last_login_at 
+             FROM users ORDER BY created_at DESC`
+        );
+        
+        const safeUsers = users.map(u => ({
+            ...u,
+            planLimits: typeof u.plan_limits === 'string' ? JSON.parse(u.plan_limits) : (u.plan_limits || DEFAULT_LIMITS)
+        }));
+        
+        res.json(safeUsers);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Update User (Role & Plan Limits)
+app.put('/api/admin/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { role, planLimits, isActive } = req.body;
+    
+    try {
+        await pool.query(
+            'UPDATE users SET role = ?, plan_limits = ?, is_active = ? WHERE id = ?',
+            [role, JSON.stringify(planLimits), isActive, id]
+        );
+        res.json({ message: 'Usuario actualizado correctamente' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Delete User
+app.delete('/api/admin/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        // Cascading deletes handled by foreign keys ideally, but ensuring manual cleanup if needed
+        await pool.query('DELETE FROM users WHERE id = ?', [req.params.id]);
+        res.json({ message: 'Usuario eliminado' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Get User Resources (Lazy Load)
+app.get('/api/admin/users/:userId/resources', authMiddleware, adminMiddleware, async (req, res) => {
+    const { userId } = req.params;
+    const { type } = req.query;
+
+    try {
+        let rows = [];
+        if (type === 'projects') {
+            [rows] = await pool.query('SELECT id, name, niche, main_goal, created_at FROM projects WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+        } else if (type === 'pages') {
+            [rows] = await pool.query('SELECT id, name, subdomain, is_published, visits, created_at FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+        } else if (type === 'articles') {
+            [rows] = await pool.query('SELECT id, title, slug, status, seo_score, created_at FROM articles WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+        } else {
+            return res.status(400).json({ error: 'Invalid resource type' });
+        }
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Global Stats
+app.get('/api/admin/stats', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const [userCount] = await pool.query('SELECT COUNT(*) as c FROM users');
+        const [projectsCount] = await pool.query('SELECT COUNT(*) as c FROM projects');
+        const [pagesCount] = await pool.query('SELECT COUNT(*) as c FROM landing_pages');
+        
+        res.json({
+            users: userCount[0].c,
+            projects: projectsCount[0].c,
+            pages: pagesCount[0].c
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 
 // ======================================================
 //  GEMINI AI
@@ -249,6 +377,16 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
   } = req.body;
 
   try {
+    // --- LIMIT CHECK ---
+    const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
+    const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
+    
+    const [count] = await pool.query('SELECT COUNT(*) as c FROM projects WHERE user_id = ?', [req.user.id]);
+    if (count[0].c >= limits.maxProjects) {
+        return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxProjects} proyectos de tu plan ${limits.planName.toUpperCase()}.` });
+    }
+    // -------------------
+
     const [result] = await pool.query(
       `INSERT INTO projects 
        (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, created_at, updated_at)
@@ -504,6 +642,24 @@ app.get('/api/analytics/weekly', authMiddleware, async (req, res) => {
   }
 });
 
+// --- NEW ENDPOINT: Analytics Summary (Lazy Loading) ---
+app.get('/api/analytics/summary', authMiddleware, async (req, res) => {
+  try {
+    const [visitsRes] = await pool.query('SELECT SUM(visits) as v, SUM(conversions) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
+    const [pagesRes] = await pool.query('SELECT COUNT(*) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
+    const [articlesRes] = await pool.query('SELECT COUNT(*) as c FROM articles WHERE user_id = ?', [req.user.id]);
+    
+    res.json({
+        totalVisits: visitsRes[0].v || 0,
+        totalConversions: visitsRes[0].c || 0,
+        totalPages: pagesRes[0].c || 0,
+        totalArticles: articlesRes[0].c || 0
+    });
+  } catch (e) { 
+      res.status(500).json({ error: e.message }); 
+  }
+});
+
 // ======================================================
 //  LANDING PAGES CRUD
 // ======================================================
@@ -517,6 +673,16 @@ app.get('/api/pages', authMiddleware, async (req, res) => {
 app.post('/api/pages', authMiddleware, async (req, res) => {
   const { name, niche, goal, subdomain, content } = req.body;
   try {
+    // --- LIMIT CHECK ---
+    const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
+    const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
+    
+    const [count] = await pool.query('SELECT COUNT(*) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
+    if (count[0].c >= limits.maxLandings) {
+        return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxLandings} páginas de tu plan ${limits.planName.toUpperCase()}.` });
+    }
+    // -------------------
+
     const [resDb] = await pool.query(
       'INSERT INTO landing_pages (user_id, name, niche, goal, subdomain, content, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, 0, NOW())',
       [req.user.id, name, niche, goal, subdomain, JSON.stringify(content)]

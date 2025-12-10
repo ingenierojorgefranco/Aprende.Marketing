@@ -8,7 +8,19 @@ export const MOCK_CREDENTIALS = {
 export const MOCK_USER: User = {
   id: "mock-user-id",
   name: "Admin Microblading",
-  email: MOCK_CREDENTIALS.email
+  email: MOCK_CREDENTIALS.email,
+  role: 'admin', // Mock user is admin
+  planLimits: {
+      planName: 'pro',
+      maxProjects: 10,
+      maxLandings: 50,
+      features: {
+          whatsappBot: true,
+          blogGenerator: true,
+          emailMarketing: true,
+          removeBranding: true
+      }
+  }
 };
 
 export const MOCK_PROJECTS: Project[] = [

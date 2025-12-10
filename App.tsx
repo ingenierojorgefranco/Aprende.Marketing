@@ -21,6 +21,8 @@ import { ArticlesList } from "./components/ArticlesList";
 import { PublicLandingView } from "./components/PublicLandingView";
 import { ProjectWizard } from "./components/ProjectWizard";
 import { ProjectsList } from "./components/ProjectsList";
+import { AdminPanel } from "./components/admin/AdminPanel";
+import { MyPages } from "./components/MyPages"; // NEW Lazy Component
 
 import { User, LandingPage, Article } from "./types";
 import {
@@ -35,43 +37,58 @@ import {
 import { api } from "./services/api";
 import { getCurrentUser, logout } from "./services/auth";
 
-// --- WRAPPER PARA EDITOR (maneja :id en la URL) ---
-const EditorRouteWrapper = ({
-  pages,
-  onSave,
-}: {
-  pages: LandingPage[];
-  onSave: (p: LandingPage) => Promise<void>;
-}) => {
+// --- WRAPPER PARA EDITOR (Lazy Load by ID) ---
+const EditorRouteWrapper = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const page = pages.find((p) => String(p.id) === id);
+  const [page, setPage] = useState<LandingPage | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+      const fetchPage = async () => {
+          if (!id) return;
+          try {
+              // Now we need to fetch specifically this page. 
+              // api.getPages() returns all, we can use that for now if getPageById isn't fully ready in backend
+              // BUT for optimization we assume getPageById is better.
+              // Note: We added getPageById to api service.
+              const p = await api.getPageById(id);
+              setPage(p);
+          } catch (e) {
+              console.error(e);
+          } finally {
+              setLoading(false);
+          }
+      };
+      fetchPage();
+  }, [id]);
+
+  const handleSave = async (updatedPage: LandingPage) => {
+      try {
+          await api.updatePage(updatedPage);
+          setPage(updatedPage); // Update local state
+      } catch (e) {
+          alert("Error actualizando la página");
+      }
+  };
+
+  if (loading) {
+      return <div className="text-white text-center p-20"><Loader2 className="animate-spin w-8 h-8 mx-auto" /> Cargando editor...</div>;
+  }
 
   if (!page) {
-    if (pages.length === 0) {
       return (
         <div className="text-white text-center p-10">
-          <Loader2 className="animate-spin w-8 h-8 mx-auto" /> Cargando datos...
+          Página no encontrada o ID incorrecto.{" "}
+          <button onClick={() => navigate("/dashboard/pages")} className="underline">Volver</button>
         </div>
       );
-    }
-    return (
-      <div className="text-white text-center p-10">
-        Página no encontrada o ID incorrecto.{" "}
-        <button
-          onClick={() => navigate("/dashboard/pages")}
-          className="underline"
-        >
-          Volver
-        </button>
-      </div>
-    );
   }
 
   return (
     <Editor
       page={page}
-      onSave={onSave}
+      onSave={handleSave}
       onBack={() => navigate("/dashboard/pages")}
     />
   );
@@ -107,25 +124,14 @@ const NotFoundPage = () => {
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-
-  // Estado de datos
-  const [myPages, setMyPages] = useState<LandingPage[]>([]);
-  const [myArticles, setMyArticles] = useState<Article[]>([]);
-
-  const [loading, setLoading] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
-
-  // Modal de eliminación
-  const [pageToDelete, setPageToDelete] = useState<LandingPage | null>(null);
-  const [deleting, setDeleting] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
   // --- DETECCIÓN DE DOMINIO PERSONALIZADO → SLUG DE LANDING ---
-  const host =
-    typeof window !== "undefined" ? window.location.hostname : "";
+  const host = typeof window !== "undefined" ? window.location.hostname : "";
   const CUSTOM_DOMAIN_LANDING_MAP: Record<string, string> = {
     "bajardepeso.online": "especialista-cejas",
     "www.bajardepeso.online": "especialista-cejas",
@@ -145,6 +151,8 @@ const App: React.FC = () => {
               id: authUser.id.toString(),
               name: authUser.name,
               email: authUser.email,
+              role: (authUser as any).role,
+              planLimits: (authUser as any).planLimits
             });
           }
         } catch (error) {
@@ -152,45 +160,23 @@ const App: React.FC = () => {
           logout();
         }
       }
-
       setAuthLoading(false);
     };
 
     restoreSession();
   }, []);
 
-  // Cargar datos cuando entramos a /dashboard
+  // Check connection status lightly
   useEffect(() => {
-    if (user && location.pathname.startsWith("/dashboard")) {
-      loadData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, location.pathname]);
-
-  const loadData = async () => {
-    if (myPages.length > 0) return;
-
-    try {
-      setLoading(true);
-      const [pages, articles] = await Promise.all([
-        api.getPages(),
-        api.getArticles(),
-      ]);
-      setMyPages(pages);
-      setMyArticles(articles);
-
-      if (api.isUsingMockData()) {
-        const health = await api.testConnection();
-        setIsOffline(!health.success);
-      } else {
-        setIsOffline(false);
+      if (user && location.pathname.startsWith("/dashboard")) {
+          if (api.isUsingMockData()) {
+              setIsOffline(true);
+          } else {
+              // Optional: Quick health check if needed, or remove to be purely lazy
+              setIsOffline(false); 
+          }
       }
-    } catch (error) {
-      console.error("Failed to load data", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [user, location.pathname]);
 
   const handleLoginSubmit = (loggedInUser: User) => {
     setUser(loggedInUser);
@@ -199,86 +185,33 @@ const App: React.FC = () => {
   const handleLogout = () => {
     logout();
     setUser(null);
-    setMyPages([]);
-    setMyArticles([]);
     navigate("/");
   };
 
-  // --- HANDLERS PÁGINAS ---
+  // --- HANDLERS PÁGINAS (Create & Redirect) ---
   const handlePageGenerated = async (page: LandingPage) => {
     try {
-      setLoading(true);
+      // Create page in backend
       const savedPage = await api.createPage(page);
-      setMyPages((prev) => [...prev, savedPage]);
       setIsOffline(api.isUsingMockData());
+      // Navigate to editor with new ID. Editor wrapper will fetch it.
       navigate(`/dashboard/editor/${savedPage.id}`);
-    } catch {
-      alert("Error guardando la página");
-    } finally {
-      setLoading(false);
+    } catch (e: any) {
+      alert(`Error guardando la página: ${e.message}`);
     }
   };
 
-  const handlePageSave = async (updatedPage: LandingPage) => {
-    try {
-      await api.updatePage(updatedPage);
-      setMyPages((prev) =>
-        prev.map((p) => (p.id === updatedPage.id ? updatedPage : p))
-      );
-      setIsOffline(api.isUsingMockData());
-    } catch {
-      alert("Error actualizando la página");
-    }
-  };
-
-  const handleTogglePublish = async (page: LandingPage) => {
-    const newStatus = !page.isPublished;
-    const updatedPage = { ...page, isPublished: newStatus };
-    try {
-      // Actualizamos en backend
-      await api.updatePage(updatedPage);
-      // Actualizamos estado local
-      setMyPages((prev) =>
-        prev.map((p) => (p.id === page.id ? updatedPage : p))
-      );
-    } catch (error) {
-      console.error(error);
-      alert("No se pudo cambiar el estado de publicación.");
-    }
-  };
-
-  const confirmDeletePage = async () => {
-    if (!pageToDelete) return;
-    setDeleting(true);
-    try {
-      await api.deletePage(pageToDelete.id);
-      setMyPages((prev) => prev.filter((p) => p.id !== pageToDelete.id));
-      setPageToDelete(null);
-    } catch {
-      alert("Error eliminando la página.");
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  // --- HANDLERS ARTÍCULOS ---
-  const handleArticleSave = async (
-    articleData: any
-  ) => {
+  // --- HANDLERS ARTÍCULOS (Create/Update) ---
+  const handleArticleSave = async (articleData: any) => {
     try {
       if (articleData.id) {
-          // UPDATE
           await api.updateArticle(articleData.id, articleData);
-          // Actualizar lista local
-          setMyArticles((prev) => prev.map(a => a.id === articleData.id ? { ...a, ...articleData } : a));
       } else {
-          // CREATE
-          const savedArticle = await api.saveArticle(articleData);
-          setMyArticles((prev) => [...prev, savedArticle]);
+          await api.saveArticle(articleData);
       }
     } catch (e) {
       console.error(e);
-      throw e;
+      throw e; // Let the child component handle the error display
     }
   };
 
@@ -298,68 +231,22 @@ const App: React.FC = () => {
     return <>{children}</>;
   };
 
-  // Modal eliminación
-  const DeleteModal = () => {
-    if (!pageToDelete) return null;
-    return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div className="bg-gray-900 border border-gray-700 rounded-xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95">
-          <div className="flex justify-between items-start mb-4">
-            <div className="flex items-center gap-3 text-red-500 font-bold text-lg">
-              <AlertTriangle className="w-6 h-6" /> Eliminar Página
-            </div>
-            <button
-              onClick={() => setPageToDelete(null)}
-              className="text-gray-500 hover:text-white"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          <p className="text-gray-300 mb-6">
-            ¿Estás seguro de que quieres eliminar{" "}
-            <b>"{pageToDelete.name}"</b>? <br />
-            <br />
-            Esta acción es irreversible y se perderán todos los datos
-            asociados.
-          </p>
-          <div className="flex justify-end gap-3">
-            <button
-              onClick={() => setPageToDelete(null)}
-              disabled={deleting}
-              className="px-4 py-2 rounded-lg border border-gray-700 hover:bg-gray-800 text-white transition"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={confirmDeletePage}
-              disabled={deleting}
-              className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold transition flex items-center gap-2"
-            >
-              {deleting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Trash2 className="w-4 h-4" />
-              )}
-              Sí, Eliminar
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  // Ruta Admin
+  const AdminRoute = ({ children }: { children?: React.ReactNode }) => {
+    if (!user || user.role !== 'admin') {
+        return <Navigate to="/dashboard" replace />;
+    }
+    return <>{children}</>;
   };
 
   return (
     <>
       <Routes>
         {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug Y /lp/:slug */}
-        {/* AGREGADO /* PARA SOPORTAR SUBRUTAS COMO /blog */}
         <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
         <Route path="/lp/:slug/*" element={<PublicLandingView />} />
 
-        {/* RUTA PRINCIPAL:
-            - Dominio principal → Home pública
-            - Dominio personalizado (ej: bajardepeso.online) → renderiza la landing asignada directamente
-        */}
+        {/* RUTA PRINCIPAL */}
         <Route
           path="/"
           element={
@@ -395,125 +282,22 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }
         >
-          <Route index element={<DashboardHome pages={myPages} />} />
+          <Route index element={<DashboardHome />} />
+
+          {/* ADMIN ROUTE */}
+          <Route path="admin" element={
+              <AdminRoute>
+                  <AdminPanel />
+              </AdminRoute>
+          } />
 
           {/* PROJECT ROUTES */}
           <Route path="projects" element={<ProjectsList />} />
           <Route path="projects/create" element={<ProjectWizard />} />
           <Route path="projects/edit/:id" element={<ProjectWizard />} />
 
-          <Route
-            path="pages"
-            element={
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold text-white">Mis Páginas</h2>
-                  <button
-                    onClick={() => navigate("/dashboard/generator")}
-                    className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition"
-                  >
-                    Crear Nueva
-                  </button>
-                </div>
-
-                {loading ? (
-                  <div className="text-center py-20 text-white flex flex-col items-center">
-                    <Loader2 className="w-10 h-10 animate-spin mb-4 text-primary" />
-                    <p>Cargando tus proyectos...</p>
-                  </div>
-                ) : myPages.length === 0 ? (
-                  <div className="text-center py-20 bg-gray-900 rounded-xl border border-dashed border-gray-700">
-                    <LayoutTemplate className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                    <p className="text-gray-400">
-                      Aún no has creado ninguna página.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {myPages.map((page) => {
-                      const baseSlug = page.subdomain
-                        ? page.subdomain.split(".")[0]
-                        : page.id;
-                      const publicUrl = `/admin/lp/${baseSlug}`;
-
-                      return (
-                        <div
-                          key={page.id}
-                          className="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-800 hover:border-primary transition group relative"
-                        >
-                          <div className="flex justify-between items-start mb-4">
-                            <div>
-                              <h3 className="font-bold text-lg text-white">
-                                {page.name}
-                              </h3>
-                              <p className="text-xs text-gray-500">
-                                {page.niche}
-                              </p>
-                            </div>
-                            {/* Etiqueta de Estado Mejorada */}
-                            <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${
-                                page.isPublished
-                                  ? "bg-green-500/10 text-green-400 border-green-500/20"
-                                  : "bg-orange-500/10 text-orange-400 border-orange-500/20"
-                              }`}
-                            >
-                              {page.isPublished ? "Publicada" : "En Borrador"}
-                            </span>
-                          </div>
-                          <div className="text-sm text-gray-400 mb-6 space-y-1">
-                            <p>Visitas: {page.visits}</p>
-                            <p>Conversiones: {page.conversions}</p>
-                          </div>
-                          <div className="flex flex-col gap-2">
-                            <button
-                              onClick={() =>
-                                navigate(`/dashboard/editor/${page.id}`)
-                              }
-                              className="w-full py-2 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 flex items-center justify-center gap-2 group-hover:border-primary group-hover:text-primary transition"
-                            >
-                              <PenTool className="w-4 h-4" /> Editar Página
-                            </button>
-
-                            {/* Botón para ver la Landing Page Publicada */}
-                            <a
-                              href={publicUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-full py-2 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 flex items-center justify-center gap-2 hover:text-white transition text-sm"
-                            >
-                              <LayoutTemplate className="w-4 h-4" /> Ver Online
-                            </a>
-
-                            <button
-                              onClick={() => handleTogglePublish(page)}
-                              className={`w-full py-2 border rounded-lg flex items-center justify-center gap-2 transition text-sm ${
-                                page.isPublished
-                                  ? "border-orange-900/30 text-orange-500/70 hover:bg-orange-900/10 hover:text-orange-500 hover:border-orange-900/50"
-                                  : "border-green-900/30 text-green-500/70 hover:bg-green-900/10 hover:text-green-500 hover:border-green-900/50"
-                              }`}
-                            >
-                              <Globe className="w-4 h-4" />
-                              {page.isPublished
-                                ? "Despublicar Página"
-                                : "Publicar Página"}
-                            </button>
-
-                            <button
-                              onClick={() => setPageToDelete(page)}
-                              className="w-full py-2 border border-red-900/30 rounded-lg text-red-500/70 hover:bg-red-900/10 hover:text-red-500 hover:border-red-900/50 flex items-center justify-center gap-2 transition text-sm"
-                            >
-                              <Trash2 className="w-4 h-4" /> Eliminar Página
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            }
-          />
+          {/* PAGES ROUTE (Lazy Loaded List) */}
+          <Route path="pages" element={<MyPages />} />
 
           <Route
             path="generator"
@@ -535,7 +319,6 @@ const App: React.FC = () => {
             path="articles"
             element={
               <ArticlesList
-                articles={myArticles}
                 onCreateNew={() => navigate("/dashboard/content-creator")}
               />
             }
@@ -556,19 +339,15 @@ const App: React.FC = () => {
             }
           />
 
+          {/* EDITOR ROUTE (Lazy Loaded Wrapper) */}
           <Route
             path="editor/:id"
-            element={
-              <EditorRouteWrapper pages={myPages} onSave={handlePageSave} />
-            }
+            element={<EditorRouteWrapper />}
           />
         </Route>
 
-        {/* CUALQUIER OTRA RUTA → 404 (EVITA LOOPS) */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-
-      <DeleteModal />
     </>
   );
 };
