@@ -62,6 +62,7 @@ const initDb = async () => {
             id INT AUTO_INCREMENT PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
             subtitle VARCHAR(255),
+            badge_text VARCHAR(100) DEFAULT 'Certificado',
             description TEXT,
             slug VARCHAR(255) UNIQUE NOT NULL,
             thumbnail VARCHAR(500),
@@ -99,6 +100,7 @@ const initDb = async () => {
             parent_id INT NULL,
             content TEXT NOT NULL,
             likes INT DEFAULT 0,
+            is_approved BOOLEAN DEFAULT TRUE,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (lesson_id) REFERENCES course_lessons(id) ON DELETE CASCADE,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -207,6 +209,10 @@ const initDb = async () => {
         await addColumnSafe(connection, 'articles', "page_id INT NULL");
         await addColumnSafe(connection, 'users', "role VARCHAR(50) DEFAULT 'user'");
         await addColumnSafe(connection, 'users', "plan_limits JSON NULL");
+        
+        // Nuevas migraciones para Cursos y Comentarios
+        await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");
+        await addColumnSafe(connection, 'courses', "badge_text VARCHAR(100) DEFAULT 'Certificado'");
 
         // --- DATOS SEMILLA (SEED DATA) ---
         // Insertar cursos por defecto si no existen
@@ -215,11 +221,12 @@ const initDb = async () => {
             console.log('[DB Init] 🌱 Insertando datos semilla de cursos...');
             
             // CURSO 1: PRODUCTOS DIGITALES
-            const [c1] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug) VALUES (?, ?, ?, ?)`, [
+            const [c1] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug, badge_text) VALUES (?, ?, ?, ?, ?)`, [
                 'Productos Digitales', 
                 'Curso Intensivo', 
                 'Aprende a crear, validar y vender tu primer infoproducto desde cero. Descubre las estrategias que usan los grandes productores para facturar miles de dólares en Hotmart.',
-                'digital-products'
+                'digital-products',
+                'Certificado Oficial'
             ]);
             const c1Id = c1.insertId;
 
@@ -253,11 +260,12 @@ const initDb = async () => {
 
 
             // CURSO 2: INTELIGENCIA ARTIFICIAL
-            const [c2] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug) VALUES (?, ?, ?, ?)`, [
+            const [c2] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug, badge_text) VALUES (?, ?, ?, ?, ?)`, [
                 'Inteligencia Artificial', 
                 'Masterclass', 
                 'Domina las herramientas de IA que están revolucionando el marketing. Aprende a usar ChatGPT y Gemini para automatizar la creación de contenido y soporte.',
-                'ai'
+                'ai',
+                'IA Expert'
             ]);
             const c2Id = c2.insertId;
             

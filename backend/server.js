@@ -232,7 +232,7 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
 //  COURSES (LMS) ROUTES (PUBLIC/STUDENT)
 // ======================================================
 
-// GET Course Full Structure by Slug
+// GET Course Full Structure by Slug (Lazy Load Optimized)
 app.get('/api/courses/:slug', authMiddleware, async (req, res) => {
     const { slug } = req.params;
     try {
@@ -241,40 +241,25 @@ app.get('/api/courses/:slug', authMiddleware, async (req, res) => {
         if (courses.length === 0) return res.status(404).json({ error: 'Curso no encontrado' });
         const course = courses[0];
 
-        // 2. Fetch Modules
+        // 2. Fetch Modules ONLY (No lessons yet)
         const [modules] = await pool.query('SELECT * FROM course_modules WHERE course_id = ? ORDER BY order_index ASC', [course.id]);
 
-        // 3. Fetch Lessons for each module
-        const modulesWithLessons = await Promise.all(modules.map(async (mod) => {
-            const [lessons] = await pool.query('SELECT * FROM course_lessons WHERE module_id = ? ORDER BY order_index ASC', [mod.id]);
-            
-            // Parse learning_points if stored as JSON string/JSON type
-            const lessonsParsed = lessons.map(l => ({
-                ...l,
-                id: l.id.toString(),
-                learning_points: typeof l.learning_points === 'string' ? JSON.parse(l.learning_points) : (l.learning_points || [])
-            }));
-
-            return {
-                ...mod,
-                id: mod.id.toString(),
-                lessons: lessonsParsed
-            };
+        // Map modules to include empty lessons array for frontend compatibility
+        // Lessons will be fetched on demand via /api/modules/:id/lessons
+        const modulesSimple = modules.map(mod => ({
+            ...mod,
+            id: mod.id.toString(),
+            lessons: [] 
         }));
-
-        // Find first lesson's learning points as a fallback for course overview if needed
-        let learningPoints = [];
-        if (modulesWithLessons.length > 0 && modulesWithLessons[0].lessons.length > 0) {
-             learningPoints = modulesWithLessons[0].lessons[0].learning_points || [];
-        }
 
         const responseData = {
             id: course.id.toString(),
             title: course.title,
             subtitle: course.subtitle,
+            badge_text: course.badge_text, // New Field
             description: course.description,
-            learningPoints: learningPoints, 
-            modules: modulesWithLessons
+            learningPoints: [], // Cannot infer without expensive query, can be omitted or fetched if vital
+            modules: modulesSimple
         };
 
         res.json(responseData);
@@ -285,15 +270,36 @@ app.get('/api/courses/:slug', authMiddleware, async (req, res) => {
     }
 });
 
+// NEW: GET Lessons for a specific Module (Lazy Load)
+app.get('/api/modules/:moduleId/lessons', authMiddleware, async (req, res) => {
+    const { moduleId } = req.params;
+    try {
+        const [lessons] = await pool.query('SELECT * FROM course_lessons WHERE module_id = ? ORDER BY order_index ASC', [moduleId]);
+        
+        // Parse learning_points if stored as JSON string/JSON type
+        const lessonsParsed = lessons.map(l => ({
+            ...l,
+            id: l.id.toString(),
+            learning_points: typeof l.learning_points === 'string' ? JSON.parse(l.learning_points) : (l.learning_points || [])
+        }));
+
+        res.json(lessonsParsed);
+    } catch (e) {
+        console.error("[Courses] Error fetching lessons:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // GET Comments for a Lesson
 app.get('/api/lessons/:lessonId/comments', authMiddleware, async (req, res) => {
     const { lessonId } = req.params;
     try {
+        // FILTER BY APPROVED for students
         const [comments] = await pool.query(`
             SELECT c.*, u.name as user_name 
             FROM lesson_comments c
             JOIN users u ON c.user_id = u.id
-            WHERE c.lesson_id = ?
+            WHERE c.lesson_id = ? AND c.is_approved = 1
             ORDER BY c.created_at DESC
         `, [lessonId]);
 
@@ -329,8 +335,10 @@ app.post('/api/comments', authMiddleware, async (req, res) => {
     if (!lessonId || !content) return res.status(400).json({ error: "Datos incompletos" });
 
     try {
+        // By default comments can be pending (is_approved=0) or approved (1) based on settings. 
+        // For now defaulting to 1 (approved) as per initDb, but logic allows moderation.
         await pool.query(
-            'INSERT INTO lesson_comments (lesson_id, user_id, content, parent_id, created_at) VALUES (?, ?, ?, ?, NOW())',
+            'INSERT INTO lesson_comments (lesson_id, user_id, content, parent_id, created_at, is_approved) VALUES (?, ?, ?, ?, NOW(), 1)',
             [lessonId, req.user.id, content, parentId || null]
         );
         res.json({ success: true });
@@ -479,7 +487,7 @@ app.get('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res) 
 
 // Create Course
 app.post('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res) => {
-    const { title, subtitle, description, slug, thumbnail, modules } = req.body;
+    const { title, subtitle, description, slug, thumbnail, modules, badge_text } = req.body;
     
     const connection = await pool.getConnection();
     try {
@@ -487,8 +495,8 @@ app.post('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res)
 
         // 1. Insert Course
         const [courseRes] = await connection.query(
-            'INSERT INTO courses (title, subtitle, description, slug, thumbnail, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
-            [title, subtitle, description, slug, thumbnail]
+            'INSERT INTO courses (title, subtitle, description, slug, thumbnail, badge_text, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+            [title, subtitle, description, slug, thumbnail, badge_text || 'Certificado']
         );
         const courseId = courseRes.insertId;
 
@@ -525,7 +533,7 @@ app.post('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res)
 // Update Course (Full Sync)
 app.put('/api/admin/courses/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
-    const { title, subtitle, description, slug, thumbnail, modules } = req.body;
+    const { title, subtitle, description, slug, thumbnail, modules, badge_text } = req.body;
 
     const connection = await pool.getConnection();
     try {
@@ -533,8 +541,8 @@ app.put('/api/admin/courses/:id', authMiddleware, adminMiddleware, async (req, r
 
         // 1. Update Course Info
         await connection.query(
-            'UPDATE courses SET title=?, subtitle=?, description=?, slug=?, thumbnail=? WHERE id=?',
-            [title, subtitle, description, slug, thumbnail, id]
+            'UPDATE courses SET title=?, subtitle=?, description=?, slug=?, thumbnail=?, badge_text=? WHERE id=?',
+            [title, subtitle, description, slug, thumbnail, badge_text, id]
         );
 
         // 2. Sync Modules
@@ -641,10 +649,10 @@ app.get('/api/admin/comments', authMiddleware, adminMiddleware, async (req, res)
     try {
         const [comments] = await pool.query(`
             SELECT 
-                c.id, c.content as text, c.created_at as date, c.likes,
+                c.id, c.content as text, c.created_at as date, c.likes, c.is_approved as isApproved,
                 u.name as user, u.id as userId,
                 l.title as lessonTitle, l.id as lessonId,
-                co.title as courseTitle
+                co.title as courseTitle, co.slug as courseSlug
             FROM lesson_comments c
             JOIN users u ON c.user_id = u.id
             JOIN course_lessons l ON c.lesson_id = l.id
@@ -653,10 +661,10 @@ app.get('/api/admin/comments', authMiddleware, adminMiddleware, async (req, res)
             ORDER BY c.created_at DESC
         `);
         
-        // Add fake 'isApproved' logic (assuming all DB comments are approved for now, or add column later)
+        // Map fields
         const formatted = comments.map(c => ({
             ...c,
-            isApproved: true // Default to true in this schema for simplicity
+            isApproved: !!c.isApproved
         }));
 
         res.json(formatted);
@@ -665,16 +673,30 @@ app.get('/api/admin/comments', authMiddleware, adminMiddleware, async (req, res)
     }
 });
 
-// Moderate Comment
+// Moderate Comment (Toggle Publish / Delete)
 app.post('/api/admin/comments/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
-    const { action } = req.body; // 'delete' only supported for now as 'approve' is implicit
+    const { action } = req.body; 
 
     try {
         if (action === 'delete') {
             await pool.query('DELETE FROM lesson_comments WHERE id = ?', [id]);
+        } 
+        else if (action === 'toggle_publish') {
+            const [rows] = await pool.query('SELECT is_approved FROM lesson_comments WHERE id = ?', [id]);
+            if (rows.length > 0) {
+                const currentStatus = rows[0].is_approved;
+                const newStatus = !currentStatus;
+                
+                // Update parent
+                await pool.query('UPDATE lesson_comments SET is_approved = ? WHERE id = ?', [newStatus, id]);
+                
+                // If unpublishing, cascade to children (replies)
+                if (!newStatus) {
+                    await pool.query('UPDATE lesson_comments SET is_approved = 0 WHERE parent_id = ?', [id]);
+                }
+            }
         }
-        // If we had an 'is_approved' column, we would update it here for 'approve' action
         
         res.json({ success: true });
     } catch (e) {

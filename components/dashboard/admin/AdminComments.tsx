@@ -2,13 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../../services/api';
 import { Comment } from '../../../types';
-import { MessageSquare, Check, X, Trash2, Filter, Loader2, Search } from 'lucide-react';
+import { MessageSquare, Check, X, Trash2, Filter, Loader2, Search, Link as LinkIcon, Eye, AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const AdminComments: React.FC = () => {
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(true);
     const [filterCourse, setFilterCourse] = useState<string>('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [commentToDelete, setCommentToDelete] = useState<Comment | null>(null);
 
     useEffect(() => {
         loadComments();
@@ -26,16 +28,26 @@ export const AdminComments: React.FC = () => {
         }
     };
 
-    const handleAction = async (id: string, action: 'approve' | 'delete') => {
+    const handleAction = async (id: string, action: 'toggle_publish' | 'delete') => {
         try {
             await api.moderateComment(id, action);
             if (action === 'delete') {
                 setComments(prev => prev.filter(c => c.id !== id));
             } else {
-                setComments(prev => prev.map(c => c.id === id ? { ...c, isApproved: true } : c));
+                // Assuming toggle_publish returns success, manually toggle local state
+                // Note: The backend logic cascades to children, ideally we should refresh list or replicate logic here
+                // For simplicity, let's refresh list to ensure consistent state
+                await loadComments();
             }
         } catch (error) {
             alert("Error al procesar la acción");
+        }
+    };
+
+    const confirmDelete = () => {
+        if (commentToDelete) {
+            handleAction(commentToDelete.id, 'delete');
+            setCommentToDelete(null);
         }
     };
 
@@ -90,7 +102,7 @@ export const AdminComments: React.FC = () => {
                     <div className="text-center py-20 text-gray-500">No se encontraron comentarios.</div>
                 ) : (
                     filteredComments.map(comment => (
-                        <div key={comment.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5 flex gap-4 transition hover:border-gray-700">
+                        <div key={comment.id} className={`bg-gray-900 border ${comment.isApproved ? 'border-gray-800' : 'border-orange-900/50 bg-orange-900/10'} rounded-xl p-5 flex gap-4 transition hover:border-gray-700`}>
                             <div className="w-10 h-10 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-primary font-bold shrink-0">
                                 {comment.user.charAt(0).toUpperCase()}
                             </div>
@@ -101,9 +113,9 @@ export const AdminComments: React.FC = () => {
                                         <p className="text-xs text-gray-500">{comment.courseTitle} • {comment.lessonTitle} • {new Date(comment.date).toLocaleDateString()}</p>
                                     </div>
                                     {comment.isApproved ? (
-                                        <span className="text-green-500 text-xs font-bold bg-green-900/20 px-2 py-1 rounded border border-green-900/50">Aprobado</span>
+                                        <span className="text-green-500 text-xs font-bold bg-green-900/20 px-2 py-1 rounded border border-green-900/50">Publicado</span>
                                     ) : (
-                                        <span className="text-orange-500 text-xs font-bold bg-orange-900/20 px-2 py-1 rounded border border-orange-900/50">Pendiente</span>
+                                        <span className="text-orange-500 text-xs font-bold bg-orange-900/20 px-2 py-1 rounded border border-orange-900/50">Despublicado</span>
                                     )}
                                 </div>
                                 <p className="text-gray-300 text-sm leading-relaxed bg-black/30 p-3 rounded-lg border border-gray-800">
@@ -111,17 +123,27 @@ export const AdminComments: React.FC = () => {
                                 </p>
                             </div>
                             <div className="flex flex-col gap-2 justify-center border-l border-gray-800 pl-4">
-                                {!comment.isApproved && (
-                                    <button 
-                                        onClick={() => handleAction(comment.id, 'approve')}
-                                        className="p-2 bg-green-900/30 hover:bg-green-600 text-green-500 hover:text-white rounded-lg transition" 
-                                        title="Aprobar"
+                                {comment.courseSlug ? (
+                                    <Link 
+                                        to={`/dashboard/training/${comment.courseSlug}`} 
+                                        className="p-2 bg-blue-900/30 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg transition text-center"
+                                        title="Ver Lección"
+                                        target="_blank"
                                     >
-                                        <Check className="w-4 h-4" />
-                                    </button>
-                                )}
+                                        <Eye className="w-4 h-4" />
+                                    </Link>
+                                ) : null}
+                                
                                 <button 
-                                    onClick={() => handleAction(comment.id, 'delete')}
+                                    onClick={() => handleAction(comment.id, 'toggle_publish')}
+                                    className={`p-2 rounded-lg transition ${comment.isApproved ? 'bg-orange-900/30 hover:bg-orange-600 text-orange-500 hover:text-white' : 'bg-green-900/30 hover:bg-green-600 text-green-500 hover:text-white'}`}
+                                    title={comment.isApproved ? "Despublicar" : "Publicar"}
+                                >
+                                    {comment.isApproved ? <X className="w-4 h-4" /> : <Check className="w-4 h-4" />}
+                                </button>
+                                
+                                <button 
+                                    onClick={() => setCommentToDelete(comment)}
                                     className="p-2 bg-red-900/30 hover:bg-red-600 text-red-500 hover:text-white rounded-lg transition" 
                                     title="Eliminar"
                                 >
@@ -132,6 +154,21 @@ export const AdminComments: React.FC = () => {
                     ))
                 )}
             </div>
+
+            {/* Delete Modal */}
+            {commentToDelete && (
+                <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+                    <div className="bg-gray-900 border border-red-900/50 p-6 rounded-xl max-w-sm w-full text-center">
+                        <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                        <h3 className="text-xl font-bold text-white mb-2">¿Eliminar Comentario?</h3>
+                        <p className="text-gray-400 text-sm mb-6">¿Estás seguro de que quieres eliminar este comentario? Esta acción no se puede deshacer.</p>
+                        <div className="flex justify-center gap-3">
+                            <button onClick={() => setCommentToDelete(null)} className="px-4 py-2 border border-gray-700 rounded text-gray-300 hover:text-white transition">Cancelar</button>
+                            <button onClick={confirmDelete} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-bold transition">Sí, Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

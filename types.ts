@@ -258,6 +258,7 @@ export interface Course {
   id: string;
   title: string;
   subtitle: string;
+  badge_text?: string;
   description: string;
   slug: string;
   thumbnail: string;
@@ -270,6 +271,7 @@ export interface Comment {
   lessonId: string;
   lessonTitle?: string;
   courseTitle?: string;
+  courseSlug?: string;
   user: string;
   userId: string;
   date: string;

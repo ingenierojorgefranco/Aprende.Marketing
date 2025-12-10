@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { CheckCircle, Clock, Award, PlayCircle, ChevronDown, ChevronUp, Play, FileText, MessageSquare, Send, User, Reply, ThumbsUp, Loader2 } from 'lucide-react';
@@ -24,6 +25,7 @@ type CourseData = {
   id: string;
   title: string;
   subtitle: string;
+  badge_text?: string;
   description: string;
   learningPoints: string[];
   modules: Module[];
@@ -48,6 +50,10 @@ export const TrainingViewer: React.FC = () => {
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   
+  // Lazy Loading States
+  const [loadedModuleIds, setLoadedModuleIds] = useState<string[]>([]);
+  const [loadingModuleId, setLoadingModuleId] = useState<string | null>(null);
+  
   // Comments State
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -63,12 +69,21 @@ export const TrainingViewer: React.FC = () => {
                   const data = await api.getCourseBySlug(moduleId);
                   setCourseData(data);
                   
+                  // Automatically load and expand the first module
                   if (data && data.modules.length > 0) {
-                      // Default to first module
-                      setActiveModuleId(data.modules[0].id);
-                      // Default to first lesson
-                      if (data.modules[0].lessons.length > 0) {
-                          setCurrentLesson(data.modules[0].lessons[0]);
+                      const firstMod = data.modules[0];
+                      // Fetch lessons for first module immediately
+                      const lessons = await api.getModuleLessons(firstMod.id);
+                      
+                      // Update data with lessons locally
+                      firstMod.lessons = lessons; 
+                      
+                      setCourseData({...data}); 
+                      setActiveModuleId(firstMod.id);
+                      setLoadedModuleIds([firstMod.id]);
+                      
+                      if (lessons.length > 0) {
+                          setCurrentLesson(lessons[0]);
                       }
                   }
               } catch (error) {
@@ -99,8 +114,38 @@ export const TrainingViewer: React.FC = () => {
       }
   }, [currentLesson]);
 
-  const toggleModule = (id: string) => {
-      setActiveModuleId(activeModuleId === id ? null : id);
+  const toggleModule = async (id: string) => {
+      if (activeModuleId === id) {
+          setActiveModuleId(null);
+          return;
+      }
+
+      // Check if module needs loading
+      const module = courseData?.modules.find(m => m.id === id);
+      const isLoaded = loadedModuleIds.includes(id) || (module && module.lessons.length > 0);
+
+      if (!isLoaded) {
+          setLoadingModuleId(id);
+          try {
+              const lessons = await api.getModuleLessons(id);
+              
+              setCourseData(prev => {
+                  if(!prev) return null;
+                  return {
+                      ...prev,
+                      modules: prev.modules.map(m => m.id === id ? { ...m, lessons } : m)
+                  };
+              });
+              setLoadedModuleIds(prev => [...prev, id]);
+          } catch(e) {
+              console.error("Error loading module lessons:", e);
+          } finally {
+              setLoadingModuleId(null);
+              setActiveModuleId(id);
+          }
+      } else {
+          setActiveModuleId(id);
+      }
   };
 
   const handlePostComment = async (parentId?: string) => {
@@ -109,12 +154,16 @@ export const TrainingViewer: React.FC = () => {
     try {
         await api.postComment(currentLesson.id, newComment, parentId);
         
-        // Optimistic update or refresh
-        const refreshedComments = await api.getComments(currentLesson.id);
-        setComments(refreshedComments);
+        // Optimistic update or refresh (Note: backend logic may require approval, but user sees 'Pending' or similar in Admin)
+        // Here we just refresh to see if it shows (depends on backend query filter)
+        // Ideally show a success message if it needs approval
         
+        alert("Comentario enviado.");
         setNewComment('');
         setReplyingTo(null);
+        
+        const refreshedComments = await api.getComments(currentLesson.id);
+        setComments(refreshedComments);
     } catch (e) {
         alert("Error al publicar comentario.");
     }
@@ -145,7 +194,7 @@ export const TrainingViewer: React.FC = () => {
       <div className="mb-10 border-b border-gray-800 pb-10">
          <div className="flex items-center gap-3 mb-4">
             <span className="bg-primary/20 text-primary border border-primary/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-                <Award className="w-3 h-3" /> Certificado
+                <Award className="w-3 h-3" /> {courseData.badge_text || 'Certificado'}
             </span>
             <span className="bg-gray-800 text-gray-300 border border-gray-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
                 <Clock className="w-3 h-3" /> {courseData.subtitle || 'Curso Online'}
@@ -179,11 +228,15 @@ export const TrainingViewer: React.FC = () => {
                                     className={`w-full flex items-center justify-between p-5 hover:bg-gray-800 transition text-left ${activeModuleId === module.id ? 'bg-gray-800' : ''}`}
                                 >
                                     <span className="font-bold text-gray-200 text-lg">{module.title}</span>
-                                    {activeModuleId === module.id ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                                    {loadingModuleId === module.id ? (
+                                        <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                                    ) : (
+                                        activeModuleId === module.id ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />
+                                    )}
                                 </button>
                                 
                                 {activeModuleId === module.id && (
-                                    <div className="bg-black/40 border-t border-gray-800">
+                                    <div className="bg-black/40 border-t border-gray-800 animate-in slide-in-from-top-2">
                                         {module.lessons.map((lesson) => (
                                             <button 
                                                 key={lesson.id}
@@ -199,6 +252,9 @@ export const TrainingViewer: React.FC = () => {
                                                 </div>
                                             </button>
                                         ))}
+                                        {module.lessons.length === 0 && (
+                                            <div className="p-5 text-sm text-gray-500 italic text-center">No hay lecciones en este módulo.</div>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -254,12 +310,15 @@ export const TrainingViewer: React.FC = () => {
               Lo que aprenderás en esta clase
             </h3>
             <ul className="grid grid-cols-1 gap-y-4">
-              {(currentLesson?.learning_points || courseData.learningPoints || []).map((point: string, i: number) => (
+              {(currentLesson?.learning_points || []).map((point: string, i: number) => (
                 <li key={i} className="flex items-start gap-4 text-gray-300 text-lg group">
                   <div className="mt-2 w-2 h-2 rounded-full bg-primary flex-shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.5)] group-hover:scale-125 transition-transform"></div>
                   <span className="leading-relaxed group-hover:text-white transition-colors">{point}</span>
                 </li>
               ))}
+              {(!currentLesson?.learning_points || currentLesson.learning_points.length === 0) && (
+                  <li className="text-gray-500 italic">No hay puntos clave definidos para esta lección.</li>
+              )}
             </ul>
           </div>
 
@@ -270,8 +329,9 @@ export const TrainingViewer: React.FC = () => {
                     <div className="bg-blue-500/20 p-2 rounded-lg"><FileText className="w-6 h-6 text-blue-500" /></div>
                     Descripción de la Clase
                 </h3>
-                <div className="text-gray-300 leading-relaxed text-lg">
-                    <p>{currentLesson.description}</p>
+                <div className="prose prose-invert max-w-none text-gray-300 leading-relaxed text-lg">
+                    {/* Render HTML Content */}
+                    <div dangerouslySetInnerHTML={{ __html: currentLesson.description || "Sin descripción disponible." }} />
                 </div>
               </div>
           )}

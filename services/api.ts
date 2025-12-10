@@ -1,5 +1,5 @@
 
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment } from "../types";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS } from "./mockData";
 
 // --- HELPER PARA OBTENER BASE URL ---
@@ -505,7 +505,7 @@ export const api = {
               return Promise.resolve({
                   ...course,
                   learningPoints: [], // Mock structure might need adjustment
-                  modules: course.modules || []
+                  modules: course.modules?.map(m => ({...m, lessons: []})) || [] // Ensure mock also returns empty lessons initially to test lazy load
               });
           }
           return Promise.resolve({
@@ -515,6 +515,17 @@ export const api = {
           });
       }
       return await fetchWithFallback(`/courses/${slug}`, { headers: getAuthHeaders() });
+  },
+
+  getModuleLessons: async (moduleId: string): Promise<CourseLesson[]> => {
+      if (isMockMode) {
+          // Find module in mock data
+          const module = localCourses.flatMap(c => c.modules).find(m => m.id === moduleId);
+          // Simulate network delay
+          await new Promise(resolve => setTimeout(resolve, 500));
+          return Promise.resolve(module?.lessons || []);
+      }
+      return await fetchWithFallback(`/modules/${moduleId}/lessons`, { headers: getAuthHeaders() });
   },
 
   // --- ADMIN COURSE MANAGEMENT ---
@@ -562,12 +573,12 @@ export const api = {
       return await fetchWithFallback('/admin/comments', { headers: getAuthHeaders() });
   },
 
-  moderateComment: async (id: string, action: 'approve' | 'delete'): Promise<void> => {
+  moderateComment: async (id: string, action: 'toggle_publish' | 'delete'): Promise<void> => {
       if (isMockMode) {
           if (action === 'delete') {
               localComments = localComments.filter(c => c.id !== id);
           } else {
-              localComments = localComments.map(c => c.id === id ? { ...c, isApproved: true } : c);
+              localComments = localComments.map(c => c.id === id ? { ...c, isApproved: !c.isApproved } : c);
           }
           return Promise.resolve();
       }

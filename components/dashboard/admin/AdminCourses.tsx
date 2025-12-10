@@ -1,8 +1,60 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Course, CourseModule, CourseLesson } from '../../../types';
 import { api } from '../../../services/api';
-import { Video, Plus, Edit, Trash2, Save, ArrowLeft, ChevronDown, ChevronUp, Loader2, GripVertical, CheckCircle, Image as ImageIcon } from 'lucide-react';
+import { Video, Plus, Edit, Trash2, Save, ArrowLeft, ChevronDown, ChevronUp, Loader2, GripVertical, CheckCircle, Image as ImageIcon, Bold, Italic, List } from 'lucide-react';
+
+// --- RICH TEXT AREA COMPONENT ---
+interface RichTextAreaProps {
+    value: string;
+    onChange: (val: string) => void;
+    className?: string;
+    placeholder?: string;
+}
+
+const RichTextArea = ({ value, onChange, className, placeholder }: RichTextAreaProps) => {
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    const insertTag = (tagOpen: string, tagClose: string) => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = textarea.value;
+        const before = text.substring(0, start);
+        const selected = text.substring(start, end);
+        const after = text.substring(end);
+
+        const newValue = `${before}${tagOpen}${selected}${tagClose}${after}`;
+        onChange(newValue);
+
+        setTimeout(() => {
+            if (textareaRef.current) {
+                textareaRef.current.focus();
+                textareaRef.current.setSelectionRange(start + tagOpen.length, end + tagOpen.length);
+            }
+        }, 0);
+    };
+
+    return (
+        <div className="space-y-1">
+            <div className="flex gap-1 bg-gray-900 border border-gray-700 rounded-t-lg p-1">
+                <button type="button" onClick={() => insertTag('<b>', '</b>')} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white" title="Negrita"><Bold className="w-3 h-3"/></button>
+                <button type="button" onClick={() => insertTag('<i>', '</i>')} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white" title="Cursiva"><Italic className="w-3 h-3"/></button>
+                <button type="button" onClick={() => insertTag('<ul>\n<li>', '</li>\n</ul>')} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white" title="Lista"><List className="w-3 h-3"/></button>
+                <button type="button" onClick={() => insertTag('<br/>', '')} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white text-xs font-mono">BR</button>
+            </div>
+            <textarea 
+                ref={textareaRef}
+                className={`w-full bg-black border border-gray-700 border-t-0 rounded-b-lg px-3 py-2 text-white text-xs focus:border-primary outline-none transition resize-none min-h-[100px] font-mono ${className}`} 
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={placeholder}
+            />
+        </div>
+    );
+};
 
 export const AdminCourses: React.FC = () => {
     const [view, setView] = useState<'list' | 'editor'>('list');
@@ -32,6 +84,7 @@ export const AdminCourses: React.FC = () => {
         setEditingCourse({
             title: '',
             subtitle: '',
+            badge_text: 'Certificado',
             description: '',
             slug: '',
             thumbnail: '',
@@ -102,7 +155,7 @@ export const AdminCourses: React.FC = () => {
             duration: '00:00',
             video_url: '',
             description: '',
-            learning_points: [],
+            learning_points: [''], // Initialize with one empty point
             order_index: 0
         };
         setEditingCourse(prev => ({
@@ -247,14 +300,26 @@ export const AdminCourses: React.FC = () => {
                                     />
                                 </div>
                             </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Subtítulo Corto</label>
-                                <input 
-                                    type="text" 
-                                    className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
-                                    value={editingCourse.subtitle || ''}
-                                    onChange={(e) => setEditingCourse({...editingCourse, subtitle: e.target.value})}
-                                />
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Subtítulo Corto</label>
+                                    <input 
+                                        type="text" 
+                                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                        value={editingCourse.subtitle || ''}
+                                        onChange={(e) => setEditingCourse({...editingCourse, subtitle: e.target.value})}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Texto del Badge (ej: Certificado)</label>
+                                    <input 
+                                        type="text" 
+                                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                        value={editingCourse.badge_text || ''}
+                                        onChange={(e) => setEditingCourse({...editingCourse, badge_text: e.target.value})}
+                                        placeholder="Certificado"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Descripción Completa</label>
@@ -340,12 +405,56 @@ export const AdminCourses: React.FC = () => {
                                                                 className="w-full bg-black border border-gray-800 rounded px-3 py-2 text-xs text-blue-400 placeholder-gray-600"
                                                                 placeholder="URL del Video (YouTube, Vimeo, MP4)"
                                                             />
-                                                            <textarea
-                                                                value={lesson.description || ''}
-                                                                onChange={(e) => updateLesson(module.id, lesson.id, 'description', e.target.value)}
-                                                                className="w-full bg-black border border-gray-800 rounded px-3 py-2 text-xs text-gray-300 placeholder-gray-600 resize-none h-16"
-                                                                placeholder="Descripción corta de la lección..."
-                                                            />
+                                                            
+                                                            {/* Rich Text Editor for Description */}
+                                                            <div>
+                                                                <label className="text-[10px] text-gray-500 uppercase font-bold">Contenido de la Lección (HTML)</label>
+                                                                <RichTextArea
+                                                                    value={lesson.description || ''}
+                                                                    onChange={(val) => updateLesson(module.id, lesson.id, 'description', val)}
+                                                                    placeholder="Escribe la descripción de la lección aquí..."
+                                                                />
+                                                            </div>
+
+                                                            {/* Learning Points Manager */}
+                                                            <div>
+                                                                <label className="text-[10px] text-gray-500 uppercase font-bold mb-1 block">Puntos Clave de Aprendizaje</label>
+                                                                <div className="space-y-2">
+                                                                    {(lesson.learning_points || []).map((point, ptIdx) => (
+                                                                        <div key={ptIdx} className="flex gap-2">
+                                                                            <input 
+                                                                                type="text"
+                                                                                value={point}
+                                                                                onChange={(e) => {
+                                                                                    const newPoints = [...(lesson.learning_points || [])];
+                                                                                    newPoints[ptIdx] = e.target.value;
+                                                                                    updateLesson(module.id, lesson.id, 'learning_points', newPoints);
+                                                                                }}
+                                                                                className="flex-1 bg-black border border-gray-800 rounded px-3 py-1.5 text-xs text-white"
+                                                                                placeholder="Ej: Mentalidad de Éxito"
+                                                                            />
+                                                                            <button 
+                                                                                onClick={() => {
+                                                                                    const newPoints = lesson.learning_points.filter((_, i) => i !== ptIdx);
+                                                                                    updateLesson(module.id, lesson.id, 'learning_points', newPoints);
+                                                                                }}
+                                                                                className="text-red-500 hover:bg-red-900/20 p-1 rounded"
+                                                                            >
+                                                                                <Trash2 className="w-3 h-3" />
+                                                                            </button>
+                                                                        </div>
+                                                                    ))}
+                                                                    <button 
+                                                                        onClick={() => {
+                                                                            const newPoints = [...(lesson.learning_points || []), ""];
+                                                                            updateLesson(module.id, lesson.id, 'learning_points', newPoints);
+                                                                        }}
+                                                                        className="text-xs text-primary flex items-center gap-1 hover:underline"
+                                                                    >
+                                                                        <Plus className="w-3 h-3" /> Agregar Punto
+                                                                    </button>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 ))}
