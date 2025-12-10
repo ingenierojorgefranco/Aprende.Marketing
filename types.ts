@@ -279,4 +279,5 @@ export interface Comment {
   isApproved: boolean;
   replies?: Comment[];
   parentId?: string;
+  likes?: number;
 }

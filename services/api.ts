@@ -1,4 +1,5 @@
 
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS } from "./mockData";
 
@@ -606,8 +607,13 @@ export const api = {
               userId: MOCK_USER.id,
               date: new Date().toISOString(),
               likes: 0,
-              isApproved: false
+              isApproved: false // or true based on context
           };
+          // If replying, finding parent is complex in flat mock structure without reloading, 
+          // but for mock simplicity we push to top. Admin view handles hierarchy.
+          // In a real app we'd attach parentId.
+          if (parentId) newComment.parentId = parentId;
+          
           localComments.unshift(newComment);
           return Promise.resolve();
       }
@@ -615,6 +621,21 @@ export const api = {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ lessonId, content, parentId })
+      });
+  },
+
+  likeComment: async (commentId: string): Promise<void> => {
+      if (isMockMode) {
+          // Update local mock data
+          const comment = localComments.find(c => c.id === commentId);
+          if (comment) {
+              comment.likes = (comment.likes || 0) + 1;
+          }
+          return Promise.resolve();
+      }
+      await fetchWithFallback(`/comments/${commentId}/like`, {
+          method: 'POST',
+          headers: getAuthHeaders()
       });
   }
 };

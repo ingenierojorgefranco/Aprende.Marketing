@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { CheckCircle, Clock, Award, PlayCircle, ChevronDown, ChevronUp, Play, FileText, MessageSquare, Send, User, Reply, ThumbsUp, Loader2 } from 'lucide-react';
@@ -167,6 +168,31 @@ export const TrainingViewer: React.FC = () => {
     } catch (e) {
         alert("Error al publicar comentario.");
     }
+  };
+
+  const handleLike = async (commentId: string) => {
+      // 1. Optimistic UI Update (Recursive for nested comments)
+      const updateLikesRecursive = (list: Comment[]): Comment[] => {
+          return list.map(c => {
+              if (c.id === commentId) {
+                  return { ...c, likes: (c.likes || 0) + 1 };
+              }
+              if (c.replies && c.replies.length > 0) {
+                  return { ...c, replies: updateLikesRecursive(c.replies) };
+              }
+              return c;
+          });
+      };
+
+      setComments(prevComments => updateLikesRecursive(prevComments));
+
+      // 2. API Call (Silent background)
+      try {
+          await api.likeComment(commentId);
+      } catch (error) {
+          console.error("Error liking comment:", error);
+          // Optional: Revert optimistic update here if needed
+      }
   };
 
   if (loading) {
@@ -392,7 +418,12 @@ export const TrainingViewer: React.FC = () => {
                                   </div>
                                   <p className="text-gray-300 text-sm leading-relaxed mb-3">{comment.text}</p>
                                   <div className="flex items-center gap-4 text-xs text-gray-500">
-                                      <button className="flex items-center gap-1 hover:text-white transition"><ThumbsUp className="w-3 h-3" /> {comment.likes}</button>
+                                      <button 
+                                        onClick={() => handleLike(comment.id)}
+                                        className="flex items-center gap-1 hover:text-white transition group/like"
+                                      >
+                                          <ThumbsUp className="w-3 h-3 group-hover/like:text-primary transition-colors" /> {comment.likes}
+                                      </button>
                                       <button onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)} className="flex items-center gap-1 hover:text-white transition"><Reply className="w-3 h-3" /> Responder</button>
                                   </div>
                                   
@@ -428,7 +459,12 @@ export const TrainingViewer: React.FC = () => {
                                               </div>
                                               <p className="text-gray-400 text-xs leading-relaxed mb-2">{reply.text}</p>
                                               <div className="flex items-center gap-3 text-[10px] text-gray-500">
-                                                  <button className="flex items-center gap-1 hover:text-white transition"><ThumbsUp className="w-3 h-3" /> {reply.likes}</button>
+                                                  <button 
+                                                    onClick={() => handleLike(reply.id)}
+                                                    className="flex items-center gap-1 hover:text-white transition group/like"
+                                                  >
+                                                      <ThumbsUp className="w-3 h-3 group-hover/like:text-primary transition-colors" /> {reply.likes}
+                                                  </button>
                                               </div>
                                           </div>
                                       </div>

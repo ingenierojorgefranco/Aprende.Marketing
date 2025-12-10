@@ -71,7 +71,7 @@ export const AdminComments: React.FC = () => {
     ));
 
     // Helper to render a comment row
-    const CommentRow = ({ comment, isReply = false, parentApproved = true }: { comment: Comment, isReply?: boolean, parentApproved?: boolean }) => {
+    const CommentRow: React.FC<{ comment: Comment, isReply?: boolean, parentApproved?: boolean }> = ({ comment, isReply = false, parentApproved = true }) => {
         const isChildLocked = isReply && !parentApproved;
 
         return (

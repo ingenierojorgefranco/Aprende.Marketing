@@ -326,7 +326,7 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
 };
 
 // --- Feature Card ---
-export const FeatureCard = ({ item, idx, ds, content }: { item: any, idx: number, ds: any, content: GeneratedPageContent }) => {
+export const FeatureCard: React.FC<{ item: any, idx: number, ds: any, content: GeneratedPageContent }> = ({ item, idx, ds, content }) => {
     // Dynamic icon colors override if needed, otherwise use DS defaults
     const IconComponent = getIcon(item.icon, idx === 0 ? <DollarSign className="w-10 h-10" /> : idx === 1 ? <FileText className="w-10 h-10" /> : idx === 2 ? <Briefcase className="w-10 h-10" /> : <Award className="w-10 h-10" />);
 

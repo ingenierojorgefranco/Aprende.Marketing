@@ -348,6 +348,18 @@ app.post('/api/comments', authMiddleware, async (req, res) => {
     }
 });
 
+// NEW: Like Comment (Public/Student)
+app.post('/api/comments/:id/like', authMiddleware, async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('UPDATE lesson_comments SET likes = likes + 1 WHERE id = ?', [id]);
+        res.json({ success: true });
+    } catch (e) {
+        console.error("Error liking comment:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 
 // ======================================================
 //  ADMIN API ENDPOINTS

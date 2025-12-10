@@ -1,3 +1,4 @@
+
 import { User, Project, LandingPage, Article, Lead, GeneratedPageContent, Course, Comment } from "../types";
 
 export const MOCK_CREDENTIALS = {
@@ -258,6 +259,18 @@ export const MOCK_COMMENTS: Comment[] = [
         userId: "u-2",
         date: new Date().toISOString(),
         text: "¡Excelente introducción! Estoy listo para aprender.",
+        isApproved: true
+    },
+    {
+        id: "c-3",
+        parentId: "c-1", // Reply to Juan Perez
+        lessonId: "l-1",
+        lessonTitle: "Bienvenida al Curso",
+        courseTitle: "Productos Digitales",
+        user: "Maria Rodriguez",
+        userId: "u-4",
+        date: new Date().toISOString(),
+        text: "Gracias Juan, espero que disfrutes el contenido. ¡Vamos con todo!",
         isApproved: true
     },
     {
