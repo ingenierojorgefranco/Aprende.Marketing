@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Project, LandingPage } from '../../../../types';
 import { Briefcase, Globe, BookOpen, Wand2, Search, RefreshCw, Sparkles } from 'lucide-react';

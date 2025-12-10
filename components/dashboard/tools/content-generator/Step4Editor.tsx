@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { ArticleTitleIdea } from '../../../../services/geminiService';
 import { LandingPage } from '../../../../types';
@@ -55,6 +56,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
   const [activeFormats, setActiveFormats] = useState<string[]>([]);
   const [seoChecklist, setSeoChecklist] = useState<SeoCheckItem[]>([]);
 
+  // Initialize Editor Content
   useEffect(() => {
     if (editorRef.current && (!editorRef.current.innerHTML || editorRef.current.innerHTML === '<br>')) {
       editorRef.current.innerHTML = articleContent;
@@ -62,12 +64,14 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
     }
   }, []);
 
+  // Sync Content when toggling Visual mode back
   useEffect(() => {
       if (!showSourceCode && editorRef.current) {
           editorRef.current.innerHTML = articleContent;
       }
   }, [showSourceCode]);
 
+  // Debounced SEO Analysis
   useEffect(() => {
     const handler = setTimeout(() => {
       analyzeSeo(articleContent);
@@ -75,6 +79,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
     return () => clearTimeout(handler);
   }, [articleContent, keyword, articleTitle]);
 
+  // --- CLEAN SLUG HELPER (Internal) ---
   const handleSlugBlur = () => {
       const stopWords = new Set(['y', 'la', 'el', 'en', 'de', 'del', 'un', 'una', 'por', 'con', 'los', 'las', 'al', 'a']);
       const cleaned = slug
@@ -93,6 +98,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
       setSlug(cleaned);
   };
 
+  // --- FORMATTER ---
   const formatHTML = (html: string) => {
     let formatted = '';
     const reg = /(>)(<)(\/*)/g;
@@ -123,10 +129,13 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
 
   const toggleSourceCode = () => {
       if (!showSourceCode) {
+          // Switch to Source: Format content
           setArticleContent(formatHTML(articleContent));
       }
       setShowSourceCode(!showSourceCode);
   };
+
+  // --- EDITOR FUNCTIONALITY ---
 
   const execCmd = (command: string, value: string | undefined = undefined) => {
     document.execCommand(command, false, value);
@@ -179,6 +188,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
     let score = 0;
     const checks: SeoCheckItem[] = [];
 
+    // Rule 1: Title Length
     if (articleTitle && articleTitle.length >= 10 && articleTitle.length <= 70) {
         score += 15;
         checks.push({ label: "Longitud del Título (10-70 car.)", passed: true });
@@ -186,6 +196,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
         checks.push({ label: "Longitud del Título (10-70 car.)", passed: false });
     }
 
+    // Rule 2: Word Count
     if (words > 300) {
         score += 25;
         checks.push({ label: "Contenido extenso (> 300 palabras)", passed: true });
@@ -193,6 +204,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
         checks.push({ label: "Contenido extenso (> 300 palabras)", passed: false });
     }
 
+    // Rule 3: Keyword in Title
     let keywordInTitle = false;
     if (keyword && articleTitle.toLowerCase().includes(keyword.toLowerCase())) {
         keywordInTitle = true;
@@ -200,6 +212,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
     }
     checks.push({ label: "Palabra clave en el Título", passed: keywordInTitle });
 
+    // Rule 4: Subheadings
     if (content.includes('<h2>')) {
         score += 10;
         checks.push({ label: "Uso de subtítulos (H2)", passed: true });
@@ -207,6 +220,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
         checks.push({ label: "Uso de subtítulos (H2)", passed: false });
     }
 
+    // Rule 5: Keyword Density (Simplified)
     let densityPassed = false;
     if (keyword && words > 0) {
         const escapedKeyword = escapeRegExp(keyword);
@@ -222,6 +236,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
     }
     checks.push({ label: "Palabra clave en el contenido", passed: densityPassed });
 
+    // Rule 6: Image
     if (content.includes('<img') || featuredImage) {
         score += 10;
         checks.push({ label: "Contiene imágenes", passed: true });
@@ -251,9 +266,11 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
     document.body.removeChild(fileDownload);
   };
 
+  // SEO Score Color
   const validSeoScore = isNaN(seoScore) ? 0 : seoScore;
   const scoreColor = validSeoScore > 80 ? 'text-green-500' : validSeoScore > 50 ? 'text-yellow-500' : 'text-red-500';
 
+  // Helper for view link
   const linkedPage = userPages.find(p => p.id === selectedPageId);
   const pageSlug = linkedPage?.subdomain ? linkedPage.subdomain.split('.')[0] : selectedPageId;
   const viewUrl = `/admin/lp/${pageSlug}/blog/${slug}`;
@@ -261,6 +278,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
   return (
     <div className="flex flex-col gap-4 h-[calc(100vh-100px)] animate-in fade-in zoom-in-95 duration-500">
       
+      {/* Back Button */}
       <div className="flex-shrink-0">
           <button 
             onClick={onBack} 
@@ -271,8 +289,10 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
+        {/* MAIN EDITOR */}
         <div className="flex-1 bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col border border-gray-200 min-h-0">
             
+            {/* TOP BAR */}
             <div className="bg-gray-50 border-b border-gray-200 p-3 flex justify-between items-center flex-shrink-0">
             <div className="flex items-center gap-2">
                 <div className="bg-blue-100 text-blue-600 p-2 rounded-lg"><FileText className="w-5 h-5" /></div>
@@ -287,18 +307,22 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
             </div>
             </div>
 
+            {/* EDITOR TOOLBAR */}
             <div className={`bg-gray-100 border-b border-gray-200 p-2 flex flex-wrap items-center gap-1 flex-shrink-0 ${showSourceCode ? 'opacity-50 pointer-events-none' : ''}`}>
+                {/* History */}
                 <div className="flex items-center gap-0.5 border-r border-gray-300 pr-2 mr-1">
                     <button onClick={() => execCmd('undo')} className="p-1.5 rounded hover:bg-gray-200 text-gray-700" title="Deshacer"><Undo className="w-4 h-4"/></button>
                     <button onClick={() => execCmd('redo')} className="p-1.5 rounded hover:bg-gray-200 text-gray-700" title="Rehacer"><Redo className="w-4 h-4"/></button>
                 </div>
 
+                {/* Headings */}
                 <div className="flex items-center gap-0.5 border-r border-gray-300 pr-2 mr-1">
                     <button onClick={() => setHeading('P')} className="p-1.5 rounded hover:bg-gray-200 text-gray-700 font-serif" title="Párrafo">P</button>
                     <button onClick={() => setHeading('H2')} className="p-1.5 rounded hover:bg-gray-200 text-gray-700" title="Título 2"><Heading2 className="w-4 h-4"/></button>
                     <button onClick={() => setHeading('H3')} className="p-1.5 rounded hover:bg-gray-200 text-gray-700" title="Título 3"><Heading3 className="w-4 h-4"/></button>
                 </div>
 
+                {/* Format */}
                 <div className="flex items-center gap-0.5 border-r border-gray-300 pr-2 mr-1">
                     <button onClick={() => execCmd('bold')} className={`p-1.5 rounded hover:bg-gray-200 ${activeFormats.includes('bold') ? 'bg-gray-300 text-black' : 'text-gray-700'}`} title="Negrita"><Bold className="w-4 h-4"/></button>
                     <button onClick={() => execCmd('italic')} className={`p-1.5 rounded hover:bg-gray-200 ${activeFormats.includes('italic') ? 'bg-gray-300 text-black' : 'text-gray-700'}`} title="Cursiva"><Italic className="w-4 h-4"/></button>
@@ -306,6 +330,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                     <button onClick={() => execCmd('strikethrough')} className={`p-1.5 rounded hover:bg-gray-200 ${activeFormats.includes('strikethrough') ? 'bg-gray-300 text-black' : 'text-gray-700'}`} title="Tachado"><Strikethrough className="w-4 h-4"/></button>
                 </div>
 
+                {/* Alignment */}
                 <div className="flex items-center gap-0.5 border-r border-gray-300 pr-2 mr-1">
                     <button onClick={() => execCmd('justifyLeft')} className="p-1.5 rounded hover:bg-gray-200 text-gray-700"><AlignLeft className="w-4 h-4"/></button>
                     <button onClick={() => execCmd('justifyCenter')} className="p-1.5 rounded hover:bg-gray-200 text-gray-700"><AlignCenter className="w-4 h-4"/></button>
@@ -313,16 +338,19 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                     <button onClick={() => execCmd('justifyFull')} className="p-1.5 rounded hover:bg-gray-200 text-gray-700"><AlignJustify className="w-4 h-4"/></button>
                 </div>
 
+                {/* Lists */}
                 <div className="flex items-center gap-0.5 border-r border-gray-300 pr-2 mr-1">
                     <button onClick={() => execCmd('insertUnorderedList')} className="p-1.5 rounded hover:bg-gray-200 text-gray-700"><List className="w-4 h-4"/></button>
                     <button onClick={() => execCmd('insertOrderedList')} className="p-1.5 rounded hover:bg-gray-200 text-gray-700"><ListOrdered className="w-4 h-4"/></button>
                 </div>
 
+                {/* Insert */}
                 <div className="flex items-center gap-0.5 border-r border-gray-300 pr-2 mr-1">
                     <button onClick={insertLink} className="p-1.5 rounded hover:bg-gray-200 text-gray-700"><LinkIcon className="w-4 h-4"/></button>
                     <button onClick={insertImage} className="p-1.5 rounded hover:bg-gray-200 text-gray-700"><ImageIcon className="w-4 h-4"/></button>
                 </div>
 
+                {/* Colors */}
                 <div className="flex items-center gap-2 mr-1">
                     <div className="relative group p-1.5 hover:bg-gray-200 rounded cursor-pointer">
                         <Type className="w-4 h-4 text-gray-700" />
@@ -337,6 +365,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 <button onClick={() => execCmd('removeFormat')} className="p-1.5 rounded hover:bg-gray-200 text-gray-700 ml-auto" title="Limpiar Formato"><Eraser className="w-4 h-4"/></button>
             </div>
 
+            {/* Source Code Toggle */}
             <div className="bg-gray-50 border-b border-gray-200 px-3 py-1 flex justify-end flex-shrink-0">
                 <button 
                     onClick={toggleSourceCode}
@@ -346,6 +375,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 </button>
             </div>
 
+            {/* Content Area */}
             <div className="flex-1 overflow-y-auto bg-white relative">
             {showSourceCode ? (
                 <textarea 
@@ -368,6 +398,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
             </div>
         </div>
 
+        {/* SIDEBAR SETTINGS */}
         <div className="w-full lg:w-80 space-y-4 overflow-y-auto pr-2 pb-10">
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 shadow-lg">
             <h3 className="text-white font-bold mb-4 flex items-center gap-2 text-sm">
@@ -376,6 +407,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
 
             <div className="space-y-4">
                 
+                {/* 1. SAVE BUTTON */}
                 <button 
                     onClick={onSave} 
                     disabled={saving} 
@@ -385,6 +417,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 {saving ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Publicar Artículo'}
                 </button>
 
+                {/* 2. VIEW ONLINE BUTTON */}
                 {isEditing && selectedPageId && (
                     <a
                         href={viewUrl}
@@ -396,6 +429,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                     </a>
                 )}
 
+                {/* 3. Publication Date */}
                 <div>
                     <label className="text-xs text-gray-400 block mb-1">Fecha de Publicación</label>
                     <div className="relative group cursor-pointer" onClick={() => dateInputRef.current?.showPicker()}>
@@ -410,6 +444,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                     </div>
                 </div>
 
+                {/* 4. Status & Page Link */}
                 <div className="grid grid-cols-2 gap-2">
                 <div>
                     <label className="text-xs text-gray-400 block mb-1">Estado</label>
@@ -436,6 +471,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 </div>
                 </div>
 
+                {/* 5. Title Input */}
                 <div>
                 <div className="flex justify-between mb-1">
                     <label className="text-xs text-gray-400">Título Artículo (H1)</label>
@@ -449,6 +485,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 />
                 </div>
 
+                {/* 6. Slug Input */}
                 <div>
                 <label className="text-xs text-gray-400 block mb-1">Slug (URL amigable)</label>
                 <input 
@@ -461,6 +498,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 />
                 </div>
 
+                {/* 7. Featured Image */}
                 <div>
                 <label className="text-xs text-gray-400 block mb-1">Imagen Destacada (URL)</label>
                 <div className="flex gap-1">
@@ -475,6 +513,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 </div>
                 </div>
 
+                {/* Meta Description Input */}
                 <div>
                     <div className="flex justify-between items-center mb-1">
                         <label className="text-xs text-gray-400">Meta Descripción</label>
@@ -494,6 +533,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
             </div>
             </div>
 
+            {/* SEO Score Checklist */}
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 shadow-lg">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-white font-bold flex items-center gap-2 text-sm">
@@ -502,6 +542,7 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 <span className={`text-xl font-bold ${scoreColor}`}>{validSeoScore}/100</span>
             </div>
 
+            {/* Keyword Input Moved Here */}
             <div className="mb-4">
                     <label className="text-xs text-gray-400 block mb-1">Palabra Clave (SEO)</label>
                     <div className="relative">

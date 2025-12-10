@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
@@ -10,7 +11,7 @@ interface GeneratorProps {
 
 export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(1); // 1: Info, 2: Structure/Design
   const [userProjects, setUserProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('');
 
@@ -27,6 +28,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
   });
   const [error, setError] = useState('');
 
+  // Load projects on mount
   useEffect(() => {
     const fetchProjects = async () => {
         try {
@@ -39,15 +41,18 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
     fetchProjects();
   }, []);
 
+  // Handle project selection
   const handleProjectSelect = (projectId: string) => {
       setSelectedProject(projectId);
       const proj = userProjects.find(p => p.id === projectId);
       
       if (proj) {
+          // Auto-fill form data based on project strategy
           setFormData(prev => ({
               ...prev,
-              pageName: proj.name,
+              pageName: proj.name, // Can be edited
               targetAudience: proj.targetAudience || '',
+              // Pre-select destination if links exist
               destinationType: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? 'external_url' : 'form',
               destinationUrl: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks[0].url : '',
           }));
@@ -67,6 +72,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
     setLoading(true);
     setError('');
 
+    // Use pageName as the niche/context since the explicit input was removed
     const finalNiche = formData.pageName; 
 
     if (!finalNiche) {
@@ -75,6 +81,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         return;
     }
 
+    // Construct Destination Config
     const destinationConfig: DestinationConfig = {
         type: formData.destinationType,
         url: formData.destinationUrl,
@@ -82,6 +89,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         whatsappMessage: formData.whatsappMessage
     };
 
+    // Find full project object if selected
     const projectContext = userProjects.find(p => p.id === selectedProject);
 
     try {
@@ -93,7 +101,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         formData.palette,
         formData.structure,
         destinationConfig,
-        projectContext
+        projectContext // PASS THE PROJECT CONTEXT HERE
       );
 
       const newPage: LandingPage = {
@@ -124,6 +132,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
       return;
     }
 
+    // Validation for destination fields
     if (formData.destinationType === 'whatsapp' && !formData.whatsappPhone) {
         setError('Por favor ingresa el número de WhatsApp.');
         return;
@@ -238,6 +247,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         {step === 1 && (
           <div className="space-y-6 text-gray-200 animate-in fade-in slide-in-from-right-4 duration-300">
             
+            {/* PROJECT SELECTOR STRATEGY */}
             <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700 border-dashed">
                 <label className="block text-sm font-bold text-white mb-2 flex items-center gap-2">
                     <Briefcase className="w-4 h-4 text-primary" /> Cargar Estrategia de un Proyecto (Opcional)
@@ -291,6 +301,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
               />
             </div>
 
+            {/* Destination Configuration */}
             <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-800">
                 <h3 className="font-bold text-white mb-4 flex items-center gap-2">
                     <Target className="w-5 h-5 text-primary" /> Configuración del Llamado a la Acción (CTA)
@@ -318,6 +329,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                     </button>
                 </div>
 
+                {/* Dynamic Inputs based on Destination */}
                 {formData.destinationType === 'whatsapp' && (
                     <div className="grid md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
                         <div>
@@ -389,6 +401,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         {step === 2 && (
           <div className="space-y-8 text-gray-200 animate-in fade-in slide-in-from-right-4 duration-300">
              
+             {/* Structure Selection */}
              <div>
                 <label className="block text-lg font-bold text-white mb-4 flex items-center gap-2">
                    <LayoutTemplate className="w-5 h-5 text-primary" /> Selecciona la Estructura
@@ -414,6 +427,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                 </div>
              </div>
 
+             {/* Palette Selection */}
              <div>
                 <label className="block text-lg font-bold text-white mb-4 flex items-center gap-2">
                    <Palette className="w-5 h-5 text-primary" /> Selecciona los Colores

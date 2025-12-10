@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ArticleTitleIdea } from '../../../../services/geminiService';
 import { ArrowLeft, RefreshCw, Sparkles } from 'lucide-react';

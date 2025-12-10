@@ -1,8 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import { User, PlanLimits } from '../../../types';
 import { api } from '../../../services/api';
 import { Loader2, Shield, Users, Edit, Trash2, Check, X, Save, AlertTriangle, Eye, ChevronDown, ChevronUp, Folder, FileText, Globe } from 'lucide-react';
 
+// --- Sub-component for viewing user resources (Lazy Loaded) ---
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
     const [loadedData, setLoadedData] = useState<{
         projects: any[] | null;
@@ -21,6 +23,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
 
         setExpandedSection(section);
 
+        // Lazy Load if data is null
         if (loadedData[section] === null) {
             setLoadingSection(section);
             try {
@@ -49,6 +52,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
 
                 <div className="p-6 overflow-y-auto space-y-4 flex-1">
                     
+                    {/* Projects Section */}
                     <div className="border border-gray-700 rounded-xl overflow-hidden">
                         <button 
                             onClick={() => toggleSection('projects')}
@@ -90,6 +94,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                         )}
                     </div>
 
+                    {/* Landing Pages Section */}
                     <div className="border border-gray-700 rounded-xl overflow-hidden">
                         <button 
                             onClick={() => toggleSection('pages')}
@@ -131,6 +136,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                         )}
                     </div>
 
+                    {/* Articles Section */}
                     <div className="border border-gray-700 rounded-xl overflow-hidden">
                         <button 
                             onClick={() => toggleSection('articles')}
@@ -186,7 +192,7 @@ export const AdminPanel: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [editingUser, setEditingUser] = useState<User | null>(null);
-    const [viewingUser, setViewingUser] = useState<User | null>(null);
+    const [viewingUser, setViewingUser] = useState<User | null>(null); // For Content Viewer
     const [tempPlanLimits, setTempPlanLimits] = useState<PlanLimits | null>(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
@@ -208,6 +214,7 @@ export const AdminPanel: React.FC = () => {
 
     const handleEditClick = (user: User) => {
         setEditingUser(user);
+        // Deep copy to avoid mutating state directly
         setTempPlanLimits(JSON.parse(JSON.stringify(user.planLimits || {
             planName: 'starter',
             maxProjects: 1,
@@ -228,8 +235,9 @@ export const AdminPanel: React.FC = () => {
             await api.updateUser(editingUser.id, {
                 role: editingUser.role || 'user',
                 planLimits: tempPlanLimits,
-                isActive: true
+                isActive: true // Assuming active for now, can add toggle
             });
+            // Refresh list
             setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...editingUser, planLimits: tempPlanLimits } : u));
             setEditingUser(null);
             setTempPlanLimits(null);
@@ -283,6 +291,7 @@ export const AdminPanel: React.FC = () => {
                 </div>
             </div>
 
+            {/* Users Table */}
             <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-lg">
                 <table className="w-full text-left">
                     <thead className="bg-gray-800 text-gray-400 text-xs uppercase tracking-wider">
@@ -338,10 +347,12 @@ export const AdminPanel: React.FC = () => {
                 </table>
             </div>
 
+            {/* Content Viewer Modal */}
             {viewingUser && (
                 <UserContentModal user={viewingUser} onClose={() => setViewingUser(null)} />
             )}
 
+            {/* Edit User Modal */}
             {editingUser && tempPlanLimits && (
                 <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
                     <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl animate-in zoom-in-95 overflow-hidden">
@@ -351,6 +362,7 @@ export const AdminPanel: React.FC = () => {
                         </div>
                         
                         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                            {/* Role Selection */}
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Rol del Sistema</label>
                                 <select 
@@ -363,6 +375,7 @@ export const AdminPanel: React.FC = () => {
                                 </select>
                             </div>
 
+                            {/* Plan Template Buttons */}
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Plantillas Rápidas</label>
                                 <div className="flex gap-4">
@@ -371,6 +384,7 @@ export const AdminPanel: React.FC = () => {
                                 </div>
                             </div>
 
+                            {/* Limits Config */}
                             <div className="grid grid-cols-2 gap-4 bg-gray-800/30 p-4 rounded-xl border border-gray-800">
                                 <div>
                                     <label className="block text-xs text-gray-400 mb-1">Máx Proyectos</label>
@@ -392,6 +406,7 @@ export const AdminPanel: React.FC = () => {
                                 </div>
                             </div>
 
+                            {/* Features Toggles */}
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Funcionalidades Habilitadas</label>
                                 <div className="grid grid-cols-2 gap-4">
@@ -426,6 +441,7 @@ export const AdminPanel: React.FC = () => {
                 </div>
             )}
 
+            {/* Delete Confirmation */}
             {showDeleteConfirm && (
                 <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
                     <div className="bg-gray-900 border border-red-900/50 p-6 rounded-xl max-w-sm w-full text-center">
