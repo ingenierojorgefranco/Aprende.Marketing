@@ -1,8 +1,11 @@
 
+
+
 import React, { useState, useEffect } from 'react';
 import { User } from '../../types';
 import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
+import { api } from '../../services/api';
 
 interface DashboardLayoutProps {
   user: User;
@@ -26,8 +29,27 @@ export const DashboardLayout = ({
 }: DashboardLayoutProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMenu, setExpandedMenu] = useState<string | null>('mid-landing');
+  const [courseItems, setCourseItems] = useState<{ label: string; path: string; icon: any }[]>([]);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Load dynamic courses menu
+  useEffect(() => {
+      const loadCoursesMenu = async () => {
+          try {
+              const list = await api.getCoursesList();
+              const items = list.map((c: any) => ({
+                  label: c.title,
+                  path: `/dashboard/training/${c.slug}`,
+                  icon: PlayCircle 
+              }));
+              setCourseItems(items);
+          } catch (e) {
+              console.error("Error loading courses menu", e);
+          }
+      };
+      loadCoursesMenu();
+  }, []);
 
   const menuStructure: MenuItem[] = [
     { 
@@ -51,10 +73,7 @@ export const DashboardLayout = ({
       id: 'training',
       label: 'Entrenamiento',
       icon: GraduationCap,
-      subItems: [
-        { label: 'Productos Digitales', path: '/dashboard/training/digital-products', icon: PlayCircle },
-        { label: 'Inteligencia Artificial', path: '/dashboard/training/ai', icon: Bot }
-      ]
+      subItems: courseItems
     },
     {
       id: 'projects',
@@ -108,12 +127,12 @@ export const DashboardLayout = ({
         }
       }
     });
-  }, [location.pathname]);
+  }, [location.pathname, courseItems]); // Added courseItems dependency to re-expand if needed after load
 
   const NavItemRender: React.FC<{ item: MenuItem }> = ({ item }) => {
     if (item.adminOnly && user.role !== 'admin') return null;
 
-    const hasSubItems = !!item.subItems;
+    const hasSubItems = !!item.subItems && item.subItems.length > 0; // Check length to avoid empty dropdown
     const isExpanded = expandedMenu === item.id;
     const isActive = item.path === location.pathname || (hasSubItems && item.subItems?.some(sub => sub.path === location.pathname));
 

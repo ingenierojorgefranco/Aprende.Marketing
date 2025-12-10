@@ -1,5 +1,6 @@
 
 
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS } from "./mockData";
 
@@ -498,6 +499,13 @@ export const api = {
 
   // --- LMS / COURSES ---
   
+  getCoursesList: async (): Promise<{id: string, title: string, slug: string}[]> => {
+      if (isMockMode) {
+          return Promise.resolve(localCourses.map(c => ({ id: c.id, title: c.title, slug: c.slug })));
+      }
+      return await fetchWithFallback('/courses', { headers: getAuthHeaders() });
+  },
+
   getCourseBySlug: async (slug: string): Promise<any> => {
       if (isMockMode) {
           const course = localCourses.find(c => c.slug === slug);

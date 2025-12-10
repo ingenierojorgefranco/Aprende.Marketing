@@ -233,6 +233,17 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
 //  COURSES (LMS) ROUTES (PUBLIC/STUDENT)
 // ======================================================
 
+// NEW: List Available Courses (Menu)
+app.get('/api/courses', authMiddleware, async (req, res) => {
+    try {
+        const [courses] = await pool.query('SELECT id, title, slug FROM courses ORDER BY created_at ASC');
+        res.json(courses);
+    } catch (e) {
+        console.error("[Courses] Error fetching list:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // GET Course Full Structure by Slug (Lazy Load Optimized)
 app.get('/api/courses/:slug', authMiddleware, async (req, res) => {
     const { slug } = req.params;
