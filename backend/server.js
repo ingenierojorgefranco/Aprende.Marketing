@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -650,6 +651,7 @@ app.get('/api/admin/comments', authMiddleware, adminMiddleware, async (req, res)
         const [comments] = await pool.query(`
             SELECT 
                 c.id, c.content as text, c.created_at as date, c.likes, c.is_approved as isApproved,
+                c.parent_id as parentId,
                 u.name as user, u.id as userId,
                 l.title as lessonTitle, l.id as lessonId,
                 co.title as courseTitle, co.slug as courseSlug
@@ -664,7 +666,8 @@ app.get('/api/admin/comments', authMiddleware, adminMiddleware, async (req, res)
         // Map fields
         const formatted = comments.map(c => ({
             ...c,
-            isApproved: !!c.isApproved
+            isApproved: !!c.isApproved,
+            parentId: c.parentId ? c.parentId.toString() : null // Ensure string if coming as number/null
         }));
 
         res.json(formatted);

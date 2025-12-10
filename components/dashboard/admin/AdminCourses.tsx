@@ -2,56 +2,117 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Course, CourseModule, CourseLesson } from '../../../types';
 import { api } from '../../../services/api';
-import { Video, Plus, Edit, Trash2, Save, ArrowLeft, ChevronDown, ChevronUp, Loader2, GripVertical, CheckCircle, Image as ImageIcon, Bold, Italic, List } from 'lucide-react';
+import { Video, Plus, Edit, Trash2, Save, ArrowLeft, ChevronDown, ChevronUp, Loader2, GripVertical, Image as ImageIcon, Bold, Italic, List, Code, Type, AlignLeft, AlignCenter, AlignRight, Underline, Palette } from 'lucide-react';
 
-// --- RICH TEXT AREA COMPONENT ---
-interface RichTextAreaProps {
+// --- VISUAL EDITOR COMPONENT (WYSIWYG) ---
+interface VisualEditorProps {
     value: string;
     onChange: (val: string) => void;
     className?: string;
     placeholder?: string;
 }
 
-const RichTextArea = ({ value, onChange, className, placeholder }: RichTextAreaProps) => {
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+const VisualEditor = ({ value, onChange, className, placeholder }: VisualEditorProps) => {
+    const [isSourceMode, setIsSourceMode] = useState(false);
+    const contentRef = useRef<HTMLDivElement>(null);
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-    const insertTag = (tagOpen: string, tagClose: string) => {
-        const textarea = textareaRef.current;
-        if (!textarea) return;
+    // Initial Sync
+    useEffect(() => {
+        if (contentRef.current && contentRef.current.innerHTML !== value && !isSourceMode) {
+            contentRef.current.innerHTML = value;
+        }
+    }, [value, isSourceMode]);
 
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const text = textarea.value;
-        const before = text.substring(0, start);
-        const selected = text.substring(start, end);
-        const after = text.substring(end);
-
-        const newValue = `${before}${tagOpen}${selected}${tagClose}${after}`;
-        onChange(newValue);
-
-        setTimeout(() => {
-            if (textareaRef.current) {
-                textareaRef.current.focus();
-                textareaRef.current.setSelectionRange(start + tagOpen.length, end + tagOpen.length);
-            }
-        }, 0);
+    const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+        onChange(e.currentTarget.innerHTML);
     };
 
+    const handleSourceChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        onChange(e.target.value);
+    };
+
+    const execCmd = (command: string, value: string | undefined = undefined) => {
+        document.execCommand(command, false, value);
+        if (contentRef.current) {
+            onChange(contentRef.current.innerHTML);
+            contentRef.current.focus();
+        }
+    };
+
+    const ToolbarButton = ({ icon: Icon, cmd, arg, title, active }: any) => (
+        <button 
+            type="button"
+            onClick={() => execCmd(cmd, arg)} 
+            className={`p-1.5 rounded hover:bg-gray-800 text-gray-400 hover:text-white transition ${active ? 'bg-gray-800 text-white' : ''}`} 
+            title={title}
+            disabled={isSourceMode}
+        >
+            <Icon className="w-3.5 h-3.5" />
+        </button>
+    );
+
     return (
-        <div className="space-y-1">
-            <div className="flex gap-1 bg-gray-900 border border-gray-700 rounded-t-lg p-1">
-                <button type="button" onClick={() => insertTag('<b>', '</b>')} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white" title="Negrita"><Bold className="w-3 h-3"/></button>
-                <button type="button" onClick={() => insertTag('<i>', '</i>')} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white" title="Cursiva"><Italic className="w-3 h-3"/></button>
-                <button type="button" onClick={() => insertTag('<ul>\n<li>', '</li>\n</ul>')} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white" title="Lista"><List className="w-3 h-3"/></button>
-                <button type="button" onClick={() => insertTag('<br/>', '')} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white text-xs font-mono">BR</button>
+        <div className={`border border-gray-700 rounded-lg overflow-hidden bg-black ${className}`}>
+            {/* Toolbar */}
+            <div className={`flex flex-wrap items-center gap-1 bg-gray-900 p-1.5 border-b border-gray-700 ${isSourceMode ? 'opacity-50 pointer-events-none' : ''}`}>
+                <div className="flex gap-0.5 border-r border-gray-700 pr-2 mr-1">
+                    <button type="button" onClick={() => execCmd('formatBlock', 'P')} className="p-1.5 rounded hover:bg-gray-800 text-gray-400 text-xs font-bold w-7" title="Párrafo">P</button>
+                    <button type="button" onClick={() => execCmd('formatBlock', 'H3')} className="p-1.5 rounded hover:bg-gray-800 text-gray-400 text-xs font-bold w-7" title="Título H3">H3</button>
+                    <button type="button" onClick={() => execCmd('formatBlock', 'H4')} className="p-1.5 rounded hover:bg-gray-800 text-gray-400 text-xs font-bold w-7" title="Título H4">H4</button>
+                </div>
+                <ToolbarButton icon={Bold} cmd="bold" title="Negrita" />
+                <ToolbarButton icon={Italic} cmd="italic" title="Cursiva" />
+                <ToolbarButton icon={Underline} cmd="underline" title="Subrayado" />
+                <div className="w-px h-4 bg-gray-700 mx-1"></div>
+                <ToolbarButton icon={AlignLeft} cmd="justifyLeft" title="Izquierda" />
+                <ToolbarButton icon={AlignCenter} cmd="justifyCenter" title="Centro" />
+                <ToolbarButton icon={AlignRight} cmd="justifyRight" title="Derecha" />
+                <div className="w-px h-4 bg-gray-700 mx-1"></div>
+                <ToolbarButton icon={List} cmd="insertUnorderedList" title="Lista" />
+                <div className="w-px h-4 bg-gray-700 mx-1"></div>
+                
+                {/* Colors - Native Color Input Hack */}
+                <div className="relative group p-1.5 hover:bg-gray-800 rounded cursor-pointer">
+                    <Type className="w-3.5 h-3.5 text-gray-400 group-hover:text-white" />
+                    <input type="color" className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onChange={(e) => execCmd('foreColor', e.target.value)} title="Color Texto" />
+                </div>
+                <div className="relative group p-1.5 hover:bg-gray-800 rounded cursor-pointer">
+                    <Palette className="w-3.5 h-3.5 text-gray-400 group-hover:text-white" />
+                    <input type="color" className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onChange={(e) => execCmd('hiliteColor', e.target.value)} title="Resaltado" />
+                </div>
+
+                <div className="ml-auto">
+                    <button 
+                        type="button" 
+                        onClick={() => setIsSourceMode(!isSourceMode)} 
+                        className={`p-1.5 rounded flex items-center gap-1 text-[10px] font-bold uppercase ${isSourceMode ? 'bg-blue-900/50 text-blue-400 border border-blue-800 pointer-events-auto opacity-100' : 'text-gray-500 hover:text-white pointer-events-auto opacity-100 hover:bg-gray-800'}`}
+                    >
+                        <Code className="w-3 h-3" /> {isSourceMode ? 'Visual' : 'HTML'}
+                    </button>
+                </div>
             </div>
-            <textarea 
-                ref={textareaRef}
-                className={`w-full bg-black border border-gray-700 border-t-0 rounded-b-lg px-3 py-2 text-white text-xs focus:border-primary outline-none transition resize-none min-h-[100px] font-mono ${className}`} 
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                placeholder={placeholder}
-            />
+
+            {/* Editor Area */}
+            <div className="relative min-h-[150px] bg-black">
+                {isSourceMode ? (
+                    <textarea 
+                        ref={textAreaRef}
+                        className="w-full h-full min-h-[150px] p-3 bg-[#0d1117] text-gray-300 font-mono text-xs outline-none resize-y"
+                        value={value}
+                        onChange={handleSourceChange}
+                    />
+                ) : (
+                    <div 
+                        ref={contentRef}
+                        className="prose prose-invert prose-sm max-w-none p-3 outline-none min-h-[150px] text-gray-300"
+                        contentEditable
+                        onInput={handleInput}
+                        suppressContentEditableWarning={true}
+                        data-placeholder={placeholder}
+                    />
+                )}
+            </div>
         </div>
     );
 };
@@ -406,13 +467,13 @@ export const AdminCourses: React.FC = () => {
                                                                 placeholder="URL del Video (YouTube, Vimeo, MP4)"
                                                             />
                                                             
-                                                            {/* Rich Text Editor for Description */}
+                                                            {/* Visual Editor for Description */}
                                                             <div>
-                                                                <label className="text-[10px] text-gray-500 uppercase font-bold">Contenido de la Lección (HTML)</label>
-                                                                <RichTextArea
+                                                                <label className="text-[10px] text-gray-500 uppercase font-bold">Contenido de la Lección (Visual)</label>
+                                                                <VisualEditor
                                                                     value={lesson.description || ''}
                                                                     onChange={(val) => updateLesson(module.id, lesson.id, 'description', val)}
-                                                                    placeholder="Escribe la descripción de la lección aquí..."
+                                                                    placeholder="Escribe la descripción de la lección aquí... Usa herramientas de formato arriba."
                                                                 />
                                                             </div>
 
