@@ -1,4 +1,5 @@
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits } from "../types";
+
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS } from "./mockData";
 
 // --- HELPER PARA OBTENER BASE URL ---
@@ -27,6 +28,9 @@ let localPages: LandingPage[] = [...MOCK_PAGES];
 let localArticles: Article[] = [...MOCK_ARTICLES];
 let localProjects: Project[] = [...MOCK_PROJECTS];
 let localLeads: Lead[] = [...MOCK_LEADS];
+// Mock courses for dev
+let localCourses: Course[] = [];
+let localComments: Comment[] = [];
 
 // --- FUNCIÓN FETCH CON TIMEOUT ---
 const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
@@ -491,11 +495,11 @@ export const api = {
       return await fetchWithFallback(`/admin/users/${userId}/resources?type=${type}`, { headers: getAuthHeaders() });
   },
 
-  // --- NUEVOS MÉTODOS PARA CURSOS ---
+  // --- LMS / COURSES ---
   
   getCourseBySlug: async (slug: string): Promise<any> => {
       if (isMockMode) {
-          // Fallback simple para modo mock (aunque no tendrá todos los datos)
+          // Fallback simple para modo mock
           return Promise.resolve({
               id: 'mock-course',
               title: 'Curso Mock (Modo Offline)',
@@ -503,6 +507,67 @@ export const api = {
           });
       }
       return await fetchWithFallback(`/courses/${slug}`, { headers: getAuthHeaders() });
+  },
+
+  // --- ADMIN COURSE MANAGEMENT ---
+  
+  getAdminCourses: async (): Promise<Course[]> => {
+      if (isMockMode) return Promise.resolve(localCourses);
+      return await fetchWithFallback('/admin/courses', { headers: getAuthHeaders() });
+  },
+
+  saveCourse: async (course: Course): Promise<Course> => {
+      if (isMockMode) {
+          if (course.id) {
+              localCourses = localCourses.map(c => c.id === course.id ? course : c);
+              return Promise.resolve(course);
+          } else {
+              const newCourse = { ...course, id: `new-${Date.now()}` };
+              localCourses.push(newCourse);
+              return Promise.resolve(newCourse);
+          }
+      }
+      
+      const method = course.id ? 'PUT' : 'POST';
+      const endpoint = course.id ? `/admin/courses/${course.id}` : '/admin/courses';
+      
+      const res = await fetchWithFallback(endpoint, {
+          method,
+          headers: getAuthHeaders(),
+          body: JSON.stringify(course)
+      });
+      return res;
+  },
+
+  deleteCourse: async (id: string): Promise<void> => {
+      if (isMockMode) {
+          localCourses = localCourses.filter(c => c.id !== id);
+          return Promise.resolve();
+      }
+      await fetchWithFallback(`/admin/courses/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+  },
+
+  // --- ADMIN COMMENTS MANAGEMENT ---
+
+  getAdminComments: async (): Promise<Comment[]> => {
+      if (isMockMode) return Promise.resolve(localComments);
+      return await fetchWithFallback('/admin/comments', { headers: getAuthHeaders() });
+  },
+
+  moderateComment: async (id: string, action: 'approve' | 'delete'): Promise<void> => {
+      if (isMockMode) {
+          if (action === 'delete') {
+              localComments = localComments.filter(c => c.id !== id);
+          } else {
+              localComments = localComments.map(c => c.id === id ? { ...c, isApproved: true } : c);
+          }
+          return Promise.resolve();
+      }
+      await fetchWithFallback(`/admin/comments/${id}`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ action })
+      });
   },
 
   getComments: async (lessonId: string): Promise<any[]> => {

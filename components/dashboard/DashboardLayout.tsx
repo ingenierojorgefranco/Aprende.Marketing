@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { User } from '../../types';
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 
 interface DashboardLayoutProps {
@@ -40,8 +40,12 @@ export const DashboardLayout = ({
       id: 'admin',
       label: 'Administración',
       icon: Shield,
-      path: '/dashboard/admin',
-      adminOnly: true
+      adminOnly: true,
+      subItems: [
+          { label: 'Usuarios', path: '/dashboard/admin', icon: Users },
+          { label: 'Gestionar Cursos', path: '/dashboard/admin/courses', icon: Video },
+          { label: 'Gestionar Comentarios', path: '/dashboard/admin/comments', icon: MessageSquare }
+      ]
     },
     {
       id: 'training',
@@ -169,7 +173,7 @@ export const DashboardLayout = ({
   };
 
   return (
-    <div className="min-h-screen bg-black text-gray-200 flex font-sans">
+    <div className="h-screen overflow-hidden bg-black text-gray-200 flex font-sans">
       <aside className="hidden md:flex flex-col w-72 bg-gray-900 border-r border-gray-800">
         <div className="p-6">
           <h2 className="text-xl font-bold text-white tracking-tight">Aprende.<span className="text-primary">Marketing</span></h2>

@@ -233,3 +233,47 @@ export interface Project {
   
   createdAt: Date;
 }
+
+// --- COURSE SYSTEM TYPES (LMS) ---
+
+export interface CourseLesson {
+  id: string;
+  title: string;
+  duration: string;
+  video_url: string;
+  description: string;
+  learning_points: string[];
+  is_published?: boolean;
+  order_index: number;
+}
+
+export interface CourseModule {
+  id: string;
+  title: string;
+  order_index: number;
+  lessons: CourseLesson[];
+}
+
+export interface Course {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  slug: string;
+  thumbnail: string;
+  modules: CourseModule[];
+  createdAt: Date;
+}
+
+export interface Comment {
+  id: string;
+  lessonId: string;
+  lessonTitle?: string;
+  courseTitle?: string;
+  user: string;
+  userId: string;
+  date: string;
+  text: string;
+  isApproved: boolean;
+  replies?: Comment[];
+}
