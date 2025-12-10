@@ -68,6 +68,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         id: user.id.toString(),
         name: user.name,
         email: user.email,
+        role: user.role as any, // Agregamos el rol aquí
       };
 
       onLogin(mappedUser);

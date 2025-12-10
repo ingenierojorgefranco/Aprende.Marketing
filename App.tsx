@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Routes,
@@ -18,6 +19,9 @@ import { DashboardHome } from "./components/dashboard/DashboardHome";
 
 // Dashboard Admin
 import { AdminPanel } from "./components/dashboard/admin/AdminPanel";
+
+// Dashboard Training
+import { TrainingViewer } from "./components/dashboard/training/TrainingViewer";
 
 // Dashboard Editor
 import { Editor } from "./components/dashboard/editor/Editor";
@@ -284,6 +288,9 @@ const App: React.FC = () => {
                   <AdminPanel />
               </AdminRoute>
           } />
+
+          {/* TRAINING ROUTES */}
+          <Route path="training/:moduleId" element={<TrainingViewer />} />
 
           {/* PROJECT ROUTES */}
           <Route path="projects" element={<ProjectsList />} />

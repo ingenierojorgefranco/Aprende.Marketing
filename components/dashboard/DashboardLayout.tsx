@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { User } from '../../types';
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 
 interface DashboardLayoutProps {
@@ -42,6 +42,15 @@ export const DashboardLayout = ({
       icon: Shield,
       path: '/dashboard/admin',
       adminOnly: true
+    },
+    {
+      id: 'training',
+      label: 'Entrenamiento',
+      icon: GraduationCap,
+      subItems: [
+        { label: 'Productos Digitales', path: '/dashboard/training/digital-products', icon: PlayCircle },
+        { label: 'Inteligencia Artificial', path: '/dashboard/training/ai', icon: Bot }
+      ]
     },
     {
       id: 'projects',
@@ -163,7 +172,7 @@ export const DashboardLayout = ({
     <div className="min-h-screen bg-black text-gray-200 flex font-sans">
       <aside className="hidden md:flex flex-col w-72 bg-gray-900 border-r border-gray-800">
         <div className="p-6">
-          <h2 className="text-xl font-bold text-white tracking-tight">PlataformaDe<span className="text-primary">Venta</span></h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">Aprende.<span className="text-primary">Marketing</span></h2>
           <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">Panel de Control</p>
         </div>
         
@@ -196,7 +205,7 @@ export const DashboardLayout = ({
       </aside>
 
       <div className="md:hidden fixed top-0 w-full bg-gray-900 border-b border-gray-800 z-20 flex items-center justify-between p-4">
-        <span className="font-bold text-lg text-white">PlataformaDeVenta</span>
+        <span className="font-bold text-lg text-white">Aprende.Marketing</span>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white">
           {mobileMenuOpen ? <X /> : <Menu />}
         </button>
