@@ -3,7 +3,7 @@ import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { User, Target, Zap, CheckCircle, Plus, Minus, ScanFace, Palette, Feather, Star } from 'lucide-react';
 import { Navbar, Footer, SmartCTA, FeatureCard } from '../ui/LiveComponents';
-import { renderRichText, renderStyledHeadline } from '../utils';
+import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -128,6 +128,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className="text-center mb-12">
                  <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Transformaron su pasión en Éxito"}</h2>
+                 <p className={`text-lg max-w-2xl mx-auto ${ds.testimonials.subtitleColor}`}>{content.testimonialSubtitle}</p>
             </div>
             <div className={`grid gap-6 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.testimonials || []).map((t, i) => (
@@ -217,7 +218,10 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                 {/* 4. What You Will Learn Card (Centered) */}
                 <div id="what-you-will-learn-card" className={`w-full max-w-3xl border rounded-xl p-8 text-left shadow-lg ${ds.features.cardBg} ${ds.features.cardBorder}`}>
                     <h4 className={`font-bold mb-6 flex items-center justify-center gap-2 text-xl ${ds.features.titleColor}`}>
-                        <Zap className={`w-5 h-5 ${ds.decorations.starColor}`} /> Lo que aprenderás en esta clase:
+                        <div className={`w-6 h-6 ${ds.decorations.starColor}`}>
+                            {getIcon(content.whatYouWillLearn.icon, <Zap className="w-full h-full" />)}
+                        </div>
+                        {content.whatYouWillLearn.title}
                     </h4>
                     <ul className={`grid gap-4 ${isMobilePreview ? 'grid-cols-1' : 'grid-cols-2'}`}>
                         {content.whatYouWillLearn.items.map((item, i) => (

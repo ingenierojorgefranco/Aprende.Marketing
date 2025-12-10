@@ -60,7 +60,10 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
       <section className={`py-24 px-6 max-w-4xl mx-auto`}>
           <div className={`p-8 md:p-12 rounded-3xl border ${ds.features.cardBorder} ${ds.intro.sectionBg} shadow-sm`}>
                 <div className="text-center mb-10">
-                    <h3 className={`text-2xl md:text-3xl font-bold ${ds.features.titleColor}`}>
+                    <h3 className={`text-2xl md:text-3xl font-bold flex items-center justify-center gap-3 ${ds.features.titleColor}`}>
+                        <div className="w-8 h-8 shrink-0">
+                            {getIcon(content.whatYouWillLearn.icon, <BookOpen className="w-full h-full" />)}
+                        </div>
                         {content.whatYouWillLearn.title || "Lo que aprenderás"}
                     </h3>
                 </div>
@@ -134,7 +137,8 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   const TestimonialsSection = () => (
     <section className={`py-24 ${ds.testimonials.sectionBg}`}>
         <div className="px-6 max-w-6xl mx-auto">
-            <h2 className={`text-3xl font-bold mb-16 text-center ${ds.testimonials.titleColor}`}>{content.testimonialTitle}</h2>
+            <h2 className={`text-3xl font-bold mb-4 text-center ${ds.testimonials.titleColor}`}>{content.testimonialTitle}</h2>
+            <p className={`text-lg text-center max-w-2xl mx-auto mb-12 ${ds.testimonials.subtitleColor}`}>{content.testimonialSubtitle}</p>
             <div className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.testimonials || []).map((t, i) => (
                     <div key={i} className={`p-8 rounded-2xl shadow-sm border ${ds.testimonials.cardBg} ${ds.testimonials.cardBorder}`}>

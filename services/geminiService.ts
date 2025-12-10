@@ -302,6 +302,18 @@ export const generateLandingPageContent = async (
         
         if (!content.intro.imageCardText) content.intro.imageCardText = "Método Exclusivo";
         if (!content.hero.socialProofCount) content.hero.socialProofCount = "+1000 Estudiantes";
+
+        // --- NEW DEFAULTS FOR HERO & TESTIMONIALS (User Request) ---
+        if (!content.hero.videoTitle) content.hero.videoTitle = "Clase Exclusiva";
+        if (!content.hero.videoDuration) content.hero.videoDuration = "45 Minutos";
+        if (!content.hero.spotsLeft) content.hero.spotsLeft = "¡Cupos Limitados!";
+        if (!content.testimonialSubtitle) content.testimonialSubtitle = "Resultados reales de alumnos";
+        
+        if (content.testimonials) {
+            content.testimonials.forEach(t => {
+                if (!t.location) t.location = "Ciudad, País";
+            });
+        }
         
         content.palette = palette;
         content.structure = structure;

@@ -527,13 +527,13 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                             {/* 5. Video Title */}
                             <div>
                                 <Label>5. Título dentro de la imagen</Label>
-                                <Input value={content.hero.videoTitle || ''} onChange={(e) => updateNestedField('hero', 'videoTitle', e.target.value)} placeholder="Ej: Clase Gratuita" />
+                                <Input value={content.hero.videoTitle || ''} onChange={(e) => updateNestedField('hero', 'videoTitle', e.target.value)} placeholder="Ej: Masterclass" />
                             </div>
 
                             {/* 6. Duration */}
                             <div>
                                 <Label>6. Duración (Texto)</Label>
-                                <Input value={content.hero.videoDuration || ''} onChange={(e) => updateNestedField('hero', 'videoDuration', e.target.value)} placeholder="Ej: Duración: 45 Minutos" />
+                                <Input value={content.hero.videoDuration || ''} onChange={(e) => updateNestedField('hero', 'videoDuration', e.target.value)} placeholder="Ej: 1h 30m" />
                             </div>
 
                             {/* 7. CTA Text */}
@@ -569,7 +569,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                             {/* 9. Spots Left */}
                             <div className="pt-4 border-t border-gray-800">
                                 <Label>9. Badge Cupos Restantes</Label>
-                                <Input value={content.hero.spotsLeft || ''} onChange={(e) => updateNestedField('hero', 'spotsLeft', e.target.value)} placeholder="Ej: ¡Quedan 7 cupos!" />
+                                <Input value={content.hero.spotsLeft || ''} onChange={(e) => updateNestedField('hero', 'spotsLeft', e.target.value)} placeholder="Ej: Solo 5 lugares" />
                             </div>
 
                             {/* 10. Social Proof Count */}
@@ -583,14 +583,14 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                         <SectionHeader id="testimonials" title="Testimonios" icon={MessageCircle} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="testimonials" openSection={openSection}>
                              <div><Label>Título de Sección</Label><Input value={content.testimonialTitle || ''} onChange={(e) => setContent({...content, testimonialTitle: e.target.value})} placeholder="Ej: Lo que dicen nuestros alumnos" /></div>
-                             <div className="mt-3"><Label>Subtítulo de Sección</Label><Input value={content.testimonialSubtitle || ''} onChange={(e) => setContent({...content, testimonialSubtitle: e.target.value})} placeholder="Ej: Ellos ya tomaron acción" /></div>
+                             <div className="mt-3"><Label>Subtítulo de Sección</Label><Input value={content.testimonialSubtitle || ''} onChange={(e) => setContent({...content, testimonialSubtitle: e.target.value})} placeholder="Ej: Historias de éxito" /></div>
                              <div className="space-y-4 mt-4">
                                 {(content.testimonials || []).map((t, i) => (
                                     <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
                                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"><button onClick={() => removeItem('testimonials', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
                                         <div className="grid grid-cols-2 gap-2 mb-2">
                                             <div><Label>Nombre</Label><Input value={t.name} onChange={(e) => updateArrayItem('testimonials', i, 'name', e.target.value)} /></div>
-                                            <div><Label>Ciudad/País</Label><Input value={t.location || ''} onChange={(e) => updateArrayItem('testimonials', i, 'location', e.target.value)} placeholder="Bogotá, CO" /></div>
+                                            <div><Label>Ciudad/País</Label><Input value={t.location || ''} onChange={(e) => updateArrayItem('testimonials', i, 'location', e.target.value)} placeholder="Ej: Madrid, ES" /></div>
                                         </div>
                                         
                                         {/* New Image Field */}

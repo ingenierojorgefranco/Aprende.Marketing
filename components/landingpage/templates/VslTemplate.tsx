@@ -148,7 +148,8 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
   const TestimonialsSection = () => (
     <section id="testimonials-section" className={`py-16 ${ds.testimonials.sectionBg} border-y ${ds.testimonials.sectionBorder}`}>
         <div className="max-w-6xl mx-auto px-6">
-            <h2 className={`text-2xl md:text-4xl font-bold mb-12 text-center ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Resultados Reales"}</h2>
+            <h2 className={`text-2xl md:text-4xl font-bold mb-4 text-center ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Resultados Reales"}</h2>
+            <p className={`text-lg text-center max-w-3xl mx-auto mb-12 ${ds.testimonials.subtitleColor}`}>{content.testimonialSubtitle}</p>
             <div id="testimonials-grid" className={`grid gap-6 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.testimonials || []).map((t, i) => (
                     <div key={i} className={`p-8 rounded-2xl flex flex-col gap-4 shadow-lg transition hover:-translate-y-1 backdrop-blur-sm border ${ds.testimonials.cardBg} ${ds.testimonials.cardBorder}`}>
