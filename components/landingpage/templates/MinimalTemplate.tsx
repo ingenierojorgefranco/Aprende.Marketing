@@ -46,12 +46,34 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   const BenefitsSection = () => (
     <section className={`py-24 ${ds.features.sectionBg}`}>
         <div className="px-6 max-w-6xl mx-auto">
-            <h2 className={`text-3xl font-bold mb-16 text-center ${ds.features.titleColor}`}>{content.benefits.title}</h2>
+            <h2 className={`text-3xl font-bold mb-4 text-center ${ds.features.titleColor}`}>{content.benefits.title}</h2>
+            <p className={`text-lg text-center max-w-2xl mx-auto mb-16 ${ds.features.descColor}`}>{content.benefits.subtitle}</p>
             <div className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.benefits.items || []).map((item, idx) => <FeatureCard key={idx} item={item} idx={idx} ds={ds} content={content} />)}
             </div>
         </div>
     </section>
+  );
+
+  // NEW SECTION: What You Will Learn
+  const StudyPlanSection = () => (
+      <section className={`py-24 px-6 max-w-4xl mx-auto`}>
+          <div className={`p-8 md:p-12 rounded-3xl border ${ds.features.cardBorder} ${ds.intro.sectionBg} shadow-sm`}>
+                <div className="text-center mb-10">
+                    <h3 className={`text-2xl md:text-3xl font-bold ${ds.features.titleColor}`}>
+                        {content.whatYouWillLearn.title || "Lo que aprenderás"}
+                    </h3>
+                </div>
+                <ul className="grid md:grid-cols-2 gap-x-12 gap-y-6">
+                    {content.whatYouWillLearn.items.map((item, i) => (
+                        <li key={i} className={`flex items-start gap-3 ${ds.features.descColor}`}>
+                            <CheckCircle className={`w-5 h-5 shrink-0 mt-0.5 ${ds.decorations.checkColor}`} />
+                            <span className="text-base">{item}</span>
+                        </li>
+                    ))}
+                </ul>
+          </div>
+      </section>
   );
 
   const StepsSection = () => (
@@ -90,6 +112,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                 </div>
             </div>
             <div className="text-center md:text-left flex-1">
+                <h4 className={`font-bold uppercase tracking-widest text-xs mb-2 opacity-70 ${ds.instructor.textColor}`}>{content.instructor.title || "Conoce a tu Mentor"}</h4>
                 <h3 className={`text-3xl font-bold mb-4 ${ds.instructor.titleColor}`}>{content.instructor.name}</h3>
                 {renderRichText(content.instructor.bio, `text-lg mb-8 leading-relaxed ${ds.instructor.bioColor}`)}
                 
@@ -119,9 +142,14 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                             {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
                         </div>
                         <p className={`italic mb-6 text-lg leading-relaxed ${ds.testimonials.textColor}`}>"{t.text}"</p>
-                        <div>
-                            <p className={`font-bold ${ds.testimonials.nameColor}`}>{t.name}</p>
-                            {t.location && <p className={`text-sm ${ds.testimonials.roleColor}`}>{t.location}</p>}
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                                <img src={t.image || `https://randomuser.me/api/portraits/thumb/women/${i+30}.jpg`} alt="User" className="w-full h-full object-cover" />
+                            </div>
+                            <div>
+                                <p className={`font-bold ${ds.testimonials.nameColor}`}>{t.name}</p>
+                                {t.location && <p className={`text-sm ${ds.testimonials.roleColor}`}>{t.location}</p>}
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -200,6 +228,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
 
              <IntroSection />
              <BenefitsSection />
+             <StudyPlanSection /> {/* Added new section */}
              <StepsSection />
              <InstructorSection />
              <TestimonialsSection />

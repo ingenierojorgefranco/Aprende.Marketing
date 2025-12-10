@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType } from '../types';
 import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle } from 'lucide-react';
@@ -574,7 +575,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                             {/* 10. Social Proof Count */}
                             <div>
                                 <Label>10. Contador Alumnos (Prueba Social)</Label>
-                                <Input value={content.hero.socialProofCount || ''} onChange={(e) => updateNestedField('hero', 'socialProofCount', e.target.value)} placeholder="Ej: 2,458" />
+                                <Input value={content.hero.socialProofCount || ''} onChange={(e) => updateNestedField('hero', 'socialProofCount', e.target.value)} placeholder="Ej: +500 Estudiantes" />
                             </div>
                         </SectionContent>
 
@@ -591,6 +592,18 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                             <div><Label>Nombre</Label><Input value={t.name} onChange={(e) => updateArrayItem('testimonials', i, 'name', e.target.value)} /></div>
                                             <div><Label>Ciudad/País</Label><Input value={t.location || ''} onChange={(e) => updateArrayItem('testimonials', i, 'location', e.target.value)} placeholder="Bogotá, CO" /></div>
                                         </div>
+                                        
+                                        {/* New Image Field */}
+                                        <div className="mb-2">
+                                            <Label>Foto URL (Opcional)</Label>
+                                            <div className="flex gap-2 items-center">
+                                                <Input value={t.image || ''} onChange={(e) => updateArrayItem('testimonials', i, 'image', e.target.value)} placeholder="https://..." />
+                                                {t.image && (
+                                                    <img src={t.image} alt="Preview" className="w-8 h-8 rounded-full object-cover border border-gray-700 bg-gray-800" />
+                                                )}
+                                            </div>
+                                        </div>
+
                                         <div className="mb-2">
                                             <Label>Rating</Label>
                                             <div className="flex gap-1">
@@ -613,7 +626,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                         <SectionContent id="intro" openSection={openSection}>
                             <div><Label>Título de Sección</Label><Input value={content.intro.title} onChange={(e) => updateNestedField('intro', 'title', e.target.value)} /></div>
                             <div><Label>Descripción</Label><RichTextArea value={content.intro.description} onChange={(e) => updateNestedField('intro', 'description', e.target.value)} className="h-32" /></div>
-                            <div className="pt-2"><Label>Texto Tarjeta Flotante (Sobre Imagen)</Label><Input value={content.intro.imageCardText || ''} onChange={(e) => updateNestedField('intro', 'imageCardText', e.target.value)} placeholder="Ej: La nueva mina de oro..." /></div>
+                            <div className="pt-2"><Label>Texto Tarjeta Flotante (Sobre Imagen)</Label><Input value={content.intro.imageCardText || ''} onChange={(e) => updateNestedField('intro', 'imageCardText', e.target.value)} placeholder="Ej: Método Único" /></div>
                             
                             <div className="pt-4 border-t border-gray-800">
                                 <Label>Puntos Clave (Bullets)</Label>
@@ -634,6 +647,19 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                         <SectionHeader id="benefits" title="Beneficios" icon={Award} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="benefits" openSection={openSection}>
                             <div><Label>Título de Sección</Label><Input value={content.benefits.title} onChange={(e) => setContent({...content, benefits: {...content.benefits, title: e.target.value}})} /></div>
+                            
+                            {/* NEW: Subtitle Input */}
+                            <div className="mt-3">
+                                <Label>Subtítulo de Sección</Label>
+                                <Input 
+                                    value={content.benefits.subtitle || ''} 
+                                    onChange={(e) => setContent({
+                                        ...content, 
+                                        benefits: { ...content.benefits, subtitle: e.target.value }
+                                    })} 
+                                />
+                            </div>
+
                             <div className="space-y-4 mt-4">
                                 {(content.benefits.items || []).map((item, i) => (
                                     <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
@@ -659,14 +685,24 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                         {/* 6. Instructor */}
                         <SectionHeader id="instructor" title="Instructor / Experto" icon={User} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="instructor" openSection={openSection}>
+                            {/* ADDED TITLE INPUT */}
+                            <div className="mb-2">
+                              <Label>Título de Sección</Label>
+                              <Input 
+                                value={content.instructor.title || ''} 
+                                onChange={(e) => updateNestedField('instructor', 'title', e.target.value)} 
+                                placeholder="Ej: Conoce a tu Mentor" 
+                              />
+                            </div>
+
                             <div><Label>Nombre Completo</Label><Input value={content.instructor.name} onChange={(e) => updateNestedField('instructor', 'name', e.target.value)} /></div>
                             <div><Label>Biografía Corta</Label><RichTextArea value={content.instructor.bio} onChange={(e) => updateNestedField('instructor', 'bio', e.target.value)} className="h-24" /></div>
                             
                             <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-800">
-                                <div><Label>Badge Superior</Label><Input value={content.instructor.badgeText || ''} onChange={(e) => updateNestedField('instructor', 'badgeText', e.target.value)} placeholder="Top Rated" /></div>
-                                <div><Label>Subtítulo Badge</Label><Input value={content.instructor.badgeSubtext || ''} onChange={(e) => updateNestedField('instructor', 'badgeSubtext', e.target.value)} placeholder="Mentor 2024" /></div>
-                                <div><Label>Stats 1 (Alumnos)</Label><Input value={content.instructor.statsStudents || ''} onChange={(e) => updateNestedField('instructor', 'statsStudents', e.target.value)} placeholder="5k+ Alumnos" /></div>
-                                <div><Label>Stats 2 (Rating)</Label><Input value={content.instructor.statsRating || ''} onChange={(e) => updateNestedField('instructor', 'statsRating', e.target.value)} placeholder="4.9/5 Rating" /></div>
+                                <div><Label>Badge Superior</Label><Input value={content.instructor.badgeText || ''} onChange={(e) => updateNestedField('instructor', 'badgeText', e.target.value)} placeholder="Ej: Master" /></div>
+                                <div><Label>Subtítulo Badge</Label><Input value={content.instructor.badgeSubtext || ''} onChange={(e) => updateNestedField('instructor', 'badgeSubtext', e.target.value)} placeholder="Ej: Certificado" /></div>
+                                <div><Label>Stats 1 (Alumnos)</Label><Input value={content.instructor.statsStudents || ''} onChange={(e) => updateNestedField('instructor', 'statsStudents', e.target.value)} placeholder="Ej: +1000 Alumnos" /></div>
+                                <div><Label>Stats 2 (Rating)</Label><Input value={content.instructor.statsRating || ''} onChange={(e) => updateNestedField('instructor', 'statsRating', e.target.value)} placeholder="Ej: 5.0" /></div>
                             </div>
                         </SectionContent>
 

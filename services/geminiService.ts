@@ -1,5 +1,4 @@
 
-
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../types";
 import { api } from "./api"; // Usamos la configuración centralizada de API
 
@@ -284,6 +283,26 @@ export const generateLandingPageContent = async (
     
     if (response.text) {
         const content = JSON.parse(response.text) as GeneratedPageContent;
+        
+        // --- LOGIC UPDATE: DEFAULT SUBTITLE FOR BENEFITS ---
+        if (!content.benefits.subtitle) {
+            content.benefits.subtitle = "Descubre las herramientas exclusivas que acelerarán tus resultados desde el primer día.";
+        }
+        
+        // --- LOGIC UPDATE: DEFAULT TITLE FOR INSTRUCTOR ---
+        if (!content.instructor.title) {
+            content.instructor.title = "Conoce a tu Mentor";
+        }
+
+        // --- NEW DEFAULTS FOR EDITABLE TEXTS ---
+        if (!content.instructor.badgeText) content.instructor.badgeText = "Instructor Destacado";
+        if (!content.instructor.badgeSubtext) content.instructor.badgeSubtext = "Certificado Oficial";
+        if (!content.instructor.statsStudents) content.instructor.statsStudents = "+500 Alumnos";
+        if (!content.instructor.statsRating) content.instructor.statsRating = "5.0 Estrellas";
+        
+        if (!content.intro.imageCardText) content.intro.imageCardText = "Método Exclusivo";
+        if (!content.hero.socialProofCount) content.hero.socialProofCount = "+1000 Estudiantes";
+        
         content.palette = palette;
         content.structure = structure;
         content.destination = destination;

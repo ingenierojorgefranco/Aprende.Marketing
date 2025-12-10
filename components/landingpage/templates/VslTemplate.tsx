@@ -91,7 +91,8 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
   const BenefitsSection = () => (
     <section id="benefits-section" className={`py-16`}>
         <div className="px-6 md:px-12 max-w-6xl mx-auto">
-            <h2 className={`text-2xl md:text-4xl font-bold mb-12 text-center ${ds.features.titleColor}`}>{content.benefits.title}</h2>
+            <h2 className={`text-2xl md:text-4xl font-bold mb-4 text-center ${ds.features.titleColor}`}>{content.benefits.title}</h2>
+            <p className={`text-lg text-center max-w-3xl mx-auto mb-12 ${ds.features.descColor}`}>{content.benefits.subtitle}</p>
             <div id="benefits-grid" className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.benefits.items || []).map((item, idx) => <FeatureCard key={idx} item={item} idx={idx} ds={ds} content={content} />)}
             </div>
@@ -112,6 +113,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
                      </div>
                 </div>
                 <div className="text-center md:text-left flex-1">
+                    <h4 className={`font-bold uppercase tracking-widest text-xs mb-2 opacity-70 ${ds.instructor.textColor}`}>{content.instructor.title || "Conoce a tu Mentor"}</h4>
                     <h3 className={`text-2xl font-bold mb-2 ${ds.instructor.titleColor}`}>{content.instructor.name}</h3>
                     {renderRichText(content.instructor.bio, `text-base leading-relaxed mb-4 ${ds.instructor.bioColor}`)}
                     <div className="flex flex-wrap justify-center md:justify-start gap-3 text-sm">
@@ -155,8 +157,15 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
                                 {[1,2,3,4,5].map(star => <div key={star} className="w-4 h-4 fill-current">★</div>)}
                             </div>
                             {renderRichText(t.text, `text-base leading-relaxed italic mb-4 ${ds.testimonials.textColor}`)}
-                            <p className={`font-bold leading-tight ${ds.testimonials.nameColor}`}>{t.name}</p>
-                            {t.location && <p className={`text-xs mt-1 ${ds.testimonials.roleColor}`}>{t.location}</p>}
+                            <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-200/20">
+                                <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                                    <img src={t.image || `https://randomuser.me/api/portraits/thumb/women/${i+30}.jpg`} alt="User" className="w-full h-full object-cover" />
+                                </div>
+                                <div>
+                                    <p className={`font-bold leading-tight ${ds.testimonials.nameColor}`}>{t.name}</p>
+                                    {t.location && <p className={`text-xs mt-1 ${ds.testimonials.roleColor}`}>{t.location}</p>}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ))}

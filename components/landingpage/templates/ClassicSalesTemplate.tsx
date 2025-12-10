@@ -113,7 +113,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                      </div>
                 </div>
                 <div className={`text-center flex-1 ${isMobilePreview ? '' : 'md:text-left'}`}>
-                    <h4 id="instructor-subtitle" className={`font-bold uppercase tracking-widest text-sm mb-2 opacity-80 ${ds.instructor.textColor}`}>Conoce a tu Mentora</h4>
+                    <h4 id="instructor-subtitle" className={`font-bold uppercase tracking-widest text-sm mb-2 opacity-80 ${ds.instructor.textColor}`}>{content.instructor.title || "Conoce a tu Mentor"}</h4>
                     <h2 id="instructor-name" className={`text-4xl md:text-6xl font-black mb-6 ${ds.instructor.titleColor}`}>{content.instructor.name}</h2>
                     {renderRichText(content.instructor.bio, `text-lg leading-relaxed mb-8 max-w-2xl font-light ${ds.instructor.bioColor} ${isMobilePreview ? 'mx-auto' : 'mx-auto md:mx-0'}`)}
                     <div className={`flex flex-wrap justify-center gap-4 ${isMobilePreview ? '' : 'md:justify-start'}`}>
@@ -143,7 +143,9 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                 {(content.testimonials || []).map((t, i) => (
                     <div key={i} className={`p-6 rounded-2xl flex flex-col gap-4 transition hover:-translate-y-1 backdrop-blur-sm border ${ds.testimonials.cardBg} ${ds.testimonials.cardBorder} ${ds.testimonials.cardShadow}`}>
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden border border-white/20"><img src={`https://randomuser.me/api/portraits/thumb/women/${i+30}.jpg`} alt="User" className="w-full h-full" /></div>
+                            <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden border border-white/20">
+                                <img src={t.image || `https://randomuser.me/api/portraits/thumb/women/${i+30}.jpg`} alt="User" className="w-full h-full object-cover" />
+                            </div>
                             <div>
                                 <p className={`font-bold leading-tight ${ds.testimonials.nameColor}`}>{t.name}</p>
                                 {t.location && <p className={`text-xs ${ds.testimonials.roleColor}`}>{t.location}</p>}

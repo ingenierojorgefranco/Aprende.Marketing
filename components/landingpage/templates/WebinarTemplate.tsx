@@ -77,7 +77,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                      </div>
                 </div>
                 <div className={`text-center flex-1 ${isMobilePreview ? '' : 'md:text-left'}`}>
-                    <h4 className={`font-bold uppercase tracking-widest text-sm mb-2 opacity-80 ${ds.instructor.textColor}`}>Conoce a tu Mentora</h4>
+                    <h4 className={`font-bold uppercase tracking-widest text-sm mb-2 opacity-80 ${ds.instructor.textColor}`}>{content.instructor.title || "Conoce a tu Mentor"}</h4>
                     <h2 className={`text-4xl md:text-6xl font-black mb-6 ${ds.instructor.titleColor}`}>{content.instructor.name}</h2>
                     {renderRichText(content.instructor.bio, `text-lg leading-relaxed mb-8 max-w-2xl font-light ${ds.instructor.bioColor} ${isMobilePreview ? 'mx-auto' : 'mx-auto md:mx-0'}`)}
                 </div>
@@ -91,6 +91,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className="text-center mb-16">
                 <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${ds.features.titleColor}`}>{content.benefits.title}</h2>
+                <p className={`text-lg max-w-2xl mx-auto ${ds.features.descColor}`}>{content.benefits.subtitle}</p>
             </div>
             <div id="benefits-grid" className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.benefits.items || []).map((item, idx) => <FeatureCard key={idx} item={item} idx={idx} ds={ds} content={content} />)}
@@ -132,7 +133,12 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                 {(content.testimonials || []).map((t, i) => (
                     <div key={i} className={`p-6 rounded-2xl flex flex-col gap-4 shadow-xl transition hover:-translate-y-1 backdrop-blur-sm border ${ds.testimonials.cardBg} ${ds.testimonials.cardBorder}`}>
                         <div>
-                            <p className={`font-bold leading-tight ${ds.testimonials.nameColor}`}>{t.name}</p>
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                                    <img src={t.image || `https://randomuser.me/api/portraits/thumb/women/${i+30}.jpg`} alt="User" className="w-full h-full object-cover" />
+                                </div>
+                                <p className={`font-bold leading-tight ${ds.testimonials.nameColor}`}>{t.name}</p>
+                            </div>
                             {renderRichText(t.text, `text-base leading-relaxed italic ${ds.testimonials.textColor}`)}
                         </div>
                     </div>

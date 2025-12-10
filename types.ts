@@ -81,6 +81,7 @@ export interface GeneratedPageContent {
     location?: string; // New: City/Country
     text: string;
     rating: number;
+    image?: string; // New: Custom photo URL
   }>;
   intro: {
     title: string;
@@ -108,6 +109,7 @@ export interface GeneratedPageContent {
     answer: string;
   }>;
   instructor: {
+    title?: string; // New: "Conoce a tu Mentor"
     name: string;
     bio: string;
     imageUrl?: string;
