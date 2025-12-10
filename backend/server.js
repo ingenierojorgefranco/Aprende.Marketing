@@ -678,6 +678,7 @@ app.get('/api/admin/comments', authMiddleware, adminMiddleware, async (req, res)
         // Map fields
         const formatted = comments.map(c => ({
             ...c,
+            id: c.id.toString(), // Ensure ID is string for strict comparison with parentId
             isApproved: !!c.isApproved,
             parentId: c.parentId ? c.parentId.toString() : null // Ensure string if coming as number/null
         }));
