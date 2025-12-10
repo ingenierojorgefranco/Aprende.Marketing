@@ -27,7 +27,6 @@ const initDb = async () => {
         await connection.query('SET FOREIGN_KEY_CHECKS = 0');
 
         // 1. TABLA USERS (Principal)
-        // Usamos INT por defecto, pero si ya existe no se modificará.
         await connection.query(`CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
@@ -42,29 +41,71 @@ const initDb = async () => {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
 
         // 2. DETECCIÓN DINÁMICA DEL TIPO DE ID DE USUARIO
-        // Esto soluciona el error 3780 si users.id es INT UNSIGNED o BIGINT
         let userIdType = 'INT';
         try {
             const [cols] = await connection.query("SHOW COLUMNS FROM users LIKE 'id'");
             if (cols.length > 0) {
-                const rawType = cols[0].Type.toLowerCase(); // Ej: "int(10) unsigned" o "bigint(20)"
-                
-                // Construcción canónica del tipo para evitar errores de sintaxis o incompatibilidad
+                const rawType = cols[0].Type.toLowerCase();
                 const isBigInt = rawType.includes('bigint');
                 const isUnsigned = rawType.includes('unsigned');
-                
                 userIdType = isBigInt ? 'BIGINT' : 'INT';
-                if (isUnsigned) {
-                    userIdType += ' UNSIGNED';
-                }
-
-                console.log(`[DB Init] Detectado tipo de ID de usuario: ${userIdType} (Raw: ${rawType})`);
+                if (isUnsigned) userIdType += ' UNSIGNED';
             }
         } catch (e) {
-            console.warn("[DB Init] No se pudo detectar tipo de ID, usando por defecto: INT. Error:", e.message);
+            console.warn("[DB Init] Error detectando tipo ID user:", e.message);
         }
 
-        // Definimos las tablas dependientes usando el tipo detectado
+        // --- TABLAS DEL SISTEMA DE CURSOS (LMS) ---
+
+        // 3. Courses
+        await connection.query(`CREATE TABLE IF NOT EXISTS courses (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            subtitle VARCHAR(255),
+            description TEXT,
+            slug VARCHAR(255) UNIQUE NOT NULL,
+            thumbnail VARCHAR(500),
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        // 4. Course Modules
+        await connection.query(`CREATE TABLE IF NOT EXISTS course_modules (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            course_id INT NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            order_index INT DEFAULT 0,
+            FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        // 5. Course Lessons
+        await connection.query(`CREATE TABLE IF NOT EXISTS course_lessons (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            module_id INT NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            duration VARCHAR(50),
+            video_url VARCHAR(500),
+            description TEXT,
+            learning_points JSON,
+            order_index INT DEFAULT 0,
+            is_published BOOLEAN DEFAULT TRUE,
+            FOREIGN KEY (module_id) REFERENCES course_modules(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        // 6. Lesson Comments
+        await connection.query(`CREATE TABLE IF NOT EXISTS lesson_comments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            lesson_id INT NOT NULL,
+            user_id ${userIdType} NOT NULL,
+            parent_id INT NULL,
+            content TEXT NOT NULL,
+            likes INT DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (lesson_id) REFERENCES course_lessons(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (parent_id) REFERENCES lesson_comments(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        // Tablas existentes del sistema (Projects, Pages, etc.)
         const tables = [
             {
                 name: 'projects',
@@ -152,18 +193,11 @@ const initDb = async () => {
             }
         ];
 
-        // Ejecutar creación de tablas
         for (const table of tables) {
-            try {
-                await connection.query(table.query);
-                console.log(`✅ [DB Init] Tabla verificada: ${table.name}`);
-            } catch (err) {
-                console.error(`❌ [DB Init] Falló creación de tabla ${table.name}:`, err.message);
-                throw err; // Re-lanzar para que el catch principal lo registre
-            }
+            await connection.query(table.query);
         }
 
-        // MIGRACIONES DE COLUMNAS (Para tablas existentes)
+        // Migraciones adicionales
         await addColumnSafe(connection, 'articles', "slug VARCHAR(255)");
         await addColumnSafe(connection, 'articles', "featured_image VARCHAR(500)");
         await addColumnSafe(connection, 'articles', "meta_title VARCHAR(255)");
@@ -171,14 +205,74 @@ const initDb = async () => {
         await addColumnSafe(connection, 'articles', "status VARCHAR(50) DEFAULT 'published'");
         await addColumnSafe(connection, 'articles', "published_at DATETIME DEFAULT CURRENT_TIMESTAMP");
         await addColumnSafe(connection, 'articles', "page_id INT NULL");
-        
-        // --- NEW COLUMNS FOR USER MANAGEMENT ---
         await addColumnSafe(connection, 'users', "role VARCHAR(50) DEFAULT 'user'");
         await addColumnSafe(connection, 'users', "plan_limits JSON NULL");
 
+        // --- DATOS SEMILLA (SEED DATA) ---
+        // Insertar cursos por defecto si no existen
+        const [existingCourses] = await connection.query("SELECT id FROM courses LIMIT 1");
+        if (existingCourses.length === 0) {
+            console.log('[DB Init] 🌱 Insertando datos semilla de cursos...');
+            
+            // CURSO 1: PRODUCTOS DIGITALES
+            const [c1] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug) VALUES (?, ?, ?, ?)`, [
+                'Productos Digitales', 
+                'Curso Intensivo', 
+                'Aprende a crear, validar y vender tu primer infoproducto desde cero. Descubre las estrategias que usan los grandes productores para facturar miles de dólares en Hotmart.',
+                'digital-products'
+            ]);
+            const c1Id = c1.insertId;
+
+            // Módulos Curso 1
+            const [m1] = await connection.query(`INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)`, [c1Id, 'Módulo 1: Fundamentos y Mentalidad', 1]);
+            const [m2] = await connection.query(`INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)`, [c1Id, 'Módulo 2: Creación del Producto', 2]);
+            const [m3] = await connection.query(`INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)`, [c1Id, 'Módulo 3: Configuración en Hotmart', 3]);
+
+            // Lecciones Módulo 1
+            const pointsM1 = JSON.stringify(['Mentalidad de éxito', 'Nichos de mercado', 'Validación']);
+            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+                [m1.insertId, 'Bienvenida al Curso', '5:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Introducción al mundo de los infoproductos.', pointsM1, 1]);
+            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+                [m1.insertId, 'Mentalidad de Productor vs Afiliado', '12:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Cómo pensar para ganar.', pointsM1, 2]);
+            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+                [m1.insertId, 'El Mapa del Tesoro: Nichos Rentables', '15:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Encuentra tu océano azul.', pointsM1, 3]);
+
+            // Lecciones Módulo 2
+            const pointsM2 = JSON.stringify(['Estructura de curso', 'Grabación básica', 'Materiales PDF']);
+            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+                [m2.insertId, 'Estructura de un Curso Ganador', '20:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Diseña tu temario.', pointsM2, 1]);
+            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+                [m2.insertId, 'Grabación y Edición Básica', '18:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Herramientas low-cost.', pointsM2, 2]);
+
+            // Lecciones Módulo 3
+            const pointsM3 = JSON.stringify(['Hotmart setup', 'Subida de archivos', 'Checkout']);
+            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+                [m3.insertId, 'Registro y Configuración de Cuenta', '08:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Primeros pasos en la plataforma.', pointsM3, 1]);
+            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+                [m3.insertId, 'Subiendo tu Producto Paso a Paso', '25:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Configuración técnica.', pointsM3, 2]);
+
+
+            // CURSO 2: INTELIGENCIA ARTIFICIAL
+            const [c2] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug) VALUES (?, ?, ?, ?)`, [
+                'Inteligencia Artificial', 
+                'Masterclass', 
+                'Domina las herramientas de IA que están revolucionando el marketing. Aprende a usar ChatGPT y Gemini para automatizar la creación de contenido y soporte.',
+                'ai'
+            ]);
+            const c2Id = c2.insertId;
+            
+            const [aim1] = await connection.query(`INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)`, [c2Id, 'Introducción a la IA Generativa', 1]);
+            const pointsAi = JSON.stringify(['Prompt Engineering', 'Gemini vs GPT', 'Casos de uso']);
+            
+            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+                [aim1.insertId, 'Qué es Gemini y ChatGPT', '10:00', 'https://www.youtube.com/embed/SChXl9k5r6E?rel=0&autoplay=1', 'Fundamentos de LLMs.', pointsAi, 1]);
+            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+                [aim1.insertId, 'Ingeniería de Prompts Básica', '15:00', 'https://www.youtube.com/embed/SChXl9k5r6E?rel=0&autoplay=1', 'Cómo hablar con la máquina.', pointsAi, 2]);
+        }
+
         // Reactivar checks
         await connection.query('SET FOREIGN_KEY_CHECKS = 1');
-        console.log('✨ [DB Init] Base de datos sincronizada correctamente.');
+        console.log('✨ [DB Init] Base de datos sincronizada y semilla insertada.');
 
     } catch (error) {
         console.error('❌ [DB Init] Error durante la inicialización:', error);

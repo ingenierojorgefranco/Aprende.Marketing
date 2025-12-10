@@ -1,14 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { CheckCircle, Clock, Award, PlayCircle, ChevronDown, ChevronUp, Play } from 'lucide-react';
+import { CheckCircle, Clock, Award, PlayCircle, ChevronDown, ChevronUp, Play, FileText, MessageSquare, Send, User, Reply, ThumbsUp, Loader2 } from 'lucide-react';
+import { api } from '../../../services/api';
 
 // Types definition
 type Lesson = {
   id: string;
   title: string;
   duration: string;
-  videoUrl: string;
+  video_url: string;
+  description: string;
+  learning_points: string[];
   isLocked?: boolean;
 };
 
@@ -19,6 +21,7 @@ type Module = {
 };
 
 type CourseData = {
+  id: string;
   title: string;
   subtitle: string;
   description: string;
@@ -26,106 +29,111 @@ type CourseData = {
   modules: Module[];
 };
 
-const MODULES_DATA: Record<string, CourseData> = {
-  'digital-products': {
-    title: 'Productos Digitales',
-    subtitle: 'Curso Intensivo',
-    description: 'Aprende a crear, validar y vender tu primer infoproducto desde cero. Descubre las estrategias que usan los grandes productores para facturar miles de dólares en Hotmart.',
-    learningPoints: [
-      'Identificación de nichos rentables y validación de oferta',
-      'Creación de la oferta irresistible y stack de valor',
-      'Estructura de ventas ganadora para Landing Pages',
-      'Estrategias de lanzamiento paso a paso'
-    ],
-    modules: [
-        {
-            id: 'm1',
-            title: 'Módulo 1: Fundamentos y Mentalidad',
-            lessons: [
-                { id: 'l1', title: 'Bienvenida al Curso', duration: '5:00', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1' },
-                { id: 'l2', title: 'Mentalidad de Productor vs Afiliado', duration: '12:00', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1' },
-                { id: 'l3', title: 'El Mapa del Tesoro: Nichos Rentables', duration: '15:00', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1' }
-            ]
-        },
-        {
-            id: 'm2',
-            title: 'Módulo 2: Creación del Producto',
-            lessons: [
-                { id: 'l4', title: 'Estructura de un Curso Ganador', duration: '20:00', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1' },
-                { id: 'l5', title: 'Grabación y Edición Básica', duration: '18:00', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1' },
-                { id: 'l6', title: 'Creando Materiales de Apoyo (PDFs)', duration: '10:00', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1' }
-            ]
-        },
-        {
-            id: 'm3',
-            title: 'Módulo 3: Configuración en Hotmart',
-            lessons: [
-                { id: 'l7', title: 'Registro y Configuración de Cuenta', duration: '08:00', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1' },
-                { id: 'l8', title: 'Subiendo tu Producto Paso a Paso', duration: '25:00', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1' },
-                { id: 'l9', title: 'Creación de Checkout y Ofertas', duration: '15:00', videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1' }
-            ]
-        }
-    ]
-  },
-  'ai': {
-    title: 'Inteligencia Artificial',
-    subtitle: 'Masterclass',
-    description: 'Domina las herramientas de IA que están revolucionando el marketing. Aprende a usar ChatGPT y Gemini para automatizar la creación de contenido y soporte.',
-    learningPoints: [
-      'Prompt Engineering avanzado para marketing',
-      'Creación de contenido masivo para redes sociales',
-      'Automatización de soporte al cliente con Bots',
-      'Análisis de datos y tendencias con IA'
-    ],
-    modules: [
-        {
-            id: 'aim1',
-            title: 'Introducción a la IA Generativa',
-            lessons: [
-                { id: 'ail1', title: 'Qué es Gemini y ChatGPT', duration: '10:00', videoUrl: 'https://www.youtube.com/embed/SChXl9k5r6E?rel=0&autoplay=1' },
-                { id: 'ail2', title: 'Ingeniería de Prompts Básica', duration: '15:00', videoUrl: 'https://www.youtube.com/embed/SChXl9k5r6E?rel=0&autoplay=1' }
-            ]
-        },
-        {
-            id: 'aim2',
-            title: 'Creación de Contenido',
-            lessons: [
-                { id: 'ail3', title: 'Escribiendo Artículos de Blog', duration: '20:00', videoUrl: 'https://www.youtube.com/embed/SChXl9k5r6E?rel=0&autoplay=1' },
-                { id: 'ail4', title: 'Guiones para Video y Redes', duration: '12:00', videoUrl: 'https://www.youtube.com/embed/SChXl9k5r6E?rel=0&autoplay=1' }
-            ]
-        }
-    ]
-  }
+type Comment = {
+  id: string;
+  user: string;
+  avatar?: string;
+  date: string;
+  text: string;
+  likes: number;
+  replies?: Comment[];
 };
 
 export const TrainingViewer: React.FC = () => {
-  const { moduleId } = useParams<{ moduleId: string }>();
-  const data = moduleId ? MODULES_DATA[moduleId] : null;
-
+  const { moduleId } = useParams<{ moduleId: string }>(); // This maps to "slug" in DB
+  const [courseData, setCourseData] = useState<CourseData | null>(null);
+  const [loading, setLoading] = useState(true);
+  
   // State
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
+  
+  // Comments State
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
+  // Load Course Data
   useEffect(() => {
-      if (data && data.modules.length > 0) {
-          // Default to first module open if none selected
-          if (!activeModuleId) setActiveModuleId(data.modules[0].id);
-          // Default to first lesson playing if none selected
-          if (!currentLesson && data.modules[0].lessons.length > 0) {
-              setCurrentLesson(data.modules[0].lessons[0]);
-          }
+      if (moduleId) {
+          const loadCourse = async () => {
+              setLoading(true);
+              try {
+                  const data = await api.getCourseBySlug(moduleId);
+                  setCourseData(data);
+                  
+                  if (data && data.modules.length > 0) {
+                      // Default to first module
+                      setActiveModuleId(data.modules[0].id);
+                      // Default to first lesson
+                      if (data.modules[0].lessons.length > 0) {
+                          setCurrentLesson(data.modules[0].lessons[0]);
+                      }
+                  }
+              } catch (error) {
+                  console.error("Error loading course:", error);
+              } finally {
+                  setLoading(false);
+              }
+          };
+          loadCourse();
       }
-  }, [data]);
+  }, [moduleId]);
+
+  // Load Comments when Lesson Changes
+  useEffect(() => {
+      if (currentLesson) {
+          const loadComments = async () => {
+              setLoadingComments(true);
+              try {
+                  const data = await api.getComments(currentLesson.id);
+                  setComments(data);
+              } catch (e) {
+                  console.error("Error loading comments:", e);
+              } finally {
+                  setLoadingComments(false);
+              }
+          };
+          loadComments();
+      }
+  }, [currentLesson]);
 
   const toggleModule = (id: string) => {
       setActiveModuleId(activeModuleId === id ? null : id);
   };
 
-  if (!data) {
+  const handlePostComment = async (parentId?: string) => {
+    if (!newComment.trim() || !currentLesson) return;
+    
+    try {
+        await api.postComment(currentLesson.id, newComment, parentId);
+        
+        // Optimistic update or refresh
+        const refreshedComments = await api.getComments(currentLesson.id);
+        setComments(refreshedComments);
+        
+        setNewComment('');
+        setReplyingTo(null);
+    } catch (e) {
+        alert("Error al publicar comentario.");
+    }
+  };
+
+  if (loading) {
+      return (
+          <div className="flex flex-col items-center justify-center h-96 text-gray-400">
+              <Loader2 className="w-10 h-10 animate-spin mb-4 text-primary" />
+              <p>Cargando curso...</p>
+          </div>
+      );
+  }
+
+  if (!courseData) {
     return (
         <div className="flex flex-col items-center justify-center h-96 text-gray-400">
-            <p className="text-xl">Módulo no encontrado.</p>
-            <p className="text-sm">Selecciona un tema del menú de entrenamiento.</p>
+            <p className="text-xl">Curso no encontrado.</p>
+            <p className="text-sm">Verifica la URL o selecciona un tema del menú.</p>
         </div>
     );
   }
@@ -140,20 +148,20 @@ export const TrainingViewer: React.FC = () => {
                 <Award className="w-3 h-3" /> Certificado
             </span>
             <span className="bg-gray-800 text-gray-300 border border-gray-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                <Clock className="w-3 h-3" /> {data.subtitle}
+                <Clock className="w-3 h-3" /> {courseData.subtitle || 'Curso Online'}
             </span>
          </div>
          <h1 className="text-4xl lg:text-6xl font-extrabold text-white mb-6 leading-tight tracking-tight">
-            {data.title}
+            {courseData.title}
          </h1>
          <p className="text-lg lg:text-xl text-gray-400 max-w-4xl leading-relaxed">
-            {data.description}
+            {courseData.description}
          </p>
       </div>
 
       <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         
-        {/* LEFT COLUMN: MENU (Sticky & Scrollable) - WIDER (5 cols) */}
+        {/* LEFT COLUMN: MENU (Sticky & Scrollable) - (5 cols) */}
         <div className="lg:col-span-5 order-2 lg:order-1">
             <div className="sticky top-6">
                 <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden flex flex-col max-h-[calc(100vh-100px)]">
@@ -164,7 +172,7 @@ export const TrainingViewer: React.FC = () => {
                     </div>
                     
                     <div className="overflow-y-auto p-3 space-y-3 custom-scrollbar">
-                        {data.modules.map((module) => (
+                        {courseData.modules.map((module) => (
                             <div key={module.id} className="border border-gray-800 rounded-xl overflow-hidden bg-gray-900 shadow-sm">
                                 <button 
                                     onClick={() => toggleModule(module.id)}
@@ -200,8 +208,8 @@ export const TrainingViewer: React.FC = () => {
             </div>
         </div>
 
-        {/* RIGHT COLUMN: VIDEO PLAYER & CONTENT - NARROWER (7 cols) */}
-        <div className="lg:col-span-7 order-1 lg:order-2 space-y-10">
+        {/* RIGHT COLUMN: VIDEO PLAYER & CONTENT - (7 cols) */}
+        <div className="lg:col-span-7 order-1 lg:order-2 space-y-8">
           
           {/* Video Player */}
           <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800 ring-1 ring-white/10 group">
@@ -211,7 +219,7 @@ export const TrainingViewer: React.FC = () => {
              {currentLesson ? (
                  <iframe 
                    key={currentLesson.id} // Key forces reload on change
-                   src={currentLesson.videoUrl} 
+                   src={currentLesson.video_url?.replace('autoplay=1', 'autoplay=0')} 
                    className="absolute inset-0 w-full h-full z-10"
                    title={currentLesson.title}
                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -243,16 +251,133 @@ export const TrainingViewer: React.FC = () => {
           <div className="bg-gray-900/40 border border-gray-800 rounded-3xl p-8 backdrop-blur-sm">
             <h3 className="text-white font-bold mb-8 flex items-center gap-3 text-xl">
               <div className="bg-green-500/20 p-2 rounded-lg"><CheckCircle className="w-6 h-6 text-green-500" /></div>
-              Lo que aprenderás en este curso
+              Lo que aprenderás en esta clase
             </h3>
             <ul className="grid grid-cols-1 gap-y-4">
-              {data.learningPoints.map((point: string, i: number) => (
+              {(currentLesson?.learning_points || courseData.learningPoints || []).map((point: string, i: number) => (
                 <li key={i} className="flex items-start gap-4 text-gray-300 text-lg group">
                   <div className="mt-2 w-2 h-2 rounded-full bg-primary flex-shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.5)] group-hover:scale-125 transition-transform"></div>
                   <span className="leading-relaxed group-hover:text-white transition-colors">{point}</span>
                 </li>
               ))}
             </ul>
+          </div>
+
+          {/* New: Description Block */}
+          {currentLesson && (
+              <div className="bg-gray-900/40 border border-gray-800 rounded-3xl p-8 backdrop-blur-sm">
+                <h3 className="text-white font-bold mb-6 flex items-center gap-3 text-xl">
+                    <div className="bg-blue-500/20 p-2 rounded-lg"><FileText className="w-6 h-6 text-blue-500" /></div>
+                    Descripción de la Clase
+                </h3>
+                <div className="text-gray-300 leading-relaxed text-lg">
+                    <p>{currentLesson.description}</p>
+                </div>
+              </div>
+          )}
+
+          {/* New: Comments Section */}
+          <div className="space-y-6">
+              <h3 className="text-white font-bold text-xl flex items-center gap-3">
+                  <MessageSquare className="w-6 h-6 text-gray-400" /> 
+                  Comentarios
+                  <span className="text-sm font-normal text-gray-500 ml-2">({comments.reduce((acc, c) => acc + 1 + (c.replies?.length || 0), 0)})</span>
+              </h3>
+
+              {/* Comment Input */}
+              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+                  <div className="flex gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                          <User className="w-6 h-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                          <textarea 
+                              value={newComment}
+                              onChange={(e) => setNewComment(e.target.value)}
+                              placeholder="Escribe tu duda o comentario aquí..."
+                              className="w-full bg-black border border-gray-700 rounded-xl p-4 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none min-h-[100px] transition"
+                          />
+                          <div className="flex justify-end mt-3">
+                              <button 
+                                  onClick={() => handlePostComment()}
+                                  disabled={!newComment.trim()}
+                                  className="bg-primary hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2 px-6 rounded-lg transition flex items-center gap-2"
+                              >
+                                  Publicar Comentario <Send className="w-4 h-4" />
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              {/* Comments List */}
+              <div className="space-y-6">
+                  {loadingComments ? (
+                      <div className="text-center py-8 text-gray-500 flex justify-center gap-2">
+                          <Loader2 className="w-5 h-5 animate-spin" /> Cargando comentarios...
+                      </div>
+                  ) : comments.length === 0 ? (
+                      <div className="text-center py-8 text-gray-600 italic">Sé el primero en comentar.</div>
+                  ) : (
+                      comments.map((comment) => (
+                      <div key={comment.id} className="animate-in fade-in slide-in-from-bottom-2">
+                          <div className="flex gap-4 group">
+                              <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0 border border-gray-700 text-gray-400 font-bold text-sm">
+                                  {comment.avatar ? <img src={comment.avatar} alt={comment.user} className="w-full h-full rounded-full" /> : comment.user.charAt(0).toUpperCase()}
+                              </div>
+                              <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                      <span className="font-bold text-white text-sm">{comment.user}</span>
+                                      <span className="text-xs text-gray-500">• {comment.date}</span>
+                                  </div>
+                                  <p className="text-gray-300 text-sm leading-relaxed mb-3">{comment.text}</p>
+                                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                                      <button className="flex items-center gap-1 hover:text-white transition"><ThumbsUp className="w-3 h-3" /> {comment.likes}</button>
+                                      <button onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)} className="flex items-center gap-1 hover:text-white transition"><Reply className="w-3 h-3" /> Responder</button>
+                                  </div>
+                                  
+                                  {/* Reply Input */}
+                                  {replyingTo === comment.id && (
+                                      <div className="mt-4 flex gap-2">
+                                          <input 
+                                              autoFocus
+                                              type="text" 
+                                              value={newComment}
+                                              onChange={(e) => setNewComment(e.target.value)}
+                                              placeholder="Escribe una respuesta..."
+                                              className="flex-1 bg-black border border-gray-700 rounded px-3 py-2 text-sm text-white focus:border-primary outline-none"
+                                          />
+                                          <button onClick={() => handlePostComment(comment.id)} className="bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded text-xs text-white">Enviar</button>
+                                      </div>
+                                  )}
+                              </div>
+                          </div>
+
+                          {/* Replies */}
+                          {comment.replies && comment.replies.length > 0 && (
+                              <div className="ml-14 mt-4 space-y-4 pl-4 border-l-2 border-gray-800">
+                                  {comment.replies.map(reply => (
+                                      <div key={reply.id} className="flex gap-3">
+                                          <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0 border border-gray-700 text-gray-400 font-bold text-xs">
+                                              {reply.user.charAt(0).toUpperCase()}
+                                          </div>
+                                          <div className="flex-1">
+                                              <div className="flex items-center gap-2 mb-1">
+                                                  <span className="font-bold text-gray-200 text-xs">{reply.user}</span>
+                                                  <span className="text-[10px] text-gray-500">• {reply.date}</span>
+                                              </div>
+                                              <p className="text-gray-400 text-xs leading-relaxed mb-2">{reply.text}</p>
+                                              <div className="flex items-center gap-3 text-[10px] text-gray-500">
+                                                  <button className="flex items-center gap-1 hover:text-white transition"><ThumbsUp className="w-3 h-3" /> {reply.likes}</button>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  ))}
+                              </div>
+                          )}
+                      </div>
+                  )))}
+              </div>
           </div>
 
         </div>

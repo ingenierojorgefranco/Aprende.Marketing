@@ -118,21 +118,6 @@ export const api = {
           const page = localPages.find(p => p.id === id);
           return page ? Promise.resolve(page) : Promise.resolve(null);
       }
-      
-      // We reuse getPages and filter for now as backend doesn't have specific getPageById yet, 
-      // or we can add it. For now let's be efficient and filter here if needed, 
-      // BUT actually the backend DOES expose /api/public/pages/:slug which can work with ID
-      // However, that's public. For editing, we might need a specific endpoint or just fetch all and find.
-      // OPTIMIZATION: In a real large app, backend should have GET /api/pages/:id.
-      // Let's implement it using existing getPages logic for now, or assume the backend supports it if added.
-      // Since I can't guarantee backend change for GET /api/pages/:id in this turn without checking,
-      // I'll stick to fetching all pages for now (safer) OR I can update backend to support GET /api/pages/:id.
-      // Actually, I added /api/pages (list). I should probably add GET /api/pages/:id to backend or just fetch list.
-      // Given the prompt "optimize", fetching list is still better than fetching EVERYTHING on App load.
-      // But let's be cleaner and use getPages().then(find).
-      // Wait, I can just add GET /api/pages/:id to backend? No, let's keep it simple.
-      // I will assume getPages() is "okay" for now, or even better, let's add a todo.
-      
       const pages = await api.getPages();
       return pages.find(p => p.id === id) || null;
   },
@@ -423,8 +408,6 @@ export const api = {
     await fetchWithFallback(`/articles/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
   },
 
-  // Las funciones públicas no suelen necesitar autenticación, pero en modo mock
-  // devolvemos los datos locales para poder previsualizar.
   getPublicBlogArticles: async (pageId: string): Promise<Article[]> => {
       if (isMockMode) {
           return Promise.resolve(localArticles.filter(a => a.pageId === pageId));
@@ -466,7 +449,6 @@ export const api = {
   },
   
   testConnection: async (): Promise<{ success: boolean; message: string }> => {
-      // En mock mode la conexión "simulada" siempre es exitosa
       if (isMockMode) return { success: true, message: "Mock Mode Active" };
 
       try {
@@ -477,17 +459,13 @@ export const api = {
       }
   },
 
-  // --- ADMIN METHODS ---
   getUsers: async (): Promise<User[]> => {
-      if (isMockMode) return Promise.resolve([MOCK_USER]); // En mock solo hay un user
+      if (isMockMode) return Promise.resolve([MOCK_USER]);
       return await fetchWithFallback('/admin/users', { headers: getAuthHeaders() });
   },
 
   updateUser: async (id: string, data: { role: string, planLimits: PlanLimits, isActive: boolean }): Promise<void> => {
-      if (isMockMode) {
-          // No op in mock
-          return Promise.resolve();
-      }
+      if (isMockMode) return Promise.resolve();
       await fetchWithFallback(`/admin/users/${id}`, {
           method: 'PUT',
           headers: getAuthHeaders(),
@@ -503,15 +481,41 @@ export const api = {
       });
   },
 
-  // --- NEW: Lazy Load Admin User Resources ---
   getAdminUserResources: async (userId: string, type: 'projects' | 'pages' | 'articles'): Promise<any[]> => {
       if (isMockMode) {
-          // Simulate fetching filtered data locally
-          if (type === 'projects') return Promise.resolve([...localProjects]); // In mock all belong to admin
+          if (type === 'projects') return Promise.resolve([...localProjects]);
           if (type === 'pages') return Promise.resolve([...localPages]);
           if (type === 'articles') return Promise.resolve([...localArticles]);
           return Promise.resolve([]);
       }
       return await fetchWithFallback(`/admin/users/${userId}/resources?type=${type}`, { headers: getAuthHeaders() });
+  },
+
+  // --- NUEVOS MÉTODOS PARA CURSOS ---
+  
+  getCourseBySlug: async (slug: string): Promise<any> => {
+      if (isMockMode) {
+          // Fallback simple para modo mock (aunque no tendrá todos los datos)
+          return Promise.resolve({
+              id: 'mock-course',
+              title: 'Curso Mock (Modo Offline)',
+              modules: []
+          });
+      }
+      return await fetchWithFallback(`/courses/${slug}`, { headers: getAuthHeaders() });
+  },
+
+  getComments: async (lessonId: string): Promise<any[]> => {
+      if (isMockMode) return Promise.resolve([]);
+      return await fetchWithFallback(`/lessons/${lessonId}/comments`, { headers: getAuthHeaders() });
+  },
+
+  postComment: async (lessonId: string, content: string, parentId?: string): Promise<void> => {
+      if (isMockMode) return Promise.resolve();
+      await fetchWithFallback('/comments', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ lessonId, content, parentId })
+      });
   }
 };

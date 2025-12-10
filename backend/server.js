@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v12_admin_system_express'; 
+const SERVER_VERSION = 'v13_courses_system'; 
 
 app.enable('trust proxy');
 
@@ -227,6 +227,126 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Error interno' });
   }
 });
+
+// ======================================================
+//  COURSES (LMS) ROUTES
+// ======================================================
+
+// GET Course Full Structure by Slug
+app.get('/api/courses/:slug', authMiddleware, async (req, res) => {
+    const { slug } = req.params;
+    try {
+        // 1. Fetch Course Info
+        const [courses] = await pool.query('SELECT * FROM courses WHERE slug = ?', [slug]);
+        if (courses.length === 0) return res.status(404).json({ error: 'Curso no encontrado' });
+        const course = courses[0];
+
+        // 2. Fetch Modules
+        const [modules] = await pool.query('SELECT * FROM course_modules WHERE course_id = ? ORDER BY order_index ASC', [course.id]);
+
+        // 3. Fetch Lessons for each module
+        const modulesWithLessons = await Promise.all(modules.map(async (mod) => {
+            const [lessons] = await pool.query('SELECT * FROM course_lessons WHERE module_id = ? ORDER BY order_index ASC', [mod.id]);
+            
+            // Parse learning_points if stored as JSON string/JSON type
+            const lessonsParsed = lessons.map(l => ({
+                ...l,
+                id: l.id.toString(),
+                learning_points: typeof l.learning_points === 'string' ? JSON.parse(l.learning_points) : (l.learning_points || [])
+            }));
+
+            return {
+                ...mod,
+                id: mod.id.toString(),
+                lessons: lessonsParsed
+            };
+        }));
+
+        // Flatten learning points for the top-level "Course Data" structure expected by frontend
+        // Or fetch specific top-level points if we add a column to `courses` later. 
+        // For now, we adapt the DB structure to the expected `CourseData` interface.
+        
+        // Find first lesson's learning points as a fallback for course overview if needed
+        let learningPoints = [];
+        if (modulesWithLessons.length > 0 && modulesWithLessons[0].lessons.length > 0) {
+             learningPoints = modulesWithLessons[0].lessons[0].learning_points || [];
+        }
+
+        const responseData = {
+            id: course.id.toString(),
+            title: course.title,
+            subtitle: course.subtitle,
+            description: course.description,
+            learningPoints: learningPoints, // Can be improved
+            modules: modulesWithLessons
+        };
+
+        res.json(responseData);
+
+    } catch (e) {
+        console.error("[Courses] Error fetching course:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// GET Comments for a Lesson
+app.get('/api/lessons/:lessonId/comments', authMiddleware, async (req, res) => {
+    const { lessonId } = req.params;
+    try {
+        const [comments] = await pool.query(`
+            SELECT c.*, u.name as user_name 
+            FROM lesson_comments c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.lesson_id = ?
+            ORDER BY c.created_at DESC
+        `, [lessonId]);
+
+        // Map to frontend structure
+        const formatted = comments.map(c => ({
+            id: c.id.toString(),
+            user: c.user_name,
+            avatar: null, // Can add avatar column to users later
+            date: new Date(c.created_at).toLocaleString(), // Simple format
+            text: c.content,
+            likes: c.likes,
+            parentId: c.parent_id ? c.parent_id.toString() : null
+        }));
+
+        // Handle nesting (replies) in frontend or backend. 
+        // For simplicity, let's send flat list and let frontend nest, OR nest here.
+        // Let's send flat with parentId for now, but the frontend expects nested `replies`.
+        
+        const rootComments = formatted.filter(c => !c.parentId);
+        const replies = formatted.filter(c => c.parentId);
+
+        const nested = rootComments.map(root => ({
+            ...root,
+            replies: replies.filter(r => r.parentId === root.id)
+        }));
+
+        res.json(nested);
+
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// POST Comment
+app.post('/api/comments', authMiddleware, async (req, res) => {
+    const { lessonId, content, parentId } = req.body;
+    if (!lessonId || !content) return res.status(400).json({ error: "Datos incompletos" });
+
+    try {
+        await pool.query(
+            'INSERT INTO lesson_comments (lesson_id, user_id, content, parent_id, created_at) VALUES (?, ?, ?, ?, NOW())',
+            [lessonId, req.user.id, content, parentId || null]
+        );
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 
 // ======================================================
 //  ADMIN API ENDPOINTS
