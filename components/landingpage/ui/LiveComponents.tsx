@@ -47,6 +47,18 @@ export const Navbar = ({ content, ds, isMobilePreview, pageId, basePath, hasBlog
         };
     }, []);
 
+    const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+        if (href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = href.substring(1);
+            const element = document.getElementById(targetId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            setIsMenuOpen(false);
+        }
+    };
+
     const renderBrandName = (text: string) => {
          const htmlContent = text.replace(
            /<b>(.*?)<\/b>/g, 
@@ -75,7 +87,15 @@ export const Navbar = ({ content, ds, isMobilePreview, pageId, basePath, hasBlog
             
             <div id="nav-links-desktop" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-sm font-medium transition-colors duration-300 ${currentTextColor} opacity-90 flex-shrink-0`}>
               {navLinks.map((link, i) => (
-                  <a key={i} id={`nav-link-${i}`} href={link.href} className={`hover:opacity-100 transition hover:${ds.nav.linkHover}`}>{link.label}</a>
+                  <a 
+                    key={i} 
+                    id={`nav-link-${i}`} 
+                    href={link.href} 
+                    onClick={(e) => handleSmoothScroll(e, link.href)}
+                    className={`hover:opacity-100 transition hover:${ds.nav.linkHover}`}
+                  >
+                    {link.label}
+                  </a>
               ))}
             </div>
             
@@ -101,7 +121,15 @@ export const Navbar = ({ content, ds, isMobilePreview, pageId, basePath, hasBlog
           {isMenuOpen && (
               <div id="nav-mobile-menu" className={`${isMobilePreview ? 'flex' : 'md:hidden flex'} absolute top-full left-0 w-full ${ds.nav.mobileMenuBg} ${ds.nav.mobileMenuBorder} border-b shadow-xl p-6 flex-col gap-4 animate-in slide-in-from-top-2 z-40`}>
                   {navLinks.map((link, i) => (
-                      <a key={i} id={`mobile-nav-link-${i}`} href={link.href} onClick={() => setIsMenuOpen(false)} className={`text-lg font-medium py-3 border-b border-gray-100/10 last:border-0 hover:pl-2 transition-all ${ds.nav.mobileMenuText}`}>{link.label}</a>
+                      <a 
+                        key={i} 
+                        id={`mobile-nav-link-${i}`} 
+                        href={link.href} 
+                        onClick={(e) => handleSmoothScroll(e, link.href)}
+                        className={`text-lg font-medium py-3 border-b border-gray-100/10 last:border-0 hover:pl-2 transition-all ${ds.nav.mobileMenuText}`}
+                      >
+                        {link.label}
+                      </a>
                   ))}
                   <div className="pt-4 mt-2 border-t border-gray-100/10 w-full">
                      <button id="mobile-nav-cta" onClick={() => { setShowModal(true); setIsMenuOpen(false); }} className={`w-full py-3 rounded-xl font-bold text-center ${ds.nav.ctaButton}`}>
@@ -119,6 +147,18 @@ export const Navbar = ({ content, ds, isMobilePreview, pageId, basePath, hasBlog
 // --- Footer ---
 export const Footer = ({ content, ds, isMobilePreview }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean }) => {
     const { socials } = content.footer;
+
+    const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+        if (href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = href.substring(1);
+            const element = document.getElementById(targetId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    };
+
     return (
         <footer id="footer-section" className={`${ds.footer.bg} ${ds.footer.borderTop} border-t py-16`}>
             <div className="w-full max-w-[75em] mx-auto px-6">
@@ -143,12 +183,20 @@ export const Footer = ({ content, ds, isMobilePreview }: { content: GeneratedPag
                         <h5 className={`font-bold mb-4 text-lg ${ds.footer.titleColor}`}>Enlaces</h5>
                         <ul id="footer-links-list" className={`space-y-3 ${ds.footer.textColor}`}>
                             {content.navLinks ? content.navLinks.map((link, i) => (
-                                <li key={i}><a href={link.href} className={`transition hover:${ds.footer.linkHover}`}>{link.label}</a></li>
+                                <li key={i}>
+                                    <a 
+                                        href={link.href} 
+                                        onClick={(e) => handleSmoothScroll(e, link.href)}
+                                        className={`transition hover:${ds.footer.linkHover}`}
+                                    >
+                                        {link.label}
+                                    </a>
+                                </li>
                             )) : (
                                 <>
-                                    <li><a href="#seccion-introduccion" className={`transition hover:${ds.footer.linkHover}`}>Qué es</a></li>
-                                    <li><a href="#seccion-beneficios" className={`transition hover:${ds.footer.linkHover}`}>Beneficios</a></li>
-                                    <li><a href="#seccion-instructor" className={`transition hover:${ds.footer.linkHover}`}>Instructor</a></li>
+                                    <li><a href="#seccion-introduccion" onClick={(e) => handleSmoothScroll(e, "#seccion-introduccion")} className={`transition hover:${ds.footer.linkHover}`}>Qué es</a></li>
+                                    <li><a href="#seccion-beneficios" onClick={(e) => handleSmoothScroll(e, "#seccion-beneficios")} className={`transition hover:${ds.footer.linkHover}`}>Beneficios</a></li>
+                                    <li><a href="#seccion-instructor" onClick={(e) => handleSmoothScroll(e, "#seccion-instructor")} className={`transition hover:${ds.footer.linkHover}`}>Instructor</a></li>
                                 </>
                             )}
                         </ul>

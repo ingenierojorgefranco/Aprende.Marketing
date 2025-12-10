@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useRef } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType } from '../types';
 import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle } from 'lucide-react';
@@ -33,8 +30,8 @@ const Label = ({ children }: { children?: React.ReactNode }) => (
     <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase tracking-wide">{children}</label>
 );
 
-const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-    <input className="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:border-primary outline-none transition" {...props} />
+const Input = ({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
+    <input className={`w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:border-primary outline-none transition ${className || ''}`} {...props} />
 );
 
 // --- PICKERS ---
