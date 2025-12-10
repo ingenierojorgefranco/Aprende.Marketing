@@ -10,29 +10,33 @@ import {
 
 import { PublicHome } from "./components/PublicHome";
 import { Login } from "./components/Login";
-import { DashboardLayout } from "./components/DashboardLayout";
-import { DashboardHome } from "./components/DashboardHome";
-import { Generator } from "./components/Generator";
-import { Editor } from "./components/Editor";
-import { WhatsAppCRM } from "./components/WhatsAppCRM";
-import { EmailMarketing } from "./components/EmailMarketing";
-import { ContentGenerator } from "./components/ContentGenerator";
-import { ArticlesList } from "./components/ArticlesList";
 import { PublicLandingView } from "./components/PublicLandingView";
-import { ProjectWizard } from "./components/ProjectWizard";
-import { ProjectsList } from "./components/ProjectsList";
-import { AdminPanel } from "./components/admin/AdminPanel";
-import { MyPages } from "./components/MyPages"; // NEW Lazy Component
+
+// Dashboard Core
+import { DashboardLayout } from "./components/dashboard/DashboardLayout";
+import { DashboardHome } from "./components/dashboard/DashboardHome";
+
+// Dashboard Admin
+import { AdminPanel } from "./components/dashboard/admin/AdminPanel";
+
+// Dashboard Editor
+import { Editor } from "./components/dashboard/editor/Editor";
+
+// Dashboard Tools
+import { Generator } from "./components/dashboard/tools/Generator";
+import { WhatsAppCRM } from "./components/dashboard/tools/WhatsAppCRM";
+import { EmailMarketing } from "./components/dashboard/tools/EmailMarketing";
+import { ContentGenerator } from "./components/dashboard/tools/ContentGenerator";
+import { ArticlesList } from "./components/dashboard/tools/ArticlesList";
+import { ProjectWizard } from "./components/dashboard/tools/ProjectWizard";
+import { ProjectsList } from "./components/dashboard/tools/ProjectsList";
+import { MyPages } from "./components/dashboard/tools/MyPages";
 
 import { User, LandingPage, Article } from "./types";
 import {
   Loader2,
   PenTool,
-  LayoutTemplate,
-  Trash2,
   AlertTriangle,
-  X,
-  Globe,
 } from "lucide-react";
 import { api } from "./services/api";
 import { getCurrentUser, logout } from "./services/auth";
@@ -48,10 +52,6 @@ const EditorRouteWrapper = () => {
       const fetchPage = async () => {
           if (!id) return;
           try {
-              // Now we need to fetch specifically this page. 
-              // api.getPages() returns all, we can use that for now if getPageById isn't fully ready in backend
-              // BUT for optimization we assume getPageById is better.
-              // Note: We added getPageById to api service.
               const p = await api.getPageById(id);
               setPage(p);
           } catch (e) {
@@ -172,7 +172,6 @@ const App: React.FC = () => {
           if (api.isUsingMockData()) {
               setIsOffline(true);
           } else {
-              // Optional: Quick health check if needed, or remove to be purely lazy
               setIsOffline(false); 
           }
       }
@@ -191,10 +190,8 @@ const App: React.FC = () => {
   // --- HANDLERS PÁGINAS (Create & Redirect) ---
   const handlePageGenerated = async (page: LandingPage) => {
     try {
-      // Create page in backend
       const savedPage = await api.createPage(page);
       setIsOffline(api.isUsingMockData());
-      // Navigate to editor with new ID. Editor wrapper will fetch it.
       navigate(`/dashboard/editor/${savedPage.id}`);
     } catch (e: any) {
       alert(`Error guardando la página: ${e.message}`);
@@ -211,7 +208,7 @@ const App: React.FC = () => {
       }
     } catch (e) {
       console.error(e);
-      throw e; // Let the child component handle the error display
+      throw e; 
     }
   };
 
@@ -242,11 +239,9 @@ const App: React.FC = () => {
   return (
     <>
       <Routes>
-        {/* RUTA PÚBLICA PARA LANDING: SOPORTA /admin/lp/:slug Y /lp/:slug */}
         <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
         <Route path="/lp/:slug/*" element={<PublicLandingView />} />
 
-        {/* RUTA PRINCIPAL */}
         <Route
           path="/"
           element={
@@ -269,7 +264,6 @@ const App: React.FC = () => {
           }
         />
 
-        {/* RUTAS PROTEGIDAS (DASHBOARD) */}
         <Route
           path="/dashboard"
           element={
@@ -296,7 +290,7 @@ const App: React.FC = () => {
           <Route path="projects/create" element={<ProjectWizard />} />
           <Route path="projects/edit/:id" element={<ProjectWizard />} />
 
-          {/* PAGES ROUTE (Lazy Loaded List) */}
+          {/* PAGES ROUTE */}
           <Route path="pages" element={<MyPages />} />
 
           <Route
@@ -339,7 +333,7 @@ const App: React.FC = () => {
             }
           />
 
-          {/* EDITOR ROUTE (Lazy Loaded Wrapper) */}
+          {/* EDITOR ROUTE */}
           <Route
             path="editor/:id"
             element={<EditorRouteWrapper />}
