@@ -12,6 +12,7 @@ interface TemplateProps {
   pageId?: string;
   basePath?: string;
   hasBlogArticles?: boolean;
+  isDark?: boolean;
 }
 
 export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {

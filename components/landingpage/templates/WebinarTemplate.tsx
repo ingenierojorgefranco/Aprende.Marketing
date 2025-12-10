@@ -176,53 +176,56 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
          <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />
          
          <header id="webinar-hero" className={`relative py-24 lg:py-32 ${ds.hero.bgGradient}`}>
-            <div className={`w-full max-w-[75em] mx-auto px-6 grid gap-16 items-center ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
-                <div id="hero-content" className={`${isMobilePreview ? 'order-2' : 'order-2 lg:order-1'}`}>
-                    
-                    <div className="flex flex-wrap gap-3 mb-6 items-center">
-                        <div id="webinar-live-badge" className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold ${ds.badges.liveBg} ${ds.badges.liveText} ${ds.badges.liveBorder}`}>
-                            <span className="flex h-2 w-2 rounded-full bg-current animate-pulse"></span> EN VIVO
+            <div className="w-full max-w-5xl mx-auto px-6 flex flex-col items-center text-center gap-10">
+                
+                {/* 1. Badges */}
+                <div className="flex flex-wrap gap-3 justify-center items-center">
+                    <div id="webinar-live-badge" className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold ${ds.badges.liveBg} ${ds.badges.liveText} ${ds.badges.liveBorder}`}>
+                        <span className="flex h-2 w-2 rounded-full bg-current animate-pulse"></span> EN VIVO
+                    </div>
+                    {content.topTagline && (
+                        <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold ${ds.hero.badgeBg} ${ds.hero.badgeText} ${ds.hero.badgeBorder}`}>
+                            {content.topTagline}
                         </div>
-                        
-                        {/* Optional Top Tagline Badge added here */}
-                        {content.topTagline && (
-                            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold ${ds.hero.badgeBg} ${ds.hero.badgeText} ${ds.hero.badgeBorder}`}>
-                                {content.topTagline}
-                            </div>
-                        )}
-                    </div>
-
-                    {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.25] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-3xl md:text-5xl lg:text-7xl'}`, ds.hero.highlightGradient)}
-                    {renderRichText(content.hero.subheadline, `text-xl opacity-90 mb-8 leading-relaxed ${ds.hero.subtitleColor}`)}
-                    
-                    <div id="webinar-details" className="space-y-4 mb-8">
-                         <div className={`flex items-center gap-3 ${ds.hero.subtitleColor}`}>
-                             <User className="w-5 h-5 opacity-70" /> 
-                             <span>Impartido por: <strong>{content.instructor.name}</strong></span>
-                         </div>
-                         <div className={`flex items-center gap-3 ${ds.hero.subtitleColor}`}>
-                             <Target className="w-5 h-5 opacity-70" />
-                             <span>Para: <strong>{content.targetAudience || "Emprendedores"}</strong></span>
-                         </div>
-                    </div>
-
-                    <div id="what-you-will-learn-card" className={`border rounded-xl p-6 ${ds.features.cardBg} ${ds.features.cardBorder}`}>
-                        <h4 className={`font-bold mb-4 flex items-center gap-2 ${ds.features.titleColor}`}>
-                            <Zap className={`w-4 h-4 ${ds.decorations.starColor}`} /> Lo que aprenderás:
-                        </h4>
-                        <ul className="grid gap-3">
-                            {content.whatYouWillLearn.items.slice(0, 3).map((item, i) => (
-                                <li key={i} className={`flex items-start gap-2 text-sm ${ds.features.descColor}`}>
-                                    <CheckCircle className={`w-4 h-4 shrink-0 mt-0.5 ${ds.decorations.checkColor}`} />
-                                    {item}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                    )}
                 </div>
 
-                <div id="hero-cta" className={`${isMobilePreview ? 'order-1' : 'order-1 lg:order-2'}`}>
-                    <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} />
+                {/* 2. Headlines */}
+                <div className="space-y-4 max-w-4xl mx-auto">
+                    {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-[1.1] ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-5xl md:text-7xl'}`, ds.hero.highlightGradient)}
+                    {renderRichText(content.hero.subheadline, `text-xl opacity-90 leading-relaxed max-w-2xl mx-auto ${ds.hero.subtitleColor}`)}
+                </div>
+                
+                {/* 3. Details Row */}
+                <div id="webinar-details" className="flex flex-wrap justify-center gap-6 text-sm md:text-base">
+                        <div className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-black/5 ${ds.hero.subtitleColor}`}>
+                            <User className="w-5 h-5 opacity-70" /> 
+                            <span>Por: <strong>{content.instructor.name}</strong></span>
+                        </div>
+                        <div className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-black/5 ${ds.hero.subtitleColor}`}>
+                            <Target className="w-5 h-5 opacity-70" />
+                            <span>Para: <strong>{content.targetAudience || "Emprendedores"}</strong></span>
+                        </div>
+                </div>
+
+                {/* 4. What You Will Learn Card (Centered) */}
+                <div id="what-you-will-learn-card" className={`w-full max-w-3xl border rounded-xl p-8 text-left shadow-lg ${ds.features.cardBg} ${ds.features.cardBorder}`}>
+                    <h4 className={`font-bold mb-6 flex items-center justify-center gap-2 text-xl ${ds.features.titleColor}`}>
+                        <Zap className={`w-5 h-5 ${ds.decorations.starColor}`} /> Lo que aprenderás en esta clase:
+                    </h4>
+                    <ul className={`grid gap-4 ${isMobilePreview ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                        {content.whatYouWillLearn.items.map((item, i) => (
+                            <li key={i} className={`flex items-start gap-3 text-base ${ds.features.descColor}`}>
+                                <CheckCircle className={`w-5 h-5 shrink-0 mt-0.5 ${ds.decorations.checkColor}`} />
+                                {item}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                {/* 5. CTA (Moved to bottom) */}
+                <div id="hero-cta" className="w-full max-w-md mt-4 animate-in slide-in-from-bottom-4 duration-700">
+                    <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} centered={true} />
                 </div>
             </div>
          </header>

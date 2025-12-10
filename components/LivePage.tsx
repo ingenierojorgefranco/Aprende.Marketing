@@ -97,5 +97,5 @@ export const LivePage: React.FC<LivePageProps> = ({
   }
 
   // structure === 'minimal-capture'
-  return <MinimalTemplate content={content} ds={ds} isMobilePreview={isMobilePreview} />;
+  return <MinimalTemplate {...commonProps} />;
 };
