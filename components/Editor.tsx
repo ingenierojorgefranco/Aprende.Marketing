@@ -1,4 +1,6 @@
 
+
+
 import React, { useState, useRef } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType } from '../types';
 import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle } from 'lucide-react';
@@ -722,9 +724,17 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                         </SectionContent>
 
                         {/* 8. Footer & Legal */}
-                        <SectionHeader id="footer" title="Footer & Legal" icon={LayoutTemplate} openSection={openSection} toggleSection={toggleSection} />
+                        <SectionHeader id="footer" title="8. Cierre y Footer" icon={LayoutTemplate} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="footer" openSection={openSection}>
-                             <div><Label>Copyright Text</Label><Input value={content.footer.copyright} onChange={(e) => updateNestedField('footer', 'copyright', e.target.value)} /></div>
+                             <div>
+                                <Label>Texto de Cierre (CTA Final)</Label>
+                                <Input 
+                                    value={content.closingOfferText || ''} 
+                                    onChange={(e) => setContent({ ...content, closingOfferText: e.target.value })} 
+                                    placeholder="Ej: No dejes pasar esta oportunidad..." 
+                                />
+                             </div>
+                             <div className="pt-4 border-t border-gray-800"><Label>Copyright Text</Label><Input value={content.footer.copyright} onChange={(e) => updateNestedField('footer', 'copyright', e.target.value)} /></div>
                              <div><Label>Email de Contacto</Label><Input value={content.footer.contact} onChange={(e) => updateNestedField('footer', 'contact', e.target.value)} /></div>
                              
                              <div className="pt-4 border-t border-gray-800">

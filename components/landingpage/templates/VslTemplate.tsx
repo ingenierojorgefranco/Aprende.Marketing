@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { PlayCircle, Plus, Minus, CheckCircle, ScanFace, Palette, Feather, Award, Users, Star, BookOpen } from 'lucide-react';
@@ -18,7 +17,7 @@ interface TemplateProps {
 export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
   
   const IntroSection = () => (
-    <section id="intro-section" className="py-20 max-w-6xl mx-auto px-6">
+    <section id="seccion-introduccion" className="py-20 max-w-6xl mx-auto px-6">
         <div className={`grid gap-12 items-center ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
             {/* Left: Text & Bullets */}
             <div className="text-left">
@@ -89,7 +88,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
   );
 
   const BenefitsSection = () => (
-    <section id="benefits-section" className={`py-16`}>
+    <section id="seccion-beneficios" className={`py-16`}>
         <div className="px-6 md:px-12 max-w-6xl mx-auto">
             <h2 className={`text-2xl md:text-4xl font-bold mb-4 text-center ${ds.features.titleColor}`}>{content.benefits.title}</h2>
             <p className={`text-lg text-center max-w-3xl mx-auto mb-12 ${ds.features.descColor}`}>{content.benefits.subtitle}</p>
@@ -101,7 +100,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
   );
 
   const InstructorSection = () => (
-    <section id="instructor-section" className={`py-16 ${ds.instructor.sectionBg}`}>
+    <section id="seccion-instructor" className={`py-16 ${ds.instructor.sectionBg}`}>
          <div className="w-full max-w-4xl mx-auto px-6">
             <div className={`flex flex-col items-center gap-8 ${isMobilePreview ? '' : 'md:flex-row'}`}>
                 <div className="shrink-0 relative">
@@ -146,7 +145,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
   );
 
   const TestimonialsSection = () => (
-    <section id="testimonials-section" className={`py-16 ${ds.testimonials.sectionBg} border-y ${ds.testimonials.sectionBorder}`}>
+    <section id="seccion-testimonios" className={`py-16 ${ds.testimonials.sectionBg} border-y ${ds.testimonials.sectionBorder}`}>
         <div className="max-w-6xl mx-auto px-6">
             <h2 className={`text-2xl md:text-4xl font-bold mb-4 text-center ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Resultados Reales"}</h2>
             <p className={`text-lg text-center max-w-3xl mx-auto mb-12 ${ds.testimonials.subtitleColor}`}>{content.testimonialSubtitle}</p>
@@ -202,6 +201,10 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
     <section id="final-cta-section" className={`py-16 ${ds.cta.sectionBg} mt-8`}>
         <div className="max-w-4xl mx-auto px-6 text-center">
             <h2 className={`text-2xl md:text-4xl font-bold mb-6 ${ds.cta.sectionTitleColor}`}>¿Estás listo para dar el siguiente paso?</h2>
+            {/* Added closingOfferText paragraph */}
+            <p className={`text-lg mb-8 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>
+                {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
+            </p>
             <div className="flex justify-center">
                 <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={false} />
             </div>

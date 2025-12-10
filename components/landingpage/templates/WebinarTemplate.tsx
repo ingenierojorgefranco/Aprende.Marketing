@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { User, Target, Zap, CheckCircle, Plus, Minus, ScanFace, Palette, Feather, Star } from 'lucide-react';
@@ -18,7 +17,7 @@ interface TemplateProps {
 export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
   
   const IntroSection = () => (
-    <section id="intro-section" className={`py-20 ${ds.intro.sectionBg} border-b ${ds.intro.badgeBorder}`}>
+    <section id="seccion-introduccion" className={`py-20 ${ds.intro.sectionBg} border-b ${ds.intro.badgeBorder}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className={`grid gap-16 items-center ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
                 {/* Left: Text & Bullets */}
@@ -66,7 +65,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   );
 
   const InstructorSection = () => (
-    <section id="instructor-section" className={`py-24 relative overflow-hidden ${ds.instructor.sectionBg}`}>
+    <section id="seccion-instructor" className={`py-24 relative overflow-hidden ${ds.instructor.sectionBg}`}>
          <div className={`absolute top-1/2 left-0 md:left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] ${ds.blobOpacity} ${ds.blobColor}`}></div>
          <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
             <div className={`flex flex-col items-center gap-12 ${isMobilePreview ? '' : 'md:flex-row md:gap-20'}`}>
@@ -87,7 +86,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   );
 
   const BenefitsSection = () => (
-    <section id="benefits-section" className={`py-24 ${ds.features.sectionBg}`}>
+    <section id="seccion-beneficios" className={`py-24 ${ds.features.sectionBg}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className="text-center mb-16">
                 <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${ds.features.titleColor}`}>{content.benefits.title}</h2>
@@ -124,7 +123,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   );
 
   const TestimonialsSection = () => (
-    <section id="testimonials-section" className={`py-20 border-b ${ds.testimonials.sectionBg} ${ds.testimonials.sectionBorder}`}>
+    <section id="seccion-testimonios" className={`py-20 border-b ${ds.testimonials.sectionBg} ${ds.testimonials.sectionBorder}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className="text-center mb-12">
                  <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Transformaron su pasión en Éxito"}</h2>
@@ -138,7 +137,10 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                                 <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
                                     <img src={t.image || `https://randomuser.me/api/portraits/thumb/women/${i+30}.jpg`} alt="User" className="w-full h-full object-cover" />
                                 </div>
-                                <p className={`font-bold leading-tight ${ds.testimonials.nameColor}`}>{t.name}</p>
+                                <div>
+                                    <p className={`font-bold leading-tight ${ds.testimonials.nameColor}`}>{t.name}</p>
+                                    {t.location && <p className={`text-xs mt-1 ${ds.testimonials.roleColor}`}>{t.location}</p>}
+                                </div>
                             </div>
                             {renderRichText(t.text, `text-base leading-relaxed italic ${ds.testimonials.textColor}`)}
                         </div>
@@ -173,6 +175,10 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
     <section id="final-cta-section" className={`py-24 relative overflow-hidden ${ds.cta.sectionBg}`}>
         <div className="w-full max-w-[75em] mx-auto px-6 text-center relative z-10">
             <h2 className={`text-3xl md:text-5xl font-bold mb-6 ${ds.cta.sectionTitleColor}`}>¿Lista para cambiar tu vida?</h2>
+            {/* Added closingOfferText paragraph */}
+            <p className={`text-lg mb-10 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>
+                {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
+            </p>
             <div className="max-w-md mx-auto"><SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} /></div>
         </div>
     </section>

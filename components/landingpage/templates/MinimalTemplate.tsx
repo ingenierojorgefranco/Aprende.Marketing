@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { SmartCTA, Navbar, Footer, FeatureCard } from '../ui/LiveComponents';
@@ -18,7 +17,7 @@ interface TemplateProps {
 export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
 
   const IntroSection = () => (
-    <section className={`py-24 px-6 ${ds.intro.sectionBg}`}>
+    <section id="seccion-introduccion" className={`py-24 px-6 ${ds.intro.sectionBg}`}>
         <div className="max-w-4xl mx-auto text-center">
             <h2 className={`text-3xl font-bold mb-6 ${ds.intro.titleColor}`}>{content.intro.title}</h2>
             <div className={`text-lg leading-relaxed ${ds.intro.textColor} mb-12`}>{renderRichText(content.intro.description)}</div>
@@ -44,7 +43,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   );
 
   const BenefitsSection = () => (
-    <section className={`py-24 ${ds.features.sectionBg}`}>
+    <section id="seccion-beneficios" className={`py-24 ${ds.features.sectionBg}`}>
         <div className="px-6 max-w-6xl mx-auto">
             <h2 className={`text-3xl font-bold mb-4 text-center ${ds.features.titleColor}`}>{content.benefits.title}</h2>
             <p className={`text-lg text-center max-w-2xl mx-auto mb-16 ${ds.features.descColor}`}>{content.benefits.subtitle}</p>
@@ -93,7 +92,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                     { num: 3, title: "Empieza", text: "Inicia tu transformación hoy mismo." }
                  ].map((step, i) => (
                     <div key={i} className="relative z-10 bg-transparent">
-                         <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center text-3xl font-bold mb-6 border-4 ${ds.bg} ${ds.steps.cardBorder} ${ds.steps.numberColor} shadow-lg`}>
+                         <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center text-3xl font-bold mb-6 border-4 ${ds.steps.iconContainer} ${ds.steps.cardBorder} ${ds.steps.numberColor} shadow-lg`}>
                              {step.num}
                          </div>
                          <h3 className={`text-xl font-bold mb-3 ${ds.steps.titleColor}`}>{step.title}</h3>
@@ -106,10 +105,10 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   );
 
   const InstructorSection = () => (
-    <section className={`py-24 px-6 max-w-4xl mx-auto ${ds.instructor.sectionBg} rounded-3xl my-12`}>
+    <section id="seccion-instructor" className={`py-24 px-6 max-w-4xl mx-auto ${ds.instructor.sectionBg} rounded-3xl my-12`}>
         <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="relative shrink-0">
-                <img src={content.instructor.imageUrl} alt={content.instructor.name} className={`w-48 h-48 rounded-full object-cover border-4 ${ds.instructor.badgeBorder}`} />
+                <img src={content.instructor.imageUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt={content.instructor.name} className={`w-48 h-48 rounded-full object-cover border-4 ${ds.instructor.badgeBorder}`} />
                 <div className={`absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider ${ds.instructor.badgeBg} ${ds.instructor.badgeText} ${ds.instructor.badgeBorder}`}>
                     {content.instructor.badgeText || "Expert"}
                 </div>
@@ -135,7 +134,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   );
 
   const TestimonialsSection = () => (
-    <section className={`py-24 ${ds.testimonials.sectionBg}`}>
+    <section id="seccion-testimonios" className={`py-24 ${ds.testimonials.sectionBg}`}>
         <div className="px-6 max-w-6xl mx-auto">
             <h2 className={`text-3xl font-bold mb-4 text-center ${ds.testimonials.titleColor}`}>{content.testimonialTitle}</h2>
             <p className={`text-lg text-center max-w-2xl mx-auto mb-12 ${ds.testimonials.subtitleColor}`}>{content.testimonialSubtitle}</p>
@@ -167,7 +166,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
     const questions = content.faq || [];
     return (
         <section className={`py-24 px-6 max-w-3xl mx-auto ${ds.bg}`}>
-            <h2 className={`text-3xl font-bold mb-12 text-center ${ds.hero.titleColor}`}>Preguntas Frecuentes</h2>
+            <h2 className={`text-3xl font-bold mb-12 text-center ${ds.features.titleColor}`}>Preguntas Frecuentes</h2>
             <div className="space-y-4">
                 {questions.map((q, idx) => (
                     <div key={idx} className={`border rounded-xl overflow-hidden ${ds.faq.cardBorder} ${ds.faq.cardBg}`}>
@@ -188,10 +187,13 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   };
 
   const FinalCTASection = () => (
-    <section className={`py-24 px-6 text-center ${ds.cta.sectionBg}`}>
+    <section id="final-cta-section" className={`py-24 px-6 text-center ${ds.cta.sectionBg}`}>
         <div className="max-w-4xl mx-auto">
             <h2 className={`text-3xl md:text-5xl font-bold mb-8 ${ds.cta.sectionTitleColor}`}>¿Listo para comenzar?</h2>
-            <p className={`text-xl mb-12 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>Únete ahora y obtén acceso inmediato a todos los recursos.</p>
+            {/* Added closingOfferText paragraph */}
+            <p className={`text-xl mb-12 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>
+                {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
+            </p>
             <div className="max-w-md mx-auto">
                 <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} />
             </div>

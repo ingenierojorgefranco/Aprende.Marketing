@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { PlayCircle, BookOpen, CheckCircle, Star, Award, Users, ScanFace, Palette, Feather, Plus, Minus } from 'lucide-react';
@@ -17,13 +16,13 @@ interface TemplateProps {
 
 export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
   const IntroSection = () => (
-    <section id="intro-section" className={`py-24 relative overflow-hidden ${ds.intro.sectionBg}`}>
+    <section id="seccion-introduccion" className={`py-24 relative overflow-hidden ${ds.intro.sectionBg}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className={`grid gap-12 items-center ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
                 <div id="intro-image-container" className="relative">
                      <div id="intro-blob" className={`absolute top-0 left-0 w-2/3 h-2/3 -translate-x-4 -translate-y-4 rounded-3xl ${ds.blobOpacity} ${ds.blobColor}`}></div>
                      <div className="relative">
-                        <img id="intro-main-image" src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Intro" className="relative z-10 rounded-3xl shadow-2xl w-full object-cover aspect-[4/3]" />
+                        <img id="intro-main-image" src={content.hero.heroImage || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Intro" className="relative z-10 rounded-3xl shadow-2xl w-full object-cover aspect-[4/3]" />
                         <div id="intro-floating-card" className={`absolute -bottom-6 -right-6 z-20 rounded-2xl p-4 shadow-xl max-w-[200px] border hidden md:block transform rotate-2 hover:rotate-0 transition-transform duration-300 ${ds.intro.floatingCardBg} ${ds.intro.floatingCardBorder}`}>
                             <div className="flex items-start gap-3">
                                 <div className={`w-2 h-12 rounded-full ${content.palette === 'elegant-purple' ? 'bg-purple-500' : 'bg-pink-500'} shrink-0`}></div>
@@ -56,7 +55,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
   );
 
   const BenefitsSection = () => (
-    <section id="benefits-section" className={`py-24 ${ds.features.sectionBg}`}>
+    <section id="seccion-beneficios" className={`py-24 ${ds.features.sectionBg}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className="text-center mb-16">
                 <h2 id="benefits-title" className={`text-3xl md:text-4xl font-bold mb-4 ${ds.features.titleColor}`}>{content.benefits.title}</h2>
@@ -95,7 +94,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
   );
 
   const InstructorSection = () => (
-    <section id="instructor-section" className={`py-24 relative overflow-hidden ${ds.instructor.sectionBg}`}>
+    <section id="seccion-instructor" className={`py-24 relative overflow-hidden ${ds.instructor.sectionBg}`}>
          <div className={`absolute top-1/2 left-0 md:left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] ${ds.blobOpacity} ${ds.blobColor}`}></div>
          <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
             <div className={`flex flex-col items-center gap-12 ${isMobilePreview ? '' : 'md:flex-row md:gap-20'}`}>
@@ -133,11 +132,11 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
   );
 
   const TestimonialsSection = () => (
-    <section id="testimonials-section" className={`py-20 border-b ${ds.testimonials.sectionBg} ${ds.testimonials.sectionBorder}`}>
+    <section id="seccion-testimonios" className={`py-20 border-b ${ds.testimonials.sectionBg} ${ds.testimonials.sectionBorder}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className="text-center mb-12">
                  <h2 id="testimonials-title" className={`text-3xl md:text-4xl font-bold mb-4 ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Transformaron su pasión en Éxito"}</h2>
-                 <p id="testimonials-subtitle" className={`text-lg max-w-2xl mx-auto ${ds.testimonials.subtitleColor}`}>{content.testimonialSubtitle || "Ellas ya dieron el paso. Ahora es tu turno."}</p>
+                 <p className={`text-lg max-w-2xl mx-auto ${ds.testimonials.subtitleColor}`}>{content.testimonialSubtitle || "Ellas ya dieron el paso. Ahora es tu turno."}</p>
             </div>
             <div id="testimonials-grid" className={`grid gap-6 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.testimonials || []).map((t, i) => (
@@ -187,7 +186,9 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
         <div className={`absolute top-0 left-0 w-96 h-96 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 ${ds.blobOpacity} ${ds.blobColor}`}></div>
         <div className="w-full max-w-[75em] mx-auto px-6 text-center relative z-10">
             <h2 id="final-cta-title" className={`text-3xl md:text-5xl font-bold mb-6 ${ds.cta.sectionTitleColor}`}>¿Lista para cambiar tu vida?</h2>
-            <p id="final-cta-desc" className={`text-lg mb-10 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>No dejes pasar esta oportunidad. El acceso a la certificación y los bonos exclusivos termina pronto.</p>
+            <p id="final-cta-desc" className={`text-lg mb-10 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>
+                {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
+            </p>
             <div className="max-w-md mx-auto"><SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} /></div>
         </div>
     </section>

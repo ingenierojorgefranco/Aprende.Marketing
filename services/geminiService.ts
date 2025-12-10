@@ -1,4 +1,5 @@
 
+
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../types";
 import { api } from "./api"; // Usamos la configuración centralizada de API
 
@@ -301,7 +302,7 @@ export const generateLandingPageContent = async (
         if (!content.instructor.statsRating) content.instructor.statsRating = "5.0 Estrellas";
         
         if (!content.intro.imageCardText) content.intro.imageCardText = "Método Exclusivo";
-        if (!content.hero.socialProofCount) content.hero.socialProofCount = "+1000 Estudiantes";
+        if (!content.hero.socialProofCount) content.hero.socialProofCount = "+1000";
 
         // --- NEW DEFAULTS FOR HERO & TESTIMONIALS (User Request) ---
         if (!content.hero.videoTitle) content.hero.videoTitle = "Clase Exclusiva";
@@ -309,9 +310,23 @@ export const generateLandingPageContent = async (
         if (!content.hero.spotsLeft) content.hero.spotsLeft = "¡Cupos Limitados!";
         if (!content.testimonialSubtitle) content.testimonialSubtitle = "Resultados reales de alumnos";
         
+        // --- NEW DEFAULT FOR CLOSING OFFER TEXT ---
+        if (!content.closingOfferText) {
+            content.closingOfferText = "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios.";
+        }
+        
         if (content.testimonials) {
+            const randomLocations = [
+                "Bogotá, Colombia", "Ciudad de México, México", "Lima, Perú", 
+                "Santiago, Chile", "Buenos Aires, Argentina", "Madrid, España", 
+                "Quito, Ecuador", "Medellín, Colombia", "Monterrey, México", 
+                "Valencia, España", "Guadalajara, México", "Cali, Colombia"
+            ];
+            
             content.testimonials.forEach(t => {
-                if (!t.location) t.location = "Ciudad, País";
+                if (!t.location) {
+                    t.location = randomLocations[Math.floor(Math.random() * randomLocations.length)];
+                }
             });
         }
         
