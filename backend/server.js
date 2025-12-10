@@ -440,23 +440,39 @@ app.get('/api/admin/stats', authMiddleware, adminMiddleware, async (req, res) =>
 
 // ---------------- COURSE MANAGEMENT (ADMIN) ----------------
 
-// List Courses
+// List Courses (FULL TREE LOAD)
 app.get('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        // Fetch all courses
+        // 1. Fetch all courses
         const [courses] = await pool.query('SELECT * FROM courses ORDER BY created_at DESC');
         
-        // Fetch minimal module info for counts (optional optimization: dedicated count query)
+        // 2. Fetch full details including lessons for editing
         const coursesWithDetails = await Promise.all(courses.map(async (c) => {
-            const [modules] = await pool.query('SELECT id FROM course_modules WHERE course_id = ?', [c.id]);
+            // Fetch modules
+            const [modules] = await pool.query('SELECT * FROM course_modules WHERE course_id = ? ORDER BY order_index ASC', [c.id]);
+            
+            // Fetch lessons for each module
+            const modulesWithLessons = await Promise.all(modules.map(async (mod) => {
+                const [lessons] = await pool.query('SELECT * FROM course_lessons WHERE module_id = ? ORDER BY order_index ASC', [mod.id]);
+                
+                // Parse JSON fields
+                const lessonsParsed = lessons.map(l => ({
+                    ...l,
+                    learning_points: typeof l.learning_points === 'string' ? JSON.parse(l.learning_points) : (l.learning_points || [])
+                }));
+
+                return { ...mod, lessons: lessonsParsed };
+            }));
+
             return {
                 ...c,
-                modules: modules // Just returning minimal module objects to populate length
+                modules: modulesWithLessons
             };
         }));
         
         res.json(coursesWithDetails);
     } catch (e) {
+        console.error("Error fetching admin courses:", e);
         res.status(500).json({ error: e.message });
     }
 });
