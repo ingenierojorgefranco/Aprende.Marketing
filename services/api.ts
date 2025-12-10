@@ -1,6 +1,6 @@
 
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment } from "../types";
-import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS } from "./mockData";
+import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS } from "./mockData";
 
 // --- HELPER PARA OBTENER BASE URL ---
 const getBaseUrl = () => {
@@ -29,8 +29,8 @@ let localArticles: Article[] = [...MOCK_ARTICLES];
 let localProjects: Project[] = [...MOCK_PROJECTS];
 let localLeads: Lead[] = [...MOCK_LEADS];
 // Mock courses for dev
-let localCourses: Course[] = [];
-let localComments: Comment[] = [];
+let localCourses: Course[] = [...MOCK_COURSES];
+let localComments: Comment[] = [...MOCK_COMMENTS];
 
 // --- FUNCIÓN FETCH CON TIMEOUT ---
 const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
@@ -499,7 +499,15 @@ export const api = {
   
   getCourseBySlug: async (slug: string): Promise<any> => {
       if (isMockMode) {
-          // Fallback simple para modo mock
+          const course = localCourses.find(c => c.slug === slug);
+          if (course) {
+              // Map to viewer format if needed, but structure should match DB
+              return Promise.resolve({
+                  ...course,
+                  learningPoints: [], // Mock structure might need adjustment
+                  modules: course.modules || []
+              });
+          }
           return Promise.resolve({
               id: 'mock-course',
               title: 'Curso Mock (Modo Offline)',
@@ -571,12 +579,27 @@ export const api = {
   },
 
   getComments: async (lessonId: string): Promise<any[]> => {
-      if (isMockMode) return Promise.resolve([]);
+      if (isMockMode) {
+          return Promise.resolve(localComments.filter(c => c.lessonId === lessonId));
+      }
       return await fetchWithFallback(`/lessons/${lessonId}/comments`, { headers: getAuthHeaders() });
   },
 
   postComment: async (lessonId: string, content: string, parentId?: string): Promise<void> => {
-      if (isMockMode) return Promise.resolve();
+      if (isMockMode) {
+          const newComment: any = {
+              id: `c-${Date.now()}`,
+              lessonId,
+              text: content,
+              user: MOCK_USER.name,
+              userId: MOCK_USER.id,
+              date: new Date().toISOString(),
+              likes: 0,
+              isApproved: false
+          };
+          localComments.unshift(newComment);
+          return Promise.resolve();
+      }
       await fetchWithFallback('/comments', {
           method: 'POST',
           headers: getAuthHeaders(),

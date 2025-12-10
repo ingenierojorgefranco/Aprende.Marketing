@@ -229,7 +229,7 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
 });
 
 // ======================================================
-//  COURSES (LMS) ROUTES
+//  COURSES (LMS) ROUTES (PUBLIC/STUDENT)
 // ======================================================
 
 // GET Course Full Structure by Slug
@@ -262,10 +262,6 @@ app.get('/api/courses/:slug', authMiddleware, async (req, res) => {
             };
         }));
 
-        // Flatten learning points for the top-level "Course Data" structure expected by frontend
-        // Or fetch specific top-level points if we add a column to `courses` later. 
-        // For now, we adapt the DB structure to the expected `CourseData` interface.
-        
         // Find first lesson's learning points as a fallback for course overview if needed
         let learningPoints = [];
         if (modulesWithLessons.length > 0 && modulesWithLessons[0].lessons.length > 0) {
@@ -277,7 +273,7 @@ app.get('/api/courses/:slug', authMiddleware, async (req, res) => {
             title: course.title,
             subtitle: course.subtitle,
             description: course.description,
-            learningPoints: learningPoints, // Can be improved
+            learningPoints: learningPoints, 
             modules: modulesWithLessons
         };
 
@@ -312,10 +308,6 @@ app.get('/api/lessons/:lessonId/comments', authMiddleware, async (req, res) => {
             parentId: c.parent_id ? c.parent_id.toString() : null
         }));
 
-        // Handle nesting (replies) in frontend or backend. 
-        // For simplicity, let's send flat list and let frontend nest, OR nest here.
-        // Let's send flat with parentId for now, but the frontend expects nested `replies`.
-        
         const rootComments = formatted.filter(c => !c.parentId);
         const replies = formatted.filter(c => c.parentId);
 
@@ -360,6 +352,8 @@ const adminMiddleware = (req, res, next) => {
     next();
 };
 
+// ---------------- USER MANAGEMENT ----------------
+
 // List Users
 app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {
     try {
@@ -398,7 +392,6 @@ app.put('/api/admin/users/:id', authMiddleware, adminMiddleware, async (req, res
 // Delete User
 app.delete('/api/admin/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        // Cascading deletes handled by foreign keys ideally, but ensuring manual cleanup if needed
         await pool.query('DELETE FROM users WHERE id = ?', [req.params.id]);
         res.json({ message: 'Usuario eliminado' });
     } catch (e) {
@@ -440,6 +433,234 @@ app.get('/api/admin/stats', authMiddleware, adminMiddleware, async (req, res) =>
             projects: projectsCount[0].c,
             pages: pagesCount[0].c
         });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// ---------------- COURSE MANAGEMENT (ADMIN) ----------------
+
+// List Courses
+app.get('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        // Fetch all courses
+        const [courses] = await pool.query('SELECT * FROM courses ORDER BY created_at DESC');
+        
+        // Fetch minimal module info for counts (optional optimization: dedicated count query)
+        const coursesWithDetails = await Promise.all(courses.map(async (c) => {
+            const [modules] = await pool.query('SELECT id FROM course_modules WHERE course_id = ?', [c.id]);
+            return {
+                ...c,
+                modules: modules // Just returning minimal module objects to populate length
+            };
+        }));
+        
+        res.json(coursesWithDetails);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Create Course
+app.post('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res) => {
+    const { title, subtitle, description, slug, thumbnail, modules } = req.body;
+    
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // 1. Insert Course
+        const [courseRes] = await connection.query(
+            'INSERT INTO courses (title, subtitle, description, slug, thumbnail, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
+            [title, subtitle, description, slug, thumbnail]
+        );
+        const courseId = courseRes.insertId;
+
+        // 2. Insert Modules & Lessons
+        if (modules && modules.length > 0) {
+            for (const mod of modules) {
+                const [modRes] = await connection.query(
+                    'INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)',
+                    [courseId, mod.title, mod.order_index]
+                );
+                const moduleId = modRes.insertId;
+
+                if (mod.lessons && mod.lessons.length > 0) {
+                    for (const lesson of mod.lessons) {
+                        await connection.query(
+                            'INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                            [moduleId, lesson.title, lesson.duration, lesson.video_url, lesson.description, JSON.stringify(lesson.learning_points || []), lesson.order_index]
+                        );
+                    }
+                }
+            }
+        }
+
+        await connection.commit();
+        res.json({ success: true, id: courseId });
+    } catch (e) {
+        await connection.rollback();
+        res.status(500).json({ error: e.message });
+    } finally {
+        connection.release();
+    }
+});
+
+// Update Course (Full Sync)
+app.put('/api/admin/courses/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { title, subtitle, description, slug, thumbnail, modules } = req.body;
+
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // 1. Update Course Info
+        await connection.query(
+            'UPDATE courses SET title=?, subtitle=?, description=?, slug=?, thumbnail=? WHERE id=?',
+            [title, subtitle, description, slug, thumbnail, id]
+        );
+
+        // 2. Sync Modules
+        // Strategy: 
+        // - Track valid Module IDs present in input.
+        // - Insert new modules (string ID) -> map temp ID to real ID.
+        // - Update existing modules (number ID).
+        // - Delete modules NOT in input list.
+        
+        const validModuleIds = [];
+
+        if (modules && modules.length > 0) {
+            for (const mod of modules) {
+                let moduleId = mod.id;
+
+                if (typeof moduleId === 'string' && moduleId.startsWith('new-')) {
+                    // INSERT new module
+                    const [modRes] = await connection.query(
+                        'INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)',
+                        [id, mod.title, mod.order_index]
+                    );
+                    moduleId = modRes.insertId;
+                } else {
+                    // UPDATE existing module
+                    await connection.query(
+                        'UPDATE course_modules SET title=?, order_index=? WHERE id=?',
+                        [mod.title, mod.order_index, moduleId]
+                    );
+                }
+                
+                validModuleIds.push(moduleId);
+
+                // 3. Sync Lessons for this Module
+                const validLessonIds = [];
+                if (mod.lessons && mod.lessons.length > 0) {
+                    for (const lesson of mod.lessons) {
+                        let lessonId = lesson.id;
+                        
+                        if (typeof lessonId === 'string' && lessonId.startsWith('new-')) {
+                            // INSERT
+                            const [lessRes] = await connection.query(
+                                'INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                                [moduleId, lesson.title, lesson.duration, lesson.video_url, lesson.description, JSON.stringify(lesson.learning_points || []), lesson.order_index]
+                            );
+                            lessonId = lessRes.insertId;
+                        } else {
+                            // UPDATE
+                            await connection.query(
+                                'UPDATE course_lessons SET title=?, duration=?, video_url=?, description=?, learning_points=?, order_index=?, module_id=? WHERE id=?',
+                                [lesson.title, lesson.duration, lesson.video_url, lesson.description, JSON.stringify(lesson.learning_points || []), lesson.order_index, moduleId, lessonId]
+                            );
+                        }
+                        validLessonIds.push(lessonId);
+                    }
+                }
+
+                // DELETE orphan lessons for this module
+                if (validLessonIds.length > 0) {
+                    await connection.query(
+                        `DELETE FROM course_lessons WHERE module_id = ? AND id NOT IN (${validLessonIds.join(',')})`, 
+                        [moduleId]
+                    );
+                } else {
+                    await connection.query('DELETE FROM course_lessons WHERE module_id = ?', [moduleId]);
+                }
+            }
+        }
+
+        // DELETE orphan modules for this course
+        if (validModuleIds.length > 0) {
+            await connection.query(
+                `DELETE FROM course_modules WHERE course_id = ? AND id NOT IN (${validModuleIds.join(',')})`, 
+                [id]
+            );
+        } else {
+            await connection.query('DELETE FROM course_modules WHERE course_id = ?', [id]);
+        }
+
+        await connection.commit();
+        res.json({ success: true });
+    } catch (e) {
+        await connection.rollback();
+        console.error("Error syncing course:", e);
+        res.status(500).json({ error: e.message });
+    } finally {
+        connection.release();
+    }
+});
+
+// Delete Course
+app.delete('/api/admin/courses/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        await pool.query('DELETE FROM courses WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// ---------------- COMMENT MANAGEMENT (ADMIN) ----------------
+
+// List All Comments
+app.get('/api/admin/comments', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const [comments] = await pool.query(`
+            SELECT 
+                c.id, c.content as text, c.created_at as date, c.likes,
+                u.name as user, u.id as userId,
+                l.title as lessonTitle, l.id as lessonId,
+                co.title as courseTitle
+            FROM lesson_comments c
+            JOIN users u ON c.user_id = u.id
+            JOIN course_lessons l ON c.lesson_id = l.id
+            JOIN course_modules m ON l.module_id = m.id
+            JOIN courses co ON m.course_id = co.id
+            ORDER BY c.created_at DESC
+        `);
+        
+        // Add fake 'isApproved' logic (assuming all DB comments are approved for now, or add column later)
+        const formatted = comments.map(c => ({
+            ...c,
+            isApproved: true // Default to true in this schema for simplicity
+        }));
+
+        res.json(formatted);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Moderate Comment
+app.post('/api/admin/comments/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { action } = req.body; // 'delete' only supported for now as 'approve' is implicit
+
+    try {
+        if (action === 'delete') {
+            await pool.query('DELETE FROM lesson_comments WHERE id = ?', [id]);
+        }
+        // If we had an 'is_approved' column, we would update it here for 'approve' action
+        
+        res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
