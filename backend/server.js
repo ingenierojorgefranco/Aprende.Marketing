@@ -168,7 +168,7 @@ const loginHandler = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, password_hash, role, is_active, public_subdomain, plan_limits FROM users WHERE email = ?',
+      'SELECT id, name, email, password_hash, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at FROM users WHERE email = ?',
       [email]
     );
 
@@ -193,7 +193,10 @@ const loginHandler = async (req, res) => {
       email: user.email,
       role: user.role,
       public_subdomain: user.public_subdomain,
-      planLimits: planLimits
+      planLimits: planLimits,
+      avatarUrl: user.avatar_url,
+      birthDate: user.birth_date,
+      createdAt: user.created_at
     };
     const token = createToken(userResponse);
     res.json({ user: userResponse, token });
@@ -209,7 +212,7 @@ app.post('/api/login', loginHandler);
 app.get('/api/auth/me', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits FROM users WHERE id = ?',
+      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at FROM users WHERE id = ?',
       [req.user.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -221,12 +224,236 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
     }
 
     res.json({
-        ...user,
-        planLimits: planLimits
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        is_active: user.is_active,
+        public_subdomain: user.public_subdomain,
+        planLimits: planLimits,
+        avatarUrl: user.avatar_url,
+        birthDate: user.birth_date,
+        createdAt: user.created_at
     });
   } catch (error) {
     res.status(500).json({ error: 'Error interno' });
   }
+});
+
+// NEW: Update Profile Endpoint
+app.put('/api/auth/profile', authMiddleware, async (req, res) => {
+    const { name, email, avatarUrl, birthDate } = req.body;
+    
+    if (!name || !email) {
+        return res.status(400).json({ error: "Nombre y Email son obligatorios" });
+    }
+
+    try {
+        await pool.query(
+            'UPDATE users SET name = ?, email = ?, avatar_url = ?, birth_date = ? WHERE id = ?',
+            [name, email, avatarUrl, birthDate, req.user.id]
+        );
+        
+        // Fetch updated user to return consistent state
+        const [rows] = await pool.query(
+            'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at FROM users WHERE id = ?',
+            [req.user.id]
+        );
+        
+        const user = rows[0];
+        let planLimits = DEFAULT_LIMITS;
+        if (user.plan_limits) {
+            planLimits = typeof user.plan_limits === 'string' ? JSON.parse(user.plan_limits) : user.plan_limits;
+        }
+
+        res.json({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            planLimits: planLimits,
+            avatarUrl: user.avatar_url,
+            birthDate: user.birth_date,
+            createdAt: user.created_at
+        });
+
+    } catch (e) {
+        console.error("Error updating profile:", e);
+        res.status(500).json({ error: "Error al actualizar perfil" });
+    }
+});
+
+// ======================================================
+//  PUBLIC ROUTES (PLANS & CONTENT)
+// ======================================================
+
+// GET Active Plans (Public)
+app.get('/api/public/plans', async (req, res) => {
+    try {
+        const [plans] = await pool.query('SELECT * FROM plans WHERE is_active = 1 ORDER BY price_monthly ASC');
+        const formattedPlans = plans.map(p => ({
+            id: p.id.toString(),
+            name: p.name,
+            slug: p.slug,
+            description: p.description,
+            priceMonthly: parseFloat(p.price_monthly),
+            currency: p.currency,
+            limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
+            uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : (p.ui_features || []),
+            isRecommended: !!p.is_recommended
+        }));
+        res.json(formattedPlans);
+    } catch (e) {
+        console.error("[Plans] Error fetching public plans:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 1. DIAGNÓSTICO
+app.get('/api/debug/db-status', async (req, res) => {
+  try {
+      const [rows] = await pool.query('SELECT 1 as val');
+      res.json({ 
+          status: 'online', 
+          db_response: rows[0].val, 
+          server_version: SERVER_VERSION,
+          timestamp: new Date().toISOString()
+      });
+  } catch (e) {
+      res.status(500).json({ status: 'offline', error: e.message, server_version: SERVER_VERSION });
+  }
+});
+
+// 2. BY DOMAIN
+app.get('/api/public/pages/by-domain', async (req, res) => {
+  let host = req.query.domain || req.hostname || req.headers.host || '';
+  if (host.includes(':')) host = host.split(':')[0];
+  if (host.startsWith('www.')) host = host.slice(4);
+
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM landing_pages WHERE custom_domain = ? AND is_published = 1 LIMIT 1',
+      [host]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ 
+          error: 'API Endpoint Not Found',
+          server_version: SERVER_VERSION
+      });
+    }
+
+    const page = rows[0];
+    
+    // REGISTRAR VISITA SOLO SI NO ES ADMIN
+    if (!isAdminRequest(req)) {
+        recordVisit(page.id);
+    }
+    
+    if (typeof page.content === 'string') {
+        try { page.content = JSON.parse(page.content); } catch {}
+    }
+    
+    res.json(page);
+  } catch (error) {
+    res.status(500).json({ error: 'Error interno', server_version: SERVER_VERSION });
+  }
+});
+
+// 3. BY USER+SLUG
+app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
+  const { userSlug, slug } = req.params;
+  try {
+    const [rows] = await pool.query(
+      `SELECT lp.* FROM landing_pages lp
+       INNER JOIN users u ON u.id = lp.user_id
+       WHERE u.public_subdomain = ? AND lp.subdomain = ? AND lp.is_published = 1 LIMIT 1`,
+      [userSlug, slug]
+    );
+
+    if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    const page = rows[0];
+
+    // REGISTRAR VISITA SOLO SI NO ES ADMIN
+    if (!isAdminRequest(req)) {
+        recordVisit(page.id);
+    }
+
+    if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
+    res.json(page);
+  } catch (e) {
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+// 4. GENERIC SLUG (Modified to support ID lookup fallback)
+app.get('/api/public/pages/:slug', async (req, res) => {
+  const { slug } = req.params;
+  try {
+    let rows = [];
+
+    // Attempt to lookup by ID if the slug is numeric
+    // This solves issues where frontend links use ID as a fallback when subdomain is missing
+    if (/^\d+$/.test(slug)) {
+       [rows] = await pool.query(
+           'SELECT * FROM landing_pages WHERE id = ? AND is_published = 1 LIMIT 1',
+           [slug]
+       );
+    }
+
+    // If not found by ID (or slug wasn't numeric), try by subdomain/slug
+    if (rows.length === 0) {
+        [rows] = await pool.query(
+          'SELECT * FROM landing_pages WHERE (subdomain = ? OR subdomain LIKE ?) AND is_published = 1 LIMIT 1',
+          [slug, `${slug}.%`]
+        );
+    }
+
+    if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    
+    const page = rows[0];
+
+    // REGISTRAR VISITA SOLO SI NO ES ADMIN
+    if (!isAdminRequest(req)) {
+        recordVisit(page.id);
+    }
+
+    if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
+    res.json(page);
+  } catch (e) {
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+// 5. BLOG PÚBLICO
+app.get('/api/public/pages/:pageId/blog', async (req, res) => {
+    const { pageId } = req.params;
+    try {
+        const [rows] = await pool.query(
+            `SELECT id, title, slug, description, meta_description, featured_image, published_at 
+             FROM articles 
+             WHERE page_id = ? AND status = 'published' AND published_at <= NOW()
+             ORDER BY published_at DESC`,
+            [pageId]
+        );
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.get('/api/public/articles/:slug', async (req, res) => {
+    const { slug } = req.params;
+    try {
+        const [rows] = await pool.query(
+            `SELECT * FROM articles WHERE slug = ? AND status = 'published' LIMIT 1`,
+            [slug]
+        );
+        if(rows.length === 0) return res.status(404).json({ error: "Artículo no encontrado" });
+        res.json(rows[0]);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
 });
 
 // ======================================================

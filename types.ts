@@ -49,6 +49,9 @@ export interface User {
   email: string;
   role?: 'admin' | 'user';
   planLimits?: PlanLimits;
+  avatarUrl?: string; // New
+  birthDate?: string; // New
+  createdAt?: Date;   // New
 }
 
 export type ColorPalette = 

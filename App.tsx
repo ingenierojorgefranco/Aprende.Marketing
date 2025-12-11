@@ -160,7 +160,10 @@ const App: React.FC = () => {
               name: authUser.name,
               email: authUser.email,
               role: (authUser as any).role,
-              planLimits: (authUser as any).planLimits
+              planLimits: (authUser as any).planLimits,
+              avatarUrl: (authUser as any).avatarUrl,
+              birthDate: (authUser as any).birthDate,
+              createdAt: (authUser as any).createdAt
             });
           }
         } catch (error) {
@@ -291,6 +294,7 @@ const App: React.FC = () => {
                 user={user!}
                 onLogout={handleLogout}
                 isOffline={isOffline}
+                onUpdateUser={setUser}
               />
             </ProtectedRoute>
           }

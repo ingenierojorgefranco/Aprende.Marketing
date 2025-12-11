@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { User } from '../../types';
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2 } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
 import { UpgradeModal } from './UpgradeModal';
+
+// Lazy Load User Profile Modal
+const UserProfileModal = React.lazy(() => import('./UserProfileModal'));
 
 interface DashboardLayoutProps {
   user: User;
   onLogout: () => void;
   isOffline?: boolean;
+  onUpdateUser?: (updatedUser: User) => void;
 }
 
 type MenuItem = {
@@ -24,11 +28,13 @@ export const DashboardLayout = ({
   user,
   onLogout,
   isOffline,
+  onUpdateUser
 }: DashboardLayoutProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMenu, setExpandedMenu] = useState<string | null>('mid-landing');
   const [courseItems, setCourseItems] = useState<{ label: string; path: string; icon: any }[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   
   // Context Data State
   const [projectCount, setProjectCount] = useState(0);
@@ -251,17 +257,24 @@ export const DashboardLayout = ({
         )}
 
         <div className="p-4 border-t border-gray-800 bg-gray-900 z-10">
-          <div className="flex items-center gap-3 px-4 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold uppercase">
-              {user.name.charAt(0)}
+          <div 
+            onClick={() => setShowProfileModal(true)}
+            className="flex items-center gap-3 px-4 py-2 mb-2 cursor-pointer hover:bg-gray-800 rounded-lg transition group relative"
+          >
+            <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold uppercase overflow-hidden border border-primary/30">
+              {user.avatarUrl ? (
+                  <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                  user.name.charAt(0)
+              )}
             </div>
-            <div className="text-sm overflow-hidden">
-              <p className="font-semibold text-white truncate">{user.name}</p>
+            <div className="flex-1 text-sm overflow-hidden">
+              <p className="font-semibold text-white truncate group-hover:text-primary transition-colors">{user.name}</p>
               <div className="flex items-center gap-2">
-                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                  {user.role === 'admin' && <span className="text-[10px] bg-red-900/50 text-red-400 px-1 rounded">ADMIN</span>}
+                  <p className="text-xs text-gray-500 truncate">{user.role === 'admin' ? 'Administrador' : currentPlan.toUpperCase()}</p>
               </div>
             </div>
+            <Settings className="w-4 h-4 text-gray-600 group-hover:text-white transition opacity-0 group-hover:opacity-100" />
           </div>
           <button
             onClick={onLogout}
@@ -286,21 +299,20 @@ export const DashboardLayout = ({
               <NavItemRender key={item.id} item={item} />
             ))}
             
-            {/* Mobile Widget */}
-            {!isMax && (
-                <div className="mt-4 mb-4">
-                    <button 
-                        onClick={() => { setShowUpgradeModal(true); setMobileMenuOpen(false); }}
-                        className={`w-full p-4 rounded-xl border border-white/10 text-left ${isPro ? 'bg-purple-900/50' : 'bg-orange-900/50'}`}
-                    >
-                        <div className="flex items-center gap-2 font-bold text-white mb-1">
-                            {isPro ? <Crown className="w-4 h-4 text-purple-400" /> : <Sparkles className="w-4 h-4 text-orange-400" />}
-                            {isPro ? 'Actualizar a Plan MAX' : 'Actualizar a Plan PRO'}
-                        </div>
-                        <p className="text-xs text-gray-400">Toca para ver beneficios</p>
-                    </button>
-                </div>
-            )}
+            <div className="mt-4 mb-4">
+                <button 
+                    onClick={() => { setShowProfileModal(true); setMobileMenuOpen(false); }}
+                    className="w-full p-4 rounded-xl border border-white/10 text-left bg-gray-800 flex items-center gap-3"
+                >
+                    <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center font-bold text-white">
+                        {user.name.charAt(0)}
+                    </div>
+                    <div>
+                        <p className="text-white font-bold text-sm">Mi Perfil</p>
+                        <p className="text-xs text-gray-400">Editar datos y plan</p>
+                    </div>
+                </button>
+            </div>
 
             <div className="border-t border-gray-800 my-4"></div>
             <button onClick={onLogout} className="text-red-400 flex gap-2 mt-4 px-4 w-full items-center">
@@ -336,6 +348,19 @@ export const DashboardLayout = ({
             onClose={() => setShowUpgradeModal(false)} 
             currentPlan={currentPlan}
         />
+
+        {/* User Profile Modal (Lazy) */}
+        <Suspense fallback={null}>
+            {showProfileModal && (
+                <UserProfileModal 
+                    user={user} 
+                    onClose={() => setShowProfileModal(false)}
+                    onUpdateUser={(updatedUser) => {
+                        if (onUpdateUser) onUpdateUser(updatedUser);
+                    }}
+                />
+            )}
+        </Suspense>
       </main>
     </div>
   );

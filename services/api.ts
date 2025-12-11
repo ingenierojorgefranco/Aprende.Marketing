@@ -96,6 +96,21 @@ export const api = {
       return user.user;
   },
 
+  updateProfile: async (data: Partial<User>): Promise<User> => {
+      if (isMockMode) {
+          MOCK_USER.name = data.name || MOCK_USER.name;
+          MOCK_USER.email = data.email || MOCK_USER.email;
+          MOCK_USER.avatarUrl = data.avatarUrl || MOCK_USER.avatarUrl;
+          MOCK_USER.birthDate = data.birthDate || MOCK_USER.birthDate;
+          return Promise.resolve({ ...MOCK_USER });
+      }
+      return await fetchWithFallback('/auth/profile', {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(data)
+      });
+  },
+
   getPages: async (): Promise<LandingPage[]> => {
     if (isMockMode) return Promise.resolve([...localPages]);
     
@@ -638,6 +653,38 @@ export const api = {
   getPlans: async (): Promise<Plan[]> => {
       if (isMockMode) return Promise.resolve([]); // Add mock plans if needed later
       return await fetchWithFallback('/admin/plans', { headers: getAuthHeaders() });
+  },
+
+  getPublicPlans: async (): Promise<Plan[]> => {
+      if (isMockMode) {
+          return Promise.resolve([
+              {
+                  id: 'starter',
+                  name: 'Starter',
+                  slug: 'starter',
+                  description: 'Ideal para empezar sin riesgo.',
+                  priceMonthly: 0,
+                  currency: 'EUR',
+                  limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false } },
+                  uiFeatures: ['1 Proyecto / Nicho', '3 Landing Pages', 'IA Básica', 'Marca de Agua'],
+                  isActive: true,
+                  isRecommended: false
+              },
+              {
+                  id: 'pro',
+                  name: 'Pro',
+                  slug: 'pro',
+                  description: 'Para Productores y Afiliados serios.',
+                  priceMonthly: 19.99,
+                  currency: 'EUR',
+                  limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true } },
+                  uiFeatures: ['5 Proyectos', '20 Landing Pages', 'Bot WhatsApp', 'IA Avanzada', 'Sin Marca de Agua'],
+                  isActive: true,
+                  isRecommended: true
+              }
+          ]);
+      }
+      return await fetchWithFallback('/public/plans');
   },
 
   savePlan: async (plan: Plan): Promise<void> => {

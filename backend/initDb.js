@@ -224,6 +224,9 @@ const initDb = async () => {
         await addColumnSafe(connection, 'articles', "page_id INT NULL");
         await addColumnSafe(connection, 'users', "role VARCHAR(50) DEFAULT 'user'");
         await addColumnSafe(connection, 'users', "plan_limits JSON NULL");
+        // NEW MIGRATIONS FOR USER PROFILE
+        await addColumnSafe(connection, 'users', "avatar_url VARCHAR(500)");
+        await addColumnSafe(connection, 'users', "birth_date DATE");
         
         // Nuevas migraciones para Cursos y Comentarios
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");
