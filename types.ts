@@ -1,5 +1,4 @@
 
-
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
   LOGIN = 'LOGIN',
@@ -23,7 +22,7 @@ export interface PlanFeatures {
 }
 
 export interface PlanLimits {
-  planName: 'free' | 'starter' | 'pro' | 'max' | 'custom';
+  planName: 'free' | 'starter' | 'pro' | 'max' | 'custom' | string;
   maxProjects: number;
   maxLandings: number;
   features: PlanFeatures;
@@ -52,6 +51,7 @@ export interface User {
   avatarUrl?: string; // New
   birthDate?: string; // New
   createdAt?: Date;   // New
+  customRedirectUrl?: string; // New: User specific redirect
 }
 
 export type ColorPalette = 

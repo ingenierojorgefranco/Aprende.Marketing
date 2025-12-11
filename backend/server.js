@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v14_redirects_reorder'; 
+const SERVER_VERSION = 'v15_advanced_user_mgmt'; 
 
 app.enable('trust proxy');
 
@@ -176,7 +176,7 @@ const loginHandler = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, password_hash, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at FROM users WHERE email = ?',
+      'SELECT id, name, email, password_hash, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url FROM users WHERE email = ?',
       [email]
     );
 
@@ -204,7 +204,8 @@ const loginHandler = async (req, res) => {
       planLimits: planLimits,
       avatarUrl: user.avatar_url,
       birthDate: user.birth_date,
-      createdAt: user.created_at
+      createdAt: user.created_at,
+      customRedirectUrl: user.custom_redirect_url // Include custom redirect
     };
     const token = createToken(userResponse);
     res.json({ user: userResponse, token });
@@ -220,7 +221,7 @@ app.post('/api/login', loginHandler);
 app.get('/api/auth/me', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at FROM users WHERE id = ?',
+      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url FROM users WHERE id = ?',
       [req.user.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -241,7 +242,8 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
         planLimits: planLimits,
         avatarUrl: user.avatar_url,
         birthDate: user.birth_date,
-        createdAt: user.created_at
+        createdAt: user.created_at,
+        customRedirectUrl: user.custom_redirect_url
     });
   } catch (error) {
     res.status(500).json({ error: 'Error interno' });
@@ -264,7 +266,7 @@ app.put('/api/auth/profile', authMiddleware, async (req, res) => {
         
         // Fetch updated user to return consistent state
         const [rows] = await pool.query(
-            'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at FROM users WHERE id = ?',
+            'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url FROM users WHERE id = ?',
             [req.user.id]
         );
         
@@ -282,7 +284,8 @@ app.put('/api/auth/profile', authMiddleware, async (req, res) => {
             planLimits: planLimits,
             avatarUrl: user.avatar_url,
             birthDate: user.birth_date,
-            createdAt: user.created_at
+            createdAt: user.created_at,
+            customRedirectUrl: user.custom_redirect_url
         });
 
     } catch (e) {
@@ -499,13 +502,14 @@ app.post('/api/comments/:id/like', authMiddleware, async (req, res) => {
 app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const [users] = await pool.query(
-            `SELECT id, name, email, role, is_active, plan_limits, created_at, last_login_at 
+            `SELECT id, name, email, role, is_active, plan_limits, created_at, last_login_at, avatar_url, birth_date, custom_redirect_url 
              FROM users ORDER BY created_at DESC`
         );
         
         const safeUsers = users.map(u => ({
             ...u,
-            planLimits: typeof u.plan_limits === 'string' ? JSON.parse(u.plan_limits) : (u.plan_limits || DEFAULT_LIMITS)
+            planLimits: typeof u.plan_limits === 'string' ? JSON.parse(u.plan_limits) : (u.plan_limits || DEFAULT_LIMITS),
+            customRedirectUrl: u.custom_redirect_url
         }));
         
         res.json(safeUsers);
@@ -514,15 +518,25 @@ app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) =>
     }
 });
 
-// Update User (Role & Plan Limits)
+// Update User (Role, Plan Limits & Profile Info)
 app.put('/api/admin/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
-    const { role, planLimits, isActive } = req.body;
+    const { role, planLimits, isActive, name, email, avatarUrl, birthDate, customRedirectUrl } = req.body;
     
     try {
+        // Build query dynamically or update all fields
         await pool.query(
-            'UPDATE users SET role = ?, plan_limits = ?, is_active = ? WHERE id = ?',
-            [role, JSON.stringify(planLimits), isActive, id]
+            `UPDATE users SET 
+                role = ?, 
+                plan_limits = ?, 
+                is_active = ?,
+                name = COALESCE(?, name),
+                email = COALESCE(?, email),
+                avatar_url = ?,
+                birth_date = ?,
+                custom_redirect_url = ?
+             WHERE id = ?`,
+            [role, JSON.stringify(planLimits), isActive, name, email, avatarUrl, birthDate, customRedirectUrl, id]
         );
         res.json({ message: 'Usuario actualizado correctamente' });
     } catch (e) {

@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { User, PlanLimits } from '../../../types';
+import { User, PlanLimits, Plan } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Shield, Users, Edit, Trash2, Check, X, Save, AlertTriangle, Eye, ChevronDown, ChevronUp, Folder, FileText, Globe, Link as LinkIcon } from 'lucide-react';
+import { Loader2, Shield, Users, Edit, Trash2, Check, X, Save, AlertTriangle, Eye, ChevronDown, ChevronUp, Folder, FileText, Globe, Link as LinkIcon, User as UserIcon, Mail, Calendar, Upload } from 'lucide-react';
 
 // --- Sub-component for viewing user resources (Lazy Loaded) ---
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -190,6 +190,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
 
 export const AdminPanel: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
+    const [plans, setPlans] = useState<Plan[]>([]);
     const [loading, setLoading] = useState(true);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [viewingUser, setViewingUser] = useState<User | null>(null); // For Content Viewer
@@ -201,28 +202,24 @@ export const AdminPanel: React.FC = () => {
     const [loadingSettings, setLoadingSettings] = useState(false);
 
     useEffect(() => {
-        loadUsers();
-        loadSettings();
+        loadData();
     }, []);
 
-    const loadUsers = async () => {
+    const loadData = async () => {
         setLoading(true);
         try {
-            const data = await api.getUsers();
-            setUsers(data);
+            const [usersData, plansData, settingsData] = await Promise.all([
+                api.getUsers(),
+                api.getPlans(),
+                api.getLoginRedirect().catch(() => '/dashboard')
+            ]);
+            setUsers(usersData);
+            setPlans(plansData);
+            setRedirectUrl(settingsData || '/dashboard');
         } catch (error) {
-            console.error("Error loading users:", error);
+            console.error("Error loading admin data:", error);
         } finally {
             setLoading(false);
-        }
-    };
-
-    const loadSettings = async () => {
-        try {
-            const url = await api.getLoginRedirect();
-            setRedirectUrl(url);
-        } catch (e) {
-            console.error("Failed to load settings");
         }
     };
 
@@ -258,13 +255,24 @@ export const AdminPanel: React.FC = () => {
         if (!editingUser || !tempPlanLimits) return;
 
         try {
+            // Update Full User Profile including Role and Plan Limits
             await api.updateUser(editingUser.id, {
                 role: editingUser.role || 'user',
                 planLimits: tempPlanLimits,
-                isActive: true // Assuming active for now, can add toggle
-            });
+                isActive: true, // Assuming active for now
+                name: editingUser.name,
+                email: editingUser.email,
+                avatarUrl: editingUser.avatarUrl,
+                birthDate: editingUser.birthDate,
+                customRedirectUrl: editingUser.customRedirectUrl
+            } as any); // Type cast for extended fields
+
             // Refresh list
-            setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...editingUser, planLimits: tempPlanLimits } : u));
+            setUsers(prev => prev.map(u => u.id === editingUser.id ? { 
+                ...editingUser, 
+                planLimits: tempPlanLimits 
+            } : u));
+            
             setEditingUser(null);
             setTempPlanLimits(null);
         } catch (error) {
@@ -282,24 +290,13 @@ export const AdminPanel: React.FC = () => {
         }
     };
 
-    const applyTemplate = (template: 'starter' | 'pro') => {
-        if (!tempPlanLimits) return;
-        
-        if (template === 'starter') {
-            setTempPlanLimits({
-                planName: 'starter',
-                maxProjects: 1,
-                maxLandings: 3,
-                features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false }
-            });
-        } else {
-            setTempPlanLimits({
-                planName: 'pro',
-                maxProjects: 10,
-                maxLandings: 50,
-                features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true }
-            });
-        }
+    const applyTemplate = (plan: Plan) => {
+        setTempPlanLimits({
+            planName: plan.slug,
+            maxProjects: plan.limitsConfig.maxProjects,
+            maxLandings: plan.limitsConfig.maxLandings,
+            features: { ...plan.limitsConfig.features }
+        });
     };
 
     if (loading) {
@@ -341,7 +338,7 @@ export const AdminPanel: React.FC = () => {
                             Guardar
                         </button>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">Define a dónde van los usuarios inmediatamente después de iniciar sesión. Por defecto: /dashboard/training/bienvenida</p>
+                    <p className="text-xs text-gray-500 mt-2">Define a dónde van los usuarios inmediatamente después de iniciar sesión por defecto.</p>
                 </div>
             </div>
 
@@ -368,6 +365,11 @@ export const AdminPanel: React.FC = () => {
                                 <td className="p-4">
                                     <div className="font-bold text-white">{user.name}</div>
                                     <div className="text-gray-500">{user.email}</div>
+                                    {user.customRedirectUrl && (
+                                        <div className="text-[10px] text-blue-400 flex items-center gap-1 mt-1">
+                                            <LinkIcon className="w-3 h-3" /> Redirect: {user.customRedirectUrl}
+                                        </div>
+                                    )}
                                 </td>
                                 <td className="p-4">
                                     <span className={`px-2 py-1 rounded text-xs font-bold ${user.role === 'admin' ? 'bg-red-900/30 text-red-400 border border-red-900' : 'bg-blue-900/30 text-blue-400 border border-blue-900'}`}>
@@ -389,7 +391,7 @@ export const AdminPanel: React.FC = () => {
                                     </button>
                                     <button 
                                         onClick={() => handleEditClick(user)}
-                                        className="p-2 hover:bg-blue-900/30 text-blue-400 rounded transition" title="Editar Plan"
+                                        className="p-2 hover:bg-blue-900/30 text-blue-400 rounded transition" title="Editar Usuario"
                                     >
                                         <Edit className="w-4 h-4" />
                                     </button>
@@ -414,85 +416,169 @@ export const AdminPanel: React.FC = () => {
             {/* Edit User Modal */}
             {editingUser && tempPlanLimits && (
                 <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl animate-in zoom-in-95 overflow-hidden">
-                        <div className="p-6 border-b border-gray-800 flex justify-between items-center">
-                            <h3 className="text-xl font-bold text-white">Editar Usuario: {editingUser.name}</h3>
+                    <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]">
+                        <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-850 shrink-0">
+                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                <Edit className="w-5 h-5 text-blue-400" /> Editar Usuario: {editingUser.name}
+                            </h3>
                             <button onClick={() => setEditingUser(null)} className="text-gray-500 hover:text-white"><X className="w-6 h-6" /></button>
                         </div>
                         
-                        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-                            {/* Role Selection */}
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Rol del Sistema</label>
-                                <select 
-                                    value={editingUser.role} 
-                                    onChange={(e) => setEditingUser({...editingUser, role: e.target.value as any})}
-                                    className="w-full bg-black border border-gray-700 rounded-lg px-4 py-2 text-white"
-                                >
-                                    <option value="user">Usuario Normal</option>
-                                    <option value="admin">Administrador</option>
-                                </select>
-                            </div>
-
-                            {/* Plan Template Buttons */}
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Plantillas Rápidas</label>
-                                <div className="flex gap-4">
-                                    <button onClick={() => applyTemplate('starter')} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded border border-gray-600 text-xs">Aplicar Starter</button>
-                                    <button onClick={() => applyTemplate('pro')} className="px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded border border-blue-700 text-xs">Aplicar Pro</button>
-                                </div>
-                            </div>
-
-                            {/* Limits Config */}
-                            <div className="grid grid-cols-2 gap-4 bg-gray-800/30 p-4 rounded-xl border border-gray-800">
-                                <div>
-                                    <label className="block text-xs text-gray-400 mb-1">Máx Proyectos</label>
-                                    <input 
-                                        type="number" 
-                                        value={tempPlanLimits.maxProjects}
-                                        onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxProjects: parseInt(e.target.value)})}
-                                        className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs text-gray-400 mb-1">Máx Landing Pages</label>
-                                    <input 
-                                        type="number" 
-                                        value={tempPlanLimits.maxLandings}
-                                        onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxLandings: parseInt(e.target.value)})}
-                                        className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Features Toggles */}
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Funcionalidades Habilitadas</label>
+                        <div className="p-6 space-y-6 overflow-y-auto flex-1">
+                            
+                            {/* Personal Info Section */}
+                            <div className="space-y-4 border-b border-gray-800 pb-6">
+                                <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
+                                    <UserIcon className="w-4 h-4 text-primary" /> Datos Personales
+                                </h4>
                                 <div className="grid grid-cols-2 gap-4">
-                                    {Object.entries(tempPlanLimits.features).map(([key, value]) => (
-                                        <label key={key} className="flex items-center gap-3 cursor-pointer group">
-                                            <div className={`w-10 h-5 rounded-full relative transition-colors ${value ? 'bg-green-600' : 'bg-gray-700'}`}>
-                                                <input 
-                                                    type="checkbox" 
-                                                    className="hidden"
-                                                    checked={value}
-                                                    onChange={(e) => setTempPlanLimits({
-                                                        ...tempPlanLimits, 
-                                                        features: { ...tempPlanLimits.features, [key]: e.target.checked }
-                                                    })}
-                                                />
-                                                <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-transform ${value ? 'left-6' : 'left-1'}`}></div>
-                                            </div>
-                                            <span className="text-sm text-gray-300 group-hover:text-white capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                                        </label>
-                                    ))}
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre</label>
+                                        <input 
+                                            type="text" 
+                                            value={editingUser.name}
+                                            onChange={(e) => setEditingUser({...editingUser, name: e.target.value})}
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
+                                        <input 
+                                            type="email" 
+                                            value={editingUser.email}
+                                            onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Fecha Nacimiento</label>
+                                        <input 
+                                            type="date" 
+                                            value={editingUser.birthDate ? new Date(editingUser.birthDate).toISOString().split('T')[0] : ''}
+                                            onChange={(e) => setEditingUser({...editingUser, birthDate: e.target.value})}
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Avatar URL</label>
+                                        <input 
+                                            type="text" 
+                                            value={editingUser.avatarUrl || ''}
+                                            onChange={(e) => setEditingUser({...editingUser, avatarUrl: e.target.value})}
+                                            placeholder="https://..."
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* System Settings Section */}
+                            <div className="space-y-4 border-b border-gray-800 pb-6">
+                                <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
+                                    <Shield className="w-4 h-4 text-red-400" /> Configuración de Sistema
+                                </h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rol</label>
+                                        <select 
+                                            value={editingUser.role} 
+                                            onChange={(e) => setEditingUser({...editingUser, role: e.target.value as any})}
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                        >
+                                            <option value="user">Usuario Normal</option>
+                                            <option value="admin">Administrador</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Redirección Personalizada</label>
+                                        <input 
+                                            type="text" 
+                                            value={editingUser.customRedirectUrl || ''}
+                                            onChange={(e) => setEditingUser({...editingUser, customRedirectUrl: e.target.value})}
+                                            placeholder="URL prioritaria al login"
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-blue-300 placeholder-gray-600"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Plan Configuration Section */}
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                                        <Loader2 className="w-4 h-4 text-green-400" /> Plan y Límites
+                                    </h4>
+                                    <span className="text-xs text-gray-500 italic">Modo Custom activado</span>
+                                </div>
+
+                                {/* Dynamic Plan Templates */}
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Aplicar Plantilla Rápida</label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {plans.map(plan => (
+                                            <button 
+                                                key={plan.id}
+                                                onClick={() => applyTemplate(plan)} 
+                                                className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-gray-500 text-white rounded text-xs transition"
+                                            >
+                                                {plan.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 bg-gray-800/30 p-4 rounded-xl border border-gray-800">
+                                    <div>
+                                        <label className="block text-xs text-gray-400 mb-1">Máx Proyectos</label>
+                                        <input 
+                                            type="number" 
+                                            value={tempPlanLimits.maxProjects}
+                                            onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxProjects: parseInt(e.target.value)})}
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs text-gray-400 mb-1">Máx Landing Pages</label>
+                                        <input 
+                                            type="number" 
+                                            value={tempPlanLimits.maxLandings}
+                                            onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxLandings: parseInt(e.target.value)})}
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Features Toggles */}
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Funcionalidades Habilitadas</label>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {Object.entries(tempPlanLimits.features).map(([key, value]) => (
+                                            <label key={key} className="flex items-center gap-3 cursor-pointer group">
+                                                <div className={`w-10 h-5 rounded-full relative transition-colors ${value ? 'bg-green-600' : 'bg-gray-700'}`}>
+                                                    <input 
+                                                        type="checkbox" 
+                                                        className="hidden"
+                                                        checked={value}
+                                                        onChange={(e) => setTempPlanLimits({
+                                                            ...tempPlanLimits, 
+                                                            features: { ...tempPlanLimits.features, [key]: e.target.checked }
+                                                        })}
+                                                    />
+                                                    <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-transform ${value ? 'left-6' : 'left-1'}`}></div>
+                                                </div>
+                                                <span className="text-sm text-gray-300 group-hover:text-white capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                                            </label>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="p-6 bg-gray-800 border-t border-gray-700 flex justify-end gap-3">
-                            <button onClick={() => setEditingUser(null)} className="px-4 py-2 text-gray-400 hover:text-white">Cancelar</button>
-                            <button onClick={handleSaveUser} className="px-6 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg font-bold flex items-center gap-2">
+                        <div className="p-6 bg-gray-800 border-t border-gray-700 flex justify-end gap-3 shrink-0">
+                            <button onClick={() => setEditingUser(null)} className="px-4 py-2 text-gray-400 hover:text-white transition">Cancelar</button>
+                            <button onClick={handleSaveUser} className="px-6 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg font-bold flex items-center gap-2 transition">
                                 <Save className="w-4 h-4" /> Guardar Cambios
                             </button>
                         </div>

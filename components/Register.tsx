@@ -43,17 +43,22 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
                 emailMarketing: false,
                 removeBranding: false
             }
-        }
+        },
+        customRedirectUrl: (user as any).customRedirectUrl // Might be null for new users but good to map
       };
 
       onLogin(mappedUser);
       
-      // Fetch dynamic redirect URL
-      try {
-          const redirectUrl = await api.getLoginRedirect();
-          navigate(redirectUrl);
-      } catch (e) {
-          navigate('/dashboard');
+      // LOGIC: Check custom URL > Global URL > Default
+      if (mappedUser.customRedirectUrl && mappedUser.customRedirectUrl.trim() !== '') {
+          navigate(mappedUser.customRedirectUrl);
+      } else {
+          try {
+              const redirectUrl = await api.getLoginRedirect();
+              navigate(redirectUrl);
+          } catch (e) {
+              navigate('/dashboard');
+          }
       }
 
     } catch (err: any) {

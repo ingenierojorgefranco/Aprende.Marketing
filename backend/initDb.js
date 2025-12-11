@@ -235,6 +235,8 @@ const initDb = async () => {
         // NEW MIGRATIONS FOR USER PROFILE
         await addColumnSafe(connection, 'users', "avatar_url VARCHAR(500)");
         await addColumnSafe(connection, 'users', "birth_date DATE");
+        // NEW MIGRATION FOR CUSTOM REDIRECT
+        await addColumnSafe(connection, 'users', "custom_redirect_url VARCHAR(500)");
         
         // Nuevas migraciones para Cursos y Comentarios
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");

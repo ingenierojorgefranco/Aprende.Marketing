@@ -69,20 +69,27 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         id: user.id.toString(),
         name: user.name,
         email: user.email,
-        role: user.role as any, // Agregamos el rol aquí
-        planLimits: (user as any).planLimits
+        role: user.role as any, 
+        planLimits: (user as any).planLimits,
+        customRedirectUrl: (user as any).customRedirectUrl // Map custom redirect
       };
 
       onLogin(mappedUser);
       
-      // Fetch dynamic redirect URL
-      try {
-          const redirectUrl = await api.getLoginRedirect();
-          addLog(`Redirigiendo a: ${redirectUrl}`);
-          navigate(redirectUrl);
-      } catch (e) {
-          console.warn("Could not fetch redirect URL, using default.");
-          navigate('/dashboard');
+      // LOGIC: Check custom URL > Global URL > Default
+      if (mappedUser.customRedirectUrl && mappedUser.customRedirectUrl.trim() !== '') {
+          addLog(`Redirigiendo a URL personalizada del usuario: ${mappedUser.customRedirectUrl}`);
+          navigate(mappedUser.customRedirectUrl);
+      } else {
+          // Fetch dynamic global redirect URL
+          try {
+              const redirectUrl = await api.getLoginRedirect();
+              addLog(`Redirigiendo a URL global: ${redirectUrl}`);
+              navigate(redirectUrl);
+          } catch (e) {
+              console.warn("Could not fetch redirect URL, using default.");
+              navigate('/dashboard');
+          }
       }
 
     } catch (err: any) {
