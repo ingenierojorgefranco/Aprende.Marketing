@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v17_fixed_quotas_active'; 
+const SERVER_VERSION = 'v18_logs_stats'; 
 
 app.enable('trust proxy');
 
@@ -71,6 +71,29 @@ app.use((req, res, next) => {
   req.tenantSubdomain = tenant;
   next();
 });
+
+// ======================================================
+//  SYSTEM LOGGING HELPER
+// ======================================================
+const logSystemActivity = async (userId, userName, actionType, entityType, entityId, details) => {
+    try {
+        await pool.query(
+            `INSERT INTO system_activity_logs (user_id, user_name, action_type, entity_type, entity_id, details) 
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                userId || null, 
+                userName || 'Sistema', 
+                actionType, 
+                entityType || null, 
+                entityId ? String(entityId) : null, 
+                details ? JSON.stringify(details) : null
+            ]
+        );
+    } catch (e) {
+        console.error("[System Log Error] Could not save log:", e.message);
+        // No throw to prevent API failure
+    }
+};
 
 // ======================================================
 //  HELPERS ANALYTICS
@@ -201,6 +224,10 @@ app.post('/api/auth/register', async (req, res) => {
     );
     const newUser = { id: result.insertId, name, email, role: role || 'user', planLimits: DEFAULT_LIMITS };
     const token = createToken(newUser);
+    
+    // Log Activity
+    await logSystemActivity(newUser.id, newUser.name, 'REGISTER', 'user', newUser.id, { email });
+
     res.status(201).json({ user: newUser, token });
   } catch (error) {
     console.error('[AUTH] Error register:', error);
@@ -226,6 +253,9 @@ const loginHandler = async (req, res) => {
     if (!isMatch) return res.status(401).json({ error: 'Credenciales inválidas' });
 
     await pool.query('UPDATE users SET last_login_at = NOW() WHERE id = ?', [user.id]);
+
+    // Log Activity
+    await logSystemActivity(user.id, user.name, 'LOGIN', 'user', user.id, { ip: req.ip });
 
     let planLimits = DEFAULT_LIMITS;
     if (user.plan_limits) {
@@ -565,6 +595,37 @@ app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) =>
     }
 });
 
+// NEW: Get User Stats (Lazy Load for Admin Modal)
+app.get('/api/admin/users/:id/stats', authMiddleware, adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [usageRows] = await pool.query(`
+            SELECT resource_type, COUNT(*) as count 
+            FROM usage_logs 
+            WHERE user_id = ? 
+              AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
+              AND YEAR(created_at) = YEAR(CURRENT_DATE())
+            GROUP BY resource_type
+        `, [id]);
+
+        const usage = {
+            projects: 0,
+            landings: 0,
+            articles: 0
+        };
+
+        usageRows.forEach(row => {
+            if (row.resource_type === 'project') usage.projects = row.count;
+            if (row.resource_type === 'landing') usage.landings = row.count;
+            if (row.resource_type === 'article') usage.articles = row.count;
+        });
+
+        res.json(usage);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Update User (Role, Plan Limits & Profile Info)
 app.put('/api/admin/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
@@ -635,6 +696,42 @@ app.get('/api/admin/stats', authMiddleware, adminMiddleware, async (req, res) =>
             projects: projectsCount[0].c,
             pages: pagesCount[0].c
         });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// ---------------- LOGS SYSTEM ----------------
+
+// Get Logs with Lazy Loading
+app.get('/api/admin/logs', authMiddleware, adminMiddleware, async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 20;
+    const offset = (page - 1) * limit;
+    const { action, search } = req.query;
+
+    try {
+        let query = 'SELECT * FROM system_activity_logs WHERE 1=1';
+        const params = [];
+
+        if (action && action !== 'all') {
+            query += ' AND action_type = ?';
+            params.push(action);
+        }
+
+        if (search) {
+            query += ' AND (user_name LIKE ? OR details LIKE ?)';
+            params.push(`%${search}%`, `%${search}%`);
+        }
+
+        query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+        params.push(limit, offset);
+
+        const [rows] = await pool.query(query, params);
+        
+        // Count total for pagination if needed, or simple infinite scroll
+        // For simplicity, just returning rows
+        res.json(rows);
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -1076,6 +1173,9 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
 
     // Log usage after successful creation
     await logUsage(req.user.id, 'project');
+    
+    // Log System Activity
+    await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
 
     res.json({ id: result.insertId, message: 'Proyecto guardado exitosamente' });
   } catch (error) {
@@ -1122,8 +1222,15 @@ app.put('/api/projects/:id', authMiddleware, async (req, res) => {
 
 app.delete('/api/projects/:id', authMiddleware, async (req, res) => {
   try {
+    // Fetch info before deleting for log
+    const [proj] = await pool.query('SELECT name FROM projects WHERE id = ?', [req.params.id]);
+    
     const [result] = await pool.query('DELETE FROM projects WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
+    
+    // Log System Activity
+    await logSystemActivity(req.user.id, req.user.email, 'DELETE_PROJECT', 'project', req.params.id, { name: proj[0]?.name });
+
     res.json({ message: 'Proyecto eliminado' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -1369,6 +1476,9 @@ app.post('/api/pages', authMiddleware, async (req, res) => {
 
     // Log usage
     await logUsage(req.user.id, 'landing');
+    
+    // Log System Activity
+    await logSystemActivity(req.user.id, req.user.email, 'CREATE_PAGE', 'page', resDb.insertId, { name });
 
     res.json({ id: resDb.insertId, message: 'Página creada' });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -1390,7 +1500,14 @@ app.put('/api/pages/:id', authMiddleware, async (req, res) => {
 
 app.delete('/api/pages/:id', authMiddleware, async (req, res) => {
   try {
+    // Get info for log
+    const [page] = await pool.query('SELECT name FROM landing_pages WHERE id = ?', [req.params.id]);
+    
     await pool.query('DELETE FROM landing_pages WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
+    
+    // Log Activity
+    await logSystemActivity(req.user.id, req.user.email, 'DELETE_PAGE', 'page', req.params.id, { name: page[0]?.name });
+
     res.json({ message: 'Eliminado' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -1473,6 +1590,9 @@ app.post('/api/articles', authMiddleware, async (req, res) => {
 
     // Log usage
     await logUsage(req.user.id, 'article');
+    
+    // Log Activity
+    await logSystemActivity(req.user.id, req.user.email, 'CREATE_ARTICLE', 'article', resDb.insertId, { title });
 
     res.json({ id: resDb.insertId });
   } catch (e) { 
@@ -1524,8 +1644,15 @@ app.put('/api/articles/:id', authMiddleware, async (req, res) => {
 
 app.delete('/api/articles/:id', authMiddleware, async (req, res) => {
   try {
+    // Get info
+    const [art] = await pool.query('SELECT title FROM articles WHERE id = ?', [req.params.id]);
+
     const [result] = await pool.query('DELETE FROM articles WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Artículo no encontrado' });
+    
+    // Log Activity
+    await logSystemActivity(req.user.id, req.user.email, 'DELETE_ARTICLE', 'article', req.params.id, { title: art[0]?.title });
+
     res.json({ message: 'Artículo eliminado' });
   } catch (error) {
     res.status(500).json({ error: error.message });

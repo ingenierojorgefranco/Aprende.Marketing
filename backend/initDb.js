@@ -140,6 +140,18 @@ const initDb = async () => {
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
 
+        // 10. SYSTEM ACTIVITY LOGS (NEW - For Admin Audit)
+        await connection.query(`CREATE TABLE IF NOT EXISTS system_activity_logs (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id ${userIdType} NULL, -- NULL if user deleted
+            user_name VARCHAR(255), -- Snapshot of name
+            action_type VARCHAR(50) NOT NULL, -- LOGIN, REGISTER, CREATE_PAGE, DELETE_PROJECT, etc.
+            entity_type VARCHAR(50), -- page, article, user
+            entity_id VARCHAR(255),
+            details TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
         // Tablas existentes del sistema (Projects, Pages, etc.)
         const tables = [
             {

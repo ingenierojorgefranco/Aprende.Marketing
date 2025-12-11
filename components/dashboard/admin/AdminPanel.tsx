@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { User, PlanLimits, Plan } from '../../../types';
+import { User, PlanLimits, Plan, UserUsageStats } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Shield, Users, Edit, Trash2, Check, X, Save, AlertTriangle, Eye, ChevronDown, ChevronUp, Folder, FileText, Globe, Link as LinkIcon, User as UserIcon, Mail, Calendar, Upload } from 'lucide-react';
+import { Loader2, Shield, Users, Edit, Trash2, Check, X, Save, AlertTriangle, Eye, ChevronDown, ChevronUp, Folder, FileText, Globe, Link as LinkIcon, User as UserIcon, Mail, Calendar, Upload, BarChart, RefreshCw } from 'lucide-react';
 
 // --- Sub-component for viewing user resources (Lazy Loaded) ---
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -192,11 +192,20 @@ export const AdminPanel: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [plans, setPlans] = useState<Plan[]>([]);
     const [loading, setLoading] = useState(true);
+    
+    // Edit User State
     const [editingUser, setEditingUser] = useState<User | null>(null);
-    const [viewingUser, setViewingUser] = useState<User | null>(null); // For Content Viewer
+    const [viewingUser, setViewingUser] = useState<User | null>(null); 
     const [tempPlanLimits, setTempPlanLimits] = useState<PlanLimits | null>(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
     
+    // Usage Stats State (Lazy Loaded)
+    const [userStats, setUserStats] = useState<UserUsageStats | null>(null);
+    const [loadingStats, setLoadingStats] = useState(false);
+    
+    // Tabs state for modal
+    const [activeTab, setActiveTab] = useState<'profile' | 'plan' | 'usage'>('profile');
+
     // System Settings
     const [redirectUrl, setRedirectUrl] = useState('');
     const [loadingSettings, setLoadingSettings] = useState(false);
@@ -237,7 +246,6 @@ export const AdminPanel: React.FC = () => {
 
     const handleEditClick = (user: User) => {
         setEditingUser(user);
-        // Deep copy to avoid mutating state directly
         setTempPlanLimits(JSON.parse(JSON.stringify(user.planLimits || {
             planName: 'starter',
             maxProjects: 1,
@@ -249,6 +257,24 @@ export const AdminPanel: React.FC = () => {
                 removeBranding: false
             }
         })));
+        setActiveTab('profile'); // Reset tab
+        setUserStats(null); // Clear previous stats
+    };
+
+    const handleTabChange = async (tab: 'profile' | 'plan' | 'usage') => {
+        setActiveTab(tab);
+        if (tab === 'usage' && editingUser && !userStats) {
+            // Lazy load stats
+            setLoadingStats(true);
+            try {
+                const stats = await api.getUserUsageStats(editingUser.id);
+                setUserStats(stats);
+            } catch (e) {
+                console.error("Failed to load stats", e);
+            } finally {
+                setLoadingStats(false);
+            }
+        }
     };
 
     const handleSaveUser = async () => {
@@ -265,7 +291,7 @@ export const AdminPanel: React.FC = () => {
                 avatarUrl: editingUser.avatarUrl,
                 birthDate: editingUser.birthDate,
                 customRedirectUrl: editingUser.customRedirectUrl
-            } as any); // Type cast for extended fields
+            } as any); 
 
             // Refresh list
             setUsers(prev => prev.map(u => u.id === editingUser.id ? { 
@@ -299,12 +325,32 @@ export const AdminPanel: React.FC = () => {
         });
     };
 
+    // Helper for Usage Bar
+    const UsageBar = ({ label, current, max }: { label: string, current: number, max: number }) => {
+        const percent = max > 0 ? Math.min(100, (current / max) * 100) : 0;
+        let color = 'bg-green-500';
+        if (percent > 60) color = 'bg-yellow-500';
+        if (percent >= 90) color = 'bg-red-500';
+
+        return (
+            <div className="mb-4">
+                <div className="flex justify-between text-xs text-gray-400 mb-1">
+                    <span>{label}</span>
+                    <span className="font-mono">{current} / {max}</span>
+                </div>
+                <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                    <div className={`h-full ${color} transition-all duration-500`} style={{ width: `${percent}%` }}></div>
+                </div>
+            </div>
+        );
+    };
+
     if (loading) {
         return <div className="flex justify-center p-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>;
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-in fade-in">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                     <Shield className="w-8 h-8 text-red-500" /> Panel de Administración
@@ -423,165 +469,219 @@ export const AdminPanel: React.FC = () => {
                             </h3>
                             <button onClick={() => setEditingUser(null)} className="text-gray-500 hover:text-white"><X className="w-6 h-6" /></button>
                         </div>
+
+                        {/* Navigation Tabs */}
+                        <div className="flex border-b border-gray-800 bg-gray-900">
+                            <button onClick={() => handleTabChange('profile')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition ${activeTab === 'profile' ? 'border-primary text-white' : 'border-transparent text-gray-500'}`}>Perfil</button>
+                            <button onClick={() => handleTabChange('plan')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition ${activeTab === 'plan' ? 'border-primary text-white' : 'border-transparent text-gray-500'}`}>Plan</button>
+                            <button onClick={() => handleTabChange('usage')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition ${activeTab === 'usage' ? 'border-primary text-white' : 'border-transparent text-gray-500'}`}>Consumo</button>
+                        </div>
                         
-                        <div className="p-6 space-y-6 overflow-y-auto flex-1">
+                        <div className="p-6 space-y-6 overflow-y-auto flex-1 min-h-[400px]">
                             
-                            {/* Personal Info Section */}
-                            <div className="space-y-4 border-b border-gray-800 pb-6">
-                                <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
-                                    <UserIcon className="w-4 h-4 text-primary" /> Datos Personales
-                                </h4>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre</label>
-                                        <input 
-                                            type="text" 
-                                            value={editingUser.name}
-                                            onChange={(e) => setEditingUser({...editingUser, name: e.target.value})}
-                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
-                                        />
+                            {/* TAB: PROFILE */}
+                            {activeTab === 'profile' && (
+                                <div className="space-y-6 animate-in slide-in-from-left-4">
+                                    <div className="space-y-4 pb-6 border-b border-gray-800">
+                                        <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
+                                            <UserIcon className="w-4 h-4 text-primary" /> Datos Personales
+                                        </h4>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={editingUser.name}
+                                                    onChange={(e) => setEditingUser({...editingUser, name: e.target.value})}
+                                                    className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
+                                                <input 
+                                                    type="email" 
+                                                    value={editingUser.email}
+                                                    onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
+                                                    className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Fecha Nacimiento</label>
+                                                <input 
+                                                    type="date" 
+                                                    value={editingUser.birthDate ? new Date(editingUser.birthDate).toISOString().split('T')[0] : ''}
+                                                    onChange={(e) => setEditingUser({...editingUser, birthDate: e.target.value})}
+                                                    className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                                    style={{ colorScheme: 'dark' }} 
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Avatar URL</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={editingUser.avatarUrl || ''}
+                                                    onChange={(e) => setEditingUser({...editingUser, avatarUrl: e.target.value})}
+                                                    placeholder="https://..."
+                                                    className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
-                                        <input 
-                                            type="email" 
-                                            value={editingUser.email}
-                                            onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
-                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Fecha Nacimiento</label>
-                                        <input 
-                                            type="date" 
-                                            value={editingUser.birthDate ? new Date(editingUser.birthDate).toISOString().split('T')[0] : ''}
-                                            onChange={(e) => setEditingUser({...editingUser, birthDate: e.target.value})}
-                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
-                                            style={{ colorScheme: 'dark' }} 
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Avatar URL</label>
-                                        <input 
-                                            type="text" 
-                                            value={editingUser.avatarUrl || ''}
-                                            onChange={(e) => setEditingUser({...editingUser, avatarUrl: e.target.value})}
-                                            placeholder="https://..."
-                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
 
-                            {/* System Settings Section */}
-                            <div className="space-y-4 border-b border-gray-800 pb-6">
-                                <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
-                                    <Shield className="w-4 h-4 text-red-400" /> Configuración de Sistema
-                                </h4>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rol</label>
-                                        <select 
-                                            value={editingUser.role} 
-                                            onChange={(e) => setEditingUser({...editingUser, role: e.target.value as any})}
-                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
-                                        >
-                                            <option value="user">Usuario Normal</option>
-                                            <option value="admin">Administrador</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Redirección Personalizada</label>
-                                        <input 
-                                            type="text" 
-                                            value={editingUser.customRedirectUrl || ''}
-                                            onChange={(e) => setEditingUser({...editingUser, customRedirectUrl: e.target.value})}
-                                            placeholder="URL prioritaria al login"
-                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-blue-300 placeholder-gray-600"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Plan Configuration Section */}
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center mb-2">
-                                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                                        <Loader2 className="w-4 h-4 text-green-400" /> Plan y Límites
-                                    </h4>
-                                    <span className="text-xs text-gray-500 italic">Modo Custom activado</span>
-                                </div>
-
-                                {/* Dynamic Plan Templates - HIGHLIGHTED */}
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Aplicar Plantilla Rápida</label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {plans.map(plan => {
-                                            const isActive = tempPlanLimits.planName === plan.slug;
-                                            return (
-                                                <button 
-                                                    key={plan.id}
-                                                    onClick={() => applyTemplate(plan)} 
-                                                    className={`px-3 py-1.5 border rounded text-xs transition ${
-                                                        isActive 
-                                                            ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
-                                                            : 'bg-gray-800 text-gray-300 border-gray-600 hover:border-gray-500'
-                                                    }`}
+                                    {/* System Settings Section */}
+                                    <div className="space-y-4">
+                                        <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
+                                            <Shield className="w-4 h-4 text-red-400" /> Configuración de Sistema
+                                        </h4>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rol</label>
+                                                <select 
+                                                    value={editingUser.role} 
+                                                    onChange={(e) => setEditingUser({...editingUser, role: e.target.value as any})}
+                                                    className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
                                                 >
-                                                    {plan.name}
+                                                    <option value="user">Usuario Normal</option>
+                                                    <option value="admin">Administrador</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Redirección Personalizada</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={editingUser.customRedirectUrl || ''}
+                                                    onChange={(e) => setEditingUser({...editingUser, customRedirectUrl: e.target.value})}
+                                                    placeholder="URL prioritaria al login"
+                                                    className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-blue-300 placeholder-gray-600"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* TAB: PLAN */}
+                            {activeTab === 'plan' && (
+                                <div className="space-y-4 animate-in slide-in-from-right-4">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                                            <Loader2 className="w-4 h-4 text-green-400" /> Configuración del Plan
+                                        </h4>
+                                    </div>
+
+                                    {/* Dynamic Plan Templates - HIGHLIGHTED */}
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Aplicar Plantilla Rápida</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {plans.map(plan => {
+                                                const isActive = tempPlanLimits.planName === plan.slug;
+                                                return (
+                                                    <button 
+                                                        key={plan.id}
+                                                        onClick={() => applyTemplate(plan)} 
+                                                        className={`px-3 py-1.5 border rounded text-xs transition ${
+                                                            isActive 
+                                                                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
+                                                                : 'bg-gray-800 text-gray-300 border-gray-600 hover:border-gray-500'
+                                                        }`}
+                                                    >
+                                                        {plan.name}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4 bg-gray-800/30 p-4 rounded-xl border border-gray-800">
+                                        <div>
+                                            <label className="block text-xs text-gray-400 mb-1">Máx Proyectos</label>
+                                            <input 
+                                                type="number" 
+                                                value={tempPlanLimits.maxProjects}
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxProjects: parseInt(e.target.value)})}
+                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-400 mb-1">Máx Landing Pages</label>
+                                            <input 
+                                                type="number" 
+                                                value={tempPlanLimits.maxLandings}
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxLandings: parseInt(e.target.value)})}
+                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Features Toggles */}
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Funcionalidades Habilitadas</label>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {Object.entries(tempPlanLimits.features).map(([key, value]) => (
+                                                <label key={key} className="flex items-center gap-3 cursor-pointer group">
+                                                    <div className={`w-10 h-5 rounded-full relative transition-colors ${value ? 'bg-green-600' : 'bg-gray-700'}`}>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            className="hidden"
+                                                            checked={value}
+                                                            onChange={(e) => setTempPlanLimits({
+                                                                ...tempPlanLimits, 
+                                                                features: { ...tempPlanLimits.features, [key]: e.target.checked }
+                                                            })}
+                                                        />
+                                                        <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-transform ${value ? 'left-6' : 'left-1'}`}></div>
+                                                    </div>
+                                                    <span className="text-sm text-gray-300 group-hover:text-white capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* TAB: USAGE STATS (LAZY LOADED) */}
+                            {activeTab === 'usage' && (
+                                <div className="space-y-6 animate-in slide-in-from-right-4">
+                                    <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
+                                        <BarChart className="w-4 h-4 text-orange-400" /> Consumo Mensual Actual
+                                    </h4>
+                                    
+                                    {loadingStats ? (
+                                        <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+                                    ) : userStats ? (
+                                        <div className="space-y-6 bg-gray-900/50 p-6 rounded-xl border border-gray-800">
+                                            <UsageBar 
+                                                label="Proyectos Generados" 
+                                                current={userStats.projects} 
+                                                max={tempPlanLimits.maxProjects} 
+                                            />
+                                            <UsageBar 
+                                                label="Páginas Creadas" 
+                                                current={userStats.landings} 
+                                                max={tempPlanLimits.maxLandings} 
+                                            />
+                                            <UsageBar 
+                                                label="Artículos Escritos" 
+                                                current={userStats.articles} 
+                                                max={tempPlanLimits.maxArticles || 2} 
+                                            />
+                                            
+                                            <div className="pt-4 border-t border-gray-700 flex justify-end">
+                                                <button 
+                                                    onClick={() => handleTabChange('usage')}
+                                                    className="text-xs text-blue-400 hover:text-white flex items-center gap-1"
+                                                >
+                                                    <RefreshCw className="w-3 h-3" /> Actualizar Datos
                                                 </button>
-                                            );
-                                        })}
-                                    </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-10 text-gray-500">No se pudieron cargar los datos.</div>
+                                    )}
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-4 bg-gray-800/30 p-4 rounded-xl border border-gray-800">
-                                    <div>
-                                        <label className="block text-xs text-gray-400 mb-1">Máx Proyectos</label>
-                                        <input 
-                                            type="number" 
-                                            value={tempPlanLimits.maxProjects}
-                                            onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxProjects: parseInt(e.target.value)})}
-                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs text-gray-400 mb-1">Máx Landing Pages</label>
-                                        <input 
-                                            type="number" 
-                                            value={tempPlanLimits.maxLandings}
-                                            onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxLandings: parseInt(e.target.value)})}
-                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Features Toggles */}
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Funcionalidades Habilitadas</label>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {Object.entries(tempPlanLimits.features).map(([key, value]) => (
-                                            <label key={key} className="flex items-center gap-3 cursor-pointer group">
-                                                <div className={`w-10 h-5 rounded-full relative transition-colors ${value ? 'bg-green-600' : 'bg-gray-700'}`}>
-                                                    <input 
-                                                        type="checkbox" 
-                                                        className="hidden"
-                                                        checked={value}
-                                                        onChange={(e) => setTempPlanLimits({
-                                                            ...tempPlanLimits, 
-                                                            features: { ...tempPlanLimits.features, [key]: e.target.checked }
-                                                        })}
-                                                    />
-                                                    <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-transform ${value ? 'left-6' : 'left-1'}`}></div>
-                                                </div>
-                                                <span className="text-sm text-gray-300 group-hover:text-white capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
+                            )}
                         </div>
 
                         <div className="p-6 bg-gray-800 border-t border-gray-700 flex justify-end gap-3 shrink-0">

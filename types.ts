@@ -25,6 +25,7 @@ export interface PlanLimits {
   planName: 'free' | 'starter' | 'pro' | 'max' | 'custom' | string;
   maxProjects: number;
   maxLandings: number;
+  maxArticles?: number; // Added optional
   features: PlanFeatures;
 }
 
@@ -52,6 +53,25 @@ export interface User {
   birthDate?: string; // New
   createdAt?: Date;   // New
   customRedirectUrl?: string; // New: User specific redirect
+}
+
+// NEW: System Log Type
+export interface SystemLog {
+    id: string;
+    user_id: string | null;
+    user_name: string;
+    action_type: string;
+    entity_type: string | null;
+    entity_id: string | null;
+    details: string | null; // JSON String
+    created_at: string;
+}
+
+// NEW: User Usage Stats
+export interface UserUsageStats {
+    projects: number;
+    landings: number;
+    articles: number;
 }
 
 export type ColorPalette = 

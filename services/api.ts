@@ -1,5 +1,5 @@
 
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan } from "../types";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS } from "./mockData";
 
 // --- HELPER PARA OBTENER BASE URL ---
@@ -501,6 +501,22 @@ export const api = {
           return Promise.resolve([]);
       }
       return await fetchWithFallback(`/admin/users/${userId}/resources?type=${type}`, { headers: getAuthHeaders() });
+  },
+
+  // NEW: Get System Logs (Admin)
+  getSystemLogs: async (page: number, filters: { action?: string, search?: string }): Promise<SystemLog[]> => {
+      if (isMockMode) return Promise.resolve([]);
+      let query = `?page=${page}`;
+      if (filters.action) query += `&action=${filters.action}`;
+      if (filters.search) query += `&search=${filters.search}`;
+      
+      return await fetchWithFallback(`/admin/logs${query}`, { headers: getAuthHeaders() });
+  },
+
+  // NEW: Get User Stats (Admin Lazy Load)
+  getUserUsageStats: async (userId: string): Promise<UserUsageStats> => {
+      if (isMockMode) return Promise.resolve({ projects: 5, landings: 2, articles: 1 });
+      return await fetchWithFallback(`/admin/users/${userId}/stats`, { headers: getAuthHeaders() });
   },
 
   // --- LMS / COURSES ---

@@ -22,7 +22,8 @@ import { DashboardHome } from "./components/dashboard/DashboardHome";
 import { AdminPanel } from "./components/dashboard/admin/AdminPanel";
 import { AdminCourses } from "./components/dashboard/admin/AdminCourses";
 import { AdminComments } from "./components/dashboard/admin/AdminComments";
-import { AdminPlans } from "./components/dashboard/admin/AdminPlans"; // Import AdminPlans
+import { AdminPlans } from "./components/dashboard/admin/AdminPlans"; 
+import { AdminLogs } from "./components/dashboard/admin/AdminLogs"; // NEW: Logs
 
 // Dashboard Training
 import { TrainingViewer } from "./components/dashboard/training/TrainingViewer";
@@ -320,6 +321,11 @@ const App: React.FC = () => {
           <Route path="admin/plans" element={
               <AdminRoute>
                   <AdminPlans />
+              </AdminRoute>
+          } />
+          <Route path="admin/logs" element={
+              <AdminRoute>
+                  <AdminLogs />
               </AdminRoute>
           } />
 
