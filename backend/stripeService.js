@@ -7,10 +7,6 @@ const pool = require('./db');
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 const stripe = new Stripe(STRIPE_SECRET_KEY);
 
-// IDs DE PRECIO (Configurar con los IDs reales de Stripe Dashboard)
-const PLAN_PRO_PRICE_ID = 'price_1SdFBGRJVKdziYWKjz1MXdy1'; 
-const PLAN_MAX_PRICE_ID = 'price_PLACEHOLDER_MAX'; // Reemplazar cuando se cree en Stripe
-
 const BASE_URL = process.env.BASE_DOMAIN ? `https://${process.env.BASE_DOMAIN}` : 'http://localhost:5173';
 
 /**
@@ -19,10 +15,13 @@ const BASE_URL = process.env.BASE_DOMAIN ? `https://${process.env.BASE_DOMAIN}` 
 const createCheckoutSession = async (userId, userEmail, planSlug) => {
     if (!STRIPE_SECRET_KEY) throw new Error("Stripe API Key no configurada.");
 
-    let priceId;
-    if (planSlug === 'pro') priceId = PLAN_PRO_PRICE_ID;
-    else if (planSlug === 'max') priceId = PLAN_MAX_PRICE_ID;
-    else throw new Error("Plan no válido.");
+    // 1. Obtener precio dinámicamente de la base de datos
+    const [planRows] = await pool.query("SELECT stripe_price_id FROM plans WHERE slug = ?", [planSlug]);
+    
+    if (planRows.length === 0) throw new Error(`Plan '${planSlug}' no encontrado.`);
+    
+    const priceId = planRows[0].stripe_price_id;
+    if (!priceId) throw new Error(`El plan '${planSlug}' no tiene un ID de precio de Stripe configurado.`);
 
     // Buscar si el usuario ya tiene un customer_id en la BD
     const [rows] = await pool.query("SELECT stripe_customer_id FROM users WHERE id = ?", [userId]);
@@ -59,10 +58,28 @@ const createCheckoutSession = async (userId, userEmail, planSlug) => {
 };
 
 /**
+ * Helper para registrar pago en user_payments
+ */
+const logPayment = async (userId, stripeId, amount, currency, status, method, receipt) => {
+    try {
+        await pool.query(
+            `INSERT INTO user_payments (user_id, stripe_id, amount, currency, status, payment_method, receipt_url, created_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+            [userId, stripeId, amount, currency, status, method, receipt]
+        );
+        console.log(`[Stripe Log] Registered payment for User ${userId}: ${status}`);
+    } catch (e) {
+        console.error("Error logging payment:", e.message);
+    }
+};
+
+/**
  * Maneja el Webhook de Stripe
  * Se llama cuando ocurre un evento (pago exitoso, cancelación, etc.)
  */
 const handleWebhook = async (event) => {
+    console.log(`[Stripe Webhook] Processing event: ${event.type}`);
+
     switch (event.type) {
         case 'checkout.session.completed': {
             const session = event.data.object;
@@ -71,9 +88,15 @@ const handleWebhook = async (event) => {
             const customerId = session.customer;
             const subscriptionId = session.subscription;
 
-            console.log(`[Stripe Webhook] Pago exitoso para User ${userId} - Plan ${planSlug}`);
+            // Log Payment
+            const amount = session.amount_total ? session.amount_total / 100 : 0;
+            const currency = session.currency;
+            const paymentStatus = session.payment_status; // 'paid'
+            await logPayment(userId, session.id, amount, currency, paymentStatus === 'paid' ? 'succeeded' : paymentStatus, 'card', null);
 
-            // 1. Obtener límites del plan desde la tabla `plans` para asegurar consistencia
+            console.log(`[Stripe Webhook] Pago exitoso (Checkout) para User ${userId} - Plan ${planSlug}`);
+
+            // 1. Obtener límites del plan
             const [planRows] = await pool.query("SELECT limits_config FROM plans WHERE slug = ?", [planSlug]);
             if (planRows.length === 0) {
                 console.error(`[Stripe Error] Plan ${planSlug} no encontrado en base de datos.`);
@@ -94,6 +117,37 @@ const handleWebhook = async (event) => {
                  WHERE id = ?`,
                 [customerId, subscriptionId, JSON.stringify(limitsConfig), userId]
             );
+            break;
+        }
+
+        case 'invoice.payment_succeeded': {
+            const invoice = event.data.object;
+            const customerId = invoice.customer;
+            
+            // Find user by customer_id
+            const [userRows] = await pool.query("SELECT id FROM users WHERE stripe_customer_id = ?", [customerId]);
+            if (userRows.length > 0) {
+                const userId = userRows[0].id;
+                const amount = invoice.amount_paid ? invoice.amount_paid / 100 : 0;
+                await logPayment(userId, invoice.id, amount, invoice.currency, 'succeeded', 'card', invoice.hosted_invoice_url);
+            }
+            break;
+        }
+
+        case 'invoice.payment_failed': {
+            const invoice = event.data.object;
+            const customerId = invoice.customer;
+            
+            // Find user
+            const [userRows] = await pool.query("SELECT id FROM users WHERE stripe_customer_id = ?", [customerId]);
+            if (userRows.length > 0) {
+                const userId = userRows[0].id;
+                const amount = invoice.amount_due ? invoice.amount_due / 100 : 0;
+                await logPayment(userId, invoice.id, amount, invoice.currency, 'failed', 'card', null);
+                
+                // Optional: Downgrade user here if desired, or let subscription.deleted handle it
+                console.warn(`[Stripe Webhook] Payment failed for User ${userId}`);
+            }
             break;
         }
 

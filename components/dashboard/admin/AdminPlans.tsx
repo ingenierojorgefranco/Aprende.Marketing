@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plan, PlanLimits } from '../../../types';
 import { api } from '../../../services/api';
@@ -44,6 +45,7 @@ export const AdminPlans: React.FC = () => {
             description: '',
             priceMonthly: 0,
             currency: 'EUR',
+            stripePriceId: '', // Default empty
             limitsConfig: { ...DEFAULT_LIMITS },
             uiFeatures: [],
             isActive: true,
@@ -140,6 +142,7 @@ export const AdminPlans: React.FC = () => {
                             <p>Proyectos: <strong>{plan.limitsConfig.maxProjects}</strong></p>
                             <p>Landings: <strong>{plan.limitsConfig.maxLandings}</strong></p>
                             <p>Features: {Object.values(plan.limitsConfig.features).filter(Boolean).length} activas</p>
+                            {plan.stripePriceId && <p className="text-xs text-blue-400 truncate mt-2">Stripe: {plan.stripePriceId}</p>}
                         </div>
 
                         <div className="flex gap-2">
@@ -230,6 +233,20 @@ export const AdminPlans: React.FC = () => {
                                             </select>
                                         </div>
                                     </div>
+                                    
+                                    {/* STRIPE PRICE ID INPUT */}
+                                    <div>
+                                        <label className="block text-xs font-bold text-blue-400 uppercase mb-1">Stripe Price ID (API)</label>
+                                        <input 
+                                            type="text" 
+                                            value={editingPlan.stripePriceId || ''}
+                                            onChange={(e) => setEditingPlan({...editingPlan, stripePriceId: e.target.value})}
+                                            className="w-full bg-black border border-blue-900/50 rounded px-3 py-2 text-blue-100 font-mono placeholder-gray-600 focus:border-blue-500"
+                                            placeholder="price_1SdGwIRJVKdziYWKRDtjacOl"
+                                        />
+                                        <p className="text-[10px] text-gray-500 mt-1">Copia este ID desde tu Dashboard de Stripe (Productos {'>'} Precios).</p>
+                                    </div>
+
                                     <div>
                                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Descripción Corta</label>
                                         <textarea 

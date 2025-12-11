@@ -121,6 +121,7 @@ const initDb = async () => {
             description TEXT,
             price_monthly DECIMAL(10, 2) DEFAULT 0,
             currency VARCHAR(10) DEFAULT 'EUR',
+            stripe_price_id VARCHAR(255),
             limits_config JSON,
             ui_features JSON,
             is_active BOOLEAN DEFAULT TRUE,
@@ -154,6 +155,20 @@ const initDb = async () => {
             entity_id VARCHAR(255),
             details TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        // 11. USER PAYMENTS TABLE (NEW)
+        await connection.query(`CREATE TABLE IF NOT EXISTS user_payments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id ${userIdType} NOT NULL,
+            stripe_id VARCHAR(255),
+            amount DECIMAL(10, 2),
+            currency VARCHAR(10),
+            status VARCHAR(50),
+            payment_method VARCHAR(50),
+            receipt_url TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
 
         // Tablas existentes del sistema (Projects, Pages, etc.)
@@ -269,6 +284,9 @@ const initDb = async () => {
         await addColumnSafe(connection, 'users', "subscription_id VARCHAR(255)");
         await addColumnSafe(connection, 'users', "subscription_status VARCHAR(50)");
         
+        // Gestión Dinámica de Planes
+        await addColumnSafe(connection, 'plans', "stripe_price_id VARCHAR(255)");
+        
         // Nuevas migraciones para Cursos y Comentarios
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");
         await addColumnSafe(connection, 'courses', "badge_text VARCHAR(100) DEFAULT 'Certificado'");
@@ -292,6 +310,7 @@ const initDb = async () => {
                     slug: 'starter',
                     description: 'Ideal para empezar sin riesgo.',
                     price: 0,
+                    stripeId: '',
                     limits: JSON.stringify({
                         planName: 'starter',
                         maxProjects: 1,
@@ -307,6 +326,7 @@ const initDb = async () => {
                     slug: 'pro',
                     description: 'Para Productores y Afiliados serios.',
                     price: 19.99,
+                    stripeId: 'price_1SdFBGRJVKdziYWKjz1MXdy1', // ID existente o placeholder
                     limits: JSON.stringify({
                         planName: 'pro',
                         maxProjects: 5,
@@ -322,6 +342,7 @@ const initDb = async () => {
                     slug: 'max',
                     description: 'Agencias y Escala masiva.',
                     price: 49.99,
+                    stripeId: 'price_1SdGwIRJVKdziYWKRDtjacOl', // ID Configurado por el usuario
                     limits: JSON.stringify({
                         planName: 'max',
                         maxProjects: 100,
@@ -336,10 +357,13 @@ const initDb = async () => {
 
             for (const p of plans) {
                 await connection.query(
-                    `INSERT INTO plans (name, slug, description, price_monthly, limits_config, ui_features, is_recommended) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                    [p.name, p.slug, p.description, p.price, p.limits, p.features, p.is_rec]
+                    `INSERT INTO plans (name, slug, description, price_monthly, stripe_price_id, limits_config, ui_features, is_recommended) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [p.name, p.slug, p.description, p.price, p.stripeId, p.limits, p.features, p.is_rec]
                 );
             }
+        } else {
+            // Hotfix: Asegurar que el plan MAX tenga el ID correcto si ya existe pero está vacío
+            await connection.query(`UPDATE plans SET stripe_price_id = 'price_1SdGwIRJVKdziYWKRDtjacOl' WHERE slug = 'max' AND (stripe_price_id IS NULL OR stripe_price_id = '')`);
         }
 
         // --- DATOS SEMILLA (SEED DATA) ---

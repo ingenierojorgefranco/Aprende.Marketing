@@ -455,6 +455,7 @@ app.get('/api/public/plans', async (req, res) => {
             description: p.description,
             priceMonthly: parseFloat(p.price_monthly),
             currency: p.currency,
+            stripePriceId: p.stripe_price_id,
             limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
             uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : (p.ui_features || []),
             isRecommended: !!p.is_recommended
@@ -733,6 +734,17 @@ app.get('/api/admin/users/:userId/resources', authMiddleware, adminMiddleware, a
     }
 });
 
+// Get User Payments History (NEW)
+app.get('/api/admin/users/:userId/payments', authMiddleware, adminMiddleware, async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const [rows] = await pool.query('SELECT * FROM user_payments WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Global Stats
 app.get('/api/admin/stats', authMiddleware, adminMiddleware, async (req, res) => {
     try {
@@ -796,6 +808,7 @@ app.get('/api/admin/plans', authMiddleware, adminMiddleware, async (req, res) =>
             ...p,
             id: p.id.toString(),
             priceMonthly: parseFloat(p.price_monthly),
+            stripePriceId: p.stripe_price_id,
             limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
             uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : (p.ui_features || []),
             isActive: !!p.is_active,
@@ -809,12 +822,12 @@ app.get('/api/admin/plans', authMiddleware, adminMiddleware, async (req, res) =>
 
 // Create Plan
 app.post('/api/admin/plans', authMiddleware, adminMiddleware, async (req, res) => {
-    const { name, slug, description, priceMonthly, currency, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
+    const { name, slug, description, priceMonthly, currency, stripePriceId, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
     try {
         await pool.query(
-            `INSERT INTO plans (name, slug, description, price_monthly, currency, limits_config, ui_features, is_active, is_recommended) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [name, slug, description, priceMonthly, currency || 'EUR', JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended]
+            `INSERT INTO plans (name, slug, description, price_monthly, currency, stripe_price_id, limits_config, ui_features, is_active, is_recommended) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [name, slug, description, priceMonthly, currency || 'EUR', stripePriceId, JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended]
         );
         res.json({ success: true });
     } catch (e) {
@@ -825,11 +838,11 @@ app.post('/api/admin/plans', authMiddleware, adminMiddleware, async (req, res) =
 // Update Plan
 app.put('/api/admin/plans/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
-    const { name, slug, description, priceMonthly, currency, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
+    const { name, slug, description, priceMonthly, currency, stripePriceId, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
     try {
         await pool.query(
-            `UPDATE plans SET name=?, slug=?, description=?, price_monthly=?, currency=?, limits_config=?, ui_features=?, is_active=?, is_recommended=? WHERE id=?`,
-            [name, slug, description, priceMonthly, currency || 'EUR', JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended, id]
+            `UPDATE plans SET name=?, slug=?, description=?, price_monthly=?, currency=?, stripe_price_id=?, limits_config=?, ui_features=?, is_active=?, is_recommended=? WHERE id=?`,
+            [name, slug, description, priceMonthly, currency || 'EUR', stripePriceId, JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended, id]
         );
         res.json({ success: true });
     } catch (e) {

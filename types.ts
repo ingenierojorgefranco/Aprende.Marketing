@@ -37,6 +37,7 @@ export interface Plan {
   description: string;
   priceMonthly: number;
   currency: string;
+  stripePriceId?: string; // NEW: Dynamic ID for Stripe
   limitsConfig: PlanLimits;
   uiFeatures: string[]; // List of strings for the pricing card bullets
   isActive: boolean;

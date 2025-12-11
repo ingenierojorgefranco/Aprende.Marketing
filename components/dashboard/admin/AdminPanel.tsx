@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { User, PlanLimits, Plan, UserUsageStats } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Shield, Users, Edit, Trash2, Check, X, Save, AlertTriangle, Eye, ChevronDown, ChevronUp, Folder, FileText, Globe, Link as LinkIcon, User as UserIcon, Mail, Calendar, Upload, BarChart, RefreshCw } from 'lucide-react';
+import { Loader2, Shield, Users, Edit, Trash2, Check, X, Save, AlertTriangle, Eye, ChevronDown, ChevronUp, Folder, FileText, Globe, Link as LinkIcon, User as UserIcon, Mail, Calendar, Upload, BarChart, RefreshCw, CreditCard, ExternalLink } from 'lucide-react';
 
 // --- Sub-component for viewing user resources (Lazy Loaded) ---
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -203,8 +203,12 @@ export const AdminPanel: React.FC = () => {
     const [userStats, setUserStats] = useState<UserUsageStats | null>(null);
     const [loadingStats, setLoadingStats] = useState(false);
     
+    // Payment History State (Lazy Loaded)
+    const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+    const [loadingPayments, setLoadingPayments] = useState(false);
+    
     // Tabs state for modal
-    const [activeTab, setActiveTab] = useState<'profile' | 'plan' | 'usage'>('profile');
+    const [activeTab, setActiveTab] = useState<'profile' | 'plan' | 'usage' | 'payments'>('profile');
 
     // System Settings
     const [redirectUrl, setRedirectUrl] = useState('');
@@ -259,9 +263,10 @@ export const AdminPanel: React.FC = () => {
         })));
         setActiveTab('profile'); // Reset tab
         setUserStats(null); // Clear previous stats
+        setPaymentHistory([]);
     };
 
-    const handleTabChange = async (tab: 'profile' | 'plan' | 'usage') => {
+    const handleTabChange = async (tab: 'profile' | 'plan' | 'usage' | 'payments') => {
         setActiveTab(tab);
         if (tab === 'usage' && editingUser && !userStats) {
             // Lazy load stats
@@ -273,6 +278,17 @@ export const AdminPanel: React.FC = () => {
                 console.error("Failed to load stats", e);
             } finally {
                 setLoadingStats(false);
+            }
+        } else if (tab === 'payments' && editingUser && paymentHistory.length === 0) {
+            // Lazy load payments
+            setLoadingPayments(true);
+            try {
+                const payments = await api.getUserPayments(editingUser.id);
+                setPaymentHistory(payments);
+            } catch (e) {
+                console.error("Failed to load payments", e);
+            } finally {
+                setLoadingPayments(false);
             }
         }
     };
@@ -475,6 +491,7 @@ export const AdminPanel: React.FC = () => {
                             <button onClick={() => handleTabChange('profile')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition ${activeTab === 'profile' ? 'border-primary text-white' : 'border-transparent text-gray-500'}`}>Perfil</button>
                             <button onClick={() => handleTabChange('plan')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition ${activeTab === 'plan' ? 'border-primary text-white' : 'border-transparent text-gray-500'}`}>Plan</button>
                             <button onClick={() => handleTabChange('usage')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition ${activeTab === 'usage' ? 'border-primary text-white' : 'border-transparent text-gray-500'}`}>Consumo</button>
+                            <button onClick={() => handleTabChange('payments')} className={`flex-1 py-3 text-sm font-bold border-b-2 transition ${activeTab === 'payments' ? 'border-primary text-white' : 'border-transparent text-gray-500'}`}>Pagos</button>
                         </div>
                         
                         <div className="p-6 space-y-6 overflow-y-auto flex-1 min-h-[400px]">
@@ -679,6 +696,52 @@ export const AdminPanel: React.FC = () => {
                                         </div>
                                     ) : (
                                         <div className="text-center py-10 text-gray-500">No se pudieron cargar los datos.</div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* TAB: PAYMENTS HISTORY (NEW) */}
+                            {activeTab === 'payments' && (
+                                <div className="space-y-6 animate-in slide-in-from-right-4">
+                                    <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
+                                        <CreditCard className="w-4 h-4 text-green-400" /> Historial de Transacciones
+                                    </h4>
+                                    
+                                    {loadingPayments ? (
+                                        <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+                                    ) : paymentHistory.length > 0 ? (
+                                        <div className="space-y-3">
+                                            {paymentHistory.map((payment) => (
+                                                <div key={payment.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
+                                                    <div>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <span className={`text-sm font-bold ${payment.status === 'succeeded' ? 'text-green-400' : 'text-red-400'}`}>
+                                                                {payment.status === 'succeeded' ? 'Pago Exitoso' : 'Pago Fallido'}
+                                                            </span>
+                                                            <span className="text-xs text-gray-500">• {new Date(payment.created_at).toLocaleString()}</span>
+                                                        </div>
+                                                        <div className="text-xs text-gray-400 font-mono flex items-center gap-2">
+                                                            ID: {payment.stripe_id}
+                                                            <a href={`https://dashboard.stripe.com/payments/${payment.stripe_id}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:text-blue-400" title="Ver en Stripe">
+                                                                <ExternalLink className="w-3 h-3" />
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <span className={`text-lg font-bold ${payment.status === 'succeeded' ? 'text-white' : 'text-red-500 line-through'}`}>
+                                                            {payment.amount} {payment.currency?.toUpperCase()}
+                                                        </span>
+                                                        {payment.payment_method && (
+                                                            <p className="text-[10px] text-gray-500 uppercase">{payment.payment_method}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-10 bg-gray-900/50 rounded-xl border border-gray-800 border-dashed">
+                                            <p className="text-gray-500 text-sm">No hay registros de pagos para este usuario.</p>
+                                        </div>
                                     )}
                                 </div>
                             )}

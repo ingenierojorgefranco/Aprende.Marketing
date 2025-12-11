@@ -514,6 +514,12 @@ export const api = {
       return await fetchWithFallback(`/admin/users/${userId}/resources?type=${type}`, { headers: getAuthHeaders() });
   },
 
+  // NEW: Get Payment History
+  getUserPayments: async (userId: string): Promise<any[]> => {
+      if (isMockMode) return Promise.resolve([]);
+      return await fetchWithFallback(`/admin/users/${userId}/payments`, { headers: getAuthHeaders() });
+  },
+
   // NEW: Get System Logs (Admin)
   getSystemLogs: async (page: number, filters: { action?: string, search?: string }): Promise<SystemLog[]> => {
       if (isMockMode) return Promise.resolve([]);
