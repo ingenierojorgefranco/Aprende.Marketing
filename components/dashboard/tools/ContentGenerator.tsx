@@ -20,7 +20,7 @@ interface ContentGeneratorProps {
 export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const { id: editArticleId } = useParams<{ id: string }>();
+  const { id: editArticleId } = useParams() as { id: string };
   const navigate = useNavigate();
   
   const [topic, setTopic] = useState('');

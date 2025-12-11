@@ -8,7 +8,7 @@ import { AffiliateLink } from '../../../types';
 
 export const ProjectWizard: React.FC = () => {
     const navigate = useNavigate();
-    const { id } = useParams<{ id: string }>();
+    const { id } = useParams() as { id: string };
     
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);

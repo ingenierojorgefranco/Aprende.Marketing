@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect } from 'react';
 import { User } from '../../types';
 import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users } from 'lucide-react';
@@ -265,7 +263,8 @@ export const DashboardLayout = ({
                </button>
             </div>
         )}
-        <Outlet />
+        {/* PASS USER CONTEXT HERE */}
+        <Outlet context={{ user }} />
       </main>
     </div>
   );

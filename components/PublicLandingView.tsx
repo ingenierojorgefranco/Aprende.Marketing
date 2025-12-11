@@ -1,5 +1,4 @@
 
-
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { LandingPage } from "../types";
@@ -26,7 +25,7 @@ interface PublicLandingViewProps {
 }
 
 export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug }) => {
-  const { slug: paramSlug, userSlug, "*": wildCard } = useParams<{ slug: string; userSlug?: string; "*": string }>();
+  const { slug: paramSlug, userSlug, "*": wildCard } = useParams() as { slug: string; userSlug?: string; "*": string };
   const location = useLocation();
   
   // Prioritize passed prop (for custom domain root) over URL param

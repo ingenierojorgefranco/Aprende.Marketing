@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { CheckCircle, Clock, Award, PlayCircle, ChevronDown, ChevronUp, Play, FileText, MessageSquare, Send, User, Reply, ThumbsUp, Loader2 } from 'lucide-react';
@@ -43,7 +42,7 @@ type Comment = {
 };
 
 export const TrainingViewer: React.FC = () => {
-  const { moduleId } = useParams<{ moduleId: string }>(); // This maps to "slug" in DB
+  const { moduleId } = useParams() as { moduleId: string }; // This maps to "slug" in DB
   const [courseData, setCourseData] = useState<CourseData | null>(null);
   const [loading, setLoading] = useState(true);
   

@@ -49,7 +49,7 @@ import { getCurrentUser, logout } from "./services/auth";
 
 // --- WRAPPER PARA EDITOR (Lazy Load by ID) ---
 const EditorRouteWrapper = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams() as { id: string };
   const navigate = useNavigate();
   const [page, setPage] = useState<LandingPage | null>(null);
   const [loading, setLoading] = useState(true);
