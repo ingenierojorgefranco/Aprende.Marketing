@@ -281,6 +281,7 @@ export interface Course {
   thumbnail: string;
   modules: CourseModule[];
   createdAt: Date;
+  is_active?: boolean;
 }
 
 export interface Comment {

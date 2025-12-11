@@ -67,6 +67,7 @@ const initDb = async () => {
             slug VARCHAR(255) UNIQUE NOT NULL,
             thumbnail VARCHAR(500),
             order_index INT DEFAULT 0,
+            is_active BOOLEAN DEFAULT TRUE,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
 
@@ -128,6 +129,15 @@ const initDb = async () => {
             setting_key VARCHAR(50) PRIMARY KEY,
             setting_value TEXT,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        // 9. USAGE LOGS TABLE (NEW - For Monthly Quotas)
+        await connection.query(`CREATE TABLE IF NOT EXISTS usage_logs (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id ${userIdType} NOT NULL,
+            resource_type VARCHAR(50) NOT NULL, -- 'project', 'landing', 'article'
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
 
         // Tablas existentes del sistema (Projects, Pages, etc.)
@@ -242,6 +252,7 @@ const initDb = async () => {
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");
         await addColumnSafe(connection, 'courses', "badge_text VARCHAR(100) DEFAULT 'Certificado'");
         await addColumnSafe(connection, 'courses', "order_index INT DEFAULT 0");
+        await addColumnSafe(connection, 'courses', "is_active BOOLEAN DEFAULT TRUE");
 
         // --- SEED SYSTEM SETTINGS ---
         // Insert default redirect if not exists
@@ -263,10 +274,11 @@ const initDb = async () => {
                     limits: JSON.stringify({
                         planName: 'starter',
                         maxProjects: 1,
-                        maxLandings: 3,
+                        maxLandings: 2, // 2 per month
+                        maxArticles: 2, // 2 per month
                         features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false }
                     }),
-                    features: JSON.stringify(['1 Proyecto / Nicho', '3 Landing Pages', 'IA Básica', 'Marca de Agua']),
+                    features: JSON.stringify(['1 Proyecto / Mes', '2 Landing Pages / Mes', '2 Artículos / Mes', 'IA Básica', 'Marca de Agua']),
                     is_rec: false
                 },
                 {
@@ -278,9 +290,10 @@ const initDb = async () => {
                         planName: 'pro',
                         maxProjects: 5,
                         maxLandings: 20,
+                        maxArticles: 20,
                         features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true }
                     }),
-                    features: JSON.stringify(['5 Proyectos', '20 Landing Pages', 'Bot WhatsApp', 'IA Avanzada', 'Sin Marca de Agua']),
+                    features: JSON.stringify(['5 Proyectos / Mes', '20 Landings / Mes', '20 Artículos / Mes', 'Bot WhatsApp', 'IA Avanzada', 'Sin Marca de Agua']),
                     is_rec: true
                 },
                 {
@@ -292,9 +305,10 @@ const initDb = async () => {
                         planName: 'max',
                         maxProjects: 100,
                         maxLandings: 500,
+                        maxArticles: 500,
                         features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true }
                     }),
-                    features: JSON.stringify(['Proyectos Ilimitados', 'Soporte Prioritario', 'API Access', 'Todo Incluido']),
+                    features: JSON.stringify(['Ilimitado', 'Soporte Prioritario', 'API Access', 'Todo Incluido']),
                     is_rec: false
                 }
             ];
@@ -314,7 +328,7 @@ const initDb = async () => {
             console.log('[DB Init] 🌱 Insertando datos semilla de cursos...');
             
             // CURSO 1: PRODUCTOS DIGITALES
-            const [c1] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug, badge_text, order_index) VALUES (?, ?, ?, ?, ?, 1)`, [
+            const [c1] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug, badge_text, order_index, is_active) VALUES (?, ?, ?, ?, ?, 1, 1)`, [
                 'Productos Digitales', 
                 'Curso Intensivo', 
                 'Aprende a crear, validar y vender tu primer infoproducto desde cero. Descubre las estrategias que usan los grandes productores para facturar miles de dólares en Hotmart.',
@@ -353,7 +367,7 @@ const initDb = async () => {
 
 
             // CURSO 2: INTELIGENCIA ARTIFICIAL
-            const [c2] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug, badge_text, order_index) VALUES (?, ?, ?, ?, ?, 2)`, [
+            const [c2] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug, badge_text, order_index, is_active) VALUES (?, ?, ?, ?, ?, 2, 1)`, [
                 'Inteligencia Artificial', 
                 'Masterclass', 
                 'Domina las herramientas de IA que están revolucionando el marketing. Aprende a usar ChatGPT y Gemini para automatizar la creación de contenido y soporte.',

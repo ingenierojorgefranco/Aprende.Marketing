@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v15_advanced_user_mgmt'; 
+const SERVER_VERSION = 'v17_fixed_quotas_active'; 
 
 app.enable('trust proxy');
 
@@ -113,7 +113,7 @@ const isAdminRequest = (req) => {
 };
 
 // ======================================================
-//  HELPERS AUTH & PLANS
+//  HELPERS AUTH & PLANS & QUOTAS
 // ======================================================
 const createToken = (user) => {
   const payload = {
@@ -128,7 +128,8 @@ const createToken = (user) => {
 const DEFAULT_LIMITS = {
     planName: 'starter',
     maxProjects: 1,
-    maxLandings: 3,
+    maxLandings: 2,
+    maxArticles: 2,
     features: {
         whatsappBot: false,
         blogGenerator: false,
@@ -143,6 +144,43 @@ const adminMiddleware = (req, res, next) => {
         return res.status(403).json({ error: 'Acceso denegado. Se requieren permisos de Administrador.' });
     }
     next();
+};
+
+/**
+ * CHECK QUOTA LOGIC
+ * Checks usage_logs for current month.
+ */
+const checkMonthlyQuota = async (userId, resourceType, limit) => {
+    // Admins bypass quotas
+    const [user] = await pool.query('SELECT role FROM users WHERE id = ?', [userId]);
+    if (user[0] && user[0].role === 'admin') return true;
+
+    // Check usage for current month & year
+    const [rows] = await pool.query(`
+        SELECT COUNT(*) as count 
+        FROM usage_logs 
+        WHERE user_id = ? 
+          AND resource_type = ? 
+          AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
+          AND YEAR(created_at) = YEAR(CURRENT_DATE())
+    `, [userId, resourceType]);
+
+    const used = rows[0].count;
+    // Si el límite es -1 o muy alto, es ilimitado
+    if (limit > 9000) return true; 
+    
+    if (used >= limit) {
+        return false;
+    }
+    return true;
+};
+
+const logUsage = async (userId, resourceType) => {
+    try {
+        await pool.query('INSERT INTO usage_logs (user_id, resource_type) VALUES (?, ?)', [userId, resourceType]);
+    } catch (e) {
+        console.error("Error logging usage:", e);
+    }
 };
 
 // ======================================================
@@ -353,10 +391,10 @@ app.get('/api/public/plans', async (req, res) => {
 //  COURSES (LMS) ROUTES (PUBLIC/STUDENT)
 // ======================================================
 
-// NEW: List Available Courses (Menu) - ORDER BY order_index
+// NEW: List Available Courses (Menu) - ORDER BY order_index - FILTER BY IS_ACTIVE
 app.get('/api/courses', authMiddleware, async (req, res) => {
     try {
-        const [courses] = await pool.query('SELECT id, title, slug FROM courses ORDER BY order_index ASC, created_at DESC');
+        const [courses] = await pool.query('SELECT id, title, slug FROM courses WHERE is_active = 1 ORDER BY order_index ASC, created_at DESC');
         res.json(courses);
     } catch (e) {
         console.error("[Courses] Error fetching list:", e);
@@ -368,10 +406,19 @@ app.get('/api/courses', authMiddleware, async (req, res) => {
 app.get('/api/courses/:slug', authMiddleware, async (req, res) => {
     const { slug } = req.params;
     try {
-        // 1. Fetch Course Info
+        // 1. Fetch Course Info - FILTER BY IS_ACTIVE logic done at frontend link level mostly, but secure here?
+        // Let's allow fetching even if inactive IF admin, otherwise restrict.
+        // For simplicity, we just fetch it. The list endpoint does filtering.
         const [courses] = await pool.query('SELECT * FROM courses WHERE slug = ?', [slug]);
         if (courses.length === 0) return res.status(404).json({ error: 'Curso no encontrado' });
+        
         const course = courses[0];
+        
+        // If course is inactive and user is not admin, deny?
+        // req.user is available.
+        if (!course.is_active && req.user.role !== 'admin') {
+             return res.status(403).json({ error: 'Este curso no está disponible actualmente.' });
+        }
 
         // 2. Fetch Modules ONLY (No lessons yet)
         const [modules] = await pool.query('SELECT * FROM course_modules WHERE course_id = ? ORDER BY order_index ASC', [course.id]);
@@ -683,6 +730,7 @@ app.get('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res) 
 
             return {
                 ...c,
+                is_active: !!c.is_active, // Ensure boolean
                 modules: modulesWithLessons
             };
         }));
@@ -717,7 +765,7 @@ app.put('/api/admin/courses/reorder', authMiddleware, adminMiddleware, async (re
 
 // Create Course
 app.post('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res) => {
-    const { title, subtitle, description, slug, thumbnail, modules, badge_text } = req.body;
+    const { title, subtitle, description, slug, thumbnail, modules, badge_text, is_active } = req.body;
     
     const connection = await pool.getConnection();
     try {
@@ -725,8 +773,8 @@ app.post('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res)
 
         // 1. Insert Course
         const [courseRes] = await connection.query(
-            'INSERT INTO courses (title, subtitle, description, slug, thumbnail, badge_text, created_at, order_index) VALUES (?, ?, ?, ?, ?, ?, NOW(), 999)',
-            [title, subtitle, description, slug, thumbnail, badge_text || 'Certificado']
+            'INSERT INTO courses (title, subtitle, description, slug, thumbnail, badge_text, is_active, created_at, order_index) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), 999)',
+            [title, subtitle, description, slug, thumbnail, badge_text || 'Certificado', is_active]
         );
         const courseId = courseRes.insertId;
 
@@ -763,7 +811,7 @@ app.post('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res)
 // Update Course (Full Sync)
 app.put('/api/admin/courses/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
-    const { title, subtitle, description, slug, thumbnail, modules, badge_text } = req.body;
+    const { title, subtitle, description, slug, thumbnail, modules, badge_text, is_active } = req.body;
 
     const connection = await pool.getConnection();
     try {
@@ -771,8 +819,8 @@ app.put('/api/admin/courses/:id', authMiddleware, adminMiddleware, async (req, r
 
         // 1. Update Course Info
         await connection.query(
-            'UPDATE courses SET title=?, subtitle=?, description=?, slug=?, thumbnail=?, badge_text=? WHERE id=?',
-            [title, subtitle, description, slug, thumbnail, badge_text, id]
+            'UPDATE courses SET title=?, subtitle=?, description=?, slug=?, thumbnail=?, badge_text=?, is_active=? WHERE id=?',
+            [title, subtitle, description, slug, thumbnail, badge_text, is_active, id]
         );
 
         // 2. Sync Modules
@@ -989,13 +1037,21 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
   } = req.body;
 
   try {
-    // --- LIMIT CHECK ---
+    // --- LIMIT & QUOTA CHECK ---
     const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
     const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
     
+    // 1. Check storage limit (Max projects active)
     const [count] = await pool.query('SELECT COUNT(*) as c FROM projects WHERE user_id = ?', [req.user.id]);
     if (count[0].c >= limits.maxProjects) {
-        return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxProjects} proyectos de tu plan ${limits.planName.toUpperCase()}.` });
+        return res.status(403).json({ error: `Has alcanzado el límite de almacenamiento de ${limits.maxProjects} proyectos.` });
+    }
+
+    // 2. Check Monthly Generation Quota (New)
+    // Assuming maxProjects is also the monthly generation limit for simplicity, or use a separate field if available
+    const hasQuota = await checkMonthlyQuota(req.user.id, 'project', limits.maxProjects);
+    if (!hasQuota) {
+        return res.status(403).json({ error: `Has alcanzado tu cupo mensual de ${limits.maxProjects} generaciones de proyectos. Actualiza tu plan para más.` });
     }
     // -------------------
 
@@ -1017,6 +1073,10 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
         JSON.stringify(affiliateLinks || []),
       ]
     );
+
+    // Log usage after successful creation
+    await logUsage(req.user.id, 'project');
+
     res.json({ id: result.insertId, message: 'Proyecto guardado exitosamente' });
   } catch (error) {
     console.error('[PROJECTS] Error creating:', error);
@@ -1285,13 +1345,20 @@ app.get('/api/pages', authMiddleware, async (req, res) => {
 app.post('/api/pages', authMiddleware, async (req, res) => {
   const { name, niche, goal, subdomain, content } = req.body;
   try {
-    // --- LIMIT CHECK ---
+    // --- LIMIT & QUOTA CHECK ---
     const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
     const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
     
+    // 1. Storage Limit
     const [count] = await pool.query('SELECT COUNT(*) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
     if (count[0].c >= limits.maxLandings) {
-        return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxLandings} páginas de tu plan ${limits.planName.toUpperCase()}.` });
+        return res.status(403).json({ error: `Has alcanzado el límite de almacenamiento de ${limits.maxLandings} páginas.` });
+    }
+
+    // 2. Monthly Quota
+    const hasQuota = await checkMonthlyQuota(req.user.id, 'landing', limits.maxLandings);
+    if (!hasQuota) {
+        return res.status(403).json({ error: `Has alcanzado tu cupo mensual de ${limits.maxLandings} páginas. Vuelve el próximo mes o actualiza.` });
     }
     // -------------------
 
@@ -1299,6 +1366,10 @@ app.post('/api/pages', authMiddleware, async (req, res) => {
       'INSERT INTO landing_pages (user_id, name, niche, goal, subdomain, content, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, 0, NOW())',
       [req.user.id, name, niche, goal, subdomain, JSON.stringify(content)]
     );
+
+    // Log usage
+    await logUsage(req.user.id, 'landing');
+
     res.json({ id: resDb.insertId, message: 'Página creada' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -1366,6 +1437,19 @@ app.post('/api/articles', authMiddleware, async (req, res) => {
   }
 
   try {
+    // --- QUOTA CHECK ---
+    const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
+    const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
+    
+    // Check quota (default maxArticles logic same as maxLandings if not explicit, but initDb added maxArticles)
+    const limit = limits.maxArticles || 2; 
+    
+    const hasQuota = await checkMonthlyQuota(req.user.id, 'article', limit);
+    if (!hasQuota) {
+        return res.status(403).json({ error: `Has alcanzado tu cupo mensual de ${limit} artículos.` });
+    }
+    // -------------------
+
     const [resDb] = await pool.query(
       `INSERT INTO articles 
       (user_id, page_id, title, slug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, status, published_at, created_at) 
@@ -1386,6 +1470,10 @@ app.post('/api/articles', authMiddleware, async (req, res) => {
         published_at ? new Date(published_at) : new Date() // Fix: Convert string to Date
       ]
     );
+
+    // Log usage
+    await logUsage(req.user.id, 'article');
+
     res.json({ id: resDb.insertId });
   } catch (e) { 
       console.error("[DB Insert Error] Falló el guardado del artículo:", e);

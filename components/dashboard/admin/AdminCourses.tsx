@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Course, CourseModule, CourseLesson } from '../../../types';
 import { api } from '../../../services/api';
-import { Video, Plus, Edit, Trash2, Save, ArrowLeft, ChevronDown, ChevronUp, Loader2, GripVertical, Image as ImageIcon, Bold, Italic, List, Code, Type, AlignLeft, AlignCenter, AlignRight, Underline, Palette } from 'lucide-react';
+import { Video, Plus, Edit, Trash2, Save, ArrowLeft, ChevronDown, ChevronUp, Loader2, GripVertical, Image as ImageIcon, Bold, Italic, List, Code, Type, AlignLeft, AlignCenter, AlignRight, Underline, Palette, Eye, EyeOff } from 'lucide-react';
 
 // --- VISUAL EDITOR COMPONENT (WYSIWYG) ---
 interface VisualEditorProps {
@@ -152,6 +152,7 @@ export const AdminCourses: React.FC = () => {
             description: '',
             slug: '',
             thumbnail: '',
+            is_active: true, // Default active
             modules: []
         });
         setView('editor');
@@ -168,6 +169,22 @@ export const AdminCourses: React.FC = () => {
         if (confirm("¿Eliminar este curso? Esta acción no se puede deshacer.")) {
             await api.deleteCourse(id);
             setCourses(courses.filter(c => c.id !== id));
+        }
+    };
+
+    // New: Toggle Visibility directly from list
+    const toggleVisibility = async (course: Course) => {
+        const newStatus = !course.is_active;
+        try {
+            // Optimistic update
+            setCourses(courses.map(c => c.id === course.id ? { ...c, is_active: newStatus } : c));
+            
+            // API Call
+            await api.saveCourse({ ...course, is_active: newStatus });
+        } catch (e) {
+            alert("Error actualizando estado.");
+            // Revert
+            setCourses(courses.map(c => c.id === course.id ? { ...c, is_active: !newStatus } : c));
         }
     };
 
@@ -335,14 +352,29 @@ export const AdminCourses: React.FC = () => {
 
                                 <div className="h-40 bg-gray-800 relative">
                                     {course.thumbnail ? (
-                                        <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
+                                        <img src={course.thumbnail} alt={course.title} className={`w-full h-full object-cover transition ${!course.is_active ? 'grayscale opacity-50' : ''}`} />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-gray-600"><ImageIcon className="w-8 h-8" /></div>
                                     )}
+                                    
+                                    {/* Action Buttons Overlay */}
                                     <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition">
+                                        <button 
+                                            onClick={() => toggleVisibility(course)} 
+                                            className={`p-2 rounded-full text-white ${course.is_active ? 'bg-green-600 hover:bg-green-500' : 'bg-gray-600 hover:bg-gray-500'}`}
+                                            title={course.is_active ? "Desactivar" : "Activar"}
+                                        >
+                                            {course.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                        </button>
                                         <button onClick={() => handleEdit(course)} className="p-2 bg-gray-900/80 hover:bg-white hover:text-black text-white rounded-full"><Edit className="w-4 h-4" /></button>
                                         <button onClick={() => handleDelete(course.id)} className="p-2 bg-red-900/80 hover:bg-red-600 text-white rounded-full"><Trash2 className="w-4 h-4" /></button>
                                     </div>
+                                    
+                                    {!course.is_active && (
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            <span className="bg-black/70 text-white px-3 py-1 rounded font-bold text-sm border border-white/20">INACTIVO</span>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="p-4">
                                     <h3 className="font-bold text-white text-lg mb-1">{course.title}</h3>
@@ -363,9 +395,20 @@ export const AdminCourses: React.FC = () => {
                 <button onClick={() => setView('list')} className="text-gray-400 hover:text-white flex items-center gap-2">
                     <ArrowLeft className="w-4 h-4" /> Volver
                 </button>
-                <button onClick={handleSaveCourse} disabled={loading} className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition">
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Guardar Curso
-                </button>
+                <div className="flex gap-4">
+                    <label className="flex items-center gap-2 bg-gray-800 px-3 py-2 rounded-lg cursor-pointer border border-gray-700">
+                        <input 
+                            type="checkbox" 
+                            checked={editingCourse.is_active}
+                            onChange={(e) => setEditingCourse({...editingCourse, is_active: e.target.checked})}
+                            className="w-4 h-4 accent-green-500"
+                        />
+                        <span className="text-white text-sm font-bold">Curso Activo</span>
+                    </label>
+                    <button onClick={handleSaveCourse} disabled={loading} className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition">
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Guardar Curso
+                    </button>
+                </div>
             </div>
 
             <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-2xl">

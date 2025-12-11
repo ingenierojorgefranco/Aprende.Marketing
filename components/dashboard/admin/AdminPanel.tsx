@@ -459,6 +459,7 @@ export const AdminPanel: React.FC = () => {
                                             value={editingUser.birthDate ? new Date(editingUser.birthDate).toISOString().split('T')[0] : ''}
                                             onChange={(e) => setEditingUser({...editingUser, birthDate: e.target.value})}
                                             className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                            style={{ colorScheme: 'dark' }} 
                                         />
                                     </div>
                                     <div>
@@ -513,19 +514,26 @@ export const AdminPanel: React.FC = () => {
                                     <span className="text-xs text-gray-500 italic">Modo Custom activado</span>
                                 </div>
 
-                                {/* Dynamic Plan Templates */}
+                                {/* Dynamic Plan Templates - HIGHLIGHTED */}
                                 <div>
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Aplicar Plantilla Rápida</label>
                                     <div className="flex flex-wrap gap-2">
-                                        {plans.map(plan => (
-                                            <button 
-                                                key={plan.id}
-                                                onClick={() => applyTemplate(plan)} 
-                                                className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-gray-500 text-white rounded text-xs transition"
-                                            >
-                                                {plan.name}
-                                            </button>
-                                        ))}
+                                        {plans.map(plan => {
+                                            const isActive = tempPlanLimits.planName === plan.slug;
+                                            return (
+                                                <button 
+                                                    key={plan.id}
+                                                    onClick={() => applyTemplate(plan)} 
+                                                    className={`px-3 py-1.5 border rounded text-xs transition ${
+                                                        isActive 
+                                                            ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
+                                                            : 'bg-gray-800 text-gray-300 border-gray-600 hover:border-gray-500'
+                                                    }`}
+                                                >
+                                                    {plan.name}
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
 

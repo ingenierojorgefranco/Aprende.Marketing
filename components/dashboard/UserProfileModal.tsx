@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { User } from '../../types';
 import { api } from '../../services/api';
@@ -185,6 +186,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                             onChange={(e) => setBirthDate(e.target.value)} 
                                             disabled={!isEditing}
                                             className="bg-transparent w-full text-white outline-none disabled:text-gray-400"
+                                            style={{ colorScheme: 'dark' }} 
                                         />
                                     </div>
                                 </div>
