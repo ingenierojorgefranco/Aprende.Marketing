@@ -269,6 +269,7 @@ export const RegistrationModal = ({ content, ds, onClose }: { content: Generated
 // --- Smart CTA ---
 export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, centered = false }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean, fullWidth?: boolean, centered?: boolean }) => {
     const dest = content.destination;
+    
     const handleClick = () => {
         if (dest.type === 'whatsapp') {
             const msg = encodeURIComponent(dest.whatsappMessage || 'Hola');
@@ -278,50 +279,78 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
         }
     };
 
-    if (dest.type === 'form') {
-        return (
-          <div id="smart-cta-form-container" className={`rounded-2xl shadow-2xl border relative ${ds.cta.containerBg} ${ds.cta.containerBorder} ${centered ? 'mx-auto max-w-md' : 'w-full'} ${isMobilePreview ? 'p-5' : 'p-5 md:p-8'}`}>
-              <div id="smart-cta-badge" className={`absolute -top-3.5 right-4 md:right-6 text-xs font-bold px-4 py-1.5 rounded-full shadow-lg z-20 border ${ds.badges.spotsBg} ${ds.badges.spotsText} ${ds.badges.spotsBorder}`}>
-                  {content.hero.spotsLeft || "¡Cupos Limitados!"}
-              </div>
-              <h3 id="smart-cta-title" className={`font-bold mb-2 text-center ${ds.cta.cardTitleColor} ${isMobilePreview ? 'text-xl' : 'text-xl md:text-2xl'}`}>Reserva tu lugar GRATIS</h3>
-              <p id="smart-cta-desc" className={`text-center mb-6 text-sm ${ds.cta.cardTextColor}`}>Accede al método exclusivo.</p>
-              <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} />
-              <div className={`mt-4 flex items-center justify-center gap-2 text-xs text-center mb-6 ${ds.cta.cardTextColor}`}>
-                  <Lock className="w-3 h-3 flex-shrink-0" /> Tus datos están 100% seguros. No hacemos spam.
-              </div>
-              <div className={`pt-6 border-t flex items-center justify-between ${ds.cta.containerBorder}`}>
-                  <div className="flex -space-x-3">
-                      {[1,2,3].map(i => <img key={i} src={`https://randomuser.me/api/portraits/thumb/women/${i+20}.jpg`} alt="User" className="w-8 h-8 rounded-full border-2 border-white object-cover" />)}
-                  </div>
-                  <div className="text-right">
-                      <div id="smart-cta-social-proof" className={`flex items-center justify-end gap-1 font-bold text-lg ${ds.cta.cardTitleColor}`}>
-                           <CheckCircle className={`w-4 h-4 ${ds.decorations.checkColor}`} /> {content.hero.socialProofCount || "2,458+"}
-                      </div>
-                      <p className={`text-xs ${ds.cta.cardTextColor}`}>Alumnos registrados</p>
-                  </div>
-              </div>
-          </div>
-        );
+    // Determine titles and descriptions based on destination type
+    let cardTitle = "Reserva tu lugar GRATIS";
+    let cardDesc = "Accede al método exclusivo.";
+    
+    if (dest.type === 'whatsapp') {
+        cardTitle = "Únete al Grupo VIP";
+        cardDesc = "Recibe atención personalizada al instante.";
+    } else if (dest.type === 'external_url') {
+        cardTitle = "Acceso Inmediato";
+        cardDesc = "No esperes más para comenzar.";
     }
 
     return (
-        <div id="smart-cta-button-container" className={`${centered ? 'text-center' : ''}`}>
-            <button 
-              id="smart-cta-btn"
-              onClick={handleClick}
-              className={`group relative overflow-hidden ${fullWidth ? 'w-full' : 'w-auto px-10'} py-4 rounded-full font-bold text-lg transition-all duration-300 transform hover:-translate-y-1 ${ds.buttons.primary}`}
-            >
-                <span className="relative z-10 flex items-center justify-center gap-3">
-                  {dest.type === 'whatsapp' && <MessageCircle className="w-5 h-5" />}
-                  {content.hero.ctaText}
-                  {dest.type === 'external_url' && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
-                </span>
-            </button>
-            <p id="smart-cta-guarantee" className={`mt-4 text-sm opacity-70 ${ds.cta.subtitleColor}`}>
-                <span className="inline-flex items-center gap-1"><ShieldCheck className="w-4 h-4" /> Garantía de satisfacción</span>
-            </p>
-        </div>
+      <div id="smart-cta-container" className={`rounded-2xl shadow-2xl border relative ${ds.cta.containerBg} ${ds.cta.containerBorder} ${centered ? 'mx-auto max-w-md' : 'w-full'} ${isMobilePreview ? 'p-5' : 'p-5 md:p-8'}`}>
+          {/* Badge */}
+          <div id="smart-cta-badge" className={`absolute -top-3.5 right-4 md:right-6 text-xs font-bold px-4 py-1.5 rounded-full shadow-lg z-20 border ${ds.badges.spotsBg} ${ds.badges.spotsText} ${ds.badges.spotsBorder}`}>
+              {content.hero.spotsLeft || "¡Cupos Limitados!"}
+          </div>
+
+          {/* Header */}
+          <h3 id="smart-cta-title" className={`font-bold mb-2 text-center ${ds.cta.cardTitleColor} ${isMobilePreview ? 'text-xl' : 'text-xl md:text-2xl'}`}>
+              {cardTitle}
+          </h3>
+          <p id="smart-cta-desc" className={`text-center mb-6 text-sm ${ds.cta.cardTextColor}`}>
+              {cardDesc}
+          </p>
+
+          {/* Body Content */}
+          {dest.type === 'form' ? (
+              <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} />
+          ) : (
+              <div className="space-y-4">
+                  {/* Motivational visual cue for non-form */}
+                  <div className={`text-center text-sm font-medium ${ds.cta.cardTextColor} opacity-80 flex flex-col items-center gap-2 mb-4`}>
+                      <span className="animate-bounce text-xl">👇</span>
+                      <span>{dest.type === 'whatsapp' ? "Haz clic para chatear con nosotros" : "Haz clic para ver la oferta completa"}</span>
+                  </div>
+                  
+                  <button 
+                    id="smart-cta-btn"
+                    onClick={handleClick}
+                    className={`w-full py-4 rounded-lg font-bold text-lg transition transform hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 ${ds.buttons.primary}`}
+                  >
+                      {dest.type === 'whatsapp' && <MessageCircle className="w-5 h-5" />}
+                      {content.hero.ctaText}
+                      {dest.type === 'external_url' && <ArrowRight className="w-5 h-5" />}
+                  </button>
+              </div>
+          )}
+
+          {/* Footer / Guarantee */}
+          <div className={`mt-6 flex items-center justify-center gap-2 text-xs text-center mb-6 ${ds.cta.cardTextColor}`}>
+              {dest.type === 'form' ? (
+                  <><Lock className="w-3 h-3 flex-shrink-0" /> Tus datos están 100% seguros. No hacemos spam.</>
+              ) : (
+                  <><ShieldCheck className="w-3 h-3 flex-shrink-0" /> Garantía de satisfacción oficial.</>
+              )}
+          </div>
+
+          {/* Social Proof */}
+          <div className={`pt-6 border-t flex items-center justify-between ${ds.cta.containerBorder}`}>
+              <div className="flex -space-x-3">
+                  {[1,2,3].map(i => <img key={i} src={`https://randomuser.me/api/portraits/thumb/women/${i+20}.jpg`} alt="User" className="w-8 h-8 rounded-full border-2 border-white object-cover" />)}
+              </div>
+              <div className="text-right">
+                  <div id="smart-cta-social-proof" className={`flex items-center justify-end gap-1 font-bold text-lg ${ds.cta.cardTitleColor}`}>
+                       <CheckCircle className={`w-4 h-4 ${ds.decorations.checkColor}`} /> {content.hero.socialProofCount || "2,458+"}
+                  </div>
+                  <p className={`text-xs ${ds.cta.cardTextColor}`}>Alumnos registrados</p>
+              </div>
+          </div>
+      </div>
     );
 };
 
