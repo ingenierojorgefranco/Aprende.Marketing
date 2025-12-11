@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v13_courses_system'; 
+const SERVER_VERSION = 'v14_redirects_reorder'; 
 
 app.enable('trust proxy');
 
@@ -135,6 +135,14 @@ const DEFAULT_LIMITS = {
         emailMarketing: false,
         removeBranding: false
     }
+};
+
+// Middleware for Admin Check
+const adminMiddleware = (req, res, next) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Acceso denegado. Se requieren permisos de Administrador.' });
+    }
+    next();
 };
 
 // ======================================================
@@ -284,6 +292,35 @@ app.put('/api/auth/profile', authMiddleware, async (req, res) => {
 });
 
 // ======================================================
+//  SYSTEM SETTINGS (REDIRECTS)
+// ======================================================
+
+// GET Redirect URL (Public or Authenticated)
+app.get('/api/settings/redirect', async (req, res) => {
+    try {
+        const [rows] = await pool.query("SELECT setting_value FROM system_settings WHERE setting_key = 'after_login_url'");
+        const url = rows.length > 0 ? rows[0].setting_value : '/dashboard';
+        res.json({ url });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// UPDATE Redirect URL (Admin Only)
+app.put('/api/admin/settings', authMiddleware, adminMiddleware, async (req, res) => {
+    const { key, value } = req.body;
+    try {
+        await pool.query(
+            `INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?`,
+            [key, value, value]
+        );
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// ======================================================
 //  PUBLIC ROUTES (PLANS & CONTENT)
 // ======================================================
 
@@ -309,161 +346,14 @@ app.get('/api/public/plans', async (req, res) => {
     }
 });
 
-// 1. DIAGNÓSTICO
-app.get('/api/debug/db-status', async (req, res) => {
-  try {
-      const [rows] = await pool.query('SELECT 1 as val');
-      res.json({ 
-          status: 'online', 
-          db_response: rows[0].val, 
-          server_version: SERVER_VERSION,
-          timestamp: new Date().toISOString()
-      });
-  } catch (e) {
-      res.status(500).json({ status: 'offline', error: e.message, server_version: SERVER_VERSION });
-  }
-});
-
-// 2. BY DOMAIN
-app.get('/api/public/pages/by-domain', async (req, res) => {
-  let host = req.query.domain || req.hostname || req.headers.host || '';
-  if (host.includes(':')) host = host.split(':')[0];
-  if (host.startsWith('www.')) host = host.slice(4);
-
-  try {
-    const [rows] = await pool.query(
-      'SELECT * FROM landing_pages WHERE custom_domain = ? AND is_published = 1 LIMIT 1',
-      [host]
-    );
-
-    if (rows.length === 0) {
-      return res.status(404).json({ 
-          error: 'API Endpoint Not Found',
-          server_version: SERVER_VERSION
-      });
-    }
-
-    const page = rows[0];
-    
-    // REGISTRAR VISITA SOLO SI NO ES ADMIN
-    if (!isAdminRequest(req)) {
-        recordVisit(page.id);
-    }
-    
-    if (typeof page.content === 'string') {
-        try { page.content = JSON.parse(page.content); } catch {}
-    }
-    
-    res.json(page);
-  } catch (error) {
-    res.status(500).json({ error: 'Error interno', server_version: SERVER_VERSION });
-  }
-});
-
-// 3. BY USER+SLUG
-app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
-  const { userSlug, slug } = req.params;
-  try {
-    const [rows] = await pool.query(
-      `SELECT lp.* FROM landing_pages lp
-       INNER JOIN users u ON u.id = lp.user_id
-       WHERE u.public_subdomain = ? AND lp.subdomain = ? AND lp.is_published = 1 LIMIT 1`,
-      [userSlug, slug]
-    );
-
-    if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
-    const page = rows[0];
-
-    // REGISTRAR VISITA SOLO SI NO ES ADMIN
-    if (!isAdminRequest(req)) {
-        recordVisit(page.id);
-    }
-
-    if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
-    res.json(page);
-  } catch (e) {
-    res.status(500).json({ error: 'Error interno' });
-  }
-});
-
-// 4. GENERIC SLUG (Modified to support ID lookup fallback)
-app.get('/api/public/pages/:slug', async (req, res) => {
-  const { slug } = req.params;
-  try {
-    let rows = [];
-
-    // Attempt to lookup by ID if the slug is numeric
-    // This solves issues where frontend links use ID as a fallback when subdomain is missing
-    if (/^\d+$/.test(slug)) {
-       [rows] = await pool.query(
-           'SELECT * FROM landing_pages WHERE id = ? AND is_published = 1 LIMIT 1',
-           [slug]
-       );
-    }
-
-    // If not found by ID (or slug wasn't numeric), try by subdomain/slug
-    if (rows.length === 0) {
-        [rows] = await pool.query(
-          'SELECT * FROM landing_pages WHERE (subdomain = ? OR subdomain LIKE ?) AND is_published = 1 LIMIT 1',
-          [slug, `${slug}.%`]
-        );
-    }
-
-    if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
-    
-    const page = rows[0];
-
-    // REGISTRAR VISITA SOLO SI NO ES ADMIN
-    if (!isAdminRequest(req)) {
-        recordVisit(page.id);
-    }
-
-    if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
-    res.json(page);
-  } catch (e) {
-    res.status(500).json({ error: 'Error interno' });
-  }
-});
-
-// 5. BLOG PÚBLICO
-app.get('/api/public/pages/:pageId/blog', async (req, res) => {
-    const { pageId } = req.params;
-    try {
-        const [rows] = await pool.query(
-            `SELECT id, title, slug, description, meta_description, featured_image, published_at 
-             FROM articles 
-             WHERE page_id = ? AND status = 'published' AND published_at <= NOW()
-             ORDER BY published_at DESC`,
-            [pageId]
-        );
-        res.json(rows);
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.get('/api/public/articles/:slug', async (req, res) => {
-    const { slug } = req.params;
-    try {
-        const [rows] = await pool.query(
-            `SELECT * FROM articles WHERE slug = ? AND status = 'published' LIMIT 1`,
-            [slug]
-        );
-        if(rows.length === 0) return res.status(404).json({ error: "Artículo no encontrado" });
-        res.json(rows[0]);
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
 // ======================================================
 //  COURSES (LMS) ROUTES (PUBLIC/STUDENT)
 // ======================================================
 
-// NEW: List Available Courses (Menu)
+// NEW: List Available Courses (Menu) - ORDER BY order_index
 app.get('/api/courses', authMiddleware, async (req, res) => {
     try {
-        const [courses] = await pool.query('SELECT id, title, slug FROM courses ORDER BY created_at ASC');
+        const [courses] = await pool.query('SELECT id, title, slug FROM courses ORDER BY order_index ASC, created_at DESC');
         res.json(courses);
     } catch (e) {
         console.error("[Courses] Error fetching list:", e);
@@ -602,14 +492,6 @@ app.post('/api/comments/:id/like', authMiddleware, async (req, res) => {
 // ======================================================
 //  ADMIN API ENDPOINTS
 // ======================================================
-
-// Middleware for Admin Check
-const adminMiddleware = (req, res, next) => {
-    if (req.user.role !== 'admin') {
-        return res.status(403).json({ error: 'Acceso denegado. Se requieren permisos de Administrador.' });
-    }
-    next();
-};
 
 // ---------------- USER MANAGEMENT ----------------
 
@@ -761,11 +643,11 @@ app.delete('/api/admin/plans/:id', authMiddleware, adminMiddleware, async (req, 
 
 // ---------------- COURSE MANAGEMENT (ADMIN) ----------------
 
-// List Courses (FULL TREE LOAD)
+// List Courses (FULL TREE LOAD) with ORDER BY order_index
 app.get('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        // 1. Fetch all courses
-        const [courses] = await pool.query('SELECT * FROM courses ORDER BY created_at DESC');
+        // 1. Fetch all courses ordered by order_index
+        const [courses] = await pool.query('SELECT * FROM courses ORDER BY order_index ASC, created_at DESC');
         
         // 2. Fetch full details including lessons for editing
         const coursesWithDetails = await Promise.all(courses.map(async (c) => {
@@ -798,6 +680,27 @@ app.get('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res) 
     }
 });
 
+// NEW: Reorder Courses
+app.put('/api/admin/courses/reorder', authMiddleware, adminMiddleware, async (req, res) => {
+    const { orderedIds } = req.body;
+    if (!Array.isArray(orderedIds)) return res.status(400).json({ error: 'Formato inválido' });
+
+    try {
+        const connection = await pool.getConnection();
+        await connection.beginTransaction();
+        
+        for (let i = 0; i < orderedIds.length; i++) {
+            await connection.query('UPDATE courses SET order_index = ? WHERE id = ?', [i, orderedIds[i]]);
+        }
+        
+        await connection.commit();
+        connection.release();
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Create Course
 app.post('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res) => {
     const { title, subtitle, description, slug, thumbnail, modules, badge_text } = req.body;
@@ -808,7 +711,7 @@ app.post('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res)
 
         // 1. Insert Course
         const [courseRes] = await connection.query(
-            'INSERT INTO courses (title, subtitle, description, slug, thumbnail, badge_text, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+            'INSERT INTO courses (title, subtitle, description, slug, thumbnail, badge_text, created_at, order_index) VALUES (?, ?, ?, ?, ?, ?, NOW(), 999)',
             [title, subtitle, description, slug, thumbnail, badge_text || 'Certificado']
         );
         const courseId = courseRes.insertId;

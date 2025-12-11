@@ -124,6 +124,9 @@ export const AdminCourses: React.FC = () => {
     const [editingCourse, setEditingCourse] = useState<Partial<Course>>({});
     const [activeTab, setActiveTab] = useState<'general' | 'curriculum'>('general');
     const [expandedModules, setExpandedModules] = useState<string[]>([]);
+    
+    // Drag & Drop State
+    const [draggedCourseIndex, setDraggedCourseIndex] = useState<number | null>(null);
 
     useEffect(() => {
         loadCourses();
@@ -180,6 +183,38 @@ export const AdminCourses: React.FC = () => {
             alert("Error guardando el curso");
         } finally {
             setLoading(false);
+        }
+    };
+
+    // --- DRAG & DROP HANDLERS ---
+    const handleDragStart = (e: React.DragEvent, index: number) => {
+        setDraggedCourseIndex(index);
+        e.dataTransfer.effectAllowed = "move";
+    };
+
+    const handleDragOver = (e: React.DragEvent, index: number) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+    };
+
+    const handleDrop = async (e: React.DragEvent, targetIndex: number) => {
+        e.preventDefault();
+        if (draggedCourseIndex === null || draggedCourseIndex === targetIndex) return;
+
+        const newCourses = [...courses];
+        const [movedCourse] = newCourses.splice(draggedCourseIndex, 1);
+        newCourses.splice(targetIndex, 0, movedCourse);
+        
+        setCourses(newCourses);
+        setDraggedCourseIndex(null);
+
+        // Save new order
+        try {
+            const orderedIds = newCourses.map(c => c.id);
+            await api.reorderCourses(orderedIds);
+        } catch (err) {
+            console.error("Error saving order", err);
+            alert("Error guardando el orden");
         }
     };
 
@@ -285,8 +320,19 @@ export const AdminCourses: React.FC = () => {
                     </div>
                 ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {courses.map(course => (
-                            <div key={course.id} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-primary/50 transition group">
+                        {courses.map((course, index) => (
+                            <div 
+                                key={course.id} 
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, index)}
+                                onDragOver={(e) => handleDragOver(e, index)}
+                                onDrop={(e) => handleDrop(e, index)}
+                                className={`bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-primary/50 transition group relative cursor-grab active:cursor-grabbing ${draggedCourseIndex === index ? 'opacity-50' : ''}`}
+                            >
+                                <div className="absolute top-2 left-2 z-10 p-1.5 bg-black/60 rounded cursor-grab active:cursor-grabbing text-white opacity-0 group-hover:opacity-100 transition">
+                                    <GripVertical className="w-4 h-4" />
+                                </div>
+
                                 <div className="h-40 bg-gray-800 relative">
                                     {course.thumbnail ? (
                                         <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />

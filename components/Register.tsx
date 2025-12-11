@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, UserPlus, Loader2, AlertCircle, Mail, Lock, User as UserIcon } from 'lucide-react';
 import { User } from '../types';
 import { register } from '../services/auth';
+import { api } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 interface RegisterProps {
@@ -45,7 +47,14 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
       };
 
       onLogin(mappedUser);
-      navigate('/dashboard');
+      
+      // Fetch dynamic redirect URL
+      try {
+          const redirectUrl = await api.getLoginRedirect();
+          navigate(redirectUrl);
+      } catch (e) {
+          navigate('/dashboard');
+      }
 
     } catch (err: any) {
       console.error('Error de registro:', err);

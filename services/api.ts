@@ -1,3 +1,4 @@
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS } from "./mockData";
 
@@ -572,6 +573,15 @@ export const api = {
       return res;
   },
 
+  reorderCourses: async (orderedIds: string[]): Promise<void> => {
+      if (isMockMode) return Promise.resolve();
+      await fetchWithFallback('/admin/courses/reorder', {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ orderedIds })
+      });
+  },
+
   deleteCourse: async (id: string): Promise<void> => {
       if (isMockMode) {
           localCourses = localCourses.filter(c => c.id !== id);
@@ -646,6 +656,27 @@ export const api = {
       await fetchWithFallback(`/comments/${commentId}/like`, {
           method: 'POST',
           headers: getAuthHeaders()
+      });
+  },
+
+  // --- ADMIN SETTINGS & REDIRECTS ---
+  
+  getLoginRedirect: async (): Promise<string> => {
+      if (isMockMode) return "/dashboard/training/bienvenida";
+      try {
+          const data = await fetchWithFallback('/settings/redirect');
+          return data.url;
+      } catch (e) {
+          return "/dashboard";
+      }
+  },
+
+  updateLoginRedirect: async (url: string): Promise<void> => {
+      if (isMockMode) return Promise.resolve();
+      await fetchWithFallback('/admin/settings', {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ key: 'after_login_url', value: url })
       });
   },
 

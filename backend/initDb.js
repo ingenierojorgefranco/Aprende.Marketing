@@ -66,6 +66,7 @@ const initDb = async () => {
             description TEXT,
             slug VARCHAR(255) UNIQUE NOT NULL,
             thumbnail VARCHAR(500),
+            order_index INT DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
 
@@ -120,6 +121,13 @@ const initDb = async () => {
             is_active BOOLEAN DEFAULT TRUE,
             is_recommended BOOLEAN DEFAULT FALSE,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        // 8. SYSTEM SETTINGS TABLE (NEW)
+        await connection.query(`CREATE TABLE IF NOT EXISTS system_settings (
+            setting_key VARCHAR(50) PRIMARY KEY,
+            setting_value TEXT,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
 
         // Tablas existentes del sistema (Projects, Pages, etc.)
@@ -231,6 +239,14 @@ const initDb = async () => {
         // Nuevas migraciones para Cursos y Comentarios
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");
         await addColumnSafe(connection, 'courses', "badge_text VARCHAR(100) DEFAULT 'Certificado'");
+        await addColumnSafe(connection, 'courses', "order_index INT DEFAULT 0");
+
+        // --- SEED SYSTEM SETTINGS ---
+        // Insert default redirect if not exists
+        await connection.query(`
+            INSERT IGNORE INTO system_settings (setting_key, setting_value) 
+            VALUES ('after_login_url', '/dashboard/training/bienvenida')
+        `);
 
         // --- SEED PLANS ---
         const [existingPlans] = await connection.query("SELECT id FROM plans LIMIT 1");
@@ -296,7 +312,7 @@ const initDb = async () => {
             console.log('[DB Init] 🌱 Insertando datos semilla de cursos...');
             
             // CURSO 1: PRODUCTOS DIGITALES
-            const [c1] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug, badge_text) VALUES (?, ?, ?, ?, ?)`, [
+            const [c1] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug, badge_text, order_index) VALUES (?, ?, ?, ?, ?, 1)`, [
                 'Productos Digitales', 
                 'Curso Intensivo', 
                 'Aprende a crear, validar y vender tu primer infoproducto desde cero. Descubre las estrategias que usan los grandes productores para facturar miles de dólares en Hotmart.',
@@ -335,7 +351,7 @@ const initDb = async () => {
 
 
             // CURSO 2: INTELIGENCIA ARTIFICIAL
-            const [c2] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug, badge_text) VALUES (?, ?, ?, ?, ?)`, [
+            const [c2] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug, badge_text, order_index) VALUES (?, ?, ?, ?, ?, 2)`, [
                 'Inteligencia Artificial', 
                 'Masterclass', 
                 'Domina las herramientas de IA que están revolucionando el marketing. Aprende a usar ChatGPT y Gemini para automatizar la creación de contenido y soporte.',

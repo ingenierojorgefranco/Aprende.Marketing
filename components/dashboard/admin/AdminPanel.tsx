@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { User, PlanLimits } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Shield, Users, Edit, Trash2, Check, X, Save, AlertTriangle, Eye, ChevronDown, ChevronUp, Folder, FileText, Globe } from 'lucide-react';
+import { Loader2, Shield, Users, Edit, Trash2, Check, X, Save, AlertTriangle, Eye, ChevronDown, ChevronUp, Folder, FileText, Globe, Link as LinkIcon } from 'lucide-react';
 
 // --- Sub-component for viewing user resources (Lazy Loaded) ---
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -140,7 +140,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                     <div className="border border-gray-700 rounded-xl overflow-hidden">
                         <button 
                             onClick={() => toggleSection('articles')}
-                            className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition text-left"
+                            className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 transition text-left"
                         >
                             <div className="flex items-center gap-3 font-bold text-white">
                                 <FileText className="w-5 h-5 text-purple-500" /> Artículos
@@ -195,9 +195,14 @@ export const AdminPanel: React.FC = () => {
     const [viewingUser, setViewingUser] = useState<User | null>(null); // For Content Viewer
     const [tempPlanLimits, setTempPlanLimits] = useState<PlanLimits | null>(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+    
+    // System Settings
+    const [redirectUrl, setRedirectUrl] = useState('');
+    const [loadingSettings, setLoadingSettings] = useState(false);
 
     useEffect(() => {
         loadUsers();
+        loadSettings();
     }, []);
 
     const loadUsers = async () => {
@@ -209,6 +214,27 @@ export const AdminPanel: React.FC = () => {
             console.error("Error loading users:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadSettings = async () => {
+        try {
+            const url = await api.getLoginRedirect();
+            setRedirectUrl(url);
+        } catch (e) {
+            console.error("Failed to load settings");
+        }
+    };
+
+    const handleSaveSettings = async () => {
+        setLoadingSettings(true);
+        try {
+            await api.updateLoginRedirect(redirectUrl);
+            alert("Configuración actualizada.");
+        } catch (e) {
+            alert("Error al guardar configuración.");
+        } finally {
+            setLoadingSettings(false);
         }
     };
 
@@ -281,7 +307,7 @@ export const AdminPanel: React.FC = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                     <Shield className="w-8 h-8 text-red-500" /> Panel de Administración
@@ -291,8 +317,41 @@ export const AdminPanel: React.FC = () => {
                 </div>
             </div>
 
+            {/* System Configuration Section */}
+            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg">
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <LinkIcon className="w-5 h-5 text-primary" /> Configuración Global
+                </h2>
+                <div className="max-w-2xl">
+                    <label className="block text-sm font-medium text-gray-400 mb-2">URL de Redirección (Login/Registro Exitoso)</label>
+                    <div className="flex gap-2">
+                        <input 
+                            type="text" 
+                            value={redirectUrl}
+                            onChange={(e) => setRedirectUrl(e.target.value)}
+                            className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-2 text-white outline-none focus:border-primary"
+                            placeholder="/dashboard"
+                        />
+                        <button 
+                            onClick={handleSaveSettings}
+                            disabled={loadingSettings}
+                            className="bg-primary hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold transition flex items-center gap-2"
+                        >
+                            {loadingSettings ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                            Guardar
+                        </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">Define a dónde van los usuarios inmediatamente después de iniciar sesión. Por defecto: /dashboard/training/bienvenida</p>
+                </div>
+            </div>
+
             {/* Users Table */}
             <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-lg">
+                <div className="p-4 border-b border-gray-800">
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        <Users className="w-5 h-5 text-blue-400" /> Usuarios Registrados
+                    </h2>
+                </div>
                 <table className="w-full text-left">
                     <thead className="bg-gray-800 text-gray-400 text-xs uppercase tracking-wider">
                         <tr>

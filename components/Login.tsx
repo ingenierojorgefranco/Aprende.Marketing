@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, Lock, Loader2, AlertCircle, Database, WifiOff } from 'lucide-react';
 import { User } from '../types';
@@ -73,7 +74,16 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       };
 
       onLogin(mappedUser);
-      navigate('/dashboard'); // Redirigir
+      
+      // Fetch dynamic redirect URL
+      try {
+          const redirectUrl = await api.getLoginRedirect();
+          addLog(`Redirigiendo a: ${redirectUrl}`);
+          navigate(redirectUrl);
+      } catch (e) {
+          console.warn("Could not fetch redirect URL, using default.");
+          navigate('/dashboard');
+      }
 
     } catch (err: any) {
       console.error('Error de login:', err);
