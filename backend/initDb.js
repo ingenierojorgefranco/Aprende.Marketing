@@ -1,3 +1,4 @@
+
 const pool = require('./db');
 
 /**
@@ -37,7 +38,10 @@ const initDb = async () => {
             public_subdomain VARCHAR(255) UNIQUE,
             plan_limits JSON NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            last_login_at DATETIME
+            last_login_at DATETIME,
+            stripe_customer_id VARCHAR(255),
+            subscription_id VARCHAR(255),
+            subscription_status VARCHAR(50)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
 
         // 2. DETECCIÓN DINÁMICA DEL TIPO DE ID DE USUARIO
@@ -259,6 +263,11 @@ const initDb = async () => {
         await addColumnSafe(connection, 'users', "birth_date DATE");
         // NEW MIGRATION FOR CUSTOM REDIRECT
         await addColumnSafe(connection, 'users', "custom_redirect_url VARCHAR(500)");
+        
+        // NEW STRIPE MIGRATIONS
+        await addColumnSafe(connection, 'users', "stripe_customer_id VARCHAR(255)");
+        await addColumnSafe(connection, 'users', "subscription_id VARCHAR(255)");
+        await addColumnSafe(connection, 'users', "subscription_status VARCHAR(50)");
         
         // Nuevas migraciones para Cursos y Comentarios
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");

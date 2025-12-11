@@ -112,6 +112,17 @@ export const api = {
       });
   },
 
+  createCheckoutSession: async (planSlug: string): Promise<{ url: string }> => {
+      if (isMockMode) {
+          return Promise.resolve({ url: '#' }); // Mock behavior
+      }
+      return await fetchWithFallback('/stripe/create-checkout-session', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ planSlug })
+      });
+  },
+
   getPages: async (): Promise<LandingPage[]> => {
     if (isMockMode) return Promise.resolve([...localPages]);
     

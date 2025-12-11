@@ -11,18 +11,49 @@ const pool = require('./db');
 const initDb = require('./initDb'); // Módulo dedicado
 const { generateContent } = require('./geminiService');
 const { authMiddleware } = require('./authMiddleware');
+const stripeService = require('./stripeService'); // Nuevo Servicio Stripe
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v18_logs_stats'; 
+const SERVER_VERSION = 'v19_stripe_integration'; 
 
 app.enable('trust proxy');
 
 app.use(cors());
 
-// INCREASED LIMITS FOR LARGE ARTICLES (Both Express and BodyParser)
+// ======================================================
+//  STRIPE WEBHOOK (MUST BE BEFORE BODY PARSERS)
+// ======================================================
+// Stripe requiere el cuerpo "raw" para validar la firma del webhook.
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    let event;
+
+    try {
+        // Si tenemos el secreto de firma, validamos. Si no (dev mode), parseamos manual.
+        if (endpointSecret) {
+            event = stripeService.stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+        } else {
+            // Fallback inseguro solo para desarrollo si no se configuró secreto
+            event = JSON.parse(req.body.toString());
+        }
+        
+        await stripeService.handleWebhook(event);
+        res.json({ received: true });
+
+    } catch (err) {
+        console.error(`[Stripe Webhook Error]: ${err.message}`);
+        res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+});
+
+// ======================================================
+//  GLOBAL MIDDLEWARE (Body Parsers)
+// ======================================================
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -32,6 +63,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 //  LOGGING
 // ======================================================
 app.use((req, res, next) => {
+  if (req.path.includes('webhook')) return next(); // Skip logging body for webhook
   console.log(
     `[API] ${req.method} ${req.path} (host: ${req.hostname || req.headers.host})`
   );
@@ -205,6 +237,23 @@ const logUsage = async (userId, resourceType) => {
         console.error("Error logging usage:", e);
     }
 };
+
+// ======================================================
+//  STRIPE CHECKOUT ROUTE
+// ======================================================
+app.post('/api/stripe/create-checkout-session', authMiddleware, async (req, res) => {
+    const { planSlug } = req.body;
+    
+    if (!planSlug) return res.status(400).json({ error: "Plan no especificado." });
+
+    try {
+        const checkoutUrl = await stripeService.createCheckoutSession(req.user.id, req.user.email, planSlug);
+        res.json({ url: checkoutUrl });
+    } catch (e) {
+        console.error("[Stripe Checkout Error]", e);
+        res.status(500).json({ error: e.message || "Error al crear sesión de pago." });
+    }
+});
 
 // ======================================================
 //  AUTH

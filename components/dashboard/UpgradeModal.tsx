@@ -1,5 +1,6 @@
+
 import React, { useEffect, useState } from 'react';
-import { X, Check, Crown, ShieldCheck } from 'lucide-react';
+import { X, Check, Crown, ShieldCheck, Loader2 } from 'lucide-react';
 import { api } from '../../services/api';
 import { Plan } from '../../types';
 
@@ -13,6 +14,7 @@ interface UpgradeModalProps {
 export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, currentPlan, reason }) => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState<string | null>(null);
 
   useEffect(() => {
       if (isOpen) {
@@ -23,6 +25,23 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
              .finally(() => setLoading(false));
       }
   }, [isOpen]);
+
+  const handleUpgrade = async (planSlug: string) => {
+      setProcessing(planSlug);
+      try {
+          const { url } = await api.createCheckoutSession(planSlug);
+          if (url) {
+              window.location.href = url; // Redirect to Stripe
+          } else {
+              alert("No se pudo iniciar el pago. Intenta más tarde.");
+          }
+      } catch (error) {
+          console.error("Payment error", error);
+          alert("Error al conectar con la pasarela de pagos.");
+      } finally {
+          setProcessing(null);
+      }
+  };
 
   if (!isOpen) return null;
 
@@ -54,7 +73,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                 <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-4">Garantía de Confianza</p>
                 <div className="flex flex-col gap-2 text-gray-400 text-xs">
                     <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> Cancelación fácil</div>
-                    <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> Pagos seguros</div>
+                    <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> Pagos seguros por Stripe</div>
                 </div>
             </div>
         </div>
@@ -62,12 +81,15 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
         {/* Pricing Columns */}
         <div className="flex-1 p-6 md:p-8 bg-[#0a0a0a] overflow-x-auto">
             {loading ? (
-                <div className="flex h-full items-center justify-center text-gray-500">Cargando planes...</div>
+                <div className="flex h-full items-center justify-center text-gray-500">
+                    <Loader2 className="w-8 h-8 animate-spin mr-2" /> Cargando planes...
+                </div>
             ) : (
                 <div className="flex flex-col md:flex-row gap-4 h-full">
                     {plans.map((plan) => {
                         const isCurrent = currentPlan === plan.slug;
                         const isRecommended = plan.isRecommended;
+                        const isProcessingThis = processing === plan.slug;
 
                         return (
                             <div 
@@ -108,13 +130,22 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                     <button disabled className="w-full py-2.5 rounded-lg border border-gray-700 text-gray-500 text-sm font-bold cursor-default bg-gray-800/50">
                                         Plan Actual
                                     </button>
+                                ) : plan.priceMonthly === 0 ? (
+                                    <button disabled className="w-full py-2.5 rounded-lg border border-gray-600 text-gray-400 text-sm font-bold cursor-default">
+                                        Plan Básico
+                                    </button>
                                 ) : (
-                                    <button className={`w-full py-2.5 rounded-lg font-bold text-sm transition transform hover:scale-[1.02] ${
-                                        isRecommended 
-                                            ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg' 
-                                            : 'border border-gray-600 text-white hover:bg-white hover:text-black'
-                                    }`}>
-                                        {plan.priceMonthly === 0 ? 'Downgrade' : `Elegir ${plan.name}`}
+                                    <button 
+                                        onClick={() => handleUpgrade(plan.slug)}
+                                        disabled={!!processing}
+                                        className={`w-full py-2.5 rounded-lg font-bold text-sm transition transform hover:scale-[1.02] flex items-center justify-center gap-2 ${
+                                            isRecommended 
+                                                ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg' 
+                                                : 'border border-gray-600 text-white hover:bg-white hover:text-black'
+                                        }`}
+                                    >
+                                        {isProcessingThis ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                                        {isProcessingThis ? 'Procesando...' : `Obtener ${plan.name}`}
                                     </button>
                                 )}
                             </div>

@@ -1,3 +1,4 @@
+
 {
   "name": "plataformadeventacom-backend",
   "version": "1.0.0",
@@ -14,7 +15,8 @@
     "dotenv": "^16.4.0",
     "body-parser": "^1.20.2",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "stripe": "^14.14.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
