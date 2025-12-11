@@ -470,6 +470,68 @@ app.get('/api/admin/stats', authMiddleware, adminMiddleware, async (req, res) =>
     }
 });
 
+// ---------------- PLANS MANAGEMENT (ADMIN) ----------------
+
+// List Plans
+app.get('/api/admin/plans', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const [plans] = await pool.query('SELECT * FROM plans ORDER BY price_monthly ASC');
+        const safePlans = plans.map(p => ({
+            ...p,
+            id: p.id.toString(),
+            priceMonthly: parseFloat(p.price_monthly),
+            limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
+            uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : (p.ui_features || []),
+            isActive: !!p.is_active,
+            isRecommended: !!p.is_recommended
+        }));
+        res.json(safePlans);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Create Plan
+app.post('/api/admin/plans', authMiddleware, adminMiddleware, async (req, res) => {
+    const { name, slug, description, priceMonthly, currency, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
+    try {
+        await pool.query(
+            `INSERT INTO plans (name, slug, description, price_monthly, currency, limits_config, ui_features, is_active, is_recommended) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [name, slug, description, priceMonthly, currency || 'EUR', JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended]
+        );
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Update Plan
+app.put('/api/admin/plans/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { name, slug, description, priceMonthly, currency, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
+    try {
+        await pool.query(
+            `UPDATE plans SET name=?, slug=?, description=?, price_monthly=?, currency=?, limits_config=?, ui_features=?, is_active=?, is_recommended=? WHERE id=?`,
+            [name, slug, description, priceMonthly, currency || 'EUR', JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended, id]
+        );
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Delete Plan
+app.delete('/api/admin/plans/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM plans WHERE id = ?', [id]);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // ---------------- COURSE MANAGEMENT (ADMIN) ----------------
 
 // List Courses (FULL TREE LOAD)

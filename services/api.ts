@@ -1,7 +1,4 @@
-
-
-
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson } from "../types";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS } from "./mockData";
 
 // --- HELPER PARA OBTENER BASE URL ---
@@ -24,13 +21,10 @@ const API_URL = getBaseUrl();
 let isMockMode = false;
 
 // --- IN-MEMORY DATA STORAGE FOR MOCK MODE ---
-// Inicializamos con los datos del archivo mockData.ts
-// Usamos 'let' para permitir modificaciones en memoria durante la sesión
 let localPages: LandingPage[] = [...MOCK_PAGES];
 let localArticles: Article[] = [...MOCK_ARTICLES];
 let localProjects: Project[] = [...MOCK_PROJECTS];
 let localLeads: Lead[] = [...MOCK_LEADS];
-// Mock courses for dev
 let localCourses: Course[] = [...MOCK_COURSES];
 let localComments: Comment[] = [...MOCK_COMMENTS];
 
@@ -85,10 +79,7 @@ export const api = {
 
   login: async (email: string, password: string): Promise<User> => {
       if (isMockMode) {
-          // Simular delay de red
           await new Promise(resolve => setTimeout(resolve, 800));
-          
-          // Validar credenciales estrictas del Mock
           if (email === MOCK_CREDENTIALS.email && password === MOCK_CREDENTIALS.password) {
               return MOCK_USER;
           } else {
@@ -118,7 +109,6 @@ export const api = {
     }));
   },
 
-  // New method for fetching single page by ID (needed for Editor route wrapper in lazy loading mode)
   getPageById: async (id: string): Promise<LandingPage | null> => {
       if (isMockMode) {
           const page = localPages.find(p => p.id === id);
@@ -617,9 +607,6 @@ export const api = {
               likes: 0,
               isApproved: false // or true based on context
           };
-          // If replying, finding parent is complex in flat mock structure without reloading, 
-          // but for mock simplicity we push to top. Admin view handles hierarchy.
-          // In a real app we'd attach parentId.
           if (parentId) newComment.parentId = parentId;
           
           localComments.unshift(newComment);
@@ -645,5 +632,28 @@ export const api = {
           method: 'POST',
           headers: getAuthHeaders()
       });
+  },
+
+  // --- ADMIN PLANS MANAGEMENT ---
+  getPlans: async (): Promise<Plan[]> => {
+      if (isMockMode) return Promise.resolve([]); // Add mock plans if needed later
+      return await fetchWithFallback('/admin/plans', { headers: getAuthHeaders() });
+  },
+
+  savePlan: async (plan: Plan): Promise<void> => {
+      if (isMockMode) return Promise.resolve();
+      const method = plan.id ? 'PUT' : 'POST';
+      const endpoint = plan.id ? `/admin/plans/${plan.id}` : '/admin/plans';
+      
+      await fetchWithFallback(endpoint, {
+          method,
+          headers: getAuthHeaders(),
+          body: JSON.stringify(plan)
+      });
+  },
+
+  deletePlan: async (id: string): Promise<void> => {
+      if (isMockMode) return Promise.resolve();
+      await fetchWithFallback(`/admin/plans/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
   }
 };

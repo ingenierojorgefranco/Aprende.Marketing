@@ -69,6 +69,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         name: user.name,
         email: user.email,
         role: user.role as any, // Agregamos el rol aquí
+        planLimits: (user as any).planLimits
       };
 
       onLogin(mappedUser);
@@ -187,6 +188,15 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             )}
           </button>
         </form>
+
+        <div className="mt-6 text-center pt-6 border-t border-gray-800">
+            <p className="text-gray-400 text-sm">
+                ¿No tienes cuenta?{' '}
+                <button onClick={() => navigate('/register')} className="text-primary hover:text-white font-bold transition hover:underline">
+                    Regístrate Gratis
+                </button>
+            </p>
+        </div>
       </div>
 
       {/* Console Logs for Debugging */}

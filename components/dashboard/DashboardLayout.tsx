@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '../../types';
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
 import { UpgradeModal } from './UpgradeModal';
@@ -79,6 +79,7 @@ export const DashboardLayout = ({
       adminOnly: true,
       subItems: [
           { label: 'Usuarios', path: '/dashboard/admin', icon: Users },
+          { label: 'Planes y Precios', path: '/dashboard/admin/plans', icon: CreditCard },
           { label: 'Gestionar Cursos', path: '/dashboard/admin/courses', icon: Video },
           { label: 'Gestionar Comentarios', path: '/dashboard/admin/comments', icon: MessageSquare }
       ]

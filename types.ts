@@ -29,6 +29,20 @@ export interface PlanLimits {
   features: PlanFeatures;
 }
 
+// NEW: Database Plan Structure
+export interface Plan {
+  id: string;
+  name: string;
+  slug: string; // e.g. 'starter', 'pro'
+  description: string;
+  priceMonthly: number;
+  currency: string;
+  limitsConfig: PlanLimits;
+  uiFeatures: string[]; // List of strings for the pricing card bullets
+  isActive: boolean;
+  isRecommended: boolean;
+}
+
 export interface User {
   id: string;
   name: string;

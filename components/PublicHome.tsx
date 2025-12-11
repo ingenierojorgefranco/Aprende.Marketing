@@ -97,7 +97,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
           {/* Buttons */}
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-20">
             <button
-              onClick={() => user ? navigate('/dashboard') : navigate('/login')}
+              onClick={() => user ? navigate('/dashboard') : navigate('/register')}
               className="group relative px-10 py-5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 rounded-full text-xl font-bold transition flex items-center gap-3 shadow-[0_10px_40px_-10px_rgba(234,88,12,0.5)] text-white transform hover:-translate-y-1 overflow-hidden"
             >
               <span className="relative z-10 flex items-center gap-2">
@@ -415,10 +415,10 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                       <div className="mb-8">
                           <h3 className="text-2xl font-bold text-white mb-2">Plan Starter</h3>
                           <div className="flex items-baseline gap-1 mb-4">
-                              <span className="text-5xl font-extrabold text-white">$9.99</span>
+                              <span className="text-5xl font-extrabold text-white">$0</span>
                               <span className="text-xl text-gray-500">/mes</span>
                           </div>
-                          <p className="text-gray-400">Ideal para afiliados que están iniciando su camino.</p>
+                          <p className="text-gray-400">Ideal para empezar sin riesgo.</p>
                       </div>
                       <ul className="space-y-5 mb-10 flex-1">
                           <li className="flex items-center gap-3 text-gray-300"><div className="bg-gray-800 p-1 rounded-full"><CheckCircle className="w-4 h-4 text-white"/></div> 1 Proyecto / Nicho</li>
@@ -427,8 +427,11 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                           <li className="flex items-center gap-3 text-gray-500 line-through decoration-gray-600"><div className="bg-gray-900 p-1 rounded-full"><X className="w-4 h-4"/></div> Sin Bot de WhatsApp</li>
                           <li className="flex items-center gap-3 text-gray-500 line-through decoration-gray-600"><div className="bg-gray-900 p-1 rounded-full"><X className="w-4 h-4"/></div> Sin Curso Premium</li>
                       </ul>
-                      <button className="w-full py-4 rounded-xl border border-gray-600 text-white font-bold hover:bg-white hover:text-black transition text-lg">
-                          Elegir Starter
+                      <button 
+                        onClick={() => user ? navigate('/dashboard') : navigate('/register')}
+                        className="w-full py-4 rounded-xl border border-gray-600 text-white font-bold hover:bg-white hover:text-black transition text-lg"
+                      >
+                          Comenzar Gratis
                       </button>
                   </div>
 

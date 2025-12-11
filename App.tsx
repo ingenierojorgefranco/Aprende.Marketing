@@ -11,6 +11,7 @@ import {
 
 import { PublicHome } from "./components/PublicHome";
 import { Login } from "./components/Login";
+import { Register } from "./components/Register"; // Import Register
 import { PublicLandingView } from "./components/PublicLandingView";
 
 // Dashboard Core
@@ -21,6 +22,7 @@ import { DashboardHome } from "./components/dashboard/DashboardHome";
 import { AdminPanel } from "./components/dashboard/admin/AdminPanel";
 import { AdminCourses } from "./components/dashboard/admin/AdminCourses";
 import { AdminComments } from "./components/dashboard/admin/AdminComments";
+import { AdminPlans } from "./components/dashboard/admin/AdminPlans"; // Import AdminPlans
 
 // Dashboard Training
 import { TrainingViewer } from "./components/dashboard/training/TrainingViewer";
@@ -271,6 +273,17 @@ const App: React.FC = () => {
         />
 
         <Route
+          path="/register"
+          element={
+            user ? (
+              <Navigate to="/dashboard" />
+            ) : (
+              <Register onLogin={handleLoginSubmit} />
+            )
+          }
+        />
+
+        <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
@@ -298,6 +311,11 @@ const App: React.FC = () => {
           <Route path="admin/comments" element={
               <AdminRoute>
                   <AdminComments />
+              </AdminRoute>
+          } />
+          <Route path="admin/plans" element={
+              <AdminRoute>
+                  <AdminPlans />
               </AdminRoute>
           } />
 

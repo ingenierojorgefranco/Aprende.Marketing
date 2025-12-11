@@ -107,6 +107,21 @@ const initDb = async () => {
             FOREIGN KEY (parent_id) REFERENCES lesson_comments(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
 
+        // 7. PLANS TABLE
+        await connection.query(`CREATE TABLE IF NOT EXISTS plans (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(50) NOT NULL,
+            slug VARCHAR(50) UNIQUE NOT NULL,
+            description TEXT,
+            price_monthly DECIMAL(10, 2) DEFAULT 0,
+            currency VARCHAR(10) DEFAULT 'EUR',
+            limits_config JSON,
+            ui_features JSON,
+            is_active BOOLEAN DEFAULT TRUE,
+            is_recommended BOOLEAN DEFAULT FALSE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
         // Tablas existentes del sistema (Projects, Pages, etc.)
         const tables = [
             {
@@ -213,6 +228,63 @@ const initDb = async () => {
         // Nuevas migraciones para Cursos y Comentarios
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");
         await addColumnSafe(connection, 'courses', "badge_text VARCHAR(100) DEFAULT 'Certificado'");
+
+        // --- SEED PLANS ---
+        const [existingPlans] = await connection.query("SELECT id FROM plans LIMIT 1");
+        if (existingPlans.length === 0) {
+            console.log('[DB Init] 🌱 Insertando planes por defecto...');
+            const plans = [
+                {
+                    name: 'Starter',
+                    slug: 'starter',
+                    description: 'Ideal para empezar sin riesgo.',
+                    price: 0,
+                    limits: JSON.stringify({
+                        planName: 'starter',
+                        maxProjects: 1,
+                        maxLandings: 3,
+                        features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false }
+                    }),
+                    features: JSON.stringify(['1 Proyecto / Nicho', '3 Landing Pages', 'IA Básica', 'Marca de Agua']),
+                    is_rec: false
+                },
+                {
+                    name: 'Pro',
+                    slug: 'pro',
+                    description: 'Para Productores y Afiliados serios.',
+                    price: 19.99,
+                    limits: JSON.stringify({
+                        planName: 'pro',
+                        maxProjects: 5,
+                        maxLandings: 20,
+                        features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true }
+                    }),
+                    features: JSON.stringify(['5 Proyectos', '20 Landing Pages', 'Bot WhatsApp', 'IA Avanzada', 'Sin Marca de Agua']),
+                    is_rec: true
+                },
+                {
+                    name: 'Max',
+                    slug: 'max',
+                    description: 'Agencias y Escala masiva.',
+                    price: 49.99,
+                    limits: JSON.stringify({
+                        planName: 'max',
+                        maxProjects: 100,
+                        maxLandings: 500,
+                        features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true }
+                    }),
+                    features: JSON.stringify(['Proyectos Ilimitados', 'Soporte Prioritario', 'API Access', 'Todo Incluido']),
+                    is_rec: false
+                }
+            ];
+
+            for (const p of plans) {
+                await connection.query(
+                    `INSERT INTO plans (name, slug, description, price_monthly, limits_config, ui_features, is_recommended) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                    [p.name, p.slug, p.description, p.price, p.limits, p.features, p.is_rec]
+                );
+            }
+        }
 
         // --- DATOS SEMILLA (SEED DATA) ---
         // Insertar cursos por defecto si no existen
