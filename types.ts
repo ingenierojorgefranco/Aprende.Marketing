@@ -23,7 +23,7 @@ export interface PlanFeatures {
 }
 
 export interface PlanLimits {
-  planName: 'starter' | 'pro' | 'custom';
+  planName: 'free' | 'starter' | 'pro' | 'max' | 'custom';
   maxProjects: number;
   maxLandings: number;
   features: PlanFeatures;

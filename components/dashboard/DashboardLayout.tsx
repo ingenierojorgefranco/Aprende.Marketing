@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { User } from '../../types';
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
+import { UpgradeModal } from './UpgradeModal';
 
 interface DashboardLayoutProps {
   user: User;
@@ -28,13 +28,20 @@ export const DashboardLayout = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMenu, setExpandedMenu] = useState<string | null>('mid-landing');
   const [courseItems, setCourseItems] = useState<{ label: string; path: string; icon: any }[]>([]);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  // Context Data State
+  const [projectCount, setProjectCount] = useState(0);
+  const [pageCount, setPageCount] = useState(0);
+
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Load dynamic courses menu
+  // Load dynamic courses menu & usage stats
   useEffect(() => {
-      const loadCoursesMenu = async () => {
+      const loadData = async () => {
           try {
+              // Courses for menu
               const list = await api.getCoursesList();
               const items = list.map((c: any) => ({
                   label: c.title,
@@ -42,12 +49,21 @@ export const DashboardLayout = ({
                   icon: PlayCircle 
               }));
               setCourseItems(items);
+
+              // Usage Stats for Limits
+              const [projects, pages] = await Promise.all([
+                  api.getProjects(),
+                  api.getPages()
+              ]);
+              setProjectCount(projects.length);
+              setPageCount(pages.length);
+
           } catch (e) {
-              console.error("Error loading courses menu", e);
+              console.error("Error loading dashboard data", e);
           }
       };
-      loadCoursesMenu();
-  }, []);
+      loadData();
+  }, []); // Run once on mount
 
   const menuStructure: MenuItem[] = [
     { 
@@ -125,12 +141,12 @@ export const DashboardLayout = ({
         }
       }
     });
-  }, [location.pathname, courseItems]); // Added courseItems dependency to re-expand if needed after load
+  }, [location.pathname, courseItems]);
 
   const NavItemRender: React.FC<{ item: MenuItem }> = ({ item }) => {
     if (item.adminOnly && user.role !== 'admin') return null;
 
-    const hasSubItems = !!item.subItems && item.subItems.length > 0; // Check length to avoid empty dropdown
+    const hasSubItems = !!item.subItems && item.subItems.length > 0; 
     const isExpanded = expandedMenu === item.id;
     const isActive = item.path === location.pathname || (hasSubItems && item.subItems?.some(sub => sub.path === location.pathname));
 
@@ -189,6 +205,11 @@ export const DashboardLayout = ({
     );
   };
 
+  // Plan Logic for Widget
+  const currentPlan = user.planLimits?.planName || 'starter';
+  const isMax = currentPlan === 'max';
+  const isPro = currentPlan === 'pro';
+
   return (
     <div className="h-screen overflow-hidden bg-black text-gray-200 flex font-sans">
       <aside className="hidden md:flex flex-col w-72 bg-gray-900 border-r border-gray-800">
@@ -202,6 +223,31 @@ export const DashboardLayout = ({
             <NavItemRender key={item.id} item={item} />
           ))}
         </nav>
+
+        {/* Upgrade Widget */}
+        {!isMax && (
+            <div className="px-4 pb-4">
+                <div className={`p-4 rounded-xl border border-white/10 shadow-lg ${isPro ? 'bg-gradient-to-br from-purple-900/80 to-indigo-900/80' : 'bg-gradient-to-br from-orange-900/80 to-red-900/80'}`}>
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className={`p-1.5 rounded-lg flex items-center justify-center ${isPro ? 'bg-purple-500/20 text-purple-300' : 'bg-orange-500/20 text-orange-300'}`}>
+                            {isPro ? <Crown className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
+                        </div>
+                        <span className="font-bold text-white text-sm">
+                            {isPro ? 'Plan Negocios' : 'Plan Pro'}
+                        </span>
+                    </div>
+                    <p className="text-xs text-gray-300 mb-3 leading-relaxed">
+                        {isPro ? 'Para agencias que necesitan escalar sin límites.' : 'Desbloquea dominios, IA avanzada y WhatsApp.'}
+                    </p>
+                    <button 
+                        onClick={() => setShowUpgradeModal(true)}
+                        className={`w-full py-2 rounded-lg text-xs font-bold transition shadow-lg transform hover:scale-[1.02] ${isPro ? 'bg-white text-purple-900 hover:bg-purple-50' : 'bg-white text-orange-900 hover:bg-orange-50'}`}
+                    >
+                        {isPro ? 'Actualizar a MAX ⚡' : 'Actualizar a PRO 🚀'}
+                    </button>
+                </div>
+            </div>
+        )}
 
         <div className="p-4 border-t border-gray-800 bg-gray-900 z-10">
           <div className="flex items-center gap-3 px-4 py-2 mb-2">
@@ -238,6 +284,23 @@ export const DashboardLayout = ({
             {menuStructure.map(item => (
               <NavItemRender key={item.id} item={item} />
             ))}
+            
+            {/* Mobile Widget */}
+            {!isMax && (
+                <div className="mt-4 mb-4">
+                    <button 
+                        onClick={() => { setShowUpgradeModal(true); setMobileMenuOpen(false); }}
+                        className={`w-full p-4 rounded-xl border border-white/10 text-left ${isPro ? 'bg-purple-900/50' : 'bg-orange-900/50'}`}
+                    >
+                        <div className="flex items-center gap-2 font-bold text-white mb-1">
+                            {isPro ? <Crown className="w-4 h-4 text-purple-400" /> : <Sparkles className="w-4 h-4 text-orange-400" />}
+                            {isPro ? 'Actualizar a Plan MAX' : 'Actualizar a Plan PRO'}
+                        </div>
+                        <p className="text-xs text-gray-400">Toca para ver beneficios</p>
+                    </button>
+                </div>
+            )}
+
             <div className="border-t border-gray-800 my-4"></div>
             <button onClick={onLogout} className="text-red-400 flex gap-2 mt-4 px-4 w-full items-center">
               <LogOut className="w-5 h-5" /> Cerrar Sesión
@@ -263,8 +326,15 @@ export const DashboardLayout = ({
                </button>
             </div>
         )}
-        {/* PASS USER CONTEXT HERE */}
-        <Outlet context={{ user }} />
+        {/* Pass user AND counts */}
+        <Outlet context={{ user, projectCount, pageCount }} />
+        
+        {/* Global Modal */}
+        <UpgradeModal 
+            isOpen={showUpgradeModal} 
+            onClose={() => setShowUpgradeModal(false)} 
+            currentPlan={currentPlan}
+        />
       </main>
     </div>
   );

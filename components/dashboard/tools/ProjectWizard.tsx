@@ -1,18 +1,27 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Save, Target, Zap, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles } from 'lucide-react';
 import { api } from '../../../services/api';
 import { generateProjectStrategy } from '../../../services/geminiService';
-import { AffiliateLink } from '../../../types';
+import { AffiliateLink, User } from '../../../types';
+import { UpgradeModal } from '../UpgradeModal';
+
+interface DashboardContext {
+  user: User;
+  projectCount: number; // Provided by Layout
+}
 
 export const ProjectWizard: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams() as { id: string };
+    const { user, projectCount } = useOutletContext() as DashboardContext;
     
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [loadingAI, setLoadingAI] = useState(false);
+    
+    // Blocking Logic
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     
     const [name, setName] = useState('');
     const [niche, setNiche] = useState('');
@@ -32,10 +41,19 @@ export const ProjectWizard: React.FC = () => {
     const [suggestedBenefits, setSuggestedBenefits] = useState<string[]>([]);
 
     useEffect(() => {
+        // LIMIT CHECK
+        // Only if creating new (no ID) and user has limits
+        if (!id && user.planLimits) {
+            const max = user.planLimits.maxProjects;
+            if (projectCount >= max) {
+                setShowUpgradeModal(true);
+            }
+        }
+
         if (id) {
             loadProject(id);
         }
-    }, [id]);
+    }, [id, user, projectCount]);
 
     const loadProject = async (projectId: string) => {
         setLoading(true);
@@ -164,11 +182,17 @@ export const ProjectWizard: React.FC = () => {
 
     return (
         <div className="max-w-4xl mx-auto pb-12">
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => navigate('/dashboard/projects')} 
+                reason={`Has alcanzado el límite de ${user.planLimits?.maxProjects} proyectos de tu plan ${user.planLimits?.planName}.`}
+            />
+
             <button onClick={() => navigate('/dashboard/projects')} className="flex items-center gap-2 text-gray-400 hover:text-white mb-6">
                 <ArrowLeft className="w-4 h-4" /> Volver a Proyectos
             </button>
 
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+            <div className={`bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
                 <div className="bg-gray-800/50 p-6 border-b border-gray-800 flex justify-between items-center">
                     <div>
                         <h2 className="text-xl font-bold text-white flex items-center gap-2">

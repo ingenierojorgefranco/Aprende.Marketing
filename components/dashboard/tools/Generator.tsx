@@ -1,19 +1,31 @@
-
 import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
-import { GeneratedPageContent, LandingPage, ColorPalette, StructureType, DestinationConfig, DestinationType, Project } from '../../../types';
+import { GeneratedPageContent, LandingPage, ColorPalette, StructureType, DestinationConfig, DestinationType, Project, User } from '../../../types';
 import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase } from 'lucide-react';
+import { useOutletContext, useNavigate } from 'react-router-dom';
+import { UpgradeModal } from '../UpgradeModal';
 
 interface GeneratorProps {
   onPageGenerated: (page: LandingPage) => void;
 }
 
+interface DashboardContext {
+  user: User;
+  pageCount: number; // Provided by Layout
+}
+
 export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
+  const { user, pageCount } = useOutletContext() as DashboardContext;
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: Info, 2: Structure/Design
   const [userProjects, setUserProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('');
+  
+  // Limit Check
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const [formData, setFormData] = useState({
     goal: 'Captar Leads',
@@ -28,8 +40,16 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
   });
   const [error, setError] = useState('');
 
-  // Load projects on mount
+  // Load projects & check limits
   useEffect(() => {
+    // Check Limits
+    if (user.planLimits) {
+        const max = user.planLimits.maxLandings;
+        if (pageCount >= max) {
+            setShowUpgradeModal(true);
+        }
+    }
+
     const fetchProjects = async () => {
         try {
             const projects = await api.getProjects();
@@ -39,7 +59,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         }
     };
     fetchProjects();
-  }, []);
+  }, [user, pageCount]);
 
   // Handle project selection
   const handleProjectSelect = (projectId: string) => {
@@ -224,8 +244,14 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col">
-      <div className="bg-primary/10 p-8 text-center border-b border-primary/10">
+    <div className="max-w-4xl mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative">
+      <UpgradeModal 
+          isOpen={showUpgradeModal} 
+          onClose={() => navigate('/dashboard/pages')} 
+          reason={`Has alcanzado el límite de ${user.planLimits?.maxLandings} páginas de tu plan ${user.planLimits?.planName}.`}
+      />
+
+      <div className={`bg-primary/10 p-8 text-center border-b border-primary/10 ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
         <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
           <Sparkles className="w-8 h-8 text-primary" />
         </div>
@@ -237,7 +263,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         </div>
       </div>
 
-      <div className="p-8 flex-1">
+      <div className={`p-8 flex-1 ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
         {error && (
           <div className="bg-red-900/30 border border-red-800 text-red-400 p-4 rounded-lg mb-6 text-sm">
             {error}
