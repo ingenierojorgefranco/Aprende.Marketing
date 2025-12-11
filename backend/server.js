@@ -335,6 +335,19 @@ const loginHandler = async (req, res) => {
 app.post('/api/auth/login', loginHandler);
 app.post('/api/login', loginHandler);
 
+// NEW: Logout Endpoint for Logging
+app.post('/api/auth/logout', authMiddleware, async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        const name = rows[0]?.name || 'Usuario';
+        await logSystemActivity(req.user.id, name, 'LOGOUT', 'user', req.user.id, { ip: req.ip });
+        res.json({ success: true });
+    } catch (e) {
+        // Don't fail the logout process for the user if log fails
+        res.json({ success: true });
+    }
+});
+
 app.get('/api/auth/me', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -434,6 +447,10 @@ app.put('/api/admin/settings', authMiddleware, adminMiddleware, async (req, res)
             `INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?`,
             [key, value, value]
         );
+        // Log
+        const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        await logSystemActivity(req.user.id, admin[0]?.name, 'UPDATE_SETTINGS', 'setting', key, { value });
+        
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -696,6 +713,11 @@ app.put('/api/admin/users/:id', authMiddleware, adminMiddleware, async (req, res
              WHERE id = ?`,
             [role, JSON.stringify(planLimits), isActive, name, email, avatarUrl, birthDate, customRedirectUrl, id]
         );
+        
+        // Log action
+        const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        await logSystemActivity(req.user.id, admin[0]?.name, 'UPDATE_USER', 'user', id, { role, planName: planLimits.planName });
+
         res.json({ message: 'Usuario actualizado correctamente' });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -705,7 +727,13 @@ app.put('/api/admin/users/:id', authMiddleware, adminMiddleware, async (req, res
 // Delete User
 app.delete('/api/admin/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
+        const [targetUser] = await pool.query('SELECT email FROM users WHERE id = ?', [req.params.id]);
         await pool.query('DELETE FROM users WHERE id = ?', [req.params.id]);
+        
+        // Log action
+        const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        await logSystemActivity(req.user.id, admin[0]?.name, 'DELETE_USER', 'user', req.params.id, { email: targetUser[0]?.email });
+
         res.json({ message: 'Usuario eliminado' });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -829,6 +857,10 @@ app.post('/api/admin/plans', authMiddleware, adminMiddleware, async (req, res) =
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [name, slug, description, priceMonthly, currency || 'EUR', stripePriceId, JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended]
         );
+        // Log
+        const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        await logSystemActivity(req.user.id, admin[0]?.name, 'CREATE_PLAN', 'plan', null, { name, slug });
+
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -844,6 +876,10 @@ app.put('/api/admin/plans/:id', authMiddleware, adminMiddleware, async (req, res
             `UPDATE plans SET name=?, slug=?, description=?, price_monthly=?, currency=?, stripe_price_id=?, limits_config=?, ui_features=?, is_active=?, is_recommended=? WHERE id=?`,
             [name, slug, description, priceMonthly, currency || 'EUR', stripePriceId, JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended, id]
         );
+        // Log
+        const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        await logSystemActivity(req.user.id, admin[0]?.name, 'UPDATE_PLAN', 'plan', id, { name });
+
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -855,6 +891,10 @@ app.delete('/api/admin/plans/:id', authMiddleware, adminMiddleware, async (req, 
     const { id } = req.params;
     try {
         await pool.query('DELETE FROM plans WHERE id = ?', [id]);
+        // Log
+        const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        await logSystemActivity(req.user.id, admin[0]?.name, 'DELETE_PLAN', 'plan', id, null);
+
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -958,6 +998,11 @@ app.post('/api/admin/courses', authMiddleware, adminMiddleware, async (req, res)
         }
 
         await connection.commit();
+        
+        // Log
+        const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        await logSystemActivity(req.user.id, admin[0]?.name, 'CREATE_COURSE', 'course', courseId, { title });
+
         res.json({ success: true, id: courseId });
     } catch (e) {
         await connection.rollback();
@@ -1059,6 +1104,11 @@ app.put('/api/admin/courses/:id', authMiddleware, adminMiddleware, async (req, r
         }
 
         await connection.commit();
+        
+        // Log
+        const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        await logSystemActivity(req.user.id, admin[0]?.name, 'UPDATE_COURSE', 'course', id, { title });
+
         res.json({ success: true });
     } catch (e) {
         await connection.rollback();
@@ -1073,6 +1123,10 @@ app.put('/api/admin/courses/:id', authMiddleware, adminMiddleware, async (req, r
 app.delete('/api/admin/courses/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         await pool.query('DELETE FROM courses WHERE id = ?', [req.params.id]);
+        // Log
+        const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        await logSystemActivity(req.user.id, admin[0]?.name, 'DELETE_COURSE', 'course', req.params.id, null);
+
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });

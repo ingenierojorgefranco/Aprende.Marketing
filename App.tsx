@@ -193,7 +193,13 @@ const App: React.FC = () => {
     setUser(loggedInUser);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Attempt to notify server for logging purposes (best effort)
+    try {
+        await api.logout();
+    } catch (e) {
+        console.warn("Logout log failed", e);
+    }
     logout();
     setUser(null);
     navigate("/");

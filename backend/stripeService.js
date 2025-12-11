@@ -117,6 +117,27 @@ const handleWebhook = async (event) => {
                  WHERE id = ?`,
                 [customerId, subscriptionId, JSON.stringify(limitsConfig), userId]
             );
+
+            // 3. LOG SYSTEM ACTIVITY (Nueva funcionalidad solicitada)
+            try {
+                // Obtener nombre del usuario para el log
+                const [uRows] = await pool.query("SELECT name FROM users WHERE id = ?", [userId]);
+                const userName = uRows[0]?.name || 'Usuario';
+
+                await pool.query(
+                    `INSERT INTO system_activity_logs (user_id, user_name, action_type, entity_type, entity_id, details, created_at) 
+                     VALUES (?, ?, 'PURCHASE_PLAN', 'plan', ?, ?, NOW())`,
+                    [
+                        userId, 
+                        userName, 
+                        planSlug, 
+                        JSON.stringify({ amount: amount, currency: currency, stripe_id: session.id })
+                    ]
+                );
+            } catch (logErr) {
+                console.error("Error writing system log for purchase:", logErr.message);
+            }
+
             break;
         }
 
@@ -164,10 +185,23 @@ const handleWebhook = async (event) => {
                     ? JSON.parse(starterPlan[0].limits_config)
                     : starterPlan[0].limits_config;
 
+                // Actualizar usuario
                 await pool.query(
                     `UPDATE users SET subscription_status = 'canceled', plan_limits = ? WHERE stripe_customer_id = ?`,
                     [JSON.stringify(limits), customerId]
                 );
+
+                // Log Cancelación
+                try {
+                    const [uRows] = await pool.query("SELECT id, name FROM users WHERE stripe_customer_id = ?", [customerId]);
+                    if (uRows.length > 0) {
+                        await pool.query(
+                            `INSERT INTO system_activity_logs (user_id, user_name, action_type, entity_type, details, created_at) 
+                             VALUES (?, ?, 'CANCEL_SUBSCRIPTION', 'plan', ?, NOW())`,
+                            [uRows[0].id, uRows[0].name, JSON.stringify({ stripe_customer: customerId })]
+                        );
+                    }
+                } catch (e) {}
             }
             break;
         }

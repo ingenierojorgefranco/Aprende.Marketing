@@ -97,6 +97,17 @@ export const api = {
       return user.user;
   },
 
+  // NEW: Logout Helper
+  logout: async (): Promise<void> => {
+      if (isMockMode) return;
+      try {
+          await fetchWithFallback('/auth/logout', { method: 'POST', headers: getAuthHeaders() });
+      } catch (e) {
+          // Ignore error on logout if connection fails, just proceed client side
+          console.warn("Server logout failed, clearing local session only.");
+      }
+  },
+
   updateProfile: async (data: Partial<User>): Promise<User> => {
       if (isMockMode) {
           MOCK_USER.name = data.name || MOCK_USER.name;
