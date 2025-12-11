@@ -21,23 +21,33 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
           setLoading(true);
           api.getPublicPlans()
              .then(setPlans)
-             .catch(console.error)
+             .catch(err => console.error("Error loading plans", err))
              .finally(() => setLoading(false));
       }
   }, [isOpen]);
 
   const handleUpgrade = async (planSlug: string) => {
       setProcessing(planSlug);
+      console.log(`[UpgradeModal] Iniciando proceso de pago para plan: ${planSlug}`);
+
       try {
-          const { url } = await api.createCheckoutSession(planSlug);
-          if (url) {
-              window.location.href = url; // Redirect to Stripe
+          const response = await api.createCheckoutSession(planSlug);
+          console.log("[UpgradeModal] Respuesta del servidor:", response);
+
+          if (response && response.url) {
+              if (response.url === '#') {
+                  alert("⚠️ MODO OFFLINE DETECTADO\n\nEstás usando la versión Demo/Offline. La redirección a Stripe está simulada.\n\nPara probar pagos reales, asegúrate de iniciar sesión en modo 'Base de Datos'.");
+              } else {
+                  console.log("Redirigiendo a:", response.url);
+                  window.location.href = response.url; // Redirect to Stripe
+              }
           } else {
-              alert("No se pudo iniciar el pago. Intenta más tarde.");
+              console.error("Respuesta inválida:", response);
+              alert("Error: El servidor no devolvió una URL de pago válida. Revisa la consola.");
           }
-      } catch (error) {
-          console.error("Payment error", error);
-          alert("Error al conectar con la pasarela de pagos.");
+      } catch (error: any) {
+          console.error("[UpgradeModal] Payment error critical:", error);
+          alert(`❌ Error al iniciar el pago:\n${error.message || JSON.stringify(error)}`);
       } finally {
           setProcessing(null);
       }
