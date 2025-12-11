@@ -5,6 +5,8 @@ import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Men
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
 import { UpgradeModal } from './UpgradeModal';
+import { SubscriptionSuccessModal } from './SubscriptionSuccessModal';
+import { getCurrentUser } from '../../services/auth';
 
 // Lazy Load User Profile Modal
 const UserProfileModal = React.lazy(() => import('./UserProfileModal'));
@@ -36,6 +38,7 @@ export const DashboardLayout = ({
   const [courseItems, setCourseItems] = useState<{ label: string; path: string; icon: any }[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   
   // Context Data State
   const [projectCount, setProjectCount] = useState(0);
@@ -71,6 +74,39 @@ export const DashboardLayout = ({
       };
       loadData();
   }, []); // Run once on mount
+
+  // Check for Subscription Success
+  useEffect(() => {
+      const params = new URLSearchParams(location.search);
+      if (params.get('success') === 'true') {
+          setShowSuccessModal(true);
+          // Clean URL without reloading page
+          window.history.replaceState({}, '', location.pathname);
+          
+          // Refresh User Data (Permissions/Plan) immediately
+          getCurrentUser().then(authUser => {
+              if (authUser && onUpdateUser) {
+                  // Map AuthUser to User structure if needed, or rely on implicit compatibility
+                  // Re-fetching full user from API to be safe about planLimits
+                  api.getAdminUserResources(authUser.id.toString(), 'projects').then(() => {
+                       // Trigger a full reload of user object from server logic if possible
+                       // For now, we simulate update or rely on onUpdateUser if passed properly
+                       // Since getCurrentUser hits /auth/me which returns full object:
+                       const updatedUser: User = {
+                           id: authUser.id.toString(),
+                           name: authUser.name,
+                           email: authUser.email,
+                           role: (authUser as any).role,
+                           planLimits: (authUser as any).planLimits,
+                           avatarUrl: (authUser as any).avatarUrl,
+                           birthDate: (authUser as any).birthDate
+                       };
+                       onUpdateUser(updatedUser);
+                  });
+              }
+          }).catch(console.error);
+      }
+  }, [location.search, onUpdateUser]);
 
   const menuStructure: MenuItem[] = [
     { 
@@ -344,12 +380,19 @@ export const DashboardLayout = ({
         {/* Pass user AND counts */}
         <Outlet context={{ user, projectCount, pageCount }} />
         
-        {/* Global Modal */}
+        {/* Global Modals */}
         <UpgradeModal 
             isOpen={showUpgradeModal} 
             onClose={() => setShowUpgradeModal(false)} 
             currentPlan={currentPlan}
         />
+
+        {showSuccessModal && (
+            <SubscriptionSuccessModal 
+                onClose={() => setShowSuccessModal(false)} 
+                planName={user.planLimits?.planName === 'max' ? 'Max' : 'Pro'} 
+            />
+        )}
 
         {/* User Profile Modal (Lazy) */}
         <Suspense fallback={null}>
