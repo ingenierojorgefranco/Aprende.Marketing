@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
-import { Project, User } from '../../../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, LayoutTemplate, Zap, Crown, AlertTriangle } from 'lucide-react';
+import { Project, User, StrategyJSON } from '../../../types';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, LayoutTemplate, Zap, Crown, AlertTriangle, Eye, Sparkles } from 'lucide-react';
+import { StrategyViewer } from './StrategyViewer';
 
 interface DashboardContext {
   user: User;
@@ -14,6 +15,10 @@ export const ProjectsList: React.FC = () => {
     const { user } = useOutletContext() as DashboardContext;
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
+    
+    // Strategy Modal State
+    const [viewingStrategy, setViewingStrategy] = useState<StrategyJSON | null>(null);
+    const [generatingId, setGeneratingId] = useState<string | null>(null);
 
     useEffect(() => {
         loadProjects();
@@ -36,6 +41,26 @@ export const ProjectsList: React.FC = () => {
         if (confirm("¿Estás seguro de eliminar este proyecto y toda su estrategia?")) {
             await api.deleteProject(id);
             setProjects(projects.filter(p => p.id !== id));
+        }
+    };
+
+    const handleViewStrategy = async (e: React.MouseEvent, project: Project) => {
+        e.stopPropagation();
+        if (project.strategy_json) {
+            setViewingStrategy(project.strategy_json);
+        } else {
+            // Generate it
+            setGeneratingId(project.id);
+            try {
+                const strategy = await api.generateProjectStrategyFull(project.id);
+                // Update local state
+                setProjects(prev => prev.map(p => p.id === project.id ? { ...p, strategy_json: strategy } : p));
+                setViewingStrategy(strategy);
+            } catch (error) {
+                alert("Error generando estrategia. Intenta de nuevo.");
+            } finally {
+                setGeneratingId(null);
+            }
         }
     };
 
@@ -175,13 +200,22 @@ export const ProjectsList: React.FC = () => {
                                 </p>
 
                                 <div className="mt-auto space-y-3 pt-4 border-t border-gray-800">
-                                    <div className="flex items-center gap-3 text-xs text-gray-400">
-                                        <div className="w-6 h-6 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0">
-                                            <Target className="w-3 h-3 text-gray-500" /> 
-                                        </div>
-                                        <span className="truncate">{project.niche}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-xs text-gray-400">
+                                    {/* Strategy Button */}
+                                    <button 
+                                        onClick={(e) => handleViewStrategy(e, project)}
+                                        disabled={generatingId === project.id}
+                                        className={`w-full py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition ${project.strategy_json ? 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50 border border-purple-800/50' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'}`}
+                                    >
+                                        {generatingId === project.id ? (
+                                            <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generando...</>
+                                        ) : project.strategy_json ? (
+                                            <><Zap className="w-3.5 h-3.5" /> Ver Estrategia Maestra</>
+                                        ) : (
+                                            <><Sparkles className="w-3.5 h-3.5" /> Generar Estrategia IA</>
+                                        )}
+                                    </button>
+
+                                    <div className="flex items-center gap-3 text-xs text-gray-400 pt-2">
                                         <div className="w-6 h-6 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0">
                                             <LinkIcon className="w-3 h-3 text-gray-500" /> 
                                         </div>
@@ -198,6 +232,10 @@ export const ProjectsList: React.FC = () => {
                         </div>
                     ))}
                 </div>
+            )}
+
+            {viewingStrategy && (
+                <StrategyViewer strategy={viewingStrategy} onClose={() => setViewingStrategy(null)} />
             )}
         </div>
     );

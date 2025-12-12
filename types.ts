@@ -253,6 +253,34 @@ export interface AffiliateLink {
   url: string;
 }
 
+// NEW: Strategy JSON Structure
+export interface StrategyJSON {
+  avatar: {
+    name: string;
+    age: string;
+    occupation: string;
+    story: string;
+    frustrations: string[];
+    desires: string[];
+  };
+  psychology: {
+    emotionalTriggers: string[];
+    objections: string[];
+    falseBeliefs: string[];
+  };
+  funnel: {
+    leadMagnetIdea: string;
+    tripwireIdea: string;
+    coreOfferPitch: string;
+    funnelSteps: string[];
+  };
+  assets: {
+    emailSequence: Array<{ subject: string; body: string; delay: string }>;
+    whatsappScripts: Array<{ scenario: string; script: string }>;
+    adCopies: Array<{ platform: string; headline: string; body: string }>;
+  };
+}
+
 export interface Project {
   id: string;
   name: string; // e.g. "Curso de Uñas Pro"
@@ -268,6 +296,8 @@ export interface Project {
   keyBenefits: string[]; // ["Certificado Incluido", "Acceso de por vida", "Baja inversión"]
   
   affiliateLinks: AffiliateLink[]; // Centralized links
+  
+  strategy_json?: StrategyJSON; // NEW: The full AI generated strategy
   
   createdAt: Date;
 }

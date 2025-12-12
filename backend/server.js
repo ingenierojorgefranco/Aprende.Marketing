@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 
 const pool = require('./db');
 const initDb = require('./initDb'); // Módulo dedicado
-const { generateContent } = require('./geminiService');
+const { generateContent, generateFullStrategy } = require('./geminiService');
 const { authMiddleware } = require('./authMiddleware');
 const stripeService = require('./stripeService'); // Nuevo Servicio Stripe
 
@@ -1237,7 +1237,20 @@ app.get('/api/projects/:id', authMiddleware, async (req, res) => {
       [req.params.id, req.user.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
-    res.json(rows[0]);
+    
+    const project = rows[0];
+    
+    // Parse strategy_json if present (it's stored as LONGTEXT)
+    if (typeof project.strategy_json === 'string') {
+        try {
+            project.strategy_json = JSON.parse(project.strategy_json);
+        } catch (e) {
+            console.error("Error parsing strategy_json", e);
+            project.strategy_json = null;
+        }
+    }
+
+    res.json(project);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1351,6 +1364,44 @@ app.delete('/api/projects/:id', authMiddleware, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// NEW: Generate Master Strategy
+app.post('/api/projects/:id/generate-strategy', authMiddleware, async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+        // 1. Verify Project Ownership
+        const [projects] = await pool.query('SELECT * FROM projects WHERE id = ? AND user_id = ?', [id, req.user.id]);
+        if (projects.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado.' });
+        
+        const project = projects[0];
+        
+        // 2. Generate Strategy using Gemini Service
+        // Parse JSON fields if they are strings
+        const safeParse = (str) => { try { return JSON.parse(str); } catch(e) { return []; } };
+        
+        const projectData = {
+            name: project.name,
+            niche: project.niche,
+            productName: project.product_name,
+            description: project.description,
+            targetAudience: project.target_audience,
+            painPoints: typeof project.pain_points === 'string' ? safeParse(project.pain_points) : project.pain_points,
+            keyBenefits: typeof project.key_benefits === 'string' ? safeParse(project.key_benefits) : project.key_benefits,
+        };
+
+        const strategyJson = await generateFullStrategy(projectData);
+
+        // 3. Save to DB
+        await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), id]);
+
+        res.json(strategyJson);
+
+    } catch (e) {
+        console.error("Strategy Generation Error:", e);
+        res.status(500).json({ error: e.message || 'Error generando la estrategia.' });
+    }
 });
 
 // ======================================================

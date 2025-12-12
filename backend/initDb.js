@@ -188,6 +188,7 @@ const initDb = async () => {
                     pain_points LONGTEXT,
                     key_benefits LONGTEXT,
                     affiliate_links LONGTEXT,
+                    strategy_json LONGTEXT,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -264,6 +265,7 @@ const initDb = async () => {
         }
 
         // Migraciones adicionales
+        await addColumnSafe(connection, 'projects', "strategy_json LONGTEXT");
         await addColumnSafe(connection, 'articles', "slug VARCHAR(255)");
         await addColumnSafe(connection, 'articles', "featured_image VARCHAR(500)");
         await addColumnSafe(connection, 'articles', "meta_title VARCHAR(255)");

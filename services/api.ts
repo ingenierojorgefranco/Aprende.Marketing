@@ -1,5 +1,5 @@
 
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats } from "../types";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS } from "./mockData";
 
 // --- HELPER PARA OBTENER BASE URL ---
@@ -217,6 +217,7 @@ export const api = {
           painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : (p.pain_points || p.painPoints),
           keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits),
           affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks),
+          strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json, // Add parsing for strategy
           targetAudience: p.target_audience || p.targetAudience,
           brandTone: p.brand_tone || p.brandTone,
           productName: p.product_name || p.productName,
@@ -242,6 +243,7 @@ export const api = {
               painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : (p.pain_points || p.painPoints),
               keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits),
               affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks),
+              strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json, // Add parsing for strategy
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
@@ -287,6 +289,21 @@ export const api = {
           return Promise.resolve();
       }
       await fetchWithFallback(`/projects/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+  },
+
+  generateProjectStrategyFull: async (projectId: string): Promise<StrategyJSON> => {
+      if (isMockMode) {
+          return Promise.resolve({
+              avatar: { name: "Mock Avatar", age: "30", occupation: "Tester", story: "Fake story", frustations: [], desires: [] } as any,
+              psychology: { emotionalTriggers: [], objections: [], falseBeliefs: [] },
+              funnel: { leadMagnetIdea: "Free Ebook", tripwireIdea: "Mini Course", coreOfferPitch: "Masterclass", funnelSteps: [] },
+              assets: { emailSequence: [], whatsappScripts: [], adCopies: [] }
+          });
+      }
+      return await fetchWithFallback(`/projects/${projectId}/generate-strategy`, {
+          method: 'POST',
+          headers: getAuthHeaders()
+      });
   },
 
   getLeads: async (): Promise<Lead[]> => {
