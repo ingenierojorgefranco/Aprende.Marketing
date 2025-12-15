@@ -1459,6 +1459,17 @@ app.put('/api/crm/contacts/:id', authMiddleware, async (req, res) => {
     const { id } = req.params;
     const { name, email, phone, address, country, status, interestLevel } = req.body;
     
+    // Función auxiliar para traducir valores al español en el log
+    const translateInterest = (val) => {
+        const map = { 'cold': 'Bajo', 'warm': 'Medio', 'hot': 'Alto' };
+        return map[val] || 'Sin definir';
+    };
+
+    const translateStatus = (val) => {
+        const map = { 'new': 'Nuevo', 'contacted': 'Contactado', 'interested': 'Interesado', 'closed': 'Cliente', 'lost': 'Perdido' };
+        return map[val] || val;
+    };
+    
     try {
         // Verify ownership
         const [check] = await pool.query('SELECT id, status, interest_level FROM crm_contacts WHERE id = ? AND user_id = ?', [id, req.user.id]);
@@ -1471,13 +1482,32 @@ app.put('/api/crm/contacts/:id', authMiddleware, async (req, res) => {
             [name, email, phone, address, country, status, interestLevel, id]
         );
 
-        // Auto-Log changes
+        // Auto-Log changes with translation
         if (oldData.status !== status) {
-            await logCRMActivity(id, 'status_change', `Estado cambiado de ${oldData.status} a ${status}`);
+            await logCRMActivity(id, 'status_change', `Estado cambiado de ${translateStatus(oldData.status)} a ${translateStatus(status)}`);
         }
         if (oldData.interest_level !== interestLevel) {
-            await logCRMActivity(id, 'status_change', `Interés cambiado de ${oldData.interest_level} a ${interestLevel}`);
+            await logCRMActivity(id, 'status_change', `Interés cambiado de ${translateInterest(oldData.interest_level)} a ${translateInterest(interestLevel)}`);
         }
+
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// DELETE Contact
+app.delete('/api/crm/contacts/:id', authMiddleware, async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Get contact info first for logging
+        const [contact] = await pool.query('SELECT name FROM crm_contacts WHERE id = ? AND user_id = ?', [id, req.user.id]);
+        if (contact.length === 0) return res.status(404).json({ error: 'Contacto no encontrado' });
+
+        await pool.query('DELETE FROM crm_contacts WHERE id = ? AND user_id = ?', [id, req.user.id]);
+        
+        // Log System Activity (since CRM Activity table will cascade delete for this contact)
+        await logSystemActivity(req.user.id, req.user.email, 'DELETE_CONTACT', 'crm_contact', id, { name: contact[0].name });
 
         res.json({ success: true });
     } catch (e) {

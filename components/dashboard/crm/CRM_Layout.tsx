@@ -41,7 +41,7 @@ export const CRM_Layout: React.FC = () => {
             address: '',
             source: 'Manual',
             status: 'new',
-            interestLevel: 'cold',
+            interestLevel: 'warm', // Default changed to warm (Medio)
             createdAt: new Date(),
             updatedAt: new Date()
         };
@@ -75,6 +75,16 @@ export const CRM_Layout: React.FC = () => {
             setIsDrawerOpen(false);
         } catch (error) {
             alert("Error al guardar el contacto.");
+        }
+    };
+
+    const handleDeleteContact = async (id: string) => {
+        try {
+            await api.deleteContact(id);
+            setContacts(prev => prev.filter(c => c.id !== id));
+            setIsDrawerOpen(false);
+        } catch (error) {
+            alert("Error al eliminar el contacto.");
         }
     };
 
@@ -158,6 +168,7 @@ export const CRM_Layout: React.FC = () => {
                     isOpen={isDrawerOpen} 
                     onClose={() => setIsDrawerOpen(false)}
                     onSave={handleSaveContact}
+                    onDelete={handleDeleteContact}
                 />
             )}
         </div>

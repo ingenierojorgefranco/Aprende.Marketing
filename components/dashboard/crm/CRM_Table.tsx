@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { CRMContact } from '../../../types';
-import { Mail, Phone, Calendar, User, ArrowRight } from 'lucide-react';
+import { Mail, Phone, Calendar, User, ArrowRight, ExternalLink } from 'lucide-react';
 
 interface CRMTableProps {
     contacts: CRMContact[];
@@ -22,11 +22,13 @@ export const CRMTable: React.FC<CRMTableProps> = ({ contacts, onSelectContact })
     };
 
     const getInterestBadge = (level: string) => {
+        // Por defecto mostramos 'Medio' (warm) si no está definido o es 'warm'
+        if (!level || level === 'warm') return <span className="text-xs text-orange-400 font-bold">☀️ Medio</span>;
+        
         switch (level) {
             case 'hot': return <span className="text-xs text-red-500 font-bold">🔥 Alto</span>;
-            case 'warm': return <span className="text-xs text-orange-400 font-bold">☀️ Medio</span>;
             case 'cold': return <span className="text-xs text-blue-300 font-bold">❄️ Bajo</span>;
-            default: return null;
+            default: return <span className="text-xs text-orange-400 font-bold">☀️ Medio</span>;
         }
     };
 
@@ -56,20 +58,32 @@ export const CRMTable: React.FC<CRMTableProps> = ({ contacts, onSelectContact })
                     {contacts.map(contact => (
                         <tr key={contact.id} className="hover:bg-gray-800/30 transition group">
                             <td className="p-4">
-                                <div className="font-bold text-white mb-0.5">{contact.name || 'Sin Nombre'}</div>
-                                <div className="flex items-center gap-2 text-xs text-gray-500">
-                                    <Mail className="w-3 h-3" /> {contact.email}
+                                <div className="font-bold text-white mb-1 text-base">{contact.name || 'Sin Nombre'}</div>
+                                <div className="flex items-center gap-2 text-sm text-gray-400">
+                                    <Mail className="w-3.5 h-3.5" /> {contact.email}
                                 </div>
                                 {contact.phone && (
-                                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-                                        <Phone className="w-3 h-3" /> {contact.phone}
+                                    <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
+                                        <Phone className="w-3.5 h-3.5" /> {contact.phone}
                                     </div>
                                 )}
                             </td>
                             <td className="p-4">{getStatusBadge(contact.status)}</td>
                             <td className="p-4">{getInterestBadge(contact.interestLevel)}</td>
                             <td className="p-4 text-gray-400 text-xs max-w-[150px] truncate" title={contact.source}>
-                                {contact.source}
+                                {contact.pageId ? (
+                                    <a 
+                                        href={`/admin/lp/${contact.pageId}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 transition-colors group/link"
+                                    >
+                                        <span className="truncate">{contact.source}</span>
+                                        <ExternalLink className="w-3 h-3 flex-shrink-0 opacity-70 group-hover/link:opacity-100" />
+                                    </a>
+                                ) : (
+                                    contact.source
+                                )}
                             </td>
                             <td className="p-4 text-gray-500 text-xs">
                                 <div className="flex items-center gap-1">

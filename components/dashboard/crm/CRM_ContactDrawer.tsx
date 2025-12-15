@@ -2,16 +2,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CRMContact, CRMActivity } from '../../../types';
 import { api } from '../../../services/api';
-import { X, Save, User, Mail, Phone, MapPin, Globe, Calendar, Clock, MessageSquare, Send, Activity, Flag } from 'lucide-react';
+import { X, Save, User, Mail, Phone, MapPin, Globe, Calendar, Clock, MessageSquare, Send, Activity, Flag, Trash2 } from 'lucide-react';
 
 interface CRMContactDrawerProps {
     contact: CRMContact;
     isOpen: boolean;
     onClose: () => void;
     onSave: (contact: CRMContact) => Promise<void>;
+    onDelete?: (id: string) => Promise<void>;
 }
 
-export const CRMContactDrawer: React.FC<CRMContactDrawerProps> = ({ contact, isOpen, onClose, onSave }) => {
+export const CRMContactDrawer: React.FC<CRMContactDrawerProps> = ({ contact, isOpen, onClose, onSave, onDelete }) => {
     const [activeTab, setActiveTab] = useState<'info' | 'history'>('info');
     const [formData, setFormData] = useState<CRMContact>(contact);
     const [activities, setActivities] = useState<CRMActivity[]>([]);
@@ -43,6 +44,14 @@ export const CRMContactDrawer: React.FC<CRMContactDrawerProps> = ({ contact, isO
 
     const handleSave = () => {
         onSave(formData);
+    };
+
+    const handleDelete = async () => {
+        if (contact.id === 'new' || !onDelete) return;
+        
+        if (window.confirm("¿Estás seguro de que quieres eliminar este contacto? Esta acción no se puede deshacer.")) {
+            await onDelete(contact.id);
+        }
     };
 
     const handleAddNote = async () => {
@@ -257,14 +266,26 @@ export const CRMContactDrawer: React.FC<CRMContactDrawerProps> = ({ contact, isO
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-6 border-t border-gray-800 bg-gray-900 flex justify-end gap-3">
-                    <button onClick={onClose} className="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition text-sm">Cancelar</button>
-                    <button 
-                        onClick={handleSave} 
-                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm shadow-lg shadow-green-900/20"
-                    >
-                        <Save className="w-4 h-4" /> {formData.id === 'new' ? 'Crear Prospecto' : 'Guardar Cambios'}
-                    </button>
+                <div className="p-6 border-t border-gray-800 bg-gray-900 flex justify-between items-center gap-3">
+                    {onDelete && formData.id !== 'new' ? (
+                        <button 
+                            onClick={handleDelete}
+                            className="p-2 rounded-lg text-red-500 hover:bg-red-900/20 hover:text-red-400 transition"
+                            title="Eliminar Contacto"
+                        >
+                            <Trash2 className="w-5 h-5" />
+                        </button>
+                    ) : <div></div>}
+                    
+                    <div className="flex gap-3">
+                        <button onClick={onClose} className="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition text-sm">Cancelar</button>
+                        <button 
+                            onClick={handleSave} 
+                            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm shadow-lg shadow-green-900/20"
+                        >
+                            <Save className="w-4 h-4" /> {formData.id === 'new' ? 'Crear Prospecto' : 'Guardar Cambios'}
+                        </button>
+                    </div>
                 </div>
 
             </div>

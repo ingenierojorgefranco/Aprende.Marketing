@@ -81,6 +81,7 @@ export type CRMInterest = 'cold' | 'warm' | 'hot';
 
 export interface CRMContact {
     id: string;
+    pageId?: string; // ID de la landing page de origen (opcional)
     name: string;
     email: string;
     phone?: string;

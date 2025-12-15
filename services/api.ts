@@ -841,6 +841,7 @@ export const api = {
       return contacts.map((c: any) => ({
           ...c,
           id: c.id.toString(),
+          pageId: c.page_id ? c.page_id.toString() : undefined, 
           lastContactedAt: c.last_contacted_at ? new Date(c.last_contacted_at) : undefined,
           createdAt: new Date(c.created_at),
           updatedAt: new Date(c.updated_at)
@@ -885,6 +886,15 @@ export const api = {
           headers: getAuthHeaders(),
           body: JSON.stringify(contact)
       });
+  },
+
+  // NEW: Delete Contact Method
+  deleteContact: async (id: string): Promise<void> => {
+      if (isMockMode) {
+          localCrmContacts = localCrmContacts.filter(c => c.id !== id);
+          return Promise.resolve();
+      }
+      await fetchWithFallback(`/crm/contacts/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
   },
 
   getContactHistory: async (contactId: string): Promise<CRMActivity[]> => {
