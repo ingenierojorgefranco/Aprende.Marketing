@@ -210,17 +210,8 @@ export interface GeneratedPageContent {
       twitter?: string;
     }
   };
-  thankYouMessage?: string; // Deprecated but kept for backward compatibility
-  redirectUrl?: string;
-  
-  // NEW: Dedicated Thank You Page Configuration
-  thankYouPage?: {
-      headline?: string;
-      subheadline?: string;
-      ctaText?: string;
-      ctaLink?: string;
-      showSocials?: boolean;
-  };
+  thankYouMessage: string;
+  redirectUrl: string;
 }
 
 export interface LandingPage {

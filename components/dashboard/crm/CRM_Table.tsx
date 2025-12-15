@@ -1,15 +1,14 @@
 
 import React from 'react';
 import { CRMContact } from '../../../types';
-import { Mail, Phone, Calendar, User, ArrowRight, Trash2 } from 'lucide-react';
+import { Mail, Phone, Calendar, User, ArrowRight } from 'lucide-react';
 
 interface CRMTableProps {
     contacts: CRMContact[];
     onSelectContact: (contact: CRMContact) => void;
-    onDeleteContact: (id: string) => void;
 }
 
-export const CRMTable: React.FC<CRMTableProps> = ({ contacts, onSelectContact, onDeleteContact }) => {
+export const CRMTable: React.FC<CRMTableProps> = ({ contacts, onSelectContact }) => {
     
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -28,13 +27,6 @@ export const CRMTable: React.FC<CRMTableProps> = ({ contacts, onSelectContact, o
             case 'warm': return <span className="text-xs text-orange-400 font-bold">☀️ Medio</span>;
             case 'cold': return <span className="text-xs text-blue-300 font-bold">❄️ Bajo</span>;
             default: return null;
-        }
-    };
-
-    const handleDeleteClick = (e: React.MouseEvent, id: string) => {
-        e.stopPropagation();
-        if (confirm("¿Estás seguro de eliminar este contacto y todo su historial? Esta acción no se puede deshacer.")) {
-            onDeleteContact(id);
         }
     };
 
@@ -62,7 +54,7 @@ export const CRMTable: React.FC<CRMTableProps> = ({ contacts, onSelectContact, o
                 </thead>
                 <tbody className="divide-y divide-gray-800 text-sm">
                     {contacts.map(contact => (
-                        <tr key={contact.id} className="hover:bg-gray-800/30 transition group cursor-pointer" onClick={() => onSelectContact(contact)}>
+                        <tr key={contact.id} className="hover:bg-gray-800/30 transition group">
                             <td className="p-4">
                                 <div className="font-bold text-white mb-0.5">{contact.name || 'Sin Nombre'}</div>
                                 <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -86,20 +78,12 @@ export const CRMTable: React.FC<CRMTableProps> = ({ contacts, onSelectContact, o
                                 </div>
                             </td>
                             <td className="p-4 text-right">
-                                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition">
-                                    <button 
-                                        onClick={(e) => handleDeleteClick(e, contact.id)}
-                                        className="p-2 rounded-lg bg-gray-800 hover:bg-red-900/30 text-gray-400 hover:text-red-400 transition"
-                                        title="Eliminar"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                    <button 
-                                        className="p-2 rounded-lg bg-gray-800 hover:bg-primary text-gray-400 hover:text-white transition"
-                                    >
-                                        <ArrowRight className="w-4 h-4" />
-                                    </button>
-                                </div>
+                                <button 
+                                    onClick={() => onSelectContact(contact)}
+                                    className="p-2 rounded-lg bg-gray-800 hover:bg-primary text-gray-400 hover:text-white transition opacity-0 group-hover:opacity-100"
+                                >
+                                    <ArrowRight className="w-4 h-4" />
+                                </button>
                             </td>
                         </tr>
                     ))}

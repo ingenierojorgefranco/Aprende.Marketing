@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType } from '../../../types';
-import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift } from 'lucide-react';
+import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle } from 'lucide-react';
 import { LivePage } from '../../LivePage';
 
 // --- UI COMPONENTS EXTRACTED ---
@@ -192,9 +192,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   
-  // NEW: View Mode for Preview (Toggle between Landing and Thank You)
-  const [previewView, setPreviewView] = useState<'home' | 'thank-you'>('home');
-  
   const [openSection, setOpenSection] = useState<string | null>('header');
 
   const toggleSection = (section: string) => {
@@ -351,17 +348,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       });
   };
 
-  // --- THANK YOU PAGE UPDATE HELPER ---
-  const updateThankYouPage = (field: string, value: string) => {
-      setContent(prev => ({
-          ...prev,
-          thankYouPage: {
-              ...prev.thankYouPage,
-              [field]: value
-          }
-      }));
-  };
-
   const palettes: { id: ColorPalette; name: string; colors: string }[] = [
     { id: 'modern-blue', name: 'Azul Tech', colors: 'bg-blue-500' },
     { id: 'elegant-purple', name: 'Púrpura', colors: 'bg-purple-600' },
@@ -420,22 +406,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
             <button onClick={() => setPreviewMode('desktop')} className={`p-2 rounded ${previewMode === 'desktop' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:text-gray-300'}`}><Monitor className="w-4 h-4" /></button>
             <button onClick={() => setPreviewMode('mobile')} className={`p-2 rounded ${previewMode === 'mobile' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:text-gray-300'}`}><Smartphone className="w-4 h-4" /></button>
             <div className="w-px h-4 bg-gray-700 mx-1"></div>
-            
-            {/* NEW: View Mode Switcher (Landing / Thanks) */}
-            <button 
-                onClick={() => setPreviewView('home')} 
-                className={`text-xs px-3 py-1.5 rounded transition font-bold ${previewView === 'home' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
-            >
-                Landing
-            </button>
-            <button 
-                onClick={() => setPreviewView('thank-you')} 
-                className={`text-xs px-3 py-1.5 rounded transition font-bold ${previewView === 'thank-you' ? 'bg-green-600 text-white' : 'text-gray-400 hover:text-white'}`}
-            >
-                Gracias
-            </button>
-
-            <div className="w-px h-4 bg-gray-700 mx-1"></div>
             <button onClick={() => setFullScreenPreview(!fullScreenPreview)} className={`p-2 rounded transition-colors ${fullScreenPreview ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}>
                 {fullScreenPreview ? <Minimize2 className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
             </button>
@@ -477,95 +447,421 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                   {/* === TAB: CONTENT === */}
                   {activeTab === 'content' && (
                       <>
-                        {/* 1. Encabezado */}
+                        {/* 1. Encabezado (Merged Brand & Navbar) */}
                         <SectionHeader id="header" title="Encabezado" icon={LayoutTemplate} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="header" openSection={openSection}>
-                            {/* ... (Existing Logo/Brand inputs) ... */}
-                            <div><Label>1. Logo / Icono Marca</Label><div className="flex gap-2 mb-2"><div className="flex-1"><Label>Seleccionar Icono</Label><IconPicker selected={content.brandIcon} onChange={(icon) => setContent({...content, brandIcon: icon})} /></div></div></div>
-                            <div><Label>2. Nombre de la Marca</Label><Input value={content.brandName || ''} onChange={(e) => setContent({ ...content, brandName: e.target.value })} placeholder="Ej: Beauty Pro" /></div>
-                            <div className="pt-4 border-t border-gray-800"><Label>3. Enlaces del Menú</Label><div className="space-y-3 mt-2">{(content.navLinks || []).map((link, i) => (<div key={i} className="flex gap-2 items-center bg-gray-900 p-2 rounded border border-gray-700"><div className="flex-1 space-y-1"><input className="w-full bg-black border border-gray-800 rounded px-2 py-1 text-xs text-white" value={link.label} onChange={(e) => updateArrayItem('navLinks', i, 'label', e.target.value)} placeholder="Nombre" /><input className="w-full bg-black border border-gray-800 rounded px-2 py-1 text-xs text-blue-400" value={link.href} onChange={(e) => updateArrayItem('navLinks', i, 'href', e.target.value)} placeholder="#seccion" /></div><button onClick={() => removeItem('navLinks', i)} className="p-2 text-red-500 hover:bg-red-900/20 rounded"><Trash2 className="w-4 h-4"/></button></div>))}<button onClick={() => addItem('navLinks')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Añadir Enlace</button></div></div>
-                            <div className="pt-4 border-t border-gray-800"><Label>4. Texto Botón CTA</Label><div className="flex gap-2"><Input value={content.navCta || ''} onChange={(e) => setContent({...content, navCta: e.target.value})} placeholder="Ej: Regístrate Gratis" /><div className="p-2 bg-gray-800 border border-gray-700 rounded text-gray-400"><MousePointerClick className="w-5 h-5"/></div></div></div>
+                            {/* 1. Logo */}
+                            <div>
+                                <Label>1. Logo / Icono Marca</Label>
+                                <div className="flex gap-2 mb-2">
+                                     <div className="flex-1">
+                                        <Label>Seleccionar Icono</Label>
+                                        <IconPicker selected={content.brandIcon} onChange={(icon) => setContent({...content, brandIcon: icon})} />
+                                     </div>
+                                </div>
+                            </div>
+                            
+                            {/* 2. Brand Name */}
+                            <div>
+                                <Label>2. Nombre de la Marca (Usa &lt;b&gt; para resaltar)</Label>
+                                <Input value={content.brandName || ''} onChange={(e) => setContent({ ...content, brandName: e.target.value })} placeholder="Ej: Beauty Pro" />
+                            </div>
+
+                            {/* 3. Menus */}
+                            <div className="pt-4 border-t border-gray-800">
+                                <Label>3. Enlaces del Menú</Label>
+                                <div className="space-y-3 mt-2">
+                                    {(content.navLinks || []).map((link, i) => (
+                                        <div key={i} className="flex gap-2 items-center bg-gray-900 p-2 rounded border border-gray-700">
+                                            <div className="flex-1 space-y-1">
+                                                <input className="w-full bg-black border border-gray-800 rounded px-2 py-1 text-xs text-white" value={link.label} onChange={(e) => updateArrayItem('navLinks', i, 'label', e.target.value)} placeholder="Nombre" />
+                                                <input className="w-full bg-black border border-gray-800 rounded px-2 py-1 text-xs text-blue-400" value={link.href} onChange={(e) => updateArrayItem('navLinks', i, 'href', e.target.value)} placeholder="#seccion" />
+                                            </div>
+                                            <button onClick={() => removeItem('navLinks', i)} className="p-2 text-red-500 hover:bg-red-900/20 rounded"><Trash2 className="w-4 h-4"/></button>
+                                        </div>
+                                    ))}
+                                    <button onClick={() => addItem('navLinks')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Añadir Enlace</button>
+                                </div>
+                            </div>
+
+                            {/* 4. CTA Button */}
+                            <div className="pt-4 border-t border-gray-800">
+                                <Label>4. Texto Botón CTA (Abre Registro)</Label>
+                                <div className="flex gap-2">
+                                    <Input value={content.navCta || ''} onChange={(e) => setContent({...content, navCta: e.target.value})} placeholder="Ej: Regístrate Gratis" />
+                                    <div className="p-2 bg-gray-800 border border-gray-700 rounded text-gray-400" title="Este botón abre una ventana modal con formulario"><MousePointerClick className="w-5 h-5"/></div>
+                                </div>
+                            </div>
                         </SectionContent>
 
                         {/* 2. Hero Section */}
                         <SectionHeader id="hero" title="Sección Hero" icon={Sparkles} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="hero" openSection={openSection}>
-                            <div><Label>Tagline Superior</Label><Input value={content.topTagline || ''} onChange={(e) => setContent({ ...content, topTagline: e.target.value })} /></div>
-                            <div><Label>Título Principal</Label><RichTextArea value={content.hero.headline} onChange={(e) => updateNestedField('hero', 'headline', e.target.value)} /></div>
-                            <div><Label>Subtítulo</Label><RichTextArea value={content.hero.subheadline} onChange={(e) => updateNestedField('hero', 'subheadline', e.target.value)} /></div>
-                            <div><Label>URL Imagen/Video</Label><Input value={content.hero.heroImage || ''} onChange={(e) => updateNestedField('hero', 'heroImage', e.target.value)} /></div>
-                            <div><Label>Texto Botón CTA</Label><Input value={content.hero.ctaText} onChange={(e) => updateNestedField('hero', 'ctaText', e.target.value)} /></div>
+                            {/* 1. Tagline Superior */}
+                            <div>
+                                <Label>1. Tagline Superior (Opcional)</Label>
+                                <Input value={content.topTagline || ''} onChange={(e) => setContent({ ...content, topTagline: e.target.value })} placeholder="Ej: 🔥 Oferta Limitada" />
+                            </div>
+
+                            {/* 2. Headline */}
+                            <div>
+                                <Label>2. Título Principal (Usa &lt;b&gt; para resaltar)</Label>
+                                <RichTextArea value={content.hero.headline} onChange={(e) => updateNestedField('hero', 'headline', e.target.value)} />
+                            </div>
+
+                            {/* 3. Subheadline */}
+                            <div>
+                                <Label>3. Subtítulo Persuasivo</Label>
+                                <RichTextArea value={content.hero.subheadline} onChange={(e) => updateNestedField('hero', 'subheadline', e.target.value)} />
+                            </div>
+
+                            {/* 4. Hero Image URL */}
+                            <div>
+                                <Label>4. URL Imagen/Portada Video</Label>
+                                <div className="flex gap-2">
+                                    <Input value={content.hero.heroImage || ''} onChange={(e) => updateNestedField('hero', 'heroImage', e.target.value)} placeholder="https://..." />
+                                    {content.hero.heroImage && <img src={content.hero.heroImage} alt="Preview" className="w-10 h-10 rounded border border-gray-700 object-cover" />}
+                                </div>
+                            </div>
+
+                            {/* 5. Video Title */}
+                            <div>
+                                <Label>5. Título dentro de la imagen</Label>
+                                <Input value={content.hero.videoTitle || ''} onChange={(e) => updateNestedField('hero', 'videoTitle', e.target.value)} placeholder="Ej: Masterclass" />
+                            </div>
+
+                            {/* 6. Duration */}
+                            <div>
+                                <Label>6. Duración (Texto)</Label>
+                                <Input value={content.hero.videoDuration || ''} onChange={(e) => updateNestedField('hero', 'videoDuration', e.target.value)} placeholder="Ej: 1h 30m" />
+                            </div>
+
+                            {/* 7. CTA Text */}
+                            <div>
+                                <Label>7. Texto Botón (CTA)</Label>
+                                <Input value={content.hero.ctaText} onChange={(e) => updateNestedField('hero', 'ctaText', e.target.value)} />
+                            </div>
+
+                            {/* 8. What You Will Learn (Moved inside Hero) */}
+                            <div className="pt-4 border-t border-gray-800">
+                                <Label>8. Lo Que Descubrirás Hoy</Label>
+                                <div className="mb-2 flex items-center gap-2">
+                                     <div className="flex-1">
+                                        <Label>Título Lista</Label>
+                                        <Input value={content.whatYouWillLearn.title} onChange={(e) => setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, title: e.target.value}})} />
+                                     </div>
+                                     <div>
+                                        <Label>Icono</Label>
+                                        <IconPicker selected={content.whatYouWillLearn.icon} onChange={(icon) => setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, icon: icon}})} />
+                                     </div>
+                                </div>
+                                <div className="space-y-2 mt-2">
+                                    {(content.whatYouWillLearn.items || []).map((item, i) => (
+                                        <div key={i} className="flex gap-2">
+                                            <Input value={item} onChange={(e) => updateLearnItem(i, e.target.value)} />
+                                            <button onClick={() => removeItem('whatYouWillLearn', i)} className="p-2 text-red-500 hover:bg-red-900/20 rounded"><Trash2 className="w-4 h-4"/></button>
+                                        </div>
+                                    ))}
+                                    <button onClick={() => addItem('whatYouWillLearn')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Punto</button>
+                                </div>
+                            </div>
+
+                            {/* 9. Spots Left */}
+                            <div className="pt-4 border-t border-gray-800">
+                                <Label>9. Badge Cupos Restantes</Label>
+                                <Input value={content.hero.spotsLeft || ''} onChange={(e) => updateNestedField('hero', 'spotsLeft', e.target.value)} placeholder="Ej: Solo 5 lugares" />
+                            </div>
+
+                            {/* 10. Social Proof Count */}
+                            <div>
+                                <Label>10. Contador Alumnos (Prueba Social)</Label>
+                                <Input value={content.hero.socialProofCount || ''} onChange={(e) => updateNestedField('hero', 'socialProofCount', e.target.value)} placeholder="Ej: +500 Estudiantes" />
+                            </div>
                         </SectionContent>
 
-                        {/* ... (Existing sections: Testimonials, Intro, Benefits, Instructor, FAQ) ... */}
-                        
+                        {/* 3. Testimonials (Moved Up) */}
+                        <SectionHeader id="testimonials" title="Testimonios" icon={MessageCircle} openSection={openSection} toggleSection={toggleSection} />
+                        <SectionContent id="testimonials" openSection={openSection}>
+                             <div><Label>Título de Sección</Label><Input value={content.testimonialTitle || ''} onChange={(e) => setContent({...content, testimonialTitle: e.target.value})} placeholder="Ej: Lo que dicen nuestros alumnos" /></div>
+                             <div className="mt-3"><Label>Subtítulo de Sección</Label><Input value={content.testimonialSubtitle || ''} onChange={(e) => setContent({...content, testimonialSubtitle: e.target.value})} placeholder="Ej: Historias de éxito" /></div>
+                             <div className="space-y-4 mt-4">
+                                {(content.testimonials || []).map((t, i) => (
+                                    <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
+                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"><button onClick={() => removeItem('testimonials', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
+                                        <div className="grid grid-cols-2 gap-2 mb-2">
+                                            <div><Label>Nombre</Label><Input value={t.name} onChange={(e) => updateArrayItem('testimonials', i, 'name', e.target.value)} /></div>
+                                            <div><Label>Ciudad/País</Label><Input value={t.location || ''} onChange={(e) => updateArrayItem('testimonials', i, 'location', e.target.value)} placeholder="Ej: Madrid, ES" /></div>
+                                        </div>
+                                        
+                                        {/* New Image Field */}
+                                        <div className="mb-2">
+                                            <Label>Foto URL (Opcional)</Label>
+                                            <div className="flex gap-2 items-center">
+                                                <Input value={t.image || ''} onChange={(e) => updateArrayItem('testimonials', i, 'image', e.target.value)} placeholder="https://..." />
+                                                {t.image && (
+                                                    <img src={t.image} alt="Preview" className="w-8 h-8 rounded-full object-cover border border-gray-700 bg-gray-800" />
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="mb-2">
+                                            <Label>Rating</Label>
+                                            <div className="flex gap-1">
+                                                {[1,2,3,4,5].map(star => (
+                                                    <button key={star} onClick={() => updateArrayItem('testimonials', i, 'rating', star)} className="focus:outline-none hover:scale-110 transition">
+                                                        <Star className={`w-5 h-5 ${star <= t.rating ? 'fill-yellow-500 text-yellow-500' : 'text-gray-600'}`} />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div><Label>Testimonio</Label><RichTextArea value={t.text} onChange={(e) => updateArrayItem('testimonials', i, 'text', e.target.value)} className="min-h-[60px]" /></div>
+                                    </div>
+                                ))}
+                                <button onClick={() => addItem('testimonials')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Testimonio</button>
+                             </div>
+                        </SectionContent>
+
+                        {/* 4. Intro Section */}
+                        <SectionHeader id="intro" title="Introducción" icon={Image} openSection={openSection} toggleSection={toggleSection} />
+                        <SectionContent id="intro" openSection={openSection}>
+                            <div><Label>Título de Sección</Label><Input value={content.intro.title} onChange={(e) => updateNestedField('intro', 'title', e.target.value)} /></div>
+                            <div><Label>Descripción</Label><RichTextArea value={content.intro.description} onChange={(e) => updateNestedField('intro', 'description', e.target.value)} className="h-32" /></div>
+                            <div className="pt-2"><Label>Texto Tarjeta Flotante (Sobre Imagen)</Label><Input value={content.intro.imageCardText || ''} onChange={(e) => updateNestedField('intro', 'imageCardText', e.target.value)} placeholder="Ej: Método Único" /></div>
+                            
+                            <div className="pt-4 border-t border-gray-800">
+                                <Label>Puntos Clave (Bullets)</Label>
+                                <div className="space-y-4 mt-2">
+                                    {(content.intro.items || []).map((item, i) => (
+                                        <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
+                                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"><button onClick={() => removeItem('introItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
+                                            <div className="mb-2"><Label>Título</Label><Input value={item.title} onChange={(e) => updateIntroItem(i, 'title', e.target.value)} /></div>
+                                            <div><Label>Descripción</Label><RichTextArea value={item.description} onChange={(e) => updateIntroItem(i, 'description', e.target.value)} className="min-h-[60px]" /></div>
+                                        </div>
+                                    ))}
+                                    <button onClick={() => addItem('introItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Punto Clave</button>
+                                </div>
+                            </div>
+                        </SectionContent>
+
+                        {/* 5. Benefits */}
+                        <SectionHeader id="benefits" title="Beneficios" icon={Award} openSection={openSection} toggleSection={toggleSection} />
+                        <SectionContent id="benefits" openSection={openSection}>
+                            <div><Label>Título de Sección</Label><Input value={content.benefits.title} onChange={(e) => setContent({...content, benefits: {...content.benefits, title: e.target.value}})} /></div>
+                            
+                            {/* NEW: Subtitle Input */}
+                            <div className="mt-3">
+                                <Label>Subtítulo de Sección</Label>
+                                <Input 
+                                    value={content.benefits.subtitle || ''} 
+                                    onChange={(e) => setContent({
+                                        ...content, 
+                                        benefits: { ...content.benefits, subtitle: e.target.value }
+                                    })} 
+                                />
+                            </div>
+
+                            <div className="space-y-4 mt-4">
+                                {(content.benefits.items || []).map((item, i) => (
+                                    <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
+                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"><button onClick={() => removeItem('benefits', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
+                                        <div className="flex gap-4 mb-2">
+                                            <div className="flex-1"><Label>Título del Beneficio</Label><Input value={item.title} onChange={(e) => updateBenefitItem(i, 'title', e.target.value)} /></div>
+                                            <div>
+                                                <Label>Icono</Label>
+                                                <IconPicker selected={item.icon} onChange={(icon) => updateBenefitItem(i, 'icon', icon)} />
+                                            </div>
+                                        </div>
+                                        <div className="mb-2">
+                                            <Label>Color de Acento</Label>
+                                            <ColorPicker selected={item.color} onChange={(color) => updateBenefitItem(i, 'color', color)} />
+                                        </div>
+                                        <div><Label>Descripción</Label><RichTextArea value={item.description} onChange={(e) => updateBenefitItem(i, 'description', e.target.value)} className="min-h-[60px]" /></div>
+                                    </div>
+                                ))}
+                                <button onClick={() => addItem('benefits')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Beneficio</button>
+                            </div>
+                        </SectionContent>
+
+                        {/* 6. Instructor */}
+                        <SectionHeader id="instructor" title="Instructor / Experto" icon={User} openSection={openSection} toggleSection={toggleSection} />
+                        <SectionContent id="instructor" openSection={openSection}>
+                            {/* ADDED TITLE INPUT */}
+                            <div className="mb-2">
+                              <Label>Título de Sección</Label>
+                              <Input 
+                                value={content.instructor.title || ''} 
+                                onChange={(e) => updateNestedField('instructor', 'title', e.target.value)} 
+                                placeholder="Ej: Conoce a tu Mentor" 
+                              />
+                            </div>
+
+                            <div><Label>Nombre Completo</Label><Input value={content.instructor.name} onChange={(e) => updateNestedField('instructor', 'name', e.target.value)} /></div>
+                            <div><Label>Biografía Corta</Label><RichTextArea value={content.instructor.bio} onChange={(e) => updateNestedField('instructor', 'bio', e.target.value)} className="h-24" /></div>
+                            
+                            <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-800">
+                                <div><Label>Badge Superior</Label><Input value={content.instructor.badgeText || ''} onChange={(e) => updateNestedField('instructor', 'badgeText', e.target.value)} placeholder="Ej: Master" /></div>
+                                <div><Label>Subtítulo Badge</Label><Input value={content.instructor.badgeSubtext || ''} onChange={(e) => updateNestedField('instructor', 'badgeSubtext', e.target.value)} placeholder="Ej: Certificado" /></div>
+                                <div><Label>Stats 1 (Alumnos)</Label><Input value={content.instructor.statsStudents || ''} onChange={(e) => updateNestedField('instructor', 'statsStudents', e.target.value)} placeholder="Ej: +1000 Alumnos" /></div>
+                                <div><Label>Stats 2 (Rating)</Label><Input value={content.instructor.statsRating || ''} onChange={(e) => updateNestedField('instructor', 'statsRating', e.target.value)} placeholder="Ej: 5.0" /></div>
+                            </div>
+                        </SectionContent>
+
+                        {/* 7. FAQ */}
+                        <SectionHeader id="faq" title="Preguntas Frecuentes" icon={HelpCircle} openSection={openSection} toggleSection={toggleSection} />
+                        <SectionContent id="faq" openSection={openSection}>
+                            <div className="space-y-4">
+                                {(content.faq || []).map((q, i) => (
+                                    <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
+                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"><button onClick={() => removeItem('faq', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
+                                        <div className="mb-2"><Label>Pregunta</Label><Input value={q.question} onChange={(e) => updateArrayItem('faq', i, 'question', e.target.value)} /></div>
+                                        <div><Label>Respuesta</Label><RichTextArea value={q.answer} onChange={(e) => updateArrayItem('faq', i, 'answer', e.target.value)} className="min-h-[60px]" /></div>
+                                    </div>
+                                ))}
+                                <button onClick={() => addItem('faq')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Pregunta</button>
+                            </div>
+                        </SectionContent>
+
                         {/* 8. Footer & Legal */}
-                        <SectionHeader id="footer" title="Footer y Legal" icon={LayoutTemplate} openSection={openSection} toggleSection={toggleSection} />
+                        <SectionHeader id="footer" title="8. Cierre y Footer" icon={LayoutTemplate} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="footer" openSection={openSection}>
-                             <div><Label>Texto de Cierre</Label><Input value={content.closingOfferText || ''} onChange={(e) => setContent({ ...content, closingOfferText: e.target.value })} /></div>
+                             <div>
+                                <Label>Texto de Cierre (CTA Final)</Label>
+                                <Input 
+                                    value={content.closingOfferText || ''} 
+                                    onChange={(e) => setContent({ ...content, closingOfferText: e.target.value })} 
+                                    placeholder="Ej: No dejes pasar esta oportunidad..." 
+                                />
+                             </div>
                              <div className="pt-4 border-t border-gray-800"><Label>Copyright Text</Label><Input value={content.footer.copyright} onChange={(e) => updateNestedField('footer', 'copyright', e.target.value)} /></div>
-                             <div><Label>Email</Label><Input value={content.footer.contact} onChange={(e) => updateNestedField('footer', 'contact', e.target.value)} /></div>
-                        </SectionContent>
+                             <div><Label>Email de Contacto</Label><Input value={content.footer.contact} onChange={(e) => updateNestedField('footer', 'contact', e.target.value)} /></div>
+                             
+                             <div className="pt-4 border-t border-gray-800">
+                                <Label>Redes Sociales</Label>
+                                <div className="space-y-2 mt-2">
+                                  <div className="flex items-center gap-2">
+                                     <Facebook className="w-4 h-4 text-blue-500" />
+                                     <Input placeholder="URL Facebook" value={content.footer.socials?.facebook || ''} onChange={(e) => updateSocials('facebook', e.target.value)} />
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                     <Instagram className="w-4 h-4 text-pink-500" />
+                                     <Input placeholder="URL Instagram" value={content.footer.socials?.instagram || ''} onChange={(e) => updateSocials('instagram', e.target.value)} />
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                     <Twitter className="w-4 h-4 text-sky-500" />
+                                     <Input placeholder="URL Twitter" value={content.footer.socials?.twitter || ''} onChange={(e) => updateSocials('twitter', e.target.value)} />
+                                  </div>
+                                </div>
+                             </div>
 
-                        {/* NEW: Thank You Page Section */}
-                        <SectionHeader id="thankyou" title="Página de Gracias" icon={Gift} openSection={openSection} toggleSection={toggleSection} />
-                        <SectionContent id="thankyou" openSection={openSection}>
-                            <div className="bg-green-900/20 p-3 rounded border border-green-500/30 text-xs text-green-300 mb-4">
-                                Esta es la página que verán los usuarios después de registrarse.
-                            </div>
-                            
-                            <div>
-                                <Label>Título de Agradecimiento</Label>
-                                <Input 
-                                    value={content.thankYouPage?.headline || "¡Felicidades! Registro Exitoso"} 
-                                    onChange={(e) => updateThankYouPage('headline', e.target.value)} 
-                                />
-                            </div>
-                            
-                            <div>
-                                <Label>Mensaje / Instrucciones</Label>
-                                <RichTextArea 
-                                    value={content.thankYouPage?.subheadline || "Hemos recibido tus datos correctamente."} 
-                                    onChange={(e) => updateThankYouPage('subheadline', e.target.value)} 
-                                    className="h-20"
-                                />
-                            </div>
-
-                            <div>
-                                <Label>Texto del Botón Siguiente</Label>
-                                <Input 
-                                    value={content.thankYouPage?.ctaText || "Unirme al Grupo VIP"} 
-                                    onChange={(e) => updateThankYouPage('ctaText', e.target.value)} 
-                                />
-                            </div>
-
-                            <div>
-                                <Label>Enlace del Botón (WhatsApp/Descarga)</Label>
-                                <Input 
-                                    value={content.thankYouPage?.ctaLink || ""} 
-                                    onChange={(e) => updateThankYouPage('ctaLink', e.target.value)} 
-                                    placeholder="https://wa.me/..."
-                                />
-                                <p className="text-[10px] text-gray-500 mt-1">Si lo dejas vacío, usará el teléfono de WhatsApp configurado en Ajustes.</p>
-                            </div>
+                             <div className="pt-4 border-t border-gray-800">
+                                <Label>Mensaje de Agradecimiento (Post-Registro)</Label>
+                                <Input value={content.thankYouMessage || ''} onChange={(e) => setContent({...content, thankYouMessage: e.target.value})} />
+                             </div>
                         </SectionContent>
                       </>
                   )}
 
-                  {/* ... (Existing Design and Settings Tabs) ... */}
+                  {/* === TAB: DESIGN === */}
+                  {activeTab === 'design' && (
+                      <div className="space-y-8 animate-in slide-in-from-left-2 duration-200 p-2">
+                           {/* STRUCTURE SELECTION */}
+                           <div>
+                              <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+                                  <LayoutTemplate className="w-4 h-4 text-primary" /> Estructura
+                              </h3>
+                              <div className="grid grid-cols-2 gap-3">
+                                  {structures.map(s => (
+                                      <div 
+                                          key={s.id}
+                                          onClick={() => setContent({...content, structure: s.id})}
+                                          className={`cursor-pointer rounded-lg border p-2 transition-all hover:scale-105 ${
+                                              content.structure === s.id 
+                                              ? 'bg-gray-800 border-primary ring-1 ring-primary' 
+                                              : 'bg-black border-gray-800 hover:border-gray-600'
+                                          }`}
+                                      >
+                                          <div className="mb-2 pointer-events-none scale-90 origin-top-left">
+                                              {s.wireframe}
+                                          </div>
+                                          <p className={`text-xs font-bold ${content.structure === s.id ? 'text-primary' : 'text-gray-400'}`}>
+                                              {s.name}
+                                          </p>
+                                      </div>
+                                  ))}
+                              </div>
+                           </div>
+
+                           {/* VSL Video Configuration - Only visible if structure is VSL */}
+                           {content.structure === 'vsl-focused' && (
+                                <div className="bg-gray-800 border border-primary/30 rounded-xl p-4 animate-in slide-in-from-top-2 shadow-lg shadow-primary/10">
+                                    <h3 className="text-white font-bold mb-3 flex items-center gap-2 text-sm">
+                                        <PlayCircle className="w-4 h-4 text-primary" /> Configuración del Video VSL
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <Label>URL del Video (YouTube, Vimeo, MP4)</Label>
+                                            <Input
+                                                value={content.hero.videoUrl || ''}
+                                                onChange={(e) => updateNestedField('hero', 'videoUrl', e.target.value)}
+                                                placeholder="https://www.youtube.com/watch?v=..."
+                                                className="bg-black border-gray-700 focus:border-primary"
+                                            />
+                                            <p className="text-[10px] text-gray-400 mt-1">
+                                                * Se detectará automáticamente si es YouTube/Vimeo para incrustarlo.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                           )}
+
+                           {/* COLOR PALETTE SELECTION */}
+                           <div>
+                              <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+                                  <Palette className="w-4 h-4 text-primary" /> Colores
+                              </h3>
+                              <div className="grid grid-cols-4 gap-3">
+                                  {palettes.map(p => (
+                                      <div 
+                                          key={p.id}
+                                          onClick={() => setContent({...content, palette: p.id})}
+                                          className={`cursor-pointer rounded-lg p-2 flex flex-col items-center gap-1 transition ${
+                                              content.palette === p.id ? 'bg-gray-800 border border-primary' : 'hover:bg-gray-800 border border-transparent'
+                                          }`}
+                                      >
+                                          <div className={`w-8 h-8 rounded-full shadow-sm ${p.colors}`}></div>
+                                          <span className="text-[10px] text-gray-400 text-center leading-tight">{p.name}</span>
+                                      </div>
+                                  ))}
+                              </div>
+                           </div>
+                      </div>
+                  )}
+
+                  {/* === TAB: SETTINGS === */}
                   {activeTab === 'settings' && (
                       <div className="space-y-6 animate-in slide-in-from-left-2 duration-200 p-2">
-                           {/* ... General ... */}
+                           <div className="bg-black p-4 rounded-xl border border-gray-800">
+                               <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+                                  <Settings className="w-4 h-4 text-primary" /> General
+                               </h3>
+                               <div className="space-y-4">
+                                  <div><Label>Nombre del Proyecto</Label><Input value={pageName} onChange={(e) => setPageName(e.target.value)} /></div>
+                                  <div><Label>Nicho</Label><Input value={niche} onChange={(e) => setNiche(e.target.value)} /></div>
+                                  <div><Label>Audiencia Objetivo</Label><Input value={content.targetAudience || ''} onChange={(e) => setContent({...content, targetAudience: e.target.value})} /></div>
+                                </div>
+                           </div>
+                           
                            <div className="bg-black p-4 rounded-xl border border-gray-800">
                               <h3 className="text-white font-bold mb-4 flex items-center gap-2">
                                   <Target className="w-4 h-4 text-primary" /> Destino (CTA)
                               </h3>
-                              {/* ... (Destination options) ... */}
+                              
                               <div className="flex flex-wrap gap-2 mb-4">
                                 <button onClick={() => updateDestination('type', 'form')} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition ${content.destination?.type === 'form' ? 'bg-primary text-white border-primary' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}><FileText className="w-3 h-3" /> Form</button>
                                 <button onClick={() => updateDestination('type', 'whatsapp')} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition ${content.destination?.type === 'whatsapp' ? 'bg-green-600 text-white border-green-600' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}><MessageCircle className="w-3 h-3" /> WhatsApp</button>
                                 <button onClick={() => updateDestination('type', 'external_url')} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition ${content.destination?.type === 'external_url' ? 'bg-purple-600 text-white border-purple-600' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}><LinkIcon className="w-3 h-3" /> Link</button>
                               </div>
+
                               <div className="space-y-4 border-t border-gray-800 pt-4">
                                 {content.destination?.type === 'whatsapp' && (
                                     <>
@@ -577,7 +873,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                     <div><Label>URL de Destino</Label><Input value={content.destination.url || ''} onChange={(e) => updateDestination('url', e.target.value)} placeholder="https://..." /></div>
                                 )}
                                 {content.destination?.type === 'form' && (
-                                    <div className="text-xs text-gray-500 bg-gray-900 p-3 rounded border border-gray-800 italic">* Se capturarán leads en el CRM y luego redirigirá a la página de gracias.</div>
+                                    <div className="text-xs text-gray-500 bg-gray-900 p-3 rounded border border-gray-800 italic">* Se capturarán leads en el CRM.</div>
                                 )}
                               </div>
                            </div>
@@ -593,16 +889,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
              
              <div className={`bg-white shadow-2xl transition-all duration-500 ease-in-out overflow-hidden relative transform-gpu ${fullScreenPreview && previewMode === 'desktop' ? 'w-full h-full rounded-none border-0' : previewMode === 'mobile' ? 'w-[375px] h-[700px] rounded-[40px] border-[8px] border-gray-900' : 'w-full h-full rounded-lg border-[8px] border-gray-900'}`}>
                 {previewMode === 'mobile' && !fullScreenPreview && <div className="absolute top-0 left-0 w-full h-6 bg-black z-50 flex justify-center"><div className="w-20 h-4 bg-black rounded-b-xl"></div></div>}
-                
-                {/* PREVIEW VIEWPORT WITH VIEW MODE SWITCHING */}
                 <div id="preview-viewport" className="w-full h-full overflow-y-auto bg-white scrollbar-hide">
-                    <LivePage 
-                        content={content} 
-                        isMobilePreview={previewMode === 'mobile'} 
-                        viewMode={previewView} // Passing home or thank-you
-                        // pageId is optional in preview, but good for relative linking simulation if needed
-                        pageId={page.id}
-                    />
+                    <LivePage content={content} isMobilePreview={previewMode === 'mobile'} />
                 </div>
              </div>
         </div>

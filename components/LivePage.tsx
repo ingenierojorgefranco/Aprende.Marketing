@@ -9,13 +9,12 @@ import { ClassicSalesTemplate } from './landingpage/templates/ClassicSalesTempla
 import { WebinarTemplate } from './landingpage/templates/WebinarTemplate';
 import { VslTemplate } from './landingpage/templates/VslTemplate';
 import { MinimalTemplate } from './landingpage/templates/MinimalTemplate';
-import { ThankYouTemplate } from './landingpage/templates/ThankYouTemplate';
 
 interface LivePageProps {
   content: GeneratedPageContent;
   isMobilePreview?: boolean;
   pageId?: string;
-  viewMode?: 'home' | 'blog-list' | 'blog-post' | 'thank-you';
+  viewMode?: 'home' | 'blog-list' | 'blog-post';
   articleSlug?: string;
   basePath?: string;
 }
@@ -47,19 +46,6 @@ export const LivePage: React.FC<LivePageProps> = ({
            .catch(() => { /* Ignore error, just don't show link */ });
      }
   }, [pageId]);
-
-  // --- THANK YOU PAGE RENDER ---
-  if (viewMode === 'thank-you') {
-      return (
-          <ThankYouTemplate 
-              content={content}
-              ds={ds}
-              isMobilePreview={isMobilePreview}
-              pageId={pageId}
-              basePath={basePath}
-          />
-      );
-  }
 
   // --- BLOG VIEW RENDER ---
   if (viewMode === 'blog-list' || viewMode === 'blog-post') {

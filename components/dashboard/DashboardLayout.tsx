@@ -257,9 +257,8 @@ export const DashboardLayout = ({
 
   return (
     <div className="h-screen overflow-hidden bg-black text-gray-200 flex font-sans">
-      <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0a0a0a] border-r border-gray-800 shadow-2xl z-40 transition-transform duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        {/* Header Fixed */}
-        <div className="p-8 pb-6 flex justify-between items-center shrink-0">
+      <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0a0a0a] border-r border-gray-800 shadow-2xl z-40 transition-transform duration-300 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="p-8 pb-6 flex justify-between items-center">
           <div>
               <h2 className="text-2xl font-bold text-white tracking-tight">Aprende.<span className="text-primary">Marketing</span></h2>
               <p className="text-xs text-gray-500 uppercase tracking-widest mt-1.5 font-bold">Panel de Control</p>
@@ -269,16 +268,15 @@ export const DashboardLayout = ({
           </button>
         </div>
         
-        {/* Scrollable Nav Area */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar px-4 space-y-1">
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
           {menuStructure.map(item => (
             <NavItemRender key={item.id} item={item} />
           ))}
-        </div>
+        </nav>
 
-        {/* Upgrade Widget Fixed at Bottom */}
+        {/* Upgrade Widget */}
         {!isMax && (
-            <div className="p-4 border-t border-gray-800 bg-[#0a0a0a] shrink-0">
+            <div className="px-6 pb-6 pt-4">
                 <div className={`p-5 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group ${isPro ? 'bg-gradient-to-br from-purple-900/40 to-indigo-900/40' : 'bg-gradient-to-br from-orange-900/40 to-red-900/40'}`}>
                     <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition duration-500"></div>
                     <div className="flex items-center gap-3 mb-3 relative z-10">

@@ -263,11 +263,6 @@ const App: React.FC = () => {
         <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
         <Route path="/lp/:slug/*" element={<PublicLandingView />} />
 
-        {/* CUSTOM DOMAIN THANK YOU ROUTE */}
-        <Route path="/thanks" element={
-            customLandingSlug ? <PublicLandingView forcedSlug={customLandingSlug} /> : <Navigate to="/" />
-        } />
-
         <Route
           path="/"
           element={
