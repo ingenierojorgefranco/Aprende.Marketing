@@ -78,6 +78,15 @@ export const CRM_Layout: React.FC = () => {
         }
     };
 
+    const handleDeleteContact = async (id: string) => {
+        try {
+            await api.deleteContact(id);
+            setContacts(prev => prev.filter(c => c.id !== id));
+        } catch (error) {
+            alert("Error eliminando contacto.");
+        }
+    };
+
     const filteredContacts = contacts.filter(contact => {
         const matchesSearch = contact.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                               contact.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -147,6 +156,7 @@ export const CRM_Layout: React.FC = () => {
                     <CRMTable 
                         contacts={filteredContacts} 
                         onSelectContact={handleEditContact} 
+                        onDeleteContact={handleDeleteContact}
                     />
                 )}
             </div>

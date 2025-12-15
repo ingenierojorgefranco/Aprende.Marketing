@@ -233,32 +233,33 @@ const LeadCaptureForm = ({ btnClass, btnText, ds, pageId }: { btnClass: string, 
             return;
         }
 
-        if (!pageId) {
-            // Preview mode - just simulate
-            alert("Modo Vista Previa: El formulario funciona. En vivo redirigirá a /thanks.");
-            return;
-        }
-
         setSubmitting(true);
         try {
-            // Submit to CRM
-            await fetch('/api/public/leads/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    pageId: pageId,
-                    name: name,
-                    email: email
-                })
-            });
+            // Attempt to submit even if pageId is missing (mock mode scenario or direct preview)
+            if (pageId) {
+                await fetch('/api/public/leads/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        pageId: pageId,
+                        name: name,
+                        email: email
+                    })
+                });
+            } else {
+                // If no pageId (Preview Mode), simulate a short delay
+                await new Promise(resolve => setTimeout(resolve, 800));
+                console.log("Mock submission success in Preview Mode");
+            }
 
             // Redirect to Thank You Page
-            // Construct thanks URL relative to current path
+            // Construct thanks URL relative to current path to support nested routes or custom domains
             const currentPath = window.location.pathname.replace(/\/$/, ''); // remove trailing slash
             window.location.href = `${currentPath}/thanks`;
 
         } catch (error) {
             console.error("Submission error", error);
+            // In case of error (e.g. offline), we still redirect in demo context or show alert
             alert("Hubo un error al procesar tu registro. Intenta nuevamente.");
             setSubmitting(false);
         }

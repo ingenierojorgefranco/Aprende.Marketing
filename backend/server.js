@@ -1485,6 +1485,22 @@ app.put('/api/crm/contacts/:id', authMiddleware, async (req, res) => {
     }
 });
 
+// DELETE Contact (NEW)
+app.delete('/api/crm/contacts/:id', authMiddleware, async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Verify ownership
+        const [check] = await pool.query('SELECT id FROM crm_contacts WHERE id = ? AND user_id = ?', [id, req.user.id]);
+        if (check.length === 0) return res.status(404).json({ error: 'Contacto no encontrado' });
+
+        await pool.query('DELETE FROM crm_contacts WHERE id = ?', [id]);
+        
+        res.json({ message: 'Contacto eliminado' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // GET Contact History/Activity
 app.get('/api/crm/contacts/:id/history', authMiddleware, async (req, res) => {
     const { id } = req.params;

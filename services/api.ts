@@ -875,6 +875,14 @@ export const api = {
       });
   },
 
+  deleteContact: async (id: string): Promise<void> => {
+      if (isMockMode) {
+          localCrmContacts = localCrmContacts.filter(c => c.id !== id);
+          return Promise.resolve();
+      }
+      await fetchWithFallback(`/crm/contacts/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+  },
+
   getContactHistory: async (contactId: string): Promise<CRMActivity[]> => {
       if (isMockMode) {
           return Promise.resolve(localCrmActivities.filter(a => a.contactId === contactId));
