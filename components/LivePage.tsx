@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, StructureType } from '../types';
 import { api } from '../services/api';
 import { SingleBlog } from './landingpage/blog/SingleBlog';
+import { LiveThankYouPage } from './landingpage/LiveThankYouPage';
 import { getDesignSystem } from './landingpage/designSystem';
 import { Navbar, Footer } from './landingpage/ui/LiveComponents';
 import { ClassicSalesTemplate } from './landingpage/templates/ClassicSalesTemplate';
@@ -14,7 +15,7 @@ interface LivePageProps {
   content: GeneratedPageContent;
   isMobilePreview?: boolean;
   pageId?: string;
-  viewMode?: 'home' | 'blog-list' | 'blog-post';
+  viewMode?: 'home' | 'blog-list' | 'blog-post' | 'thank-you';
   articleSlug?: string;
   basePath?: string;
 }
@@ -46,6 +47,11 @@ export const LivePage: React.FC<LivePageProps> = ({
            .catch(() => { /* Ignore error, just don't show link */ });
      }
   }, [pageId]);
+
+  // --- THANK YOU PAGE RENDER ---
+  if (viewMode === 'thank-you') {
+      return <LiveThankYouPage content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />;
+  }
 
   // --- BLOG VIEW RENDER ---
   if (viewMode === 'blog-list' || viewMode === 'blog-post') {

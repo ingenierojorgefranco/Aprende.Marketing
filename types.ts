@@ -129,6 +129,14 @@ export interface DestinationConfig {
   whatsappMessage?: string;
 }
 
+export interface ThankYouPageConfig {
+  headline: string;
+  subheadline: string;
+  ctaText: string;
+  ctaLink: string;
+  showSocials: boolean;
+}
+
 // Structure for the AI generated landing page
 export interface GeneratedPageContent {
   palette: ColorPalette;
@@ -212,6 +220,9 @@ export interface GeneratedPageContent {
   };
   thankYouMessage: string;
   redirectUrl: string;
+  
+  // NEW: Configuration for the Thank You Page
+  thankYouPage?: ThankYouPageConfig;
 }
 
 export interface LandingPage {

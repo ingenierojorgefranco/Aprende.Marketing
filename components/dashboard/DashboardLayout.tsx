@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, Suspense } from 'react';
 import { User } from '../../types';
 import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff } from 'lucide-react';
@@ -257,7 +256,7 @@ export const DashboardLayout = ({
 
   return (
     <div className="h-screen overflow-hidden bg-black text-gray-200 flex font-sans">
-      <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0a0a0a] border-r border-gray-800 shadow-2xl z-40 transition-transform duration-300 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+      <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0a0a0a] border-r border-gray-800 shadow-2xl z-40 transition-transform duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="p-8 pb-6 flex justify-between items-center">
           <div>
               <h2 className="text-2xl font-bold text-white tracking-tight">Aprende.<span className="text-primary">Marketing</span></h2>
@@ -276,7 +275,7 @@ export const DashboardLayout = ({
 
         {/* Upgrade Widget */}
         {!isMax && (
-            <div className="px-6 pb-6 pt-4">
+            <div className="mt-auto border-t border-gray-800 bg-[#0a0a0a] p-6">
                 <div className={`p-5 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group ${isPro ? 'bg-gradient-to-br from-purple-900/40 to-indigo-900/40' : 'bg-gradient-to-br from-orange-900/40 to-red-900/40'}`}>
                     <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition duration-500"></div>
                     <div className="flex items-center gap-3 mb-3 relative z-10">

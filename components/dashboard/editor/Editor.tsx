@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType } from '../../../types';
-import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle } from 'lucide-react';
+import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType, ThankYouPageConfig } from '../../../types';
+import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift } from 'lucide-react';
 import { LivePage } from '../../LivePage';
 
 // --- UI COMPONENTS EXTRACTED ---
@@ -181,11 +181,23 @@ interface EditorProps {
 }
 
 export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
-  const [content, setContent] = useState<GeneratedPageContent>(page.content);
+  // Ensure thankYouPage structure exists
+  const initialContent = {
+      ...page.content,
+      thankYouPage: page.content.thankYouPage || {
+          headline: "¡Felicidades! Ya estás dentro.",
+          subheadline: page.content.thankYouMessage || "Revisa tu correo electrónico para acceder al contenido.",
+          ctaText: "Unirme al Grupo VIP",
+          ctaLink: "#",
+          showSocials: true
+      }
+  };
+
+  const [content, setContent] = useState<GeneratedPageContent>(initialContent);
   const [pageName, setPageName] = useState(page.name);
   const [niche, setNiche] = useState(page.niche);
   
-  const [activeTab, setActiveTab] = useState<'content' | 'design' | 'settings'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'thankyou' | 'design' | 'settings'>('content');
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [fullScreenPreview, setFullScreenPreview] = useState(false);
   const [isPublished, setIsPublished] = useState(page.isPublished);
@@ -321,6 +333,16 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       });
   };
 
+  const updateThankYouConfig = (field: keyof ThankYouPageConfig, value: any) => {
+      setContent(prev => ({
+          ...prev,
+          thankYouPage: {
+              ...prev.thankYouPage!,
+              [field]: value
+          }
+      }));
+  };
+
   const handleSave = async (publishState: boolean) => {
     setSaving(true);
     setIsPublished(publishState);
@@ -437,6 +459,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
               {/* Tabs */}
               <div className="flex border-b border-gray-800 shrink-0">
                   <button onClick={() => setActiveTab('content')} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition ${activeTab === 'content' ? 'text-white border-b-2 border-primary bg-gray-800/50' : 'text-gray-500 hover:text-gray-300'}`}><Type className="w-4 h-4" /> Contenido</button>
+                  <button onClick={() => setActiveTab('thankyou')} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition ${activeTab === 'thankyou' ? 'text-white border-b-2 border-green-500 bg-gray-800/50' : 'text-gray-500 hover:text-gray-300'}`}><CheckCircle className="w-4 h-4" /> Gracias</button>
                   <button onClick={() => setActiveTab('design')} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition ${activeTab === 'design' ? 'text-white border-b-2 border-primary bg-gray-800/50' : 'text-gray-500 hover:text-gray-300'}`}><Palette className="w-4 h-4" /> Diseño</button>
                   <button onClick={() => setActiveTab('settings')} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition ${activeTab === 'settings' ? 'text-white border-b-2 border-primary bg-gray-800/50' : 'text-gray-500 hover:text-gray-300'}`}><Settings className="w-4 h-4" /> Ajustes</button>
               </div>
@@ -761,6 +784,66 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                       </>
                   )}
 
+                  {/* === TAB: THANK YOU PAGE === */}
+                  {activeTab === 'thankyou' && (
+                      <div className="space-y-6 animate-in slide-in-from-left-2 duration-200 p-2">
+                          <div className="bg-green-900/10 border border-green-900/30 p-4 rounded-xl mb-4">
+                              <p className="text-xs text-green-300">
+                                  Configura la página que verán tus usuarios después de registrarse.
+                              </p>
+                          </div>
+
+                          <div className="bg-black p-4 rounded-xl border border-gray-800">
+                              <div className="space-y-4">
+                                  <div>
+                                      <Label>Título Principal</Label>
+                                      <Input 
+                                          value={content.thankYouPage?.headline || ''} 
+                                          onChange={(e) => updateThankYouConfig('headline', e.target.value)} 
+                                          placeholder="¡Felicidades!"
+                                      />
+                                  </div>
+                                  <div>
+                                      <Label>Mensaje / Subtítulo</Label>
+                                      <RichTextArea 
+                                          value={content.thankYouPage?.subheadline || ''} 
+                                          onChange={(e) => updateThankYouConfig('subheadline', e.target.value)} 
+                                          className="h-24"
+                                      />
+                                  </div>
+                                  
+                                  <div className="pt-4 border-t border-gray-800">
+                                      <Label>Botón de Acción (CTA)</Label>
+                                      <div className="space-y-2 mt-2">
+                                          <Input 
+                                              value={content.thankYouPage?.ctaText || ''} 
+                                              onChange={(e) => updateThankYouConfig('ctaText', e.target.value)} 
+                                              placeholder="Texto del Botón"
+                                          />
+                                          <Input 
+                                              value={content.thankYouPage?.ctaLink || ''} 
+                                              onChange={(e) => updateThankYouConfig('ctaLink', e.target.value)} 
+                                              placeholder="Enlace (ej: Link de WhatsApp)"
+                                          />
+                                      </div>
+                                  </div>
+
+                                  <div className="pt-4 border-t border-gray-800">
+                                      <label className="flex items-center gap-2 cursor-pointer">
+                                          <input 
+                                              type="checkbox" 
+                                              checked={content.thankYouPage?.showSocials !== false} 
+                                              onChange={(e) => updateThankYouConfig('showSocials', e.target.checked)}
+                                              className="accent-green-500 w-4 h-4"
+                                          />
+                                          <span className="text-gray-300 text-xs font-bold uppercase">Mostrar Redes Sociales</span>
+                                      </label>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  )}
+
                   {/* === TAB: DESIGN === */}
                   {activeTab === 'design' && (
                       <div className="space-y-8 animate-in slide-in-from-left-2 duration-200 p-2">
@@ -890,7 +973,12 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
              <div className={`bg-white shadow-2xl transition-all duration-500 ease-in-out overflow-hidden relative transform-gpu ${fullScreenPreview && previewMode === 'desktop' ? 'w-full h-full rounded-none border-0' : previewMode === 'mobile' ? 'w-[375px] h-[700px] rounded-[40px] border-[8px] border-gray-900' : 'w-full h-full rounded-lg border-[8px] border-gray-900'}`}>
                 {previewMode === 'mobile' && !fullScreenPreview && <div className="absolute top-0 left-0 w-full h-6 bg-black z-50 flex justify-center"><div className="w-20 h-4 bg-black rounded-b-xl"></div></div>}
                 <div id="preview-viewport" className="w-full h-full overflow-y-auto bg-white scrollbar-hide">
-                    <LivePage content={content} isMobilePreview={previewMode === 'mobile'} />
+                    {/* LivePage handles which view to show based on viewMode prop */}
+                    <LivePage 
+                        content={content} 
+                        isMobilePreview={previewMode === 'mobile'} 
+                        viewMode={activeTab === 'thankyou' ? 'thank-you' : 'home'} 
+                    />
                 </div>
              </div>
         </div>
