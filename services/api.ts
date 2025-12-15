@@ -1,6 +1,6 @@
 
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, ProjectMasterStrategy } from "../types";
-import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_MASTER_STRATEGY } from "./mockData";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, ProjectMasterStrategy, CRMContact, CRMActivity } from "../types";
+import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_MASTER_STRATEGY, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 
 // --- HELPER PARA OBTENER BASE URL ---
 const getBaseUrl = () => {
@@ -28,6 +28,8 @@ let localProjects: Project[] = [...MOCK_PROJECTS];
 let localLeads: Lead[] = [...MOCK_LEADS];
 let localCourses: Course[] = [...MOCK_COURSES];
 let localComments: Comment[] = [...MOCK_COMMENTS];
+let localCrmContacts: CRMContact[] = [...MOCK_CRM_CONTACTS];
+let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
 
 // --- FUNCIÓN FETCH CON TIMEOUT ---
 const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
@@ -817,5 +819,93 @@ export const api = {
   deletePlan: async (id: string): Promise<void> => {
       if (isMockMode) return Promise.resolve();
       await fetchWithFallback(`/admin/plans/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+  },
+
+  // --- CRM API ENDPOINTS ---
+  getContacts: async (): Promise<CRMContact[]> => {
+      if (isMockMode) return Promise.resolve([...localCrmContacts]);
+      
+      const contacts = await fetchWithFallback('/crm/contacts', { headers: getAuthHeaders() });
+      return contacts.map((c: any) => ({
+          ...c,
+          id: c.id.toString(),
+          lastContactedAt: c.last_contacted_at ? new Date(c.last_contacted_at) : undefined,
+          createdAt: new Date(c.created_at),
+          updatedAt: new Date(c.updated_at)
+      }));
+  },
+
+  createContact: async (contact: Omit<CRMContact, 'id' | 'createdAt' | 'updatedAt' | 'lastContactedAt'>): Promise<CRMContact> => {
+      if (isMockMode) {
+          const newContact: CRMContact = {
+              ...contact,
+              id: `mock-crm-${Date.now()}`,
+              lastContactedAt: undefined,
+              createdAt: new Date(),
+              updatedAt: new Date()
+          };
+          localCrmContacts.unshift(newContact);
+          return Promise.resolve(newContact);
+      }
+
+      const res = await fetchWithFallback('/crm/contacts', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(contact)
+      });
+      
+      return { 
+          ...contact, 
+          id: res.id.toString(), 
+          createdAt: new Date(), 
+          updatedAt: new Date() 
+      };
+  },
+
+  updateContact: async (contact: CRMContact): Promise<void> => {
+      if (isMockMode) {
+          localCrmContacts = localCrmContacts.map(c => c.id === contact.id ? { ...contact, updatedAt: new Date() } : c);
+          return Promise.resolve();
+      }
+
+      await fetchWithFallback(`/crm/contacts/${contact.id}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(contact)
+      });
+  },
+
+  getContactHistory: async (contactId: string): Promise<CRMActivity[]> => {
+      if (isMockMode) {
+          return Promise.resolve(localCrmActivities.filter(a => a.contactId === contactId));
+      }
+      
+      const activities = await fetchWithFallback(`/crm/contacts/${contactId}/history`, { headers: getAuthHeaders() });
+      return activities.map((a: any) => ({
+          id: a.id.toString(),
+          contactId: a.contact_id.toString(),
+          type: a.type,
+          content: a.content,
+          createdAt: new Date(a.created_at)
+      }));
+  },
+
+  addContactNote: async (contactId: string, content: string): Promise<void> => {
+      if (isMockMode) {
+          localCrmActivities.unshift({
+              id: `act-${Date.now()}`,
+              contactId,
+              type: 'note',
+              content,
+              createdAt: new Date()
+          });
+          return Promise.resolve();
+      }
+
+      await fetchWithFallback(`/crm/contacts/${contactId}/notes`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ content })
+      });
   }
 };

@@ -75,6 +75,33 @@ export interface UserUsageStats {
     articles: number;
 }
 
+// --- CRM TYPES ---
+export type CRMStatus = 'new' | 'contacted' | 'interested' | 'closed' | 'lost';
+export type CRMInterest = 'cold' | 'warm' | 'hot';
+
+export interface CRMContact {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    country?: string;
+    address?: string;
+    source: string; // Landing Page Name or 'Manual'
+    status: CRMStatus;
+    interestLevel: CRMInterest;
+    lastContactedAt?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface CRMActivity {
+    id: string;
+    contactId: string;
+    type: 'note' | 'status_change' | 'system' | 'lead_submission';
+    content: string;
+    createdAt: Date;
+}
+
 export type ColorPalette = 
   | 'modern-blue' 
   | 'elegant-purple' 

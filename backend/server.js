@@ -17,7 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v19_stripe_integration'; 
+const SERVER_VERSION = 'v19_crm_integration'; 
 
 app.enable('trust proxy');
 
@@ -124,6 +124,20 @@ const logSystemActivity = async (userId, userName, actionType, entityType, entit
     } catch (e) {
         console.error("[System Log Error] Could not save log:", e.message);
         // No throw to prevent API failure
+    }
+};
+
+// ======================================================
+//  CRM LOGGING HELPER
+// ======================================================
+const logCRMActivity = async (contactId, type, content, createdBy = null) => {
+    try {
+        await pool.query(
+            `INSERT INTO crm_activities (contact_id, type, content, created_at) VALUES (?, ?, ?, NOW())`,
+            [contactId, type, content]
+        );
+    } catch (e) {
+        console.error("[CRM Log Error]", e.message);
     }
 };
 
@@ -1401,6 +1415,170 @@ app.post('/api/projects/:id/generate-strategy', authMiddleware, async (req, res)
     } catch (e) {
         console.error("Strategy Generation Error:", e);
         res.status(500).json({ error: e.message || 'Error generando la estrategia.' });
+    }
+});
+
+// ======================================================
+//  CRM & LEADS ROUTES (PRIVATE)
+// ======================================================
+
+// GET All Contacts (with filtering)
+app.get('/api/crm/contacts', authMiddleware, async (req, res) => {
+    try {
+        const [contacts] = await pool.query(
+            `SELECT * FROM crm_contacts WHERE user_id = ? ORDER BY created_at DESC`,
+            [req.user.id]
+        );
+        res.json(contacts);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// CREATE Contact (Manual)
+app.post('/api/crm/contacts', authMiddleware, async (req, res) => {
+    const { name, email, phone, address, country, status, interestLevel } = req.body;
+    try {
+        const [result] = await pool.query(
+            `INSERT INTO crm_contacts (user_id, name, email, phone, address, country, source, status, interest_level, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, 'Manual', ?, ?, NOW(), NOW())`,
+            [req.user.id, name, email, phone, address, country, status || 'new', interestLevel || 'cold']
+        );
+        
+        // Log Activity
+        await logCRMActivity(result.insertId, 'system', `Contacto creado manualmente por ${req.user.email}`);
+
+        res.json({ id: result.insertId, message: 'Contacto creado' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// UPDATE Contact
+app.put('/api/crm/contacts/:id', authMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { name, email, phone, address, country, status, interestLevel } = req.body;
+    
+    try {
+        // Verify ownership
+        const [check] = await pool.query('SELECT id, status, interest_level FROM crm_contacts WHERE id = ? AND user_id = ?', [id, req.user.id]);
+        if (check.length === 0) return res.status(404).json({ error: 'Contacto no encontrado' });
+        
+        const oldData = check[0];
+
+        await pool.query(
+            `UPDATE crm_contacts SET name=?, email=?, phone=?, address=?, country=?, status=?, interest_level=?, updated_at=NOW() WHERE id=?`,
+            [name, email, phone, address, country, status, interestLevel, id]
+        );
+
+        // Auto-Log changes
+        if (oldData.status !== status) {
+            await logCRMActivity(id, 'status_change', `Estado cambiado de ${oldData.status} a ${status}`);
+        }
+        if (oldData.interest_level !== interestLevel) {
+            await logCRMActivity(id, 'status_change', `Interés cambiado de ${oldData.interest_level} a ${interestLevel}`);
+        }
+
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// GET Contact History/Activity
+app.get('/api/crm/contacts/:id/history', authMiddleware, async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Verify ownership
+        const [check] = await pool.query('SELECT id FROM crm_contacts WHERE id = ? AND user_id = ?', [id, req.user.id]);
+        if (check.length === 0) return res.status(404).json({ error: 'Contacto no encontrado' });
+
+        const [activities] = await pool.query(
+            `SELECT * FROM crm_activities WHERE contact_id = ? ORDER BY created_at DESC`,
+            [id]
+        );
+        res.json(activities);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// ADD Note to Contact
+app.post('/api/crm/contacts/:id/notes', authMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { content } = req.body;
+    try {
+        const [check] = await pool.query('SELECT id FROM crm_contacts WHERE id = ? AND user_id = ?', [id, req.user.id]);
+        if (check.length === 0) return res.status(404).json({ error: 'Contacto no encontrado' });
+
+        await logCRMActivity(id, 'note', content);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// ======================================================
+//  PUBLIC LEAD CAPTURE (AUTOMATIC CRM ENTRY)
+// ======================================================
+app.post('/api/public/leads/submit', async (req, res) => {
+    const { pageId, name, email, phone } = req.body;
+    
+    if (!pageId || !email) return res.status(400).json({ error: 'Datos incompletos' });
+
+    try {
+        // 1. Get Page Owner (User ID) & Page Name
+        const [pageRows] = await pool.query('SELECT user_id, name FROM landing_pages WHERE id = ?', [pageId]);
+        if (pageRows.length === 0) return res.status(404).json({ error: 'Página no válida' });
+        
+        const ownerId = pageRows[0].user_id;
+        const pageName = pageRows[0].name;
+
+        // 2. Insert into Simple Leads Table (Legacy)
+        await pool.query(
+            'INSERT INTO leads (page_id, name, email, captured_at) VALUES (?, ?, ?, NOW())',
+            [pageId, name || 'Anónimo', email]
+        );
+
+        // 3. Update Page Analytics (Conversions)
+        await pool.query('UPDATE landing_pages SET conversions = conversions + 1 WHERE id = ?', [pageId]);
+        const today = new Date().toISOString().split('T')[0];
+        await pool.query(
+            `INSERT INTO daily_analytics (page_id, date, visits, conversions) 
+             VALUES (?, ?, 0, 1) 
+             ON DUPLICATE KEY UPDATE conversions = conversions + 1`,
+            [pageId, today]
+        );
+
+        // 4. Insert/Update into CRM Contacts (Advanced)
+        // Check if email already exists for this user to avoid duplicates, update if exists
+        const [existing] = await pool.query(
+            'SELECT id FROM crm_contacts WHERE user_id = ? AND email = ?',
+            [ownerId, email]
+        );
+
+        let contactId;
+        if (existing.length > 0) {
+            contactId = existing[0].id;
+            // Update last contact
+            await pool.query('UPDATE crm_contacts SET updated_at = NOW() WHERE id = ?', [contactId]);
+            await logCRMActivity(contactId, 'lead_submission', `Re-conversión en landing: ${pageName}`);
+        } else {
+            // Create new contact
+            const [newContact] = await pool.query(
+                `INSERT INTO crm_contacts (user_id, page_id, name, email, phone, source, status, interest_level, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, ?, 'new', 'warm', NOW(), NOW())`,
+                [ownerId, pageId, name || 'Prospecto', email, phone || '', `Landing: ${pageName}`]
+            );
+            contactId = newContact.insertId;
+            await logCRMActivity(contactId, 'lead_submission', `Registro inicial desde: ${pageName}`);
+        }
+
+        res.json({ success: true });
+
+    } catch (e) {
+        console.error("Error submitting lead:", e);
+        res.status(500).json({ error: 'Error interno al procesar lead' });
     }
 });
 

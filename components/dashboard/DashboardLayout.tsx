@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, Suspense } from 'react';
 import { User } from '../../types';
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
 import { UpgradeModal } from './UpgradeModal';
@@ -72,25 +73,18 @@ export const DashboardLayout = ({
           }
       };
       loadData();
-  }, []); // Run once on mount
+  }, []); 
 
   // Check for Subscription Success
   useEffect(() => {
       const params = new URLSearchParams(location.search);
       if (params.get('success') === 'true') {
           setShowSuccessModal(true);
-          // Clean URL without reloading page
           window.history.replaceState({}, '', location.pathname);
           
-          // Refresh User Data (Permissions/Plan) immediately
           getCurrentUser().then(authUser => {
               if (authUser && onUpdateUser) {
-                  // Map AuthUser to User structure if needed, or rely on implicit compatibility
-                  // Re-fetching full user from API to be safe about planLimits
                   api.getAdminUserResources(authUser.id.toString(), 'projects').then(() => {
-                       // Trigger a full reload of user object from server logic if possible
-                       // For now, we simulate update or rely on onUpdateUser if passed properly
-                       // Since getCurrentUser hits /auth/me which returns full object:
                        const updatedUser: User = {
                            id: authUser.id.toString(),
                            name: authUser.name,
@@ -132,6 +126,13 @@ export const DashboardLayout = ({
       label: 'Entrenamiento',
       icon: GraduationCap,
       subItems: courseItems
+    },
+    // --- CRM ADDED HERE ---
+    {
+      id: 'crm',
+      label: 'CRM Clientes',
+      icon: Users,
+      path: '/dashboard/crm'
     },
     {
       id: 'projects',
@@ -256,10 +257,15 @@ export const DashboardLayout = ({
 
   return (
     <div className="h-screen overflow-hidden bg-black text-gray-200 flex font-sans">
-      <aside className="hidden md:flex flex-col w-[25rem] bg-[#0a0a0a] border-r border-gray-800 shadow-2xl z-20">
-        <div className="p-8 pb-6">
-          <h2 className="text-2xl font-bold text-white tracking-tight">Aprende.<span className="text-primary">Marketing</span></h2>
-          <p className="text-xs text-gray-500 uppercase tracking-widest mt-1.5 font-bold">Panel de Control</p>
+      <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0a0a0a] border-r border-gray-800 shadow-2xl z-40 transition-transform duration-300 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="p-8 pb-6 flex justify-between items-center">
+          <div>
+              <h2 className="text-2xl font-bold text-white tracking-tight">Aprende.<span className="text-primary">Marketing</span></h2>
+              <p className="text-xs text-gray-500 uppercase tracking-widest mt-1.5 font-bold">Panel de Control</p>
+          </div>
+          <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-gray-400">
+              <X className="w-6 h-6" />
+          </button>
         </div>
         
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
@@ -278,135 +284,92 @@ export const DashboardLayout = ({
                             {isPro ? <Crown className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
                         </div>
                         <span className="font-bold text-white text-base tracking-wide">
-                            {isPro ? 'Plan Negocios' : 'Plan Pro'}
+                            {isPro ? 'Plan Negocios' : 'Plan Básico'}
                         </span>
                     </div>
-                    <p className="text-sm text-gray-300 mb-4 leading-relaxed font-light">
-                        {isPro ? 'Para agencias que necesitan escalar sin límites.' : 'Desbloquea dominios, IA avanzada y WhatsApp.'}
+                    <p className="text-xs text-gray-300 mb-4 relative z-10">
+                        {isPro ? 'Desbloquea generación ilimitada y soporte prioritario.' : 'Actualiza para crear más proyectos y usar IA avanzada.'}
                     </p>
                     <button 
                         onClick={() => setShowUpgradeModal(true)}
-                        className={`w-full py-2.5 rounded-lg text-xs font-bold transition shadow-lg transform hover:scale-[1.02] relative z-10 uppercase tracking-wider ${isPro ? 'bg-white text-purple-950 hover:bg-purple-50' : 'bg-white text-orange-950 hover:bg-orange-50'}`}
+                        className={`w-full py-2.5 rounded-xl font-bold text-xs transition relative z-10 shadow-lg ${isPro ? 'bg-white text-purple-900 hover:bg-gray-100' : 'bg-white text-orange-900 hover:bg-gray-100'}`}
                     >
-                        {isPro ? 'Actualizar a MAX ⚡' : 'Actualizar a PRO 🚀'}
+                        Mejorar Plan
                     </button>
                 </div>
             </div>
         )}
-
-        <div className="p-4 border-t border-gray-800 bg-[#0a0a0a] z-10">
-          <div 
-            onClick={() => setShowProfileModal(true)}
-            className="flex items-center gap-3 px-4 py-3 mb-2 cursor-pointer hover:bg-gray-800 rounded-xl transition group relative border border-transparent hover:border-gray-700"
-          >
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold uppercase overflow-hidden shadow-lg">
-              {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
-              ) : (
-                  user.name.charAt(0)
-              )}
-            </div>
-            <div className="flex-1 text-sm overflow-hidden">
-              <p className="font-bold text-white truncate group-hover:text-primary transition-colors text-base">{user.name}</p>
-              <div className="flex items-center gap-2">
-                  <p className="text-xs text-gray-400 truncate">{user.role === 'admin' ? 'Administrador' : currentPlan.toUpperCase()}</p>
-              </div>
-            </div>
-            <Settings className="w-5 h-5 text-gray-600 group-hover:text-white transition opacity-0 group-hover:opacity-100" />
-          </div>
-          <button
-            onClick={onLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-900/10 rounded-xl transition text-sm font-medium"
-          >
-            <LogOut className="w-4 h-4" /> Cerrar Sesión
-          </button>
-        </div>
       </aside>
 
-      <div className="md:hidden fixed top-0 w-full bg-gray-900 border-b border-gray-800 z-20 flex items-center justify-between p-4">
-        <span className="font-bold text-lg text-white">Aprende.Marketing</span>
-        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white">
-          {mobileMenuOpen ? <X /> : <Menu />}
-        </button>
-      </div>
+      <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
+        {/* Mobile Overlay */}
+        {mobileMenuOpen && <div className="fixed inset-0 bg-black/80 z-30 md:hidden" onClick={() => setMobileMenuOpen(false)}></div>}
 
-      {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 bg-gray-900 z-10 pt-20 px-4 overflow-y-auto">
-           <nav className="space-y-2 pb-10">
-            {menuStructure.map(item => (
-              <NavItemRender key={item.id} item={item} />
-            ))}
-            
-            <div className="mt-4 mb-4">
-                <button 
-                    onClick={() => { setShowProfileModal(true); setMobileMenuOpen(false); }}
-                    className="w-full p-4 rounded-xl border border-white/10 text-left bg-gray-800 flex items-center gap-3"
-                >
-                    <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center font-bold text-white">
-                        {user.name.charAt(0)}
-                    </div>
-                    <div>
-                        <p className="text-white font-bold text-sm">Mi Perfil</p>
-                        <p className="text-xs text-gray-400">Editar datos y plan</p>
-                    </div>
-                </button>
+        <header className="h-20 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-gray-800 flex items-center justify-between px-6 shrink-0 z-30">
+             <div className="flex items-center gap-4">
+                 <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-gray-400 hover:text-white">
+                     <Menu className="w-6 h-6" />
+                 </button>
+                 <h2 className="text-xl font-bold text-white hidden sm:block">
+                     Hola, {user.name.split(' ')[0]} 👋
+                 </h2>
+             </div>
+
+             <div className="flex items-center gap-4">
+                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold ${isOffline ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' : 'bg-green-500/10 text-green-500 border-green-500/20'}`}>
+                     {isOffline ? <WifiOff className="w-3.5 h-3.5" /> : <Wifi className="w-3.5 h-3.5" />}
+                     <span className="hidden sm:inline">{isOffline ? 'Modo Demo' : 'Conectado'}</span>
+                 </div>
+
+                 <button 
+                     onClick={() => setShowProfileModal(true)}
+                     className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-gray-800 border border-gray-700 hover:bg-gray-700 hover:border-gray-600 transition group"
+                 >
+                     <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold shadow-lg overflow-hidden border border-white/10">
+                         {user.avatarUrl ? (
+                             <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                         ) : (
+                             user.name.charAt(0).toUpperCase()
+                         )}
+                     </div>
+                     <span className="text-sm font-medium text-gray-300 group-hover:text-white hidden sm:block">{user.name}</span>
+                     <ChevronDown className="w-4 h-4 text-gray-500 group-hover:text-white" />
+                 </button>
+             </div>
+        </header>
+
+        <div className="flex-1 overflow-auto bg-black p-4 sm:p-8 relative">
+            <div className="max-w-[1600px] mx-auto">
+                 {/* Pass Context to Outlet (user, projectCount, pageCount) */}
+                 <Outlet context={{ user, projectCount, pageCount }} />
             </div>
-
-            <div className="border-t border-gray-800 my-4"></div>
-            <button onClick={onLogout} className="text-red-400 flex gap-2 mt-4 px-4 w-full items-center">
-              <LogOut className="w-5 h-5" /> Cerrar Sesión
-            </button>
-          </nav>
         </div>
-      )}
-
-      <main className="flex-1 p-6 md:p-10 overflow-y-auto mt-16 md:mt-0 bg-black">
-        {isOffline && (
-            <div className="mb-6 bg-yellow-900/20 border border-yellow-700/50 text-yellow-200 px-6 py-4 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-2 shadow-lg shadow-yellow-900/10">
-               <div className="flex items-center gap-3">
-                   <div className="p-2 bg-yellow-500/20 rounded-full">
-                       <Database className="w-5 h-5 text-yellow-400" />
-                   </div>
-                   <div>
-                       <p className="font-bold text-sm md:text-base">MODO PRUEBAS (OFFLINE) - MICROBLADING DEMO</p>
-                       <p className="text-xs text-yellow-300/70">Estás trabajando con datos simulados. Los cambios se perderán al recargar.</p>
-                   </div>
-               </div>
-               <button onClick={onLogout} className="text-xs bg-yellow-500/20 hover:bg-yellow-500/30 px-3 py-1.5 rounded-lg border border-yellow-500/30 transition">
-                   Salir
-               </button>
-            </div>
-        )}
-        {/* Pass user AND counts */}
-        <Outlet context={{ user, projectCount, pageCount }} />
-        
-        {/* Global Modals */}
-        <UpgradeModal 
-            isOpen={showUpgradeModal} 
-            onClose={() => setShowUpgradeModal(false)} 
-            currentPlan={currentPlan}
-        />
-
-        {showSuccessModal && (
-            <SubscriptionSuccessModal 
-                onClose={() => setShowSuccessModal(false)} 
-                planName={user.planLimits?.planName === 'max' ? 'Max' : 'Pro'} 
-            />
-        )}
-
-        {/* User Profile Modal (Lazy) */}
-        <Suspense fallback={null}>
-            {showProfileModal && (
-                <UserProfileModal 
-                    user={user} 
-                    onClose={() => setShowProfileModal(false)}
-                    onUpdateUser={(updatedUser) => {
-                        if (onUpdateUser) onUpdateUser(updatedUser);
-                    }}
-                />
-            )}
-        </Suspense>
       </main>
+
+      <Suspense fallback={null}>
+          {showProfileModal && (
+              <UserProfileModal 
+                  user={user} 
+                  onClose={() => setShowProfileModal(false)}
+                  onUpdateUser={(u) => {
+                      if (onUpdateUser) onUpdateUser(u);
+                  }}
+              />
+          )}
+      </Suspense>
+
+      <UpgradeModal 
+          isOpen={showUpgradeModal} 
+          onClose={() => setShowUpgradeModal(false)} 
+          currentPlan={user.planLimits?.planName}
+      />
+
+      {showSuccessModal && (
+          <SubscriptionSuccessModal 
+              onClose={() => setShowSuccessModal(false)} 
+              planName={user.planLimits?.planName}
+          />
+      )}
     </div>
   );
 };

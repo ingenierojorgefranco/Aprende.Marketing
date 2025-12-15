@@ -171,6 +171,34 @@ const initDb = async () => {
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
 
+        // 12. CRM TABLES (NEW)
+        await connection.query(`CREATE TABLE IF NOT EXISTS crm_contacts (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id ${userIdType} NOT NULL, -- Owner (Producer)
+            page_id INT NULL, -- Source Landing Page
+            name VARCHAR(255),
+            email VARCHAR(255),
+            phone VARCHAR(50),
+            country VARCHAR(100),
+            address TEXT,
+            source VARCHAR(255), -- 'Landing Page: X' or 'Manual'
+            status VARCHAR(50) DEFAULT 'new', -- new, contacted, interested, closed, lost
+            interest_level VARCHAR(50) DEFAULT 'cold', -- cold, warm, hot
+            last_contacted_at DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        await connection.query(`CREATE TABLE IF NOT EXISTS crm_activities (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            contact_id INT NOT NULL,
+            type VARCHAR(50), -- note, status_change, system, lead_submission
+            content TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (contact_id) REFERENCES crm_contacts(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
         // Tablas existentes del sistema (Projects, Pages, etc.)
         const tables = [
             {
