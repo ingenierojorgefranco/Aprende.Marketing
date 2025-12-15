@@ -136,6 +136,18 @@ export const api = {
       });
   },
 
+  submitLead: async (data: { pageId: string; name: string; email: string; phone?: string }): Promise<void> => {
+      if (isMockMode) {
+          console.log("Mock Lead Submitted:", data);
+          return Promise.resolve();
+      }
+      await fetchWithFallback('/public/leads/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+      });
+  },
+
   getPages: async (): Promise<LandingPage[]> => {
     if (isMockMode) return Promise.resolve([...localPages]);
     

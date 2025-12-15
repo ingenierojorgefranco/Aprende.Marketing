@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, Suspense } from 'react';
 import { User } from '../../types';
 import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff } from 'lucide-react';
@@ -32,8 +33,28 @@ export const DashboardLayout = ({
   isOffline,
   onUpdateUser
 }: DashboardLayoutProps) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Helper function to determine active menu ID based on current path
+  const getActiveMenuId = (pathname: string) => {
+    if (pathname === '/dashboard') return 'dashboard';
+    if (pathname.startsWith('/dashboard/admin')) return 'admin';
+    if (pathname.startsWith('/dashboard/training')) return 'training';
+    if (pathname.startsWith('/dashboard/crm')) return 'crm';
+    if (pathname.startsWith('/dashboard/projects')) return 'projects';
+    // 'mid-landing' covers pages list, generator, and editor
+    if (pathname.startsWith('/dashboard/pages') || pathname.startsWith('/dashboard/generator') || pathname.startsWith('/dashboard/editor')) return 'mid-landing';
+    // 'content-gen' covers articles list and creator
+    if (pathname.startsWith('/dashboard/articles') || pathname.startsWith('/dashboard/content-creator')) return 'content-gen';
+    // 'tools' covers email, whatsapp, copy-pro
+    if (pathname.startsWith('/dashboard/email') || pathname.startsWith('/dashboard/whatsapp') || pathname.startsWith('/dashboard/copy-pro')) return 'tools';
+    
+    return null;
+  };
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [expandedMenu, setExpandedMenu] = useState<string | null>('mid-landing');
+  const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
   const [courseItems, setCourseItems] = useState<{ label: string; path: string; icon: any }[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -42,9 +63,6 @@ export const DashboardLayout = ({
   // Context Data State
   const [projectCount, setProjectCount] = useState(0);
   const [pageCount, setPageCount] = useState(0);
-
-  const location = useLocation();
-  const navigate = useNavigate();
 
   // Load dynamic courses menu & usage stats
   useEffect(() => {
@@ -73,6 +91,14 @@ export const DashboardLayout = ({
       };
       loadData();
   }, []); 
+
+  // Auto-expand menu based on current route
+  useEffect(() => {
+    const activeId = getActiveMenuId(location.pathname);
+    if (activeId) {
+      setExpandedMenu(activeId);
+    }
+  }, [location.pathname]);
 
   // Check for Subscription Success
   useEffect(() => {
@@ -176,23 +202,15 @@ export const DashboardLayout = ({
     setExpandedMenu(expandedMenu === id ? null : id);
   };
 
-  useEffect(() => {
-    menuStructure.forEach(item => {
-      if (item.subItems) {
-        const isActive = item.subItems.some(sub => location.pathname === sub.path);
-        if (isActive) {
-          setExpandedMenu(item.id);
-        }
-      }
-    });
-  }, [location.pathname, courseItems]);
-
   const NavItemRender: React.FC<{ item: MenuItem }> = ({ item }) => {
     if (item.adminOnly && user.role !== 'admin') return null;
 
     const hasSubItems = !!item.subItems && item.subItems.length > 0; 
     const isExpanded = expandedMenu === item.id;
-    const isActive = item.path === location.pathname || (hasSubItems && item.subItems?.some(sub => sub.path === location.pathname));
+    
+    // Determine active state based on ID mapping
+    const activeId = getActiveMenuId(location.pathname);
+    const isActive = activeId === item.id;
 
     return (
       <div className="mb-2">
@@ -206,7 +224,7 @@ export const DashboardLayout = ({
             }
           }}
           className={`w-full flex items-center justify-between px-5 py-4 rounded-xl transition-colors cursor-pointer ${
-            isActive && !hasSubItems
+            isActive
               ? 'bg-primary text-white shadow-lg shadow-primary/20'
               : 'text-gray-300 hover:bg-gray-800 hover:text-white'
           }`}

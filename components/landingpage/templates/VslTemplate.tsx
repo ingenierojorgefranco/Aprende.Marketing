@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { PlayCircle, Plus, Minus, CheckCircle, ScanFace, Palette, Feather, Award, Users, Star, BookOpen } from 'lucide-react';
@@ -206,7 +207,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
                 {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
             </p>
             <div className="flex justify-center">
-                <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={false} />
+                <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={false} centered={true} pageId={pageId} />
             </div>
         </div>
     </section>
@@ -321,7 +322,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
 
                     {/* 3. CTA / Form Section */}
                     <div className="w-full max-w-md animate-in slide-in-from-bottom-4 duration-700 delay-300">
-                        <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} centered={true} />
+                        <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} centered={true} pageId={pageId} />
                         
                         {/* Security Badge below CTA */}
                         <div className={`mt-6 flex items-center justify-center gap-2 text-xs opacity-70 ${ds.hero.subtitleColor}`}>

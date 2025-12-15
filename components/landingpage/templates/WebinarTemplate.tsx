@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { User, Target, Zap, CheckCircle, Plus, Minus, ScanFace, Palette, Feather, Star } from 'lucide-react';
@@ -179,7 +180,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
             <p className={`text-lg mb-10 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>
                 {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
             </p>
-            <div className="max-w-md mx-auto"><SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} /></div>
+            <div className="max-w-md mx-auto"><SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} /></div>
         </div>
     </section>
   );
@@ -241,7 +242,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
 
                 {/* 5. CTA (Moved to bottom) */}
                 <div id="hero-cta" className="w-full max-w-md mt-4 animate-in slide-in-from-bottom-4 duration-700">
-                    <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} centered={true} />
+                    <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} centered={true} pageId={pageId} />
                 </div>
             </div>
          </header>

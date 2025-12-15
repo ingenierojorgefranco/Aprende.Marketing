@@ -190,7 +190,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
             <p id="final-cta-desc" className={`text-lg mb-10 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>
                 {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
             </p>
-            <div className="max-w-md mx-auto"><SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} /></div>
+            <div className="max-w-md mx-auto"><SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} /></div>
         </div>
     </section>
   );
@@ -248,7 +248,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                     </div>
                 </div>
                 <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-5 lg:sticky lg:top-24 order-1 lg:order-2'}`}>
-                     <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} />
+                     <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} />
                 </div>
              </div>
           </div>

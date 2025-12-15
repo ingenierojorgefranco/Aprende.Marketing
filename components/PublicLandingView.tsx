@@ -36,9 +36,9 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
   const [error, setError] = useState<string | null>(null);
   const [debug, setDebug] = useState<DebugInfo | null>(null);
 
-  // BLOG ROUTING LOGIC
-  // Detect if we are in /blog or /blog/article-slug using the wildcard parameter
-  let viewMode: 'home' | 'blog-list' | 'blog-post' = 'home';
+  // BLOG & THANK YOU ROUTING LOGIC
+  // Detect if we are in /blog, /blog/article-slug or /thank-you using the wildcard parameter
+  let viewMode: 'home' | 'blog-list' | 'blog-post' | 'thank-you' = 'home';
   let articleSlug = '';
 
   // If using wildcard router
@@ -48,6 +48,8 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
       } else if (wildCard.startsWith('blog/')) {
           viewMode = 'blog-post';
           articleSlug = wildCard.replace('blog/', '');
+      } else if (wildCard === 'thank-you' || wildCard === 'thank-you/') {
+          viewMode = 'thank-you';
       }
   } 
   // If custom domain and path based routing logic (fallback)
@@ -59,6 +61,8 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
       } else {
           viewMode = 'blog-list';
       }
+  } else if (location.pathname.includes('/thank-you')) {
+      viewMode = 'thank-you';
   }
 
   useEffect(() => {
