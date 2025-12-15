@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, DestinationType } from '../../../types';
 import { api } from '../../../services/api';
-import { CheckCircle, Star, MessageCircle, ArrowRight, Lock, ShieldCheck, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Menu, X, DollarSign, FileText, Briefcase, Award, Users } from 'lucide-react';
+import { CheckCircle, Star, MessageCircle, ArrowRight, Lock, ShieldCheck, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Menu, X, DollarSign, FileText, Briefcase, Award, Users, Loader2 } from 'lucide-react';
 import { getIcon, renderRichText } from '../utils';
 
 // --- Navbar ---
@@ -218,33 +218,91 @@ export const Footer = ({ content, ds, isMobilePreview }: { content: GeneratedPag
     );
 }
 
-// --- Lead Capture Form ---
-const LeadCaptureForm = ({ btnClass, btnText, ds }: { btnClass: string, btnText: string, ds: any }) => (
-    <div id="lead-capture-form" className="space-y-4 relative z-10">
-        <div className="relative">
-            <div className={`absolute top-3.5 left-3 w-5 h-5 ${ds.cta.inputIconColor}`}><Users className="w-5 h-5" /></div>
-            <input 
-                id="input-name"
-                placeholder="Tu Nombre Completo" 
-                className={`w-full pl-10 pr-4 py-3 rounded-lg outline-none transition text-base ${ds.cta.inputBg} ${ds.cta.inputBorder} border ${ds.cta.inputText} ${ds.cta.inputPlaceholder} ${ds.cta.inputRing} focus:ring-2`} 
-            />
-        </div>
-        <div className="relative">
-            <div className={`absolute top-3.5 left-3 w-5 h-5 ${ds.cta.inputIconColor}`}><Mail className="w-5 h-5" /></div>
-            <input 
-                id="input-email"
-                placeholder="Tu Correo Principal" 
-                className={`w-full pl-10 pr-4 py-3 rounded-lg outline-none transition text-base ${ds.cta.inputBg} ${ds.cta.inputBorder} border ${ds.cta.inputText} ${ds.cta.inputPlaceholder} ${ds.cta.inputRing} focus:ring-2`} 
-            />
-        </div>
-        <button id="form-submit-btn" className={`w-full py-4 rounded-lg font-bold text-lg transition transform hover:scale-[1.02] active:scale-[0.98] ${btnClass}`}>
-            {btnText}
-        </button>
-    </div>
-);
+// --- Lead Capture Form (Enhanced for Thank You Page) ---
+const LeadCaptureForm = ({ btnClass, btnText, ds, pageId }: { btnClass: string, btnText: string, ds: any, pageId?: string }) => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        // Prevent default only for validation logic, otherwise let browser handle standard if needed
+        e.preventDefault(); 
+        
+        if (!name || !email) {
+            alert("Por favor completa todos los campos");
+            return;
+        }
+
+        if (!pageId) {
+            // Preview mode - just simulate
+            alert("Modo Vista Previa: El formulario funciona. En vivo redirigirá a /thanks.");
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            // Submit to CRM
+            await fetch('/api/public/leads/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pageId: pageId,
+                    name: name,
+                    email: email
+                })
+            });
+
+            // Redirect to Thank You Page
+            // Construct thanks URL relative to current path
+            const currentPath = window.location.pathname.replace(/\/$/, ''); // remove trailing slash
+            window.location.href = `${currentPath}/thanks`;
+
+        } catch (error) {
+            console.error("Submission error", error);
+            alert("Hubo un error al procesar tu registro. Intenta nuevamente.");
+            setSubmitting(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} id="lead-capture-form" className="space-y-4 relative z-10">
+            <div className="relative">
+                <div className={`absolute top-3.5 left-3 w-5 h-5 ${ds.cta.inputIconColor}`}><Users className="w-5 h-5" /></div>
+                <input 
+                    id="input-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Tu Nombre Completo" 
+                    className={`w-full pl-10 pr-4 py-3 rounded-lg outline-none transition text-base ${ds.cta.inputBg} ${ds.cta.inputBorder} border ${ds.cta.inputText} ${ds.cta.inputPlaceholder} ${ds.cta.inputRing} focus:ring-2`} 
+                    required
+                />
+            </div>
+            <div className="relative">
+                <div className={`absolute top-3.5 left-3 w-5 h-5 ${ds.cta.inputIconColor}`}><Mail className="w-5 h-5" /></div>
+                <input 
+                    id="input-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Tu Correo Principal" 
+                    className={`w-full pl-10 pr-4 py-3 rounded-lg outline-none transition text-base ${ds.cta.inputBg} ${ds.cta.inputBorder} border ${ds.cta.inputText} ${ds.cta.inputPlaceholder} ${ds.cta.inputRing} focus:ring-2`} 
+                    required
+                />
+            </div>
+            <button 
+                type="submit" 
+                disabled={submitting}
+                id="form-submit-btn" 
+                className={`w-full py-4 rounded-lg font-bold text-lg transition transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 ${btnClass} ${submitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
+                {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : btnText}
+            </button>
+        </form>
+    );
+};
 
 // --- Registration Modal ---
-export const RegistrationModal = ({ content, ds, onClose }: { content: GeneratedPageContent, ds: any, onClose: () => void }) => {
+export const RegistrationModal = ({ content, ds, onClose, pageId }: { content: GeneratedPageContent, ds: any, onClose: () => void, pageId?: string }) => {
     return (
         <div id="registration-modal" className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
@@ -257,7 +315,7 @@ export const RegistrationModal = ({ content, ds, onClose }: { content: Generated
                     <h3 id="modal-title" className={`text-2xl font-bold mb-2 ${ds.cta.cardTitleColor}`}>Reserva tu Cupo</h3>
                     <p id="modal-desc" className={`text-sm ${ds.cta.cardTextColor}`}>Completa el formulario para acceder ahora.</p>
                 </div>
-                <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.navCta || "Ingresar Ahora"} ds={ds} />
+                <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.navCta || "Ingresar Ahora"} ds={ds} pageId={pageId} />
                 <div className={`mt-4 flex items-center justify-center gap-2 text-xs ${ds.cta.cardTextColor}`}>
                     <Lock className="w-3 h-3" /> Datos seguros y encriptados.
                 </div>
@@ -267,7 +325,7 @@ export const RegistrationModal = ({ content, ds, onClose }: { content: Generated
 };
 
 // --- Smart CTA ---
-export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, centered = false }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean, fullWidth?: boolean, centered?: boolean }) => {
+export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, centered = false, pageId }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean, fullWidth?: boolean, centered?: boolean, pageId?: string }) => {
     const dest = content.destination;
     
     const handleClick = () => {
@@ -308,7 +366,7 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
 
           {/* Body Content */}
           {dest.type === 'form' ? (
-              <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} />
+              <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} pageId={pageId} />
           ) : (
               <div className="space-y-4">
                   {/* Motivational visual cue for non-form */}

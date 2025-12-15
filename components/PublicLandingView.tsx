@@ -36,28 +36,34 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
   const [error, setError] = useState<string | null>(null);
   const [debug, setDebug] = useState<DebugInfo | null>(null);
 
-  // BLOG ROUTING LOGIC
-  // Detect if we are in /blog or /blog/article-slug using the wildcard parameter
-  let viewMode: 'home' | 'blog-list' | 'blog-post' = 'home';
+  // ROUTING LOGIC (Blog & Thank You)
+  let viewMode: 'home' | 'blog-list' | 'blog-post' | 'thank-you' = 'home';
   let articleSlug = '';
 
-  // If using wildcard router
+  // 1. Check for Wildcard from React Router (e.g. /lp/slug/thanks)
   if (wildCard) {
-      if (wildCard === 'blog' || wildCard === 'blog/') {
+      if (wildCard === 'thanks' || wildCard === 'thanks/') {
+          viewMode = 'thank-you';
+      } else if (wildCard === 'blog' || wildCard === 'blog/') {
           viewMode = 'blog-list';
       } else if (wildCard.startsWith('blog/')) {
           viewMode = 'blog-post';
           articleSlug = wildCard.replace('blog/', '');
       }
   } 
-  // If custom domain and path based routing logic (fallback)
-  else if (location.pathname.includes('/blog')) {
-      const parts = location.pathname.split('/blog');
-      if (parts[1] && parts[1] !== '/' && parts[1] !== '') {
-          viewMode = 'blog-post';
-          articleSlug = parts[1].startsWith('/') ? parts[1].substring(1) : parts[1];
-      } else {
-          viewMode = 'blog-list';
+  // 2. Fallback for Custom Domains where path might be direct (e.g. domain.com/thanks)
+  // Need to verify if location.pathname matches specific patterns relative to root
+  else {
+      if (location.pathname.endsWith('/thanks')) {
+          viewMode = 'thank-you';
+      } else if (location.pathname.includes('/blog')) {
+          const parts = location.pathname.split('/blog');
+          if (parts[1] && parts[1] !== '/' && parts[1] !== '') {
+              viewMode = 'blog-post';
+              articleSlug = parts[1].startsWith('/') ? parts[1].substring(1) : parts[1];
+          } else {
+              viewMode = 'blog-list';
+          }
       }
   }
 
@@ -75,13 +81,9 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
       }
 
       // Construimos endpoint según si hay userSlug
-      // OJO: Si es custom domain, usamos by-domain. Si es ruta path, usamos by-user o by-slug generic.
       let endpoint = '';
       
       if (forcedSlug) {
-          // Es custom domain logic (forcedSlug viene del mapeo de dominio)
-          // Pero la logica original usaba by-domain con el host.
-          // Aqui reutilizamos el endpoint generico de slug para simplificar si ya tenemos el slug resuelto.
           endpoint = `${API_BASE}/public/pages/${encodeURIComponent(activeSlug)}`;
       } else if (userSlug) {
           endpoint = `${API_BASE}/public/pages/by-user/${encodeURIComponent(userSlug)}/${encodeURIComponent(activeSlug)}`;
