@@ -11,7 +11,7 @@ import {
 
 import { PublicHome } from "./components/PublicHome";
 import { Login } from "./components/Login";
-import { Register } from "./components/Register"; // Import Register
+import { Register } from "./components/Register";
 import { PublicLandingView } from "./components/PublicLandingView";
 
 // Dashboard Core
@@ -23,7 +23,7 @@ import { AdminPanel } from "./components/dashboard/admin/AdminPanel";
 import { AdminCourses } from "./components/dashboard/admin/AdminCourses";
 import { AdminComments } from "./components/dashboard/admin/AdminComments";
 import { AdminPlans } from "./components/dashboard/admin/AdminPlans"; 
-import { AdminLogs } from "./components/dashboard/admin/AdminLogs"; // NEW: Logs
+import { AdminLogs } from "./components/dashboard/admin/AdminLogs";
 
 // Dashboard Training
 import { TrainingViewer } from "./components/dashboard/training/TrainingViewer";
@@ -40,7 +40,10 @@ import { ArticlesList } from "./components/dashboard/tools/ArticlesList";
 import { ProjectWizard } from "./components/dashboard/tools/ProjectWizard";
 import { ProjectsList } from "./components/dashboard/tools/ProjectsList";
 import { MyPages } from "./components/dashboard/tools/MyPages";
-import { ProjectStrategyDashboard } from "./components/dashboard/tools/ProjectStrategyDashboard"; // NEW IMPORT
+import { ProjectStrategyDashboard } from "./components/dashboard/tools/ProjectStrategyDashboard";
+
+// Dashboard CRM (NUEVO)
+import { CRM_Layout } from "./components/dashboard/crm/CRM_Layout";
 
 import { User, LandingPage, Article } from "./types";
 import {
@@ -195,7 +198,6 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    // Attempt to notify server for logging purposes (best effort)
     try {
         await api.logout();
     } catch (e) {
@@ -206,7 +208,7 @@ const App: React.FC = () => {
     navigate("/");
   };
 
-  // --- HANDLERS PÁGINAS (Create & Redirect) ---
+  // --- HANDLERS PÁGINAS ---
   const handlePageGenerated = async (page: LandingPage) => {
     try {
       const savedPage = await api.createPage(page);
@@ -217,7 +219,7 @@ const App: React.FC = () => {
     }
   };
 
-  // --- HANDLERS ARTÍCULOS (Create/Update) ---
+  // --- HANDLERS ARTÍCULOS ---
   const handleArticleSave = async (articleData: any) => {
     try {
       if (articleData.id) {
@@ -339,11 +341,14 @@ const App: React.FC = () => {
           {/* TRAINING ROUTES */}
           <Route path="training/:moduleId" element={<TrainingViewer />} />
 
+          {/* CRM ROUTE (NUEVO) */}
+          <Route path="crm" element={<CRM_Layout />} />
+
           {/* PROJECT ROUTES */}
           <Route path="projects" element={<ProjectsList />} />
           <Route path="projects/create" element={<ProjectWizard />} />
           <Route path="projects/edit/:id" element={<ProjectWizard />} />
-          <Route path="projects/:id/strategy" element={<ProjectStrategyDashboard />} /> {/* NEW STRATEGY ROUTE */}
+          <Route path="projects/:id/strategy" element={<ProjectStrategyDashboard />} />
 
           {/* PAGES ROUTE */}
           <Route path="pages" element={<MyPages />} />

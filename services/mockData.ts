@@ -66,6 +66,18 @@ export const MOCK_CRM_CONTACTS: CRMContact[] = [
         interestLevel: "hot",
         createdAt: new Date(Date.now() - 604800000), // 7 days ago
         updatedAt: new Date()
+    },
+    {
+        id: "crm-4",
+        name: "Laura Martínez",
+        email: "laura.martinez@test.com",
+        phone: "+1 305 123 4567",
+        country: "USA",
+        source: "Instagram Ads",
+        status: "interested",
+        interestLevel: "warm",
+        createdAt: new Date(Date.now() - 432000000), // 5 days ago
+        updatedAt: new Date()
     }
 ];
 
@@ -73,7 +85,10 @@ export const MOCK_CRM_ACTIVITIES: CRMActivity[] = [
     { id: "act-1", contactId: "crm-1", type: "lead_submission", content: "Se registró en la Landing Page 'Landing Principal Microblading'", createdAt: new Date(Date.now() - 172800000) },
     { id: "act-2", contactId: "crm-1", type: "note", content: "Nota: Dice que le interesa pagar en cuotas. Volver a contactar mañana.", createdAt: new Date(Date.now() - 86400000) },
     { id: "act-3", contactId: "crm-2", type: "lead_submission", content: "Se registró en Webinar", createdAt: new Date(Date.now() - 259200000) },
-    { id: "act-4", contactId: "crm-2", type: "status_change", content: "Cambio de estado: Nuevo -> Contactado", createdAt: new Date() }
+    { id: "act-4", contactId: "crm-2", type: "status_change", content: "Cambio de estado: Nuevo -> Contactado", createdAt: new Date() },
+    { id: "act-5", contactId: "crm-3", type: "lead_submission", content: "Ingresado Manualmente", createdAt: new Date(Date.now() - 604800000) },
+    { id: "act-6", contactId: "crm-3", type: "status_change", content: "Cambio de estado: Interesado -> Cliente", createdAt: new Date() },
+    { id: "act-7", contactId: "crm-3", type: "note", content: "Cliente VIP. Compró el paquete completo.", createdAt: new Date() }
 ];
 
 // --- MOCK MASTER STRATEGY (Datos Centralizados del Dashboard) ---
