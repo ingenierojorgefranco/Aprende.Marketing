@@ -40,6 +40,7 @@ import { ArticlesList } from "./components/dashboard/tools/ArticlesList";
 import { ProjectWizard } from "./components/dashboard/tools/ProjectWizard";
 import { ProjectsList } from "./components/dashboard/tools/ProjectsList";
 import { MyPages } from "./components/dashboard/tools/MyPages";
+import { ProjectStrategyDashboard } from "./components/dashboard/tools/ProjectStrategyDashboard"; // NEW IMPORT
 
 import { User, LandingPage, Article } from "./types";
 import {
@@ -342,6 +343,7 @@ const App: React.FC = () => {
           <Route path="projects" element={<ProjectsList />} />
           <Route path="projects/create" element={<ProjectWizard />} />
           <Route path="projects/edit/:id" element={<ProjectWizard />} />
+          <Route path="projects/:id/strategy" element={<ProjectStrategyDashboard />} /> {/* NEW STRATEGY ROUTE */}
 
           {/* PAGES ROUTE */}
           <Route path="pages" element={<MyPages />} />

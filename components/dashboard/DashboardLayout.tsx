@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, Suspense } from 'react';
 import { User } from '../../types';
 import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity } from 'lucide-react';
@@ -196,7 +195,7 @@ export const DashboardLayout = ({
     const isActive = item.path === location.pathname || (hasSubItems && item.subItems?.some(sub => sub.path === location.pathname));
 
     return (
-      <div className="mb-1">
+      <div className="mb-2">
         <div
           onClick={() => {
             if (hasSubItems) {
@@ -206,37 +205,37 @@ export const DashboardLayout = ({
               setMobileMenuOpen(false);
             }
           }}
-          className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors cursor-pointer ${
+          className={`w-full flex items-center justify-between px-5 py-4 rounded-xl transition-colors cursor-pointer ${
             isActive && !hasSubItems
-              ? 'bg-primary text-white shadow-md shadow-primary/20'
-              : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+              ? 'bg-primary text-white shadow-lg shadow-primary/20'
+              : 'text-gray-300 hover:bg-gray-800 hover:text-white'
           }`}
         >
-          <div className="flex items-center gap-3">
-            <item.icon className="w-5 h-5" />
-            <span className="font-medium">{item.label}</span>
+          <div className="flex items-center gap-4">
+            <item.icon className="w-6 h-6" />
+            <span className="font-semibold text-base">{item.label}</span>
           </div>
           {hasSubItems && (
-            isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
+            isExpanded ? <ChevronDown className="w-5 h-5 text-gray-500" /> : <ChevronRight className="w-5 h-5 text-gray-500" />
           )}
         </div>
 
         {hasSubItems && (
           <div 
             className={`overflow-hidden transition-all duration-300 ease-in-out ${
-              isExpanded ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'
+              isExpanded ? 'max-h-[500px] opacity-100 mt-1' : 'max-h-0 opacity-0'
             }`}
           >
-            <div className="ml-4 pl-4 border-l border-gray-800 space-y-1">
+            <div className="ml-6 pl-4 border-l-2 border-gray-800 space-y-1">
               {item.subItems?.map((sub, idx) => (
                 <Link
                   key={idx}
                   to={sub.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`w-full flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-base transition-colors ${
                     location.pathname === sub.path
-                      ? 'text-primary bg-primary/10 font-medium'
-                      : 'text-gray-500 hover:text-gray-200'
+                      ? 'text-primary bg-primary/10 font-bold'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                   }`}
                 >
                   {sub.icon && <sub.icon className="w-4 h-4" />}
@@ -257,13 +256,13 @@ export const DashboardLayout = ({
 
   return (
     <div className="h-screen overflow-hidden bg-black text-gray-200 flex font-sans">
-      <aside className="hidden md:flex flex-col w-72 bg-gray-900 border-r border-gray-800">
-        <div className="p-6">
-          <h2 className="text-xl font-bold text-white tracking-tight">Aprende.<span className="text-primary">Marketing</span></h2>
-          <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">Panel de Control</p>
+      <aside className="hidden md:flex flex-col w-[25rem] bg-[#0a0a0a] border-r border-gray-800 shadow-2xl z-20">
+        <div className="p-8 pb-6">
+          <h2 className="text-2xl font-bold text-white tracking-tight">Aprende.<span className="text-primary">Marketing</span></h2>
+          <p className="text-xs text-gray-500 uppercase tracking-widest mt-1.5 font-bold">Panel de Control</p>
         </div>
         
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
           {menuStructure.map(item => (
             <NavItemRender key={item.id} item={item} />
           ))}
@@ -271,22 +270,23 @@ export const DashboardLayout = ({
 
         {/* Upgrade Widget */}
         {!isMax && (
-            <div className="px-4 pb-4">
-                <div className={`p-4 rounded-xl border border-white/10 shadow-lg ${isPro ? 'bg-gradient-to-br from-purple-900/80 to-indigo-900/80' : 'bg-gradient-to-br from-orange-900/80 to-red-900/80'}`}>
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className={`p-1.5 rounded-lg flex items-center justify-center ${isPro ? 'bg-purple-500/20 text-purple-300' : 'bg-orange-500/20 text-orange-300'}`}>
-                            {isPro ? <Crown className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
+            <div className="px-6 pb-6 pt-4">
+                <div className={`p-5 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group ${isPro ? 'bg-gradient-to-br from-purple-900/40 to-indigo-900/40' : 'bg-gradient-to-br from-orange-900/40 to-red-900/40'}`}>
+                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                    <div className="flex items-center gap-3 mb-3 relative z-10">
+                        <div className={`p-2 rounded-lg flex items-center justify-center shadow-lg ${isPro ? 'bg-purple-500 text-white' : 'bg-orange-500 text-white'}`}>
+                            {isPro ? <Crown className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
                         </div>
-                        <span className="font-bold text-white text-sm">
+                        <span className="font-bold text-white text-base tracking-wide">
                             {isPro ? 'Plan Negocios' : 'Plan Pro'}
                         </span>
                     </div>
-                    <p className="text-xs text-gray-300 mb-3 leading-relaxed">
+                    <p className="text-sm text-gray-300 mb-4 leading-relaxed font-light">
                         {isPro ? 'Para agencias que necesitan escalar sin límites.' : 'Desbloquea dominios, IA avanzada y WhatsApp.'}
                     </p>
                     <button 
                         onClick={() => setShowUpgradeModal(true)}
-                        className={`w-full py-2 rounded-lg text-xs font-bold transition shadow-lg transform hover:scale-[1.02] ${isPro ? 'bg-white text-purple-900 hover:bg-purple-50' : 'bg-white text-orange-900 hover:bg-orange-50'}`}
+                        className={`w-full py-2.5 rounded-lg text-xs font-bold transition shadow-lg transform hover:scale-[1.02] relative z-10 uppercase tracking-wider ${isPro ? 'bg-white text-purple-950 hover:bg-purple-50' : 'bg-white text-orange-950 hover:bg-orange-50'}`}
                     >
                         {isPro ? 'Actualizar a MAX ⚡' : 'Actualizar a PRO 🚀'}
                     </button>
@@ -294,12 +294,12 @@ export const DashboardLayout = ({
             </div>
         )}
 
-        <div className="p-4 border-t border-gray-800 bg-gray-900 z-10">
+        <div className="p-4 border-t border-gray-800 bg-[#0a0a0a] z-10">
           <div 
             onClick={() => setShowProfileModal(true)}
-            className="flex items-center gap-3 px-4 py-2 mb-2 cursor-pointer hover:bg-gray-800 rounded-lg transition group relative"
+            className="flex items-center gap-3 px-4 py-3 mb-2 cursor-pointer hover:bg-gray-800 rounded-xl transition group relative border border-transparent hover:border-gray-700"
           >
-            <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold uppercase overflow-hidden border border-primary/30">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold uppercase overflow-hidden shadow-lg">
               {user.avatarUrl ? (
                   <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
               ) : (
@@ -307,16 +307,16 @@ export const DashboardLayout = ({
               )}
             </div>
             <div className="flex-1 text-sm overflow-hidden">
-              <p className="font-semibold text-white truncate group-hover:text-primary transition-colors">{user.name}</p>
+              <p className="font-bold text-white truncate group-hover:text-primary transition-colors text-base">{user.name}</p>
               <div className="flex items-center gap-2">
-                  <p className="text-xs text-gray-500 truncate">{user.role === 'admin' ? 'Administrador' : currentPlan.toUpperCase()}</p>
+                  <p className="text-xs text-gray-400 truncate">{user.role === 'admin' ? 'Administrador' : currentPlan.toUpperCase()}</p>
               </div>
             </div>
-            <Settings className="w-4 h-4 text-gray-600 group-hover:text-white transition opacity-0 group-hover:opacity-100" />
+            <Settings className="w-5 h-5 text-gray-600 group-hover:text-white transition opacity-0 group-hover:opacity-100" />
           </div>
           <button
             onClick={onLogout}
-            className="w-full flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-red-900/20 rounded-lg transition text-sm"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-900/10 rounded-xl transition text-sm font-medium"
           >
             <LogOut className="w-4 h-4" /> Cerrar Sesión
           </button>

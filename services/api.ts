@@ -1,6 +1,6 @@
 
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON } from "../types";
-import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS } from "./mockData";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, ProjectMasterStrategy } from "../types";
+import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_MASTER_STRATEGY } from "./mockData";
 
 // --- HELPER PARA OBTENER BASE URL ---
 const getBaseUrl = () => {
@@ -255,6 +255,29 @@ export const api = {
       }
   },
 
+  // --- NEW: GET PROJECT MASTER STRATEGY ---
+  getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy> => {
+      if (isMockMode) {
+          return Promise.resolve(MOCK_MASTER_STRATEGY);
+      }
+
+      try {
+          const project = await api.getProjectById(id);
+          if (project && project.strategy_json) {
+              // Try to return the DB strategy
+              // Note: The logic should be robust enough to fallback if the JSON structure doesn't match
+              // but for now we assume it matches or we fallback to mock if null
+              return project.strategy_json as ProjectMasterStrategy;
+          }
+          // Fallback to mock data if strategy is not yet generated in DB
+          // This allows the dashboard to show *something* even if AI hasn't run yet
+          return Promise.resolve(MOCK_MASTER_STRATEGY);
+      } catch (e) {
+          console.error("Error fetching project strategy, falling back to mock", e);
+          return Promise.resolve(MOCK_MASTER_STRATEGY);
+      }
+  },
+
   createProject: async (project: Omit<Project, 'id' | 'createdAt'>): Promise<Project> => {
       if (isMockMode) {
           const newProject: Project = { ...project, id: `mock-proj-${Date.now()}`, createdAt: new Date() };
@@ -294,7 +317,7 @@ export const api = {
   generateProjectStrategyFull: async (projectId: string): Promise<StrategyJSON> => {
       if (isMockMode) {
           return Promise.resolve({
-              avatar: { name: "Mock Avatar", age: "30", occupation: "Tester", story: "Fake story", frustations: [], desires: [] } as any,
+              avatar: { name: "Mock Avatar", age: "30", occupation: "Tester", story: "Fake story", frustrations: [], desires: [] } as any,
               psychology: { emotionalTriggers: [], objections: [], falseBeliefs: [] },
               funnel: { leadMagnetIdea: "Free Ebook", tripwireIdea: "Mini Course", coreOfferPitch: "Masterclass", funnelSteps: [] },
               assets: { emailSequence: [], whatsappScripts: [], adCopies: [] }

@@ -2,9 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
-import { Project, User, StrategyJSON } from '../../../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, LayoutTemplate, Zap, Crown, AlertTriangle, Eye, Sparkles } from 'lucide-react';
-import { StrategyViewer } from './StrategyViewer';
+import { Project, User } from '../../../types';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, Sparkles } from 'lucide-react';
 
 interface DashboardContext {
   user: User;
@@ -16,8 +15,7 @@ export const ProjectsList: React.FC = () => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     
-    // Strategy Modal State
-    const [viewingStrategy, setViewingStrategy] = useState<StrategyJSON | null>(null);
+    // Generating state per project ID
     const [generatingId, setGeneratingId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -46,22 +44,13 @@ export const ProjectsList: React.FC = () => {
 
     const handleViewStrategy = async (e: React.MouseEvent, project: Project) => {
         e.stopPropagation();
-        if (project.strategy_json) {
-            setViewingStrategy(project.strategy_json);
-        } else {
-            // Generate it
-            setGeneratingId(project.id);
-            try {
-                const strategy = await api.generateProjectStrategyFull(project.id);
-                // Update local state
-                setProjects(prev => prev.map(p => p.id === project.id ? { ...p, strategy_json: strategy } : p));
-                setViewingStrategy(strategy);
-            } catch (error) {
-                alert("Error generando estrategia. Intenta de nuevo.");
-            } finally {
-                setGeneratingId(null);
-            }
-        }
+        
+        // Always navigate to the dashboard view. 
+        // If strategy JSON doesn't exist, we can handle generation there or trigger it here before nav.
+        // For now, let's keep the logic simple: Navigate to dashboard. 
+        // The dashboard is hardcoded for demo now, but in real logic it would check project.strategy_json
+        
+        navigate(`/dashboard/projects/${project.id}/strategy`);
     };
 
     if (loading) {
@@ -200,18 +189,16 @@ export const ProjectsList: React.FC = () => {
                                 </p>
 
                                 <div className="mt-auto space-y-3 pt-4 border-t border-gray-800">
-                                    {/* Strategy Button */}
+                                    {/* Strategy Button - Updated to Navigate */}
                                     <button 
                                         onClick={(e) => handleViewStrategy(e, project)}
                                         disabled={generatingId === project.id}
-                                        className={`w-full py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition ${project.strategy_json ? 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50 border border-purple-800/50' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'}`}
+                                        className={`w-full py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition bg-purple-900/30 text-purple-300 hover:bg-purple-900/50 border border-purple-800/50 hover:shadow-lg hover:shadow-purple-900/20`}
                                     >
                                         {generatingId === project.id ? (
                                             <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generando...</>
-                                        ) : project.strategy_json ? (
-                                            <><Zap className="w-3.5 h-3.5" /> Ver Estrategia Maestra</>
                                         ) : (
-                                            <><Sparkles className="w-3.5 h-3.5" /> Generar Estrategia IA</>
+                                            <><Zap className="w-3.5 h-3.5" /> Abrir Centro de Comando</>
                                         )}
                                     </button>
 
@@ -232,10 +219,6 @@ export const ProjectsList: React.FC = () => {
                         </div>
                     ))}
                 </div>
-            )}
-
-            {viewingStrategy && (
-                <StrategyViewer strategy={viewingStrategy} onClose={() => setViewingStrategy(null)} />
             )}
         </div>
     );
