@@ -555,7 +555,77 @@ const MICROBLADING_CONTENT: GeneratedPageContent = {
     socials: { facebook: "https://facebook.com", instagram: "https://instagram.com", twitter: "https://twitter.com" }
   },
   thankYouMessage: "¡Felicidades por tu compra! Revisa tu correo electrónico para acceder al área de miembros.",
-  redirectUrl: "https://www.google.com"
+  redirectUrl: "https://www.google.com",
+  
+  // NEW: THANK YOU PAGE MOCK CONTENT
+  thankYouPage: {
+      showSocials: true,
+      ctaLink: "https://chat.whatsapp.com/sample-group-link",
+      
+      // Hero
+      progressBarText: "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR.",
+      greenBadgeText: "RECIBE NUESTRO LIBRO DIGITAL 100% GRATIS",
+      headline: "PERFECTO, YA TIENES EL ACCESO A LA CLASE DE MICROBLADING DE CEJAS",
+      subheadline: "Sigue estos 2 pasos sencillos para asegurar tu cupo y recibir tu material de preparación gratuito.",
+      
+      // Steps
+      step1Title: "Revisa tu Correo",
+      step1Desc: "Acabamos de enviar el acceso a tu email.",
+      step1Warning: "Importante: Verifica tu bandeja de SPAM o Promociones.",
+      step1Subject: "Busca el asunto: \"Acceso a tu Clase...\"",
+      
+      step2Title: "Grupo VIP + Regalo",
+      step2Desc: "Únete al grupo de WhatsApp para recibir la mentoría y tu regalo de bienvenida.",
+      step2Badge: "¡Acción Requerida!",
+      step2BonusTitle: "Libro Digital GRATIS",
+      step2BonusValue: "Valor $19 USD",
+      
+      // Offer
+      offerTopTitle: "UNETE A NUESTRO GRUPO Y DESCARGA EL LIBRO GRATUITO",
+      offerHeadline: "Descarga: \"5 Errores Comunes que <span class=\"text-red-500 underline decoration-4 decoration-red-200\">Arruinan</span> el Microblading\"",
+      offerDescription: "Esta guía nace de la experiencia de profesionales del sector. Te compartimos los fallos más frecuentes y cómo prevenirlos paso a paso para resultados perfectos.",
+      bookTitle: "5 Errores",
+      bookSubtitle: "MICROBLADING PRO",
+      bookFooter: "GUÍA EXCLUSIVA 2025",
+      offerPriceRegular: "Precio Regular: $19 USD",
+      offerPriceFree: "HOY: $0.00 GRATIS",
+      offerBadge: "¡OFERTA FLASH!",
+      offerBullets: [
+          "Asimetrías y diseño incorrecto.",
+          "Tonos rojizos o grises (Colorimetría).",
+          "Mala cicatrización del pigmento.",
+          "Elección incorrecta de aguja."
+      ],
+      ctaButtonText: "UNIRME AL GRUPO Y DESCARGAR",
+      
+      // Extra
+      learningTitle: "Lo que aprenderás con esta Guía",
+      learningSubtitle: "Hemos acompañado a +2.500 personas a entender el proceso y preparar sus cejas para un resultado natural.",
+      learningItems: [
+          { title: "Errores #1-#5", description: "Causas y consecuencias de los fallos más comunes." },
+          { title: "Diseño Perfecto", description: "Reglas simples de simetría para rostros naturales." },
+          { title: "Colorimetría", description: "Evita tonos rojizos o grises con nuestra guía de pigmentos." },
+          { title: "Cuidados Post", description: "Cómo acelerar la cicatrización para retener el color." },
+          { title: "Elegir Profesional", description: "7 señales de alerta para identificar un buen técnico." },
+          { title: "Checklist", description: "Lista imprimible con todo lo que necesitas." }
+      ],
+      socialTitle: "Lo que dicen quienes ya leyeron",
+      socialSubtitle: "Consejos de profesionales del sector aplicados a la realidad.",
+      socialCountText: "Más de 1.240 descargas este mes",
+      socialItems: [
+          { name: "Paula G.", location: "Valencia", text: "Información clara, sin tecnicismos. Vale oro si es tu primera vez con el microblading." },
+          { name: "Laura M.", location: "Sevilla", text: "Por fin entendí por qué mis cejas quedaban grises. Con el eBook pude hablar con mi artista y corregimos el pigmento." },
+          { name: "Marta M.", location: "Málaga", text: "El checklist pre y post me salvó. Esta vez la cicatrización fue rapidísima." },
+          { name: "Ana R.", location: "Madrid", text: "Me ayudó a elegir profesional con criterio. Evité un sitio que no hacía pruebas de color." }
+      ],
+      faqTitle: "Preguntas Frecuentes",
+      faqItems: [
+          { question: "¿De verdad es gratis?", answer: "Sí, es un regalo de bienvenida para los nuevos miembros de nuestra comunidad de WhatsApp." },
+          { question: "¿Sirve si es mi primera vez?", answer: "Absolutamente. Está diseñado para principiantes que quieren entender el proceso antes de realizarlo." },
+          { question: "¿Incluye imágenes?", answer: "Sí, contiene guías visuales de simetría y ejemplos de resultados." },
+          { question: "¿Cómo recibo el eBook?", answer: "Al hacer clic en el botón verde, se abrirá WhatsApp. Una vez dentro del grupo, encontrarás el link de descarga en la descripción o mensajes fijados." }
+      ]
+  }
 };
 
 export const MOCK_PAGES: LandingPage[] = [

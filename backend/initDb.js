@@ -303,28 +303,25 @@ const initDb = async () => {
         await addColumnSafe(connection, 'articles', "page_id INT NULL");
         await addColumnSafe(connection, 'users', "role VARCHAR(50) DEFAULT 'user'");
         await addColumnSafe(connection, 'users', "plan_limits JSON NULL");
-        // NEW MIGRATIONS FOR USER PROFILE
         await addColumnSafe(connection, 'users', "avatar_url VARCHAR(500)");
         await addColumnSafe(connection, 'users', "birth_date DATE");
-        // NEW MIGRATION FOR CUSTOM REDIRECT
         await addColumnSafe(connection, 'users', "custom_redirect_url VARCHAR(500)");
         
-        // NEW STRIPE MIGRATIONS
         await addColumnSafe(connection, 'users', "stripe_customer_id VARCHAR(255)");
         await addColumnSafe(connection, 'users', "subscription_id VARCHAR(255)");
         await addColumnSafe(connection, 'users', "subscription_status VARCHAR(50)");
         
-        // Gestión Dinámica de Planes
         await addColumnSafe(connection, 'plans', "stripe_price_id VARCHAR(255)");
         
-        // Nuevas migraciones para Cursos y Comentarios
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");
         await addColumnSafe(connection, 'courses', "badge_text VARCHAR(100) DEFAULT 'Certificado'");
         await addColumnSafe(connection, 'courses', "order_index INT DEFAULT 0");
         await addColumnSafe(connection, 'courses', "is_active BOOLEAN DEFAULT TRUE");
 
+        // NEW: THANK YOU PAGE JSON COLUMN
+        await addColumnSafe(connection, 'landing_pages', "thankyoupage_json JSON");
+
         // --- SEED SYSTEM SETTINGS ---
-        // Insert default redirect if not exists
         await connection.query(`
             INSERT IGNORE INTO system_settings (setting_key, setting_value) 
             VALUES ('after_login_url', '/dashboard/training/bienvenida')
@@ -356,7 +353,7 @@ const initDb = async () => {
                     slug: 'pro',
                     description: 'Para Productores y Afiliados serios.',
                     price: 19.99,
-                    stripeId: 'price_1SdFBGRJVKdziYWKjz1MXdy1', // ID existente o placeholder
+                    stripeId: 'price_1SdFBGRJVKdziYWKjz1MXdy1', 
                     limits: JSON.stringify({
                         planName: 'pro',
                         maxProjects: 5,
@@ -372,7 +369,7 @@ const initDb = async () => {
                     slug: 'max',
                     description: 'Agencias y Escala masiva.',
                     price: 49.99,
-                    stripeId: 'price_1SdGwIRJVKdziYWKRDtjacOl', // ID Configurado por el usuario
+                    stripeId: 'price_1SdGwIRJVKdziYWKRDtjacOl', 
                     limits: JSON.stringify({
                         planName: 'max',
                         maxProjects: 100,
@@ -392,12 +389,10 @@ const initDb = async () => {
                 );
             }
         } else {
-            // Hotfix: Asegurar que el plan MAX tenga el ID correcto si ya existe pero está vacío
             await connection.query(`UPDATE plans SET stripe_price_id = 'price_1SdGwIRJVKdziYWKRDtjacOl' WHERE slug = 'max' AND (stripe_price_id IS NULL OR stripe_price_id = '')`);
         }
 
         // --- DATOS SEMILLA (SEED DATA) ---
-        // Insertar cursos por defecto si no existen
         const [existingCourses] = await connection.query("SELECT id FROM courses LIMIT 1");
         if (existingCourses.length === 0) {
             console.log('[DB Init] 🌱 Insertando datos semilla de cursos...');
@@ -412,12 +407,10 @@ const initDb = async () => {
             ]);
             const c1Id = c1.insertId;
 
-            // Módulos Curso 1
             const [m1] = await connection.query(`INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)`, [c1Id, 'Módulo 1: Fundamentos y Mentalidad', 1]);
             const [m2] = await connection.query(`INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)`, [c1Id, 'Módulo 2: Creación del Producto', 2]);
             const [m3] = await connection.query(`INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)`, [c1Id, 'Módulo 3: Configuración en Hotmart', 3]);
 
-            // Lecciones Módulo 1
             const pointsM1 = JSON.stringify(['Mentalidad de éxito', 'Nichos de mercado', 'Validación']);
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
                 [m1.insertId, 'Bienvenida al Curso', '5:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Introducción al mundo de los infoproductos.', pointsM1, 1]);
@@ -426,14 +419,12 @@ const initDb = async () => {
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
                 [m1.insertId, 'El Mapa del Tesoro: Nichos Rentables', '15:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Encuentra tu océano azul.', pointsM1, 3]);
 
-            // Lecciones Módulo 2
             const pointsM2 = JSON.stringify(['Estructura de curso', 'Grabación básica', 'Materiales PDF']);
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
                 [m2.insertId, 'Estructura de un Curso Ganador', '20:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Diseña tu temario.', pointsM2, 1]);
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
                 [m2.insertId, 'Grabación y Edición Básica', '18:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Herramientas low-cost.', pointsM2, 2]);
 
-            // Lecciones Módulo 3
             const pointsM3 = JSON.stringify(['Hotmart setup', 'Subida de archivos', 'Checkout']);
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
                 [m3.insertId, 'Registro y Configuración de Cuenta', '08:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Primeros pasos en la plataforma.', pointsM3, 1]);

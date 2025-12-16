@@ -37,7 +37,7 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
   const [debug, setDebug] = useState<DebugInfo | null>(null);
 
   // BLOG & THANK YOU ROUTING LOGIC
-  // Detect if we are in /blog, /blog/article-slug or /thank-you using the wildcard parameter
+  // Detect if we are in /blog, /blog/article-slug or /gracias using the wildcard parameter
   let viewMode: 'home' | 'blog-list' | 'blog-post' | 'thank-you' = 'home';
   let articleSlug = '';
 
@@ -48,7 +48,7 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
       } else if (wildCard.startsWith('blog/')) {
           viewMode = 'blog-post';
           articleSlug = wildCard.replace('blog/', '');
-      } else if (wildCard === 'thank-you' || wildCard === 'thank-you/') {
+      } else if (wildCard === 'gracias' || wildCard === 'gracias/') {
           viewMode = 'thank-you';
       }
   } 
@@ -61,7 +61,7 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
       } else {
           viewMode = 'blog-list';
       }
-  } else if (location.pathname.includes('/thank-you')) {
+  } else if (location.pathname.includes('/gracias')) {
       viewMode = 'thank-you';
   }
 

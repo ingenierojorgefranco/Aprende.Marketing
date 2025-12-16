@@ -240,12 +240,12 @@ const LeadCaptureForm = ({ btnClass, btnText, ds, pageId }: { btnClass: string, 
         setSubmitting(true);
         try {
             await api.submitLead({ pageId, name, email });
-            // Redirect to Thank You Page
+            // Redirect to Thank You Page (Updated to /gracias)
             // If we are in admin preview or public view, construct relative path
             const currentPath = location.pathname;
             // Remove trailing slash if present
             const basePath = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath;
-            navigate(`${basePath}/thank-you`);
+            navigate(`${basePath}/gracias`);
         } catch (error) {
             console.error("Error submitting lead:", error);
             alert("Hubo un error al registrar tus datos. Intenta nuevamente.");

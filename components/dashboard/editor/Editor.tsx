@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType, ThankYouPageConfig } from '../../../types';
-import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift } from 'lucide-react';
+import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift, AlertTriangle, Book, ShoppingBag } from 'lucide-react';
 import { LivePage } from '../../LivePage';
 
 // --- UI COMPONENTS EXTRACTED ---
@@ -185,9 +185,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const initialContent = {
       ...page.content,
       thankYouPage: page.content.thankYouPage || {
-          headline: "¡Felicidades! Ya estás dentro.",
-          subheadline: page.content.thankYouMessage || "Revisa tu correo electrónico para acceder al contenido.",
-          ctaText: "Unirme al Grupo VIP",
+          headline: "PERFECTO, YA TIENES EL ACCESO...",
+          subheadline: "Sigue los pasos a continuación...",
           ctaLink: "#",
           showSocials: true
       }
@@ -343,6 +342,62 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       }));
   };
 
+  // Helper for dynamic arrays in Thank You Config
+  const updateTyArray = (
+      arrayName: 'learningItems' | 'socialItems' | 'faqItems',
+      index: number,
+      field: string,
+      value: string
+  ) => {
+      setContent(prev => {
+          const tyConfig = { ...prev.thankYouPage! };
+          const items = [...(tyConfig[arrayName] as any[] || [])];
+          items[index] = { ...items[index], [field]: value };
+          return {
+              ...prev,
+              thankYouPage: {
+                  ...tyConfig,
+                  [arrayName]: items
+              }
+          };
+      });
+  };
+
+  // Helper for Bullet Points
+  const updateTyBullet = (index: number, value: string) => {
+      setContent(prev => {
+          const items = [...(prev.thankYouPage?.offerBullets || [])];
+          items[index] = value;
+          return {
+              ...prev,
+              thankYouPage: { ...prev.thankYouPage!, offerBullets: items }
+          };
+      });
+  };
+
+  const addTyItem = (arrayName: 'learningItems' | 'socialItems' | 'faqItems' | 'offerBullets') => {
+      setContent(prev => {
+          const tyConfig = { ...prev.thankYouPage! };
+          let newItem;
+          if (arrayName === 'learningItems') newItem = { title: 'Nuevo Título', description: 'Descripción' };
+          else if (arrayName === 'socialItems') newItem = { name: 'Cliente', location: 'Ciudad', text: 'Testimonio' };
+          else if (arrayName === 'faqItems') newItem = { question: 'Pregunta', answer: 'Respuesta' };
+          else if (arrayName === 'offerBullets') newItem = "Nuevo beneficio";
+
+          const items = [...(tyConfig[arrayName] as any[] || []), newItem];
+          return { ...prev, thankYouPage: { ...tyConfig, [arrayName]: items } };
+      });
+  };
+
+  const removeTyItem = (arrayName: 'learningItems' | 'socialItems' | 'faqItems' | 'offerBullets', index: number) => {
+      setContent(prev => {
+          const tyConfig = { ...prev.thankYouPage! };
+          const items = [...(tyConfig[arrayName] as any[] || [])];
+          items.splice(index, 1);
+          return { ...prev, thankYouPage: { ...tyConfig, [arrayName]: items } };
+      });
+  };
+
   const handleSave = async (publishState: boolean) => {
     setSaving(true);
     setIsPublished(publishState);
@@ -470,7 +525,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                   {/* === TAB: CONTENT === */}
                   {activeTab === 'content' && (
                       <>
-                        {/* 1. Encabezado (Merged Brand & Navbar) */}
+                        {/* 1. Encabezado */}
                         <SectionHeader id="header" title="Encabezado" icon={LayoutTemplate} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="header" openSection={openSection}>
                             {/* 1. Logo */}
@@ -775,11 +830,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                   </div>
                                 </div>
                              </div>
-
-                             <div className="pt-4 border-t border-gray-800">
-                                <Label>Mensaje de Agradecimiento (Post-Registro)</Label>
-                                <Input value={content.thankYouMessage || ''} onChange={(e) => setContent({...content, thankYouMessage: e.target.value})} />
-                             </div>
                         </SectionContent>
                       </>
                   )}
@@ -787,60 +837,159 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                   {/* === TAB: THANK YOU PAGE === */}
                   {activeTab === 'thankyou' && (
                       <div className="space-y-6 animate-in slide-in-from-left-2 duration-200 p-2">
-                          <div className="bg-green-900/10 border border-green-900/30 p-4 rounded-xl mb-4">
-                              <p className="text-xs text-green-300">
-                                  Configura la página que verán tus usuarios después de registrarse.
-                              </p>
-                          </div>
+                          
+                          {/* 1. Hero Config */}
+                          <SectionHeader id="ty-hero" title="Hero & Configuración" icon={Sparkles} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-hero" openSection={openSection}>
+                              <div><Label>Título Principal</Label><Input value={content.thankYouPage?.headline || ''} onChange={(e) => updateThankYouConfig('headline', e.target.value)} /></div>
+                              <div><Label>Mensaje / Subtítulo</Label><RichTextArea value={content.thankYouPage?.subheadline || ''} onChange={(e) => updateThankYouConfig('subheadline', e.target.value)} className="h-20"/></div>
+                              
+                              <div className="pt-4 border-t border-gray-800">
+                                  <Label>Texto Barra Progreso</Label>
+                                  <Input value={content.thankYouPage?.progressBarText || ''} onChange={(e) => updateThankYouConfig('progressBarText', e.target.value)} placeholder="¡ESPERA! SÓLO TE FALTA..." />
+                              </div>
+                              <div>
+                                  <Label>Texto Badge Verde</Label>
+                                  <Input value={content.thankYouPage?.greenBadgeText || ''} onChange={(e) => updateThankYouConfig('greenBadgeText', e.target.value)} placeholder="RECIBE NUESTRO LIBRO..." />
+                              </div>
 
-                          <div className="bg-black p-4 rounded-xl border border-gray-800">
-                              <div className="space-y-4">
-                                  <div>
-                                      <Label>Título Principal</Label>
-                                      <Input 
-                                          value={content.thankYouPage?.headline || ''} 
-                                          onChange={(e) => updateThankYouConfig('headline', e.target.value)} 
-                                          placeholder="¡Felicidades!"
-                                      />
-                                  </div>
-                                  <div>
-                                      <Label>Mensaje / Subtítulo</Label>
-                                      <RichTextArea 
-                                          value={content.thankYouPage?.subheadline || ''} 
-                                          onChange={(e) => updateThankYouConfig('subheadline', e.target.value)} 
-                                          className="h-24"
-                                      />
-                                  </div>
-                                  
-                                  <div className="pt-4 border-t border-gray-800">
-                                      <Label>Botón de Acción (CTA)</Label>
-                                      <div className="space-y-2 mt-2">
-                                          <Input 
-                                              value={content.thankYouPage?.ctaText || ''} 
-                                              onChange={(e) => updateThankYouConfig('ctaText', e.target.value)} 
-                                              placeholder="Texto del Botón"
-                                          />
-                                          <Input 
-                                              value={content.thankYouPage?.ctaLink || ''} 
-                                              onChange={(e) => updateThankYouConfig('ctaLink', e.target.value)} 
-                                              placeholder="Enlace (ej: Link de WhatsApp)"
-                                          />
-                                      </div>
-                                  </div>
+                              <div className="pt-4 border-t border-gray-800">
+                                  <Label>Link Grupo VIP (WhatsApp)</Label>
+                                  <Input value={content.thankYouPage?.ctaLink || ''} onChange={(e) => updateThankYouConfig('ctaLink', e.target.value)} placeholder="https://chat.whatsapp.com/..." />
+                              </div>
+                              <div className="pt-2">
+                                  <label className="flex items-center gap-2 cursor-pointer">
+                                      <input type="checkbox" checked={content.thankYouPage?.showSocials !== false} onChange={(e) => updateThankYouConfig('showSocials', e.target.checked)} className="accent-green-500 w-4 h-4"/>
+                                      <span className="text-gray-300 text-xs font-bold uppercase">Mostrar Footer Redes Sociales</span>
+                                  </label>
+                              </div>
+                          </SectionContent>
 
-                                  <div className="pt-4 border-t border-gray-800">
-                                      <label className="flex items-center gap-2 cursor-pointer">
-                                          <input 
-                                              type="checkbox" 
-                                              checked={content.thankYouPage?.showSocials !== false} 
-                                              onChange={(e) => updateThankYouConfig('showSocials', e.target.checked)}
-                                              className="accent-green-500 w-4 h-4"
-                                          />
-                                          <span className="text-gray-300 text-xs font-bold uppercase">Mostrar Redes Sociales</span>
-                                      </label>
+                          {/* 2. Paso 1 */}
+                          <SectionHeader id="ty-step1" title="Paso 1: Email" icon={MessageCircle} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-step1" openSection={openSection}>
+                              <div><Label>Título Paso 1</Label><Input value={content.thankYouPage?.step1Title || ''} onChange={(e) => updateThankYouConfig('step1Title', e.target.value)} placeholder="Revisa tu Correo" /></div>
+                              <div><Label>Descripción</Label><Input value={content.thankYouPage?.step1Desc || ''} onChange={(e) => updateThankYouConfig('step1Desc', e.target.value)} /></div>
+                              
+                              <div className="pt-2 bg-yellow-900/20 p-2 rounded border border-yellow-500/20">
+                                  <div><Label>Advertencia Spam</Label><Input value={content.thankYouPage?.step1Warning || ''} onChange={(e) => updateThankYouConfig('step1Warning', e.target.value)} className="bg-black/50" placeholder="Importante: Verifica..." /></div>
+                              </div>
+                              <div><Label>Asunto del Correo (Guía)</Label><Input value={content.thankYouPage?.step1Subject || ''} onChange={(e) => updateThankYouConfig('step1Subject', e.target.value)} placeholder='Busca: "Acceso..."' /></div>
+                          </SectionContent>
+
+                          {/* 3. Paso 2 */}
+                          <SectionHeader id="ty-step2" title="Paso 2: Comunidad" icon={Users} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-step2" openSection={openSection}>
+                              <div><Label>Título Paso 2</Label><Input value={content.thankYouPage?.step2Title || ''} onChange={(e) => updateThankYouConfig('step2Title', e.target.value)} placeholder="Grupo VIP" /></div>
+                              <div><Label>Descripción</Label><Input value={content.thankYouPage?.step2Desc || ''} onChange={(e) => updateThankYouConfig('step2Desc', e.target.value)} /></div>
+                              <div><Label>Badge de Acción (Rojo)</Label><Input value={content.thankYouPage?.step2Badge || ''} onChange={(e) => updateThankYouConfig('step2Badge', e.target.value)} placeholder="¡Acción Requerida!" /></div>
+                              
+                              <div className="grid grid-cols-2 gap-2 pt-2">
+                                  <div><Label>Título Bono</Label><Input value={content.thankYouPage?.step2BonusTitle || ''} onChange={(e) => updateThankYouConfig('step2BonusTitle', e.target.value)} placeholder="Libro Digital GRATIS" /></div>
+                                  <div><Label>Valor Bono</Label><Input value={content.thankYouPage?.step2BonusValue || ''} onChange={(e) => updateThankYouConfig('step2BonusValue', e.target.value)} placeholder="Valor $19 USD" /></div>
+                              </div>
+                          </SectionContent>
+
+                          {/* 4. Oferta Ebook */}
+                          <SectionHeader id="ty-offer" title="Oferta / Libro" icon={Book} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-offer" openSection={openSection}>
+                              <div><Label>Título Superior (Sección)</Label><Input value={content.thankYouPage?.offerTopTitle || ''} onChange={(e) => updateThankYouConfig('offerTopTitle', e.target.value)} /></div>
+                              <div><Label>Headline Oferta (Soporta HTML)</Label><RichTextArea value={content.thankYouPage?.offerHeadline || ''} onChange={(e) => updateThankYouConfig('offerHeadline', e.target.value)} className="h-20" /></div>
+                              <div><Label>Descripción Oferta</Label><RichTextArea value={content.thankYouPage?.offerDescription || ''} onChange={(e) => updateThankYouConfig('offerDescription', e.target.value)} className="h-24" /></div>
+                              
+                              <div className="pt-4 border-t border-gray-800">
+                                  <Label>Beneficios del Libro (Bullets)</Label>
+                                  <div className="space-y-2 mt-1">
+                                      {(content.thankYouPage?.offerBullets || []).map((bullet, i) => (
+                                          <div key={i} className="flex gap-2">
+                                              <Input value={bullet} onChange={(e) => updateTyBullet(i, e.target.value)} />
+                                              <button onClick={() => removeTyItem('offerBullets', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button>
+                                          </div>
+                                      ))}
+                                      <button onClick={() => addTyItem('offerBullets')} className="text-xs text-primary flex items-center gap-1 hover:underline"><Plus className="w-3 h-3"/> Agregar Bullet</button>
                                   </div>
                               </div>
-                          </div>
+
+                              <div className="pt-4 border-t border-gray-800">
+                                  <Label>Botón Descarga (CTA)</Label>
+                                  <Input value={content.thankYouPage?.ctaButtonText || ''} onChange={(e) => updateThankYouConfig('ctaButtonText', e.target.value)} />
+                              </div>
+                          </SectionContent>
+
+                          {/* 5. Detalles Libro (Visual) */}
+                          <SectionHeader id="ty-book-visual" title="Detalles Visuales Libro" icon={Image} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-book-visual" openSection={openSection}>
+                              <div className="grid grid-cols-2 gap-2">
+                                  <div><Label>Título Portada</Label><Input value={content.thankYouPage?.bookTitle || ''} onChange={(e) => updateThankYouConfig('bookTitle', e.target.value)} /></div>
+                                  <div><Label>Subtítulo Portada</Label><Input value={content.thankYouPage?.bookSubtitle || ''} onChange={(e) => updateThankYouConfig('bookSubtitle', e.target.value)} /></div>
+                              </div>
+                              <div><Label>Texto Pie (ej: Guía 2025)</Label><Input value={content.thankYouPage?.bookFooter || ''} onChange={(e) => updateThankYouConfig('bookFooter', e.target.value)} /></div>
+                              
+                              <div className="pt-2 border-t border-gray-800 mt-2">
+                                  <div className="grid grid-cols-2 gap-2">
+                                      <div><Label>Precio Regular</Label><Input value={content.thankYouPage?.offerPriceRegular || ''} onChange={(e) => updateThankYouConfig('offerPriceRegular', e.target.value)} /></div>
+                                      <div><Label>Precio Oferta</Label><Input value={content.thankYouPage?.offerPriceFree || ''} onChange={(e) => updateThankYouConfig('offerPriceFree', e.target.value)} /></div>
+                                  </div>
+                                  <div className="mt-2"><Label>Badge Oferta</Label><Input value={content.thankYouPage?.offerBadge || ''} onChange={(e) => updateThankYouConfig('offerBadge', e.target.value)} /></div>
+                              </div>
+                          </SectionContent>
+
+                          {/* 6. Aprenderás (List) */}
+                          <SectionHeader id="ty-learning" title="Temario (Aprenderás)" icon={List} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-learning" openSection={openSection}>
+                              <div><Label>Título Sección</Label><Input value={content.thankYouPage?.learningTitle || ''} onChange={(e) => updateThankYouConfig('learningTitle', e.target.value)} /></div>
+                              <div><Label>Subtítulo</Label><Input value={content.thankYouPage?.learningSubtitle || ''} onChange={(e) => updateThankYouConfig('learningSubtitle', e.target.value)} /></div>
+                              
+                              <div className="space-y-4 mt-4">
+                                  {(content.thankYouPage?.learningItems || []).map((item, i) => (
+                                      <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
+                                          <div className="absolute top-2 right-2"><button onClick={() => removeTyItem('learningItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
+                                          <div className="mb-2"><Label>Título Item</Label><Input value={item.title} onChange={(e) => updateTyArray('learningItems', i, 'title', e.target.value)} /></div>
+                                          <div><Label>Descripción</Label><Input value={item.description} onChange={(e) => updateTyArray('learningItems', i, 'description', e.target.value)} /></div>
+                                      </div>
+                                  ))}
+                                  <button onClick={() => addTyItem('learningItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Item</button>
+                              </div>
+                          </SectionContent>
+
+                          {/* 7. Social Proof */}
+                          <SectionHeader id="ty-social" title="Testimonios" icon={Star} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-social" openSection={openSection}>
+                              <div><Label>Título</Label><Input value={content.thankYouPage?.socialTitle || ''} onChange={(e) => updateThankYouConfig('socialTitle', e.target.value)} /></div>
+                              <div><Label>Contador (ej: +1000)</Label><Input value={content.thankYouPage?.socialCountText || ''} onChange={(e) => updateThankYouConfig('socialCountText', e.target.value)} /></div>
+                              
+                              <div className="space-y-4 mt-4">
+                                  {(content.thankYouPage?.socialItems || []).map((item, i) => (
+                                      <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
+                                          <div className="absolute top-2 right-2"><button onClick={() => removeTyItem('socialItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
+                                          <div className="grid grid-cols-2 gap-2 mb-2">
+                                              <div><Label>Nombre</Label><Input value={item.name} onChange={(e) => updateTyArray('socialItems', i, 'name', e.target.value)} /></div>
+                                              <div><Label>Ubicación</Label><Input value={item.location} onChange={(e) => updateTyArray('socialItems', i, 'location', e.target.value)} /></div>
+                                          </div>
+                                          <div><Label>Testimonio</Label><RichTextArea value={item.text} onChange={(e) => updateTyArray('socialItems', i, 'text', e.target.value)} className="h-16"/></div>
+                                      </div>
+                                  ))}
+                                  <button onClick={() => addTyItem('socialItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Testimonio</button>
+                              </div>
+                          </SectionContent>
+
+                          {/* 8. FAQ */}
+                          <SectionHeader id="ty-faq" title="Preguntas Frecuentes" icon={HelpCircle} openSection={openSection} toggleSection={toggleSection} />
+                          <SectionContent id="ty-faq" openSection={openSection}>
+                              <div><Label>Título FAQ</Label><Input value={content.thankYouPage?.faqTitle || ''} onChange={(e) => updateThankYouConfig('faqTitle', e.target.value)} /></div>
+                              
+                              <div className="space-y-4 mt-4">
+                                  {(content.thankYouPage?.faqItems || []).map((item, i) => (
+                                      <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
+                                          <div className="absolute top-2 right-2"><button onClick={() => removeTyItem('faqItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
+                                          <div className="mb-2"><Label>Pregunta</Label><Input value={item.question} onChange={(e) => updateTyArray('faqItems', i, 'question', e.target.value)} /></div>
+                                          <div><Label>Respuesta</Label><RichTextArea value={item.answer} onChange={(e) => updateTyArray('faqItems', i, 'answer', e.target.value)} className="h-16"/></div>
+                                      </div>
+                                  ))}
+                                  <button onClick={() => addTyItem('faqItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Pregunta</button>
+                              </div>
+                          </SectionContent>
+
                       </div>
                   )}
 

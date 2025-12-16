@@ -152,13 +152,24 @@ export const api = {
     if (isMockMode) return Promise.resolve([...localPages]);
     
     const pages = await fetchWithFallback('/pages', { method: 'GET', headers: getAuthHeaders() });
-    return pages.map((p: any) => ({
-        ...p,
-        id: String(p.id),
-        isPublished: !!(p.isPublished || p.is_published),
-        content: typeof p.content === 'string' ? JSON.parse(p.content) : p.content,
-        createdAt: new Date(p.created_at || p.createdAt)
-    }));
+    
+    // Map backend response (which might include raw thankyoupage_json) to frontend Structure
+    return pages.map((p: any) => {
+        const content = typeof p.content === 'string' ? JSON.parse(p.content) : p.content;
+        
+        // If DB has separated TY JSON, merge it here if backend didn't already
+        if (p.thankyoupage_json && !content.thankYouPage) {
+            content.thankYouPage = typeof p.thankyoupage_json === 'string' ? JSON.parse(p.thankyoupage_json) : p.thankyoupage_json;
+        }
+
+        return {
+            ...p,
+            id: String(p.id),
+            isPublished: !!(p.isPublished || p.is_published),
+            content: content,
+            createdAt: new Date(p.created_at || p.createdAt)
+        };
+    });
   },
 
   getPageById: async (id: string): Promise<LandingPage | null> => {

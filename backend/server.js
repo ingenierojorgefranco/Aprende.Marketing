@@ -17,7 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v19_crm_integration'; 
+const SERVER_VERSION = 'v20_ty_json_integration'; 
 
 app.enable('trust proxy');
 
@@ -1639,7 +1639,7 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT * FROM landing_pages WHERE custom_domain = ? AND is_published = 1 LIMIT 1',
+      'SELECT *, thankyoupage_json FROM landing_pages WHERE custom_domain = ? AND is_published = 1 LIMIT 1',
       [host]
     );
 
@@ -1660,6 +1660,13 @@ app.get('/api/public/pages/by-domain', async (req, res) => {
     if (typeof page.content === 'string') {
         try { page.content = JSON.parse(page.content); } catch {}
     }
+
+    // Merge Thank You Data if exists
+    if (page.thankyoupage_json) {
+        const tyData = typeof page.thankyoupage_json === 'string' ? JSON.parse(page.thankyoupage_json) : page.thankyoupage_json;
+        if (!page.content) page.content = {};
+        page.content.thankYouPage = tyData;
+    }
     
     res.json(page);
   } catch (error) {
@@ -1672,7 +1679,7 @@ app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
   const { userSlug, slug } = req.params;
   try {
     const [rows] = await pool.query(
-      `SELECT lp.* FROM landing_pages lp
+      `SELECT lp.*, lp.thankyoupage_json FROM landing_pages lp
        INNER JOIN users u ON u.id = lp.user_id
        WHERE u.public_subdomain = ? AND lp.subdomain = ? AND lp.is_published = 1 LIMIT 1`,
       [userSlug, slug]
@@ -1687,6 +1694,14 @@ app.get('/api/public/pages/by-user/:userSlug/:slug', async (req, res) => {
     }
 
     if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
+
+    // Merge Thank You Data if exists
+    if (page.thankyoupage_json) {
+        const tyData = typeof page.thankyoupage_json === 'string' ? JSON.parse(page.thankyoupage_json) : page.thankyoupage_json;
+        if (!page.content) page.content = {};
+        page.content.thankYouPage = tyData;
+    }
+
     res.json(page);
   } catch (e) {
     res.status(500).json({ error: 'Error interno' });
@@ -1703,7 +1718,7 @@ app.get('/api/public/pages/:slug', async (req, res) => {
     // This solves issues where frontend links use ID as a fallback when subdomain is missing
     if (/^\d+$/.test(slug)) {
        [rows] = await pool.query(
-           'SELECT * FROM landing_pages WHERE id = ? AND is_published = 1 LIMIT 1',
+           'SELECT *, thankyoupage_json FROM landing_pages WHERE id = ? AND is_published = 1 LIMIT 1',
            [slug]
        );
     }
@@ -1711,7 +1726,7 @@ app.get('/api/public/pages/:slug', async (req, res) => {
     // If not found by ID (or slug wasn't numeric), try by subdomain/slug
     if (rows.length === 0) {
         [rows] = await pool.query(
-          'SELECT * FROM landing_pages WHERE (subdomain = ? OR subdomain LIKE ?) AND is_published = 1 LIMIT 1',
+          'SELECT *, thankyoupage_json FROM landing_pages WHERE (subdomain = ? OR subdomain LIKE ?) AND is_published = 1 LIMIT 1',
           [slug, `${slug}.%`]
         );
     }
@@ -1726,6 +1741,14 @@ app.get('/api/public/pages/:slug', async (req, res) => {
     }
 
     if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
+
+    // Merge Thank You Data if exists
+    if (page.thankyoupage_json) {
+        const tyData = typeof page.thankyoupage_json === 'string' ? JSON.parse(page.thankyoupage_json) : page.thankyoupage_json;
+        if (!page.content) page.content = {};
+        page.content.thankYouPage = tyData;
+    }
+
     res.json(page);
   } catch (e) {
     res.status(500).json({ error: 'Error interno' });
@@ -1819,7 +1842,20 @@ app.get('/api/analytics/summary', authMiddleware, async (req, res) => {
 // ======================================================
 app.get('/api/pages', authMiddleware, async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
+    const [rows] = await pool.query('SELECT *, thankyoupage_json FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
+    
+    // Process rows to merge tyPage
+    rows.forEach(page => {
+        if (typeof page.content === 'string') {
+            try { page.content = JSON.parse(page.content); } catch {}
+        }
+        if (page.thankyoupage_json) {
+            const tyData = typeof page.thankyoupage_json === 'string' ? JSON.parse(page.thankyoupage_json) : page.thankyoupage_json;
+            if (!page.content) page.content = {};
+            page.content.thankYouPage = tyData;
+        }
+    });
+
     res.json(rows);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -1844,9 +1880,15 @@ app.post('/api/pages', authMiddleware, async (req, res) => {
     }
     // -------------------
 
+    // Extract Thank You Page Data
+    const tyPage = content.thankYouPage;
+    if (tyPage) {
+        delete content.thankYouPage; // Remove from main blob to save space
+    }
+
     const [resDb] = await pool.query(
-      'INSERT INTO landing_pages (user_id, name, niche, goal, subdomain, content, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, 0, NOW())',
-      [req.user.id, name, niche, goal, subdomain, JSON.stringify(content)]
+      'INSERT INTO landing_pages (user_id, name, niche, goal, subdomain, content, thankyoupage_json, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 0, NOW())',
+      [req.user.id, name, niche, goal, subdomain, JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null]
     );
 
     // Log usage
@@ -1865,9 +1907,15 @@ app.put('/api/pages/:id', authMiddleware, async (req, res) => {
     const [check] = await pool.query('SELECT id FROM landing_pages WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
     if (check.length === 0) return res.status(403).json({ error: 'No autorizado' });
 
+    // Extract Thank You Page Data
+    const tyPage = content.thankYouPage;
+    if (tyPage) {
+        delete content.thankYouPage; 
+    }
+
     await pool.query(
-      'UPDATE landing_pages SET content = ?, is_published = ?, name = COALESCE(?, name), niche = COALESCE(?, niche) WHERE id = ?',
-      [JSON.stringify(content), isPublished, name, niche, req.params.id]
+      'UPDATE landing_pages SET content = ?, thankyoupage_json = ?, is_published = ?, name = COALESCE(?, name), niche = COALESCE(?, niche) WHERE id = ?',
+      [JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null, isPublished, name, niche, req.params.id]
     );
     res.json({ message: 'Actualizado' });
   } catch (e) { res.status(500).json({ error: e.message }); }

@@ -131,11 +131,59 @@ export interface DestinationConfig {
 }
 
 export interface ThankYouPageConfig {
+  // General
+  showSocials: boolean;
+  ctaLink: string;
+
+  // Hero
+  progressBarText?: string;
+  greenBadgeText?: string;
   headline: string;
   subheadline: string;
-  ctaText: string;
-  ctaLink: string;
-  showSocials: boolean;
+
+  // Step 1
+  step1Title?: string;
+  step1Desc?: string;
+  step1Warning?: string;
+  step1Subject?: string;
+
+  // Step 2
+  step2Title?: string;
+  step2Desc?: string;
+  step2Badge?: string;
+  step2BonusTitle?: string;
+  step2BonusValue?: string;
+
+  // Offer / Book
+  offerTopTitle?: string;
+  offerHeadline?: string;
+  offerDescription?: string;
+  bookTitle?: string;
+  bookSubtitle?: string;
+  bookFooter?: string;
+  offerPriceRegular?: string;
+  offerPriceFree?: string;
+  offerBadge?: string;
+  
+  // Lists & CTA
+  offerBullets?: string[];
+  ctaButtonText?: string;
+
+  // Extra Sections
+  learningTitle?: string;
+  learningSubtitle?: string;
+  learningItems?: Array<{ title: string; description: string }>;
+  
+  socialTitle?: string;
+  socialSubtitle?: string;
+  socialCountText?: string;
+  socialItems?: Array<{ name: string; location: string; text: string }>;
+  
+  faqTitle?: string;
+  faqItems?: Array<{ question: string; answer: string }>;
+  
+  // Legacy fields fallback
+  ctaText?: string; 
 }
 
 // Structure for the AI generated landing page
