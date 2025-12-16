@@ -67,7 +67,20 @@ export const DashboardLayout = ({
 
   // --- PLAN SIMULATION STATE (ADMIN ONLY) ---
   const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
-  const [simulatedPlanSlug, setSimulatedPlanSlug] = useState<string | null>(null);
+  
+  // Initialize from localStorage if exists
+  const [simulatedPlanSlug, setSimulatedPlanSlug] = useState<string | null>(() => {
+      return localStorage.getItem('admin_simulated_plan') || null;
+  });
+
+  // Persist simulation choice
+  useEffect(() => {
+      if (simulatedPlanSlug) {
+          localStorage.setItem('admin_simulated_plan', simulatedPlanSlug);
+      } else {
+          localStorage.removeItem('admin_simulated_plan');
+      }
+  }, [simulatedPlanSlug]);
 
   // Load dynamic courses menu & usage stats & plans
   useEffect(() => {

@@ -1,5 +1,4 @@
 
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
@@ -220,8 +219,8 @@ export const MyPages: React.FC = () => {
                                             : "bg-transparent text-gray-400 border-gray-700 hover:text-white hover:border-gray-500"
                                         }`}
                                     >
-                                        {page.customDomain ? <Settings className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
-                                        {page.customDomain ? "Editar Dominio" : "Añadir Dominio"}
+                                        {page.customDomain ? <CheckCircle className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
+                                        {page.customDomain ? "Ver Dominio" : "Añadir Dominio"}
                                     </button>
 
                                     <div className="flex gap-2">
@@ -262,7 +261,7 @@ export const MyPages: React.FC = () => {
                                 </div>
                             )}
                             <h2 className="text-2xl font-bold text-white mb-2">
-                                {selectedPageForDomain.customDomain ? "Dominio Activo" : "Dominios Personalizados"}
+                                {selectedPageForDomain.customDomain ? "Esta web tiene dominio" : "Dominios Personalizados"}
                             </h2>
                             <p className="text-gray-400 text-sm leading-relaxed">
                                 {selectedPageForDomain.customDomain 
