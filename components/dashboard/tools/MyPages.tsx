@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { LandingPage, User } from '../../../types';
-import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown } from 'lucide-react';
+import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, ExternalLink, MessageCircle } from 'lucide-react';
 
 interface DashboardContext {
   user: User;
@@ -16,6 +16,9 @@ export const MyPages: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [pageToDelete, setPageToDelete] = useState<LandingPage | null>(null);
     const [deleting, setDeleting] = useState(false);
+    
+    // Domain Configuration Modal State
+    const [domainModalPage, setDomainModalPage] = useState<LandingPage | null>(null);
 
     useEffect(() => {
         loadPages();
@@ -204,6 +207,25 @@ export const MyPages: React.FC = () => {
                                         </button>
                                     </div>
 
+                                    {/* Domain Configuration Button */}
+                                    {page.customDomain ? (
+                                        <a 
+                                            href={`https://${page.customDomain}`} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="w-full py-2.5 bg-green-900/20 border border-green-500/30 rounded-lg text-green-400 hover:text-green-300 flex items-center justify-center gap-2 transition text-xs font-bold"
+                                        >
+                                            <Globe className="w-3.5 h-3.5" /> {page.customDomain} <ExternalLink className="w-3 h-3" />
+                                        </a>
+                                    ) : (
+                                        <button 
+                                            onClick={() => setDomainModalPage(page)}
+                                            className="w-full py-2.5 bg-blue-900/10 border border-blue-500/20 border-dashed rounded-lg text-blue-400 hover:bg-blue-900/20 flex items-center justify-center gap-2 transition text-xs font-medium"
+                                        >
+                                            <Settings className="w-3.5 h-3.5" /> Configurar Dominio
+                                        </button>
+                                    )}
+
                                     <button onClick={() => setPageToDelete(page)} className="w-full py-2 text-red-500/60 hover:text-red-400 flex items-center justify-center gap-1.5 transition text-xs hover:bg-red-900/10 rounded-lg">
                                         <Trash2 className="w-3.5 h-3.5" /> Eliminar Página
                                     </button>
@@ -236,6 +258,47 @@ export const MyPages: React.FC = () => {
                                 {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} Sí, Eliminar
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {domainModalPage && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="bg-gray-900 border border-gray-700 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200 relative">
+                        <button onClick={() => setDomainModalPage(null)} className="absolute top-4 right-4 text-gray-500 hover:text-white transition">
+                            <X className="w-5 h-5" />
+                        </button>
+                        
+                        <div className="text-center mb-6">
+                            <div className="w-16 h-16 bg-blue-900/20 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
+                                <Globe className="w-8 h-8" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-2">Conecta tu Dominio</h3>
+                            <p className="text-sm text-gray-400">Personaliza la URL de tu página para mayor profesionalismo.</p>
+                        </div>
+
+                        <div className="bg-black/30 p-4 rounded-xl border border-gray-800 mb-6 text-sm text-gray-300 space-y-3">
+                            <p className="font-bold text-white flex items-center gap-2">
+                                <Settings className="w-4 h-4 text-gray-500" /> Configuración Técnica:
+                            </p>
+                            <p>Para conectar tu dominio, debes añadir un registro <strong>CNAME</strong> en tu proveedor de dominio apuntando a:</p>
+                            <code className="block bg-black p-2 rounded border border-gray-700 text-green-400 font-mono text-center select-all">
+                                cname.plataformadeventa.com
+                            </code>
+                        </div>
+
+                        <a 
+                            href={`https://wa.me/34641941902?text=${encodeURIComponent(`Deseo configurar mi dominio para la página: ${domainModalPage.name} (ID: ${domainModalPage.id})`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg shadow-green-900/20"
+                        >
+                            <MessageCircle className="w-5 h-5" /> Solicitar Integración vía WhatsApp
+                        </a>
+                        
+                        <p className="text-xs text-center text-gray-500 mt-4">
+                            Un agente configurará el SSL y la conexión por ti.
+                        </p>
                     </div>
                 </div>
             )}
