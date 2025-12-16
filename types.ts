@@ -1,4 +1,5 @@
 
+
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
   LOGIN = 'LOGIN',
@@ -25,6 +26,7 @@ export interface PlanLimits {
   planName: 'free' | 'starter' | 'pro' | 'max' | 'custom' | string;
   maxProjects: number;
   maxLandings: number;
+  maxDomains: number; // Nuevo límite de dominios
   maxArticles?: number; // Added optional
   features: PlanFeatures;
 }
@@ -197,10 +199,10 @@ export interface GeneratedPageContent {
   // New specific fields for better UX
   brandName?: string; // Visible name next to logo
   brandIcon?: string; // Icon name for the brand/logo
-  topTagline?: string; // e.g., "🔥 Clase Gratuita Online - Uñas"
-  navCta?: string; // Short CTA for navbar e.g., "Reservar Cupo"
+  topTagline?: string; // e.g. "🔥 Clase Gratuita Online - Uñas"
+  navCta?: string; // Short CTA for navbar e.g. "Reservar Cupo"
   navLinks?: Array<{ label: string; href: string }>; // Editable menu items
-  testimonialTitle?: string; // e.g., "Ellas ya cambiaron su historia:"
+  testimonialTitle?: string; // e.g. "Ellas ya cambiaron su historia:"
   testimonialSubtitle?: string; // e.g. "Ellas ya dieron el paso..."
   closingOfferText?: string; // New: Text above the final CTA e.g. "Quedan pocos cupos..."
   logoSvg?: string; // AI Generated SVG Logo string
@@ -282,6 +284,7 @@ export interface LandingPage {
   goal: string;
   isPublished: boolean;
   subdomain: string;
+  customDomain?: string; // New: Supports custom domains
   content: GeneratedPageContent;
   createdAt: Date;
   visits: number;

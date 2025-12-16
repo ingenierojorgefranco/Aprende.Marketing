@@ -805,7 +805,7 @@ export const api = {
                   description: 'Ideal para empezar sin riesgo.',
                   priceMonthly: 0,
                   currency: 'EUR',
-                  limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false } },
+                  limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, maxDomains: 1, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false } },
                   uiFeatures: ['1 Proyecto / Nicho', '3 Landing Pages', 'IA Básica', 'Marca de Agua'],
                   isActive: true,
                   isRecommended: false
@@ -817,7 +817,7 @@ export const api = {
                   description: 'Para Productores y Afiliados serios.',
                   priceMonthly: 19.99,
                   currency: 'EUR',
-                  limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true } },
+                  limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, maxDomains: 3, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true } },
                   uiFeatures: ['5 Proyectos', '20 Landing Pages', 'Bot WhatsApp', 'IA Avanzada', 'Sin Marca de Agua'],
                   isActive: true,
                   isRecommended: true

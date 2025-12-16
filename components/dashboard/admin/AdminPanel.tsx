@@ -254,6 +254,8 @@ export const AdminPanel: React.FC = () => {
             planName: 'starter',
             maxProjects: 1,
             maxLandings: 3,
+            maxDomains: 1,
+            maxArticles: 2,
             features: {
                 whatsappBot: false,
                 blogGenerator: false,
@@ -337,6 +339,8 @@ export const AdminPanel: React.FC = () => {
             planName: plan.slug,
             maxProjects: plan.limitsConfig.maxProjects,
             maxLandings: plan.limitsConfig.maxLandings,
+            maxDomains: plan.limitsConfig.maxDomains || 1,
+            maxArticles: plan.limitsConfig.maxArticles,
             features: { ...plan.limitsConfig.features }
         });
     };

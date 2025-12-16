@@ -37,6 +37,7 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
             planName: 'starter',
             maxProjects: 1,
             maxLandings: 3,
+            maxDomains: 1,
             features: {
                 whatsappBot: false,
                 blogGenerator: false,

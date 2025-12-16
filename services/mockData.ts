@@ -16,6 +16,7 @@ export const MOCK_USER: User = {
       planName: 'pro',
       maxProjects: 10,
       maxLandings: 50,
+      maxDomains: 5,
       features: {
           whatsappBot: true,
           blogGenerator: true,

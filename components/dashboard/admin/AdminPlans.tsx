@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Plan, PlanLimits } from '../../../types';
 import { api } from '../../../services/api';
@@ -9,6 +10,7 @@ const DEFAULT_LIMITS: PlanLimits = {
     maxProjects: 1,
     maxLandings: 1,
     maxArticles: 1,
+    maxDomains: 1, // Default limit
     features: {
         whatsappBot: false,
         blogGenerator: false,
@@ -56,7 +58,11 @@ export const AdminPlans: React.FC = () => {
     };
 
     const handleEdit = (plan: Plan) => {
-        setEditingPlan({ ...plan });
+        // Ensure defaults if missing properties
+        const safeLimits = { ...DEFAULT_LIMITS, ...plan.limitsConfig };
+        if (safeLimits.maxDomains === undefined) safeLimits.maxDomains = 1;
+
+        setEditingPlan({ ...plan, limitsConfig: safeLimits });
         setActiveTab('general');
     };
 
@@ -142,6 +148,7 @@ export const AdminPlans: React.FC = () => {
                         <div className="space-y-2 mb-6 text-sm text-gray-300">
                             <p>Proyectos: <strong>{plan.limitsConfig.maxProjects}</strong></p>
                             <p>Landings: <strong>{plan.limitsConfig.maxLandings}</strong></p>
+                            <p>Dominios: <strong>{plan.limitsConfig.maxDomains || 0}</strong></p>
                             <p>Artículos SEO: <strong>{plan.limitsConfig.maxArticles || 0}</strong></p>
                             <p>Features: {Object.values(plan.limitsConfig.features).filter(Boolean).length} activas</p>
                             {plan.stripePriceId && <p className="text-xs text-blue-400 truncate mt-2">Stripe: {plan.stripePriceId}</p>}
@@ -312,19 +319,34 @@ export const AdminPlans: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* NEW: Max Articles Input */}
-                                    <div className="mt-4">
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Artículos SEO</label>
-                                        <input 
-                                            type="number" 
-                                            value={editingPlan.limitsConfig.maxArticles || 0} 
-                                            onChange={(e) => setEditingPlan({
-                                                ...editingPlan, 
-                                                limitsConfig: { ...editingPlan.limitsConfig!, maxArticles: parseInt(e.target.value) }
-                                            })}
-                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-purple-500 outline-none"
-                                        />
-                                        <p className="text-[10px] text-gray-500 mt-1">Límite mensual de generación de artículos con IA.</p>
+                                    {/* NEW: Max Domains & Articles Input */}
+                                    <div className="grid grid-cols-2 gap-4 mt-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Dominios Personalizados</label>
+                                            <input 
+                                                type="number" 
+                                                value={editingPlan.limitsConfig.maxDomains || 0} 
+                                                onChange={(e) => setEditingPlan({
+                                                    ...editingPlan, 
+                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxDomains: parseInt(e.target.value) }
+                                                })}
+                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-green-500 outline-none"
+                                            />
+                                            <p className="text-[10px] text-gray-500 mt-1">Dominios propios (ej: .com).</p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Artículos SEO</label>
+                                            <input 
+                                                type="number" 
+                                                value={editingPlan.limitsConfig.maxArticles || 0} 
+                                                onChange={(e) => setEditingPlan({
+                                                    ...editingPlan, 
+                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxArticles: parseInt(e.target.value) }
+                                                })}
+                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-purple-500 outline-none"
+                                            />
+                                            <p className="text-[10px] text-gray-500 mt-1">Límite mensual de generación IA.</p>
+                                        </div>
                                     </div>
                                     
                                     <div className="pt-4 border-t border-gray-800 mt-4">

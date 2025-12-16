@@ -1,9 +1,10 @@
 
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { LandingPage, User } from '../../../types';
-import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown } from 'lucide-react';
+import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle } from 'lucide-react';
 
 interface DashboardContext {
   user: User;
@@ -16,6 +17,10 @@ export const MyPages: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [pageToDelete, setPageToDelete] = useState<LandingPage | null>(null);
     const [deleting, setDeleting] = useState(false);
+
+    // Domain Modal States
+    const [showDomainModal, setShowDomainModal] = useState(false);
+    const [selectedPageForDomain, setSelectedPageForDomain] = useState<LandingPage | null>(null);
 
     useEffect(() => {
         loadPages();
@@ -56,6 +61,17 @@ export const MyPages: React.FC = () => {
         } finally {
             setDeleting(false);
         }
+    };
+
+    // --- DOMAIN HANDLERS ---
+    const openDomainModal = (page: LandingPage) => {
+        setSelectedPageForDomain(page);
+        setShowDomainModal(true);
+    };
+
+    const closeDomainModal = () => {
+        setShowDomainModal(false);
+        setSelectedPageForDomain(null);
     };
 
     if (loading) {
@@ -195,6 +211,19 @@ export const MyPages: React.FC = () => {
                                         <PenTool className="w-4 h-4" /> Editar Diseño
                                     </button>
                                     
+                                    {/* DOMAIN MANAGEMENT BUTTON */}
+                                    <button 
+                                        onClick={() => openDomainModal(page)}
+                                        className={`w-full py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition border ${
+                                            page.customDomain 
+                                            ? "bg-green-900/20 text-green-400 border-green-900/50 hover:bg-green-900/30" 
+                                            : "bg-transparent text-gray-400 border-gray-700 hover:text-white hover:border-gray-500"
+                                        }`}
+                                    >
+                                        {page.customDomain ? <Settings className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
+                                        {page.customDomain ? "Editar Dominio" : "Añadir Dominio"}
+                                    </button>
+
                                     <div className="flex gap-2">
                                         <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="flex-1 py-2.5 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white flex items-center justify-center gap-2 transition text-xs font-medium">
                                             <LayoutTemplate className="w-3.5 h-3.5" /> Ver Online
@@ -211,6 +240,97 @@ export const MyPages: React.FC = () => {
                             </div>
                         );
                     })}
+                </div>
+            )}
+
+            {/* DOMAIN CONFIGURATION MODAL */}
+            {showDomainModal && selectedPageForDomain && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl p-6 relative animate-in zoom-in-95">
+                        <button onClick={closeDomainModal} className="absolute top-4 right-4 text-gray-500 hover:text-white p-1 rounded-full hover:bg-gray-800 transition">
+                            <X className="w-5 h-5" />
+                        </button>
+
+                        <div className="text-center mb-6">
+                            {selectedPageForDomain.customDomain ? (
+                                <div className="w-16 h-16 bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/20 shadow-lg shadow-green-500/10">
+                                    <CheckCircle className="w-8 h-8 text-green-500" />
+                                </div>
+                            ) : (
+                                <div className="w-16 h-16 bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20 shadow-lg shadow-blue-500/10">
+                                    <Globe className="w-8 h-8 text-blue-500" />
+                                </div>
+                            )}
+                            <h2 className="text-2xl font-bold text-white mb-2">
+                                {selectedPageForDomain.customDomain ? "Dominio Activo" : "Dominios Personalizados"}
+                            </h2>
+                            <p className="text-gray-400 text-sm leading-relaxed">
+                                {selectedPageForDomain.customDomain 
+                                    ? "Tu página ya está conectada y accesible." 
+                                    : "Personaliza tu enlace como www.tuempresa.com. Esto aumenta la confianza y tus ventas."
+                                }
+                            </p>
+                        </div>
+
+                        {selectedPageForDomain.customDomain ? (
+                            // CASE: DOMAIN CONNECTED
+                            <div className="space-y-4">
+                                <div className="bg-black/40 border border-green-500/30 rounded-xl p-4 text-center">
+                                    <p className="text-xs text-green-500 font-bold uppercase tracking-wider mb-1">Dominio Configurado</p>
+                                    <a href={`https://${selectedPageForDomain.customDomain}`} target="_blank" rel="noopener noreferrer" className="text-xl font-bold text-white hover:text-green-400 transition hover:underline">
+                                        {selectedPageForDomain.customDomain}
+                                    </a>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <a 
+                                        href={`https://${selectedPageForDomain.customDomain}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 py-3 rounded-lg bg-green-600 hover:bg-green-500 text-white font-bold transition shadow-lg shadow-green-900/20"
+                                    >
+                                        <ExternalLink className="w-4 h-4" /> Visitar
+                                    </a>
+                                    <a 
+                                        href={`https://wa.me/573000000000?text=Hola, necesito soporte para cambiar el dominio de mi página ID: ${selectedPageForDomain.id}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 py-3 rounded-lg border border-gray-600 hover:bg-gray-800 text-gray-300 hover:text-white font-medium transition"
+                                    >
+                                        <Settings className="w-4 h-4" /> Soporte
+                                    </a>
+                                </div>
+                            </div>
+                        ) : (
+                            // CASE: NO DOMAIN
+                            <div className="space-y-6">
+                                <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
+                                    <div className="flex items-start gap-3 mb-2">
+                                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                                        <p className="text-sm text-gray-300">Certificado SSL (Candado Seguro) Incluido</p>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                                        <p className="text-sm text-gray-300">Servidores CDN de Alta Velocidad</p>
+                                    </div>
+                                </div>
+
+                                <div className="text-center">
+                                    <p className="text-xs text-blue-300 font-bold bg-blue-900/20 py-1.5 px-3 rounded-full inline-block border border-blue-500/20">
+                                        ℹ️ En tu plan actual puedes añadir 2 dominios
+                                    </p>
+                                </div>
+
+                                <a 
+                                    href={`https://wa.me/573000000000?text=Hola, quiero configurar un dominio personalizado para mi página ID: ${selectedPageForDomain.id}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 transition-transform hover:scale-[1.02]"
+                                >
+                                    <MessageCircle className="w-5 h-5" /> Quiero configurar mi dominio
+                                </a>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
 
