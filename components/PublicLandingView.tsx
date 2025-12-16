@@ -37,12 +37,35 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
   const [debug, setDebug] = useState<DebugInfo | null>(null);
 
   // BLOG & THANK YOU ROUTING LOGIC
-  // Detect if we are in /blog, /blog/article-slug or /gracias using the wildcard parameter
+  // Detect if we are in /blog, /blog/article-slug or /gracias
   let viewMode: 'home' | 'blog-list' | 'blog-post' | 'thank-you' = 'home';
   let articleSlug = '';
 
-  // If using wildcard router
-  if (wildCard) {
+  // 1. CUSTOM DOMAIN LOGIC (Prioritize explicit path parsing when forcedSlug is present)
+  // This handles routes like /blog/my-article where the router might pass 'my-article' as wildcard
+  if (forcedSlug) {
+      if (location.pathname.includes('/gracias')) {
+          viewMode = 'thank-you';
+      } else if (location.pathname.includes('/blog')) {
+          // Remove trailing slash for consistency
+          const cleanPath = location.pathname.endsWith('/') ? location.pathname.slice(0, -1) : location.pathname;
+          
+          if (cleanPath.endsWith('/blog')) {
+              viewMode = 'blog-list';
+          } else {
+              // Extract slug after /blog/
+              const parts = cleanPath.split('/blog/');
+              if (parts.length > 1 && parts[1].trim() !== '') {
+                  viewMode = 'blog-post';
+                  articleSlug = parts[1];
+              } else {
+                  viewMode = 'blog-list';
+              }
+          }
+      }
+  } 
+  // 2. STANDARD ROUTING LOGIC (Wildcard based for /lp/:slug/* where wildcard contains the sub-path)
+  else if (wildCard) {
       if (wildCard === 'blog' || wildCard === 'blog/') {
           viewMode = 'blog-list';
       } else if (wildCard.startsWith('blog/')) {
@@ -51,18 +74,6 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
       } else if (wildCard === 'gracias' || wildCard === 'gracias/') {
           viewMode = 'thank-you';
       }
-  } 
-  // If custom domain and path based routing logic (fallback)
-  else if (location.pathname.includes('/blog')) {
-      const parts = location.pathname.split('/blog');
-      if (parts[1] && parts[1] !== '/' && parts[1] !== '') {
-          viewMode = 'blog-post';
-          articleSlug = parts[1].startsWith('/') ? parts[1].substring(1) : parts[1];
-      } else {
-          viewMode = 'blog-list';
-      }
-  } else if (location.pathname.includes('/gracias')) {
-      viewMode = 'thank-you';
   }
 
   useEffect(() => {
@@ -84,8 +95,7 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
       
       if (forcedSlug) {
           // Es custom domain logic (forcedSlug viene del mapeo de dominio)
-          // Pero la logica original usaba by-domain con el host.
-          // Aqui reutilizamos el endpoint generico de slug para simplificar si ya tenemos el slug resuelto.
+          // Usamos endpoint generico de slug para simplificar
           endpoint = `${API_BASE}/public/pages/${encodeURIComponent(activeSlug)}`;
       } else if (userSlug) {
           endpoint = `${API_BASE}/public/pages/by-user/${encodeURIComponent(userSlug)}/${encodeURIComponent(activeSlug)}`;
