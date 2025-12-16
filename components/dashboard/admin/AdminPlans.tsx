@@ -8,6 +8,7 @@ const DEFAULT_LIMITS: PlanLimits = {
     planName: 'custom',
     maxProjects: 1,
     maxLandings: 1,
+    maxArticles: 1,
     features: {
         whatsappBot: false,
         blogGenerator: false,
@@ -141,6 +142,7 @@ export const AdminPlans: React.FC = () => {
                         <div className="space-y-2 mb-6 text-sm text-gray-300">
                             <p>Proyectos: <strong>{plan.limitsConfig.maxProjects}</strong></p>
                             <p>Landings: <strong>{plan.limitsConfig.maxLandings}</strong></p>
+                            <p>Artículos SEO: <strong>{plan.limitsConfig.maxArticles || 0}</strong></p>
                             <p>Features: {Object.values(plan.limitsConfig.features).filter(Boolean).length} activas</p>
                             {plan.stripePriceId && <p className="text-xs text-blue-400 truncate mt-2">Stripe: {plan.stripePriceId}</p>}
                         </div>
@@ -309,8 +311,23 @@ export const AdminPlans: React.FC = () => {
                                             />
                                         </div>
                                     </div>
+
+                                    {/* NEW: Max Articles Input */}
+                                    <div className="mt-4">
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Artículos SEO</label>
+                                        <input 
+                                            type="number" 
+                                            value={editingPlan.limitsConfig.maxArticles || 0} 
+                                            onChange={(e) => setEditingPlan({
+                                                ...editingPlan, 
+                                                limitsConfig: { ...editingPlan.limitsConfig!, maxArticles: parseInt(e.target.value) }
+                                            })}
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-purple-500 outline-none"
+                                        />
+                                        <p className="text-[10px] text-gray-500 mt-1">Límite mensual de generación de artículos con IA.</p>
+                                    </div>
                                     
-                                    <div className="pt-4 border-t border-gray-800">
+                                    <div className="pt-4 border-t border-gray-800 mt-4">
                                         <h4 className="text-sm font-bold text-white mb-3">Feature Flags</h4>
                                         <div className="grid grid-cols-2 gap-3">
                                             {Object.entries(editingPlan.limitsConfig.features).map(([key, val]) => (

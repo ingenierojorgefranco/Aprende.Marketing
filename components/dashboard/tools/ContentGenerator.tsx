@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../../../services/geminiService';
 import { api } from '../../../services/api';
-import { Article, Project, LandingPage } from '../../../types';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Article, Project, LandingPage, User } from '../../../types';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { UpgradeModal } from '../UpgradeModal';
 
 // Importing Sub-Components from relative sibling folder
 import { Step1Inputs } from './content-generator/Step1Inputs';
@@ -17,11 +18,20 @@ interface ContentGeneratorProps {
     onSave?: (article: any) => Promise<void>;
 }
 
+interface DashboardContext {
+  user: User;
+  articleCount: number;
+}
+
 export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const { id: editArticleId } = useParams() as { id: string };
   const navigate = useNavigate();
+  const { user, articleCount } = useOutletContext() as DashboardContext;
+  
+  // Limit Check State
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
   const [topic, setTopic] = useState('');
   const [objective, setObjective] = useState('');
@@ -51,6 +61,17 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [saveLogs, setSaveLogs] = useState<string[]>([]);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+
+  // LIMIT CHECK EFFECT
+  useEffect(() => {
+      // Only check limits if creating new article (not editing)
+      if (!editArticleId && user.planLimits) {
+          const max = user.planLimits.maxArticles || 2;
+          if (articleCount >= max) {
+              setShowUpgradeModal(true);
+          }
+      }
+  }, [editArticleId, user, articleCount]);
 
   useEffect(() => {
     const fetchContext = async () => {
@@ -259,85 +280,93 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   }
 
   return (
-    <div className="h-full flex flex-col">
-      {step === 1 && (
-        <Step1Inputs 
-          userProjects={userProjects}
-          selectedProject={selectedProject}
-          onSelectProject={handleProjectSelect}
-          userPages={userPages}
-          selectedPageId={selectedPageId}
-          onSelectPage={setSelectedPageId}
-          topic={topic}
-          setTopic={setTopic}
-          objective={objective}
-          setObjective={setObjective}
-          keyword={keyword}
-          setKeyword={setKeyword}
-          onGenerate={handleGenerateTitles}
-          loading={loading}
-        />
-      )}
-
-      {step === 2 && (
-        <Step2Titles 
-          titleIdeas={titleIdeas}
-          onSelectTitle={handleSelectTitle}
-          onBack={() => setStep(1)}
-          loading={loading}
-        />
-      )}
-
-      {step === 3 && (
-        <Step3Outline 
-          outline={outline}
-          setOutline={setOutline}
-          ctaLink={ctaLink}
-          setCtaLink={setCtaLink}
-          onGenerate={handleGenerateArticle}
-          onBack={() => setStep(2)}
-          loading={loading}
-        />
-      )}
-
-      {step === 4 && (
-        <Step4Editor 
-          articleContent={articleContent}
-          setArticleContent={setArticleContent}
-          selectedTitle={selectedTitle}
-          articleTitle={articleTitle}
-          setArticleTitle={setArticleTitle}
-          slug={slug}
-          setSlug={setSlug}
-          selectedPageId={selectedPageId}
-          setSelectedPageId={setSelectedPageId}
-          userPages={userPages}
-          status={status}
-          setStatus={setStatus}
-          publishDate={publishDate}
-          setPublishDate={setPublishDate}
-          featuredImage={featuredImage}
-          setFeaturedImage={setFeaturedImage}
-          keyword={keyword}
-          setKeyword={setKeyword}
-          seoScore={seoScore}
-          setSeoScore={setSeoScore}
-          metaDescription={metaDescription}
-          setMetaDescription={setMetaDescription}
-          onSave={handleSaveArticle}
-          saving={saveStatus === 'saving'}
-          onBack={() => editArticleId ? navigate('/dashboard/articles') : setStep(3)}
-          isEditing={!!editArticleId}
-        />
-      )}
-
-      <SaveLogModal 
-        isOpen={isLogModalOpen}
-        saveStatus={saveStatus}
-        saveLogs={saveLogs}
-        onClose={() => setIsLogModalOpen(false)}
-        onRetry={handleSaveArticle}
+    <div className="h-full flex flex-col relative">
+      <UpgradeModal 
+          isOpen={showUpgradeModal} 
+          onClose={() => navigate('/dashboard/articles')} 
+          reason={`Has alcanzado el límite de ${user.planLimits?.maxArticles} artículos de tu plan ${user.planLimits?.planName}.`}
       />
+
+      <div className={showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}>
+          {step === 1 && (
+            <Step1Inputs 
+              userProjects={userProjects}
+              selectedProject={selectedProject}
+              onSelectProject={handleProjectSelect}
+              userPages={userPages}
+              selectedPageId={selectedPageId}
+              onSelectPage={setSelectedPageId}
+              topic={topic}
+              setTopic={setTopic}
+              objective={objective}
+              setObjective={setObjective}
+              keyword={keyword}
+              setKeyword={setKeyword}
+              onGenerate={handleGenerateTitles}
+              loading={loading}
+            />
+          )}
+
+          {step === 2 && (
+            <Step2Titles 
+              titleIdeas={titleIdeas}
+              onSelectTitle={handleSelectTitle}
+              onBack={() => setStep(1)}
+              loading={loading}
+            />
+          )}
+
+          {step === 3 && (
+            <Step3Outline 
+              outline={outline}
+              setOutline={setOutline}
+              ctaLink={ctaLink}
+              setCtaLink={setCtaLink}
+              onGenerate={handleGenerateArticle}
+              onBack={() => setStep(2)}
+              loading={loading}
+            />
+          )}
+
+          {step === 4 && (
+            <Step4Editor 
+              articleContent={articleContent}
+              setArticleContent={setArticleContent}
+              selectedTitle={selectedTitle}
+              articleTitle={articleTitle}
+              setArticleTitle={setArticleTitle}
+              slug={slug}
+              setSlug={setSlug}
+              selectedPageId={selectedPageId}
+              setSelectedPageId={setSelectedPageId}
+              userPages={userPages}
+              status={status}
+              setStatus={setStatus}
+              publishDate={publishDate}
+              setPublishDate={setPublishDate}
+              featuredImage={featuredImage}
+              setFeaturedImage={setFeaturedImage}
+              keyword={keyword}
+              setKeyword={setKeyword}
+              seoScore={seoScore}
+              setSeoScore={setSeoScore}
+              metaDescription={metaDescription}
+              setMetaDescription={setMetaDescription}
+              onSave={handleSaveArticle}
+              saving={saveStatus === 'saving'}
+              onBack={() => editArticleId ? navigate('/dashboard/articles') : setStep(3)}
+              isEditing={!!editArticleId}
+            />
+          )}
+
+          <SaveLogModal 
+            isOpen={isLogModalOpen}
+            saveStatus={saveStatus}
+            saveLogs={saveLogs}
+            onClose={() => setIsLogModalOpen(false)}
+            onRetry={handleSaveArticle}
+          />
+      </div>
     </div>
   );
 };

@@ -63,6 +63,7 @@ export const DashboardLayout = ({
   // Context Data State
   const [projectCount, setProjectCount] = useState(0);
   const [pageCount, setPageCount] = useState(0);
+  const [articleCount, setArticleCount] = useState(0);
 
   // --- PLAN SIMULATION STATE (ADMIN ONLY) ---
   const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
@@ -82,12 +83,14 @@ export const DashboardLayout = ({
               setCourseItems(items);
 
               // Usage Stats for Limits
-              const [projects, pages] = await Promise.all([
+              const [projects, pages, articles] = await Promise.all([
                   api.getProjects(),
-                  api.getPages()
+                  api.getPages(),
+                  api.getArticles()
               ]);
               setProjectCount(projects.length);
               setPageCount(pages.length);
+              setArticleCount(articles.length);
 
               // Load Plans if Admin
               if (user.role === 'admin') {
@@ -410,8 +413,8 @@ export const DashboardLayout = ({
 
         <div className="flex-1 overflow-auto bg-black p-4 sm:p-8 relative">
             <div className="max-w-[1600px] mx-auto">
-                 {/* Pass Context to Outlet (effectiveUser, projectCount, pageCount) */}
-                 <Outlet context={{ user: effectiveUser, projectCount, pageCount }} />
+                 {/* Pass Context to Outlet (effectiveUser, projectCount, pageCount, articleCount) */}
+                 <Outlet context={{ user: effectiveUser, projectCount, pageCount, articleCount }} />
             </div>
         </div>
       </main>

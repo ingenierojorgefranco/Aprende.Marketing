@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Tabs Data
 const LP_TABS_DATA = {
@@ -79,11 +80,14 @@ interface ProjectStrategy_WebSystemProps {
     setSelectedTyTab: (tab: string | null) => void;
     handleTooltipHover: (e: React.MouseEvent, content: string[]) => void;
     handleTooltipLeave: () => void;
+    existingPageId?: string | null;
+    onEditPage?: (id: string) => void;
 }
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
-    selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave 
+    selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, existingPageId, onEditPage 
 }) => {
+    const navigate = useNavigate();
 
     const renderTabContent = (tabKey: string) => {
         const data = LP_TABS_DATA[tabKey as keyof typeof LP_TABS_DATA] as any;
@@ -250,10 +254,10 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 </div>
                             </div>
 
-                            <div id="psd-lp-right-col" className="bg-gray-800/30 relative h-full order-1 md:order-2 border-l border-gray-800 flex flex-col justify-between p-8 gap-6">
-                                <div className="w-full relative flex-1 flex flex-col">
+                            <div id="psd-lp-right-col" className="bg-gray-800/30 relative h-full order-1 md:order-2 border-l border-gray-800 flex flex-col justify-center p-8 gap-6">
+                                <div className="w-full relative flex flex-col">
                                     {selectedLpTab ? (
-                                        <div id="psd-lp-dynamic-content" className="animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col justify-center gap-4">
+                                        <div id="psd-lp-dynamic-content" className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col justify-center gap-4">
                                             <div className="bg-blue-900/20 border border-blue-500/30 p-4 rounded-xl shadow-lg relative overflow-hidden">
                                                 <div className="absolute top-0 right-0 p-2 opacity-10"><Lightbulb className="w-12 h-12 text-blue-400" /></div>
                                                 <p className="text-blue-300 text-lg font-medium flex gap-3 relative z-10 leading-relaxed">
@@ -272,7 +276,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div id="psd-lp-mockup" className="animate-in fade-in duration-500 flex flex-col items-center justify-center h-full gap-8">
+                                        <div id="psd-lp-mockup" className="animate-in fade-in duration-500 flex flex-col items-center justify-center gap-8">
                                             <div className="w-full max-w-sm bg-[#0f1115] rounded-xl border border-gray-700 shadow-2xl overflow-hidden relative opacity-80 hover:opacity-100 transition duration-500">
                                                 <div className="h-8 bg-[#1a1b1e] border-b border-gray-700 flex items-center px-4 gap-2">
                                                     <div className="flex gap-1.5">
@@ -323,10 +327,22 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     )}
                                 </div>
 
-                                <div id="psd-lp-btn-container" className="w-full mt-6">
-                                    <button className="w-full max-w-sm mx-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-black shadow-xl shadow-amber-500/20 hover:from-yellow-400 hover:to-amber-500 hover:scale-[1.02] hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg">
-                                        <Wand2 className="w-6 h-6" /> Crea tu Web Automáticamente
-                                    </button>
+                                <div id="psd-lp-btn-container" className="w-full mt-2">
+                                    {existingPageId ? (
+                                        <button 
+                                            onClick={() => onEditPage && onEditPage(existingPageId)}
+                                            className="w-full max-w-sm mx-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/20 hover:from-blue-500 hover:to-indigo-500 hover:scale-[1.02] hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
+                                        >
+                                            <PenTool className="w-6 h-6" /> Editar Página Web
+                                        </button>
+                                    ) : (
+                                        <button 
+                                            onClick={() => navigate('/dashboard/generator')}
+                                            className="w-full max-w-sm mx-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-black shadow-xl shadow-amber-500/20 hover:from-yellow-400 hover:to-amber-500 hover:scale-[1.02] hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
+                                        >
+                                            <Wand2 className="w-6 h-6" /> Crea tu Web Automáticamente
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -379,10 +395,10 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     </div>
                                 </div>
                             </div>
-                            <div id="psd-ty-right-col" className="bg-gray-800/30 relative h-full order-2 md:order-2 border-l border-gray-800 flex flex-col justify-between p-8 gap-6">
-                                <div className="w-full relative flex-1 flex flex-col">
+                            <div id="psd-ty-right-col" className="bg-gray-800/30 relative h-full order-2 md:order-2 border-l border-gray-800 flex flex-col justify-center p-8 gap-6">
+                                <div className="w-full relative flex flex-col">
                                     {selectedTyTab ? (
-                                        <div id="psd-ty-dynamic-content" className="animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col justify-center gap-4">
+                                        <div id="psd-ty-dynamic-content" className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col justify-center gap-4">
                                             <div className="bg-green-900/20 border border-green-500/30 p-4 rounded-xl shadow-lg relative overflow-hidden">
                                                 <div className="absolute top-0 right-0 p-2 opacity-10"><Lightbulb className="w-12 h-12 text-green-400" /></div>
                                                 <p className="text-green-300 text-lg font-medium flex gap-3 relative z-10 leading-relaxed">
@@ -401,7 +417,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div id="psd-ty-mockup" className="animate-in fade-in duration-500 flex flex-col items-center justify-center h-full gap-8">
+                                        <div id="psd-ty-mockup" className="animate-in fade-in duration-500 flex flex-col items-center justify-center gap-8">
                                             <div className="w-full max-w-sm bg-[#0f1115] rounded-xl border border-gray-700 shadow-2xl overflow-hidden relative opacity-80 hover:opacity-100 transition duration-500">
                                                 <div className="h-6 bg-[#1a1b1e] border-b border-gray-700 flex items-center px-3 gap-1.5">
                                                     <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
@@ -433,7 +449,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     )}
                                 </div>
 
-                                <div id="psd-ty-btn-container" className="w-full mt-6 text-center">
+                                <div id="psd-ty-btn-container" className="w-full mt-2 text-center">
                                     <div className="mb-4 flex justify-center items-center gap-2 text-yellow-500 text-base font-bold animate-pulse">
                                         <AlertTriangle className="w-5 h-5" /> 
                                         <span>Para crear tu página de gracias primero debes crear tu Landing Page de Captación</span>

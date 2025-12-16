@@ -1,12 +1,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { Article, User } from '../../../types';
-import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
+import { UpgradeModal } from '../UpgradeModal';
 
 interface DashboardContext {
   user: User;
+  articleCount: number;
 }
 
 interface ArticlesListProps {
@@ -15,9 +17,10 @@ interface ArticlesListProps {
 
 export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   const navigate = useNavigate();
-  const { user } = useOutletContext() as DashboardContext; // Changed
+  const { user, articleCount } = useOutletContext() as DashboardContext; 
   const [localArticles, setLocalArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
       const fetchArticles = async () => {
@@ -46,6 +49,14 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   };
 
   const handleCreate = () => {
+      const maxArticles = user.planLimits?.maxArticles || 2;
+      
+      // Check Limit before creating
+      if (articleCount >= maxArticles) {
+          setShowUpgradeModal(true);
+          return;
+      }
+
       if (onCreateNew) onCreateNew();
       else navigate("/dashboard/content-creator");
   };
@@ -60,15 +71,29 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   }
 
   // Stats Logic
-  const totalArticles = localArticles.length;
-  const avgSeoScore = totalArticles > 0 
-    ? Math.round(localArticles.reduce((acc, curr) => acc + (curr.seoScore || 0), 0) / totalArticles) 
+  const avgSeoScore = localArticles.length > 0 
+    ? Math.round(localArticles.reduce((acc, curr) => acc + (curr.seoScore || 0), 0) / localArticles.length) 
     : 0;
-  const publishedCount = localArticles.filter(a => a.status === 'published').length;
+
+  // Plan Logic
+  const maxArticles = user.planLimits?.maxArticles || 2;
+  const usagePercent = Math.min(100, (articleCount / maxArticles) * 100);
+  const isStarter = user.planLimits?.planName === 'starter';
+
+  // Color logic for bar
+  let progressColor = "bg-green-500";
+  if (usagePercent > 50) progressColor = "bg-yellow-500";
+  if (usagePercent > 85) progressColor = "bg-red-500";
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
       
+      <UpgradeModal 
+          isOpen={showUpgradeModal} 
+          onClose={() => setShowUpgradeModal(false)} 
+          reason={`Has alcanzado el límite de ${maxArticles} artículos SEO de tu plan ${user.planLimits?.planName}.`}
+      />
+
       {/* HERO HEADER */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-purple-950/20 to-black border border-gray-800 shadow-2xl">
           <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
@@ -87,35 +112,41 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                       </p>
                   </div>
                   
-                  {/* Stats Panel */}
-                  <div className="grid grid-cols-2 gap-4 max-w-md">
-                      <div className="bg-black/30 backdrop-blur-md rounded-xl p-3 border border-white/10 shadow-inner flex items-center gap-3">
-                          <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400"><FileText className="w-5 h-5" /></div>
-                          <div>
-                              <p className="text-xl font-bold text-white leading-none">{totalArticles}</p>
-                              <p className="text-[10px] text-gray-400 uppercase tracking-wide">Artículos</p>
-                          </div>
+                  {/* Plan Usage Bar */}
+                  <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
+                      <div className="flex justify-between items-center mb-2 text-sm">
+                          <span className="text-gray-300 font-medium">Consumo de Artículos</span>
+                          <span className="text-white font-bold">{articleCount} / {maxArticles}</span>
                       </div>
-                      <div className="bg-black/30 backdrop-blur-md rounded-xl p-3 border border-white/10 shadow-inner flex items-center gap-3">
-                          <div className="p-2 bg-green-500/20 rounded-lg text-green-400"><BarChart className="w-5 h-5" /></div>
-                          <div>
-                              <p className="text-xl font-bold text-white leading-none">{avgSeoScore}</p>
-                              <p className="text-[10px] text-gray-400 uppercase tracking-wide">SEO Promedio</p>
-                          </div>
+                      <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                          <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
                       </div>
+                      {isStarter && usagePercent >= 80 && (
+                          <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
+                              <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
+                              <span>Estás cerca del límite mensual. Actualiza a PRO para generación ilimitada.</span>
+                          </div>
+                      )}
                   </div>
               </div>
 
               <div className="flex flex-col gap-4 shrink-0 w-full md:w-auto">
                   <button
                       onClick={handleCreate}
-                      className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:-translate-y-1"
+                      disabled={articleCount >= maxArticles}
+                      className={`group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden ${articleCount >= maxArticles ? 'bg-gray-700 cursor-not-allowed text-gray-400' : 'bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:-translate-y-1'}`}
                   >
                       <span className="relative z-10 flex items-center justify-center gap-2">
                           <PenTool className="w-5 h-5" /> 
-                          Redactar Nuevo
+                          {articleCount >= maxArticles ? 'Límite Alcanzado' : 'Redactar Nuevo'}
                       </span>
                   </button>
+                  
+                  {isStarter && (
+                      <button className="px-8 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02] border border-yellow-400/20">
+                          <Crown className="w-4 h-4 fill-current" /> Pasar a Plan PRO
+                      </button>
+                  )}
               </div>
           </div>
       </div>

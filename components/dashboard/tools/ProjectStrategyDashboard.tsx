@@ -34,6 +34,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     const [strategyData, setStrategyData] = useState<ProjectMasterStrategy | null>(null);
     const [loading, setLoading] = useState(true);
+    const [existingPageId, setExistingPageId] = useState<string | null>(null);
 
     // INTERACTIVE STATES
     const [activeWaScript, setActiveWaScript] = useState(0);
@@ -59,28 +60,43 @@ export const ProjectStrategyDashboard: React.FC = () => {
         content: []
     });
 
-    // --- LOAD STRATEGY DATA ---
+    // --- LOAD STRATEGY & PAGES DATA ---
     useEffect(() => {
-        const loadStrategy = async () => {
+        const loadData = async () => {
             setLoading(true);
             try {
-                const data = await api.getProjectStrategy(id);
+                // Fetch Strategy and Pages in parallel to check for existing landing page
+                const [strategy, pages] = await Promise.all([
+                    api.getProjectStrategy(id),
+                    api.getPages()
+                ]);
+
                 // Map icons from strings to components if coming from JSON
-                if (data.meta.insights.overview.items) {
-                    data.meta.insights.overview.items = data.meta.insights.overview.items.map(item => ({
+                if (strategy.meta.insights.overview.items) {
+                    strategy.meta.insights.overview.items = strategy.meta.insights.overview.items.map(item => ({
                         ...item,
                         icon: typeof item.icon === 'string' ? iconMap[item.icon] || Sparkles : item.icon
                     }));
                 }
-                setStrategyData(data);
+                setStrategyData(strategy);
+
+                // Logic: Find if a page exists with the EXACT same name as the project
+                // This allows "Smart Flexibility" - treating the project name as the unique key for the "Main" landing page
+                const match = pages.find(p => p.name === strategy.meta.projectName);
+                if (match) {
+                    setExistingPageId(match.id);
+                } else {
+                    setExistingPageId(null);
+                }
+
             } catch (error) {
-                console.error("Failed to load strategy", error);
+                console.error("Failed to load strategy or pages", error);
             } finally {
                 setLoading(false);
             }
         };
         if (id) {
-            loadStrategy();
+            loadData();
         }
     }, [id]);
 
@@ -223,10 +239,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     onOpenVideo={() => setShowVideoModal(true)} 
                 />
 
-                {/* NOTE: WebSystem currently uses hardcoded tabs data in its component. 
-                    Ideally, this should also be dynamic from strategyData.modules.web
-                    Passing null/default props for now to not break it until WebSystem component is updated to accept props 
-                */}
                 <ProjectStrategy_WebSystem 
                     selectedLpTab={selectedLpTab}
                     setSelectedLpTab={setSelectedLpTab}
@@ -234,6 +246,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     setSelectedTyTab={setSelectedTyTab}
                     handleTooltipHover={handleTooltipHover}
                     handleTooltipLeave={handleTooltipLeave}
+                    existingPageId={existingPageId}
+                    onEditPage={(pageId) => navigate(`/dashboard/editor/${pageId}`)}
                 />
 
                 <ProjectStrategy_Content 
@@ -262,15 +276,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     setActiveEvergreenEmail={setActiveEvergreenEmail}
                     onUpgrade={() => setShowUpgradeModal(true)}
                 />
-
-                {/* SECTION DISABLED BY USER REQUEST
-                <ProjectStrategy_WhatsApp 
-                    whatsappData={strategyData.modules.whatsapp}
-                    activeWaScript={activeWaScript}
-                    setActiveWaScript={setActiveWaScript}
-                    onUpgrade={() => setShowUpgradeModal(true)}
-                />
-                */}
 
                 <div id="psd-system-summary-footer" className="w-full mx-auto py-12 border-y border-gray-800 bg-[#0a0a0a]">
                     <div className="max-w-[1400px] mx-auto px-6 text-center">
