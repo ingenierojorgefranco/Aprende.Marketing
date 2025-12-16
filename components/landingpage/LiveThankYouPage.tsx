@@ -49,7 +49,15 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
 
   return (
     <div className={`min-h-screen font-sans ${ds.bg} flex flex-col selection:bg-green-200 selection:text-green-900`}>
-      <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={false} />
+      <Navbar 
+          content={content} 
+          ds={ds} 
+          isMobilePreview={isMobilePreview} 
+          pageId={pageId} 
+          basePath={basePath} 
+          hasBlogArticles={false} 
+          isThankYouPage={true} 
+      />
 
       <main className="flex-1 flex flex-col">
 

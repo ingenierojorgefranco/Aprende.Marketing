@@ -7,7 +7,23 @@ import { getIcon, renderRichText } from '../utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 // --- Navbar ---
-export const Navbar = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean, pageId?: string, basePath?: string, hasBlogArticles: boolean }) => {
+export const Navbar = ({ 
+    content, 
+    ds, 
+    isMobilePreview, 
+    pageId, 
+    basePath, 
+    hasBlogArticles, 
+    isThankYouPage = false 
+}: { 
+    content: GeneratedPageContent, 
+    ds: any, 
+    isMobilePreview: boolean, 
+    pageId?: string, 
+    basePath?: string, 
+    hasBlogArticles: boolean,
+    isThankYouPage?: boolean 
+}) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -74,8 +90,8 @@ export const Navbar = ({ content, ds, isMobilePreview, pageId, basePath, hasBlog
         id="barra-navegacion"
         className={`w-full z-50 transition-all duration-300 ${currentBg} ${isScrolled ? 'fixed top-0 left-0' : 'absolute top-0 left-0'}`}
       >
-          <div className="w-full max-w-[75em] mx-auto px-6 py-4 flex justify-between items-center relative gap-4">
-            <a href={basePath || '/'} id="nav-brand-container" className={`flex items-center gap-2 md:gap-3 font-bold tracking-tight transition-colors duration-300 ${currentTextColor} flex-1 min-w-0 mr-2 hover:opacity-80`}>
+          <div className={`w-full max-w-[75em] mx-auto px-6 py-4 flex ${isThankYouPage ? 'justify-center' : 'justify-between'} items-center relative gap-4`}>
+            <a href={basePath || '/'} id="nav-brand-container" className={`flex items-center gap-2 md:gap-3 font-bold tracking-tight transition-colors duration-300 ${currentTextColor} ${isThankYouPage ? 'flex-none' : 'flex-1 min-w-0 mr-2'} hover:opacity-80`}>
               <div id="nav-logo-icon" className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition-transform flex-shrink-0 ${ds.nav.logoBg} ${ds.nav.logoText}`}>
                  {content.brandIcon ? getIcon(content.brandIcon, <Sparkles className="w-5 h-5" />) : (
                     content.logoSvg ? <div className="w-5 h-5 md:w-6 md:h-6" dangerouslySetInnerHTML={{ __html: content.logoSvg }} /> : <Anchor className="w-4 h-4 md:w-5 md:h-5" /> 
@@ -86,40 +102,44 @@ export const Navbar = ({ content, ds, isMobilePreview, pageId, basePath, hasBlog
               </span>
             </a>
             
-            <div id="nav-links-desktop" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-sm font-medium transition-colors duration-300 ${currentTextColor} opacity-90 flex-shrink-0`}>
-              {navLinks.map((link, i) => (
-                  <a 
-                    key={i} 
-                    id={`nav-link-${i}`} 
-                    href={link.href} 
-                    onClick={(e) => handleSmoothScroll(e, link.href)}
-                    className={`hover:opacity-100 transition hover:${ds.nav.linkHover}`}
-                  >
-                    {link.label}
-                  </a>
-              ))}
-            </div>
-            
-            <div className="flex items-center gap-2 flex-shrink-0">
-                <button 
-                id="nav-cta-btn" 
-                onClick={() => setShowModal(true)}
-                className={`${isMobilePreview ? 'hidden' : 'hidden md:block'} px-4 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition shadow-sm hover:scale-105 hover:shadow-lg ${ds.nav.ctaButton}`}
-                >
-                {content.navCta || "Regístrate"}
-                </button>
+            {!isThankYouPage && (
+                <>
+                    <div id="nav-links-desktop" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-sm font-medium transition-colors duration-300 ${currentTextColor} opacity-90 flex-shrink-0`}>
+                    {navLinks.map((link, i) => (
+                        <a 
+                            key={i} 
+                            id={`nav-link-${i}`} 
+                            href={link.href} 
+                            onClick={(e) => handleSmoothScroll(e, link.href)}
+                            className={`hover:opacity-100 transition hover:${ds.nav.linkHover}`}
+                        >
+                            {link.label}
+                        </a>
+                    ))}
+                    </div>
+                    
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                        <button 
+                        id="nav-cta-btn" 
+                        onClick={() => setShowModal(true)}
+                        className={`${isMobilePreview ? 'hidden' : 'hidden md:block'} px-4 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition shadow-sm hover:scale-105 hover:shadow-lg ${ds.nav.ctaButton}`}
+                        >
+                        {content.navCta || "Regístrate"}
+                        </button>
 
-                <button 
-                    id="nav-mobile-toggle"
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className={`${isMobilePreview ? 'flex' : 'md:hidden flex'} items-center justify-center p-2 rounded-lg transition-colors ${currentTextColor} hover:bg-black/5`}
-                >
-                    {isMenuOpen ? <X className="w-6 h-6"/> : <Menu className="w-6 h-6"/>}
-                </button>
-            </div>
+                        <button 
+                            id="nav-mobile-toggle"
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className={`${isMobilePreview ? 'flex' : 'md:hidden flex'} items-center justify-center p-2 rounded-lg transition-colors ${currentTextColor} hover:bg-black/5`}
+                        >
+                            {isMenuOpen ? <X className="w-6 h-6"/> : <Menu className="w-6 h-6"/>}
+                        </button>
+                    </div>
+                </>
+            )}
           </div>
 
-          {isMenuOpen && (
+          {!isThankYouPage && isMenuOpen && (
               <div id="nav-mobile-menu" className={`${isMobilePreview ? 'flex' : 'md:hidden flex'} absolute top-full left-0 w-full ${ds.nav.mobileMenuBg} ${ds.nav.mobileMenuBorder} border-b shadow-xl p-6 flex-col gap-4 animate-in slide-in-from-top-2 z-40`}>
                   {navLinks.map((link, i) => (
                       <a 
@@ -140,7 +160,7 @@ export const Navbar = ({ content, ds, isMobilePreview, pageId, basePath, hasBlog
               </div>
           )}
       </nav>
-      {showModal && <RegistrationModal content={content} ds={ds} onClose={() => setShowModal(false)} pageId={pageId} />}
+      {!isThankYouPage && showModal && <RegistrationModal content={content} ds={ds} onClose={() => setShowModal(false)} pageId={pageId} />}
       </>
     );
 };
