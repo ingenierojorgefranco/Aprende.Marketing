@@ -1426,7 +1426,10 @@ app.post('/api/projects/:id/generate-strategy', authMiddleware, async (req, res)
 app.get('/api/crm/contacts', authMiddleware, async (req, res) => {
     try {
         const [contacts] = await pool.query(
-            `SELECT * FROM crm_contacts WHERE user_id = ? ORDER BY created_at DESC`,
+            `SELECT c.*, lp.subdomain as page_slug
+             FROM crm_contacts c
+             LEFT JOIN landing_pages lp ON c.page_id = lp.id
+             WHERE c.user_id = ? ORDER BY c.created_at DESC`,
             [req.user.id]
         );
         res.json(contacts);
@@ -1557,12 +1560,13 @@ app.post('/api/public/leads/submit', async (req, res) => {
     if (!pageId || !email) return res.status(400).json({ error: 'Datos incompletos' });
 
     try {
-        // 1. Get Page Owner (User ID) & Page Name
-        const [pageRows] = await pool.query('SELECT user_id, name FROM landing_pages WHERE id = ?', [pageId]);
+        // 1. Get Page Owner (User ID) & Page Name & Subdomain
+        const [pageRows] = await pool.query('SELECT user_id, name, subdomain FROM landing_pages WHERE id = ?', [pageId]);
         if (pageRows.length === 0) return res.status(404).json({ error: 'Página no válida' });
         
         const ownerId = pageRows[0].user_id;
         const pageName = pageRows[0].name;
+        const pageSlug = pageRows[0].subdomain;
 
         // 2. Insert into Simple Leads Table (Legacy)
         await pool.query(
@@ -1587,12 +1591,25 @@ app.post('/api/public/leads/submit', async (req, res) => {
             [ownerId, email]
         );
 
+        // Prepare JSON activity content
+        const activityPayload = JSON.stringify({
+            text: "Registro inicial desde:",
+            pageName: pageName,
+            slug: pageSlug
+        });
+
+        const reConversionPayload = JSON.stringify({
+            text: "Re-conversión en landing:",
+            pageName: pageName,
+            slug: pageSlug
+        });
+
         let contactId;
         if (existing.length > 0) {
             contactId = existing[0].id;
             // Update last contact
             await pool.query('UPDATE crm_contacts SET updated_at = NOW() WHERE id = ?', [contactId]);
-            await logCRMActivity(contactId, 'lead_submission', `Re-conversión en landing: ${pageName}`);
+            await logCRMActivity(contactId, 'lead_submission', reConversionPayload);
         } else {
             // Create new contact
             const [newContact] = await pool.query(
@@ -1601,7 +1618,7 @@ app.post('/api/public/leads/submit', async (req, res) => {
                 [ownerId, pageId, name || 'Prospecto', email, phone || '', `Landing: ${pageName}`]
             );
             contactId = newContact.insertId;
-            await logCRMActivity(contactId, 'lead_submission', `Registro inicial desde: ${pageName}`);
+            await logCRMActivity(contactId, 'lead_submission', activityPayload);
         }
 
         res.json({ success: true });

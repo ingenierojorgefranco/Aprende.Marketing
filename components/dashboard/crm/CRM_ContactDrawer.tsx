@@ -65,6 +65,26 @@ export const CRMContactDrawer: React.FC<CRMContactDrawerProps> = ({ contact, isO
         }
     };
 
+    // Helper to render activity content safely (handles JSON links)
+    const renderActivityContent = (content: string) => {
+        try {
+            // Check if it's JSON
+            if (content.trim().startsWith('{')) {
+                const data = JSON.parse(content);
+                if (data.text && data.slug && data.pageName) {
+                    return (
+                        <span>
+                            {data.text} <a href={`/lp/${data.slug}`} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline">{data.pageName}</a>
+                        </span>
+                    );
+                }
+            }
+        } catch (e) {
+            // Ignore parse errors, treat as string
+        }
+        return content;
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -253,7 +273,7 @@ export const CRMContactDrawer: React.FC<CRMContactDrawerProps> = ({ contact, isO
                                                     <span className="text-[10px] text-gray-600">{new Date(act.createdAt).toLocaleString()}</span>
                                                 </div>
                                                 <div className="mt-1 p-3 bg-gray-900 border border-gray-800 rounded-lg text-sm text-gray-300">
-                                                    {act.content}
+                                                    {renderActivityContent(act.content)}
                                                 </div>
                                             </div>
                                         </div>

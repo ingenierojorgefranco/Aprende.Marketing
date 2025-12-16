@@ -263,12 +263,14 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     onUpgrade={() => setShowUpgradeModal(true)}
                 />
 
+                {/* SECTION DISABLED BY USER REQUEST
                 <ProjectStrategy_WhatsApp 
                     whatsappData={strategyData.modules.whatsapp}
                     activeWaScript={activeWaScript}
                     setActiveWaScript={setActiveWaScript}
                     onUpgrade={() => setShowUpgradeModal(true)}
                 />
+                */}
 
                 <div id="psd-system-summary-footer" className="w-full mx-auto py-12 border-y border-gray-800 bg-[#0a0a0a]">
                     <div className="max-w-[1400px] mx-auto px-6 text-center">

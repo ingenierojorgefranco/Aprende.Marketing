@@ -73,7 +73,7 @@ export const CRMTable: React.FC<CRMTableProps> = ({ contacts, onSelectContact })
                             <td className="p-4 text-gray-400 text-xs max-w-[150px] truncate" title={contact.source}>
                                 {contact.pageId ? (
                                     <a 
-                                        href={`/admin/lp/${contact.pageId}`} 
+                                        href={contact.pageSlug ? `/lp/${contact.pageSlug}` : `/admin/lp/${contact.pageId}`} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
                                         className="text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 transition-colors group/link"

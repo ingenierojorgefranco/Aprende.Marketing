@@ -852,7 +852,8 @@ export const api = {
       return contacts.map((c: any) => ({
           ...c,
           id: c.id.toString(),
-          pageId: c.page_id ? c.page_id.toString() : undefined, 
+          pageId: c.page_id ? c.page_id.toString() : undefined,
+          pageSlug: c.page_slug, // Mapped from backend join
           lastContactedAt: c.last_contacted_at ? new Date(c.last_contacted_at) : undefined,
           createdAt: new Date(c.created_at),
           updatedAt: new Date(c.updated_at)
