@@ -48,6 +48,49 @@ export const LivePage: React.FC<LivePageProps> = ({
      }
   }, [pageId]);
 
+  // --- SEO LOGIC (Canonical & Robots) ---
+  useEffect(() => {
+      // Only run this in browser context and NOT in mobile preview (iframe like)
+      if (typeof window !== 'undefined' && !isMobilePreview) {
+          const hostname = window.location.hostname;
+          
+          // Define System Domains that should NOT be indexed (Staging/Dashboard/Preview)
+          const systemDomains = [
+              'localhost', 
+              '127.0.0.1', 
+              'generatorlanding.com', 
+              'aprende.marketing', 
+              'plataformadeventa.com'
+          ];
+          
+          const isSystem = systemDomains.some(d => hostname.includes(d));
+
+          // 1. Robots Meta
+          let robotsMeta = document.querySelector('meta[name="robots"]');
+          if (!robotsMeta) {
+              robotsMeta = document.createElement('meta');
+              robotsMeta.setAttribute('name', 'robots');
+              document.head.appendChild(robotsMeta);
+          }
+          
+          // System domain -> noindex | Custom domain -> index
+          robotsMeta.setAttribute('content', isSystem ? 'noindex, nofollow' : 'index, follow');
+
+          // 2. Canonical Link (Only for production/custom domains)
+          if (!isSystem) {
+              let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+              if (!canonicalLink) {
+                  canonicalLink = document.createElement('link');
+                  canonicalLink.setAttribute('rel', 'canonical');
+                  document.head.appendChild(canonicalLink);
+              }
+              // Clean URL (remove query params)
+              const canonicalUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+              canonicalLink.setAttribute('href', canonicalUrl);
+          }
+      }
+  }, [isMobilePreview]);
+
   // --- THANK YOU PAGE RENDER ---
   if (viewMode === 'thank-you') {
       return <LiveThankYouPage content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />;

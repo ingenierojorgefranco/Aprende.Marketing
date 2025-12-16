@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { User } from '../../types';
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff } from 'lucide-react';
+import React, { useState, useEffect, Suspense, useMemo } from 'react';
+import { User, Plan } from '../../types';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
 import { UpgradeModal } from './UpgradeModal';
@@ -64,7 +64,11 @@ export const DashboardLayout = ({
   const [projectCount, setProjectCount] = useState(0);
   const [pageCount, setPageCount] = useState(0);
 
-  // Load dynamic courses menu & usage stats
+  // --- PLAN SIMULATION STATE (ADMIN ONLY) ---
+  const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
+  const [simulatedPlanSlug, setSimulatedPlanSlug] = useState<string | null>(null);
+
+  // Load dynamic courses menu & usage stats & plans
   useEffect(() => {
       const loadData = async () => {
           try {
@@ -85,12 +89,18 @@ export const DashboardLayout = ({
               setProjectCount(projects.length);
               setPageCount(pages.length);
 
+              // Load Plans if Admin
+              if (user.role === 'admin') {
+                  const plansData = await api.getPlans();
+                  setAvailablePlans(plansData);
+              }
+
           } catch (e) {
               console.error("Error loading dashboard data", e);
           }
       };
       loadData();
-  }, []); 
+  }, [user.role]); // Re-run if role changes (unlikely but safe)
 
   // Auto-expand menu based on current route
   useEffect(() => {
@@ -125,6 +135,21 @@ export const DashboardLayout = ({
           }).catch(console.error);
       }
   }, [location.search, onUpdateUser]);
+
+  // --- EFFECTIVE USER CALCULATION ---
+  // This overrides the user's planLimits if a simulation is active
+  const effectiveUser = useMemo(() => {
+      if (!simulatedPlanSlug || user.role !== 'admin') return user;
+      
+      const plan = availablePlans.find(p => p.slug === simulatedPlanSlug);
+      if (!plan) return user;
+
+      // Return a new user object with overridden limits
+      return {
+          ...user,
+          planLimits: plan.limitsConfig
+      };
+  }, [user, simulatedPlanSlug, availablePlans]);
 
   const menuStructure: MenuItem[] = [
     { 
@@ -267,13 +292,13 @@ export const DashboardLayout = ({
     );
   };
 
-  // Plan Logic for Widget
-  const currentPlan = user.planLimits?.planName || 'starter';
+  // Plan Logic for Widget (Use effectiveUser to reflect simulation)
+  const currentPlan = effectiveUser.planLimits?.planName || 'starter';
   const isMax = currentPlan === 'max';
   const isPro = currentPlan === 'pro';
 
   return (
-    <div className="h-screen overflow-hidden bg-black text-gray-200 flex font-sans">
+    <div className={`h-screen overflow-hidden bg-black text-gray-200 flex font-sans ${simulatedPlanSlug ? 'ring-4 ring-yellow-500/20' : ''}`}>
       <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0a0a0a] border-r border-gray-800 shadow-2xl z-40 transition-transform duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="p-8 pb-6 flex justify-between items-center">
           <div>
@@ -291,9 +316,30 @@ export const DashboardLayout = ({
           ))}
         </nav>
 
-        {/* Upgrade Widget */}
+        {/* ADMIN SIMULATION WIDGET */}
+        {user.role === 'admin' && (
+            <div className="mt-auto px-6 py-2">
+                <div className="bg-yellow-900/10 border border-yellow-500/20 p-3 rounded-xl">
+                    <label className="flex items-center gap-2 text-xs font-bold text-yellow-500 uppercase mb-2">
+                        <Eye className="w-3 h-3" /> 🛠️ Modo Pruebas (Ver Como)
+                    </label>
+                    <select
+                        value={simulatedPlanSlug || ''}
+                        onChange={(e) => setSimulatedPlanSlug(e.target.value || null)}
+                        className="w-full bg-black border border-yellow-500/30 text-white text-xs rounded-lg p-2 outline-none focus:border-yellow-500 transition-colors cursor-pointer"
+                    >
+                        <option value="">Administrador (Real)</option>
+                        {availablePlans.map(p => (
+                            <option key={p.id} value={p.slug}>{p.name}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+        )}
+
+        {/* Upgrade Widget (Visible based on EFFECTIVE plan) */}
         {!isMax && (
-            <div className="mt-auto border-t border-gray-800 bg-[#0a0a0a] p-6">
+            <div className="border-t border-gray-800 bg-[#0a0a0a] p-6">
                 <div className={`p-5 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group ${isPro ? 'bg-gradient-to-br from-purple-900/40 to-indigo-900/40' : 'bg-gradient-to-br from-orange-900/40 to-red-900/40'}`}>
                     <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition duration-500"></div>
                     <div className="flex items-center gap-3 mb-3 relative z-10">
@@ -327,9 +373,16 @@ export const DashboardLayout = ({
                  <button onClick={() => setMobileMenuOpen(true)} className="md:hidden text-gray-400 hover:text-white">
                      <Menu className="w-6 h-6" />
                  </button>
-                 <h2 className="text-xl font-bold text-white hidden sm:block">
-                     Hola, {user.name.split(' ')[0]} 👋
-                 </h2>
+                 <div className="flex flex-col">
+                     <h2 className="text-xl font-bold text-white hidden sm:block">
+                         Hola, {effectiveUser.name.split(' ')[0]} 👋
+                     </h2>
+                     {simulatedPlanSlug && (
+                         <span className="text-xs text-yellow-500 font-bold bg-yellow-900/20 px-2 py-0.5 rounded border border-yellow-500/20 w-fit">
+                             Simulando: {simulatedPlanSlug.toUpperCase()}
+                         </span>
+                     )}
+                 </div>
              </div>
 
              <div className="flex items-center gap-4">
@@ -343,13 +396,13 @@ export const DashboardLayout = ({
                      className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-gray-800 border border-gray-700 hover:bg-gray-700 hover:border-gray-600 transition group"
                  >
                      <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold shadow-lg overflow-hidden border border-white/10">
-                         {user.avatarUrl ? (
-                             <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                         {effectiveUser.avatarUrl ? (
+                             <img src={effectiveUser.avatarUrl} alt={effectiveUser.name} className="w-full h-full object-cover" />
                          ) : (
-                             user.name.charAt(0).toUpperCase()
+                             effectiveUser.name.charAt(0).toUpperCase()
                          )}
                      </div>
-                     <span className="text-sm font-medium text-gray-300 group-hover:text-white hidden sm:block">{user.name}</span>
+                     <span className="text-sm font-medium text-gray-300 group-hover:text-white hidden sm:block">{effectiveUser.name}</span>
                      <ChevronDown className="w-4 h-4 text-gray-500 group-hover:text-white" />
                  </button>
              </div>
@@ -357,8 +410,8 @@ export const DashboardLayout = ({
 
         <div className="flex-1 overflow-auto bg-black p-4 sm:p-8 relative">
             <div className="max-w-[1600px] mx-auto">
-                 {/* Pass Context to Outlet (user, projectCount, pageCount) */}
-                 <Outlet context={{ user, projectCount, pageCount }} />
+                 {/* Pass Context to Outlet (effectiveUser, projectCount, pageCount) */}
+                 <Outlet context={{ user: effectiveUser, projectCount, pageCount }} />
             </div>
         </div>
       </main>
@@ -366,7 +419,7 @@ export const DashboardLayout = ({
       <Suspense fallback={null}>
           {showProfileModal && (
               <UserProfileModal 
-                  user={user} 
+                  user={effectiveUser} 
                   onClose={() => setShowProfileModal(false)}
                   onUpdateUser={(u) => {
                       if (onUpdateUser) onUpdateUser(u);
@@ -378,13 +431,13 @@ export const DashboardLayout = ({
       <UpgradeModal 
           isOpen={showUpgradeModal} 
           onClose={() => setShowUpgradeModal(false)} 
-          currentPlan={user.planLimits?.planName}
+          currentPlan={effectiveUser.planLimits?.planName}
       />
 
       {showSuccessModal && (
           <SubscriptionSuccessModal 
               onClose={() => setShowSuccessModal(false)} 
-              planName={user.planLimits?.planName}
+              planName={effectiveUser.planLimits?.planName}
           />
       )}
     </div>

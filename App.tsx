@@ -263,6 +263,15 @@ const App: React.FC = () => {
         <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
         <Route path="/lp/:slug/*" element={<PublicLandingView />} />
 
+        {/* RUTAS ESPECÍFICAS PARA DOMINIO PERSONALIZADO (Evitar 404) */}
+        {customLandingSlug && (
+            <>
+              <Route path="/blog" element={<PublicLandingView forcedSlug={customLandingSlug} />} />
+              <Route path="/blog/*" element={<PublicLandingView forcedSlug={customLandingSlug} />} />
+              <Route path="/gracias" element={<PublicLandingView forcedSlug={customLandingSlug} />} />
+            </>
+        )}
+
         <Route
           path="/"
           element={

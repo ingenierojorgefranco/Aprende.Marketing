@@ -43,7 +43,8 @@ export const Navbar = ({
     }
 
     if (hasBlogArticles) {
-        const blogUrl = basePath ? (basePath === '' ? '/blog' : `${basePath}/blog`) : '#';
+        // Fix: Check if basePath is defined (even if empty string) to prevent fallback to '#'
+        const blogUrl = basePath !== undefined ? (basePath === '' ? '/blog' : `${basePath}/blog`) : '#';
         if (!navLinks.some(link => link.label.toLowerCase() === 'blog')) {
             navLinks.push({ label: 'Blog', href: blogUrl });
         }
