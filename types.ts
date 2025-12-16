@@ -282,7 +282,6 @@ export interface LandingPage {
   goal: string;
   isPublished: boolean;
   subdomain: string;
-  customDomain?: string; // New: Concierge Custom Domain
   content: GeneratedPageContent;
   createdAt: Date;
   visits: number;
