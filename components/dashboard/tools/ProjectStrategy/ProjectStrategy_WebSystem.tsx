@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { LandingPage } from '../../../types';
+import { LandingPage } from '../../../../types';
 
 // Tabs Data
 const LP_TABS_DATA = {
