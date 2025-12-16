@@ -261,7 +261,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
         <InstructorSection />
         <FinalCTASection />
         <FAQSection />
-        <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} />
+        <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
     </div>
   );
 };

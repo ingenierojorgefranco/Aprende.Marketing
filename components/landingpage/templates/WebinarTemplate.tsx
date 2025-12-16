@@ -254,7 +254,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
          <TestimonialsSection />
          <FAQSection />
          <FinalCTASection />
-         <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} />
+         <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
     </div>
   );
 };

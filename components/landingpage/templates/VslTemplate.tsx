@@ -346,7 +346,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
                 <FinalCTASection />
             </div>
             
-            <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} />
+            <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
         </div>
   );
 };

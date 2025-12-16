@@ -116,7 +116,7 @@ export const LivePage: React.FC<LivePageProps> = ({
                       designSystem={ds}
                       isDark={isDark}
                   />
-                  <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} />
+                  <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
               </div>
           </div>
       );

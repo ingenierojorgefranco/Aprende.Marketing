@@ -243,7 +243,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
              <FinalCTASection />
         </div>
         
-        <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} />
+        <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
     </div>
   );
 };

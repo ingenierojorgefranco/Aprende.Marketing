@@ -27,9 +27,9 @@ export const Navbar = ({
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const location = useLocation();
 
     // Navbar Logic
-    // Use ds.nav.transparentText for initial state, and ds.nav.stickyText for scrolled state.
     const currentTextColor = isScrolled ? ds.nav.stickyText : ds.nav.transparentText;
     const currentBg = isScrolled ? `${ds.nav.stickyBg} ${ds.nav.stickyBorder} border-b` : 'bg-transparent border-b border-white/5';
 
@@ -43,7 +43,6 @@ export const Navbar = ({
     }
 
     if (hasBlogArticles) {
-        // Fix: Check if basePath is defined (even if empty string) to prevent fallback to '#'
         const blogUrl = basePath !== undefined ? (basePath === '' ? '/blog' : `${basePath}/blog`) : '#';
         if (!navLinks.some(link => link.label.toLowerCase() === 'blog')) {
             navLinks.push({ label: 'Blog', href: blogUrl });
@@ -65,15 +64,40 @@ export const Navbar = ({
         };
     }, []);
 
+    // Helper: Check if we are on the landing page root
+    const isOnLandingRoot = () => {
+        const path = location.pathname.endsWith('/') && location.pathname.length > 1 
+            ? location.pathname.slice(0, -1) 
+            : location.pathname;
+        const base = basePath ? (basePath.endsWith('/') ? basePath.slice(0, -1) : basePath) : '';
+        if (!base) return path === '/' || path === '';
+        return path === base;
+    };
+
+    // Helper: Resolve Link URL
+    const resolveLink = (href: string) => {
+        if (href.startsWith('#')) {
+            if (isOnLandingRoot()) return href;
+            // If on subpage, prepend base path to go to root + anchor
+            const root = basePath || '';
+            return `${root === '/' ? '' : root}/${href.replace(/^#/, '#')}`; 
+        }
+        return href;
+    };
+
     const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
         if (href.startsWith('#')) {
-            e.preventDefault();
-            const targetId = href.substring(1);
-            const element = document.getElementById(targetId);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Only prevent default and scroll if we are ALREADY on the root page
+            if (isOnLandingRoot()) {
+                e.preventDefault();
+                const targetId = href.substring(1);
+                const element = document.getElementById(targetId);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                setIsMenuOpen(false);
             }
-            setIsMenuOpen(false);
+            // If not on root, let browser handle navigation to the absolute path returned by resolveLink
         }
     };
 
@@ -110,7 +134,7 @@ export const Navbar = ({
                         <a 
                             key={i} 
                             id={`nav-link-${i}`} 
-                            href={link.href} 
+                            href={resolveLink(link.href)} 
                             onClick={(e) => handleSmoothScroll(e, link.href)}
                             className={`hover:opacity-100 transition hover:${ds.nav.linkHover}`}
                         >
@@ -146,7 +170,7 @@ export const Navbar = ({
                       <a 
                         key={i} 
                         id={`mobile-nav-link-${i}`} 
-                        href={link.href} 
+                        href={resolveLink(link.href)} 
                         onClick={(e) => handleSmoothScroll(e, link.href)}
                         className={`text-lg font-medium py-3 border-b border-gray-100/10 last:border-0 hover:pl-2 transition-all ${ds.nav.mobileMenuText}`}
                       >
@@ -167,16 +191,49 @@ export const Navbar = ({
 };
 
 // --- Footer ---
-export const Footer = ({ content, ds, isMobilePreview }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean }) => {
+export const Footer = ({ 
+    content, 
+    ds, 
+    isMobilePreview,
+    basePath
+}: { 
+    content: GeneratedPageContent, 
+    ds: any, 
+    isMobilePreview: boolean,
+    basePath?: string 
+}) => {
     const { socials } = content.footer;
+    const location = useLocation();
+
+    // Helper: Check if we are on the landing page root
+    const isOnLandingRoot = () => {
+        const path = location.pathname.endsWith('/') && location.pathname.length > 1 
+            ? location.pathname.slice(0, -1) 
+            : location.pathname;
+        const base = basePath ? (basePath.endsWith('/') ? basePath.slice(0, -1) : basePath) : '';
+        if (!base) return path === '/' || path === '';
+        return path === base;
+    };
+
+    // Helper: Resolve Link URL
+    const resolveLink = (href: string) => {
+        if (href.startsWith('#')) {
+            if (isOnLandingRoot()) return href;
+            const root = basePath || '';
+            return `${root === '/' ? '' : root}/${href.replace(/^#/, '#')}`; 
+        }
+        return href;
+    };
 
     const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
         if (href.startsWith('#')) {
-            e.preventDefault();
-            const targetId = href.substring(1);
-            const element = document.getElementById(targetId);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (isOnLandingRoot()) {
+                e.preventDefault();
+                const targetId = href.substring(1);
+                const element = document.getElementById(targetId);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             }
         }
     };
@@ -207,7 +264,7 @@ export const Footer = ({ content, ds, isMobilePreview }: { content: GeneratedPag
                             {content.navLinks ? content.navLinks.map((link, i) => (
                                 <li key={i}>
                                     <a 
-                                        href={link.href} 
+                                        href={resolveLink(link.href)} 
                                         onClick={(e) => handleSmoothScroll(e, link.href)}
                                         className={`transition hover:${ds.footer.linkHover}`}
                                     >
@@ -216,9 +273,9 @@ export const Footer = ({ content, ds, isMobilePreview }: { content: GeneratedPag
                                 </li>
                             )) : (
                                 <>
-                                    <li><a href="#seccion-introduccion" onClick={(e) => handleSmoothScroll(e, "#seccion-introduccion")} className={`transition hover:${ds.footer.linkHover}`}>Qué es</a></li>
-                                    <li><a href="#seccion-beneficios" onClick={(e) => handleSmoothScroll(e, "#seccion-beneficios")} className={`transition hover:${ds.footer.linkHover}`}>Beneficios</a></li>
-                                    <li><a href="#seccion-instructor" onClick={(e) => handleSmoothScroll(e, "#seccion-instructor")} className={`transition hover:${ds.footer.linkHover}`}>Instructor</a></li>
+                                    <li><a href={resolveLink("#seccion-introduccion")} onClick={(e) => handleSmoothScroll(e, "#seccion-introduccion")} className={`transition hover:${ds.footer.linkHover}`}>Qué es</a></li>
+                                    <li><a href={resolveLink("#seccion-beneficios")} onClick={(e) => handleSmoothScroll(e, "#seccion-beneficios")} className={`transition hover:${ds.footer.linkHover}`}>Beneficios</a></li>
+                                    <li><a href={resolveLink("#seccion-instructor")} onClick={(e) => handleSmoothScroll(e, "#seccion-instructor")} className={`transition hover:${ds.footer.linkHover}`}>Instructor</a></li>
                                 </>
                             )}
                         </ul>
