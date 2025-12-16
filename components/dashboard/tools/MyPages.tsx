@@ -82,26 +82,16 @@ export const MyPages: React.FC = () => {
         );
     }
 
-    // Plan Logic (Pages)
+    // Plan Logic
     const maxLandings = user.planLimits?.maxLandings || 3;
     const currentCount = pages.length;
     const usagePercent = Math.min(100, (currentCount / maxLandings) * 100);
-    
-    // Plan Logic (Domains)
-    const maxDomains = user.planLimits?.maxDomains || 1;
-    const currentDomainsCount = pages.filter(p => p.customDomain).length;
-    const domainUsagePercent = Math.min(100, (currentDomainsCount / maxDomains) * 100);
-
     const isStarter = user.planLimits?.planName === 'starter';
 
     // Color logic for bar
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";
     if (usagePercent > 85) progressColor = "bg-red-500";
-
-    let domainProgressColor = "bg-blue-500";
-    if (domainUsagePercent > 50) domainProgressColor = "bg-indigo-500";
-    if (domainUsagePercent > 90) domainProgressColor = "bg-red-500";
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
@@ -112,7 +102,7 @@ export const MyPages: React.FC = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 
                 <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div className="flex-1 space-y-6 text-center md:text-left w-full">
+                    <div className="flex-1 space-y-6 text-center md:text-left">
                         <div>
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-800 border border-gray-700 text-xs font-bold text-gray-300 uppercase tracking-wider mb-3 shadow-sm">
                                 <LayoutTemplate className="w-3 h-3 text-primary" /> Gestor de Landing Pages
@@ -125,35 +115,19 @@ export const MyPages: React.FC = () => {
                             </p>
                         </div>
                         
-                        {/* Plan Usage Bars */}
-                        <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner space-y-4">
-                            
-                            {/* Pages Limit */}
-                            <div>
-                                <div className="flex justify-between items-center mb-2 text-sm">
-                                    <span className="text-gray-300 font-medium">Páginas Creadas</span>
-                                    <span className="text-white font-bold">{currentCount} / {maxLandings}</span>
-                                </div>
-                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                    <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
-                                </div>
+                        {/* Plan Usage Bar */}
+                        <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
+                            <div className="flex justify-between items-center mb-2 text-sm">
+                                <span className="text-gray-300 font-medium">Consumo del Plan</span>
+                                <span className="text-white font-bold">{currentCount} / {maxLandings} Páginas</span>
                             </div>
-
-                            {/* Domains Limit */}
-                            <div>
-                                <div className="flex justify-between items-center mb-2 text-sm">
-                                    <span className="text-gray-300 font-medium">Dominios Personalizados</span>
-                                    <span className="text-white font-bold">{currentDomainsCount} / {maxDomains}</span>
-                                </div>
-                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                    <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${domainProgressColor}`} style={{ width: `${domainUsagePercent}%` }}></div>
-                                </div>
+                            <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
                             </div>
-
-                            {isStarter && (usagePercent >= 80 || domainUsagePercent >= 80) && (
+                            {isStarter && usagePercent >= 80 && (
                                 <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
                                     <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                                    <span>Estás cerca del límite. Actualiza a PRO para desbloquear más recursos.</span>
+                                    <span>Estás cerca del límite. Actualiza a PRO para crear páginas ilimitadas y desbloquear IA avanzada.</span>
                                 </div>
                             )}
                         </div>
@@ -341,33 +315,18 @@ export const MyPages: React.FC = () => {
 
                                 <div className="text-center">
                                     <p className="text-xs text-blue-300 font-bold bg-blue-900/20 py-1.5 px-3 rounded-full inline-block border border-blue-500/20">
-                                        ℹ️ En tu plan actual puedes añadir {maxDomains} dominios
+                                        ℹ️ En tu plan actual puedes añadir 2 dominios
                                     </p>
                                 </div>
 
-                                {currentDomainsCount >= maxDomains ? (
-                                    <div className="space-y-3">
-                                        <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-xl flex items-center gap-3">
-                                            <AlertTriangle className="w-6 h-6 text-red-500 shrink-0" />
-                                            <p className="text-sm text-red-200">Has alcanzado el límite de dominios de tu plan.</p>
-                                        </div>
-                                        <button 
-                                            disabled
-                                            className="w-full py-4 rounded-xl bg-gray-800 text-gray-500 font-bold cursor-not-allowed border border-gray-700"
-                                        >
-                                            Actualiza tu Plan para añadir más
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <a 
-                                        href={`https://wa.me/573000000000?text=Hola, quiero configurar un dominio personalizado para mi página ID: ${selectedPageForDomain.id}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 transition-transform hover:scale-[1.02]"
-                                    >
-                                        <MessageCircle className="w-5 h-5" /> Quiero configurar mi dominio
-                                    </a>
-                                )}
+                                <a 
+                                    href={`https://wa.me/573000000000?text=Hola, quiero configurar un dominio personalizado para mi página ID: ${selectedPageForDomain.id}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 transition-transform hover:scale-[1.02]"
+                                >
+                                    <MessageCircle className="w-5 h-5" /> Quiero configurar mi dominio
+                                </a>
                             </div>
                         )}
                     </div>
