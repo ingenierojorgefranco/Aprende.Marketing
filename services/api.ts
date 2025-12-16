@@ -1,4 +1,6 @@
 
+
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, ProjectMasterStrategy, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_MASTER_STRATEGY, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 
@@ -167,6 +169,7 @@ export const api = {
             id: String(p.id),
             isPublished: !!(p.isPublished || p.is_published),
             customDomain: p.custom_domain || p.customDomain, // Mapeo explícito de snake_case a camelCase
+            projectId: p.project_id ? String(p.project_id) : undefined, // NEW: Map Project ID
             content: content,
             createdAt: new Date(p.created_at || p.createdAt)
         };
@@ -197,7 +200,8 @@ export const api = {
             niche: page.niche,
             goal: page.goal,
             subdomain: page.subdomain,
-            content: page.content
+            content: page.content,
+            projectId: page.projectId // NEW: Send Project ID
         })
     });
     return { ...page, id: data.id.toString() };
@@ -216,7 +220,8 @@ export const api = {
             name: page.name,
             niche: page.niche,
             content: page.content,
-            isPublished: page.isPublished
+            isPublished: page.isPublished,
+            projectId: page.projectId // NEW: Send Project ID if updated
         })
     });
     return page;

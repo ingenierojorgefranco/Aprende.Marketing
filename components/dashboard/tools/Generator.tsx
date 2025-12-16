@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
@@ -134,7 +135,8 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         content: content,
         createdAt: new Date(),
         visits: 0,
-        conversions: 0
+        conversions: 0,
+        projectId: selectedProject || undefined // NEW: Link to project
       };
 
       onPageGenerated(newPage);

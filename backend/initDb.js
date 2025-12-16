@@ -227,6 +227,7 @@ const initDb = async () => {
                 query: `CREATE TABLE IF NOT EXISTS landing_pages (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     user_id ${userIdType} NOT NULL,
+                    project_id INT NULL,
                     name VARCHAR(255),
                     niche VARCHAR(255),
                     goal VARCHAR(255),
@@ -237,7 +238,8 @@ const initDb = async () => {
                     visits INT DEFAULT 0,
                     conversions INT DEFAULT 0,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`
             },
             {
@@ -320,6 +322,15 @@ const initDb = async () => {
 
         // NEW: THANK YOU PAGE JSON COLUMN
         await addColumnSafe(connection, 'landing_pages', "thankyoupage_json JSON");
+
+        // NEW: PROJECT ID IN LANDING PAGES
+        await addColumnSafe(connection, 'landing_pages', "project_id INT NULL");
+        try {
+            // Attempt to add FK. If it fails (exists), ignore.
+            await connection.query(`ALTER TABLE landing_pages ADD CONSTRAINT fk_landing_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL`);
+        } catch (e) {
+            // Ignore constraint already exists or similar safe errors
+        }
 
         // --- SEED SYSTEM SETTINGS ---
         await connection.query(`

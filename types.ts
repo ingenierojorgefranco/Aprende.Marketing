@@ -1,5 +1,6 @@
 
 
+
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
   LOGIN = 'LOGIN',
@@ -285,6 +286,7 @@ export interface LandingPage {
   isPublished: boolean;
   subdomain: string;
   customDomain?: string; // New: Supports custom domains
+  projectId?: string; // NEW: Linked Project ID
   content: GeneratedPageContent;
   createdAt: Date;
   visits: number;

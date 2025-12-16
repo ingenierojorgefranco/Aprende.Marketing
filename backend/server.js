@@ -1,4 +1,6 @@
 
+
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -1878,7 +1880,7 @@ app.get('/api/pages', authMiddleware, async (req, res) => {
 });
 
 app.post('/api/pages', authMiddleware, async (req, res) => {
-  const { name, niche, goal, subdomain, content } = req.body;
+  const { name, niche, goal, subdomain, content, projectId } = req.body;
   try {
     // --- LIMIT & QUOTA CHECK ---
     const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
@@ -1904,8 +1906,8 @@ app.post('/api/pages', authMiddleware, async (req, res) => {
     }
 
     const [resDb] = await pool.query(
-      'INSERT INTO landing_pages (user_id, name, niche, goal, subdomain, content, thankyoupage_json, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 0, NOW())',
-      [req.user.id, name, niche, goal, subdomain, JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null]
+      'INSERT INTO landing_pages (user_id, project_id, name, niche, goal, subdomain, content, thankyoupage_json, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, NOW())',
+      [req.user.id, projectId || null, name, niche, goal, subdomain, JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null]
     );
 
     // Log usage
@@ -1919,7 +1921,7 @@ app.post('/api/pages', authMiddleware, async (req, res) => {
 });
 
 app.put('/api/pages/:id', authMiddleware, async (req, res) => {
-  const { content, isPublished, name, niche } = req.body;
+  const { content, isPublished, name, niche, projectId } = req.body;
   try {
     const [check] = await pool.query('SELECT id FROM landing_pages WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
     if (check.length === 0) return res.status(403).json({ error: 'No autorizado' });
@@ -1931,8 +1933,8 @@ app.put('/api/pages/:id', authMiddleware, async (req, res) => {
     }
 
     await pool.query(
-      'UPDATE landing_pages SET content = ?, thankyoupage_json = ?, is_published = ?, name = COALESCE(?, name), niche = COALESCE(?, niche) WHERE id = ?',
-      [JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null, isPublished, name, niche, req.params.id]
+      'UPDATE landing_pages SET content = ?, thankyoupage_json = ?, is_published = ?, name = COALESCE(?, name), niche = COALESCE(?, niche), project_id = COALESCE(?, project_id) WHERE id = ?',
+      [JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null, isPublished, name, niche, projectId !== undefined ? projectId : null, req.params.id]
     );
     res.json({ message: 'Actualizado' });
   } catch (e) { res.status(500).json({ error: e.message }); }
