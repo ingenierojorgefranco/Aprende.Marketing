@@ -1,7 +1,8 @@
 
-import React from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool } from 'lucide-react';
+import React, { useState } from 'react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { LandingPage } from '../../../types';
 
 // Tabs Data
 const LP_TABS_DATA = {
@@ -80,14 +81,15 @@ interface ProjectStrategy_WebSystemProps {
     setSelectedTyTab: (tab: string | null) => void;
     handleTooltipHover: (e: React.MouseEvent, content: string[]) => void;
     handleTooltipLeave: () => void;
-    existingPageId?: string | null;
-    onEditPage?: (id: string) => void;
+    linkedPages: LandingPage[];
+    onEditPage: (id: string) => void;
 }
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
-    selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, existingPageId, onEditPage 
+    selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, linkedPages, onEditPage 
 }) => {
     const navigate = useNavigate();
+    const [showPagesModal, setShowPagesModal] = useState(false);
 
     const renderTabContent = (tabKey: string) => {
         const data = LP_TABS_DATA[tabKey as keyof typeof LP_TABS_DATA] as any;
@@ -165,6 +167,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             </div>
         );
     };
+
+    const pageCount = linkedPages.length;
 
     return (
         <div id="psd-system-container" className="space-y-12">
@@ -328,19 +332,28 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 </div>
 
                                 <div id="psd-lp-btn-container" className="w-full mt-2">
-                                    {existingPageId ? (
-                                        <button 
-                                            onClick={() => onEditPage && onEditPage(existingPageId)}
-                                            className="w-full max-w-sm mx-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/20 hover:from-blue-500 hover:to-indigo-500 hover:scale-[1.02] hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
-                                        >
-                                            <PenTool className="w-6 h-6" /> Editar Página Web
-                                        </button>
-                                    ) : (
+                                    {pageCount === 0 ? (
                                         <button 
                                             onClick={() => navigate('/dashboard/generator')}
                                             className="w-full max-w-sm mx-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-black shadow-xl shadow-amber-500/20 hover:from-yellow-400 hover:to-amber-500 hover:scale-[1.02] hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
                                         >
                                             <Wand2 className="w-6 h-6" /> Crea tu Web Automáticamente
+                                        </button>
+                                    ) : pageCount === 1 ? (
+                                        <a 
+                                            href={`/admin/lp/${linkedPages[0].subdomain?.split('.')[0] || linkedPages[0].id}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full max-w-sm mx-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/20 hover:from-blue-500 hover:to-indigo-500 hover:scale-[1.02] hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
+                                        >
+                                            <Eye className="w-6 h-6" /> Ver Landing Page
+                                        </a>
+                                    ) : (
+                                        <button 
+                                            onClick={() => setShowPagesModal(true)}
+                                            className="w-full max-w-sm mx-auto bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl shadow-purple-500/20 hover:from-purple-500 hover:to-indigo-500 hover:scale-[1.02] hover:shadow-purple-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
+                                        >
+                                            <Layout className="w-6 h-6" /> Ver Landing Pages ({pageCount})
                                         </button>
                                     )}
                                 </div>
@@ -467,6 +480,58 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     </div>
                 </div>
             </div>
+
+            {/* --- MULTIPLE PAGES MODAL --- */}
+            {showPagesModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+                    <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95">
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center">
+                            <h3 className="font-bold text-white text-lg flex items-center gap-2">
+                                <Layout className="w-5 h-5 text-blue-500" /> Landing Pages del Proyecto
+                            </h3>
+                            <button onClick={() => setShowPagesModal(false)} className="text-gray-400 hover:text-white transition"><X className="w-5 h-5"/></button>
+                        </div>
+                        <div className="p-4 space-y-3 max-h-[60vh] overflow-y-auto">
+                            {linkedPages.map(page => (
+                                <div key={page.id} className="bg-black/40 border border-gray-700 rounded-xl p-4 flex items-center justify-between hover:border-blue-500/30 transition">
+                                    <div>
+                                        <h4 className="font-bold text-white text-sm mb-1">{page.name}</h4>
+                                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded border ${page.isPublished ? 'bg-green-900/30 text-green-400 border-green-900/50' : 'bg-orange-900/30 text-orange-400 border-orange-900/50'}`}>
+                                            {page.isPublished ? 'Publicada' : 'Borrador'}
+                                        </span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <a 
+                                            href={`/admin/lp/${page.subdomain?.split('.')[0] || page.id}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg transition border border-gray-700"
+                                            title="Ver Online"
+                                        >
+                                            <ExternalLink className="w-4 h-4" />
+                                        </a>
+                                        <button 
+                                            onClick={() => {
+                                                onEditPage(page.id);
+                                                setShowPagesModal(false);
+                                            }}
+                                            className="p-2.5 bg-blue-900/30 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg transition border border-blue-900/50"
+                                            title="Editar Diseño"
+                                        >
+                                            <PenTool className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="p-4 bg-gray-800/50 border-t border-gray-800 flex justify-end">
+                            <button onClick={() => setShowPagesModal(false)} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition">
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

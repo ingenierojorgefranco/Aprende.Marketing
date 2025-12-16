@@ -21,7 +21,7 @@ import { ProjectStrategy_Psychology } from './ProjectStrategy/ProjectStrategy_Ps
 
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
-import { ProjectMasterStrategy } from '../../../types';
+import { ProjectMasterStrategy, LandingPage } from '../../../types';
 
 // --- ICONS MAPPING FOR DYNAMIC DATA ---
 const iconMap: any = {
@@ -34,7 +34,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     const [strategyData, setStrategyData] = useState<ProjectMasterStrategy | null>(null);
     const [loading, setLoading] = useState(true);
-    const [existingPageId, setExistingPageId] = useState<string | null>(null);
+    const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
 
     // INTERACTIVE STATES
     const [activeWaScript, setActiveWaScript] = useState(0);
@@ -80,14 +80,9 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 }
                 setStrategyData(strategy);
 
-                // Logic: Find if a page exists with the EXACT same name as the project
-                // This allows "Smart Flexibility" - treating the project name as the unique key for the "Main" landing page
-                const match = pages.find(p => p.name === strategy.meta.projectName);
-                if (match) {
-                    setExistingPageId(match.id);
-                } else {
-                    setExistingPageId(null);
-                }
+                // Logic: Find all pages linked to this project (by ID or legacy Name match)
+                const projectPages = pages.filter(p => p.projectId === id || p.name === strategy.meta.projectName);
+                setLinkedPages(projectPages);
 
             } catch (error) {
                 console.error("Failed to load strategy or pages", error);
@@ -246,7 +241,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     setSelectedTyTab={setSelectedTyTab}
                     handleTooltipHover={handleTooltipHover}
                     handleTooltipLeave={handleTooltipLeave}
-                    existingPageId={existingPageId}
+                    linkedPages={linkedPages}
                     onEditPage={(pageId) => navigate(`/dashboard/editor/${pageId}`)}
                 />
 
