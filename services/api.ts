@@ -166,6 +166,7 @@ export const api = {
             ...p,
             id: String(p.id),
             isPublished: !!(p.isPublished || p.is_published),
+            customDomain: p.custom_domain || p.customDomain, // Mapeo explícito de snake_case a camelCase
             content: content,
             createdAt: new Date(p.created_at || p.createdAt)
         };
