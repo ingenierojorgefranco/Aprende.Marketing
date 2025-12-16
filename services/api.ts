@@ -258,7 +258,7 @@ export const api = {
             ...p,
             id: String(p.id),
             isPublished: !!(p.isPublished || p.is_published),
-            customDomain: p.custom_domain || p.customDomain, // Check both cases to be safe
+            customDomain: p.custom_domain || p.customDomain,
             content: content,
             createdAt: new Date(p.created_at || p.createdAt)
         };
