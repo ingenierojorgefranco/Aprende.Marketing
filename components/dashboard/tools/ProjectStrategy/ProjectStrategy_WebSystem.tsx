@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage } from '../../../../types';
 
@@ -90,6 +90,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 }) => {
     const navigate = useNavigate();
     const [showPagesModal, setShowPagesModal] = useState(false);
+    const [modalMode, setModalMode] = useState<'lp' | 'ty'>('lp');
 
     const renderTabContent = (tabKey: string) => {
         const data = LP_TABS_DATA[tabKey as keyof typeof LP_TABS_DATA] as any;
@@ -340,20 +341,26 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                             <Wand2 className="w-6 h-6" /> Crea tu Web Automáticamente
                                         </button>
                                     ) : pageCount === 1 ? (
-                                        <a 
-                                            href={`/admin/lp/${linkedPages[0].subdomain?.split('.')[0] || linkedPages[0].id}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="w-full max-w-sm mx-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/20 hover:from-blue-500 hover:to-indigo-500 hover:scale-[1.02] hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
-                                        >
-                                            <Eye className="w-6 h-6" /> Ver Landing Page
-                                        </a>
+                                        <div className="flex flex-col gap-3">
+                                            <button 
+                                                onClick={() => navigate(`/dashboard/editor/${linkedPages[0].id}`)}
+                                                className="w-full max-w-sm mx-auto bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-xl shadow-green-500/20 hover:from-green-500 hover:to-emerald-500 hover:scale-[1.02] hover:shadow-green-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
+                                            >
+                                                <PenTool className="w-6 h-6" /> Editar Landing Page
+                                            </button>
+                                            <button 
+                                                onClick={() => navigate('/dashboard/generator')}
+                                                className="w-full max-w-sm mx-auto bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 transition-all flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium text-sm"
+                                            >
+                                                <Plus className="w-4 h-4" /> Crear Otra Landing Page
+                                            </button>
+                                        </div>
                                     ) : (
                                         <button 
-                                            onClick={() => setShowPagesModal(true)}
+                                            onClick={() => { setModalMode('lp'); setShowPagesModal(true); }}
                                             className="w-full max-w-sm mx-auto bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl shadow-purple-500/20 hover:from-purple-500 hover:to-indigo-500 hover:scale-[1.02] hover:shadow-purple-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
                                         >
-                                            <Layout className="w-6 h-6" /> Ver Landing Pages ({pageCount})
+                                            <Layout className="w-6 h-6" /> Gestionar Landing Pages ({pageCount})
                                         </button>
                                     )}
                                 </div>
@@ -463,17 +470,34 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 </div>
 
                                 <div id="psd-ty-btn-container" className="w-full mt-2 text-center">
-                                    <div className="mb-4 flex justify-center items-center gap-2 text-yellow-500 text-base font-bold animate-pulse">
-                                        <AlertTriangle className="w-5 h-5" /> 
-                                        <span>Para crear tu página de gracias primero debes crear tu Landing Page de Captación</span>
-                                    </div>
-                                    <button 
-                                        onClick={() => alert("Para generarse esa pagina debe crear su landing page")}
-                                        className="w-full max-w-sm mx-auto bg-gray-800 text-gray-500 border border-gray-700 shadow-none cursor-not-allowed grayscale opacity-50 flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
-                                        disabled={true}
-                                    >
-                                        <Wand2 className="w-6 h-6" /> Crear Página Automáticamente
-                                    </button>
+                                    {pageCount === 0 ? (
+                                        <>
+                                            <div className="mb-4 flex justify-center items-center gap-2 text-yellow-500 text-base font-bold animate-pulse">
+                                                <AlertTriangle className="w-5 h-5" /> 
+                                                <span>Para crear tu página de gracias primero debes crear tu Landing Page de Captación</span>
+                                            </div>
+                                            <button 
+                                                className="w-full max-w-sm mx-auto bg-gray-800 text-gray-500 border border-gray-700 shadow-none cursor-not-allowed grayscale opacity-50 flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
+                                                disabled={true}
+                                            >
+                                                <Wand2 className="w-6 h-6" /> Crear Página Automáticamente
+                                            </button>
+                                        </>
+                                    ) : pageCount === 1 ? (
+                                        <button 
+                                            onClick={() => navigate(`/dashboard/editor/${linkedPages[0].id}`)}
+                                            className="w-full max-w-sm mx-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/20 hover:from-blue-500 hover:to-indigo-500 hover:scale-[1.02] hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
+                                        >
+                                            <PenTool className="w-6 h-6" /> Editar Página de Gracias
+                                        </button>
+                                    ) : (
+                                        <button 
+                                            onClick={() => { setModalMode('ty'); setShowPagesModal(true); }}
+                                            className="w-full max-w-sm mx-auto bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl shadow-purple-500/20 hover:from-purple-500 hover:to-indigo-500 hover:scale-[1.02] hover:shadow-purple-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
+                                        >
+                                            <Layout className="w-6 h-6" /> Seleccionar Página
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -487,7 +511,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95">
                         <div className="p-4 border-b border-gray-800 flex justify-between items-center">
                             <h3 className="font-bold text-white text-lg flex items-center gap-2">
-                                <Layout className="w-5 h-5 text-blue-500" /> Landing Pages del Proyecto
+                                <Layout className="w-5 h-5 text-blue-500" /> 
+                                {modalMode === 'ty' ? 'Páginas de Gracias' : 'Landing Pages del Proyecto'}
                             </h3>
                             <button onClick={() => setShowPagesModal(false)} className="text-gray-400 hover:text-white transition"><X className="w-5 h-5"/></button>
                         </div>
@@ -516,7 +541,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                                 setShowPagesModal(false);
                                             }}
                                             className="p-2.5 bg-blue-900/30 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg transition border border-blue-900/50"
-                                            title="Editar Diseño"
+                                            title={modalMode === 'ty' ? "Editar Gracias" : "Editar Landing"}
                                         >
                                             <PenTool className="w-4 h-4" />
                                         </button>
@@ -535,3 +560,4 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         </div>
     );
 };
+

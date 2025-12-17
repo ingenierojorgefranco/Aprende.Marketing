@@ -1,8 +1,9 @@
+
 import React, { useEffect, useState } from 'react';
 import { 
   ArrowRight, LayoutDashboard, LogOut, Play, 
   Layout, MessageCircle, PenTool, Search, Briefcase, Mail, Users, BarChart, Link as LinkIcon,
-  CheckCircle, Zap, Shield, Rocket, Bot, Server, Star, Target, Globe, Gift, ChevronRight, TrendingUp, X
+  CheckCircle, Zap, Shield, Rocket, Bot, Server, Star, Target, Globe, Gift, ChevronRight, TrendingUp, X, Smartphone, Cpu, Repeat
 } from 'lucide-react';
 import { User, Plan } from '../types';
 import { useNavigate } from 'react-router-dom';
@@ -159,8 +160,199 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
         </div>
       </header>
 
-      {/* Benefits Zig-Zag & Other Sections omitted for brevity (unchanged) */}
-      {/* ... */}
+      {/* --- FEATURES GRID --- */}
+      <section id="features" className="py-24 bg-black relative border-t border-white/5">
+          <div className="container mx-auto px-6">
+              <div className="text-center mb-16">
+                  <h2 className="text-3xl md:text-5xl font-bold mb-4">Todo lo que necesitas para vender</h2>
+                  <p className="text-xl text-gray-400">Reemplaza 5 herramientas costosas con una sola plataforma inteligente.</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {[
+                      {
+                          icon: <Cpu className="w-8 h-8 text-purple-500" />,
+                          title: "Generador Web IA",
+                          desc: "Crea Landing Pages persuasivas y optimizadas en menos de 60 segundos con Inteligencia Artificial."
+                      },
+                      {
+                          icon: <MessageCircle className="w-8 h-8 text-green-500" />,
+                          title: "WhatsApp CRM",
+                          desc: "Gestiona tus prospectos, automatiza respuestas y cierra ventas por chat sin perder el control."
+                      },
+                      {
+                          icon: <Mail className="w-8 h-8 text-orange-500" />,
+                          title: "Email Marketing",
+                          desc: "Envía secuencias de correos automáticas para nutrir a tus leads y recuperar carritos abandonados."
+                      },
+                      {
+                          icon: <Search className="w-8 h-8 text-blue-500" />,
+                          title: "Blog SEO Auto",
+                          desc: "Redacta artículos optimizados para Google en piloto automático y atrae tráfico gratis."
+                      }
+                  ].map((feature, i) => (
+                      <div key={i} className="bg-gray-900/50 border border-gray-800 p-8 rounded-2xl hover:bg-gray-800 transition duration-300 group">
+                          <div className="mb-6 p-4 bg-black/50 rounded-xl w-fit border border-gray-700 group-hover:border-gray-600 transition">
+                              {feature.icon}
+                          </div>
+                          <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
+                          <p className="text-gray-400 leading-relaxed text-sm">
+                              {feature.desc}
+                          </p>
+                      </div>
+                  ))}
+              </div>
+          </div>
+      </section>
+
+      {/* --- HOW IT WORKS --- */}
+      <section id="process" className="py-24 bg-[#050505] border-t border-white/5 relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+          <div className="container mx-auto px-6 relative z-10">
+              <div className="text-center mb-20">
+                  <h2 className="text-3xl md:text-5xl font-bold mb-4">¿Cómo funciona el sistema?</h2>
+                  <p className="text-xl text-gray-400">Tres pasos simples para lanzar tu negocio digital.</p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-12 relative">
+                  {/* Connector Line (Desktop) */}
+                  <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-gray-800 via-orange-900/50 to-gray-800 z-0"></div>
+
+                  {[
+                      {
+                          step: "01",
+                          title: "Define tu Nicho",
+                          desc: "Selecciona el producto de Hotmart que quieres vender y describe tu cliente ideal.",
+                          icon: <Target className="w-6 h-6 text-white" />
+                      },
+                      {
+                          step: "02",
+                          title: "IA Genera Todo",
+                          desc: "Nuestra Inteligencia Artificial redacta los textos, diseña la web y crea los emails por ti.",
+                          icon: <Bot className="w-6 h-6 text-white" />
+                      },
+                      {
+                          step: "03",
+                          title: "Vende en Automático",
+                          desc: "Publica tu embudo y deja que el sistema convierta visitantes en comisiones.",
+                          icon: <TrendingUp className="w-6 h-6 text-white" />
+                      }
+                  ].map((item, i) => (
+                      <div key={i} className="relative z-10 flex flex-col items-center text-center">
+                          <div className="w-24 h-24 bg-[#0f0f0f] border-4 border-gray-800 rounded-full flex items-center justify-center mb-8 shadow-2xl relative group transition-transform hover:scale-110 duration-300">
+                              <div className="absolute inset-0 bg-gradient-to-br from-orange-600 to-red-600 opacity-20 rounded-full group-hover:opacity-40 transition"></div>
+                              {item.icon}
+                              <div className="absolute -top-3 -right-3 w-8 h-8 bg-white text-black font-bold rounded-full flex items-center justify-center text-sm border-2 border-gray-900">
+                                  {item.step}
+                              </div>
+                          </div>
+                          <h3 className="text-2xl font-bold text-white mb-3">{item.title}</h3>
+                          <p className="text-gray-400 max-w-xs mx-auto leading-relaxed">
+                              {item.desc}
+                          </p>
+                      </div>
+                  ))}
+              </div>
+          </div>
+      </section>
+
+      {/* --- BENEFITS ZIG-ZAG --- */}
+      <section className="py-24 bg-black relative overflow-hidden">
+          <div className="container mx-auto px-6 space-y-24">
+              
+              {/* Feature 1 */}
+              <div className="flex flex-col md:flex-row items-center gap-12 md:gap-20">
+                  <div className="md:w-1/2 relative">
+                      <div className="absolute -inset-4 bg-gradient-to-r from-orange-500 to-pink-600 rounded-2xl blur-xl opacity-20"></div>
+                      <div className="relative bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-2xl">
+                          {/* Abstract UI Representation */}
+                          <div className="space-y-4">
+                              <div className="flex items-center gap-3 border-b border-gray-700 pb-4">
+                                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                  <div className="ml-auto text-xs text-gray-500 font-mono">AI_Copywriter.exe</div>
+                              </div>
+                              <div className="space-y-2 animate-pulse">
+                                  <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+                                  <div className="h-4 bg-gray-700 rounded w-full"></div>
+                                  <div className="h-4 bg-gray-700 rounded w-5/6"></div>
+                              </div>
+                              <div className="p-4 bg-green-900/20 border border-green-500/30 rounded-lg text-green-400 text-sm font-mono mt-4">
+                                  > Generando textos persuasivos... <br/>
+                                  > Optimizando para conversión... <br/>
+                                  > ¡Listo!
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div className="md:w-1/2">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-900/30 border border-orange-500/30 text-orange-400 text-xs font-bold uppercase tracking-wider mb-6">
+                          <Zap className="w-4 h-4" /> Velocidad Extrema
+                      </div>
+                      <h3 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                          No necesitas ser experto en <span className="text-orange-500">Copywriting</span>
+                      </h3>
+                      <p className="text-xl text-gray-400 leading-relaxed mb-8">
+                          Olvídate de pasar horas frente a una pantalla en blanco. Nuestra IA ha sido entrenada con las mejores cartas de venta del mercado para escribir textos que persuaden y venden por ti.
+                      </p>
+                      <ul className="space-y-4">
+                          {['Titulares que enganchan', 'Descripciones de productos irresistibles', 'Manejo de objeciones automático'].map((item, i) => (
+                              <li key={i} className="flex items-center gap-3 text-gray-300">
+                                  <CheckCircle className="w-5 h-5 text-orange-500" /> {item}
+                              </li>
+                          ))}
+                      </ul>
+                  </div>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="flex flex-col md:flex-row-reverse items-center gap-12 md:gap-20">
+                  <div className="md:w-1/2 relative">
+                      <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-xl opacity-20"></div>
+                      <div className="relative bg-[#0F0F0F] border border-gray-800 rounded-2xl overflow-hidden shadow-2xl">
+                          <img 
+                              src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                              alt="Dashboard Analytics" 
+                              className="w-full h-full object-cover opacity-60 hover:opacity-80 transition duration-500"
+                          />
+                          <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent h-24"></div>
+                          <div className="absolute bottom-6 left-6 right-6">
+                              <div className="flex justify-between items-end">
+                                  <div>
+                                      <p className="text-gray-400 text-xs uppercase font-bold">Ventas Hoy</p>
+                                      <p className="text-3xl font-black text-white">$1,240.50</p>
+                                  </div>
+                                  <div className="text-green-500 text-sm font-bold flex items-center gap-1 bg-green-900/30 px-2 py-1 rounded">
+                                      <TrendingUp className="w-4 h-4" /> +15%
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div className="md:w-1/2">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/30 border border-blue-500/30 text-blue-400 text-xs font-bold uppercase tracking-wider mb-6">
+                          <Smartphone className="w-4 h-4" /> Negocio 24/7
+                      </div>
+                      <h3 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                          Tu negocio abierto mientras <span className="text-blue-500">duermes</span>
+                      </h3>
+                      <p className="text-xl text-gray-400 leading-relaxed mb-8">
+                          Configura tu embudo una sola vez y deja que el sistema trabaje. Desde la captura del lead hasta el cierre de la venta y la entrega del producto, todo está automatizado.
+                      </p>
+                      <button 
+                        onClick={() => user ? navigate('/dashboard') : navigate('/register')}
+                        className="text-white border-b-2 border-blue-500 pb-1 hover:text-blue-400 transition"
+                      >
+                          Comenzar ahora mismo &rarr;
+                      </button>
+                  </div>
+              </div>
+
+          </div>
+      </section>
 
       {/* Pricing Section - DYNAMIC */}
       <section id="pricing" className="py-24 bg-gradient-to-b from-[#050505] to-[#0a0a0a] border-t border-white/5">
