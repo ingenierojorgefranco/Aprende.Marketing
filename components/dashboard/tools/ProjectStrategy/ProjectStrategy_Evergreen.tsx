@@ -10,7 +10,7 @@ interface ProjectStrategy_EvergreenProps {
     setActiveEvergreenEmail: (idx: number) => void;
     onUpgrade: () => void;
     
-    // Updated Prop
+    // Props de límites
     features?: PlanFeatures;
     planLimits?: PlanLimits;
     nextPlan?: Plan | null;
@@ -20,7 +20,6 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan
 }) => {
     
-    // Check feature flag directly
     const isUnlocked = features?.evergreenStrategy || false;
     const currentPlanName = planLimits?.planName || 'Starter';
     const nextPlanName = nextPlan?.name || 'Superior';
@@ -29,52 +28,75 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         <div id="psd-evergreen-section" className="pt-12">
             <div id="psd-evergreen-header-container" className="w-[80%] mx-auto py-6">
                 <h3 id="psd-evergreen-title" className="text-3xl font-bold text-white mb-6 flex items-center gap-2">
-                    <Calendar className="w-8 h-8 text-orange-500" /> Secuencia Evergreen (30 Días)
+                    <Calendar className="w-8 h-8 text-orange-500" /> Secuencia de Autoridad (30 Días)
                 </h3>
                 <div id="psd-evergreen-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light mb-8 space-y-4">
                     <p>
-                        Mientras la estrategia de 7 días de email marketing está diseñada específicamente para cerrar ventas rápidas y generar ingresos inmediatos, nuestra secuencia evergreen de 30 días tiene un propósito diferente y complementario.
-                    </p>
-                    <p>
-                        Esta secuencia te permitirá generar contenido informativo, educativo y motivacional que nutrirá a tu audiencia a largo plazo. Estos correos son vitales porque construyen una autoridad inquebrantable, manteniendo a tu marca en la mente del consumidor (Top of Mind) hasta que estén listos para comprar, maximizando el valor de vida del cliente (LTV).
+                        Esta secuencia te permite generar contenido informativo y motivacional que nutrirá a tu audiencia a largo plazo. Estos correos construyen una autoridad inquebrantable, manteniendo a tu marca en la mente del consumidor hasta que estén listos para comprar.
                     </p>
                 </div>
 
-                {/* CONDITIONAL BANNER BASED ON FEATURE FLAG */}
+                {/* DYNAMIC LIMITS BANNER */}
                 {!isUnlocked ? (
-                    <div id="psd-evergreen-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 shadow-lg shadow-purple-900/10">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20">
-                                <Lock className="w-6 h-6" />
+                    <div id="psd-evergreen-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-2xl flex flex-col gap-8 mb-12 shadow-lg shadow-purple-900/10 backdrop-blur-md">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20 flex-shrink-0">
+                                    <Lock className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h4 className="text-purple-300 font-bold text-xl mb-1">
+                                        Funcionalidad Bloqueada
+                                    </h4>
+                                    <p className="text-gray-300 text-lg leading-relaxed">
+                                        Actualmente tienes activo el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>. Actualiza a <span className="text-white font-bold uppercase">{nextPlanName}</span> para desbloquear la secuencia de 30 días.
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h4 className="text-purple-300 font-bold text-xl mb-1 flex items-center gap-2">
-                                    Funcionalidad Bloqueada
-                                </h4>
+                            <button
+                                onClick={onUpgrade}
+                                className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
+                            >
+                                Activar Plan {nextPlanName} 🚀
+                            </button>
+                        </div>
+
+                        {/* Progress Bar for Locked View */}
+                        <div className="bg-black/40 p-6 rounded-xl border border-white/5 shadow-inner">
+                            <div className="flex justify-between items-center mb-2 text-sm">
+                                <span className="text-gray-400 font-bold uppercase tracking-widest">Estrategia Evergreen</span>
+                                <span className="text-white font-bold">Bloqueada</span>
+                            </div>
+                            <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                <div className={`h-full transition-all duration-1000 ease-out bg-gray-700`} style={{ width: `0%` }}></div>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div id="psd-evergreen-included-banner" className="bg-green-900/20 border border-green-500/30 p-8 rounded-2xl flex flex-col gap-6 mb-12 shadow-lg shadow-green-900/10 backdrop-blur-md">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20 flex-shrink-0">
+                                <Check className="w-6 h-6" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-green-300 font-bold text-xl mb-1">
+                                    Funcionalidad Incluida
+                                </p>
                                 <p className="text-gray-300 text-lg leading-relaxed">
-                                    Actualmente tienes activo el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>, actualiza tu Plan a <span className="text-white font-bold uppercase">{nextPlanName}</span> para desbloquear esta secuencia y seguir creando.
+                                    ¡Enhorabuena! Tu plan <span className="text-white font-bold uppercase">{currentPlanName}</span> ya incluye el sistema de nutrición Evergreen de 30 días.
                                 </p>
                             </div>
                         </div>
-                        <button
-                            onClick={onUpgrade}
-                            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
-                        >
-                            Actualizar a {nextPlanName} 🚀
-                        </button>
-                    </div>
-                ) : (
-                    <div id="psd-evergreen-included-banner" className="bg-green-900/20 border border-green-500/30 p-6 rounded-xl flex items-center gap-4 mb-8 shadow-lg shadow-green-900/10">
-                        <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20">
-                            <Check className="w-6 h-6" />
-                        </div>
-                        <div className="flex-1">
-                            <p className="text-green-300 font-bold text-xl mb-1">
-                                Funcionalidad Incluida
-                            </p>
-                            <p className="text-gray-300 text-lg">
-                                ✅ Tienes acceso total a la <strong>Secuencia Evergreen (30 Días)</strong>. ¡Genera confianza a largo plazo sin costo extra!
-                            </p>
+
+                        {/* Progress Bar */}
+                        <div className="bg-black/30 p-6 rounded-xl border border-white/5 shadow-inner">
+                            <div className="flex justify-between items-center mb-2 text-sm">
+                                <span className="text-gray-400 font-bold uppercase tracking-widest">Estado del Sistema</span>
+                                <span className="text-white font-bold">100% Disponible</span>
+                            </div>
+                            <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                <div className={`h-full transition-all duration-1000 ease-out bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]`} style={{ width: `100%` }}></div>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -84,12 +106,12 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 <div className="grid lg:grid-cols-2 gap-8">
                     {/* LEFT: LIST */}
                     <div id="psd-evergreen-list-col" className="h-full flex flex-col gap-6">
-                        <div id="psd-evergreen-list-card" className="bg-gray-900 p-6 rounded-2xl border border-gray-800 flex flex-col h-full">
+                        <div id="psd-evergreen-list-card" className="bg-gray-900 p-6 rounded-2xl border border-gray-800 flex flex-col h-full shadow-xl">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-2 bg-orange-900/30 rounded-lg text-orange-400 border border-orange-900/50"><Calendar className="w-6 h-6" /></div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-white">Secuencia Evergreen de 30 Días</h3>
-                                    <p className="text-sm text-gray-400">Contenidos informativos para nutrir a tu audiencia y generar autoridad.</p>
+                                    <h3 className="text-xl font-bold text-white">Cronograma de 30 Días</h3>
+                                    <p className="text-sm text-gray-400">Nutrición masiva de audiencia.</p>
                                 </div>
                             </div>
 
@@ -132,7 +154,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     </div>
 
                     {/* RIGHT: DETAIL PANEL */}
-                    <div id="psd-evergreen-detail-card" className="bg-black/40 border border-gray-800 rounded-2xl p-8 flex flex-col relative overflow-hidden h-full min-h-[600px]">
+                    <div id="psd-evergreen-detail-card" className="bg-black/40 border border-gray-800 rounded-2xl p-8 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl">
                         <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
                             <Calendar className="w-32 h-32 text-orange-500" />
                         </div>
@@ -149,11 +171,11 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                 <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">{evergreenData[activeEvergreenEmail].subject}</h3>
                             </div>
 
-                            <div className="bg-orange-900/10 border border-orange-500/20 p-4 rounded-xl mb-8">
-                                <div className="flex gap-2">
-                                    <Info className="w-5 h-5 shrink-0 mt-0.5 text-orange-200" />
+                            <div className="bg-orange-900/10 border border-orange-500/20 p-6 rounded-xl mb-8">
+                                <div className="flex gap-4">
+                                    <div className="p-2 bg-orange-500/20 rounded-lg h-fit"><Info className="w-5 h-5 text-orange-200" /></div>
                                     <div>
-                                        <span className="text-orange-200 font-bold block mb-1">Objetivo del correo:</span>
+                                        <span className="text-orange-200 font-bold block mb-1">Misión de este correo</span>
                                         <p className="text-gray-300 text-base font-light leading-relaxed">
                                             {evergreenData[activeEvergreenEmail].objective}
                                         </p>
@@ -167,11 +189,11 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                     <p><strong>Para:</strong> {avatars[0].name}</p>
                                 </div>
 
-                                <p className="mb-4">Hola {avatars[0].name.split(' ')[0]},</p>
+                                <p className="mb-4 font-bold">Hola {avatars[0].name.split(' ')[0]},</p>
                                 <p className="mb-6">{evergreenData[activeEvergreenEmail].bodyPreview}</p>
                                 
                                 <div className="my-8 p-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg text-center text-gray-500 text-sm italic">
-                                    [... Haz clic para generar el contenido completo automáticamente ...]
+                                    [... El sistema generará este contenido educativo para generar autoridad ...]
                                 </div>
 
                                 <p>Atentamente,<br/>Tu Equipo.</p>
@@ -179,18 +201,12 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
 
                             <div className="mt-8 pt-8 border-t border-gray-800">
                                 <button 
-                                    onClick={isUnlocked ? () => {} : onUpgrade} // Add logic if needed for action
+                                    onClick={isUnlocked ? () => {} : onUpgrade} 
                                     className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg hover:scale-[1.02] ${isUnlocked ? 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white shadow-orange-900/20' : 'bg-gray-800 text-gray-400 cursor-not-allowed border border-gray-700'}`}
                                 >
-                                    {isUnlocked ? (
-                                        <><Crown className="w-6 h-6" /> Redactar secuencia automáticamente</>
-                                    ) : (
-                                        <><Lock className="w-5 h-5" /> Desbloquear para redactar</>
-                                    )}
+                                    {isUnlocked ? <Crown className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
+                                    {isUnlocked ? 'Generar Estrategia Evergreen' : 'Disponible en Plan MAX'}
                                 </button>
-                                <p className="text-center text-xs text-gray-500 mt-3">
-                                    {isUnlocked ? 'La IA usará esta estrategia.' : 'Actualiza tu plan para desbloquear esta función.'}
-                                </p>
                             </div>
                         </div>
                     </div>

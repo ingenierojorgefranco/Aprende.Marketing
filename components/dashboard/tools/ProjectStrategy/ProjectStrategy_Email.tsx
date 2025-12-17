@@ -11,7 +11,7 @@ interface ProjectStrategy_EmailProps {
     setActiveEmail: (idx: number) => void;
     onUpgrade: () => void;
     
-    // Updated Prop
+    // Props de límites
     features?: PlanFeatures;
     planLimits?: PlanLimits;
     nextPlan?: Plan | null;
@@ -22,71 +22,98 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 }) => {
     const navigate = useNavigate();
     
-    // Check feature flag directly
     const isUnlocked = features?.emailStrategy || false;
     const currentPlanName = planLimits?.planName || 'Starter';
     const nextPlanName = nextPlan?.name || 'Superior';
+
+    // Porcentaje visual (100% si está desbloqueado, 0% si no)
+    const usagePercent = isUnlocked ? 100 : 0;
 
     return (
         <div id="psd-email-section" className="pt-8">
             <div id="psd-email-header-container" className="w-[80%] mx-auto py-6">
                 <h3 id="psd-email-title" className="text-3xl font-bold text-white mb-6 flex items-center gap-2">
-                    <Mail className="w-8 h-8 text-yellow-500" /> Correos electrónicos automáticos
+                    <Mail className="w-8 h-8 text-yellow-500" /> Secuencia de Nutrición (7 Días)
                 </h3>
                 <p id="psd-email-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light mb-8">
-                    La bandeja de entrada es un espacio sagrado. No se trata de hacer spam, sino de construir una relación. Hemos diseñado esta secuencia de "Nutrición" para educar a tu lead, derribar sus objeciones internas y presentar tu oferta justo cuando están listos para comprar, aumentando tu conversión sin ser invasivo.
+                    La bandeja de entrada es un espacio sagrado. Hemos diseñado esta secuencia para educar a tu lead, derribar sus objeciones internas y presentar tu oferta justo cuando están listos para comprar.
                 </p>
                 
-                {/* CONDITIONAL BANNER */}
+                {/* DYNAMIC LIMITS BANNER */}
                 {!isUnlocked ? (
-                    <div id="psd-email-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 shadow-lg shadow-purple-900/10">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20">
-                                <Lock className="w-6 h-6" />
+                    <div id="psd-email-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-2xl flex flex-col gap-8 mb-12 shadow-lg shadow-purple-900/10 backdrop-blur-md">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20 flex-shrink-0">
+                                    <Lock className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h4 className="text-purple-300 font-bold text-xl mb-1">
+                                        Funcionalidad Bloqueada
+                                    </h4>
+                                    <p className="text-gray-300 text-lg leading-relaxed">
+                                        Actualmente tienes activo el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>. Actualiza a <span className="text-white font-bold uppercase">{nextPlanName}</span> para desbloquear la redacción de emails.
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h4 className="text-purple-300 font-bold text-xl mb-1 flex items-center gap-2">
-                                    Funcionalidad Bloqueada
-                                </h4>
+                            <button
+                                onClick={onUpgrade}
+                                className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
+                            >
+                                Desbloquear Emails 🚀
+                            </button>
+                        </div>
+
+                        {/* Progress Bar for Locked View */}
+                        <div className="bg-black/40 p-6 rounded-xl border border-white/5 shadow-inner">
+                            <div className="flex justify-between items-center mb-2 text-sm">
+                                <span className="text-gray-400 font-bold uppercase tracking-widest">Secuencias Disponibles</span>
+                                <span className="text-white font-bold">0 / 1</span>
+                            </div>
+                            <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                <div className={`h-full transition-all duration-1000 ease-out bg-gray-700`} style={{ width: `0%` }}></div>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div id="psd-email-included-banner" className="bg-green-900/20 border border-green-500/30 p-8 rounded-2xl flex flex-col gap-6 mb-12 shadow-lg shadow-green-900/10 backdrop-blur-md">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20 flex-shrink-0">
+                                <Check className="w-6 h-6" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-green-300 font-bold text-xl mb-1">
+                                    Funcionalidad Incluida
+                                </p>
                                 <p className="text-gray-300 text-lg leading-relaxed">
-                                    Actualmente tienes activo el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>, actualiza tu Plan a <span className="text-white font-bold uppercase">{nextPlanName}</span> para desbloquear esta secuencia y seguir creando.
+                                    Tu plan actual "<span className="text-white font-bold">{currentPlanName.toUpperCase()}</span>" ya incluye la generación de esta secuencia profesional de 7 días.
                                 </p>
                             </div>
                         </div>
-                        <button
-                            onClick={onUpgrade}
-                            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
-                        >
-                            Actualizar a {nextPlanName} 🚀
-                        </button>
-                    </div>
-                ) : (
-                    <div id="psd-email-included-banner" className="bg-green-900/20 border border-green-500/30 p-6 rounded-xl flex items-center gap-4 mb-8 shadow-lg shadow-green-900/10">
-                        <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20">
-                            <Check className="w-6 h-6" />
-                        </div>
-                        <div className="flex-1">
-                            <p className="text-green-300 font-bold text-xl mb-1">
-                                Funcionalidad Incluida
-                            </p>
-                            <p className="text-gray-300 text-lg">
-                                Tienes <span className="text-white font-bold">1 Secuencia de Ventas (7 Días)</span> disponible para este proyecto. Tu plan actual permite la generación completa de esta estrategia.
-                            </p>
+
+                        {/* Progress Bar */}
+                        <div className="bg-black/30 p-6 rounded-xl border border-white/5 shadow-inner">
+                            <div className="flex justify-between items-center mb-2 text-sm">
+                                <span className="text-gray-400 font-bold uppercase tracking-widest">Secuencias Disponibles</span>
+                                <span className="text-white font-bold">1 / 1</span>
+                            </div>
+                            <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                <div className={`h-full transition-all duration-1000 ease-out bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]`} style={{ width: `100%` }}></div>
+                            </div>
                         </div>
                     </div>
                 )}
             </div>
 
             <div id="psd-email-grid" className="grid lg:grid-cols-2 gap-8">
-                
-                {/* LEFT: EMAIL LIST (7 Days) */}
+                {/* LEFT: EMAIL LIST */}
                 <div id="psd-email-list-col" className="h-full flex flex-col gap-6">
-                    <div id="psd-email-list-card" className="bg-gray-900 p-6 rounded-2xl border border-gray-800 flex flex-col h-full">
+                    <div id="psd-email-list-card" className="bg-gray-900 p-6 rounded-2xl border border-gray-800 flex flex-col h-full shadow-xl">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="p-2 bg-yellow-900/30 rounded-lg text-yellow-400 border border-yellow-900/50"><Mail className="w-6 h-6" /></div>
                             <div>
-                                <h3 className="text-xl font-bold text-white">Secuencia de 7 Días de Correos Electrónicos</h3>
-                                <p className="text-sm text-gray-400">Contenidos de nutrición de Prospectos para generar ventas.</p>
+                                <h3 className="text-xl font-bold text-white">Estructura de la Secuencia</h3>
+                                <p className="text-sm text-gray-400">Contenidos persuasivos por día.</p>
                             </div>
                         </div>
 
@@ -118,7 +145,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 </div>
 
                 {/* RIGHT: DETAIL PANEL */}
-                <div id="psd-email-detail-card" className="bg-black/40 border border-gray-800 rounded-2xl p-8 flex flex-col relative overflow-hidden h-full min-h-[600px]">
+                <div id="psd-email-detail-card" className="bg-black/40 border border-gray-800 rounded-2xl p-8 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl">
                     <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
                         <Mail className="w-32 h-32 text-yellow-500" />
                     </div>
@@ -135,11 +162,11 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">{emailData[activeEmail].subject}</h3>
                         </div>
 
-                        <div className="bg-yellow-900/10 border border-yellow-500/20 p-4 rounded-xl mb-8">
-                            <div className="flex gap-2">
-                                <Info className="w-5 h-5 shrink-0 mt-0.5 text-yellow-200" />
+                        <div className="bg-yellow-900/10 border border-yellow-500/20 p-6 rounded-xl mb-8">
+                            <div className="flex gap-4">
+                                <div className="p-2 bg-yellow-500/20 rounded-lg h-fit"><Info className="w-5 h-5 text-yellow-200" /></div>
                                 <div>
-                                    <span className="text-yellow-200 font-bold block mb-1">Objetivo del correo:</span>
+                                    <span className="text-yellow-200 font-bold block mb-1">Lógica Persuasiva</span>
                                     <p className="text-gray-300 text-base font-light leading-relaxed">
                                         {emailData[activeEmail].objective}
                                     </p>
@@ -153,11 +180,11 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                 <p><strong>Para:</strong> {avatars[0].name}</p>
                             </div>
 
-                            <p className="mb-4">Hola {avatars[0].name.split(' ')[0]},</p>
+                            <p className="mb-4 font-bold">Hola {avatars[0].name.split(' ')[0]},</p>
                             <p className="mb-6">{emailData[activeEmail].bodyPreview}</p>
                             
                             <div className="my-8 p-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg text-center text-gray-500 text-sm italic">
-                                [... Haz clic para generar el contenido completo automáticamente ...]
+                                [... El sistema redactará el cuerpo completo basado en tu avatar ...]
                             </div>
 
                             <p>Atentamente,<br/>Tu Equipo.</p>
@@ -168,15 +195,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                 onClick={isUnlocked ? () => navigate('/dashboard/email') : onUpgrade} 
                                 className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg hover:scale-[1.02] ${isUnlocked ? 'bg-yellow-600 hover:bg-yellow-500 text-black shadow-yellow-900/20' : 'bg-gray-800 text-gray-400 cursor-not-allowed border border-gray-700'}`}
                             >
-                                {isUnlocked ? (
-                                    <><Wand2 className="w-6 h-6" /> Redactar secuencia automáticamente</>
-                                ) : (
-                                    <><Lock className="w-5 h-5" /> Desbloquear para redactar</>
-                                )}
+                                {isUnlocked ? <Wand2 className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
+                                {isUnlocked ? 'Redactar Secuencia con IA' : 'Desbloquear Funcionalidad'}
                             </button>
-                            <p className="text-center text-xs text-gray-500 mt-3">
-                                {isUnlocked ? 'La IA usará esta estrategia para escribir los correos completos.' : 'Actualiza tu plan para usar esta función.'}
-                            </p>
                         </div>
                     </div>
                 </div>

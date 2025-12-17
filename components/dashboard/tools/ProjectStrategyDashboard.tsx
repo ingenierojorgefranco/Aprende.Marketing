@@ -44,6 +44,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [strategyData, setStrategyData] = useState<ProjectMasterStrategy | null>(null);
     const [loading, setLoading] = useState(true);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
+    const [globalDomainCount, setGlobalDomainCount] = useState(0); // NUEVO
     
     // Dynamic Plan Logic
     const [nextPlan, setNextPlan] = useState<Plan | null>(null);
@@ -96,6 +97,10 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 // Logic: Find all pages linked to this project (by ID or legacy Name match)
                 const projectPages = pages.filter(p => p.projectId === id || p.name === strategy.meta.projectName);
                 setLinkedPages(projectPages);
+
+                // NUEVO: Calcular conteo global de dominios
+                const domains = pages.filter(p => !!p.customDomain).length;
+                setGlobalDomainCount(domains);
 
                 // Logic: Determine Next Plan
                 const currentPlanName = user.planLimits?.planName || 'starter';
@@ -274,6 +279,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     onEditPage={(pageId) => navigate(`/dashboard/editor/${pageId}`)}
                     // Props for limits
                     pageCount={pageCount}
+                    domainCount={globalDomainCount}
                     planLimits={user.planLimits}
                     onUpgrade={() => setShowUpgradeModal(true)}
                     nextPlan={nextPlan}

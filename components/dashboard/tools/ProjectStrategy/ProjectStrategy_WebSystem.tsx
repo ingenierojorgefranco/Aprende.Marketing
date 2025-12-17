@@ -84,8 +84,9 @@ interface ProjectStrategy_WebSystemProps {
     linkedPages: LandingPage[];
     onEditPage: (id: string) => void;
     
-    // Props nuevos para límites
+    // Props para límites
     pageCount?: number;
+    domainCount?: number;
     planLimits?: PlanLimits;
     onUpgrade?: () => void;
     nextPlan?: Plan | null; // Dynamic next plan
@@ -93,7 +94,7 @@ interface ProjectStrategy_WebSystemProps {
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
     selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, linkedPages, onEditPage,
-    pageCount = 0, planLimits, onUpgrade, nextPlan
+    pageCount = 0, domainCount = 0, planLimits, onUpgrade, nextPlan
 }) => {
     const navigate = useNavigate();
     const [showPagesModal, setShowPagesModal] = useState(false);
@@ -101,12 +102,32 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     // Lógica de Límites
     const maxPages = planLimits?.maxLandings || 3;
+    const maxDomains = planLimits?.maxDomains || 1;
     const isLimitReached = pageCount >= maxPages;
     const currentPlanName = planLimits?.planName || 'Starter';
     const nextPlanName = nextPlan?.name || 'Superior';
 
+    // Porcentajes de Uso
+    const pageUsagePercent = Math.min(100, (pageCount / maxPages) * 100);
+    const domainUsagePercent = Math.min(100, (domainCount / maxDomains) * 100);
+
+    // Colores de Progreso
+    const getProgressColor = (percent: number) => {
+        if (percent > 85) return "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]";
+        if (percent > 50) return "bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]";
+        return "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]";
+    };
+
+    const getDomainProgressColor = (percent: number) => {
+        if (percent > 90) return "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]";
+        if (percent > 50) return "bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]";
+        return "bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]";
+    };
+
+    const pageProgressColor = getProgressColor(pageUsagePercent);
+    const domainProgressColor = getDomainProgressColor(domainUsagePercent);
+
     const renderTabContent = (tabKey: string) => {
-        // ... (Keep existing implementation)
         const data = LP_TABS_DATA[tabKey as keyof typeof LP_TABS_DATA] as any;
         if (!data) return null;
         if (data.type === 'hero') {
@@ -161,7 +182,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     };
 
     const renderTyTabContent = (tabKey: string) => {
-        // ... (Keep existing implementation)
         const data = TY_TABS_DATA[tabKey as keyof typeof TY_TABS_DATA];
         if (!data) return null;
         return (
@@ -212,40 +232,88 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     
                     {/* DYNAMIC LIMITS BANNER */}
                     {!isLimitReached ? (
-                        <div id="psd-web-included-banner" className="bg-green-900/20 border border-green-500/30 p-6 rounded-xl flex items-center gap-4 mb-8 shadow-lg shadow-green-900/10">
-                            <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20">
-                                <Check className="w-6 h-6" />
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-green-300 font-bold text-xl mb-1">
-                                    Funcionalidad Incluida
-                                </p>
-                                <p className="text-gray-300 text-lg">
-                                    Tienes <span className="text-white font-bold">{pageCount} de {maxPages}</span> páginas utilizadas. Tu plan actual "{currentPlanName.toUpperCase()}" permite máximo crear {maxPages} de estas páginas web de alta conversión.
-                                </p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div id="psd-web-limit-banner" className="bg-purple-900/20 border border-purple-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 shadow-lg shadow-purple-900/10">
+                        <div id="psd-web-included-banner" className="bg-green-900/20 border border-green-500/30 p-8 rounded-2xl flex flex-col gap-6 mb-12 shadow-lg shadow-green-900/10 backdrop-blur-md">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20">
-                                    <Lock className="w-6 h-6" />
+                                <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20 flex-shrink-0">
+                                    <Check className="w-6 h-6" />
                                 </div>
-                                <div>
-                                    <h4 className="text-purple-300 font-bold text-xl mb-1">
-                                        Límite Alcanzado
-                                    </h4>
-                                    <p className="text-gray-300 text-lg">
-                                        Actualmente tienes activo el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>, actualiza tu Plan a <span className="text-white font-bold uppercase">{nextPlanName}</span> para eliminar límites y seguir creando.
+                                <div className="flex-1">
+                                    <p className="text-green-300 font-bold text-xl mb-1">
+                                        Funcionalidad Incluida
+                                    </p>
+                                    <p className="text-gray-300 text-lg leading-relaxed">
+                                        Tu plan actual "<span className="text-white font-bold">{currentPlanName.toUpperCase()}</span>" te permite crear hasta {maxPages} páginas y {maxDomains} dominio personalizado.
                                     </p>
                                 </div>
                             </div>
-                            <button
-                                onClick={onUpgrade}
-                                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
-                            >
-                                Actualizar a {nextPlanName} 🚀
-                            </button>
+
+                            {/* Progress Bars */}
+                            <div className="grid md:grid-cols-2 gap-8 bg-black/30 p-6 rounded-xl border border-white/5 shadow-inner">
+                                <div>
+                                    <div className="flex justify-between items-center mb-2 text-sm">
+                                        <span className="text-gray-400 font-bold uppercase tracking-widest">Páginas Creadas</span>
+                                        <span className="text-white font-bold">{pageCount} / {maxPages}</span>
+                                    </div>
+                                    <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                        <div className={`h-full transition-all duration-1000 ease-out ${pageProgressColor}`} style={{ width: `${pageUsagePercent}%` }}></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="flex justify-between items-center mb-2 text-sm">
+                                        <span className="text-gray-400 font-bold uppercase tracking-widest">Dominios Usados</span>
+                                        <span className="text-white font-bold">{domainCount} / {maxDomains}</span>
+                                    </div>
+                                    <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                        <div className={`h-full transition-all duration-1000 ease-out ${domainProgressColor}`} style={{ width: `${domainUsagePercent}%` }}></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div id="psd-web-limit-banner" className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-2xl flex flex-col gap-8 mb-12 shadow-lg shadow-purple-900/10 backdrop-blur-md">
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20 flex-shrink-0">
+                                        <Lock className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-purple-300 font-bold text-xl mb-1">
+                                            Límite Alcanzado
+                                        </h4>
+                                        <p className="text-gray-300 text-lg leading-relaxed">
+                                            Actualmente tienes activo el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>. Actualiza a <span className="text-white font-bold uppercase">{nextPlanName}</span> para seguir escalando.
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={onUpgrade}
+                                    className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
+                                >
+                                    Actualizar a {nextPlanName} 🚀
+                                </button>
+                            </div>
+
+                            {/* Progress Bars for Limit View */}
+                            <div className="grid md:grid-cols-2 gap-8 bg-black/40 p-6 rounded-xl border border-white/5 shadow-inner">
+                                <div>
+                                    <div className="flex justify-between items-center mb-2 text-sm">
+                                        <span className="text-gray-400 font-bold uppercase tracking-widest">Páginas de Venta</span>
+                                        <span className="text-white font-bold">{pageCount} / {maxPages}</span>
+                                    </div>
+                                    <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                        <div className={`h-full transition-all duration-1000 ease-out bg-red-500`} style={{ width: `100%` }}></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="flex justify-between items-center mb-2 text-sm">
+                                        <span className="text-gray-400 font-bold uppercase tracking-widest">Dominios Personalizados</span>
+                                        <span className="text-white font-bold">{domainCount} / {maxDomains}</span>
+                                    </div>
+                                    <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                        <div className={`h-full transition-all duration-1000 ease-out ${domainProgressColor}`} style={{ width: `${domainUsagePercent}%` }}></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -254,7 +322,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     {/* Landing Page Block */}
                     <div id="psd-lp-block" className="bg-gray-900 border border-gray-800 rounded-3xl overflow-hidden hover:border-blue-500/30 transition group shadow-lg">
                         <div className="grid md:grid-cols-2">
-                            {/* ... (Keep left column exactly as is) ... */}
                             <div id="psd-lp-left-col" className="p-8 md:p-12 flex flex-col justify-center order-2 md:order-1 relative">
                                 <div id="psd-lp-header" className="flex items-center gap-4 mb-6">
                                     <div className="w-12 h-12 bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-400 border border-blue-500/20 shrink-0">
@@ -414,7 +481,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     {/* Thank You Page Block */}
                     <div id="psd-ty-block" className="bg-gray-900 border border-gray-800 rounded-3xl overflow-hidden hover:border-green-500/30 transition group shadow-lg">
                         <div className="grid md:grid-cols-2">
-                            {/* ... (Keep left column mostly static) ... */}
                             <div id="psd-ty-left-col" className="p-8 md:p-12 flex flex-col justify-center order-1 md:order-1 relative">
                                 <div id="psd-ty-header" className="flex items-center gap-4 mb-6">
                                     <div className="w-12 h-12 bg-green-900/20 rounded-xl flex items-center justify-center text-green-400 border border-green-500/20 shrink-0">
