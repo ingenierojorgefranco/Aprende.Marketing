@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { Article, User } from '../../../types';
-import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { UpgradeModal } from '../UpgradeModal';
@@ -20,7 +19,10 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   const { user, articleCount } = useOutletContext() as DashboardContext; 
   const [localArticles, setLocalArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Modals States
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   useEffect(() => {
       const fetchArticles = async () => {
@@ -70,15 +72,10 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       );
   }
 
-  // Stats Logic
-  const avgSeoScore = localArticles.length > 0 
-    ? Math.round(localArticles.reduce((acc, curr) => acc + (curr.seoScore || 0), 0) / localArticles.length) 
-    : 0;
-
   // Plan Logic
   const maxArticles = user.planLimits?.maxArticles || 2;
   const usagePercent = Math.min(100, (articleCount / maxArticles) * 100);
-  const isStarter = user.planLimits?.planName === 'starter';
+  const isAtLimit = articleCount >= maxArticles;
 
   // Color logic for bar
   let progressColor = "bg-green-500";
@@ -91,7 +88,8 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       <UpgradeModal 
           isOpen={showUpgradeModal} 
           onClose={() => setShowUpgradeModal(false)} 
-          reason={`Has alcanzado el límite de ${maxArticles} artículos SEO de tu plan ${user.planLimits?.planName}.`}
+          currentPlan={user.planLimits?.planName}
+          reason="Has alcanzado tu cupo mensual de artículos. Actualiza tu plan para seguir generando contenido SEO."
       />
 
       {/* HERO HEADER */}
@@ -121,32 +119,45 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                       <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
                           <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
                       </div>
-                      {isStarter && usagePercent >= 80 && (
+                      {isAtLimit && (
                           <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
                               <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                              <span>Estás cerca del límite mensual. Actualiza a PRO para generación ilimitada.</span>
+                              <span>Límite mensual alcanzado. Actualiza para generar contenido ilimitado.</span>
                           </div>
                       )}
                   </div>
               </div>
 
               <div className="flex flex-col gap-4 shrink-0 w-full md:w-auto">
-                  <button
-                      onClick={handleCreate}
-                      disabled={articleCount >= maxArticles}
-                      className={`group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden ${articleCount >= maxArticles ? 'bg-gray-700 cursor-not-allowed text-gray-400' : 'bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:-translate-y-1'}`}
-                  >
-                      <span className="relative z-10 flex items-center justify-center gap-2">
-                          <PenTool className="w-5 h-5" /> 
-                          {articleCount >= maxArticles ? 'Límite Alcanzado' : 'Redactar Nuevo'}
-                      </span>
-                  </button>
-                  
-                  {isStarter && (
-                      <button className="px-8 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02] border border-yellow-400/20">
-                          <Crown className="w-4 h-4 fill-current" /> Pasar a Plan PRO
-                      </button>
+                  {isAtLimit ? (
+                    <button
+                        onClick={() => setShowUpgradeModal(true)}
+                        className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20"
+                    >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                            <Crown className="w-5 h-5 fill-current" /> 
+                            Límite Alcanzado: Subir a PRO
+                        </span>
+                    </button>
+                  ) : (
+                    <button
+                        onClick={handleCreate}
+                        className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:-translate-y-1"
+                    >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                            <PenTool className="w-5 h-5" /> 
+                            Redactar Nuevo
+                        </span>
+                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                    </button>
                   )}
+                  
+                  <button 
+                      onClick={() => setShowVideoModal(true)}
+                      className="px-8 py-3 bg-transparent border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                  >
+                      <PlayCircle className="w-4 h-4" /> ¿Cómo funciona?
+                  </button>
               </div>
           </div>
       </div>
@@ -154,7 +165,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       {/* CONTENT GRID */}
       {localArticles.length === 0 ? (
         <div className="text-center py-20 bg-gray-900 rounded-2xl border border-dashed border-gray-700 flex flex-col items-center justify-center">
-          <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-6 shadow-xl border border-gray-700">
+          <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-gray-700">
             <BookOpen className="w-10 h-10 text-gray-600" />
           </div>
           <h3 className="text-xl font-bold text-white mb-2">Tu blog está vacío</h3>
@@ -169,16 +180,12 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {localArticles.map((article) => {
-             const pageSlug = article.pageSubdomain 
-                ? article.pageSubdomain.replace('.generatorlanding.com', '') 
-                : article.pageId;
-             
-             const articleUrl = pageSlug ? `/admin/lp/${pageSlug}/blog/${article.slug}` : '#';
-             const landingUrl = pageSlug ? `/admin/lp/${pageSlug}` : '#';
+             const basePageSlug = article.pageSubdomain ? article.pageSubdomain.split(".")[0] : article.pageId;
+             const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${article.slug}` : '#';
+             const landingUrl = basePageSlug ? `/admin/lp/${basePageSlug}` : '#';
 
              return (
                 <div key={article.id} className="bg-gray-900 rounded-2xl border border-gray-800 hover:border-purple-500/50 transition duration-300 group flex flex-col h-full overflow-hidden shadow-xl relative">
-                {/* Accent Line */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition"></div>
 
                 {article.featuredImage ? (
@@ -262,7 +269,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                         <Edit2 className="w-3.5 h-3.5" /> Editar
                     </button>
                     
-                    {article.pageId && pageSlug && article.status === 'published' && (
+                    {article.pageId && basePageSlug && article.status === 'published' && (
                         <a 
                             href={articleUrl} 
                             target="_blank" 
@@ -286,6 +293,36 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
              );
           })}
         </div>
+      )}
+
+      {/* VIDEO MODAL */}
+      {showVideoModal && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
+              <div className="relative w-full max-w-4xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+                  <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                      <h3 className="font-bold text-white flex items-center gap-2">
+                          <PlayCircle className="w-5 h-5 text-purple-500" /> Tutorial: Estrategia de Contenidos SEO
+                      </h3>
+                      <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                          <X className="w-6 h-6"/>
+                      </button>
+                  </div>
+                  <div className="aspect-video w-full">
+                      <iframe 
+                          className="w-full h-full"
+                          src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                          title="Cómo generar artículos con IA" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowFullScreen
+                      ></iframe>
+                  </div>
+                  <div className="p-6 bg-gray-900">
+                      <p className="text-gray-300 text-sm leading-relaxed">
+                          Aprende a generar artículos profesionales optimizados para Google. Descubre cómo atraer tráfico orgánico calificado hacia tus ofertas de Hotmart sin gastar en publicidad.
+                      </p>
+                  </div>
+              </div>
+          </div>
       )}
     </div>
   );

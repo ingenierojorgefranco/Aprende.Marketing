@@ -1,9 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { Project, User } from '../../../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, Sparkles } from 'lucide-react';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X } from 'lucide-react';
+import { UpgradeModal } from '../UpgradeModal';
 
 interface DashboardContext {
   user: User;
@@ -14,6 +14,10 @@ export const ProjectsList: React.FC = () => {
     const { user } = useOutletContext() as DashboardContext;
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
+    
+    // Modals State
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [showVideoModal, setShowVideoModal] = useState(false);
     
     // Generating state per project ID
     const [generatingId, setGeneratingId] = useState<string | null>(null);
@@ -44,12 +48,6 @@ export const ProjectsList: React.FC = () => {
 
     const handleViewStrategy = async (e: React.MouseEvent, project: Project) => {
         e.stopPropagation();
-        
-        // Always navigate to the dashboard view. 
-        // If strategy JSON doesn't exist, we can handle generation there or trigger it here before nav.
-        // For now, let's keep the logic simple: Navigate to dashboard. 
-        // The dashboard is hardcoded for demo now, but in real logic it would check project.strategy_json
-        
         navigate(`/dashboard/projects/${project.id}/strategy`);
     };
 
@@ -66,7 +64,7 @@ export const ProjectsList: React.FC = () => {
     const maxProjects = user.planLimits?.maxProjects || 1;
     const currentCount = projects.length;
     const usagePercent = Math.min(100, (currentCount / maxProjects) * 100);
-    const isStarter = user.planLimits?.planName === 'starter';
+    const isAtLimit = currentCount >= maxProjects;
 
     // Color logic for bar
     let progressColor = "bg-blue-500";
@@ -103,32 +101,47 @@ export const ProjectsList: React.FC = () => {
                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
                                 <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
                             </div>
-                            {isStarter && currentCount >= maxProjects && (
+                            {isAtLimit && (
                                 <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
                                     <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                                    <span>Has alcanzado el límite. Actualiza a PRO para gestionar múltiples nichos.</span>
+                                    <span>Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-4 shrink-0 w-full md:w-auto">
-                        <button
-                            onClick={() => navigate('/dashboard/projects/create')}
-                            disabled={currentCount >= maxProjects}
-                            className={`group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden ${currentCount >= maxProjects ? 'bg-gray-800 cursor-not-allowed text-gray-500 border border-gray-700' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:-translate-y-1'}`}
-                        >
-                            <span className="relative z-10 flex items-center justify-center gap-2">
-                                <Plus className={`w-5 h-5`} /> 
-                                {currentCount >= maxProjects ? 'Límite Alcanzado' : 'Nuevo Proyecto'}
-                            </span>
-                        </button>
-                        
-                        {isStarter && (
-                            <button className="px-8 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02] border border-yellow-400/20">
-                                <Crown className="w-4 h-4 fill-current" /> Pasar a Plan PRO
+                    <div className="flex flex-col gap-3 shrink-0 w-full md:w-auto">
+                        {/* Dynamic Action Button */}
+                        {isAtLimit ? (
+                            <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20"
+                            >
+                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                    <Crown className="w-5 h-5 fill-current" /> 
+                                    Límite Alcanzado: Subir a PRO
+                                </span>
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => navigate('/dashboard/projects/create')}
+                                className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:-translate-y-1"
+                            >
+                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                    <Plus className="w-5 h-5" /> 
+                                    Nuevo Proyecto
+                                </span>
+                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                             </button>
                         )}
+                        
+                        {/* How it works button */}
+                        <button 
+                            onClick={() => setShowVideoModal(true)}
+                            className="px-8 py-3 bg-transparent border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                        >
+                            <PlayCircle className="w-4 h-4" /> ¿Cómo funciona?
+                        </button>
                     </div>
                 </div>
             </div>
@@ -189,7 +202,6 @@ export const ProjectsList: React.FC = () => {
                                 </p>
 
                                 <div className="mt-auto space-y-3 pt-4 border-t border-gray-800">
-                                    {/* Strategy Button - Updated to Navigate */}
                                     <button 
                                         onClick={(e) => handleViewStrategy(e, project)}
                                         disabled={generatingId === project.id}
@@ -218,6 +230,43 @@ export const ProjectsList: React.FC = () => {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* MODALS */}
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => setShowUpgradeModal(false)} 
+                currentPlan={user.planLimits?.planName}
+                reason="Para gestionar más de un proyecto o nicho necesitas ampliar tu capacidad."
+            />
+
+            {showVideoModal && (
+                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-4xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Estrategia de Nichos
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Cómo funciona el gestor de proyectos" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                        <div className="p-6 bg-gray-900">
+                            <p className="text-gray-300 text-sm leading-relaxed">
+                                Aprende a organizar tus productos digitales por proyectos para que la Inteligencia Artificial pueda generar estrategias personalizadas para cada nicho de mercado.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

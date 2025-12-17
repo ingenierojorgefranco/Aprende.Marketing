@@ -310,7 +310,6 @@ export const DashboardLayout = ({
   // Plan Logic for Widget (Use effectiveUser to reflect simulation)
   const currentPlan = effectiveUser.planLimits?.planName || 'starter';
   const isMax = currentPlan === 'max';
-  const isPro = currentPlan === 'pro';
 
   return (
     <div className={`h-screen overflow-hidden bg-black text-gray-200 flex font-sans ${simulatedPlanSlug ? 'ring-4 ring-yellow-500/20' : ''}`}>
@@ -352,28 +351,34 @@ export const DashboardLayout = ({
             </div>
         )}
 
-        {/* Upgrade Widget (Visible based on EFFECTIVE plan) */}
+        {/* RE-DESIGNED UPGRADE WIDGET */}
         {!isMax && (
-            <div className="border-t border-gray-800 bg-[#0a0a0a] p-6">
-                <div className={`p-5 rounded-2xl border border-white/5 shadow-xl relative overflow-hidden group ${isPro ? 'bg-gradient-to-br from-purple-900/40 to-indigo-900/40' : 'bg-gradient-to-br from-orange-900/40 to-red-900/40'}`}>
-                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                    <div className="flex items-center gap-3 mb-3 relative z-10">
-                        <div className={`p-2 rounded-lg flex items-center justify-center shadow-lg ${isPro ? 'bg-purple-500 text-white' : 'bg-orange-500 text-white'}`}>
-                            {isPro ? <Crown className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
+            <div className="border-t border-gray-800 bg-[#0a0a0a] p-4">
+                <div className="p-6 rounded-[2.5rem] border-2 border-amber-500/30 shadow-[0_0_40px_rgba(245,158,11,0.15)] relative overflow-hidden group bg-gradient-to-br from-amber-950 via-[#1a1103] to-black">
+                    {/* Visual Effects */}
+                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.1),transparent)] pointer-events-none"></div>
+                    <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all duration-700"></div>
+                    
+                    <div className="flex flex-col items-center text-center relative z-10">
+                        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 text-white shadow-[0_10px_20px_rgba(217,119,6,0.3)] mb-5 animate-pulse transform group-hover:scale-110 transition-transform">
+                            <Crown className="w-8 h-8 fill-current" />
                         </div>
-                        <span className="font-bold text-white text-base tracking-wide">
-                            {isPro ? 'Plan Negocios' : 'Plan Básico'}
-                        </span>
+                        
+                        <h3 className="font-black text-white text-xl leading-tight mb-3 tracking-tighter uppercase">
+                            ¡Lleva tu Negocio <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-orange-500">al Máximo!</span>
+                        </h3>
+                        
+                        <p className="text-xs text-gray-300 mb-6 leading-relaxed font-semibold px-2">
+                            Desbloquea Proyectos Ilimitados, IA de Alta Precisión y Dominios Propios para triplicar tus ventas.
+                        </p>
+                        
+                        <button 
+                            onClick={() => setShowUpgradeModal(true)}
+                            className="w-full py-4 rounded-2xl font-black text-xs transition-all shadow-[0_15px_30px_rgba(0,0,0,0.5)] bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500 hover:scale-[1.05] active:scale-95 uppercase tracking-[0.15em] flex items-center justify-center gap-2 border-t border-white/20"
+                        >
+                            ACTIVA PRO AHORA 🚀
+                        </button>
                     </div>
-                    <p className="text-xs text-gray-300 mb-4 relative z-10">
-                        {isPro ? 'Desbloquea generación ilimitada y soporte prioritario.' : 'Actualiza para crear más proyectos y usar IA avanzada.'}
-                    </p>
-                    <button 
-                        onClick={() => setShowUpgradeModal(true)}
-                        className={`w-full py-2.5 rounded-xl font-bold text-xs transition relative z-10 shadow-lg ${isPro ? 'bg-white text-purple-900 hover:bg-gray-100' : 'bg-white text-orange-900 hover:bg-gray-100'}`}
-                    >
-                        Mejorar Plan
-                    </button>
                 </div>
             </div>
         )}
@@ -392,7 +397,7 @@ export const DashboardLayout = ({
                      <h2 className="text-xl font-bold text-white hidden sm:block">
                          Hola, {effectiveUser.name.split(' ')[0]} 👋
                      </h2>
-                     {simulatedPlanSlug && (
+                     {user.role === 'admin' && simulatedPlanSlug && (
                          <span className="text-xs text-yellow-500 font-bold bg-yellow-900/20 px-2 py-0.5 rounded border border-yellow-500/20 w-fit">
                              Simulando: {simulatedPlanSlug.toUpperCase()}
                          </span>

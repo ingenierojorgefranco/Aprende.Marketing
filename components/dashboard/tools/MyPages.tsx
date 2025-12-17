@@ -1,23 +1,26 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { LandingPage, User } from '../../../types';
-import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle } from 'lucide-react';
+import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle } from 'lucide-react';
+import { UpgradeModal } from '../UpgradeModal';
 
 interface DashboardContext {
   user: User;
+  pageCount: number;
 }
 
 export const MyPages: React.FC = () => {
     const navigate = useNavigate();
-    const { user } = useOutletContext() as DashboardContext; // Access user info
+    const { user, pageCount } = useOutletContext() as DashboardContext;
     const [pages, setPages] = useState<LandingPage[]>([]);
     const [loading, setLoading] = useState(true);
     const [pageToDelete, setPageToDelete] = useState<LandingPage | null>(null);
     const [deleting, setDeleting] = useState(false);
 
-    // Domain Modal States
+    // Modals States
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [showVideoModal, setShowVideoModal] = useState(false);
     const [showDomainModal, setShowDomainModal] = useState(false);
     const [selectedPageForDomain, setSelectedPageForDomain] = useState<LandingPage | null>(null);
 
@@ -62,7 +65,6 @@ export const MyPages: React.FC = () => {
         }
     };
 
-    // --- DOMAIN HANDLERS ---
     const openDomainModal = (page: LandingPage) => {
         setSelectedPageForDomain(page);
         setShowDomainModal(true);
@@ -86,13 +88,12 @@ export const MyPages: React.FC = () => {
     const maxLandings = user.planLimits?.maxLandings || 3;
     const currentCount = pages.length;
     const usagePercent = Math.min(100, (currentCount / maxLandings) * 100);
+    const isAtLimit = currentCount >= maxLandings;
     
     // Plan Logic (Domains)
     const maxDomains = user.planLimits?.maxDomains || 1;
     const currentDomainsCount = pages.filter(p => p.customDomain).length;
     const domainUsagePercent = Math.min(100, (currentDomainsCount / maxDomains) * 100);
-
-    const isStarter = user.planLimits?.planName === 'starter';
 
     // Color logic for bar
     let progressColor = "bg-green-500";
@@ -108,7 +109,6 @@ export const MyPages: React.FC = () => {
             
             {/* HERO HEADER */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-gray-800 shadow-2xl">
-                {/* Decorative blob */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 
                 <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
@@ -125,10 +125,7 @@ export const MyPages: React.FC = () => {
                             </p>
                         </div>
                         
-                        {/* Plan Usage Bars */}
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner space-y-4">
-                            
-                            {/* Pages Limit */}
                             <div>
                                 <div className="flex justify-between items-center mb-2 text-sm">
                                     <span className="text-gray-300 font-medium">Páginas Creadas</span>
@@ -139,7 +136,6 @@ export const MyPages: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Domains Limit */}
                             <div>
                                 <div className="flex justify-between items-center mb-2 text-sm">
                                     <span className="text-gray-300 font-medium">Dominios Personalizados</span>
@@ -149,34 +145,39 @@ export const MyPages: React.FC = () => {
                                     <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${domainProgressColor}`} style={{ width: `${domainUsagePercent}%` }}></div>
                                 </div>
                             </div>
-
-                            {isStarter && (usagePercent >= 80 || domainUsagePercent >= 80) && (
-                                <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
-                                    <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                                    <span>Estás cerca del límite. Actualiza a PRO para desbloquear más recursos.</span>
-                                </div>
-                            )}
                         </div>
                     </div>
 
                     <div className="flex flex-col gap-4 shrink-0 w-full md:w-auto">
-                        <button
-                            onClick={() => navigate("/dashboard/generator")}
-                            disabled={currentCount >= maxLandings}
-                            className={`group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden ${currentCount >= maxLandings ? 'bg-gray-700 cursor-not-allowed text-gray-400' : 'bg-primary hover:bg-indigo-600 text-white shadow-primary/25 hover:-translate-y-1'}`}
-                        >
-                            <span className="relative z-10 flex items-center justify-center gap-2">
-                                <Zap className={`w-5 h-5 ${currentCount >= maxLandings ? '' : 'fill-current'}`} /> 
-                                {currentCount >= maxLandings ? 'Límite Alcanzado' : 'Crear Nueva Página'}
-                            </span>
-                            {currentCount < maxLandings && <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>}
-                        </button>
-                        
-                        {isStarter && (
-                            <button className="px-8 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02] border border-yellow-400/20">
-                                <Crown className="w-4 h-4 fill-current" /> Pasar a Plan PRO
+                        {isAtLimit ? (
+                            <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20"
+                            >
+                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                    <Crown className="w-5 h-5 fill-current" /> 
+                                    Límite Alcanzado: Subir a PRO
+                                </span>
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => navigate("/dashboard/generator")}
+                                className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-primary hover:bg-indigo-600 text-white shadow-primary/25 hover:-translate-y-1"
+                            >
+                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                    <Zap className="w-5 h-5 fill-current" /> 
+                                    Crear Nueva Página
+                                </span>
+                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                             </button>
                         )}
+                        
+                        <button 
+                            onClick={() => setShowVideoModal(true)}
+                            className="px-8 py-3 bg-transparent border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                        >
+                            <PlayCircle className="w-4 h-4" /> ¿Cómo funciona?
+                        </button>
                     </div>
                 </div>
             </div>
@@ -204,7 +205,6 @@ export const MyPages: React.FC = () => {
 
                         return (
                             <div key={page.id} className="bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-800 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
-                                {/* Decorative top accent */}
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                                 <div className="flex justify-between items-start mb-4">
@@ -236,7 +236,6 @@ export const MyPages: React.FC = () => {
                                         <PenTool className="w-4 h-4" /> Editar Diseño
                                     </button>
                                     
-                                    {/* DOMAIN MANAGEMENT BUTTON */}
                                     <button 
                                         onClick={() => openDomainModal(page)}
                                         className={`w-full py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition border ${
@@ -268,14 +267,49 @@ export const MyPages: React.FC = () => {
                 </div>
             )}
 
-            {/* DOMAIN CONFIGURATION MODAL */}
+            {/* MODALS */}
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => setShowUpgradeModal(false)} 
+                currentPlan={user.planLimits?.planName}
+                reason="Has alcanzado el límite de páginas de tu plan. Actualiza para crear más embudos."
+            />
+
+            {showVideoModal && (
+                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-4xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Creación de Páginas
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Cómo crear páginas de venta" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                        <div className="p-6 bg-gray-900">
+                            <p className="text-gray-300 text-sm leading-relaxed">
+                                Aprende a utilizar el generador inteligente para crear páginas de alta conversión en segundos, optimizadas para móviles y ventas directas.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {showDomainModal && selectedPageForDomain && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl p-6 relative animate-in zoom-in-95">
                         <button onClick={closeDomainModal} className="absolute top-4 right-4 text-gray-500 hover:text-white p-1 rounded-full hover:bg-gray-800 transition">
                             <X className="w-5 h-5" />
                         </button>
-
                         <div className="text-center mb-6">
                             {selectedPageForDomain.customDomain ? (
                                 <div className="w-16 h-16 bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/20 shadow-lg shadow-green-500/10">
@@ -296,9 +330,7 @@ export const MyPages: React.FC = () => {
                                 }
                             </p>
                         </div>
-
                         {selectedPageForDomain.customDomain ? (
-                            // CASE: DOMAIN CONNECTED
                             <div className="space-y-4">
                                 <div className="bg-black/40 border border-green-500/30 rounded-xl p-4 text-center">
                                     <p className="text-xs text-green-500 font-bold uppercase tracking-wider mb-1">Dominio Configurado</p>
@@ -307,66 +339,24 @@ export const MyPages: React.FC = () => {
                                     </a>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <a 
-                                        href={`https://${selectedPageForDomain.customDomain}`} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-center gap-2 py-3 rounded-lg bg-green-600 hover:bg-green-500 text-white font-bold transition shadow-lg shadow-green-900/20"
-                                    >
-                                        <ExternalLink className="w-4 h-4" /> Visitar
-                                    </a>
-                                    <a 
-                                        href={`https://wa.me/573000000000?text=Hola, necesito soporte para cambiar el dominio de mi página ID: ${selectedPageForDomain.id}`} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-center gap-2 py-3 rounded-lg border border-gray-600 hover:bg-gray-800 text-gray-300 hover:text-white font-medium transition"
-                                    >
-                                        <Settings className="w-4 h-4" /> Soporte
-                                    </a>
+                                    <a href={`https://${selectedPageForDomain.customDomain}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3 rounded-lg bg-green-600 hover:bg-green-500 text-white font-bold transition shadow-lg shadow-green-900/20"><ExternalLink className="w-4 h-4" /> Visitar</a>
+                                    <a href={`https://wa.me/573000000000?text=Hola, necesito soporte para cambiar el dominio de mi página ID: ${selectedPageForDomain.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3 rounded-lg border border-gray-600 hover:bg-gray-800 text-gray-300 hover:text-white font-medium transition"><Settings className="w-4 h-4" /> Soporte</a>
                                 </div>
                             </div>
                         ) : (
-                            // CASE: NO DOMAIN
                             <div className="space-y-6">
                                 <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
-                                    <div className="flex items-start gap-3 mb-2">
-                                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
-                                        <p className="text-sm text-gray-300">Certificado SSL (Candado Seguro) Incluido</p>
-                                    </div>
-                                    <div className="flex items-start gap-3">
-                                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
-                                        <p className="text-sm text-gray-300">Servidores CDN de Alta Velocidad</p>
-                                    </div>
+                                    <div className="flex items-start gap-3 mb-2"><CheckCircle className="w-4 h-4 text-green-500 mt-0.5" /><p className="text-sm text-gray-300">Certificado SSL (Candado Seguro) Incluido</p></div>
+                                    <div className="flex items-start gap-3"><CheckCircle className="w-4 h-4 text-green-500 mt-0.5" /><p className="text-sm text-gray-300">Servidores CDN de Alta Velocidad</p></div>
                                 </div>
-
-                                <div className="text-center">
-                                    <p className="text-xs text-blue-300 font-bold bg-blue-900/20 py-1.5 px-3 rounded-full inline-block border border-blue-500/20">
-                                        ℹ️ En tu plan actual puedes añadir {maxDomains} dominios
-                                    </p>
-                                </div>
-
+                                <div className="text-center"><p className="text-xs text-blue-300 font-bold bg-blue-900/20 py-1.5 px-3 rounded-full inline-block border border-blue-500/20">ℹ️ En tu plan actual puedes añadir {maxDomains} dominios</p></div>
                                 {currentDomainsCount >= maxDomains ? (
                                     <div className="space-y-3">
-                                        <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-xl flex items-center gap-3">
-                                            <AlertTriangle className="w-6 h-6 text-red-500 shrink-0" />
-                                            <p className="text-sm text-red-200">Has alcanzado el límite de dominios de tu plan.</p>
-                                        </div>
-                                        <button 
-                                            disabled
-                                            className="w-full py-4 rounded-xl bg-gray-800 text-gray-500 font-bold cursor-not-allowed border border-gray-700"
-                                        >
-                                            Actualiza tu Plan para añadir más
-                                        </button>
+                                        <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-xl flex items-center gap-3"><AlertTriangle className="w-6 h-6 text-red-500 shrink-0" /><p className="text-sm text-red-200">Has alcanzado el límite de dominios de tu plan.</p></div>
+                                        <button onClick={() => setShowUpgradeModal(true)} className="w-full py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-bold border border-yellow-400/20">Actualizar Plan</button>
                                     </div>
                                 ) : (
-                                    <a 
-                                        href={`https://wa.me/573000000000?text=Hola, quiero configurar un dominio personalizado para mi página ID: ${selectedPageForDomain.id}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 transition-transform hover:scale-[1.02]"
-                                    >
-                                        <MessageCircle className="w-5 h-5" /> Quiero configurar mi dominio
-                                    </a>
+                                    <a href={`https://wa.me/573000000000?text=Hola, quiero configurar un dominio personalizado para mi página ID: ${selectedPageForDomain.id}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 transition-transform hover:scale-[1.02]"><MessageCircle className="w-5 h-5" /> Quiero configurar mi dominio</a>
                                 )}
                             </div>
                         )}
