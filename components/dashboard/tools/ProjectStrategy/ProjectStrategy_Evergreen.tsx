@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Calendar, Sparkles, Check, Info, Crown, Lock } from 'lucide-react';
+import { PlanFeatures } from '../../../../types';
 
 interface ProjectStrategy_EvergreenProps {
     evergreenData: any[];
@@ -9,15 +10,16 @@ interface ProjectStrategy_EvergreenProps {
     setActiveEvergreenEmail: (idx: number) => void;
     onUpgrade: () => void;
     
-    // Nuevo Prop
-    planName?: string;
+    // Updated Prop
+    features?: PlanFeatures;
 }
 
 export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps> = ({
-    evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, planName
+    evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features
 }) => {
     
-    const isStarter = planName === 'starter';
+    // Check feature flag directly
+    const isUnlocked = features?.evergreenStrategy || false;
 
     return (
         <div id="psd-evergreen-section" className="pt-12">
@@ -34,8 +36,8 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     </p>
                 </div>
 
-                {/* CONDITIONAL BANNER BASED ON PLAN */}
-                {isStarter ? (
+                {/* CONDITIONAL BANNER BASED ON FEATURE FLAG */}
+                {!isUnlocked ? (
                     <div id="psd-evergreen-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 shadow-lg shadow-purple-900/10">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20">
@@ -43,10 +45,10 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                             </div>
                             <div>
                                 <h4 className="text-purple-300 font-bold text-xl mb-1 flex items-center gap-2">
-                                    Potencia tu Alcance
+                                    Funcionalidad Bloqueada
                                 </h4>
                                 <p className="text-gray-300 text-lg leading-relaxed">
-                                    ⚡ La Secuencia Evergreen de 30 días es una funcionalidad avanzada. Actualiza a PRO para activarla.
+                                    🔒 Automatiza todo tu mes. Esta secuencia de autoridad solo está disponible en planes superiores.
                                 </p>
                             </div>
                         </div>
@@ -54,7 +56,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                             onClick={onUpgrade}
                             className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
                         >
-                            Actualizar a MAX 🚀
+                            Desbloquear Evergreen 🚀
                         </button>
                     </div>
                 ) : (
@@ -67,7 +69,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                 Funcionalidad Incluida
                             </p>
                             <p className="text-gray-300 text-lg">
-                                Tu plan incluye el acceso completo a la Secuencia Evergreen. ¡Genera confianza a largo plazo sin costo extra!
+                                ✅ Tienes acceso total a la <strong>Secuencia Evergreen (30 Días)</strong>. ¡Genera confianza a largo plazo sin costo extra!
                             </p>
                         </div>
                     </div>
@@ -172,11 +174,18 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                             </div>
 
                             <div className="mt-8 pt-8 border-t border-gray-800">
-                                <button onClick={onUpgrade} className="w-full py-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg shadow-orange-900/20 hover:scale-[1.02]">
-                                    <Crown className="w-6 h-6" /> Redactar secuencia automáticamente
+                                <button 
+                                    onClick={isUnlocked ? () => {} : onUpgrade} // Add logic if needed for action
+                                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg hover:scale-[1.02] ${isUnlocked ? 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white shadow-orange-900/20' : 'bg-gray-800 text-gray-400 cursor-not-allowed border border-gray-700'}`}
+                                >
+                                    {isUnlocked ? (
+                                        <><Crown className="w-6 h-6" /> Redactar secuencia automáticamente</>
+                                    ) : (
+                                        <><Lock className="w-5 h-5" /> Desbloquear para redactar</>
+                                    )}
                                 </button>
                                 <p className="text-center text-xs text-gray-500 mt-3">
-                                    Actualiza a MAX para desbloquear esta función.
+                                    {isUnlocked ? 'La IA usará esta estrategia.' : 'Actualiza tu plan para desbloquear esta función.'}
                                 </p>
                             </div>
                         </div>

@@ -1,4 +1,8 @@
 
+
+
+
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
@@ -282,8 +286,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     avatars={strategyData.avatars}
                     activeEmail={activeEmail}
                     setActiveEmail={setActiveEmail}
-                    // Props for limits
-                    planName={user.planLimits?.planName}
+                    // Updated to use feature flag
+                    features={user.planLimits?.features}
                     onUpgrade={() => setShowUpgradeModal(true)}
                 />
 
@@ -292,8 +296,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     avatars={strategyData.avatars}
                     activeEvergreenEmail={activeEvergreenEmail}
                     setActiveEvergreenEmail={setActiveEvergreenEmail}
-                    // Props for limits
-                    planName={user.planLimits?.planName}
+                    // Updated to use feature flag
+                    features={user.planLimits?.features}
                     onUpgrade={() => setShowUpgradeModal(true)}
                 />
 

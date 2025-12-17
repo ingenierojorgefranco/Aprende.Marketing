@@ -2,6 +2,7 @@
 import React from 'react';
 import { Mail, Sparkles, Check, Info, Wand2, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { PlanFeatures } from '../../../../types';
 
 interface ProjectStrategy_EmailProps {
     emailData: any[];
@@ -10,16 +11,17 @@ interface ProjectStrategy_EmailProps {
     setActiveEmail: (idx: number) => void;
     onUpgrade: () => void;
     
-    // Nuevo Prop
-    planName?: string;
+    // Updated Prop
+    features?: PlanFeatures;
 }
 
 export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
-    emailData, avatars, activeEmail, setActiveEmail, onUpgrade, planName
+    emailData, avatars, activeEmail, setActiveEmail, onUpgrade, features
 }) => {
     const navigate = useNavigate();
     
-    const isStarter = planName === 'starter';
+    // Check feature flag directly
+    const isUnlocked = features?.emailStrategy || false;
 
     return (
         <div id="psd-email-section" className="pt-8">
@@ -31,8 +33,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     La bandeja de entrada es un espacio sagrado. No se trata de hacer spam, sino de construir una relación. Hemos diseñado esta secuencia de "Nutrición" para educar a tu lead, derribar sus objeciones internas y presentar tu oferta justo cuando están listos para comprar, aumentando tu conversión sin ser invasivo.
                 </p>
                 
-                {/* CONDITIONAL BANNER BASED ON PLAN */}
-                {isStarter ? (
+                {/* CONDITIONAL BANNER */}
+                {!isUnlocked ? (
                     <div id="psd-email-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 shadow-lg shadow-purple-900/10">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20">
@@ -40,10 +42,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             </div>
                             <div>
                                 <h4 className="text-purple-300 font-bold text-xl mb-1 flex items-center gap-2">
-                                    Potencia tu Alcance
+                                    Funcionalidad Bloqueada
                                 </h4>
                                 <p className="text-gray-300 text-lg leading-relaxed">
-                                    ⚡ Tu Plan Starter no incluye la automatización de correo electrónico. Actualiza a PRO para enviar secuencias ilimitadas.
+                                    🔒 Esta secuencia de ventas no está incluida en tu plan actual. Actualiza para desbloquear tu vendedor automático.
                                 </p>
                             </div>
                         </div>
@@ -51,7 +53,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             onClick={onUpgrade}
                             className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
                         >
-                            Actualizar a MAX 🚀
+                            Desbloquear Secuencia 🚀
                         </button>
                     </div>
                 ) : (
@@ -64,7 +66,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                 Funcionalidad Incluida
                             </p>
                             <p className="text-gray-300 text-lg">
-                                Tu plan actual permite la automatización completa de secuencias de correo electrónico. ¡Úsalo sin límites!
+                                Tienes <span className="text-white font-bold">1 Secuencia de Ventas (7 Días)</span> disponible para este proyecto. Tu plan actual permite la generación completa de esta estrategia.
                             </p>
                         </div>
                     </div>
@@ -158,11 +160,18 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         </div>
 
                         <div className="mt-8 pt-8 border-t border-gray-800">
-                            <button onClick={() => navigate('/dashboard/email')} className="w-full py-4 bg-yellow-600 hover:bg-yellow-500 text-black rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg shadow-yellow-900/20 hover:scale-[1.02]">
-                                <Wand2 className="w-6 h-6" /> Redactar secuencia automáticamente
+                            <button 
+                                onClick={isUnlocked ? () => navigate('/dashboard/email') : onUpgrade} 
+                                className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg hover:scale-[1.02] ${isUnlocked ? 'bg-yellow-600 hover:bg-yellow-500 text-black shadow-yellow-900/20' : 'bg-gray-800 text-gray-400 cursor-not-allowed border border-gray-700'}`}
+                            >
+                                {isUnlocked ? (
+                                    <><Wand2 className="w-6 h-6" /> Redactar secuencia automáticamente</>
+                                ) : (
+                                    <><Lock className="w-5 h-5" /> Desbloquear para redactar</>
+                                )}
                             </button>
                             <p className="text-center text-xs text-gray-500 mt-3">
-                                La IA usará esta estrategia para escribir los correos completos.
+                                {isUnlocked ? 'La IA usará esta estrategia para escribir los correos completos.' : 'Actualiza tu plan para usar esta función.'}
                             </p>
                         </div>
                     </div>

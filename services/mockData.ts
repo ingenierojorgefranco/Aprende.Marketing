@@ -1,4 +1,7 @@
 
+
+
+
 import { User, Project, LandingPage, Article, Lead, GeneratedPageContent, Course, Comment, ProjectMasterStrategy, CRMContact, CRMActivity } from "../types";
 import { BookOpen, Sparkles, Users, MessageCircle, Target, Zap, MousePointerClick } from 'lucide-react';
 
@@ -21,7 +24,9 @@ export const MOCK_USER: User = {
           whatsappBot: true,
           blogGenerator: true,
           emailMarketing: true,
-          removeBranding: true
+          removeBranding: true,
+          emailStrategy: true,
+          evergreenStrategy: true
       }
   }
 };
@@ -347,91 +352,57 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     day: "Día 6",
                     subject: "ÚLTIMA LLAMADA: No dejes pasar el tren de la belleza",
                     type: "Oportunidad Extra",
-                    objective: "Esta es una técnica de 'Over-delivery'. Reabrimos la oportunidad brevemente para capturar a los rezagados, pero lo justificamos con una razón lógica (cupos extra, error técnico). El objetivo es exprimir las últimas ventas posibles de la lista caliente antes de pasarlos a la secuencia de nutrición a largo plazo.",
-                    bodyPreview: "Hemos decidido abrir 3 cupos extra debido a la alta demanda. Pero solo estarán disponibles por 24 horas. Esta es realmente tu última oportunidad antes de que cerremos las puertas indefinidamente. No dejes pasar este tren..."
+                    objective: "Esta es una técnica de 'Over-delivery'. Reabrimos la oportunidad brevemente para capturar a los rezagados, pero lo justificamos con una razón lógica (cupos extra, error en sistema, etc.).",
+                    bodyPreview: "He notado que intentaste ingresar pero no completaste el registro. Hemos abierto 2 cupos extra por un error en el sistema. Tómalo ahora o piérdelo para siempre."
                 }
             ],
             evergreen: [
                 {
-                    id: 8,
-                    day: "Día 8",
-                    subject: "¿Piel Grasa? El secreto para que el pigmento fije perfecto",
-                    type: "Educativo",
-                    objective: "Este correo busca posicionarte como una autoridad técnica absoluta. Al resolver un problema común y frustrante (piel grasa) de forma gratuita, generas confianza. El objetivo secundario es sutilmente recordar que este tipo de secretos avanzados son solo una pequeña parte de lo que aprenderían dentro del curso completo, incentivando la curiosidad.",
-                    bodyPreview: "Hola [Nombre], ¿sabías que el verdadero dinero en el microblading no está en la primera cita, sino en la fidelización? El retoque anual es tu seguro de ingresos recurrentes. Hoy te explico cómo estructurar tu oferta para asegurar que vuelvan..."
-                },
-                {
-                    id: 9,
-                    day: "Día 9",
-                    subject: "5 Herramientas económicas que necesitas para empezar hoy",
-                    type: "Recurso Útil",
-                    objective: "Derribar la barrera de entrada económica. Muchos prospectos no compran porque creen que necesitan un equipo de miles de dólares. Al mostrarles que pueden empezar con herramientas accesibles, eliminamos esa excusa y acercamos la posibilidad de compra, haciendo que el sueño de emprender se vea alcanzable hoy mismo.",
-                    bodyPreview: "Quiero presentarte a Sofía. Hace 3 meses estaba exactamente donde tú estás hoy. Tenía miedo de invertir en el curso. Mira los resultados que obtuvo en su primer mes aplicando el módulo 4..."
-                },
-                {
-                    id: 10,
+                    id: 1,
                     day: "Día 10",
-                    subject: "Cómo perdí el miedo a mi primera cliente (Historia Real)",
-                    type: "Empatía",
-                    objective: "Conectar emocionalmente a través de la vulnerabilidad. Compartir una historia de superación de miedos crea un vínculo humano. El objetivo es que el lector piense 'si ella pudo a pesar del miedo, yo también puedo'. Esto reduce la ansiedad asociada a la nueva habilidad y prepara el terreno para la venta desde la inspiración.",
-                    bodyPreview: "Es normal pensar que 'ya hay muchas haciendo cejas'. Pero la realidad es que hay muchas haciéndolo MAL. Tú no vas a competir por precio, vas a competir por calidad y experiencia. Así es como te diferencias..."
+                    subject: "Tip de Experto: Cuidado con esto",
+                    type: "Educativo",
+                    objective: "Mantener la relación.",
+                    bodyPreview: "Solo pasaba para dejarte un consejo rápido..."
                 },
                 {
-                    id: 29,
-                    day: "Día 29",
-                    subject: "Tendencias 2025: ¿Sigue vivo el Microblading o mueren las cejas?",
-                    type: "Actualidad",
-                    objective: "Reactivar a los leads fríos utilizando la novedad y el miedo a quedar obsoleto. Al hablar de tendencias futuras, te posicionas como líder de opinión. El objetivo es despertar a quienes han perdido el interés mostrándoles que el mercado sigue vivo y evolucionando, y que necesitan actualizarse para no perder oportunidades de negocio.",
-                    bodyPreview: "Ha pasado casi un mes. Si hubieras empezado cuando nos conocimos, hoy ya tendrías tu primera práctica terminada. No dejes pasar otro mes. Aquí tienes el plan exacto para recuperar el tiempo perdido..."
+                    id: 2,
+                    day: "Día 20",
+                    subject: "Caso de Estudio: Resultados",
+                    type: "Prueba Social",
+                    objective: "Mostrar autoridad.",
+                    bodyPreview: "Mira lo que lograron nuestros alumnos este mes..."
                 },
                 {
-                    id: 30,
+                    id: 3,
                     day: "Día 30",
-                    subject: "Tu Plan de Acción para el próximo mes: De práctica a realidad",
-                    type: "Motivación",
-                    objective: "Cerrar el ciclo mensual con un llamado a la acción claro y directo. Este correo busca hacer un 'reseteo' mental en el prospecto: el mes pasó y no tomaron acción. Usamos un tono de coach motivacional para empujarlos a dejar la procrastinación y comprometerse con sus metas financieras para el siguiente mes, ofreciendo el curso como la herramienta para lograrlo.",
-                    bodyPreview: "Cerramos el mes y con él se van los bonos especiales de marketing. Si te inscribes hoy, aún puedes reclamar el pack de plantillas de Instagram. Mañana será tarde. ¿Estás dentro o fuera?"
+                    subject: "¿Sigues interesado?",
+                    type: "Reacticavación",
+                    objective: "Recuperar leads fríos.",
+                    bodyPreview: "Ha pasado un mes y quería saber cómo vas..."
                 }
             ]
         },
         whatsapp: [
             {
                 id: 1,
-                title: "👋 Apertura & Cualificación",
-                objective: "Filtrar curiosos de clientes potenciales.",
+                title: "Etapa 1: Saludo y Cualificación",
+                objective: "El objetivo es filtrar curiosos de compradores reales. No damos el precio de inmediato, primero hacemos preguntas para entender su situación y elevar su nivel de consciencia sobre el problema.",
                 messages: [
-                    { role: "agent", text: "Hola Laura, vi que descargaste la guía de cejas. ¿Eres principiante o ya tienes experiencia?" },
-                    { role: "user", text: "Hola, soy principiante. Quiero aprender." },
-                    { role: "agent", text: "Genial. Justo abrimos un grupo para principiantes. ¿Te gustaría ver el temario?" }
+                    { role: 'user', text: "Hola, quiero información del curso." },
+                    { role: 'bot', text: "¡Hola! Claro que sí. Para poder ayudarte mejor, cuéntame: ¿Ya tienes experiencia en belleza o estás empezando desde cero?" },
+                    { role: 'user', text: "Empiezo desde cero." },
+                    { role: 'bot', text: "Perfecto. Este programa es ideal para principiantes porque te llevamos paso a paso. ¿Tu objetivo es emprender tu propio negocio o solo aprender por hobby?" }
                 ]
             },
             {
                 id: 2,
-                title: "🔥 Presentación de Oferta",
-                objective: "Presentar el valor antes del precio.",
+                title: "Etapa 2: Presentación de la Oferta",
+                objective: "Aquí presentamos la solución como el vehículo único para lograr sus deseos. Usamos anclaje de precios para que el costo parezca pequeño en comparación con el valor recibido.",
                 messages: [
-                    { role: "user", text: "Sí, envíame la info por favor." },
-                    { role: "agent", text: "Claro. El programa incluye certificación, kit digital y 3 meses de soporte. Mira los resultados de alumnas aquí 👇" },
-                    { role: "agent", text: "[Foto de Antes/Después]", type: "image" }
-                ]
-            },
-            {
-                id: 3,
-                title: "💰 Cierre & Objeciones",
-                objective: "Manejar la objeción de precio/tiempo.",
-                messages: [
-                    { role: "user", text: "Me gusta pero no tengo dinero ahora." },
-                    { role: "agent", text: "Te entiendo. Justo por eso habilitamos pagos a cuotas. Puedes empezar con $20 hoy. ¿Te sirve esa opción?" },
-                    { role: "agent", text: "👉 [Link de Pago a Cuotas]", type: "link" }
-                ]
-            },
-            {
-                id: 4,
-                title: "📢 Seguimiento Post-Venta",
-                objective: "Asegurar que el cliente ingrese al curso.",
-                messages: [
-                    { role: "agent", text: "¡Bienvenida Laura! Ya vi tu inscripción. ¿Pudiste acceder a la plataforma?" },
-                    { role: "user", text: "Sí, ya estoy dentro. ¡Gracias!" }
+                    { role: 'bot', text: "Entiendo. Mira, el programa 'Microblading Pro' incluye todo lo que necesitas: Certificación Internacional, Kit de Plantillas y Acceso de por vida." },
+                    { role: 'bot', type: 'image', text: "Imagen del Certificado" },
+                    { role: 'bot', text: "Normalmente esto costaría $500 USD por separado, pero hoy tenemos una oferta especial para nuevos alumnos." }
                 ]
             }
         ]
@@ -439,334 +410,204 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
 };
 
 export const MOCK_PROJECTS: Project[] = [
-  {
-    id: "proj-microblading-01",
-    name: "Certificación Expert Microblading",
-    niche: "Belleza y Estética",
-    description: "Curso profesional de técnica de cejas pelo a pelo para principiantes y esteticistas.",
-    targetAudience: "Mujeres emprendedoras de 20-45 años apasionadas por la belleza, esteticistas que desean ampliar su menú de servicios y aumentar sus ingresos.",
-    brandTone: "Profesional, Inspirador, Premium, Cercano",
-    productName: "Masterclass Microblading Pro",
-    mainGoal: "Venta Directa",
-    painPoints: [
-      "Miedo a no tener estabilidad económica con trabajos tradicionales.",
-      "Frustración por cursos anteriores que solo enseñan teoría y nada de práctica real.",
-      "Dificultad para conseguir clientes nuevos en el mundo de la belleza.",
-      "Falta de confianza para realizar procedimientos en rostros reales."
-    ],
-    keyBenefits: [
-      "Aprende una habilidad de alta demanda con rentabilidad inmediata.",
-      "Domina el visajismo perfecto para diseñar cejas simétricas.",
-      "Acceso a comunidad exclusiva de soporte para siempre.",
-      "Certificación Internacional que avala tus conocimientos."
-    ],
-    affiliateLinks: [
-      { label: "Checkout Oferta", url: "https://pay.hotmart.com/DEMO123?checkoutMode=10" },
-      { label: "Clase Gratuita", url: "https://go.hotmart.com/DEMO123?ap=5678" }
-    ],
-    createdAt: new Date("2024-01-15"),
-    strategy_json: MOCK_MASTER_STRATEGY // Use the mock object here
-  }
+    {
+        id: "mock-proj-1",
+        name: "Masterclass Microblading Pro",
+        niche: "Belleza y Estética",
+        description: "Estrategia completa para vender curso de microblading.",
+        targetAudience: "Mujeres de 25-40 años interesadas en belleza.",
+        brandTone: "Profesional, Empático",
+        productName: "Curso Microblading",
+        mainGoal: "Venta Directa",
+        painPoints: ["Bajos ingresos", "Falta de tiempo", "Miedo a empezar"],
+        keyBenefits: ["Certificación Internacional", "Técnica avanzada", "Comunidad VIP"],
+        affiliateLinks: [],
+        createdAt: new Date("2023-10-14"),
+        strategy_json: MOCK_MASTER_STRATEGY
+    }
 ];
 
-const MICROBLADING_CONTENT: GeneratedPageContent = {
-  palette: 'elegant-purple',
-  structure: 'classic-sales',
-  destination: { 
-    type: 'whatsapp', 
-    whatsappPhone: '+573001234567', 
-    whatsappMessage: 'Hola, estoy interesada en el Curso de Microblading, quisiera más información.' 
-  },
-  brandName: "MicroBrows <b>Academy</b>",
-  brandIcon: "Sparkles",
-  topTagline: "🔥 La Profesión Mejor Pagada de la Belleza en 2024",
-  navCta: "Ver Clase Gratis",
-  navLinks: [
-    { label: "La Técnica", href: "#seccion-introduccion" },
-    { label: "Beneficios", href: "#seccion-beneficios" },
-    { label: "Testimonios", href: "#seccion-testimonios" },
-    { label: "Tu Mentora", href: "#seccion-instructor" }
-  ],
-  testimonialTitle: "Ellas ya viven de su pasión:",
-  testimonialSubtitle: "Resultados reales de alumnas que empezaron desde cero.",
-  logoSvg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#d946ef;stop-opacity:1" /><stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" /></linearGradient></defs><path d="M32 2C15.432 2 2 15.432 2 32s13.432 30 30 30 30-13.432 30-30S48.568 2 32 2zm0 56C17.664 58 6 46.336 6 32S17.664 6 32 6s26 11.664 26 26-11.664 26-26 26z" fill="url(#grad1)"/><path d="M42.5 24.5c-4.1-3.5-9.2-4.5-14.5-2.8-5.3 1.7-9.3 6.1-10.8 11.5-.3 1.1-.5 2.2-.5 3.3 0 1.9 1.6 3.5 3.5 3.5h.5c1.8-.2 3.2-1.6 3.4-3.4.1-.7.2-1.3.4-2 1-3.6 3.7-6.5 7.2-7.6 3.5-1.1 6.9-.5 9.6 1.8 1.4 1.2 3.5 1 4.7-.4 1.2-1.4 1-3.5-.4-4.7z" fill="#fff"/></svg>`,
-  hero: {
-    headline: "Domina el Arte del <b>Microblading 3D</b> y Triplica tus Ingresos en 30 Días",
-    subheadline: "Descubre la técnica 'Pelo a Pelo' que está revolucionando la industria de la belleza. Sin experiencia previa y con baja inversión inicial.",
-    ctaText: "¡Sí! Quiero Certificarme",
-    heroImage: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-    videoTitle: "Clase Exclusiva: Diseño de Cejas",
-    videoDuration: "15 Min",
-    spotsLeft: "¡Solo 5 cupos disponibles!",
-    socialProofCount: "2,458 Alumnas"
-  },
-  testimonials: [
-    { name: "Carla Mendez", location: "Madrid, España", text: "Recuperé la inversión en mi primera semana. La técnica es súper natural y mis clientas la aman.", rating: 5 },
-    { name: "Sofia Ruiz", location: "Bogotá, Colombia", text: "Me daba miedo empezar de cero, pero el paso a paso es clarísimo. Ahora tengo mi propio estudio en casa.", rating: 5 },
-    { name: "Ana Torres", location: "Lima, Perú", text: "Lo mejor es el soporte. Nunca te sientes sola en el proceso de aprendizaje. 100% recomendado.", rating: 5 }
-  ],
-  intro: {
-    title: "¿Qué es el Microblading Hiperrealista?",
-    description: "Es una técnica de maquillaje semipermanente que permite diseñar cejas perfectas, dibujando 'pelo por pelo' para un acabado 100% natural. Es el servicio más demandado en salones de belleza actualmente debido a su alto valor percibido.",
-    items: [
-        { title: "Visajismo Personalizado", description: "Aprende a diseñar la ceja perfecta según la estructura ósea del rostro de tu clienta." },
-        { title: "Colorimetría Avanzada", description: "Domina la mezcla de pigmentos para evitar tonos rojos o azules con el tiempo." },
-        { title: "Bioseguridad", description: "Protocolos de higiene para trabajar de forma segura y profesional." }
-    ]
-  },
-  benefits: {
-    title: "Tu Arsenal para el Éxito",
-    subtitle: "No solo te enseñamos la técnica, te damos las herramientas para venderla.",
-    items: [
-      { title: "Kit Digital Completo", description: "Acceso a plantillas de práctica imprimibles y manuales en PDF de alta resolución.", icon: "FileText", color: "purple" },
-      { title: "Certificado Internacional", description: "Diploma avalado para ejercer tu profesión en cualquier país de habla hispana.", icon: "Award", color: "yellow" },
-      { title: "Comunidad Privada", description: "Acceso de por vida a nuestro grupo de soporte VIP en Telegram.", icon: "Users", color: "blue" },
-      { title: "Marketing para Esteticistas", description: "Módulo exclusivo para conseguir tus primeros 10 clientes en Instagram.", icon: "Rocket", color: "green" }
-    ]
-  },
-  whatYouWillLearn: {
-    title: "Plan de Estudios",
-    icon: "BookOpen",
-    items: [
-      "Módulo 1: Fundamentos de la piel y anatomía.",
-      "Módulo 2: Diseño y perfilado avanzado (Brow Mapping).",
-      "Módulo 3: Patrones de espina para efecto natural.",
-      "Módulo 4: Práctica en látex y piel sintética.",
-      "Módulo 5: Demostración en modelo real HD."
-    ]
-  },
-  faq: [
-    { question: "¿Necesito saber dibujar para aprender?", answer: "No, utilizamos herramientas de medición y plantillas que facilitan el diseño perfecto sin necesidad de ser una experta dibujante." },
-    { question: "¿El curso incluye materiales?", answer: "Es un curso 100% online. Te entregamos la lista exacta de proveedores confiables y económicos en tu país para que armes tu kit." },
-    { question: "¿Cuánto tiempo tengo de acceso?", answer: "El acceso es de por vida. Puedes ver las clases las veces que quieras y a tu propio ritmo." },
-    { question: "¿Cómo obtengo mi certificado?", answer: "Al finalizar todas las clases y entregar tus prácticas finales aprobadas, podrás descargar tu certificado digital." }
-  ],
-  instructor: {
-    name: "Valentina Ross",
-    bio: "Master en Micropigmentación con más de 10 años de experiencia. Fundadora de VR Beauty Academy y creadora del método 'Brows that Speak'. Ha formado a más de 5000 artistas en Latinoamérica.",
-    imageUrl: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    badgeText: "Master Artist",
-    badgeSubtext: "PhiBrows Certified",
-    statsStudents: "+5k Alumnas",
-    statsRating: "4.9/5 Calif."
-  },
-  footer: {
-    copyright: "© 2024 MicroBrows Academy. Todos los derechos reservados.",
-    contact: "soporte@microbrows.demo",
-    socials: { facebook: "https://facebook.com", instagram: "https://instagram.com", twitter: "https://twitter.com" }
-  },
-  thankYouMessage: "¡Felicidades por tu compra! Revisa tu correo electrónico para acceder al área de miembros.",
-  redirectUrl: "https://www.google.com",
-  
-  // NEW: THANK YOU PAGE MOCK CONTENT
-  thankYouPage: {
-      showSocials: true,
-      ctaLink: "https://chat.whatsapp.com/sample-group-link",
-      
-      // Hero
-      progressBarText: "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR.",
-      greenBadgeText: "RECIBE NUESTRO LIBRO DIGITAL 100% GRATIS",
-      headline: "PERFECTO, YA TIENES EL ACCESO A LA CLASE DE MICROBLADING DE CEJAS",
-      subheadline: "Sigue estos 2 pasos sencillos para asegurar tu cupo y recibir tu material de preparación gratuito.",
-      
-      // Steps
-      step1Title: "Revisa tu Correo",
-      step1Desc: "Acabamos de enviar el acceso a tu email.",
-      step1Warning: "Importante: Verifica tu bandeja de SPAM o Promociones.",
-      step1Subject: "Busca el asunto: \"Acceso a tu Clase...\"",
-      
-      step2Title: "Grupo VIP + Regalo",
-      step2Desc: "Únete al grupo de WhatsApp para recibir la mentoría y tu regalo de bienvenida.",
-      step2Badge: "¡Acción Requerida!",
-      step2BonusTitle: "Libro Digital GRATIS",
-      step2BonusValue: "Valor $19 USD",
-      
-      // Offer
-      offerTopTitle: "UNETE A NUESTRO GRUPO Y DESCARGA EL LIBRO GRATUITO",
-      offerHeadline: "Descarga: \"5 Errores Comunes que <span class=\"text-red-500 underline decoration-4 decoration-red-200\">Arruinan</span> el Microblading\"",
-      offerDescription: "Esta guía nace de la experiencia de profesionales del sector. Te compartimos los fallos más frecuentes y cómo prevenirlos paso a paso para resultados perfectos.",
-      bookTitle: "5 Errores",
-      bookSubtitle: "MICROBLADING PRO",
-      bookFooter: "GUÍA EXCLUSIVA 2025",
-      offerPriceRegular: "Precio Regular: $19 USD",
-      offerPriceFree: "HOY: $0.00 GRATIS",
-      offerBadge: "¡OFERTA FLASH!",
-      offerBullets: [
-          "Asimetrías y diseño incorrecto.",
-          "Tonos rojizos o grises (Colorimetría).",
-          "Mala cicatrización del pigmento.",
-          "Elección incorrecta de aguja."
-      ],
-      ctaButtonText: "UNIRME AL GRUPO Y DESCARGAR",
-      
-      // Extra
-      learningTitle: "Lo que aprenderás con esta Guía",
-      learningSubtitle: "Hemos acompañado a +2.500 personas a entender el proceso y preparar sus cejas para un resultado natural.",
-      learningItems: [
-          { title: "Errores #1-#5", description: "Causas y consecuencias de los fallos más comunes." },
-          { title: "Diseño Perfecto", description: "Reglas simples de simetría para rostros naturales." },
-          { title: "Colorimetría", description: "Evita tonos rojizos o grises con nuestra guía de pigmentos." },
-          { title: "Cuidados Post", description: "Cómo acelerar la cicatrización para retener el color." },
-          { title: "Elegir Profesional", description: "7 señales de alerta para identificar un buen técnico." },
-          { title: "Checklist", description: "Lista imprimible con todo lo que necesitas." }
-      ],
-      socialTitle: "Lo que dicen quienes ya leyeron",
-      socialSubtitle: "Consejos de profesionales del sector aplicados a la realidad.",
-      socialCountText: "Más de 1.240 descargas este mes",
-      socialItems: [
-          { name: "Paula G.", location: "Valencia", text: "Información clara, sin tecnicismos. Vale oro si es tu primera vez con el microblading." },
-          { name: "Laura M.", location: "Sevilla", text: "Por fin entendí por qué mis cejas quedaban grises. Con el eBook pude hablar con mi artista y corregimos el pigmento." },
-          { name: "Marta M.", location: "Málaga", text: "El checklist pre y post me salvó. Esta vez la cicatrización fue rapidísima." },
-          { name: "Ana R.", location: "Madrid", text: "Me ayudó a elegir profesional con criterio. Evité un sitio que no hacía pruebas de color." }
-      ],
-      faqTitle: "Preguntas Frecuentes",
-      faqItems: [
-          { question: "¿De verdad es gratis?", answer: "Sí, es un regalo de bienvenida para los nuevos miembros de nuestra comunidad de WhatsApp." },
-          { question: "¿Sirve si es mi primera vez?", answer: "Absolutamente. Está diseñado para principiantes que quieren entender el proceso antes de realizarlo." },
-          { question: "¿Incluye imágenes?", answer: "Sí, contiene guías visuales de simetría y ejemplos de resultados." },
-          { question: "¿Cómo recibo el eBook?", answer: "Al hacer clic en el botón verde, se abrirá WhatsApp. Una vez dentro del grupo, encontrarás el link de descarga en la descripción o mensajes fijados." }
-      ]
-  }
-};
-
 export const MOCK_PAGES: LandingPage[] = [
-  {
-    id: "page-micro-01",
-    name: "Landing Principal Microblading",
-    niche: "Belleza / Cejas",
-    goal: "Venta Directa",
-    isPublished: true,
-    subdomain: "curso-cejas.generatorlanding.com",
-    content: MICROBLADING_CONTENT,
-    createdAt: new Date("2024-02-01"),
-    visits: 1250,
-    conversions: 85,
-    user_id: "mock-user-id"
-  }
+    {
+        id: "mock-page-1",
+        name: "Landing Ventas Microblading",
+        niche: "Belleza",
+        goal: "Venta",
+        isPublished: true,
+        subdomain: "microblading-pro",
+        content: {
+            palette: 'elegant-purple',
+            structure: 'classic-sales',
+            destination: { type: 'whatsapp', whatsappPhone: '573001234567' },
+            hero: {
+                headline: "Domina el <b>Microblading</b> y Triplica tus Ingresos",
+                subheadline: "Aprende la técnica que está revolucionando la industria de la belleza.",
+                ctaText: "Quiero Aprender Más",
+                heroImage: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                videoTitle: "Clase Gratuita",
+                videoDuration: "15 min",
+                spotsLeft: "¡Últimos 3 cupos!",
+                socialProofCount: "+1200 Alumnos"
+            },
+            intro: {
+                title: "¿Por qué este curso?",
+                description: "Un entrenamiento intensivo diseñado para llevarte de cero a experta en 30 días.",
+                imageCardText: "Método Comprobado",
+                items: [
+                    { title: "Práctica Real", description: "Ejercicios en látex y modelos reales." },
+                    { title: "Soporte VIP", description: "Acceso directo a la profesora." }
+                ]
+            },
+            benefits: {
+                title: "Lo que obtendrás",
+                subtitle: "Herramientas profesionales para tu éxito",
+                items: [
+                    { title: "Certificado", description: "Avalado internacionalmente.", icon: "Award", color: "yellow" },
+                    { title: "Comunidad", description: "Grupo de apoyo exclusivo.", icon: "Users", color: "blue" }
+                ]
+            },
+            whatYouWillLearn: {
+                title: "Temario del Curso",
+                icon: "BookOpen",
+                items: ["Fundamentos de la piel", "Visajismo y Diseño", "Colorimetría Avanzada", "Práctica en Modelos"]
+            },
+            testimonials: [
+                { name: "Sofia G.", text: "El mejor curso que he tomado.", rating: 5, location: "México" },
+                { name: "Carla M.", text: "Recuperé mi inversión en 1 semana.", rating: 5, location: "Colombia" }
+            ],
+            faq: [
+                { question: "¿Necesito experiencia?", answer: "No, empezamos desde cero." },
+                { question: "¿Entregan certificado?", answer: "Sí, al finalizar el curso." }
+            ],
+            instructor: {
+                name: "Ana experta",
+                bio: "Master en Microblading con 10 años de experiencia.",
+                title: "Tu Instructora",
+                badgeText: "Master",
+                badgeSubtext: "Certificada",
+                statsStudents: "+5k Alumnos",
+                statsRating: "4.9/5"
+            },
+            footer: {
+                copyright: "© 2024 Microblading Pro",
+                contact: "soporte@microbladingpro.com",
+                socials: { facebook: "#", instagram: "#" }
+            },
+            thankYouMessage: "¡Gracias por registrarte!",
+            redirectUrl: "",
+            thankYouPage: {
+                showSocials: true,
+                ctaLink: "https://wa.me/...",
+                headline: "¡FELICIDADES! ESTÁS DENTRO",
+                subheadline: "Sigue los pasos para acceder al material.",
+                step1Title: "Revisa tu Correo",
+                step1Desc: "Te hemos enviado los datos de acceso.",
+                step2Title: "Únete al Grupo",
+                step2Desc: "Recibe soporte y novedades.",
+                offerHeadline: "Oferta Especial",
+                offerDescription: "Solo por hoy, obtén este bonus extra."
+            }
+        },
+        createdAt: new Date(),
+        visits: 1250,
+        conversions: 85,
+        projectId: "mock-proj-1",
+        customDomain: "cursos-belleza.com"
+    }
 ];
 
 export const MOCK_ARTICLES: Article[] = [
-  {
-    id: "art-micro-01",
-    title: "Diferencia entre Microblading y Micropigmentación: Guía Definitiva",
-    slug: "diferencia-microblading-micropigmentacion",
-    description: "Muchas clientas confunden estas técnicas. Aprende a explicarlo correctamente y vende mejor tus servicios de cejas.",
-    contentHtml: `
-      <p>Cuando te adentras en el mundo de la belleza, es común escuchar estos términos de forma intercambiable, pero <strong>no son lo mismo</strong>.</p>
-      <h2>1. La Herramienta</h2>
-      <p>El <strong>Microblading</strong> se realiza con un tébori (pluma manual), lo que permite un control total sobre cada trazo. La <strong>Micropigmentación</strong> utiliza un demógrafo eléctrico.</p>
-      <h2>2. La Profundidad</h2>
-      <p>El microblading trabaja en la epidermis (capa superficial), por lo que es semipermanente. La micropigmentación puede llegar más profundo, durando más tiempo pero con un aspecto más "tatuado".</p>
-      <h2>Conclusión</h2>
-      <p>Si buscas un acabado natural y pelo a pelo, el Microblading es la opción ganadora en 2024.</p>
-    `,
-    metaTitle: "Microblading vs Micropigmentación: ¿Cuál es mejor?",
-    metaDescription: "Descubre las diferencias clave entre Microblading y Micropigmentación para elegir la mejor técnica para tus cejas.",
-    keyword: "microblading vs micropigmentacion",
-    seoScore: 85,
-    status: 'published',
-    publishedAt: new Date("2024-03-10"),
-    createdAt: new Date("2024-03-10"),
-    pageId: "page-micro-01",
-    featuredImage: "https://images.unsplash.com/photo-1599592237937-234b6b6c0780?auto=format&fit=crop&w=800",
-    pageName: "Landing Principal Microblading",
-    pageSubdomain: "curso-cejas.generatorlanding.com"
-  },
-  {
-    id: "art-micro-02",
-    title: "Cuánto cobrar por un servicio de cejas en 2024",
-    slug: "cuanto-cobrar-cejas-2024",
-    description: "Guía de precios para esteticistas principiantes. No regales tu trabajo y aprende a valorar tu arte.",
-    contentHtml: "<p>El precio promedio varía según la zona, pero nunca deberías cobrar menos de $150 USD por una sesión inicial...</p>",
-    keyword: "precio microblading",
-    seoScore: 92,
-    status: 'draft',
-    publishedAt: new Date(),
-    createdAt: new Date(),
-    pageId: "page-micro-01",
-    pageName: "Landing Principal Microblading",
-    pageSubdomain: "curso-cejas.generatorlanding.com"
-  }
+    {
+        id: "mock-art-1",
+        title: "5 Errores al iniciar en Microblading",
+        slug: "errores-microblading",
+        description: "Descubre los fallos que cometen el 90% de las principiantes y cómo evitarlos para tener éxito rápido.",
+        contentHtml: "<h2>Introducción</h2><p>El microblading es una carrera lucrativa, pero muchos cometen errores al inicio...</p><h2>Error 1: Profundidad incorrecta</h2><p>Uno de los errores más comunes es...</p>",
+        keyword: "microblading errores",
+        seoScore: 92,
+        status: 'published',
+        publishedAt: new Date(),
+        createdAt: new Date(),
+        pageId: "mock-page-1",
+        featuredImage: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    }
 ];
 
 export const MOCK_LEADS: Lead[] = [
-  { id: "lead-1", name: "Maria Garcia", email: "maria@test.com", sourcePage: "Landing Principal Microblading", date: "2024-03-15", synced: false },
-  { id: "lead-2", name: "Laura Lopez", email: "laura@test.com", sourcePage: "Landing Principal Microblading", date: "2024-03-14", synced: true },
-  { id: "lead-3", name: "Carlos Perez", email: "carlos@demo.com", sourcePage: "Landing Principal Microblading", date: "2024-03-13", synced: true }
+    {
+        id: "lead-1",
+        name: "Sofía Martínez",
+        email: "sofia@test.com",
+        sourcePage: "Landing Ventas Microblading",
+        date: "2023-10-20",
+        synced: false
+    },
+    {
+        id: "lead-2",
+        name: "Camila Torres",
+        email: "camila@test.com",
+        sourcePage: "Landing Ventas Microblading",
+        date: "2023-10-21",
+        synced: true
+    }
 ];
 
 export const MOCK_COURSES: Course[] = [
     {
-        id: "mock-course-1",
-        title: "Productos Digitales",
-        subtitle: "Curso Intensivo",
-        description: "Aprende a crear, validar y vender tu primer infoproducto desde cero. Descubre las estrategias que usan los grandes productores para facturar miles de dólares en Hotmart.",
-        slug: "digital-products",
+        id: "course-1",
+        title: "Entrenamiento para Afiliados",
+        subtitle: "Configura tu Negocio Digital",
+        slug: "entrenamiento-afiliados",
         thumbnail: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        description: "Un curso paso a paso para aprender a utilizar esta plataforma y lanzar tu primer embudo de ventas en menos de 24 horas.",
+        badge_text: "Oficial",
+        order_index: 1,
+        is_active: true,
         modules: [
             {
                 id: "mod-1",
-                title: "Módulo 1: Fundamentos y Mentalidad",
+                title: "Módulo 1: Bienvenida y Configuración",
                 order_index: 1,
                 lessons: [
-                    { id: "l-1", title: "Bienvenida al Curso", duration: "5:00", video_url: "https://www.youtube.com/embed/dQw4w9WgXcQ", description: "Intro", learning_points: ["Punto 1"], order_index: 1 },
-                    { id: "l-2", title: "Mentalidad de Productor", duration: "12:00", video_url: "", description: "Mindset", learning_points: ["Punto A"], order_index: 2 }
+                    {
+                        id: "les-1",
+                        title: "Cómo funciona el sistema",
+                        duration: "5:00",
+                        video_url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+                        description: "<p>En esta lección aprenderás los conceptos básicos de la plataforma y cómo navegar por el panel de control.</p>",
+                        learning_points: ["Navegación del Dashboard", "Configuración de Perfil", "Tu primer proyecto"],
+                        order_index: 1,
+                        is_published: true
+                    },
+                    {
+                        id: "les-2",
+                        title: "Creando tu primera Landing Page",
+                        duration: "12:00",
+                        video_url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+                        description: "<p>Aprende a utilizar el generador IA para crear páginas de alta conversión.</p>",
+                        learning_points: ["Uso del Editor", "Publicación", "Dominios"],
+                        order_index: 2,
+                        is_published: true
+                    }
                 ]
-            },
-            {
-                id: "mod-2",
-                title: "Módulo 2: Creación del Producto",
-                order_index: 2,
-                lessons: []
             }
         ],
-        createdAt: new Date("2024-01-01")
-    },
-    {
-        id: "mock-course-2",
-        title: "Inteligencia Artificial",
-        subtitle: "Masterclass",
-        description: "Domina las herramientas de IA que están revolucionando el marketing.",
-        slug: "ai",
-        thumbnail: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        modules: [],
-        createdAt: new Date("2024-02-01")
+        createdAt: new Date()
     }
 ];
 
 export const MOCK_COMMENTS: Comment[] = [
     {
         id: "c-1",
-        lessonId: "l-1",
-        lessonTitle: "Bienvenida al Curso",
-        courseTitle: "Productos Digitales",
-        user: "Juan Perez",
-        userId: "u-2",
+        lessonId: "les-1",
+        lessonTitle: "Cómo funciona el sistema",
+        courseTitle: "Entrenamiento para Afiliados",
+        user: "Carlos R.",
+        userId: "user-test",
         date: new Date().toISOString(),
-        text: "¡Excelente introducción! Estoy listo para aprender.",
-        isApproved: true
-    },
-    {
-        id: "c-3",
-        parentId: "c-1", // Reply to Juan Perez
-        lessonId: "l-1",
-        lessonTitle: "Bienvenida al Curso",
-        courseTitle: "Productos Digitales",
-        user: "Maria Rodriguez",
-        userId: "u-4",
-        date: new Date().toISOString(),
-        text: "Gracias Juan, espero que disfrutes el contenido. ¡Vamos con todo!",
-        isApproved: true
-    },
-    {
-        id: "c-2",
-        lessonId: "l-2",
-        lessonTitle: "Mentalidad de Productor",
-        courseTitle: "Productos Digitales",
-        user: "Ana Lopez",
-        userId: "u-3",
-        date: new Date(Date.now() - 86400000).toISOString(),
-        text: "Tengo una duda sobre los nichos, ¿se hablará de eso más adelante?",
-        isApproved: false // Pending
+        text: "¡Excelente explicación! Me quedó muy claro cómo empezar.",
+        isApproved: true,
+        likes: 5,
+        replies: []
     }
 ];

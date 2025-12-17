@@ -1,6 +1,8 @@
 
 
 
+
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -205,7 +207,9 @@ const DEFAULT_LIMITS = {
         whatsappBot: false,
         blogGenerator: false,
         emailMarketing: false,
-        removeBranding: false
+        removeBranding: false,
+        emailStrategy: false,    // NEW
+        evergreenStrategy: false // NEW
     }
 };
 
@@ -346,7 +350,7 @@ const loginHandler = async (req, res) => {
     console.error('[AUTH] Error login:', error);
     res.status(500).json({ error: 'Error de base de datos' });
   }
-};
+});
 
 app.post('/api/auth/login', loginHandler);
 app.post('/api/login', loginHandler);

@@ -1,5 +1,9 @@
 
 
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import { Plan, PlanLimits } from '../../../types';
 import { api } from '../../../services/api';
@@ -15,7 +19,9 @@ const DEFAULT_LIMITS: PlanLimits = {
         whatsappBot: false,
         blogGenerator: false,
         emailMarketing: false,
-        removeBranding: false
+        removeBranding: false,
+        emailStrategy: false,
+        evergreenStrategy: false
     }
 };
 
@@ -59,7 +65,7 @@ export const AdminPlans: React.FC = () => {
 
     const handleEdit = (plan: Plan) => {
         // Ensure defaults if missing properties
-        const safeLimits = { ...DEFAULT_LIMITS, ...plan.limitsConfig };
+        const safeLimits = { ...DEFAULT_LIMITS, ...plan.limitsConfig, features: { ...DEFAULT_LIMITS.features, ...plan.limitsConfig.features } };
         if (safeLimits.maxDomains === undefined) safeLimits.maxDomains = 1;
 
         setEditingPlan({ ...plan, limitsConfig: safeLimits });

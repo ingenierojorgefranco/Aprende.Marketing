@@ -1,6 +1,10 @@
 
 
 
+
+
+
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, ProjectMasterStrategy, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_MASTER_STRATEGY, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 
@@ -811,7 +815,7 @@ export const api = {
                   description: 'Ideal para empezar sin riesgo.',
                   priceMonthly: 0,
                   currency: 'EUR',
-                  limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, maxDomains: 1, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false } },
+                  limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, maxDomains: 1, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } },
                   uiFeatures: ['1 Proyecto / Nicho', '3 Landing Pages', 'IA Básica', 'Marca de Agua'],
                   isActive: true,
                   isRecommended: false
@@ -823,7 +827,7 @@ export const api = {
                   description: 'Para Productores y Afiliados serios.',
                   priceMonthly: 19.99,
                   currency: 'EUR',
-                  limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, maxDomains: 3, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true } },
+                  limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, maxDomains: 3, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } },
                   uiFeatures: ['5 Proyectos', '20 Landing Pages', 'Bot WhatsApp', 'IA Avanzada', 'Sin Marca de Agua'],
                   isActive: true,
                   isRecommended: true

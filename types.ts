@@ -1,6 +1,10 @@
 
 
 
+
+
+
+
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
   LOGIN = 'LOGIN',
@@ -21,6 +25,8 @@ export interface PlanFeatures {
   blogGenerator: boolean;
   emailMarketing: boolean;
   removeBranding: boolean;
+  emailStrategy: boolean; // Nueva feature: Secuencia 7 días
+  evergreenStrategy: boolean; // Nueva feature: Secuencia 30 días
 }
 
 export interface PlanLimits {

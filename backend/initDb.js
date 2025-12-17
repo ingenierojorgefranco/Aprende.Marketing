@@ -1,4 +1,9 @@
 
+
+
+
+
+
 const pool = require('./db');
 
 /**
@@ -352,9 +357,16 @@ const initDb = async () => {
                     limits: JSON.stringify({
                         planName: 'starter',
                         maxProjects: 1,
-                        maxLandings: 2, // 2 per month
-                        maxArticles: 2, // 2 per month
-                        features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false }
+                        maxLandings: 2, 
+                        maxArticles: 2, 
+                        features: { 
+                            whatsappBot: false, 
+                            blogGenerator: false, 
+                            emailMarketing: false, 
+                            removeBranding: false,
+                            emailStrategy: false,
+                            evergreenStrategy: false
+                        }
                     }),
                     features: JSON.stringify(['1 Proyecto / Mes', '2 Landing Pages / Mes', '2 Artículos / Mes', 'IA Básica', 'Marca de Agua']),
                     is_rec: false
@@ -370,9 +382,16 @@ const initDb = async () => {
                         maxProjects: 5,
                         maxLandings: 20,
                         maxArticles: 20,
-                        features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true }
+                        features: { 
+                            whatsappBot: true, 
+                            blogGenerator: true, 
+                            emailMarketing: true, 
+                            removeBranding: true,
+                            emailStrategy: true, // Only 7-day enabled
+                            evergreenStrategy: false
+                        }
                     }),
-                    features: JSON.stringify(['5 Proyectos / Mes', '20 Landings / Mes', '20 Artículos / Mes', 'Bot WhatsApp', 'IA Avanzada', 'Sin Marca de Agua']),
+                    features: JSON.stringify(['5 Proyectos / Mes', '20 Landings / Mes', '20 Artículos / Mes', 'Bot WhatsApp', 'IA Avanzada', 'Sin Marca de Agua', 'Estrategia Email (7 Días)']),
                     is_rec: true
                 },
                 {
@@ -386,9 +405,16 @@ const initDb = async () => {
                         maxProjects: 100,
                         maxLandings: 500,
                         maxArticles: 500,
-                        features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true }
+                        features: { 
+                            whatsappBot: true, 
+                            blogGenerator: true, 
+                            emailMarketing: true, 
+                            removeBranding: true,
+                            emailStrategy: true,
+                            evergreenStrategy: true // Both enabled
+                        }
                     }),
-                    features: JSON.stringify(['Ilimitado', 'Soporte Prioritario', 'API Access', 'Todo Incluido']),
+                    features: JSON.stringify(['Ilimitado', 'Soporte Prioritario', 'API Access', 'Todo Incluido', 'Estrategia Email Completa (30 Días)']),
                     is_rec: false
                 }
             ];

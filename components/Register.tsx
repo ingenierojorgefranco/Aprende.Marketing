@@ -1,4 +1,6 @@
 
+
+
 import React, { useState } from 'react';
 import { ArrowLeft, UserPlus, Loader2, AlertCircle, Mail, Lock, User as UserIcon } from 'lucide-react';
 import { User } from '../types';
@@ -42,7 +44,9 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
                 whatsappBot: false,
                 blogGenerator: false,
                 emailMarketing: false,
-                removeBranding: false
+                removeBranding: false,
+                emailStrategy: false,
+                evergreenStrategy: false
             }
         },
         customRedirectUrl: (user as any).customRedirectUrl // Might be null for new users but good to map
