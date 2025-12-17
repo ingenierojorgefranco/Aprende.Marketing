@@ -344,7 +344,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         <div className="flex flex-col gap-3">
                                             <button 
                                                 onClick={() => navigate(`/dashboard/editor/${linkedPages[0].id}`)}
-                                                className="w-full max-w-sm mx-auto bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-xl shadow-green-500/20 hover:from-green-500 hover:to-emerald-500 hover:scale-[1.02] hover:shadow-green-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
+                                                className="w-full max-w-sm mx-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-white shadow-xl shadow-amber-500/20 hover:from-yellow-400 hover:to-amber-500 hover:scale-[1.02] hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
                                             >
                                                 <PenTool className="w-6 h-6" /> Editar Landing Page
                                             </button>
@@ -485,8 +485,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         </>
                                     ) : pageCount === 1 ? (
                                         <button 
-                                            onClick={() => navigate(`/dashboard/editor/${linkedPages[0].id}`)}
-                                            className="w-full max-w-sm mx-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/20 hover:from-blue-500 hover:to-indigo-500 hover:scale-[1.02] hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
+                                            onClick={() => navigate(`/dashboard/editor/${linkedPages[0].id}?tab=thankyou`)}
+                                            className="w-full max-w-sm mx-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-white shadow-xl shadow-amber-500/20 hover:from-yellow-400 hover:to-amber-500 hover:scale-[1.02] hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
                                         >
                                             <PenTool className="w-6 h-6" /> Editar Página de Gracias
                                         </button>
@@ -560,4 +560,3 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         </div>
     );
 };
-

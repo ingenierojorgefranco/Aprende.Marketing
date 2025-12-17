@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType, ThankYouPageConfig } from '../../../types';
 import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift, AlertTriangle, Book, ShoppingBag } from 'lucide-react';
 import { LivePage } from '../../LivePage';
+import { useLocation } from 'react-router-dom';
 
 // --- UI COMPONENTS EXTRACTED ---
 
@@ -196,7 +197,13 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const [pageName, setPageName] = useState(page.name);
   const [niche, setNiche] = useState(page.niche);
   
-  const [activeTab, setActiveTab] = useState<'content' | 'thankyou' | 'design' | 'settings'>('content');
+  const location = useLocation();
+  const getInitialTab = () => {
+      const searchParams = new URLSearchParams(location.search);
+      return searchParams.get('tab') === 'thankyou' ? 'thankyou' : 'content';
+  };
+  const [activeTab, setActiveTab] = useState<'content' | 'thankyou' | 'design' | 'settings'>(getInitialTab());
+
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [fullScreenPreview, setFullScreenPreview] = useState(false);
   const [isPublished, setIsPublished] = useState(page.isPublished);
