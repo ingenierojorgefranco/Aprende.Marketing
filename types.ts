@@ -1,8 +1,4 @@
 
-
-
-
-
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
   LOGIN = 'LOGIN',
@@ -440,6 +436,12 @@ export interface Project {
   brandTone: string; // "Amigable, Profesional, Urgente"
   productName: string; // "Masterclass Uñas Premium"
   
+  // New fields for conversational AI and financial tracking
+  salesPageUrl?: string;
+  fullPrice?: number;
+  commissionRate?: number;
+  leadMagnetType?: string;
+
   // Strategy Assets
   mainGoal: string; // "Venta Directa"
   painPoints: string[]; // ["No tienen tiempo", "Cursos caros", "Miedo a empezar"]

@@ -1,6 +1,4 @@
 
-
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -285,7 +283,7 @@ app.post('/api/auth/register', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
     const [result] = await pool.query(
       'INSERT INTO users (name, email, password_hash, role, is_active, plan_limits) VALUES (?, ?, ?, ?, 1, ?)',
-      [name, email, passwordHash, role || 'user', JSON.stringify(DEFAULT_LIMITS)]
+      [name, email, passwordHash, role || 'user', 1, JSON.stringify(DEFAULT_LIMITS)]
     );
     const newUser = { id: result.insertId, name, email, role: role || 'user', planLimits: DEFAULT_LIMITS };
     const token = createToken(newUser);
@@ -1275,7 +1273,8 @@ app.get('/api/projects/:id', authMiddleware, async (req, res) => {
 app.post('/api/projects', authMiddleware, async (req, res) => {
   const {
     name, niche, description, targetAudience, brandTone,
-    productName, mainGoal, painPoints, keyBenefits, affiliateLinks
+    productName, mainGoal, painPoints, keyBenefits, affiliateLinks,
+    salesPageUrl, fullPrice, commissionRate, leadMagnetType
   } = req.body;
 
   try {
@@ -1290,7 +1289,6 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
     }
 
     // 2. Check Monthly Generation Quota (New)
-    // Assuming maxProjects is also the monthly generation limit for simplicity, or use a separate field if available
     const hasQuota = await checkMonthlyQuota(req.user.id, 'project', limits.maxProjects);
     if (!hasQuota) {
         return res.status(403).json({ error: `Has alcanzado tu cupo mensual de ${limits.maxProjects} generaciones de proyectos. Actualiza tu plan para más.` });
@@ -1299,8 +1297,9 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
 
     const [result] = await pool.query(
       `INSERT INTO projects 
-       (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+       (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, 
+        sales_page_url, full_price, commission_rate, lead_magnet_type, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         req.user.id,
         name,
@@ -1313,6 +1312,10 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
         JSON.stringify(painPoints || []),
         JSON.stringify(keyBenefits || []),
         JSON.stringify(affiliateLinks || []),
+        salesPageUrl,
+        fullPrice || 0,
+        commissionRate || 0,
+        leadMagnetType
       ]
     );
 
@@ -1333,7 +1336,8 @@ app.put('/api/projects/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   const {
     name, niche, description, targetAudience, brandTone,
-    productName, mainGoal, painPoints, keyBenefits, affiliateLinks
+    productName, mainGoal, painPoints, keyBenefits, affiliateLinks,
+    salesPageUrl, fullPrice, commissionRate, leadMagnetType
   } = req.body;
 
   try {
@@ -1342,7 +1346,8 @@ app.put('/api/projects/:id', authMiddleware, async (req, res) => {
 
     await pool.query(
       `UPDATE projects 
-       SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, updated_at=NOW()
+       SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?,
+           sales_page_url=?, full_price=?, commission_rate=?, lead_magnet_type=?, updated_at=NOW()
        WHERE id=? AND user_id=?`,
       [
         name,
@@ -1355,12 +1360,17 @@ app.put('/api/projects/:id', authMiddleware, async (req, res) => {
         JSON.stringify(painPoints || []),
         JSON.stringify(keyBenefits || []),
         JSON.stringify(affiliateLinks || []),
+        salesPageUrl,
+        fullPrice || 0,
+        commissionRate || 0,
+        leadMagnetType,
         id,
         req.user.id,
       ]
     );
     res.json({ message: 'Proyecto actualizado correctamente' });
   } catch (error) {
+    console.error('[PROJECTS] Error updating:', error);
     res.status(500).json({ error: 'Error actualizando proyecto' });
   }
 });
@@ -1734,7 +1744,6 @@ app.get('/api/public/pages/:slug', async (req, res) => {
     let rows = [];
 
     // Attempt to lookup by ID if the slug is numeric
-    // This solves issues where frontend links use ID as a fallback when subdomain is missing
     if (/^\d+$/.test(slug)) {
        [rows] = await pool.query(
            'SELECT *, thankyoupage_json FROM landing_pages WHERE id = ? AND is_published = 1 LIMIT 1',
@@ -1810,7 +1819,6 @@ app.get('/api/public/articles/:slug', async (req, res) => {
 // ======================================================
 app.get('/api/analytics/weekly', authMiddleware, async (req, res) => {
   try {
-    // Obtener datos de los últimos 7 días para todas las páginas del usuario
     const [rows] = await pool.query(`
         SELECT 
             da.date, 
@@ -1824,7 +1832,6 @@ app.get('/api/analytics/weekly', authMiddleware, async (req, res) => {
         ORDER BY da.date ASC
     `, [req.user.id]);
 
-    // Formatear fechas para que el frontend las entienda fácil (YYYY-MM-DD)
     const formatted = rows.map(r => ({
         date: new Date(r.date).toISOString().split('T')[0],
         visits: Number(r.visits),
@@ -1838,7 +1845,6 @@ app.get('/api/analytics/weekly', authMiddleware, async (req, res) => {
   }
 });
 
-// --- NEW ENDPOINT: Analytics Summary (Lazy Loading) ---
 app.get('/api/analytics/summary', authMiddleware, async (req, res) => {
   try {
     const [visitsRes] = await pool.query('SELECT SUM(visits) as v, SUM(conversions) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
@@ -1863,7 +1869,6 @@ app.get('/api/pages', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT *, thankyoupage_json FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
     
-    // Process rows to merge tyPage
     rows.forEach(page => {
         if (typeof page.content === 'string') {
             try { page.content = JSON.parse(page.content); } catch {}
@@ -1882,27 +1887,22 @@ app.get('/api/pages', authMiddleware, async (req, res) => {
 app.post('/api/pages', authMiddleware, async (req, res) => {
   const { name, niche, goal, subdomain, content, projectId } = req.body;
   try {
-    // --- LIMIT & QUOTA CHECK ---
     const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
     const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
     
-    // 1. Storage Limit
     const [count] = await pool.query('SELECT COUNT(*) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
     if (count[0].c >= limits.maxLandings) {
         return res.status(403).json({ error: `Has alcanzado el límite de almacenamiento de ${limits.maxLandings} páginas.` });
     }
 
-    // 2. Monthly Quota
     const hasQuota = await checkMonthlyQuota(req.user.id, 'landing', limits.maxLandings);
     if (!hasQuota) {
         return res.status(403).json({ error: `Has alcanzado tu cupo mensual de ${limits.maxLandings} páginas. Vuelve el próximo mes o actualiza.` });
     }
-    // -------------------
 
-    // Extract Thank You Page Data
     const tyPage = content.thankYouPage;
     if (tyPage) {
-        delete content.thankYouPage; // Remove from main blob to save space
+        delete content.thankYouPage; 
     }
 
     const [resDb] = await pool.query(
@@ -1910,10 +1910,7 @@ app.post('/api/pages', authMiddleware, async (req, res) => {
       [req.user.id, projectId || null, name, niche, goal, subdomain, JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null]
     );
 
-    // Log usage
     await logUsage(req.user.id, 'landing');
-    
-    // Log System Activity
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PAGE', 'page', resDb.insertId, { name });
 
     res.json({ id: resDb.insertId, message: 'Página creada' });
@@ -1926,7 +1923,6 @@ app.put('/api/pages/:id', authMiddleware, async (req, res) => {
     const [check] = await pool.query('SELECT id FROM landing_pages WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
     if (check.length === 0) return res.status(403).json({ error: 'No autorizado' });
 
-    // Extract Thank You Page Data
     const tyPage = content.thankYouPage;
     if (tyPage) {
         delete content.thankYouPage; 
@@ -1942,14 +1938,9 @@ app.put('/api/pages/:id', authMiddleware, async (req, res) => {
 
 app.delete('/api/pages/:id', authMiddleware, async (req, res) => {
   try {
-    // Get info for log
     const [page] = await pool.query('SELECT name FROM landing_pages WHERE id = ?', [req.params.id]);
-    
     await pool.query('DELETE FROM landing_pages WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
-    
-    // Log Activity
     await logSystemActivity(req.user.id, req.user.email, 'DELETE_PAGE', 'page', req.params.id, { name: page[0]?.name });
-
     res.json({ message: 'Eliminado' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -1959,9 +1950,6 @@ app.delete('/api/pages/:id', authMiddleware, async (req, res) => {
 // ======================================================
 app.get('/api/articles', authMiddleware, async (req, res) => {
   try {
-    // JOIN with landing_pages to get subdomain for dashboard links
-    // IMPORTANT: Ensure we fetch subdomain. If subdomain is NULL, page_subdomain will be NULL.
-    // ADDED: lp.name as page_name
     const [rows] = await pool.query(
         `SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name 
          FROM articles a 
@@ -1974,7 +1962,6 @@ app.get('/api/articles', authMiddleware, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET Single Article (Private)
 app.get('/api/articles/:id', authMiddleware, async (req, res) => {
     try {
         const [rows] = await pool.query(
@@ -1989,61 +1976,35 @@ app.get('/api/articles/:id', authMiddleware, async (req, res) => {
 app.post('/api/articles', authMiddleware, async (req, res) => {
   const { title, description, content_html, keyword, seo_score, page_id, slug, featured_image, meta_title, meta_description, status, published_at } = req.body;
   
-  // Generar slug si no existe
   let finalSlug = slug;
   if (!finalSlug && title) {
       finalSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   }
 
   try {
-    // --- QUOTA CHECK ---
     const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
     const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
-    
-    // Check quota (default maxArticles logic same as maxLandings if not explicit, but initDb added maxArticles)
     const limit = limits.maxArticles || 2; 
-    
     const hasQuota = await checkMonthlyQuota(req.user.id, 'article', limit);
     if (!hasQuota) {
         return res.status(403).json({ error: `Has alcanzado tu cupo mensual de ${limit} artículos.` });
     }
-    // -------------------
 
     const [resDb] = await pool.query(
       `INSERT INTO articles 
       (user_id, page_id, title, slug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, status, published_at, created_at) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [
-        req.user.id, 
-        page_id || null, 
-        title, 
-        finalSlug, 
-        description, 
-        content_html, 
-        keyword, 
-        seo_score, 
-        featured_image, 
-        meta_title, 
-        meta_description, 
-        status || 'published', 
-        published_at ? new Date(published_at) : new Date() // Fix: Convert string to Date
-      ]
+      [req.user.id, page_id || null, title, finalSlug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, status || 'published', published_at ? new Date(published_at) : new Date()]
     );
 
-    // Log usage
     await logUsage(req.user.id, 'article');
-    
-    // Log Activity
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_ARTICLE', 'article', resDb.insertId, { title });
-
     res.json({ id: resDb.insertId });
   } catch (e) { 
-      console.error("[DB Insert Error] Falló el guardado del artículo:", e);
       res.status(500).json({ error: e.message }); 
   }
 });
 
-// PUT Article
 app.put('/api/articles/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   const { title, description, content_html, keyword, seo_score, page_id, slug, featured_image, meta_title, meta_description, status, published_at } = req.body;
@@ -2061,22 +2022,7 @@ app.put('/api/articles/:id', authMiddleware, async (req, res) => {
       `UPDATE articles SET 
         page_id=?, title=?, slug=?, description=?, content_html=?, featured_image=?, keyword=?, seo_score=?, meta_title=?, meta_description=?, status=?, published_at=?
        WHERE id=? AND user_id=?`,
-      [
-        page_id || null, 
-        title, 
-        finalSlug, 
-        description, 
-        content_html, 
-        featured_image, 
-        keyword, 
-        seo_score, 
-        meta_title, 
-        meta_description, 
-        status, 
-        published_at ? new Date(published_at) : new Date(), // Fix: Convert string to Date
-        id, 
-        req.user.id
-      ]
+      [page_id || null, title, finalSlug, description, content_html, featured_image, keyword, seo_score, meta_title, meta_description, status, published_at ? new Date(published_at) : new Date(), id, req.user.id]
     );
     res.json({ message: 'Artículo actualizado' });
   } catch (e) {
@@ -2086,15 +2032,10 @@ app.put('/api/articles/:id', authMiddleware, async (req, res) => {
 
 app.delete('/api/articles/:id', authMiddleware, async (req, res) => {
   try {
-    // Get info
     const [art] = await pool.query('SELECT title FROM articles WHERE id = ?', [req.params.id]);
-
     const [result] = await pool.query('DELETE FROM articles WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Artículo no encontrado' });
-    
-    // Log Activity
     await logSystemActivity(req.user.id, req.user.email, 'DELETE_ARTICLE', 'article', req.params.id, { title: art[0]?.title });
-
     res.json({ message: 'Artículo eliminado' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -2122,7 +2063,6 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
-// IMPORTANTE: Ejecutar initDb pero NO matar el proceso si falla para permitir que Cloud Run arranque
 initDb().then(() => {
     console.log('✅ Base de datos inicializada correctamente.');
 }).catch(err => {

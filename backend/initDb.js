@@ -1,6 +1,4 @@
 
-
-
 const pool = require('./db');
 
 /**
@@ -298,6 +296,11 @@ const initDb = async () => {
 
         // Migraciones adicionales
         await addColumnSafe(connection, 'projects', "strategy_json LONGTEXT");
+        await addColumnSafe(connection, 'projects', "sales_page_url VARCHAR(500)");
+        await addColumnSafe(connection, 'projects', "full_price DECIMAL(10,2)");
+        await addColumnSafe(connection, 'projects', "commission_rate DECIMAL(5,2)");
+        await addColumnSafe(connection, 'projects', "lead_magnet_type VARCHAR(100)");
+
         await addColumnSafe(connection, 'articles', "slug VARCHAR(255)");
         await addColumnSafe(connection, 'articles', "featured_image VARCHAR(500)");
         await addColumnSafe(connection, 'articles', "meta_title VARCHAR(255)");
