@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar, Sparkles, Check, Info, Crown } from 'lucide-react';
+import { Calendar, Sparkles, Check, Info, Crown, Lock } from 'lucide-react';
 
 interface ProjectStrategy_EvergreenProps {
     evergreenData: any[];
@@ -8,11 +8,17 @@ interface ProjectStrategy_EvergreenProps {
     activeEvergreenEmail: number;
     setActiveEvergreenEmail: (idx: number) => void;
     onUpgrade: () => void;
+    
+    // Nuevo Prop
+    planName?: string;
 }
 
 export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps> = ({
-    evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade
+    evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, planName
 }) => {
+    
+    const isStarter = planName === 'starter';
+
     return (
         <div id="psd-evergreen-section" className="pt-12">
             <div id="psd-evergreen-header-container" className="w-[80%] mx-auto py-6">
@@ -28,22 +34,44 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     </p>
                 </div>
 
-                <div id="psd-evergreen-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 shadow-lg shadow-purple-900/10">
-                    <div>
-                        <h4 className="text-purple-300 font-bold text-2xl mb-2 flex items-center gap-2">
-                            <Sparkles className="w-6 h-6" /> Potencia tu Alcance
-                        </h4>
-                        <p className="text-gray-300 text-lg leading-relaxed">
-                            ⚡ Tu Plan actual permite crear 2 artículos este mes. Actualiza a PRO para generación ilimitada y dominar los buscadores.
-                        </p>
+                {/* CONDITIONAL BANNER BASED ON PLAN */}
+                {isStarter ? (
+                    <div id="psd-evergreen-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 shadow-lg shadow-purple-900/10">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20">
+                                <Lock className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h4 className="text-purple-300 font-bold text-xl mb-1 flex items-center gap-2">
+                                    Potencia tu Alcance
+                                </h4>
+                                <p className="text-gray-300 text-lg leading-relaxed">
+                                    ⚡ La Secuencia Evergreen de 30 días es una funcionalidad avanzada. Actualiza a PRO para activarla.
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={onUpgrade}
+                            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
+                        >
+                            Actualizar a MAX 🚀
+                        </button>
                     </div>
-                    <button
-                        onClick={onUpgrade}
-                        className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
-                    >
-                        Actualizar a MAX 🚀
-                    </button>
-                </div>
+                ) : (
+                    <div id="psd-evergreen-included-banner" className="bg-green-900/20 border border-green-500/30 p-6 rounded-xl flex items-center gap-4 mb-8 shadow-lg shadow-green-900/10">
+                        <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20">
+                            <Check className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-green-300 font-bold text-xl mb-1">
+                                Funcionalidad Incluida
+                            </p>
+                            <p className="text-gray-300 text-lg">
+                                Tu plan incluye el acceso completo a la Secuencia Evergreen. ¡Genera confianza a largo plazo sin costo extra!
+                            </p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div id="psd-evergreen-card" className="relative w-full bg-gray-900 border border-gray-800 rounded-3xl p-8 overflow-hidden group shadow-2xl">

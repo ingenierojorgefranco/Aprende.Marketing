@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { LandingPage } from '../../../../types';
+import { LandingPage, PlanLimits } from '../../../../types';
 
-// Tabs Data
+// Tabs Data (Keep static data)
 const LP_TABS_DATA = {
     hero: {
         label: "1. Encabezado",
@@ -83,19 +83,29 @@ interface ProjectStrategy_WebSystemProps {
     handleTooltipLeave: () => void;
     linkedPages: LandingPage[];
     onEditPage: (id: string) => void;
+    
+    // Props nuevos para límites
+    pageCount?: number;
+    planLimits?: PlanLimits;
+    onUpgrade?: () => void;
 }
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
-    selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, linkedPages, onEditPage 
+    selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, linkedPages, onEditPage,
+    pageCount = 0, planLimits, onUpgrade
 }) => {
     const navigate = useNavigate();
     const [showPagesModal, setShowPagesModal] = useState(false);
     const [modalMode, setModalMode] = useState<'lp' | 'ty'>('lp');
 
+    // Lógica de Límites
+    const maxPages = planLimits?.maxLandings || 3;
+    const isLimitReached = pageCount >= maxPages;
+
     const renderTabContent = (tabKey: string) => {
+        // ... (Keep existing implementation)
         const data = LP_TABS_DATA[tabKey as keyof typeof LP_TABS_DATA] as any;
         if (!data) return null;
-        
         if (data.type === 'hero') {
             return (
                 <div id="psd-lp-tab-content-hero" className="space-y-6 mt-6">
@@ -114,7 +124,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 </div>
             );
         }
-
         if (data.type === 'pain') {
             return (
                 <div id="psd-lp-tab-content-pain" className="space-y-4 mt-6">
@@ -128,7 +137,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 </div>
             );
         }
-
         if (data.type === 'benefits') {
             return (
                 <div id="psd-lp-tab-content-benefits" className="space-y-4 mt-6">
@@ -150,9 +158,9 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     };
 
     const renderTyTabContent = (tabKey: string) => {
+        // ... (Keep existing implementation)
         const data = TY_TABS_DATA[tabKey as keyof typeof TY_TABS_DATA];
         if (!data) return null;
-
         return (
             <div id={`psd-ty-tab-content-${tabKey}`} className="space-y-6 mt-6">
                 <div>
@@ -169,7 +177,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         );
     };
 
-    const pageCount = linkedPages.length;
+    const linkedPageCount = linkedPages.length;
 
     return (
         <div id="psd-system-container" className="space-y-12">
@@ -199,20 +207,51 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         Haremos todo el trabajo difícil por ti. Te ahorraremos cientos de horas de diseño y redacción creando páginas web 100% optimizadas para captar audiencia cualificada y generar ventas en automático.
                     </p>
                     
-                    <div id="psd-web-included-banner" className="bg-green-900/20 border border-green-500/30 p-4 rounded-xl flex items-center gap-4 mb-8 shadow-lg shadow-green-900/10">
-                        <div className="p-2 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20">
-                            <Check className="w-5 h-5" />
+                    {/* DYNAMIC LIMITS BANNER */}
+                    {!isLimitReached ? (
+                        <div id="psd-web-included-banner" className="bg-green-900/20 border border-green-500/30 p-6 rounded-xl flex items-center gap-4 mb-8 shadow-lg shadow-green-900/10">
+                            <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20">
+                                <Check className="w-6 h-6" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-green-300 font-bold text-xl mb-1">
+                                    Funcionalidad Incluida
+                                </p>
+                                <p className="text-gray-300 text-lg">
+                                    Tienes <span className="text-white font-bold">{pageCount} de {maxPages}</span> páginas utilizadas. Tu plan actual permite la generación ilimitada de estas páginas web de alta conversión.
+                                </p>
+                            </div>
                         </div>
-                        <p className="text-green-200 text-base font-medium">
-                            <span className="font-bold text-white uppercase tracking-wider">Funcionalidad Incluida:</span> Tu plan actual incluye la generación ilimitada de estas páginas web de alta conversión y embudos de venta.
-                        </p>
-                    </div>
+                    ) : (
+                        <div id="psd-web-limit-banner" className="bg-purple-900/20 border border-purple-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 shadow-lg shadow-purple-900/10">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20">
+                                    <Lock className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h4 className="text-purple-300 font-bold text-xl mb-1">
+                                        Límite Alcanzado
+                                    </h4>
+                                    <p className="text-gray-300 text-lg">
+                                        Has creado <span className="text-white font-bold">{pageCount} de {maxPages}</span> páginas permitidas. Actualiza tu plan para eliminar los límites y seguir creando.
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={onUpgrade}
+                                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
+                            >
+                                Actualizar a MAX 🚀
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div className="space-y-8">
                     {/* Landing Page Block */}
                     <div id="psd-lp-block" className="bg-gray-900 border border-gray-800 rounded-3xl overflow-hidden hover:border-blue-500/30 transition group shadow-lg">
                         <div className="grid md:grid-cols-2">
+                            {/* ... (Keep left column exactly as is) ... */}
                             <div id="psd-lp-left-col" className="p-8 md:p-12 flex flex-col justify-center order-2 md:order-1 relative">
                                 <div id="psd-lp-header" className="flex items-center gap-4 mb-6">
                                     <div className="w-12 h-12 bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-400 border border-blue-500/20 shrink-0">
@@ -333,14 +372,15 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 </div>
 
                                 <div id="psd-lp-btn-container" className="w-full mt-2">
-                                    {pageCount === 0 ? (
+                                    {linkedPageCount === 0 ? (
                                         <button 
-                                            onClick={() => navigate('/dashboard/generator')}
-                                            className="w-full max-w-sm mx-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-black shadow-xl shadow-amber-500/20 hover:from-yellow-400 hover:to-amber-500 hover:scale-[1.02] hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
+                                            onClick={() => isLimitReached && onUpgrade ? onUpgrade() : navigate('/dashboard/generator')}
+                                            className={`w-full max-w-sm mx-auto text-black shadow-xl transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg ${isLimitReached ? 'bg-gray-600 cursor-not-allowed text-gray-300' : 'bg-gradient-to-r from-yellow-500 to-amber-600 shadow-amber-500/20 hover:from-yellow-400 hover:to-amber-500 hover:scale-[1.02] hover:shadow-amber-500/40'}`}
                                         >
-                                            <Wand2 className="w-6 h-6" /> Crea tu Web Automáticamente
+                                            {isLimitReached ? <Lock className="w-6 h-6" /> : <Wand2 className="w-6 h-6" />}
+                                            {isLimitReached ? 'Límite Alcanzado (Actualizar)' : 'Crea tu Web Automáticamente'}
                                         </button>
-                                    ) : pageCount === 1 ? (
+                                    ) : linkedPageCount === 1 ? (
                                         <div className="flex flex-col gap-3">
                                             <button 
                                                 onClick={() => navigate(`/dashboard/editor/${linkedPages[0].id}`)}
@@ -349,10 +389,10 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                                 <PenTool className="w-6 h-6" /> Editar Landing Page
                                             </button>
                                             <button 
-                                                onClick={() => navigate('/dashboard/generator')}
+                                                onClick={() => isLimitReached && onUpgrade ? onUpgrade() : navigate('/dashboard/generator')}
                                                 className="w-full max-w-sm mx-auto bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 transition-all flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium text-sm"
                                             >
-                                                <Plus className="w-4 h-4" /> Crear Otra Landing Page
+                                                <Plus className="w-4 h-4" /> {isLimitReached ? 'Límite Alcanzado' : 'Crear Otra Landing Page'}
                                             </button>
                                         </div>
                                     ) : (
@@ -360,7 +400,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                             onClick={() => { setModalMode('lp'); setShowPagesModal(true); }}
                                             className="w-full max-w-sm mx-auto bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xl shadow-purple-500/20 hover:from-purple-500 hover:to-indigo-500 hover:scale-[1.02] hover:shadow-purple-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"
                                         >
-                                            <Layout className="w-6 h-6" /> Gestionar Landing Pages ({pageCount})
+                                            <Layout className="w-6 h-6" /> Gestionar Landing Pages ({linkedPageCount})
                                         </button>
                                     )}
                                 </div>
@@ -371,6 +411,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     {/* Thank You Page Block */}
                     <div id="psd-ty-block" className="bg-gray-900 border border-gray-800 rounded-3xl overflow-hidden hover:border-green-500/30 transition group shadow-lg">
                         <div className="grid md:grid-cols-2">
+                            {/* ... (Keep left column mostly static) ... */}
                             <div id="psd-ty-left-col" className="p-8 md:p-12 flex flex-col justify-center order-1 md:order-1 relative">
                                 <div id="psd-ty-header" className="flex items-center gap-4 mb-6">
                                     <div className="w-12 h-12 bg-green-900/20 rounded-xl flex items-center justify-center text-green-400 border border-green-500/20 shrink-0">
@@ -470,7 +511,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 </div>
 
                                 <div id="psd-ty-btn-container" className="w-full mt-2 text-center">
-                                    {pageCount === 0 ? (
+                                    {linkedPageCount === 0 ? (
                                         <>
                                             <div className="mb-4 flex justify-center items-center gap-2 text-yellow-500 text-base font-bold animate-pulse">
                                                 <AlertTriangle className="w-5 h-5" /> 
@@ -483,7 +524,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                                 <Wand2 className="w-6 h-6" /> Crear Página Automáticamente
                                             </button>
                                         </>
-                                    ) : pageCount === 1 ? (
+                                    ) : linkedPageCount === 1 ? (
                                         <button 
                                             onClick={() => navigate(`/dashboard/editor/${linkedPages[0].id}?tab=thankyou`)}
                                             className="w-full max-w-sm mx-auto bg-gradient-to-r from-yellow-500 to-amber-600 text-white shadow-xl shadow-amber-500/20 hover:from-yellow-400 hover:to-amber-500 hover:scale-[1.02] hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg"

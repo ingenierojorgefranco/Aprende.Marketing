@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
     Users, Target, MessageCircle, FileText,
     MonitorPlay, ShoppingCart, CheckCircle2,
@@ -21,16 +21,25 @@ import { ProjectStrategy_Psychology } from './ProjectStrategy/ProjectStrategy_Ps
 
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
-import { ProjectMasterStrategy, LandingPage } from '../../../types';
+import { ProjectMasterStrategy, LandingPage, User } from '../../../types';
 
 // --- ICONS MAPPING FOR DYNAMIC DATA ---
 const iconMap: any = {
     BookOpen, Sparkles, Users, MessageCircle, Target
 };
 
+interface DashboardContext {
+    user: User;
+    pageCount: number;
+    articleCount: number;
+}
+
 export const ProjectStrategyDashboard: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams() as { id: string };
+    
+    // Get Global Context Data (User Limits & Current Usage)
+    const { user, pageCount, articleCount } = useOutletContext() as DashboardContext;
 
     const [strategyData, setStrategyData] = useState<ProjectMasterStrategy | null>(null);
     const [loading, setLoading] = useState(true);
@@ -138,8 +147,13 @@ export const ProjectStrategyDashboard: React.FC = () => {
         if (selectedArticles.includes(index)) {
             setSelectedArticles(prev => prev.filter(i => i !== index));
         } else {
-            if (selectedArticles.length < 2) {
+            // Check dynamic limit instead of hardcoded 2
+            const maxArticles = user.planLimits?.maxArticles || 2;
+            if (selectedArticles.length < maxArticles) {
                 setSelectedArticles(prev => [...prev, index]);
+            } else {
+                alert(`Tu plan permite seleccionar máximo ${maxArticles} artículos. Desmarca uno para agregar otro o actualiza tu plan.`);
+                setShowUpgradeModal(true);
             }
         }
     };
@@ -169,7 +183,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
                 onClose={() => setShowUpgradeModal(false)} 
-                reason="Desbloquea la generación ilimitada de contenido SEO y domina tu nicho."
+                reason="Desbloquea la generación ilimitada de contenido y funcionalidades PRO."
             />
 
             {showVideoModal && (
@@ -243,6 +257,10 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     handleTooltipLeave={handleTooltipLeave}
                     linkedPages={linkedPages}
                     onEditPage={(pageId) => navigate(`/dashboard/editor/${pageId}`)}
+                    // Props for limits
+                    pageCount={pageCount}
+                    planLimits={user.planLimits}
+                    onUpgrade={() => setShowUpgradeModal(true)}
                 />
 
                 <ProjectStrategy_Content 
@@ -253,6 +271,9 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     toggleArticleSelection={toggleArticleSelection}
                     handleTooltipHover={handleTooltipHover}
                     handleTooltipLeave={handleTooltipLeave}
+                    // Props for limits
+                    articleCount={articleCount}
+                    planLimits={user.planLimits}
                     onUpgrade={() => setShowUpgradeModal(true)}
                 />
 
@@ -261,6 +282,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     avatars={strategyData.avatars}
                     activeEmail={activeEmail}
                     setActiveEmail={setActiveEmail}
+                    // Props for limits
+                    planName={user.planLimits?.planName}
                     onUpgrade={() => setShowUpgradeModal(true)}
                 />
 
@@ -269,6 +292,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     avatars={strategyData.avatars}
                     activeEvergreenEmail={activeEvergreenEmail}
                     setActiveEvergreenEmail={setActiveEvergreenEmail}
+                    // Props for limits
+                    planName={user.planLimits?.planName}
                     onUpgrade={() => setShowUpgradeModal(true)}
                 />
 

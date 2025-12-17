@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { FileText, Sparkles, Check, Target, Search, PenTool } from 'lucide-react';
+import { FileText, Sparkles, Check, Target, Search, PenTool, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { PlanLimits } from '../../../../types';
 
 interface ProjectStrategy_ContentProps {
     contentData: any[];
@@ -12,12 +13,21 @@ interface ProjectStrategy_ContentProps {
     handleTooltipHover: (e: React.MouseEvent, content: string[]) => void;
     handleTooltipLeave: () => void;
     onUpgrade: () => void;
+    
+    // Props nuevos
+    articleCount?: number;
+    planLimits?: PlanLimits;
 }
 
 export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = ({
-    contentData, activeArticle, setActiveArticle, selectedArticles, toggleArticleSelection, handleTooltipHover, handleTooltipLeave, onUpgrade
+    contentData, activeArticle, setActiveArticle, selectedArticles, toggleArticleSelection, handleTooltipHover, handleTooltipLeave, onUpgrade,
+    articleCount = 0, planLimits
 }) => {
     const navigate = useNavigate();
+
+    // Lógica de Límites
+    const maxArticles = planLimits?.maxArticles || 2;
+    const isLimitReached = articleCount >= maxArticles;
 
     return (
         <div id="psd-content-section" className="pt-8">
@@ -34,22 +44,44 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     </p>
                 </div>
                 
-                <div id="psd-content-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 shadow-lg shadow-purple-900/10">
-                    <div>
-                        <h4 className="text-purple-300 font-bold text-2xl mb-2 flex items-center gap-2">
-                            <Sparkles className="w-6 h-6" /> Potencia tu Alcance
-                        </h4>
-                        <p className="text-gray-300 text-lg leading-relaxed">
-                            ⚡ Tu Plan actual permite crear 2 artículos este mes. Actualiza a PRO para generación ilimitada y dominar los buscadores.
-                        </p>
+                {/* DYNAMIC LIMITS BANNER */}
+                {!isLimitReached ? (
+                    <div id="psd-content-included-banner" className="bg-green-900/20 border border-green-500/30 p-6 rounded-xl flex items-center gap-4 mb-8 shadow-lg shadow-green-900/10">
+                        <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20">
+                            <Check className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-green-300 font-bold text-xl mb-1">
+                                Funcionalidad Incluida
+                            </p>
+                            <p className="text-gray-300 text-lg">
+                                Tienes <span className="text-white font-bold">{articleCount} de {maxArticles}</span> artículos disponibles. Tu plan permite la generación automática de este contenido.
+                            </p>
+                        </div>
                     </div>
-                    <button
-                        onClick={onUpgrade}
-                        className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
-                    >
-                        Actualizar a MAX 🚀
-                    </button>
-                </div>
+                ) : (
+                    <div id="psd-content-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 shadow-lg shadow-purple-900/10">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20">
+                                <Lock className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h4 className="text-purple-300 font-bold text-xl mb-1 flex items-center gap-2">
+                                    Límite Alcanzado
+                                </h4>
+                                <p className="text-gray-300 text-lg leading-relaxed">
+                                    Has creado <span className="text-white font-bold">{articleCount} de {maxArticles}</span> artículos permitidos este mes. Actualiza a PRO para generación ilimitada y dominar los buscadores.
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={onUpgrade}
+                            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
+                        >
+                            Actualizar a MAX 🚀
+                        </button>
+                    </div>
+                )}
             </div>
 
             <div id="psd-content-grid" className="grid lg:grid-cols-2 gap-8">
@@ -90,7 +122,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             })}
                         </div>
 
-                        {selectedArticles.length >= 2 && (
+                        {selectedArticles.length >= maxArticles && (
                             <div id="psd-content-limit-msg" className="mt-4 p-3 bg-purple-900/20 border border-purple-500/30 rounded-lg text-center animate-in fade-in">
                                 <p className="text-purple-300 font-medium text-sm">
                                     ¿Te gustaría crear más artículos? 
@@ -170,7 +202,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                         <div className="mt-8 pt-8 border-t border-gray-800">
                             <p className="text-center text-xl text-gray-300 mb-6 font-medium">
-                                Has seleccionado <span className="text-purple-400 font-bold text-2xl">{selectedArticles.length}</span> de <span className="text-white font-bold text-2xl">2</span> artículos disponibles en tu plan.
+                                Has seleccionado <span className="text-purple-400 font-bold text-2xl">{selectedArticles.length}</span> de <span className="text-white font-bold text-2xl">{maxArticles}</span> artículos disponibles en tu plan.
                             </p>
                             
                             <button onClick={() => navigate('/dashboard/content-creator')} className="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg shadow-purple-900/20 hover:scale-[1.02]">

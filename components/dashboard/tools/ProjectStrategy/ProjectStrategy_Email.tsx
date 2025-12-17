@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Mail, Sparkles, Check, Info, Wand2 } from 'lucide-react';
+import { Mail, Sparkles, Check, Info, Wand2, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface ProjectStrategy_EmailProps {
@@ -9,12 +9,17 @@ interface ProjectStrategy_EmailProps {
     activeEmail: number;
     setActiveEmail: (idx: number) => void;
     onUpgrade: () => void;
+    
+    // Nuevo Prop
+    planName?: string;
 }
 
 export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
-    emailData, avatars, activeEmail, setActiveEmail, onUpgrade
+    emailData, avatars, activeEmail, setActiveEmail, onUpgrade, planName
 }) => {
     const navigate = useNavigate();
+    
+    const isStarter = planName === 'starter';
 
     return (
         <div id="psd-email-section" className="pt-8">
@@ -26,22 +31,44 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     La bandeja de entrada es un espacio sagrado. No se trata de hacer spam, sino de construir una relación. Hemos diseñado esta secuencia de "Nutrición" para educar a tu lead, derribar sus objeciones internas y presentar tu oferta justo cuando están listos para comprar, aumentando tu conversión sin ser invasivo.
                 </p>
                 
-                <div id="psd-email-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 shadow-lg shadow-purple-900/10">
-                    <div>
-                        <h4 className="text-purple-300 font-bold text-2xl mb-2 flex items-center gap-2">
-                            <Sparkles className="w-6 h-6" /> Potencia tu Alcance
-                        </h4>
-                        <p className="text-gray-300 text-lg leading-relaxed">
-                            ⚡ Tu Plan actual permite crear 2 artículos este mes. Actualiza a PRO para generación ilimitada y dominar los buscadores.
-                        </p>
+                {/* CONDITIONAL BANNER BASED ON PLAN */}
+                {isStarter ? (
+                    <div id="psd-email-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 mb-8 shadow-lg shadow-purple-900/10">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20">
+                                <Lock className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h4 className="text-purple-300 font-bold text-xl mb-1 flex items-center gap-2">
+                                    Potencia tu Alcance
+                                </h4>
+                                <p className="text-gray-300 text-lg leading-relaxed">
+                                    ⚡ Tu Plan Starter no incluye la automatización de correo electrónico. Actualiza a PRO para enviar secuencias ilimitadas.
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={onUpgrade}
+                            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
+                        >
+                            Actualizar a MAX 🚀
+                        </button>
                     </div>
-                    <button
-                        onClick={onUpgrade}
-                        className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
-                    >
-                        Actualizar a MAX 🚀
-                    </button>
-                </div>
+                ) : (
+                    <div id="psd-email-included-banner" className="bg-green-900/20 border border-green-500/30 p-6 rounded-xl flex items-center gap-4 mb-8 shadow-lg shadow-green-900/10">
+                        <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20">
+                            <Check className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-green-300 font-bold text-xl mb-1">
+                                Funcionalidad Incluida
+                            </p>
+                            <p className="text-gray-300 text-lg">
+                                Tu plan actual permite la automatización completa de secuencias de correo electrónico. ¡Úsalo sin límites!
+                            </p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div id="psd-email-grid" className="grid lg:grid-cols-2 gap-8">
