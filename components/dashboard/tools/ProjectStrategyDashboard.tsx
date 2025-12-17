@@ -4,7 +4,7 @@ import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
     Users, Target, MessageCircle, FileText,
     MonitorPlay, ShoppingCart, CheckCircle2,
-    BookOpen, Sparkles, Globe, Clapperboard, X, Loader2
+    BookOpen, Sparkles, Globe, Clapperboard, X, Loader2, AlertTriangle, ArrowLeft
 } from 'lucide-react';
 
 import { ProjectStrategy_Header } from './ProjectStrategy/ProjectStrategy_Header';
@@ -21,7 +21,7 @@ import { ProjectStrategy_Psychology } from './ProjectStrategy/ProjectStrategy_Ps
 
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
-import { ProjectMasterStrategy, LandingPage, User, Plan } from '../../../types';
+import { ProjectMasterStrategy, LandingPage, User, Plan, Project } from '../../../types';
 
 // --- ICONS MAPPING FOR DYNAMIC DATA ---
 const iconMap: any = {
@@ -41,10 +41,11 @@ export const ProjectStrategyDashboard: React.FC = () => {
     // Get Global Context Data (User Limits & Current Usage)
     const { user, pageCount, articleCount } = useOutletContext() as DashboardContext;
 
+    const [project, setProject] = useState<Project | null>(null);
     const [strategyData, setStrategyData] = useState<ProjectMasterStrategy | null>(null);
     const [loading, setLoading] = useState(true);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
-    const [globalDomainCount, setGlobalDomainCount] = useState(0); // NUEVO
+    const [globalDomainCount, setGlobalDomainCount] = useState(0); 
     
     // Dynamic Plan Logic
     const [nextPlan, setNextPlan] = useState<Plan | null>(null);
@@ -78,27 +79,33 @@ export const ProjectStrategyDashboard: React.FC = () => {
         const loadData = async () => {
             setLoading(true);
             try {
-                // Fetch Strategy, Pages and Plans in parallel
-                const [strategy, pages, plansData] = await Promise.all([
+                // Fetch Data in parallel
+                const [proj, strategy, pages, plansData] = await Promise.all([
+                    api.getProjectById(id),
                     api.getProjectStrategy(id),
                     api.getPages(),
                     api.getPublicPlans()
                 ]);
 
+                setProject(proj);
+
                 // Map icons from strings to components if coming from JSON
-                if (strategy.meta.insights.overview.items) {
+                if (strategy && strategy.meta && strategy.meta.insights.overview.items) {
                     strategy.meta.insights.overview.items = strategy.meta.insights.overview.items.map(item => ({
                         ...item,
                         icon: typeof item.icon === 'string' ? iconMap[item.icon] || Sparkles : item.icon
                     }));
+                    setStrategyData(strategy);
+                } else {
+                    // Si no tiene meta, es una estrategia incompleta o antigua
+                    setStrategyData(null);
                 }
-                setStrategyData(strategy);
 
-                // Logic: Find all pages linked to this project (by ID or legacy Name match)
-                const projectPages = pages.filter(p => p.projectId === id || p.name === strategy.meta.projectName);
+                // Logic: Find all pages linked to this project
+                const projectName = proj?.name || '';
+                const projectPages = pages.filter(p => p.projectId === id || p.name === projectName);
                 setLinkedPages(projectPages);
 
-                // NUEVO: Calcular conteo global de dominios
                 const domains = pages.filter(p => !!p.customDomain).length;
                 setGlobalDomainCount(domains);
 
@@ -110,7 +117,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 if (currentIndex !== -1 && currentIndex < sortedPlans.length - 1) {
                     setNextPlan(sortedPlans[currentIndex + 1]);
                 } else {
-                    setNextPlan(null); // Already max or unknown
+                    setNextPlan(null); 
                 }
 
             } catch (error) {
@@ -167,7 +174,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
         if (selectedArticles.includes(index)) {
             setSelectedArticles(prev => prev.filter(i => i !== index));
         } else {
-            // Check dynamic limit instead of hardcoded 2
             const maxArticles = user.planLimits?.maxArticles || 2;
             if (selectedArticles.length < maxArticles) {
                 setSelectedArticles(prev => [...prev, index]);
@@ -189,10 +195,39 @@ export const ProjectStrategyDashboard: React.FC = () => {
         );
     }
 
-    if (!strategyData) {
+    if (!project) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center text-white">
-                <p>No se pudo cargar la estrategia. Intenta nuevamente.</p>
+                <p>No se pudo cargar el proyecto. Intenta nuevamente.</p>
+            </div>
+        );
+    }
+
+    // Safety check for legacy or missing strategy data
+    if (!strategyData) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center text-white p-12">
+                <div className="text-center max-w-md bg-gray-900 border border-gray-800 p-10 rounded-[2.5rem] shadow-2xl">
+                    <div className="w-20 h-20 bg-yellow-900/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-yellow-500/30">
+                        <AlertTriangle className="w-10 h-10 text-yellow-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold mb-4 text-white">Estrategia no generada</h2>
+                    <p className="text-gray-400 mb-8">Aún no has generado el informe estratégico con Inteligencia Artificial para este proyecto.</p>
+                    <div className="space-y-3">
+                        <button 
+                            onClick={() => navigate(`/dashboard/projects/edit/${id}`)}
+                            className="w-full bg-primary hover:bg-indigo-600 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2"
+                        >
+                            <Sparkles className="w-5 h-5" /> Generar Estrategia Ahora
+                        </button>
+                        <button 
+                            onClick={() => navigate('/dashboard/projects')}
+                            className="w-full bg-transparent border border-gray-700 text-gray-400 hover:text-white py-3 rounded-xl font-medium transition flex items-center justify-center gap-2"
+                        >
+                            <ArrowLeft className="w-4 h-4" /> Volver a Proyectos
+                        </button>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -277,7 +312,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     handleTooltipLeave={handleTooltipLeave}
                     linkedPages={linkedPages}
                     onEditPage={(pageId) => navigate(`/dashboard/editor/${pageId}`)}
-                    // Props for limits
                     pageCount={pageCount}
                     domainCount={globalDomainCount}
                     planLimits={user.planLimits}
@@ -285,44 +319,47 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     nextPlan={nextPlan}
                 />
 
-                <ProjectStrategy_Content 
-                    contentData={strategyData.modules.content}
-                    activeArticle={activeArticle}
-                    setActiveArticle={setActiveArticle}
-                    selectedArticles={selectedArticles}
-                    toggleArticleSelection={toggleArticleSelection}
-                    handleTooltipHover={handleTooltipHover}
-                    handleTooltipLeave={handleTooltipLeave}
-                    // Props for limits
-                    articleCount={articleCount}
-                    planLimits={user.planLimits}
-                    onUpgrade={() => setShowUpgradeModal(true)}
-                    nextPlan={nextPlan}
-                />
+                {strategyData.modules.content && (
+                    <ProjectStrategy_Content 
+                        contentData={strategyData.modules.content}
+                        activeArticle={activeArticle}
+                        setActiveArticle={setActiveArticle}
+                        selectedArticles={selectedArticles}
+                        toggleArticleSelection={toggleArticleSelection}
+                        handleTooltipHover={handleTooltipHover}
+                        handleTooltipLeave={handleTooltipLeave}
+                        articleCount={articleCount}
+                        planLimits={user.planLimits}
+                        onUpgrade={() => setShowUpgradeModal(true)}
+                        nextPlan={nextPlan}
+                    />
+                )}
 
-                <ProjectStrategy_Email 
-                    emailData={strategyData.modules.emails.nurture}
-                    avatars={strategyData.avatars}
-                    activeEmail={activeEmail}
-                    setActiveEmail={setActiveEmail}
-                    // Updated to use feature flag
-                    features={user.planLimits?.features}
-                    onUpgrade={() => setShowUpgradeModal(true)}
-                    planLimits={user.planLimits}
-                    nextPlan={nextPlan}
-                />
+                {strategyData.modules.emails?.nurture && (
+                    <ProjectStrategy_Email 
+                        emailData={strategyData.modules.emails.nurture}
+                        avatars={strategyData.avatars}
+                        activeEmail={activeEmail}
+                        setActiveEmail={setActiveEmail}
+                        features={user.planLimits?.features}
+                        onUpgrade={() => setShowUpgradeModal(true)}
+                        planLimits={user.planLimits}
+                        nextPlan={nextPlan}
+                    />
+                )}
 
-                <ProjectStrategy_Evergreen 
-                    evergreenData={strategyData.modules.emails.evergreen}
-                    avatars={strategyData.avatars}
-                    activeEvergreenEmail={activeEvergreenEmail}
-                    setActiveEvergreenEmail={setActiveEvergreenEmail}
-                    // Updated to use feature flag
-                    features={user.planLimits?.features}
-                    onUpgrade={() => setShowUpgradeModal(true)}
-                    planLimits={user.planLimits}
-                    nextPlan={nextPlan}
-                />
+                {strategyData.modules.emails?.evergreen && (
+                    <ProjectStrategy_Evergreen 
+                        evergreenData={strategyData.modules.emails.evergreen}
+                        avatars={strategyData.avatars}
+                        activeEvergreenEmail={activeEvergreenEmail}
+                        setActiveEvergreenEmail={setActiveEvergreenEmail}
+                        features={user.planLimits?.features}
+                        onUpgrade={() => setShowUpgradeModal(true)}
+                        planLimits={user.planLimits}
+                        nextPlan={nextPlan}
+                    />
+                )}
 
                 <div id="psd-system-summary-footer" className="w-full mx-auto py-12 border-y border-gray-800 bg-[#0a0a0a]">
                     <div className="max-w-[1400px] mx-auto px-6 text-center">
