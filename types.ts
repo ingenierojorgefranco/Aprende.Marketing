@@ -5,6 +5,8 @@
 
 
 
+
+
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
   LOGIN = 'LOGIN',
@@ -485,6 +487,7 @@ export interface Course {
   modules: CourseModule[];
   createdAt: Date;
   is_active?: boolean;
+  order_index?: number;
 }
 
 export interface Comment {
