@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { User, Plan } from '../../types';
 import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye } from 'lucide-react';
@@ -406,6 +405,16 @@ export const DashboardLayout = ({
                      {isOffline ? <WifiOff className="w-3.5 h-3.5" /> : <Wifi className="w-3.5 h-3.5" />}
                      <span className="hidden sm:inline">{isOffline ? 'Modo Demo' : 'Conectado'}</span>
                  </div>
+
+                 {/* LOGOUT BUTTON ADDED HERE */}
+                 <button 
+                     onClick={onLogout}
+                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800 border border-gray-700 text-gray-400 hover:text-red-400 hover:bg-red-900/10 transition group"
+                     title="Cerrar Sesión"
+                 >
+                     <LogOut className="w-4 h-4 transition-transform group-hover:scale-110" />
+                     <span className="text-xs font-bold uppercase tracking-wider hidden lg:inline">Cerrar Sesión</span>
+                 </button>
 
                  <button 
                      onClick={() => setShowProfileModal(true)}

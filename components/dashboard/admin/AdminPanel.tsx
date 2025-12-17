@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { User, PlanLimits, Plan, UserUsageStats } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Shield, Users, Edit, Trash2, Check, X, Save, AlertTriangle, Eye, ChevronDown, ChevronUp, Folder, FileText, Globe, Link as LinkIcon, User as UserIcon, Mail, Calendar, Upload, BarChart, RefreshCw, CreditCard, ExternalLink } from 'lucide-react';
+import { Loader2, Shield, Users, Edit, Trash2, Check, X, Save, AlertTriangle, Eye, ChevronDown, ChevronUp, Folder, FileText, Globe, Link as LinkIcon, User as UserIcon, Mail, Calendar, Upload, BarChart, RefreshCw, CreditCard, ExternalLink, Zap } from 'lucide-react';
 
 // --- Sub-component for viewing user resources (Lazy Loaded) ---
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -260,7 +259,9 @@ export const AdminPanel: React.FC = () => {
                 whatsappBot: false,
                 blogGenerator: false,
                 emailMarketing: false,
-                removeBranding: false
+                removeBranding: false,
+                emailStrategy: false,
+                evergreenStrategy: false
             }
         })));
         setActiveTab('profile'); // Reset tab
@@ -340,9 +341,22 @@ export const AdminPanel: React.FC = () => {
             maxProjects: plan.limitsConfig.maxProjects,
             maxLandings: plan.limitsConfig.maxLandings,
             maxDomains: plan.limitsConfig.maxDomains || 1,
-            maxArticles: plan.limitsConfig.maxArticles,
+            maxArticles: plan.limitsConfig.maxArticles || 0,
             features: { ...plan.limitsConfig.features }
         });
+    };
+
+    // Helper for Feature Label
+    const getFeatureLabel = (key: string) => {
+        const labels: Record<string, string> = {
+            whatsappBot: 'Bot de WhatsApp',
+            blogGenerator: 'Generador de Blog',
+            emailMarketing: 'Email Marketing',
+            removeBranding: 'Quitar Branding',
+            emailStrategy: 'Estrategia 7 Días',
+            evergreenStrategy: 'Estrategia 30 Días'
+        };
+        return labels[key] || key.replace(/([A-Z])/g, ' $1').trim();
     };
 
     // Helper for Usage Bar
@@ -585,16 +599,16 @@ export const AdminPanel: React.FC = () => {
 
                             {/* TAB: PLAN */}
                             {activeTab === 'plan' && (
-                                <div className="space-y-4 animate-in slide-in-from-right-4">
+                                <div className="space-y-6 animate-in slide-in-from-right-4">
                                     <div className="flex justify-between items-center mb-2">
                                         <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                                            <Loader2 className="w-4 h-4 text-green-400" /> Configuración del Plan
+                                            <Zap className="w-4 h-4 text-green-400" /> Configuración de Límites y Características
                                         </h4>
                                     </div>
 
-                                    {/* Dynamic Plan Templates - HIGHLIGHTED */}
+                                    {/* Dynamic Plan Templates */}
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Aplicar Plantilla Rápida</label>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Aplicar Plantilla del Plan</label>
                                         <div className="flex flex-wrap gap-2">
                                             {plans.map(plan => {
                                                 const isActive = tempPlanLimits.planName === plan.slug;
@@ -602,7 +616,7 @@ export const AdminPanel: React.FC = () => {
                                                     <button 
                                                         key={plan.id}
                                                         onClick={() => applyTemplate(plan)} 
-                                                        className={`px-3 py-1.5 border rounded text-xs transition ${
+                                                        className={`px-3 py-1.5 border rounded text-xs transition font-bold ${
                                                             isActive 
                                                                 ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
                                                                 : 'bg-gray-800 text-gray-300 border-gray-600 hover:border-gray-500'
@@ -615,33 +629,51 @@ export const AdminPanel: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4 bg-gray-800/30 p-4 rounded-xl border border-gray-800">
+                                    <div className="grid grid-cols-2 gap-6 bg-black/40 p-5 rounded-2xl border border-gray-800">
                                         <div>
-                                            <label className="block text-xs text-gray-400 mb-1">Máx Proyectos</label>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Proyectos</label>
                                             <input 
                                                 type="number" 
                                                 value={tempPlanLimits.maxProjects}
-                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxProjects: parseInt(e.target.value)})}
-                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxProjects: parseInt(e.target.value) || 0})}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs text-gray-400 mb-1">Máx Landing Pages</label>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Landing Pages</label>
                                             <input 
                                                 type="number" 
                                                 value={tempPlanLimits.maxLandings}
-                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxLandings: parseInt(e.target.value)})}
-                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxLandings: parseInt(e.target.value) || 0})}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Dominios</label>
+                                            <input 
+                                                type="number" 
+                                                value={tempPlanLimits.maxDomains || 0}
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxDomains: parseInt(e.target.value) || 0})}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Artículos SEO</label>
+                                            <input 
+                                                type="number" 
+                                                value={tempPlanLimits.maxArticles || 0}
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxArticles: parseInt(e.target.value) || 0})}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
                                             />
                                         </div>
                                     </div>
 
                                     {/* Features Toggles */}
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Funcionalidades Habilitadas</label>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-4 tracking-widest">Funcionalidades (Feature Flags)</label>
                                         <div className="grid grid-cols-2 gap-4">
                                             {Object.entries(tempPlanLimits.features).map(([key, value]) => (
-                                                <label key={key} className="flex items-center gap-3 cursor-pointer group">
+                                                <label key={key} className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${value ? 'bg-green-900/10 border-green-500/30' : 'bg-black border-gray-800 hover:border-gray-700'}`}>
                                                     <div className={`w-10 h-5 rounded-full relative transition-colors ${value ? 'bg-green-600' : 'bg-gray-700'}`}>
                                                         <input 
                                                             type="checkbox" 
@@ -652,9 +684,11 @@ export const AdminPanel: React.FC = () => {
                                                                 features: { ...tempPlanLimits.features, [key]: e.target.checked }
                                                             })}
                                                         />
-                                                        <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-transform ${value ? 'left-6' : 'left-1'}`}></div>
+                                                        <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-transform shadow-md ${value ? 'left-6' : 'left-1'}`}></div>
                                                     </div>
-                                                    <span className="text-sm text-gray-300 group-hover:text-white capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                                                    <span className={`text-sm font-medium transition-colors ${value ? 'text-green-300' : 'text-gray-400 group-hover:text-gray-200'}`}>
+                                                        {getFeatureLabel(key)}
+                                                    </span>
                                                 </label>
                                             ))}
                                         </div>
