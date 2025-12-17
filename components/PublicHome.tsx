@@ -281,9 +281,9 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                                   <div className="h-4 bg-gray-700 rounded w-5/6"></div>
                               </div>
                               <div className="p-4 bg-green-900/20 border border-green-500/30 rounded-lg text-green-400 text-sm font-mono mt-4">
-                                  > Generando textos persuasivos... <br/>
-                                  > Optimizando para conversión... <br/>
-                                  > ¡Listo!
+                                  &gt; Generando textos persuasivos... <br/>
+                                  &gt; Optimizando para conversión... <br/>
+                                  &gt; ¡Listo!
                               </div>
                           </div>
                       </div>
