@@ -55,7 +55,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 Funcionalidad Incluida
                             </p>
                             <p className="text-gray-300 text-lg">
-                                Tienes <span className="text-white font-bold">{articleCount} de {maxArticles}</span> artículos disponibles. Tu plan permite la generación automática de este contenido.
+                                Tienes <span className="text-white font-bold">{articleCount} de {maxArticles}</span> artículos disponibles. Tu plan actual "{planLimits?.planName?.toUpperCase()}" permite máximo crear {maxArticles} artículos de contenido.
                             </p>
                         </div>
                     </div>

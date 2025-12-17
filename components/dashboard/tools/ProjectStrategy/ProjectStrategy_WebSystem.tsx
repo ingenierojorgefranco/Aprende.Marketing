@@ -218,7 +218,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     Funcionalidad Incluida
                                 </p>
                                 <p className="text-gray-300 text-lg">
-                                    Tienes <span className="text-white font-bold">{pageCount} de {maxPages}</span> páginas utilizadas. Tu plan actual permite la generación ilimitada de estas páginas web de alta conversión.
+                                    Tienes <span className="text-white font-bold">{pageCount} de {maxPages}</span> páginas utilizadas. Tu plan actual "{planLimits?.planName?.toUpperCase()}" permite máximo crear {maxPages} de estas páginas web de alta conversión.
                                 </p>
                             </div>
                         </div>
