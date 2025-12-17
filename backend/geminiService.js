@@ -1,3 +1,4 @@
+
 const { GoogleGenAI } = require("@google/genai");
 
 // Fixed: Always use process.env.API_KEY and correct initialization format
@@ -39,7 +40,7 @@ const generateContent = async (model, contents, config = {}) => {
 };
 
 const generateFullStrategy = async (projectData) => {
-    const { name, niche, productName, description, targetAudience, painPoints, keyBenefits } = projectData;
+    const { name, niche, productName, description, targetAudience, painPoints, keyBenefits, salesPageUrl } = projectData;
 
     const prompt = `
     Rol: Motor de Análisis Estratégico de Marketing Digital.
@@ -53,8 +54,10 @@ const generateFullStrategy = async (projectData) => {
     - Audiencia (Input usuario): "${targetAudience || 'General'}"
     - Dolores (Input usuario): "${(painPoints || []).join(', ')}"
     - Beneficios (Input usuario): "${(keyBenefits || []).join(', ')}"
+    ${salesPageUrl ? `- URL de Ventas para analizar: ${salesPageUrl}` : ''}
 
-    Debes profundizar y expandir esta información para crear una estrategia completa.
+    Debes profundizar y expandir esta información para crear una estrategia completa. 
+    Si hay una URL, úsala como base real para el análisis.
     
     ESTRUCTURA JSON REQUERIDA (NO AÑADAS TEXTO FUERA DEL JSON):
     {
@@ -104,7 +107,8 @@ const generateFullStrategy = async (projectData) => {
             model: 'gemini-3-pro-preview',
             contents: prompt,
             config: {
-                responseMimeType: "application/json"
+                responseMimeType: "application/json",
+                tools: [{googleSearch: {}}] // Activar búsqueda en Google para analizar la URL real
             }
         });
 
