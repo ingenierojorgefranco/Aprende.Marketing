@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { LandingPage, PlanLimits } from '../../../../types';
+import { LandingPage, PlanLimits, Plan } from '../../../../types';
 
 // Tabs Data (Keep static data)
 const LP_TABS_DATA = {
@@ -88,11 +88,12 @@ interface ProjectStrategy_WebSystemProps {
     pageCount?: number;
     planLimits?: PlanLimits;
     onUpgrade?: () => void;
+    nextPlan?: Plan | null; // Dynamic next plan
 }
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
     selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, linkedPages, onEditPage,
-    pageCount = 0, planLimits, onUpgrade
+    pageCount = 0, planLimits, onUpgrade, nextPlan
 }) => {
     const navigate = useNavigate();
     const [showPagesModal, setShowPagesModal] = useState(false);
@@ -101,6 +102,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     // Lógica de Límites
     const maxPages = planLimits?.maxLandings || 3;
     const isLimitReached = pageCount >= maxPages;
+    const currentPlanName = planLimits?.planName || 'Starter';
+    const nextPlanName = nextPlan?.name || 'Superior';
 
     const renderTabContent = (tabKey: string) => {
         // ... (Keep existing implementation)
@@ -218,7 +221,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     Funcionalidad Incluida
                                 </p>
                                 <p className="text-gray-300 text-lg">
-                                    Tienes <span className="text-white font-bold">{pageCount} de {maxPages}</span> páginas utilizadas. Tu plan actual "{planLimits?.planName?.toUpperCase()}" permite máximo crear {maxPages} de estas páginas web de alta conversión.
+                                    Tienes <span className="text-white font-bold">{pageCount} de {maxPages}</span> páginas utilizadas. Tu plan actual "{currentPlanName.toUpperCase()}" permite máximo crear {maxPages} de estas páginas web de alta conversión.
                                 </p>
                             </div>
                         </div>
@@ -233,7 +236,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         Límite Alcanzado
                                     </h4>
                                     <p className="text-gray-300 text-lg">
-                                        Has creado <span className="text-white font-bold">{pageCount} de {maxPages}</span> páginas permitidas. Actualiza tu plan para eliminar los límites y seguir creando.
+                                        Actualmente tienes activo el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>, actualiza tu Plan a <span className="text-white font-bold uppercase">{nextPlanName}</span> para eliminar límites y seguir creando.
                                     </p>
                                 </div>
                             </div>
@@ -241,7 +244,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 onClick={onUpgrade}
                                 className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
                             >
-                                Actualizar a MAX 🚀
+                                Actualizar a {nextPlanName} 🚀
                             </button>
                         </div>
                     )}

@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
@@ -23,7 +21,7 @@ import { ProjectStrategy_Psychology } from './ProjectStrategy/ProjectStrategy_Ps
 
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
-import { ProjectMasterStrategy, LandingPage, User } from '../../../types';
+import { ProjectMasterStrategy, LandingPage, User, Plan } from '../../../types';
 
 // --- ICONS MAPPING FOR DYNAMIC DATA ---
 const iconMap: any = {
@@ -46,6 +44,9 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [strategyData, setStrategyData] = useState<ProjectMasterStrategy | null>(null);
     const [loading, setLoading] = useState(true);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
+    
+    // Dynamic Plan Logic
+    const [nextPlan, setNextPlan] = useState<Plan | null>(null);
 
     // INTERACTIVE STATES
     const [activeWaScript, setActiveWaScript] = useState(0);
@@ -71,15 +72,16 @@ export const ProjectStrategyDashboard: React.FC = () => {
         content: []
     });
 
-    // --- LOAD STRATEGY & PAGES DATA ---
+    // --- LOAD STRATEGY, PAGES & PLANS DATA ---
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
             try {
-                // Fetch Strategy and Pages in parallel to check for existing landing page
-                const [strategy, pages] = await Promise.all([
+                // Fetch Strategy, Pages and Plans in parallel
+                const [strategy, pages, plansData] = await Promise.all([
                     api.getProjectStrategy(id),
-                    api.getPages()
+                    api.getPages(),
+                    api.getPublicPlans()
                 ]);
 
                 // Map icons from strings to components if coming from JSON
@@ -95,6 +97,17 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 const projectPages = pages.filter(p => p.projectId === id || p.name === strategy.meta.projectName);
                 setLinkedPages(projectPages);
 
+                // Logic: Determine Next Plan
+                const currentPlanName = user.planLimits?.planName || 'starter';
+                const sortedPlans = plansData.sort((a, b) => a.priceMonthly - b.priceMonthly);
+                const currentIndex = sortedPlans.findIndex(p => p.slug === currentPlanName);
+                
+                if (currentIndex !== -1 && currentIndex < sortedPlans.length - 1) {
+                    setNextPlan(sortedPlans[currentIndex + 1]);
+                } else {
+                    setNextPlan(null); // Already max or unknown
+                }
+
             } catch (error) {
                 console.error("Failed to load strategy or pages", error);
             } finally {
@@ -104,7 +117,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
         if (id) {
             loadData();
         }
-    }, [id]);
+    }, [id, user.planLimits]);
 
     // --- CHART DATA GENERATION LOGIC ---
     const chartData = useMemo(() => {
@@ -263,6 +276,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     pageCount={pageCount}
                     planLimits={user.planLimits}
                     onUpgrade={() => setShowUpgradeModal(true)}
+                    nextPlan={nextPlan}
                 />
 
                 <ProjectStrategy_Content 
@@ -277,6 +291,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     articleCount={articleCount}
                     planLimits={user.planLimits}
                     onUpgrade={() => setShowUpgradeModal(true)}
+                    nextPlan={nextPlan}
                 />
 
                 <ProjectStrategy_Email 
@@ -287,6 +302,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     // Updated to use feature flag
                     features={user.planLimits?.features}
                     onUpgrade={() => setShowUpgradeModal(true)}
+                    planLimits={user.planLimits}
+                    nextPlan={nextPlan}
                 />
 
                 <ProjectStrategy_Evergreen 
@@ -297,6 +314,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     // Updated to use feature flag
                     features={user.planLimits?.features}
                     onUpgrade={() => setShowUpgradeModal(true)}
+                    planLimits={user.planLimits}
+                    nextPlan={nextPlan}
                 />
 
                 <div id="psd-system-summary-footer" className="w-full mx-auto py-12 border-y border-gray-800 bg-[#0a0a0a]">

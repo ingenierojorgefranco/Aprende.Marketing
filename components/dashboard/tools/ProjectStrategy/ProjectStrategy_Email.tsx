@@ -2,7 +2,7 @@
 import React from 'react';
 import { Mail, Sparkles, Check, Info, Wand2, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { PlanFeatures } from '../../../../types';
+import { PlanFeatures, PlanLimits, Plan } from '../../../../types';
 
 interface ProjectStrategy_EmailProps {
     emailData: any[];
@@ -13,15 +13,19 @@ interface ProjectStrategy_EmailProps {
     
     // Updated Prop
     features?: PlanFeatures;
+    planLimits?: PlanLimits;
+    nextPlan?: Plan | null;
 }
 
 export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
-    emailData, avatars, activeEmail, setActiveEmail, onUpgrade, features
+    emailData, avatars, activeEmail, setActiveEmail, onUpgrade, features, planLimits, nextPlan
 }) => {
     const navigate = useNavigate();
     
     // Check feature flag directly
     const isUnlocked = features?.emailStrategy || false;
+    const currentPlanName = planLimits?.planName || 'Starter';
+    const nextPlanName = nextPlan?.name || 'Superior';
 
     return (
         <div id="psd-email-section" className="pt-8">
@@ -45,7 +49,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                     Funcionalidad Bloqueada
                                 </h4>
                                 <p className="text-gray-300 text-lg leading-relaxed">
-                                    🔒 Esta secuencia de ventas no está incluida en tu plan actual. Actualiza para desbloquear tu vendedor automático.
+                                    Actualmente tienes activo el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>, actualiza tu Plan a <span className="text-white font-bold uppercase">{nextPlanName}</span> para desbloquear esta secuencia y seguir creando.
                                 </p>
                             </div>
                         </div>
@@ -53,7 +57,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             onClick={onUpgrade}
                             className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
                         >
-                            Desbloquear Secuencia 🚀
+                            Actualizar a {nextPlanName} 🚀
                         </button>
                     </div>
                 ) : (

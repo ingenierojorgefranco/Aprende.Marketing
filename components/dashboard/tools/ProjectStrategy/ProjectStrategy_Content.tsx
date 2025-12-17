@@ -2,7 +2,7 @@
 import React from 'react';
 import { FileText, Sparkles, Check, Target, Search, PenTool, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { PlanLimits } from '../../../../types';
+import { PlanLimits, Plan } from '../../../../types';
 
 interface ProjectStrategy_ContentProps {
     contentData: any[];
@@ -17,17 +17,20 @@ interface ProjectStrategy_ContentProps {
     // Props nuevos
     articleCount?: number;
     planLimits?: PlanLimits;
+    nextPlan?: Plan | null;
 }
 
 export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = ({
     contentData, activeArticle, setActiveArticle, selectedArticles, toggleArticleSelection, handleTooltipHover, handleTooltipLeave, onUpgrade,
-    articleCount = 0, planLimits
+    articleCount = 0, planLimits, nextPlan
 }) => {
     const navigate = useNavigate();
 
     // Lógica de Límites
     const maxArticles = planLimits?.maxArticles || 2;
     const isLimitReached = articleCount >= maxArticles;
+    const currentPlanName = planLimits?.planName || 'Starter';
+    const nextPlanName = nextPlan?.name || 'Superior';
 
     return (
         <div id="psd-content-section" className="pt-8">
@@ -55,7 +58,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 Funcionalidad Incluida
                             </p>
                             <p className="text-gray-300 text-lg">
-                                Tienes <span className="text-white font-bold">{articleCount} de {maxArticles}</span> artículos disponibles. Tu plan actual "{planLimits?.planName?.toUpperCase()}" permite máximo crear {maxArticles} artículos de contenido.
+                                Tienes <span className="text-white font-bold">{articleCount} de {maxArticles}</span> artículos disponibles. Tu plan actual "{currentPlanName.toUpperCase()}" permite máximo crear {maxArticles} artículos de contenido.
                             </p>
                         </div>
                     </div>
@@ -70,7 +73,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     Límite Alcanzado
                                 </h4>
                                 <p className="text-gray-300 text-lg leading-relaxed">
-                                    Has creado <span className="text-white font-bold">{articleCount} de {maxArticles}</span> artículos permitidos este mes. Actualiza a PRO para generación ilimitada y dominar los buscadores.
+                                    Actualmente tienes activo el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>, actualiza tu Plan a <span className="text-white font-bold uppercase">{nextPlanName}</span> para eliminar límites y seguir creando.
                                 </p>
                             </div>
                         </div>
@@ -78,7 +81,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             onClick={onUpgrade}
                             className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
                         >
-                            Actualizar a MAX 🚀
+                            Actualizar a {nextPlanName} 🚀
                         </button>
                     </div>
                 )}
@@ -127,7 +130,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 <p className="text-purple-300 font-medium text-sm">
                                     ¿Te gustaría crear más artículos? 
                                     <button onClick={onUpgrade} className="block w-full mt-2 text-white font-bold underline hover:text-purple-200">
-                                        Actualiza a Pro
+                                        Actualiza a {nextPlanName}
                                     </button>
                                 </p>
                             </div>

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Calendar, Sparkles, Check, Info, Crown, Lock } from 'lucide-react';
-import { PlanFeatures } from '../../../../types';
+import { PlanFeatures, PlanLimits, Plan } from '../../../../types';
 
 interface ProjectStrategy_EvergreenProps {
     evergreenData: any[];
@@ -12,14 +12,18 @@ interface ProjectStrategy_EvergreenProps {
     
     // Updated Prop
     features?: PlanFeatures;
+    planLimits?: PlanLimits;
+    nextPlan?: Plan | null;
 }
 
 export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps> = ({
-    evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features
+    evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan
 }) => {
     
     // Check feature flag directly
     const isUnlocked = features?.evergreenStrategy || false;
+    const currentPlanName = planLimits?.planName || 'Starter';
+    const nextPlanName = nextPlan?.name || 'Superior';
 
     return (
         <div id="psd-evergreen-section" className="pt-12">
@@ -48,7 +52,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                     Funcionalidad Bloqueada
                                 </h4>
                                 <p className="text-gray-300 text-lg leading-relaxed">
-                                    🔒 Automatiza todo tu mes. Esta secuencia de autoridad solo está disponible en planes superiores.
+                                    Actualmente tienes activo el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>, actualiza tu Plan a <span className="text-white font-bold uppercase">{nextPlanName}</span> para desbloquear esta secuencia y seguir creando.
                                 </p>
                             </div>
                         </div>
@@ -56,7 +60,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                             onClick={onUpgrade}
                             className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
                         >
-                            Desbloquear Evergreen 🚀
+                            Actualizar a {nextPlanName} 🚀
                         </button>
                     </div>
                 ) : (
