@@ -1,9 +1,6 @@
 
 
 
-
-
-
 const pool = require('./db');
 
 /**
