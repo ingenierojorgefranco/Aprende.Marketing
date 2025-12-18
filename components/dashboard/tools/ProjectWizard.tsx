@@ -1,12 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { 
-    ArrowLeft, ArrowRight, Save, Target, Zap, 
-    Link as LinkIcon, Briefcase, Plus, Trash2, 
-    Loader2, Sparkles, Check, Globe, DollarSign, 
-    Percent, Lightbulb, Trash, Info, RefreshCw, X
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Target, Zap, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles } from 'lucide-react';
 import { api } from '../../../services/api';
 import { generateProjectStrategy } from '../../../services/geminiService';
 import { AffiliateLink, User } from '../../../types';
@@ -14,7 +8,7 @@ import { UpgradeModal } from '../UpgradeModal';
 
 interface DashboardContext {
   user: User;
-  projectCount: number;
+  projectCount: number; // Provided by Layout
 }
 
 export const ProjectWizard: React.FC = () => {
@@ -22,38 +16,43 @@ export const ProjectWizard: React.FC = () => {
     const { id } = useParams() as { id: string };
     const { user, projectCount } = useOutletContext() as DashboardContext;
     
-    const [currentStep, setCurrentStep] = useState(1);
+    const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [loadingAI, setLoadingAI] = useState(false);
     
     // Blocking Logic
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     
-    // New Fields
     const [name, setName] = useState('');
-    const [productName, setProductName] = useState('');
-    const [salesPageUrl, setSalesPageUrl] = useState('');
-    const [description, setDescription] = useState('');
-    const [leadMagnetType, setLeadMagnetType] = useState('E-book / PDF');
-    const [fullPrice, setFullPrice] = useState<number>(0);
-    const [commissionRate, setCommissionRate] = useState<number>(0);
-    
-    // AI Generated Fields (Editable)
     const [niche, setNiche] = useState('');
+    const [productName, setProductName] = useState('');
+    const [description, setDescription] = useState('');
+    
     const [targetAudience, setTargetAudience] = useState('');
+    const [mainGoal, setMainGoal] = useState('');
     const [brandTone, setBrandTone] = useState('');
-    const [painPoints, setPainPoints] = useState<string[]>([]);
-    const [keyBenefits, setKeyBenefits] = useState<string[]>([]);
-    const [mainGoal, setMainGoal] = useState('Captación de Leads');
+    
+    const [painPoints, setPainPoints] = useState<string[]>(['']);
+    const [keyBenefits, setKeyBenefits] = useState<string[]>(['']);
+    
     const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([{ label: 'Checkout Principal', url: '' }]);
 
+    const [suggestedPainPoints, setSuggestedPainPoints] = useState<string[]>([]);
+    const [suggestedBenefits, setSuggestedBenefits] = useState<string[]>([]);
+
     useEffect(() => {
+        // LIMIT CHECK
+        // Only if creating new (no ID) and user has limits
         if (!id && user.planLimits) {
-            if (projectCount >= user.planLimits.maxProjects) {
+            const max = user.planLimits.maxProjects;
+            if (projectCount >= max) {
                 setShowUpgradeModal(true);
             }
         }
-        if (id) loadProject(id);
+
+        if (id) {
+            loadProject(id);
+        }
     }, [id, user, projectCount]);
 
     const loadProject = async (projectId: string) => {
@@ -62,20 +61,15 @@ export const ProjectWizard: React.FC = () => {
             const proj = await api.getProjectById(projectId);
             if (proj) {
                 setName(proj.name);
-                setProductName(proj.productName || '');
-                setSalesPageUrl(proj.salesPageUrl || '');
-                setDescription(proj.description || '');
-                setLeadMagnetType(proj.leadMagnetType || 'E-book / PDF');
-                setFullPrice(proj.fullPrice || 0);
-                setCommissionRate(proj.commissionRate || 0);
-                
-                setNiche(proj.niche || '');
-                setTargetAudience(proj.targetAudience || '');
-                setBrandTone(proj.brandTone || '');
-                setPainPoints(proj.painPoints || []);
-                setKeyBenefits(proj.keyBenefits || []);
-                setMainGoal(proj.mainGoal || 'Captación de Leads');
-                setAffiliateLinks(proj.affiliateLinks || [{ label: 'Checkout Principal', url: '' }]);
+                setNiche(proj.niche);
+                setProductName(proj.productName);
+                setDescription(proj.description);
+                setTargetAudience(proj.targetAudience);
+                setMainGoal(proj.mainGoal);
+                setBrandTone(proj.brandTone);
+                setPainPoints(proj.painPoints && proj.painPoints.length > 0 ? proj.painPoints : ['']);
+                setKeyBenefits(proj.keyBenefits && proj.keyBenefits.length > 0 ? proj.keyBenefits : ['']);
+                setAffiliateLinks(proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks : [{ label: 'Checkout Principal', url: '' }]);
             }
         } catch (error) {
             console.error("Error loading project", error);
@@ -84,403 +78,370 @@ export const ProjectWizard: React.FC = () => {
         }
     };
 
-    const handleNext = () => {
-        if (currentStep === 1 && !name) return;
-        if (currentStep === 2 && !productName) return;
-        if (currentStep === 4 && !description) return;
-        
-        if (currentStep === 6) {
-            handleAIEngine();
-        } else {
-            setCurrentStep(prev => prev + 1);
-        }
+    const handleAddItem = (setter: React.Dispatch<React.SetStateAction<string[]>>, items: string[]) => {
+        setter([...items, '']);
     };
 
-    const handleAIEngine = async () => {
+    const handleUpdateItem = (setter: React.Dispatch<React.SetStateAction<string[]>>, items: string[], index: number, value: string) => {
+        const newItems = [...items];
+        newItems[index] = value;
+        setter(newItems);
+    };
+
+    const handleRemoveItem = (setter: React.Dispatch<React.SetStateAction<string[]>>, items: string[], index: number) => {
+        const newItems = items.filter((_, i) => i !== index);
+        setter(newItems);
+    };
+
+    const handleLinkUpdate = (index: number, field: 'label' | 'url', value: string) => {
+        const newLinks = [...affiliateLinks];
+        newLinks[index] = { ...newLinks[index], [field]: value };
+        setAffiliateLinks(newLinks);
+    };
+
+    const handleGenerateIdeas = async () => {
+        if (!name || !niche || !productName) {
+            alert("Por favor completa los datos del paso 1 antes de pedir ayuda a la IA.");
+            setStep(1);
+            return;
+        }
+
         setLoadingAI(true);
         try {
-            const strategy = await generateProjectStrategy(
-                name, productName, description, leadMagnetType, salesPageUrl
-            );
+            const strategy = await generateProjectStrategy(name, niche, productName, description);
             
-            // Populate AI Data
-            setNiche(strategy.niche);
-            setTargetAudience(strategy.targetAudience);
-            setBrandTone(strategy.brandTone);
-            setPainPoints(strategy.painPoints);
-            setKeyBenefits(strategy.keyBenefits);
+            if (!targetAudience) setTargetAudience(strategy.targetAudience);
             
-            setCurrentStep(7); 
-        } catch (e) {
-            alert("Hubo un error con la IA. Por favor, intenta de nuevo.");
+            setSuggestedPainPoints(strategy.painPoints);
+            setSuggestedBenefits(strategy.keyBenefits);
+
+        } catch (error) {
+            alert("No se pudo generar ideas. Intenta de nuevo.");
         } finally {
             setLoadingAI(false);
         }
     };
 
+    const addSuggestion = (type: 'pain' | 'benefit', text: string) => {
+        if (type === 'pain') {
+            const current = painPoints.filter(p => p.trim() !== '');
+            setPainPoints([...current, text]);
+            setSuggestedPainPoints(suggestedPainPoints.filter(p => p !== text));
+        } else {
+            const current = keyBenefits.filter(b => b.trim() !== '');
+            setKeyBenefits([...current, text]);
+            setSuggestedBenefits(suggestedBenefits.filter(b => b !== text));
+        }
+    };
+
     const saveProject = async () => {
+        if (!name || !niche) return alert('Por favor completa al menos el nombre y el nicho.');
+        
         setLoading(true);
         const projectData = {
-            name, productName, salesPageUrl, description, leadMagnetType,
-            fullPrice, commissionRate, niche, targetAudience, brandTone,
-            painPoints, keyBenefits, mainGoal, affiliateLinks: affiliateLinks.filter(l => l.url.trim() !== '')
+            name,
+            niche,
+            description,
+            targetAudience,
+            brandTone,
+            productName,
+            mainGoal,
+            painPoints: painPoints.filter(p => p.trim() !== ''),
+            keyBenefits: keyBenefits.filter(b => b.trim() !== ''),
+            affiliateLinks: affiliateLinks.filter(l => l.url.trim() !== '')
         };
 
         try {
             if (id) {
                 await api.updateProject(id, projectData);
+                alert('Proyecto actualizado correctamente.');
             } else {
                 await api.createProject(projectData);
             }
             navigate('/dashboard/projects');
         } catch (error) {
             console.error(error);
-            alert('Error al guardar el proyecto.');
+            if (api.isUsingMockData()) {
+                alert("Advertencia: No se pudo conectar a la base de datos. El proyecto se guardó localmente y se perderá al recargar.");
+                navigate('/dashboard/projects');
+            } else {
+                alert('Error al guardar el proyecto en la Base de Datos. Revisa tu conexión.');
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    const StepIndicator = () => (
-        <div className="flex gap-1.5 justify-center mb-8">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === currentStep ? 'w-10 bg-primary shadow-[0_0_10px_rgba(99,102,241,0.5)]' : i < currentStep ? 'w-4 bg-primary/40' : 'w-4 bg-gray-800'}`}></div>
-            ))}
-        </div>
-    );
-
-    if (loading && id) return <div className="flex items-center justify-center h-64 text-white"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+    if (loading && id) {
+        return (
+            <div className="flex items-center justify-center h-64 text-white">
+                <Loader2 className="w-8 h-8 animate-spin" />
+            </div>
+        );
+    }
 
     return (
-        <div className="max-w-3xl mx-auto pb-20 pt-10">
-            <UpgradeModal isOpen={showUpgradeModal} onClose={() => navigate('/dashboard/projects')} reason={`Límite de proyectos alcanzado.`} />
+        <div className="max-w-4xl mx-auto pb-12">
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => navigate('/dashboard/projects')} 
+                reason={`Has alcanzado el límite de ${user.planLimits?.maxProjects} proyectos de tu plan ${user.planLimits?.planName}.`}
+            />
 
-            <div className="mb-10 flex items-center justify-between">
-                <button onClick={() => currentStep > 1 && currentStep !== 7 ? setCurrentStep(currentStep - 1) : navigate('/dashboard/projects')} className="text-gray-500 hover:text-white flex items-center gap-2 transition group">
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> {currentStep === 1 ? 'Volver a Proyectos' : 'Paso Anterior'}
-                </button>
-                <div className="text-xs font-bold text-gray-600 uppercase tracking-widest bg-gray-900 px-3 py-1 rounded-full border border-gray-800">
-                    AI Strategist v2.5
+            <button onClick={() => navigate('/dashboard/projects')} className="flex items-center gap-2 text-gray-400 hover:text-white mb-6">
+                <ArrowLeft className="w-4 h-4" /> Volver a Proyectos
+            </button>
+
+            <div className={`bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
+                <div className="bg-gray-800/50 p-6 border-b border-gray-800 flex justify-between items-center">
+                    <div>
+                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-primary" /> {id ? 'Editar Proyecto' : 'Crear Nuevo Proyecto'}
+                        </h2>
+                        <p className="text-sm text-gray-400">Paso {step} de 4</p>
+                    </div>
+                    <div className="flex gap-1">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className={`h-2 w-12 rounded-full transition-colors ${i <= step ? 'bg-primary' : 'bg-gray-700'}`}></div>
+                        ))}
+                    </div>
                 </div>
-            </div>
 
-            <StepIndicator />
-
-            <div className="bg-[#0f1115] border border-gray-800 rounded-[2.5rem] shadow-2xl p-10 md:p-16 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none"><Sparkles className="w-40 h-40 text-primary" /></div>
-
-                {currentStep === 1 && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="mb-8">
-                            <span className="text-primary font-black uppercase text-sm tracking-widest mb-3 block">Comencemos por el principio</span>
-                            <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">¿Cómo se llamará internamente <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-primary">tu proyecto?</span></h2>
-                        </div>
-                        <input 
-                            autoFocus
-                            type="text" 
-                            value={name} onChange={e => setName(e.target.value)} 
-                            className="w-full bg-transparent border-b-2 border-gray-800 text-3xl md:text-4xl text-white py-4 outline-none focus:border-primary transition-colors font-medium placeholder:text-gray-800"
-                            placeholder="Ej: Lanzamiento Keto 2024"
-                            onKeyDown={e => e.key === 'Enter' && handleNext()}
-                        />
-                        <p className="text-gray-500 mt-6 text-lg">Este nombre es solo para tu organización personal.</p>
-                    </div>
-                )}
-
-                {currentStep === 2 && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="mb-8">
-                            <span className="text-primary font-black uppercase text-sm tracking-widest mb-3 block">El corazón del negocio</span>
-                            <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">¿Cuál es el nombre <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500">del producto?</span></h2>
-                        </div>
-                        <input 
-                            autoFocus
-                            type="text" 
-                            value={productName} onChange={e => setProductName(e.target.value)} 
-                            className="w-full bg-transparent border-b-2 border-gray-800 text-3xl md:text-4xl text-white py-4 outline-none focus:border-primary transition-colors font-medium placeholder:text-gray-800"
-                            placeholder="Ej: Masterclass de Uñas"
-                            onKeyDown={e => e.key === 'Enter' && handleNext()}
-                        />
-                        <p className="text-gray-500 mt-6 text-lg">Indica el nombre real que verán los clientes en la página de ventas.</p>
-                    </div>
-                )}
-
-                {currentStep === 3 && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="mb-8">
-                            <span className="text-primary font-black uppercase text-sm tracking-widest mb-3 block">Análisis Real (Grounding)</span>
-                            <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">¿Tienes el link de la <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">página de ventas?</span></h2>
-                        </div>
-                        <div className="relative">
-                            <Globe className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-700 w-8 h-8" />
-                            <input 
-                                autoFocus
-                                type="url" 
-                                value={salesPageUrl} onChange={e => setSalesPageUrl(e.target.value)} 
-                                className="w-full bg-transparent border-b-2 border-gray-800 text-2xl md:text-3xl text-blue-400 py-4 pl-12 outline-none focus:border-primary transition-colors font-medium placeholder:text-gray-800"
-                                placeholder="https://..."
-                                onKeyDown={e => e.key === 'Enter' && handleNext()}
-                            />
-                        </div>
-                        <p className="text-gray-500 mt-6 text-lg">Nuestra IA navegará por el link para extraer la mejor estrategia posible.</p>
-                    </div>
-                )}
-
-                {currentStep === 4 && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="mb-8">
-                            <span className="text-primary font-black uppercase text-sm tracking-widest mb-3 block">Contexto del producto</span>
-                            <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">Describe brevemente <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-500">lo que vendes</span></h2>
-                        </div>
-                        <textarea 
-                            autoFocus
-                            value={description} onChange={e => setDescription(e.target.value)} 
-                            className="w-full bg-gray-900/50 border-2 border-gray-800 rounded-3xl p-6 text-xl text-white outline-none focus:border-primary transition-all h-48 resize-none placeholder:text-gray-700"
-                            placeholder="Ej: Curso online donde enseño a mujeres a montar su propio negocio de manicure desde casa en 30 días..."
-                        />
-                        <p className="text-gray-500 mt-4 text-sm flex items-center gap-2">
-                            <Lightbulb className="w-4 h-4 text-yellow-500" /> Sé descriptivo para que el copy sea más potente.
-                        </p>
-                    </div>
-                )}
-
-                {currentStep === 5 && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="mb-8">
-                            <span className="text-primary font-black uppercase text-sm tracking-widest mb-3 block">La estrategia de entrada</span>
-                            <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">¿Qué regalarás <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-500">como gancho?</span></h2>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {['E-book / PDF', 'Clase en Video', 'Webinar en Vivo', 'Checklist', 'Sesión de Asesoría', 'Cupón de Descuento'].map(type => (
-                                <button
-                                    key={type}
-                                    onClick={() => { setLeadMagnetType(type); handleNext(); }}
-                                    className={`p-6 rounded-2xl border-2 text-left font-bold transition-all flex items-center justify-between ${leadMagnetType === type ? 'bg-primary/20 border-primary text-white shadow-lg' : 'bg-gray-900 border-gray-800 text-gray-500 hover:border-gray-600'}`}
-                                >
-                                    {type}
-                                    {leadMagnetType === type && <Check className="w-5 h-5" />}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {currentStep === 6 && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="mb-8">
-                            <span className="text-primary font-black uppercase text-sm tracking-widest mb-3 block">Análisis Financiero</span>
-                            <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">Precios y <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Comisiones</span></h2>
-                        </div>
-                        <div className="space-y-8">
-                            <div className="flex items-center gap-6">
-                                <div className="w-20 h-20 bg-gray-900 rounded-2xl flex items-center justify-center text-primary border border-gray-800"><DollarSign className="w-8 h-8"/></div>
-                                <div className="flex-1">
-                                    <label className="text-gray-500 text-sm font-bold uppercase mb-2 block">Precio al Público</label>
+                <div className="p-8 min-h-[400px]">
+                    {step === 1 && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                            <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                                <Briefcase className="w-5 h-5 text-blue-400" /> Fundamentos del Proyecto
+                            </h3>
+                            
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">Nombre del Proyecto</label>
                                     <input 
-                                        type="number" value={fullPrice} onChange={e => setFullPrice(Number(e.target.value))}
-                                        className="w-full bg-transparent border-b border-gray-800 text-3xl text-white outline-none focus:border-primary transition"
+                                        type="text" 
+                                        value={name} onChange={e => setName(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                        placeholder="Ej: Lanzamiento Curso Keto"
                                     />
                                 </div>
-                            </div>
-                            <div className="flex items-center gap-6">
-                                <div className="w-20 h-20 bg-gray-900 rounded-2xl flex items-center justify-center text-green-400 border border-gray-800"><Percent className="w-8 h-8"/></div>
-                                <div className="flex-1">
-                                    <label className="text-gray-500 text-sm font-bold uppercase mb-2 block">% de Comisión Hotmart</label>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">Nombre del Producto/Servicio</label>
                                     <input 
-                                        type="number" value={commissionRate} onChange={e => setCommissionRate(Number(e.target.value))}
-                                        className="w-full bg-transparent border-b border-gray-800 text-3xl text-white outline-none focus:border-primary transition"
-                                    />
-                                </div>
-                            </div>
-                            <div className="bg-primary/5 p-6 rounded-3xl border border-primary/10 flex justify-between items-center">
-                                <span className="text-gray-400 font-medium text-lg">Tu ganancia neta por cada venta:</span>
-                                <span className="text-4xl font-black text-green-500">${((fullPrice * commissionRate) / 100).toFixed(2)}</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {currentStep === 7 && (
-                    <div className="animate-in zoom-in-95 duration-500">
-                        <div className="flex items-center justify-between mb-8 pb-8 border-b border-gray-800">
-                            <h2 className="text-3xl font-black text-white flex items-center gap-3"><Sparkles className="w-8 h-8 text-primary" /> Resultados de IA</h2>
-                            <button onClick={() => setCurrentStep(4)} className="text-sm text-primary hover:underline flex items-center gap-1 font-bold"><RefreshCw className="w-4 h-4"/> Regenerar Estrategia</button>
-                        </div>
-
-                        <div className="space-y-10">
-                            <div className="grid md:grid-cols-2 gap-8">
-                                <div className="p-6 bg-gray-900/50 rounded-3xl border border-gray-800">
-                                    <h4 className="text-primary font-black uppercase text-xs tracking-widest mb-4">Nicho Estratégico</h4>
-                                    <input 
-                                        type="text" value={niche} onChange={e => setNiche(e.target.value)}
-                                        className="w-full bg-black/40 border border-gray-700 rounded-lg p-2 text-white font-bold outline-none focus:border-primary"
-                                    />
-                                </div>
-                                <div className="p-6 bg-gray-900/50 rounded-3xl border border-gray-800">
-                                    <h4 className="text-primary font-black uppercase text-xs tracking-widest mb-4">Tono de Voz</h4>
-                                    <input 
-                                        type="text" value={brandTone} onChange={e => setBrandTone(e.target.value)}
-                                        className="w-full bg-black/40 border border-gray-700 rounded-lg p-2 text-white font-bold outline-none focus:border-primary"
+                                        type="text" 
+                                        value={productName} onChange={e => setProductName(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                        placeholder="Ej: Reto Keto 30 Días"
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <h4 className="text-primary font-black uppercase text-xs tracking-widest mb-4 ml-2">Audiencia Ideal</h4>
-                                <textarea 
-                                    value={targetAudience} onChange={e => setTargetAudience(e.target.value)}
-                                    className="w-full bg-black/40 border border-gray-700 rounded-[2rem] p-8 text-gray-300 text-lg leading-relaxed italic outline-none focus:border-primary resize-none h-32"
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Nicho de Mercado</label>
+                                <input 
+                                    type="text" 
+                                    value={niche} onChange={e => setNiche(e.target.value)} 
+                                    className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                    placeholder="Ej: Salud y Bienestar / Pérdida de Peso"
                                 />
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-8">
-                                <div>
-                                    <h4 className="text-red-400 font-black uppercase text-xs tracking-widest mb-4 ml-2 flex items-center gap-2"><Target className="w-4 h-4"/> Dolores Críticos</h4>
-                                    <div className="space-y-2">
-                                        {painPoints.map((p, i) => (
-                                            <div key={i} className="flex gap-2 bg-red-900/10 border border-red-500/20 p-3 rounded-xl">
-                                                <textarea 
-                                                    value={p} 
-                                                    onChange={e => {
-                                                        const newPains = [...painPoints];
-                                                        newPains[i] = e.target.value;
-                                                        setPainPoints(newPains);
-                                                    }}
-                                                    className="flex-1 bg-transparent text-gray-300 text-sm outline-none resize-none h-12"
-                                                />
-                                                <button onClick={() => setPainPoints(painPoints.filter((_, idx) => idx !== i))} className="text-gray-600 hover:text-red-400"><X className="w-4 h-4"/></button>
-                                            </div>
-                                        ))}
-                                        <button onClick={() => setPainPoints([...painPoints, 'Nuevo dolor...'])} className="text-xs text-red-400 font-bold hover:underline">+ Añadir Dolor</button>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h4 className="text-green-400 font-black uppercase text-xs tracking-widest mb-4 ml-2 flex items-center gap-2"><Zap className="w-4 h-4"/> Beneficios Clave</h4>
-                                    <div className="space-y-2">
-                                        {keyBenefits.map((b, i) => (
-                                            <div key={i} className="flex gap-2 bg-green-900/10 border border-green-500/20 p-3 rounded-xl">
-                                                <textarea 
-                                                    value={b} 
-                                                    onChange={e => {
-                                                        const newBenefits = [...keyBenefits];
-                                                        newBenefits[i] = e.target.value;
-                                                        setKeyBenefits(newBenefits);
-                                                    }}
-                                                    className="flex-1 bg-transparent text-gray-300 text-sm outline-none resize-none h-12"
-                                                />
-                                                <button onClick={() => setKeyBenefits(keyBenefits.filter((_, idx) => idx !== i))} className="text-gray-600 hover:text-green-400"><X className="w-4 h-4"/></button>
-                                            </div>
-                                        ))}
-                                        <button onClick={() => setKeyBenefits([...keyBenefits, 'Nuevo beneficio...'])} className="text-xs text-green-400 font-bold hover:underline">+ Añadir Beneficio</button>
-                                    </div>
-                                </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Descripción Breve</label>
+                                <textarea 
+                                    value={description} onChange={e => setDescription(e.target.value)} 
+                                    className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none h-24 resize-none"
+                                    placeholder="¿De qué trata este proyecto?"
+                                />
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {currentStep === 8 && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="mb-8">
-                            <span className="text-primary font-black uppercase text-sm tracking-widest mb-3 block">Último Paso</span>
-                            <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">Configura tus <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">enlaces</span></h2>
+                    {step === 2 && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <Target className="w-5 h-5 text-red-400" /> Estrategia y Audiencia
+                                </h3>
+                                <button 
+                                    onClick={handleGenerateIdeas}
+                                    disabled={loadingAI}
+                                    className="text-sm bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg flex items-center gap-2 transition"
+                                >
+                                    {loadingAI ? <Loader2 className="w-4 h-4 animate-spin"/> : <Sparkles className="w-4 h-4"/>}
+                                    Generar Ideas con IA
+                                </button>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Público Objetivo (Avatar)</label>
+                                <textarea 
+                                    value={targetAudience} onChange={e => setTargetAudience(e.target.value)} 
+                                    className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none h-24"
+                                    placeholder="Ej: Mujeres de 30 a 50 años que han intentado dietas sin éxito..."
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Objetivo Principal</label>
+                                <select 
+                                    value={mainGoal} onChange={e => setMainGoal(e.target.value)}
+                                    className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                >
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Venta Directa">Venta Directa (Crash)</option>
+                                    <option value="Captación de Leads">Captación de Leads (Magnet)</option>
+                                    <option value="Webinar">Registro a Webinar</option>
+                                    <option value="Lanzamiento">Lanzamiento Meteórico</option>
+                                    <option value="Branding">Marca Personal / Branding</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Dolores Principales (Pain Points)</label>
+                                
+                                {suggestedPainPoints.length > 0 && (
+                                    <div className="mb-4 flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2">
+                                        <span className="text-xs text-purple-400 w-full font-bold flex items-center gap-1"><Sparkles className="w-3 h-3"/> Sugerencias IA (Clic para agregar):</span>
+                                        {suggestedPainPoints.map((s, i) => (
+                                            <button 
+                                                key={i} 
+                                                onClick={() => addSuggestion('pain', s)}
+                                                className="bg-purple-900/30 hover:bg-purple-900/50 text-purple-200 text-xs px-3 py-1 rounded-full border border-purple-800 transition text-left"
+                                            >
+                                                + {s}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {painPoints.map((point, idx) => (
+                                    <div key={idx} className="flex gap-2 mb-2">
+                                        <input 
+                                            type="text" 
+                                            value={point} onChange={e => handleUpdateItem(setPainPoints, painPoints, idx, e.target.value)}
+                                            className="w-full bg-black border border-gray-700 rounded-lg px-3 py-2 text-white text-sm"
+                                            placeholder={`Dolor #${idx + 1}`}
+                                        />
+                                        <button onClick={() => handleRemoveItem(setPainPoints, painPoints, idx)} className="text-gray-500 hover:text-red-400 p-2"><Trash2 className="w-4 h-4"/></button>
+                                    </div>
+                                ))}
+                                <button onClick={() => handleAddItem(setPainPoints, painPoints)} className="text-sm text-primary flex items-center gap-1 hover:underline"><Plus className="w-3 h-3"/> Agregar Dolor</button>
+                            </div>
                         </div>
-                        <div className="space-y-6">
-                            {affiliateLinks.map((link, idx) => (
-                                <div key={idx} className="bg-black/40 border border-gray-800 rounded-3xl p-6 relative group">
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <div className="flex-1">
-                                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 block">Etiqueta del enlace</label>
+                    )}
+
+                    {step === 3 && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                            <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                                <Zap className="w-5 h-5 text-yellow-400" /> Identidad y Propuesta de Valor
+                            </h3>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Tono de Voz de la Marca</label>
+                                <input 
+                                    type="text" 
+                                    value={brandTone} onChange={e => setBrandTone(e.target.value)} 
+                                    className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                    placeholder="Ej: Autoritario, Empático, Urgente, Divertido..."
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Beneficios Clave / Promesas (Golden Nuggets)</label>
+
+                                {suggestedBenefits.length > 0 && (
+                                    <div className="mb-4 flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2">
+                                        <span className="text-xs text-purple-400 w-full font-bold flex items-center gap-1"><Sparkles className="w-3 h-3"/> Sugerencias IA (Clic para agregar):</span>
+                                        {suggestedBenefits.map((s, i) => (
+                                            <button 
+                                                key={i} 
+                                                onClick={() => addSuggestion('benefit', s)}
+                                                className="bg-purple-900/30 hover:bg-purple-900/50 text-purple-200 text-xs px-3 py-1 rounded-full border border-purple-800 transition text-left"
+                                            >
+                                                + {s}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {keyBenefits.map((benefit, idx) => (
+                                    <div key={idx} className="flex gap-2 mb-2">
+                                        <input 
+                                            type="text" 
+                                            value={benefit} onChange={e => handleUpdateItem(setKeyBenefits, keyBenefits, idx, e.target.value)}
+                                            className="w-full bg-black border border-gray-700 rounded-lg px-3 py-2 text-white text-sm"
+                                            placeholder={`Beneficio #${idx + 1}`}
+                                        />
+                                        <button onClick={() => handleRemoveItem(setKeyBenefits, keyBenefits, idx)} className="text-gray-500 hover:text-red-400 p-2"><Trash2 className="w-4 h-4"/></button>
+                                    </div>
+                                ))}
+                                <button onClick={() => handleAddItem(setKeyBenefits, keyBenefits)} className="text-sm text-primary flex items-center gap-1 hover:underline"><Plus className="w-3 h-3"/> Agregar Beneficio</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 4 && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                            <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                                <LinkIcon className="w-5 h-5 text-green-400" /> Activos y Enlaces
+                            </h3>
+                            
+                            <div className="bg-blue-900/20 border border-blue-900/50 p-4 rounded-lg mb-6">
+                                <p className="text-sm text-blue-300 flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4"/>
+                                    <strong>Estrategia:</strong> La IA usará estos enlaces automáticamente cuando genere tus páginas y artículos.
+                                </p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Tus Hotlinks de Afiliado</label>
+                                {affiliateLinks.map((link, idx) => (
+                                    <div key={idx} className="flex gap-2 mb-3 bg-black p-3 rounded-lg border border-gray-800">
+                                        <div className="flex-1 space-y-2">
                                             <input 
-                                                type="text" value={link.label} onChange={e => {
-                                                    const newLinks = [...affiliateLinks];
-                                                    newLinks[idx].label = e.target.value;
-                                                    setAffiliateLinks(newLinks);
-                                                }}
-                                                className="w-full bg-transparent border-b border-gray-800 py-1 text-white focus:border-primary outline-none text-lg font-bold"
-                                                placeholder="Ej: Checkout con 50% DCTO"
+                                                type="text" 
+                                                value={link.label} onChange={e => handleLinkUpdate(idx, 'label', e.target.value)}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-xs"
+                                                placeholder="Etiqueta (ej: Checkout, VSL)"
+                                            />
+                                            <input 
+                                                type="text" 
+                                                value={link.url} onChange={e => handleLinkUpdate(idx, 'url', e.target.value)}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-green-400 text-sm font-mono"
+                                                placeholder="https://go.hotmart.com/..."
                                             />
                                         </div>
                                         <button onClick={() => {
-                                            if (affiliateLinks.length > 1) setAffiliateLinks(affiliateLinks.filter((_, i) => i !== idx));
-                                        }} className="p-3 text-gray-600 hover:text-red-500 hover:bg-red-900/20 rounded-xl transition">
-                                            <Trash className="w-5 h-5" />
-                                        </button>
+                                            const newLinks = affiliateLinks.filter((_, i) => i !== idx);
+                                            setAffiliateLinks(newLinks);
+                                        }} className="text-gray-500 hover:text-red-400 p-2 self-center"><Trash2 className="w-5 h-5"/></button>
                                     </div>
-                                    <div>
-                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 block">URL de Afiliado (Hotlink)</label>
-                                        <input 
-                                            type="text" value={link.url} onChange={e => {
-                                                const newLinks = [...affiliateLinks];
-                                                newLinks[idx].url = e.target.value;
-                                                setAffiliateLinks(newLinks);
-                                            }}
-                                            className="w-full bg-gray-900/50 border border-gray-800 rounded-xl px-4 py-3 text-blue-400 font-mono text-sm focus:border-primary outline-none"
-                                            placeholder="https://go.hotmart.com/..."
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                            <button 
-                                onClick={() => setAffiliateLinks([...affiliateLinks, { label: 'Nuevo Enlace', url: '' }])}
-                                className="w-full py-4 border-2 border-dashed border-gray-800 text-gray-500 hover:text-white hover:border-gray-600 rounded-3xl font-bold transition flex items-center justify-center gap-2"
-                            >
-                                <Plus className="w-5 h-5" /> Agregar otro enlace
-                            </button>
+                                ))}
+                                <button onClick={() => setAffiliateLinks([...affiliateLinks, { label: 'Nuevo Enlace', url: '' }])} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-sm flex items-center justify-center gap-1"><Plus className="w-4 h-4" /> Agregar Otro Hotlink</button>
+                            </div>
                         </div>
-                    </div>
-                )}
-
-                <div className="mt-16 flex justify-between items-center">
-                    {currentStep > 1 && currentStep !== 7 && (
-                        <button onClick={() => setCurrentStep(prev => prev - 1)} className="text-gray-400 font-bold flex items-center gap-2 hover:text-white transition">
-                            <ArrowLeft className="w-5 h-5"/> Anterior
-                        </button>
                     )}
-                    <div className="flex-1"></div>
-                    
-                    {currentStep < 6 ? (
-                        <button 
-                            onClick={handleNext}
-                            className="bg-primary hover:bg-indigo-600 text-white px-10 py-5 rounded-2xl font-black text-xl transition-all shadow-xl shadow-primary/25 flex items-center gap-3 transform hover:scale-105"
-                        >
-                            Siguiente <ArrowRight className="w-6 h-6" />
+                </div>
+
+                <div className="bg-gray-800/50 p-6 border-t border-gray-800 flex justify-between">
+                    {step > 1 ? (
+                        <button onClick={() => setStep(step - 1)} className="px-6 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white font-medium transition">
+                            Atrás
                         </button>
-                    ) : currentStep === 6 ? (
-                        <button 
-                            onClick={handleAIEngine}
-                            disabled={loadingAI}
-                            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-10 py-5 rounded-2xl font-black text-xl transition-all shadow-xl shadow-purple-900/30 flex items-center gap-3 transform hover:scale-105"
-                        >
-                            {loadingAI ? <><Loader2 className="w-6 h-6 animate-spin"/> Generando Estrategia...</> : <><Sparkles className="w-6 h-6" /> Generar con IA</>}
-                        </button>
-                    ) : currentStep === 7 ? (
-                        <button 
-                            onClick={() => setCurrentStep(8)}
-                            className="bg-primary hover:bg-indigo-600 text-white px-10 py-5 rounded-2xl font-black text-xl transition-all shadow-xl shadow-primary/25 flex items-center gap-3 transform hover:scale-105"
-                        >
-                            Confirmar y Seguir <ArrowRight className="w-6 h-6" />
+                    ) : <div></div>}
+
+                    {step < 4 ? (
+                        <button onClick={() => setStep(step + 1)} className="px-6 py-2 rounded-lg bg-primary hover:bg-indigo-600 text-white font-bold transition flex items-center gap-2">
+                            Siguiente <ArrowRight className="w-4 h-4" />
                         </button>
                     ) : (
-                        <button 
-                            onClick={saveProject}
-                            disabled={loading}
-                            className="bg-green-600 hover:bg-green-500 text-white px-12 py-5 rounded-2xl font-black text-xl transition-all shadow-xl shadow-green-900/30 flex items-center gap-3 transform hover:scale-105"
-                        >
-                            {loading ? <Loader2 className="w-6 h-6 animate-spin"/> : <><Save className="w-6 h-6" /> Guardar Todo</>}
+                        <button onClick={saveProject} disabled={loading} className="px-8 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-green-900/20">
+                            {loading ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
+                            {id ? 'Actualizar Proyecto' : 'Guardar Proyecto'}
                         </button>
                     )}
                 </div>
             </div>
-            
-            {currentStep === 1 && (
-                <div className="mt-8 bg-blue-900/20 border border-blue-500/20 p-6 rounded-3xl animate-in fade-in slide-in-from-top-4 delay-300">
-                    <p className="text-blue-300 text-sm flex gap-3">
-                        <Info className="w-5 h-5 shrink-0" />
-                        Este asistente analiza tu mercado y el contenido real de Hotmart para estructurar un embudo que convierta de verdad.
-                    </p>
-                </div>
-            )}
         </div>
     );
 };

@@ -1,21 +1,29 @@
 
 const { GoogleGenAI } = require("@google/genai");
 
-// Fixed: Always use process.env.API_KEY and correct initialization format
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const apiKey = process.env.GEMINI_API_KEY;
+let aiClient = null;
+
+if (apiKey) {
+    aiClient = new GoogleGenAI({ apiKey });
+} else {
+    console.warn("⚠️ [GEMINI] No GEMINI_API_KEY found in environment variables.");
+}
 
 /**
  * Genera contenido usando Google Gemini
- * @param {string} model - Nombre del modelo (ej. 'gemini-3-flash-preview')
+ * @param {string} model - Nombre del modelo (ej. 'gemini-2.5-flash')
  * @param {string|object} contents - Prompt o contenido
  * @param {object} config - Configuración opcional (schema, mimeType, etc.)
  */
 const generateContent = async (model, contents, config = {}) => {
+    if (!aiClient) {
+        throw new Error("Gemini API Key not configured on server.");
+    }
+
     try {
-        // Fixed: Use ai.models.generateContent directly with model name and prompt
-        const response = await ai.models.generateContent({
-            // Fixed: Select gemini-3-flash-preview for basic text tasks
-            model: model || 'gemini-3-flash-preview',
+        const response = await aiClient.models.generateContent({
+            model: model || 'gemini-2.5-flash',
             contents: contents,
             config: config
         });
@@ -23,7 +31,7 @@ const generateContent = async (model, contents, config = {}) => {
         // Safe extraction of text, handling cases where it might be undefined/blocked
         if (response) {
             try {
-                // Fixed: Accessing .text property directly as per guidelines
+                // Accessing .text might throw if the response was blocked by safety filters
                 return response.text || "";
             } catch (textError) {
                 console.warn("⚠️ [GEMINI] Could not access response.text (possibly blocked):", textError.message);
@@ -40,7 +48,11 @@ const generateContent = async (model, contents, config = {}) => {
 };
 
 const generateFullStrategy = async (projectData) => {
-    const { name, niche, productName, description, targetAudience, painPoints, keyBenefits, salesPageUrl } = projectData;
+    if (!aiClient) {
+        throw new Error("Gemini API Key not configured on server.");
+    }
+
+    const { name, niche, productName, description, targetAudience, painPoints, keyBenefits } = projectData;
 
     const prompt = `
     Rol: Motor de Análisis Estratégico de Marketing Digital.
@@ -54,10 +66,8 @@ const generateFullStrategy = async (projectData) => {
     - Audiencia (Input usuario): "${targetAudience || 'General'}"
     - Dolores (Input usuario): "${(painPoints || []).join(', ')}"
     - Beneficios (Input usuario): "${(keyBenefits || []).join(', ')}"
-    ${salesPageUrl ? `- URL de Ventas para analizar: ${salesPageUrl}` : ''}
 
-    Debes profundizar y expandir esta información para crear una estrategia completa. 
-    Si hay una URL, úsala como base real para el análisis.
+    Debes profundizar y expandir esta información para crear una estrategia completa.
     
     ESTRUCTURA JSON REQUERIDA (NO AÑADAS TEXTO FUERA DEL JSON):
     {
@@ -101,21 +111,17 @@ const generateFullStrategy = async (projectData) => {
     `;
 
     try {
-        // Fixed: Use ai.models.generateContent directly
-        const response = await ai.models.generateContent({
-            // Fixed: Use gemini-3-pro-preview for complex reasoning/strategy tasks
-            model: 'gemini-3-pro-preview',
+        const response = await aiClient.models.generateContent({
+            model: 'gemini-2.5-flash',
             contents: prompt,
             config: {
-                responseMimeType: "application/json",
-                tools: [{googleSearch: {}}] // Activar búsqueda en Google para analizar la URL real
+                responseMimeType: "application/json"
             }
         });
 
         // Parse JSON safely
         let strategyJson = {};
         try {
-            // Fixed: Accessing .text property directly as per guidelines
             if (response.text) {
                 strategyJson = JSON.parse(response.text);
             }

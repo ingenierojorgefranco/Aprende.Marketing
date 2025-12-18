@@ -1,4 +1,8 @@
 
+
+
+
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, ProjectMasterStrategy, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_MASTER_STRATEGY, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 
@@ -243,18 +247,14 @@ export const api = {
       return projects.map((p: any) => ({
           ...p,
           id: String(p.id),
-          painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : (p.pain_points || p.painPoints || []),
-          keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits || []),
-          affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks || []),
-          strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json, 
+          painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : (p.pain_points || p.painPoints),
+          keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits),
+          affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks),
+          strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json, // Add parsing for strategy
           targetAudience: p.target_audience || p.targetAudience,
           brandTone: p.brand_tone || p.brandTone,
           productName: p.product_name || p.productName,
           mainGoal: p.main_goal || p.mainGoal,
-          salesPageUrl: p.sales_page_url || p.salesPageUrl,
-          fullPrice: p.full_price !== undefined ? parseFloat(p.full_price) : (p.fullPrice || 0),
-          commissionRate: p.commission_rate !== undefined ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
-          leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
           createdAt: new Date(p.created_at || p.createdAt)
       }));
   },
@@ -273,18 +273,14 @@ export const api = {
           return {
               ...p,
               id: String(p.id),
-              painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : (p.pain_points || p.painPoints || []),
-              keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits || []),
-              affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks || []),
-              strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json, 
+              painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : (p.pain_points || p.painPoints),
+              keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits),
+              affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks),
+              strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json, // Add parsing for strategy
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
               mainGoal: p.main_goal || p.mainGoal,
-              salesPageUrl: p.sales_page_url || p.salesPageUrl,
-              fullPrice: p.full_price !== undefined ? parseFloat(p.full_price) : (p.fullPrice || 0),
-              commissionRate: p.commission_rate !== undefined ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
-              leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
               createdAt: new Date(p.created_at || p.createdAt)
           };
       } catch (e) {
@@ -301,14 +297,17 @@ export const api = {
       try {
           const project = await api.getProjectById(id);
           if (project && project.strategy_json) {
-              // Si ya tiene el campo strategy_json, lo devolvemos directamente
+              // Try to return the DB strategy
+              // Note: The logic should be robust enough to fallback if the JSON structure doesn't match
+              // but for now we assume it matches or we fallback to mock if null
               return project.strategy_json as ProjectMasterStrategy;
           }
-          // Si no tiene estrategia generada, devolvemos null para que el dashboard lo maneje
-          return null as any;
+          // Fallback to mock data if strategy is not yet generated in DB
+          // This allows the dashboard to show *something* even if AI hasn't run yet
+          return Promise.resolve(MOCK_MASTER_STRATEGY);
       } catch (e) {
-          console.error("Error fetching project strategy", e);
-          return null as any;
+          console.error("Error fetching project strategy, falling back to mock", e);
+          return Promise.resolve(MOCK_MASTER_STRATEGY);
       }
   },
 
