@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Rocket, Sparkles, Search, DollarSign, Zap, BookOpen, ShieldCheck } from 'lucide-react';
 
@@ -27,7 +28,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                         Antes de crear cualquier página o contenido, Nuestro Sistema de Inteligencia Artificial ha analizado profundamente a tu público objetivo con base en el mercado del nicho de la belleza.
                     </p>
                     <p>
-                        Este diagnóstico garantiza que todo lo que se genere conécte con la realidad de tu cliente final y asegure resultados reales para tu estrategia.
+                        Este diagnóstico garantiza que todo lo que se genere conecte con la realidad de tu cliente final y asegure resultados reales para tu estrategia.
                     </p>
                 </div>
             </div>

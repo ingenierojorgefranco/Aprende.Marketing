@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, X, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight } from 'lucide-react';
 import { ProjectStrategy_Psychology } from './ProjectStrategy_Psychology';
@@ -360,7 +361,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                 <div key={i} className="flex gap-4 items-start">
                                     <div className="w-2 h-2 rounded-full bg-emerald-500 mt-2 shrink-0"></div>
                                     <div>
-                                        <p className="text-white font-bold text-lg font-bold text-lg leading-none mb-1">{item.title}</p>
+                                        <p className="text-white font-bold text-lg leading-none mb-1">{item.title}</p>
                                         <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.desc}</p>
                                     </div>
                                 </div>
