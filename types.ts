@@ -1,3 +1,4 @@
+
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
   LOGIN = 'LOGIN',
@@ -39,9 +40,9 @@ export interface Plan {
   description: string;
   priceMonthly: number;
   currency: string;
-  stripePriceId?: string; // NEW: Dynamic ID for Stripe
-  hotmartUrl?: string; // NEW: URL de checkout de Hotmart
-  hotmartId?: string;  // NEW: ID de producto en Hotmart
+  stripePriceId?: string; // Dynamic ID for Stripe
+  hotmartUrl?: string;    // NEW: Link de pago Hotmart
+  hotmartId?: string;     // NEW: ID de producto Hotmart para webhook
   limitsConfig: PlanLimits;
   uiFeatures: string[]; // List of strings for the pricing card bullets
   isActive: boolean;
