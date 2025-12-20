@@ -10,7 +10,7 @@ interface ProjectStrategy_PsychologyProps {
 
 export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProps> = ({ psychology }) => {
     return (
-        <div id="psd-psychology-section" className="space-y-12">
+        <div id="psd-psychology-section" className="space-y-12 pt-8">
             
             {/* --- ENCABEZADO ESTRATÉGICO --- */}
             <div id="psd-psychology-header-container" className="max-w-[70em] mx-auto text-left space-y-6">

@@ -37,7 +37,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGrowthProps> = ({ chartData, onOpenVideo }) => {
     return (
-        <div id="psd-business-growth-section" className="space-y-12">
+        <div id="psd-business-growth-section" className="space-y-12 pt-8">
             
             {/* --- CABECERA DE SECCIÓN PREMIUM --- */}
             <div id="psd-business-header" className="max-w-[70em] mx-auto text-left space-y-6">

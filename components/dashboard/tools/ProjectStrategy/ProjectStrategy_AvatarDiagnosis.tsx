@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, X, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight } from 'lucide-react';
 import { ProjectStrategy_Psychology } from './ProjectStrategy_Psychology';
@@ -192,7 +191,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             </div>
 
             {/* --- BLOQUE: DIAGNÓSTICO DE MERCADO PROFUNDO --- */}
-            <div id="psd-market-deep-diagnosis" className="max-w-[70em] mx-auto space-y-12">
+            <div id="psd-market-deep-diagnosis" className="max-w-[70em] mx-auto space-y-12 pt-8">
                 
                 {/* ENCABEZADO DE PERFIL PSICOLÓGICO */}
                 <div id="psd-psychographic-header" className="space-y-6 text-left">
@@ -263,7 +262,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             </div>
 
             {/* --- NIVELES DE CONCIENCIA DEL PROSPECTO --- */}
-            <div id="psd-awareness-section" className="max-w-[70em] mx-auto space-y-12">
+            <div id="psd-awareness-section" className="max-w-[70em] mx-auto space-y-12 pt-8">
                 
                 {/* ENCABEZADO DE NIVEL DE CONCIENCIA */}
                 <div id="psd-awareness-header" className="space-y-6 text-left">
@@ -308,7 +307,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             </div>
 
             {/* --- PSICOLOGÍA DE COMPRA IDENTIFICADA --- */}
-            <div id="psd-buy-psychology-section" className="max-w-[70em] mx-auto space-y-12">
+            <div id="psd-buy-psychology-section" className="max-w-[70em] mx-auto space-y-12 pt-8">
                 
                 {/* ENCABEZADO DE GATILLOS DE VENTA */}
                 <div id="psd-awareness-header" className="space-y-6 text-left">
@@ -393,7 +392,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             </div>
 
             {/* --- BLOQUE 2: ESTRATEGIA DE CONVERSIÓN --- */}
-            <div id="psd-conversion-strategy-section" className="max-w-[70em] mx-auto space-y-12">
+            <div id="psd-conversion-strategy-section" className="max-w-[70em] mx-auto space-y-12 pt-8">
                 
                 {/* ENCABEZADO DE ESTRATEGIA */}
                 <div id="psd-strategy-header" className="space-y-6 text-left">

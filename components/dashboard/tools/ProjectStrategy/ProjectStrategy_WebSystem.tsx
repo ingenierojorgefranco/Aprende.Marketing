@@ -220,7 +220,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 </div>
             </div>
 
-            <div id="psd-web-section">
+            <div id="psd-web-section" className="pt-8">
                 <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-6 py-6">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-widest animate-pulse">
                         <Sparkles className="w-4 h-4" /> Ecosistema Digital
