@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
@@ -8,7 +9,6 @@ import {
 
 import { ProjectStrategy_Header } from './ProjectStrategy/ProjectStrategy_Header';
 import { ProjectStrategy_Summary } from './ProjectStrategy/ProjectStrategy_Summary';
-import { ProjectStrategy_AvatarDiagnosis } from './ProjectStrategy/ProjectStrategy_AvatarDiagnosis';
 import { ProjectStrategy_BusinessGrowth } from './ProjectStrategy/ProjectStrategy_BusinessGrowth';
 import { ProjectStrategy_Blueprint } from './ProjectStrategy/ProjectStrategy_Blueprint';
 import { ProjectStrategy_WebSystem } from './ProjectStrategy/ProjectStrategy_WebSystem';
@@ -16,6 +16,7 @@ import { ProjectStrategy_Content } from './ProjectStrategy/ProjectStrategy_Conte
 import { ProjectStrategy_Email } from './ProjectStrategy/ProjectStrategy_Email';
 import { ProjectStrategy_Evergreen } from './ProjectStrategy/ProjectStrategy_Evergreen';
 import { ProjectStrategy_WhatsApp } from './ProjectStrategy/ProjectStrategy_WhatsApp';
+import { ProjectStrategy_Market } from './ProjectStrategy/ProjectStrategy_Market';
 import { ProjectStrategy_Psychology } from './ProjectStrategy/ProjectStrategy_Psychology';
 
 import { UpgradeModal } from '../UpgradeModal';
@@ -245,6 +246,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
             <ProjectStrategy_Header 
                 projectName={strategyData.meta.projectName} 
                 onBack={() => navigate('/dashboard/projects')} 
+                onBuild={() => navigate('/dashboard/generator')} 
             />
 
             <div id="psd-main-content" className="max-w-[1400px] mx-auto p-6 space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-500 mt-8">
@@ -253,11 +255,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     strategyData={strategyData} 
                     activeHeaderItem={activeHeaderItem} 
                     setActiveHeaderItem={setActiveHeaderItem} 
-                    handleTooltipHover={handleTooltipHover}
-                    handleTooltipLeave={handleTooltipLeave}
                 />
-
-                <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} />
 
                 <ProjectStrategy_BusinessGrowth 
                     chartData={chartData} 
@@ -325,6 +323,21 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     planLimits={user.planLimits}
                     nextPlan={nextPlan}
                 />
+
+                <div id="psd-system-summary-footer" className="w-full mx-auto py-12 border-y border-gray-800 bg-[#0a0a0a]">
+                    <div className="max-w-[1400px] mx-auto px-6 text-center">
+                        <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">
+                            ¿Cómo lograremos vender?
+                        </h2>
+                        <p className="text-xl text-gray-300 font-light max-w-4xl mx-auto leading-[2rem]">
+                            El secreto está en atraer a tu público objetivo para que se sienta identificado con el contenido. Nuestro sistema redactará, diseñará y conectará cada pieza utilizando la psicología de tu cliente para generar confianza y ventas.
+                        </p>
+                    </div>
+                </div>
+
+                <ProjectStrategy_Market avatars={strategyData.avatars} />
+
+                <ProjectStrategy_Psychology psychology={strategyData.psychology} />
 
             </div>
         </div>
