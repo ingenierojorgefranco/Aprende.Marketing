@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { X, Check, Crown, ShieldCheck, Loader2, Zap, CreditCard } from 'lucide-react';
+import { X, Check, Crown, ShieldCheck, Loader2 } from 'lucide-react';
 import { api } from '../../services/api';
-import { Plan, User } from '../../types';
+import { Plan } from '../../types';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -15,67 +15,39 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
-  const [activeProvider, setActiveProvider] = useState<'stripe' | 'hotmart'>('stripe');
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
       if (isOpen) {
           setLoading(true);
-          Promise.all([
-              api.getPublicPlans(),
-              api.getActivePaymentProvider(),
-              api.getUsers().then(users => users[0]) // Simplificado para obtener el user actual si no está inyectado
-          ]).then(([plansData, providerData]) => {
-              setPlans(plansData);
-              setActiveProvider(providerData as any);
-          })
-          .catch(err => console.error("Error loading plans", err))
-          .finally(() => setLoading(false));
+          api.getPublicPlans()
+             .then(setPlans)
+             .catch(err => console.error("Error loading plans", err))
+             .finally(() => setLoading(false));
       }
   }, [isOpen]);
 
-  const handleUpgrade = async (plan: Plan) => {
-      setProcessing(plan.slug);
-      
+  const handleUpgrade = async (planSlug: string) => {
+      setProcessing(planSlug);
+      console.log(`[UpgradeModal] Iniciando proceso de pago para plan: ${planSlug}`);
+
       try {
-          if (activeProvider === 'hotmart') {
-              // --- FLUJO HOTMART ---
-              if (!plan.hotmartUrl) {
-                  alert("Este plan no tiene configurado un enlace de Hotmart.");
-                  setProcessing(null);
-                  return;
-              }
+          const response = await api.createCheckoutSession(planSlug);
+          console.log("[UpgradeModal] Respuesta del servidor:", response);
 
-              // Intentar obtener el ID de usuario desde localStorage si no lo tenemos
-              const token = localStorage.getItem('plataformadeventacom_token');
-              let userId = 'unknown';
-              if (token) {
-                  const payload = JSON.parse(atob(token.split('.')[1]));
-                  userId = payload.id;
+          if (response && response.url) {
+              if (response.url === '#') {
+                  alert("⚠️ MODO OFFLINE DETECTADO\n\nEstás usando la versión Demo/Offline. La redirección a Stripe está simulada.\n\nPara probar pagos reales, asegúrate de iniciar sesión en modo 'Base de Datos'.");
+              } else {
+                  console.log("Redirigiendo a:", response.url);
+                  window.location.href = response.url; // Redirect to Stripe
               }
-
-              // Redirigir a Hotmart pasando el userId en el parámetro 'src'
-              // Esto permitirá al webhook identificar al usuario automáticamente.
-              const hotmartLink = plan.hotmartUrl.includes('?') 
-                  ? `${plan.hotmartUrl}&src=${userId}` 
-                  : `${plan.hotmartUrl}?src=${userId}`;
-              
-              window.open(hotmartLink, '_blank');
-              if (onClose) onClose();
           } else {
-              // --- FLUJO STRIPE ---
-              const response = await api.createCheckoutSession(plan.slug);
-              if (response && response.url) {
-                  if (response.url === '#') {
-                      alert("⚠️ MODO OFFLINE\n\nSimulación de pago Stripe.");
-                  } else {
-                      window.location.href = response.url;
-                  }
-              }
+              console.error("Respuesta inválida:", response);
+              alert("Error: El servidor no devolvió una URL de pago válida. Revisa la consola.");
           }
       } catch (error: any) {
-          console.error("Payment error:", error);
-          alert(`Error al iniciar el pago: ${error.message}`);
+          console.error("[UpgradeModal] Payment error critical:", error);
+          alert(`❌ Error al iniciar el pago:\n${error.message || JSON.stringify(error)}`);
       } finally {
           setProcessing(null);
       }
@@ -96,8 +68,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
             </button>
         )}
 
+        {/* Sidebar / Header Info */}
         <div className="md:w-1/4 bg-gradient-to-br from-gray-900 to-black p-8 border-r border-gray-800 flex flex-col justify-center text-center md:text-left shrink-0">
-            <div className="mb-6 inline-flex items-center justify-center md:justify-start gap-2 text-yellow-500 font-bold bg-yellow-500/10 px-4 py-1.5 rounded-full border border-yellow-500/20 self-center md:self-start text-xs">
+            <div className="mb-6 inline-flex items-center justify-center md:justify-start gap-2 text-yellow-500 font-bold bg-yellow-500/10 px-4 py-1.5 rounded-full border border-yellow-500/20 self-center md:self-start">
                 <Crown className="w-4 h-4 fill-current" /> Límite Alcanzado
             </div>
             <h2 className="text-2xl md:text-3xl font-black text-white mb-4 leading-tight">
@@ -109,18 +82,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
             <div className="hidden md:block">
                 <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-4">Garantía de Confianza</p>
                 <div className="flex flex-col gap-2 text-gray-400 text-xs">
-                    <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> Activación inmediata</div>
-                    <div className="flex items-center gap-2">
-                        {activeProvider === 'stripe' ? (
-                            <><CreditCard className="w-3 h-3 text-blue-500" /> Pago seguro por Stripe</>
-                        ) : (
-                            <><Zap className="w-3 h-3 text-orange-500" /> Pago seguro por Hotmart</>
-                        )}
-                    </div>
+                    <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> Cancelación fácil</div>
+                    <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> Pagos seguros por Stripe</div>
                 </div>
             </div>
         </div>
 
+        {/* Pricing Columns */}
         <div className="flex-1 p-6 md:p-8 bg-[#0a0a0a] overflow-x-auto">
             {loading ? (
                 <div className="flex h-full items-center justify-center text-gray-500">
@@ -151,7 +119,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                 <div className="mb-4 text-center">
                                     <h3 className={`font-bold text-lg ${isRecommended ? 'text-orange-400' : 'text-gray-300'}`}>{plan.name}</h3>
                                     <div className="flex items-baseline justify-center gap-1">
-                                        <span className="text-3xl font-black text-white">${plan.priceMonthly}</span>
+                                        <span className="text-3xl font-black text-white">
+                                            {plan.priceMonthly === 0 ? '$0' : `$${plan.priceMonthly}`}
+                                        </span>
                                         <span className="text-xs text-gray-500">/mes</span>
                                     </div>
                                     <p className="text-xs text-gray-500 mt-2 min-h-[32px]">{plan.description}</p>
@@ -167,10 +137,16 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                 </ul>
 
                                 {isCurrent ? (
-                                    <button disabled className="w-full py-2.5 rounded-lg border border-gray-700 text-gray-500 text-sm font-bold cursor-default bg-gray-800/50">Plan Actual</button>
+                                    <button disabled className="w-full py-2.5 rounded-lg border border-gray-700 text-gray-500 text-sm font-bold cursor-default bg-gray-800/50">
+                                        Plan Actual
+                                    </button>
+                                ) : plan.priceMonthly === 0 ? (
+                                    <button disabled className="w-full py-2.5 rounded-lg border border-gray-600 text-gray-400 text-sm font-bold cursor-default">
+                                        Plan Básico
+                                    </button>
                                 ) : (
                                     <button 
-                                        onClick={() => handleUpgrade(plan)}
+                                        onClick={() => handleUpgrade(plan.slug)}
                                         disabled={!!processing}
                                         className={`w-full py-2.5 rounded-lg font-bold text-sm transition transform hover:scale-[1.02] flex items-center justify-center gap-2 ${
                                             isRecommended 
@@ -178,7 +154,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                                 : 'border border-gray-600 text-white hover:bg-white hover:text-black'
                                         }`}
                                     >
-                                        {isProcessingThis ? <Loader2 className="w-4 h-4 animate-spin" /> : (activeProvider === 'stripe' ? <CreditCard className="w-4 h-4"/> : <Zap className="w-4 h-4"/>)}
+                                        {isProcessingThis ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                                         {isProcessingThis ? 'Procesando...' : `Obtener ${plan.name}`}
                                     </button>
                                 )}
