@@ -1,8 +1,3 @@
-
-
-
-
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, ProjectMasterStrategy, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_MASTER_STRATEGY, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 
@@ -137,6 +132,25 @@ export const api = {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ planSlug })
+      });
+  },
+
+  getActivePaymentProvider: async (): Promise<string> => {
+      if (isMockMode) return "stripe";
+      try {
+          const data = await fetchWithFallback('/settings/payment-provider');
+          return data.provider;
+      } catch (e) {
+          return "stripe";
+      }
+  },
+
+  updatePaymentProvider: async (provider: 'stripe' | 'hotmart'): Promise<void> => {
+      if (isMockMode) return Promise.resolve();
+      await fetchWithFallback('/admin/settings', {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ key: 'payment_provider', value: provider })
       });
   },
 

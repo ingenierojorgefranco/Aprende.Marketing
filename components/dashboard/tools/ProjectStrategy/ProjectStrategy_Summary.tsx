@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Rocket, Sparkles, Search, DollarSign, Zap, BookOpen, ShieldCheck } from 'lucide-react';
 
@@ -6,9 +5,15 @@ interface ProjectStrategy_SummaryProps {
     strategyData: any;
     activeHeaderItem: string | null;
     setActiveHeaderItem: (item: string | null) => void;
+    handleTooltipHover: (e: React.MouseEvent, content: string[]) => void;
+    handleTooltipLeave: () => void;
 }
 
-export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = ({ strategyData }) => {
+export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = ({ 
+    strategyData, 
+    handleTooltipHover, 
+    handleTooltipLeave 
+}) => {
     // Extraemos los items de la visión general
     const overviewItems = [...(strategyData.meta.insights.overview.items || [])];
 
@@ -53,7 +58,9 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                             return (
                                 <div 
                                     key={i} 
-                                    className={`p-6 md:p-8 rounded-2xl border transition-all duration-300 bg-gray-900/40 backdrop-blur-sm ${item.border} flex flex-col h-full ${isProduct ? 'md:col-span-2 border-indigo-500/30' : ''}`}
+                                    onMouseEnter={(e) => handleTooltipHover(e, [`Análisis del pilar: ${item.label}`, "Este punto define la coherencia de toda la secuencia de ventas."])}
+                                    onMouseLeave={handleTooltipLeave}
+                                    className={`p-6 md:p-8 rounded-2xl border transition-all duration-300 bg-gray-900/40 backdrop-blur-sm cursor-help ${item.border} flex flex-col h-full ${isProduct ? 'md:col-span-2 border-indigo-500/30' : 'hover:border-indigo-500/50'}`}
                                 >
                                     <div className="flex flex-col h-full">
                                         <div className="flex items-center gap-4 mb-4 shrink-0">
@@ -76,7 +83,11 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                         })}
 
                         {/* TARJETAS DE PRECIO Y COMISIÓN */}
-                        <div className="p-6 md:p-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-emerald-500/10">
+                        <div 
+                            onMouseEnter={(e) => handleTooltipHover(e, ["Precio de venta oficial configurado en el proyecto.", "Afecta directamente el cálculo de rentabilidad."])}
+                            onMouseLeave={handleTooltipLeave}
+                            className="p-6 md:p-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-emerald-500/10 cursor-help"
+                        >
                             <div className="flex items-center gap-4 mb-4 shrink-0">
                                 <div className="p-3 rounded-xl bg-black/40 text-emerald-400 flex-shrink-0 shadow-lg border border-emerald-500/20">
                                     <DollarSign className="w-6 h-6" />
@@ -92,7 +103,11 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                             </div>
                         </div>
 
-                        <div className="p-6 md:p-8 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-yellow-500/10">
+                        <div 
+                            onMouseEnter={(e) => handleTooltipHover(e, ["Tu ganancia neta estimada por cada cierre exitoso.", "Optimiza tu CPA (Coste por Adquisición) basándote en este margen."])}
+                            onMouseLeave={handleTooltipLeave}
+                            className="p-6 md:p-8 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-yellow-500/10 cursor-help"
+                        >
                             <div className="flex items-center gap-4 mb-4 shrink-0">
                                 <div className="p-3 rounded-xl bg-black/40 text-yellow-400 flex-shrink-0 shadow-lg border border-yellow-500/20">
                                     <Zap className="w-6 h-6" />
@@ -103,7 +118,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                             </div>
                             <div className="flex-1">
                                 <p className="text-white font-black text-2xl md:text-3xl tracking-tight flex flex-col">
-                                    $47 Dólares
+                                    $116.81 Dólares
                                     <span className="text-sm font-medium text-yellow-500/60 uppercase tracking-widest mt-1">por cada venta</span>
                                 </p>
                             </div>

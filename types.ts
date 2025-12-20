@@ -40,6 +40,8 @@ export interface Plan {
   priceMonthly: number;
   currency: string;
   stripePriceId?: string; // NEW: Dynamic ID for Stripe
+  hotmartUrl?: string; // NEW: URL de checkout de Hotmart
+  hotmartId?: string;  // NEW: ID de producto en Hotmart
   limitsConfig: PlanLimits;
   uiFeatures: string[]; // List of strings for the pricing card bullets
   isActive: boolean;
