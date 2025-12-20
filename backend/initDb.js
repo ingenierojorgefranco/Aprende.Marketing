@@ -297,6 +297,7 @@ const initDb = async () => {
         await addColumnSafe(connection, 'projects', "mentor_name VARCHAR(255)");
         await addColumnSafe(connection, 'projects', "full_price DECIMAL(10,2) DEFAULT 0");
         await addColumnSafe(connection, 'projects', "commission_rate DECIMAL(10,2) DEFAULT 65");
+        await addColumnSafe(connection, 'projects', "commission_amount DECIMAL(10,2) DEFAULT 0"); // NUEVO: Sincronización con server.js
         await addColumnSafe(connection, 'projects', "lead_magnet_type VARCHAR(100)");
         await addColumnSafe(connection, 'projects', "community_channel VARCHAR(100)");
         await addColumnSafe(connection, 'projects', "key_pain_point TEXT");
