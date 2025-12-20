@@ -253,6 +253,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     strategyData={strategyData} 
                     activeHeaderItem={activeHeaderItem} 
                     setActiveHeaderItem={setActiveHeaderItem} 
+                    handleTooltipHover={handleTooltipHover}
+                    handleTooltipLeave={handleTooltipLeave}
                 />
 
                 <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} />
