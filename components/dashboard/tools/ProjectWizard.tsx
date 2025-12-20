@@ -17,7 +17,6 @@ export const ProjectWizard: React.FC = () => {
     
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [aiGenerating, setAiGenerating] = useState(false);
     
     // Blocking Logic
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -42,6 +41,7 @@ export const ProjectWizard: React.FC = () => {
     // Step 3: Enlaces
     const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([{ label: 'Checkout Principal', url: '' }]);
 
+    // Effect to calculate commission percentage automatically
     useEffect(() => {
         if (fullPrice > 0 && commissionAmount >= 0) {
             const rate = (commissionAmount / fullPrice) * 100;
@@ -58,7 +58,10 @@ export const ProjectWizard: React.FC = () => {
                 setShowUpgradeModal(true);
             }
         }
-        if (id) loadProject(id);
+
+        if (id) {
+            loadProject(id);
+        }
     }, [id, user, projectCount]);
 
     const loadProject = async (projectId: string) => {
@@ -97,36 +100,44 @@ export const ProjectWizard: React.FC = () => {
         if (!name || !productName) return alert('Por favor completa el nombre del proyecto y del producto.');
         
         setLoading(true);
-        setAiGenerating(true);
-
         const projectData = {
-            name, productName, mentorName, fullPrice, commissionAmount, 
-            commissionRate: calculatedRate, niche: niche || name, targetAudience, 
-            brandTone, keyPainPoint, keyTransformation, leadMagnetType, 
-            communityChannel, mainGoal: 'Venta Directa',
+            name,
+            productName,
+            mentorName,
+            fullPrice,
+            commissionAmount, // Guardamos el valor monetario
+            commissionRate: calculatedRate, // Guardamos el porcentaje calculado
+            niche: niche || name,
+            targetAudience,
+            brandTone,
+            keyPainPoint,
+            keyTransformation,
+            leadMagnetType,
+            communityChannel,
+            mainGoal: 'Venta Directa',
             painPoints: keyPainPoint ? [keyPainPoint] : [],
             keyBenefits: keyTransformation ? [keyTransformation] : [],
             affiliateLinks: affiliateLinks.filter(l => l.url.trim() !== '')
         };
 
         try {
-            // 1. Generar la Estrategia por IA (Preview)
-            const strategyPreview = await api.previewProjectStrategy(projectData);
-            
-            // 2. Guardar el Proyecto en la base de datos (con la estrategia incluida)
-            const savedProject = await api.createProject({ ...projectData, strategy_json: strategyPreview } as any);
-            
-            // 3. Almacenar en sesión temporal para visualización inmediata
-            sessionStorage.setItem(`preview_strategy_${savedProject.id}`, JSON.stringify(strategyPreview));
-
-            navigate(`/dashboard/projects/${savedProject.id}/strategy`);
+            if (id) {
+                await api.updateProject(id, projectData as any);
+                alert('Proyecto actualizado correctamente.');
+            } else {
+                await api.createProject(projectData as any);
+            }
+            navigate('/dashboard/projects');
         } catch (error) {
             console.error(error);
-            alert('Error al generar la estrategia con IA. Se guardó solo el proyecto.');
-            navigate('/dashboard/projects');
+            if (api.isUsingMockData()) {
+                alert("Modo Demo: Proyecto guardado temporalmente.");
+                navigate('/dashboard/projects');
+            } else {
+                alert('Error al guardar el proyecto.');
+            }
         } finally {
             setLoading(false);
-            setAiGenerating(false);
         }
     };
 
@@ -140,13 +151,17 @@ export const ProjectWizard: React.FC = () => {
 
     return (
         <div className="max-w-4xl mx-auto pb-12">
-            <UpgradeModal isOpen={showUpgradeModal} onClose={() => navigate('/dashboard/projects')} reason={`Límite de ${user.planLimits?.maxProjects} proyectos alcanzado.`} />
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => navigate('/dashboard/projects')} 
+                reason={`Has alcanzado el límite de ${user.planLimits?.maxProjects} proyectos de tu plan ${user.planLimits?.planName}.`}
+            />
 
             <button onClick={() => navigate('/dashboard/projects')} className="flex items-center gap-2 text-gray-400 hover:text-white mb-6">
                 <ArrowLeft className="w-4 h-4" /> Volver a Proyectos
             </button>
 
-            <div className={`bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden ${showUpgradeModal || aiGenerating ? 'opacity-50 pointer-events-none' : ''}`}>
+            <div className={`bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
                 <div className="bg-gray-800/50 p-6 border-b border-gray-800 flex justify-between items-center">
                     <div>
                         <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -167,29 +182,70 @@ export const ProjectWizard: React.FC = () => {
                             <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
                                 <Briefcase className="w-5 h-5 text-blue-400" /> Identificación y Datos Financieros
                             </h3>
+                            
                             <div className="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-1">Nombre del Proyecto</label>
-                                    <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none" placeholder="Ej: Curso Microblading" />
+                                <div className="space-y-1">
+                                    <label className="block text-sm font-medium text-gray-400">Nombre del Proyecto (Interno)</label>
+                                    <input 
+                                        type="text" 
+                                        value={name} onChange={e => setName(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                        placeholder="Ej: Lanzamiento Curso Microblading"
+                                    />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-1">Nombre del Producto</label>
-                                    <input type="text" value={productName} onChange={e => setProductName(e.target.value)} className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none" placeholder="Ej: Certificación Pro" />
+                                <div className="space-y-1">
+                                    <label className="block text-sm font-medium text-gray-400">Nombre del Producto (Público)</label>
+                                    <input 
+                                        type="text" 
+                                        value={productName} onChange={e => setProductName(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                        placeholder="Ej: Certificación Microblading Pro"
+                                    />
                                 </div>
                             </div>
+
                             <div className="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-1">Mentor / Experto</label>
-                                    <input type="text" value={mentorName} onChange={e => setMentorName(e.target.value)} className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none" placeholder="Ej: Valentina Ross" />
+                                <div className="space-y-1">
+                                    <label className="block text-sm font-medium text-gray-400">Nombre del Experto / Instructor</label>
+                                    <div className="relative">
+                                        <UserIcon className="absolute top-3.5 left-4 w-5 h-5 text-gray-600" />
+                                        <input 
+                                            type="text" 
+                                            value={mentorName} onChange={e => setMentorName(e.target.value)} 
+                                            className="w-full bg-black border border-gray-700 rounded-lg py-3 pl-12 pr-4 text-white focus:border-primary outline-none"
+                                            placeholder="Ej: Valentina Ross"
+                                        />
+                                    </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-400 mb-1">Precio Full (USD)</label>
-                                        <input type="number" value={fullPrice || ''} onChange={e => setFullPrice(parseFloat(e.target.value))} className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none" />
+                                    <div className="space-y-1">
+                                        <label className="block text-sm font-medium text-gray-400">Precio Full (PVP USD)</label>
+                                        <div className="relative">
+                                            <DollarSign className="absolute top-3.5 left-4 w-4 h-4 text-gray-600" />
+                                            <input 
+                                                type="number" 
+                                                value={fullPrice || ''} onChange={e => setFullPrice(parseFloat(e.target.value))} 
+                                                className="w-full bg-black border border-gray-700 rounded-lg py-3 pl-10 pr-4 text-white focus:border-primary outline-none"
+                                                placeholder="200"
+                                            />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-400 mb-1">Tu Ganancia (USD)</label>
-                                        <input type="number" value={commissionAmount || ''} onChange={e => setCommissionAmount(parseFloat(e.target.value))} className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none" />
+                                    <div className="space-y-1">
+                                        <label className="block text-sm font-medium text-gray-400">Tu Ganancia (USD)</label>
+                                        <div className="relative">
+                                            <DollarSign className="absolute top-3.5 left-4 w-4 h-4 text-gray-600" />
+                                            <input 
+                                                type="number" 
+                                                value={commissionAmount || ''} onChange={e => setCommissionAmount(parseFloat(e.target.value))} 
+                                                className="w-full bg-black border border-gray-700 rounded-lg py-3 pl-10 pr-4 text-white focus:border-primary outline-none"
+                                                placeholder="116"
+                                            />
+                                        </div>
+                                        {calculatedRate > 0 && (
+                                            <div className="flex items-center gap-1 mt-1.5 text-[10px] font-bold text-emerald-500 uppercase tracking-wider ml-1">
+                                                <Percent className="w-2.5 h-2.5" /> Comisión: {calculatedRate}%
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -199,30 +255,80 @@ export const ProjectWizard: React.FC = () => {
                     {step === 2 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
                             <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
-                                <Brain className="w-5 h-5 text-purple-400" /> Estrategia y Psicología
+                                <Brain className="w-5 h-5 text-purple-400" /> Estrategia y Psicología de Venta
                             </h3>
+
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-1">Nicho</label>
-                                    <input type="text" value={niche} onChange={e => setNiche(e.target.value)} className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none" placeholder="Ej: Belleza" />
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">Nicho de Mercado</label>
+                                    <input 
+                                        type="text" 
+                                        value={niche} onChange={e => setNiche(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                        placeholder="Ej: Belleza y Estética"
+                                    />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-1">Tono de Marca</label>
-                                    <select value={brandTone} onChange={e => setBrandTone(e.target.value)} className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none">
-                                        <option>Amigable y Profesional</option>
-                                        <option>Urgente y Directo</option>
-                                        <option>Inspiracional</option>
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">Tono de Comunicación</label>
+                                    <select 
+                                        value={brandTone} onChange={e => setBrandTone(e.target.value)}
+                                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                    >
+                                        <option>Profesional y Confiable</option>
+                                        <option>Amigable y Cercano</option>
+                                        <option>Urgente y Agresivo</option>
+                                        <option>Inspiracional y Motivador</option>
                                     </select>
                                 </div>
                             </div>
+
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-1">Mayor Dolor que Resuelve</label>
-                                    <textarea value={keyPainPoint} onChange={e => setKeyPainPoint(e.target.value)} className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none h-20" placeholder="Ej: Miedo al fracaso financiero..." />
+                                    <label className="block text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
+                                        <Target className="w-4 h-4 text-red-400" /> ¿Cuál es el mayor dolor que resuelve?
+                                    </label>
+                                    <textarea 
+                                        value={keyPainPoint} onChange={e => setKeyPainPoint(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none h-20 resize-none"
+                                        placeholder="Ej: Tienen miedo de no conseguir clientes y fracasar financieramente..."
+                                    />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-1">Mayor Transformación Prometida</label>
-                                    <textarea value={keyTransformation} onChange={e => setKeyTransformation(e.target.value)} className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none h-20" placeholder="Ej: Ser una profesional independiente..." />
+                                    <label className="block text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
+                                        <Zap className="w-4 h-4 text-green-400" /> ¿Cuál es la mayor transformación que promete?
+                                    </label>
+                                    <textarea 
+                                        value={keyTransformation} onChange={e => setKeyTransformation(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none h-20 resize-none"
+                                        placeholder="Ej: Convertirse en una experta certificada que cobra $150 USD por sesión..."
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-gray-800">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">Tipo de Lead Magnet (Gancho)</label>
+                                    <select 
+                                        value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)}
+                                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                    >
+                                        <option>Ebook (Guía PDF)</option>
+                                        <option>Masterclass (Video Clase)</option>
+                                        <option>Checklist / Plantilla</option>
+                                        <option>Consulta Gratuita</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">Canal de Comunidad Post-Registro</label>
+                                    <select 
+                                        value={communityChannel} onChange={e => setCommunityChannel(e.target.value)}
+                                        className="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary outline-none"
+                                    >
+                                        <option>Grupo de WhatsApp</option>
+                                        <option>Canal de Telegram</option>
+                                        <option>Email Directo</option>
+                                        <option>Directo a Oferta</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -231,20 +337,47 @@ export const ProjectWizard: React.FC = () => {
                     {step === 3 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
                             <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
-                                <LinkIcon className="w-5 h-5 text-green-400" /> Enlaces de Afiliado
+                                <LinkIcon className="w-5 h-5 text-green-400" /> Activos y Enlaces de Afiliado
                             </h3>
+                            
+                            <div className="bg-blue-900/20 border border-blue-900/50 p-4 rounded-lg mb-6">
+                                <p className="text-sm text-blue-300 flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4"/>
+                                    <strong>Nota:</strong> Estos enlaces se usarán automáticamente para que el sistema de IA redirija a tus clientes hacia Hotmart.
+                                </p>
+                            </div>
+
                             <div className="space-y-4">
                                 {affiliateLinks.map((link, idx) => (
-                                    <div key={idx} className="flex gap-2 bg-black p-4 rounded-xl border border-gray-800">
+                                    <div key={idx} className="flex gap-2 mb-3 bg-black p-4 rounded-xl border border-gray-800">
                                         <div className="flex-1 space-y-3">
-                                            <input type="text" value={link.label} onChange={e => handleLinkUpdate(idx, 'label', e.target.value)} className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-xs" placeholder="Nombre (Ej: Checkout)" />
-                                            <input type="text" value={link.url} onChange={e => handleLinkUpdate(idx, 'url', e.target.value)} className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-green-400 text-sm font-mono" placeholder="URL Hotmart" />
+                                            <div>
+                                                <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">Nombre del botón / enlace</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={link.label} onChange={e => handleLinkUpdate(idx, 'label', e.target.value)}
+                                                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-xs"
+                                                    placeholder="Ej: Inscribirme con Descuento"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">URL de Hotmart (Hotlink)</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={link.url} onChange={e => handleLinkUpdate(idx, 'url', e.target.value)}
+                                                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-green-400 text-sm font-mono"
+                                                    placeholder="https://go.hotmart.com/..."
+                                                />
+                                            </div>
                                         </div>
-                                        <button onClick={() => setAffiliateLinks(affiliateLinks.filter((_, i) => i !== idx))} className="text-gray-500 hover:text-red-400 p-2"><Trash2 className="w-5 h-5"/></button>
+                                        <button onClick={() => {
+                                            const newLinks = affiliateLinks.filter((_, i) => i !== idx);
+                                            setAffiliateLinks(newLinks);
+                                        }} className="text-gray-500 hover:text-red-400 p-2 self-center transition-colors"><Trash2 className="w-5 h-5"/></button>
                                     </div>
                                 ))}
-                                <button onClick={() => setAffiliateLinks([...affiliateLinks, { label: 'Nuevo Enlace', url: '' }])} className="w-full py-3 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded-xl text-sm transition">
-                                    + Agregar Otro Enlace
+                                <button onClick={() => setAffiliateLinks([...affiliateLinks, { label: 'Nuevo Enlace', url: '' }])} className="w-full py-3 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded-xl text-sm flex items-center justify-center gap-2 transition">
+                                    <Plus className="w-4 h-4" /> Agregar Otro Enlace de Afiliado
                                 </button>
                             </div>
                         </div>
@@ -253,37 +386,23 @@ export const ProjectWizard: React.FC = () => {
 
                 <div className="bg-gray-800/50 p-6 border-t border-gray-800 flex justify-between">
                     {step > 1 ? (
-                        <button onClick={() => setStep(step - 1)} className="px-6 py-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-white font-medium transition">Atrás</button>
+                        <button onClick={() => setStep(step - 1)} className="px-6 py-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-white font-medium transition">
+                            Atrás
+                        </button>
                     ) : <div></div>}
 
                     {step < 3 ? (
-                        <button onClick={() => setStep(step + 1)} className="px-8 py-2.5 rounded-lg bg-primary hover:bg-indigo-600 text-white font-bold transition flex items-center gap-2">Siguiente Paso <ArrowRight className="w-4 h-4" /></button>
+                        <button onClick={() => setStep(step + 1)} className="px-8 py-2.5 rounded-lg bg-primary hover:bg-indigo-600 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-primary/20">
+                            Siguiente Paso <ArrowRight className="w-4 h-4" />
+                        </button>
                     ) : (
                         <button onClick={saveProject} disabled={loading} className="px-10 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-green-900/20">
                             {loading ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
-                            Finalizar y Crear Estrategia
+                            {id ? 'Actualizar Proyecto' : 'Finalizar y Crear Estrategia'}
                         </button>
                     )}
                 </div>
             </div>
-
-            {aiGenerating && (
-                <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-6 text-center backdrop-blur-sm">
-                    <div className="max-w-md space-y-6">
-                        <div className="relative">
-                            <div className="w-24 h-24 bg-primary/20 rounded-full animate-ping absolute inset-0 mx-auto"></div>
-                            <Sparkles className="w-24 h-24 text-primary mx-auto relative z-10" />
-                        </div>
-                        <h3 className="text-3xl font-black text-white">IA Generando Estrategia...</h3>
-                        <p className="text-gray-300 text-lg leading-relaxed">
-                            Estamos analizando tu nicho, diseñando tus avatares y redactando toda tu secuencia de ventas. Esto puede tardar hasta 30 segundos.
-                        </p>
-                        <div className="flex items-center justify-center gap-2 text-primary font-bold">
-                            <Loader2 className="w-5 h-5 animate-spin" /> No cierres esta ventana
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
