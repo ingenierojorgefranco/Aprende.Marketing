@@ -1,6 +1,4 @@
 
-
-
 const pool = require('./db');
 
 /**
@@ -124,6 +122,7 @@ const initDb = async () => {
             price_monthly DECIMAL(10, 2) DEFAULT 0,
             currency VARCHAR(10) DEFAULT 'EUR',
             stripe_price_id VARCHAR(255),
+            hotmart_url VARCHAR(500),
             limits_config JSON,
             ui_features JSON,
             is_active BOOLEAN DEFAULT TRUE,
@@ -316,6 +315,7 @@ const initDb = async () => {
         await addColumnSafe(connection, 'users', "subscription_status VARCHAR(50)");
         
         await addColumnSafe(connection, 'plans', "stripe_price_id VARCHAR(255)");
+        await addColumnSafe(connection, 'plans', "hotmart_url VARCHAR(500)");
         
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");
         await addColumnSafe(connection, 'courses', "badge_text VARCHAR(100) DEFAULT 'Certificado'");
@@ -338,6 +338,10 @@ const initDb = async () => {
         await connection.query(`
             INSERT IGNORE INTO system_settings (setting_key, setting_value) 
             VALUES ('after_login_url', '/dashboard/training/bienvenida')
+        `);
+        await connection.query(`
+            INSERT IGNORE INTO system_settings (setting_key, setting_value) 
+            VALUES ('active_payment_provider', 'stripe')
         `);
 
         // --- SEED PLANS ---
@@ -426,68 +430,9 @@ const initDb = async () => {
             await connection.query(`UPDATE plans SET stripe_price_id = 'price_1SdGwIRJVKdziYWKRDtjacOl' WHERE slug = 'max' AND (stripe_price_id IS NULL OR stripe_price_id = '')`);
         }
 
-        // --- DATOS SEMILLA (SEED DATA) ---
-        const [existingCourses] = await connection.query("SELECT id FROM courses LIMIT 1");
-        if (existingCourses.length === 0) {
-            console.log('[DB Init] 🌱 Insertando datos semilla de cursos...');
-            
-            // CURSO 1: PRODUCTOS DIGITALES
-            const [c1] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug, badge_text, order_index, is_active) VALUES (?, ?, ?, ?, ?, 1, 1)`, [
-                'Productos Digitales', 
-                'Curso Intensivo', 
-                'Aprende a crear, validar y vender tu primer infoproducto desde cero. Descubre las estrategias que usan los grandes productores para facturar miles de dólares en Hotmart.',
-                'digital-products',
-                'Certificado Oficial'
-            ]);
-            const c1Id = c1.insertId;
-
-            const [m1] = await connection.query(`INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)`, [c1Id, 'Módulo 1: Fundamentos y Mentalidad', 1]);
-            const [m2] = await connection.query(`INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)`, [c1Id, 'Módulo 2: Creación del Producto', 2]);
-            const [m3] = await connection.query(`INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)`, [c1Id, 'Módulo 3: Configuración en Hotmart', 3]);
-
-            const pointsM1 = JSON.stringify(['Mentalidad de éxito', 'Nichos de mercado', 'Validación']);
-            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-                [m1.insertId, 'Bienvenida al Curso', '5:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Introducción al mundo de los infoproductos.', pointsM1, 1]);
-            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-                [m1.insertId, 'Mentalidad de Productor vs Afiliado', '12:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Cómo pensar para ganar.', pointsM1, 2]);
-            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-                [m1.insertId, 'El Mapa del Tesoro: Nichos Rentables', '15:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Encuentra tu océano azul.', pointsM1, 3]);
-
-            const pointsM2 = JSON.stringify(['Estructura de curso', 'Grabación básica', 'Materiales PDF']);
-            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-                [m2.insertId, 'Estructura de un Curso Ganador', '20:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Diseña tu temario.', pointsM2, 1]);
-            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-                [m2.insertId, 'Grabación y Edición Básica', '18:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Herramientas low-cost.', pointsM2, 2]);
-
-            const pointsM3 = JSON.stringify(['Hotmart setup', 'Subida de archivos', 'Checkout']);
-            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-                [m3.insertId, 'Registro y Configuración de Cuenta', '08:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Primeros pasos en la plataforma.', pointsM3, 1]);
-            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-                [m3.insertId, 'Subiendo tu Producto Paso a Paso', '25:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Configuración técnica.', pointsM3, 2]);
-
-
-            // CURSO 2: INTELIGENCIA ARTIFICIAL
-            const [c2] = await connection.query(`INSERT INTO courses (title, subtitle, description, slug, badge_text, order_index, is_active) VALUES (?, ?, ?, ?, ?, 2, 1)`, [
-                'Inteligencia Artificial', 
-                'Masterclass', 
-                'Domina las herramientas de IA que están revolucionando el marketing. Aprende a usar ChatGPT y Gemini para automatizar la creación de contenido y soporte.',
-                'ai',
-                'IA Expert'
-            ]);
-            const c2Id = c2.insertId;
-            
-            const [aim1] = await connection.query(`INSERT INTO course_modules (course_id, title, order_index) VALUES (?, ?, ?)`, [c2Id, 'Introducción a la IA Generativa', 1]);
-            const pointsAi = JSON.stringify(['Prompt Engineering', 'Gemini vs GPT', 'Casos de uso']);
-            
-            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-                [aim1.insertId, 'Qué es Gemini y ChatGPT', '10:00', 'https://www.youtube.com/embed/SChXl9k5r6E?rel=0&autoplay=1', 'Fundamentos de LLMs.', pointsAi, 1]);
-            await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-                [aim1.insertId, 'Ingeniería de Prompts Básica', '15:00', 'https://www.youtube.com/embed/SChXl9k5r6E?rel=0&autoplay=1', 'Cómo hablar con la máquina.', pointsAi, 2]);
-        }
-
         // Reactivar checks
         await connection.query('SET FOREIGN_KEY_CHECKS = 1');
-        console.log('✨ [DB Init] Base de datos sincronizada y semilla insertada.');
+        console.log('✨ [DB Init] Base de datos sincronizada.');
 
     } catch (error) {
         console.error('❌ [DB Init] Error durante la inicialización:', error);
