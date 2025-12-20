@@ -1,3 +1,4 @@
+
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
   LOGIN = 'LOGIN',
@@ -39,7 +40,9 @@ export interface Plan {
   description: string;
   priceMonthly: number;
   currency: string;
-  stripePriceId?: string; // NEW: Dynamic ID for Stripe
+  stripePriceId?: string; // Dynamic ID for Stripe
+  hotmartUrl?: string;    // NEW: Link de pago Hotmart
+  hotmartId?: string;     // NEW: ID de producto Hotmart para webhook
   limitsConfig: PlanLimits;
   uiFeatures: string[]; // List of strings for the pricing card bullets
   isActive: boolean;
@@ -436,14 +439,10 @@ export interface Project {
   productName: string; // "Masterclass Uñas Premium"
   
   // New fields for conversational AI and financial tracking
-  mentorName?: string;
+  salesPageUrl?: string;
   fullPrice?: number;
   commissionRate?: number;
   leadMagnetType?: string;
-  communityChannel?: string;
-  keyPainPoint?: string;
-  keyTransformation?: string;
-  salesPageUrl?: string;
 
   // Strategy Assets
   mainGoal: string; // "Venta Directa"

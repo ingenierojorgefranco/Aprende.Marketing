@@ -1,3 +1,4 @@
+
 const pool = require('./db');
 
 /**
@@ -293,16 +294,7 @@ const initDb = async () => {
             await connection.query(table.query);
         }
 
-        // Migraciones adicionales (STRATEGY DASHBOARD FIELDS)
-        await addColumnSafe(connection, 'projects', "mentor_name VARCHAR(255)");
-        await addColumnSafe(connection, 'projects', "full_price DECIMAL(10,2) DEFAULT 0");
-        await addColumnSafe(connection, 'projects', "commission_rate DECIMAL(10,2) DEFAULT 65");
-        await addColumnSafe(connection, 'projects', "commission_amount DECIMAL(10,2) DEFAULT 0"); // NUEVO: Sincronización con server.js
-        await addColumnSafe(connection, 'projects', "lead_magnet_type VARCHAR(100)");
-        await addColumnSafe(connection, 'projects', "community_channel VARCHAR(100)");
-        await addColumnSafe(connection, 'projects', "key_pain_point TEXT");
-        await addColumnSafe(connection, 'projects', "key_transformation TEXT");
-
+        // Migraciones adicionales
         await addColumnSafe(connection, 'projects', "strategy_json LONGTEXT");
         await addColumnSafe(connection, 'articles', "slug VARCHAR(255)");
         await addColumnSafe(connection, 'articles', "featured_image VARCHAR(500)");
@@ -322,6 +314,10 @@ const initDb = async () => {
         await addColumnSafe(connection, 'users', "subscription_status VARCHAR(50)");
         
         await addColumnSafe(connection, 'plans', "stripe_price_id VARCHAR(255)");
+
+        // --- NEW: HOTMART COLUMNS ---
+        await addColumnSafe(connection, 'plans', "hotmart_url VARCHAR(500)");
+        await addColumnSafe(connection, 'plans', "hotmart_id VARCHAR(255)");
         
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");
         await addColumnSafe(connection, 'courses', "badge_text VARCHAR(100) DEFAULT 'Certificado'");
@@ -344,6 +340,12 @@ const initDb = async () => {
         await connection.query(`
             INSERT IGNORE INTO system_settings (setting_key, setting_value) 
             VALUES ('after_login_url', '/dashboard/training/bienvenida')
+        `);
+
+        // NEW: SEED PAYMENT PROVIDER SETTING
+        await connection.query(`
+            INSERT IGNORE INTO system_settings (setting_key, setting_value) 
+            VALUES ('active_payment_provider', 'stripe')
         `);
 
         // --- SEED PLANS ---

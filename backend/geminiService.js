@@ -1,3 +1,4 @@
+
 const { GoogleGenAI } = require("@google/genai");
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -51,105 +52,62 @@ const generateFullStrategy = async (projectData) => {
         throw new Error("Gemini API Key not configured on server.");
     }
 
-    const { 
-        name, niche, productName, mentorName, fullPrice, commissionRate,
-        description, targetAudience, brandTone, leadMagnetType, communityChannel,
-        keyPainPoint, keyTransformation, painPoints, keyBenefits 
-    } = projectData;
-
-    const netCommission = (fullPrice * (commissionRate / 100)).toFixed(2);
+    const { name, niche, productName, description, targetAudience, painPoints, keyBenefits } = projectData;
 
     const prompt = `
-    Rol: Motor de Análisis Estratégico de Marketing Digital de Elite.
-    Tarea: Generar un "Informe Estratégico Maestro" extremadamente detallado y realista en formato JSON.
+    Rol: Motor de Análisis Estratégico de Marketing Digital.
+    Tarea: Generar un "Informe Estratégico Maestro" en formato JSON para un proyecto específico.
     
-    DATOS REALES DEL PROYECTO (USALOS OBLIGATORIAMENTE):
-    - Nombre Proyecto: "${name}"
-    - Producto: "${productName}"
-    - Mentor/Experto: "${mentorName || 'No definido'}"
-    - Precio Venta (PVP): "$${fullPrice} USD"
-    - Comisión: "${commissionRate}%" (Ganancia neta: $${netCommission} USD)
+    INFORMACIÓN DEL PROYECTO:
+    - Nombre: "${name}"
     - Nicho: "${niche}"
-    - Audiencia Base: "${targetAudience || 'General'}"
-    - Tono de Marca: "${brandTone}"
-    - Dolor Principal: "${keyPainPoint}"
-    - Transformación: "${keyTransformation}"
-    - Lead Magnet (Gancho): "${leadMagnetType}"
-    - Canal de Comunidad: "${communityChannel}"
+    - Producto: "${productName}"
+    - Descripción: "${description}"
+    - Audiencia (Input usuario): "${targetAudience || 'General'}"
+    - Dolores (Input usuario): "${(painPoints || []).join(', ')}"
+    - Beneficios (Input usuario): "${(keyBenefits || []).join(', ')}"
 
-    INSTRUCCIONES ESTRATÉGICAS:
-    1. Expande el análisis basándote en estos datos REALES. 
-    2. En el bloque de 'product', menciona específicamente el precio de $${fullPrice} y la ganancia de $${netCommission}.
-    3. En el bloque de 'blueprint', adapta los pasos al Canal de Comunidad (${communityChannel}) y al Lead Magnet (${leadMagnetType}).
-    4. Crea 3 avatares psicológicos que coincidan con la Audiencia Base y el Tono de Marca definido.
-
+    Debes profundizar y expandir esta información para crear una estrategia completa.
+    
     ESTRUCTURA JSON REQUERIDA (NO AÑADAS TEXTO FUERA DEL JSON):
     {
-      "meta": {
-          "projectName": "${productName}",
-          "createdAt": "${new Date().toLocaleDateString()}",
-          "niche": "${niche}",
-          "productType": "Infoproducto / Servicio",
-          "objective": "Venta Directa con ${leadMagnetType}",
-          "insights": {
-              "overview": { 
-                  "title": "Visión Estratégica", 
-                  "items": [
-                      { "label": "Producto", "value": "${productName}", "icon": "BookOpen", "color": "text-pink-400", "bg": "bg-pink-500/10", "border": "border-pink-500/20" },
-                      { "label": "Mentor", "value": "${mentorName}", "icon": "Users", "color": "text-blue-400", "bg": "bg-blue-500/10", "border": "border-blue-500/20" },
-                      { "label": "Estrategia", "value": "Embudo de ${leadMagnetType} + ${communityChannel}", "icon": "MessageCircle", "color": "text-green-400", "bg": "bg-green-500/10", "border": "border-green-500/20" }
-                  ] 
-              },
-              "niche": { "title": "Potencial del Nicho: ${niche}", "description": "Análisis profundo de por qué este nicho es rentable..." },
-              "product": { "title": "Análisis de Rentabilidad", "description": "Venderás a $${fullPrice}. Tu ganancia neta es de $${netCommission}..." },
-              "objective": { "title": "Hoja de Ruta", "description": "Cómo escalaremos este producto usando ${brandTone}..." }
-          }
+      "avatar": {
+        "name": "Nombre ficticio del Avatar (ej. Ana la Emprendedora)",
+        "age": "Rango de edad",
+        "occupation": "Ocupación probable",
+        "story": "Breve historia de su situación actual y por qué necesita esto (Storytelling)",
+        "frustrations": ["Frustración 1", "Frustración 2", "Frustración 3"],
+        "desires": ["Deseo profundo 1", "Deseo profundo 2", "Deseo profundo 3"]
       },
-      "avatars": [
-        {
-          "id": 1,
-          "name": "Nombre ficticio",
-          "archetype": "Perfil",
-          "age": "Rango",
-          "quote": "Frase que diría",
-          "pain": "Su mayor miedo",
-          "desire": "Su mayor deseo",
-          "objection": "Por qué no compraría",
-          "motivations": { "dinero": 0, "tiempo": 0, "estatus": 0, "seguridad": 0 }
-        }
-      ],
       "psychology": {
-        "pains": ["Dolor 1", "Dolor 2", "Dolor 3", "Dolor 4"],
-        "solutions": ["Solución 1", "Solución 2", "Solución 3", "Solución 4"],
-        "powerWords": ["Palabra 1", "Palabra 2"]
+        "emotionalTriggers": ["Gatillo 1 (Miedo/Codicia/Vanidad...)", "Gatillo 2"],
+        "objections": ["Objeción 1", "Objeción 2", "Objeción 3"],
+        "falseBeliefs": ["Creencia limitante 1", "Creencia limitante 2"]
       },
-      "modules": {
-        "web": {
-            "landingPageTabs": {
-                "hero": { "label": "Encabezado", "title": "Hero Section", "h1": "Titular con <b>...</b>", "h2": "Subtítulo", "strategyText": "Explicación lógica" },
-                "pain": { "label": "Dolores", "items": ["..."], "strategyText": "..." },
-                "benefits": { "label": "Beneficios", "items": [{ "title": "...", "desc": "..." }], "strategyText": "..." }
-            },
-            "thankYouPageTabs": {
-                "header": { "content": { "h1": "...", "h2": "..." }, "strategyText": "..." },
-                "action": { "content": { "h1": "Unirse a ${communityChannel}", "h2": "..." }, "strategyText": "..." },
-                "magnet": { "content": { "h1": "Descarga tu ${leadMagnetType}", "h2": "..." }, "strategyText": "..." }
-            }
-        },
-        "content": [
-            { "id": 1, "title": "...", "traffic": 80, "difficulty": 30, "keyword": "...", "objective": "...", "strategy": "..." }
+      "funnel": {
+        "leadMagnetIdea": "Idea concreta para un recurso gratuito (PDF/Clase/Quiz)",
+        "tripwireIdea": "Idea para un producto de bajo costo (opcional)",
+        "coreOfferPitch": "El pitch de venta principal del producto en 1 frase",
+        "funnelSteps": ["Paso 1: Anuncio", "Paso 2: Landing", "Paso 3: Gracias..."]
+      },
+      "assets": {
+        "emailSequence": [
+           { "subject": "Asunto Email 1 (Bienvenida/Entrega)", "body": "Cuerpo del correo (corto, persuasivo)", "delay": "Inmediato" },
+           { "subject": "Asunto Email 2 (Aporte Valor/Historia)", "body": "Cuerpo del correo", "delay": "Día 1" },
+           { "subject": "Asunto Email 3 (Venta/Urgencia)", "body": "Cuerpo del correo", "delay": "Día 2" }
         ],
-        "emails": {
-            "nurture": [ { "id": 1, "day": "Día 0", "subject": "...", "type": "...", "objective": "...", "bodyPreview": "..." } ],
-            "evergreen": [ { "id": 8, "day": "Día 8", "subject": "...", "type": "...", "objective": "...", "bodyPreview": "..." } ]
-        },
-        "whatsapp": [
-            { "id": 1, "title": "👋 Saludo", "objective": "...", "messages": [ { "role": "agent", "text": "..." } ] }
+        "whatsappScripts": [
+           { "scenario": "Primer Contacto", "script": "Hola [Nombre], vi que te interesaste en..." },
+           { "scenario": "Seguimiento", "script": "Hola de nuevo, solo quería asegurarme..." }
+        ],
+        "adCopies": [
+           { "platform": "Facebook/Instagram", "headline": "Gancho principal", "body": "Texto del anuncio..." },
+           { "platform": "Google Ads (Search)", "headline": "Título anuncio", "body": "Descripción..." }
         ]
       }
     }
     
-    Responde SOLO en JSON válido. Usa un tono persuasivo y profesional.
+    Usa un tono persuasivo, profesional y orientado a la conversión directa.
     `;
 
     try {
@@ -161,6 +119,7 @@ const generateFullStrategy = async (projectData) => {
             }
         });
 
+        // Parse JSON safely
         let strategyJson = {};
         try {
             if (response.text) {

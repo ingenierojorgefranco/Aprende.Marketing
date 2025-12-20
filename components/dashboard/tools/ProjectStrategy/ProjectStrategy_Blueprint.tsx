@@ -105,7 +105,7 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
         <div id={`psd-flow-card-${step}-container`} className="group relative flex flex-col h-full">
             <div 
                 id={`psd-flow-card-${step}-content`}
-                className="bg-gray-900 border border-gray-800 p-6 rounded-2xl border transition-all hover:border-primary/50 hover:scale-105 hover:shadow-2xl hover:shadow-primary/10 h-full group-hover:z-50 cursor-help flex flex-col items-center text-center relative z-10"
+                className="bg-gray-900 border border-gray-800 p-6 rounded-2xl flex flex-col items-center text-center relative z-10 hover:border-primary/50 transition-all hover:scale-105 hover:shadow-2xl hover:shadow-primary/10 h-full group-hover:z-50 cursor-help"
                 onMouseMove={(e) => onHover(e, tooltipContent)}
                 onMouseLeave={onLeave}
             >
@@ -163,7 +163,7 @@ interface ProjectStrategy_BlueprintProps {
 
 export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps> = ({ handleTooltipHover, handleTooltipLeave, onOpenVideo }) => {
     return (
-        <div id="psd-blueprint-container" className="space-y-6 pt-8">
+        <div id="psd-blueprint-container" className="space-y-6">
             <div id="psd-blueprint-header-container" className="max-w-[70em] mx-auto text-left space-y-6 py-6">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-widest animate-pulse">
                     <Sparkles className="w-4 h-4" /> Arquitectura de Ventas
@@ -181,7 +181,7 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                 </div>
             </div>
             
-            <div id="psd-blueprint-grid-wrapper" className="max-w-[90%] mx-auto rounded-3xl border border-gray-800 p-8 lg:p-12 relative">
+            <div id="psd-blueprint-grid-wrapper" className="max-w-[70em] mx-auto rounded-3xl border border-gray-800 p-8 lg:p-12 relative">
                 <div className="absolute inset-0 bg-[#0a0a0a] rounded-3xl overflow-hidden z-0">
                      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px]"></div>
                 </div>

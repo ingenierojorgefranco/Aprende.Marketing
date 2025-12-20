@@ -1,41 +1,15 @@
 import React from 'react';
-import { Rocket, Sparkles, Search, DollarSign, Zap, BookOpen, ShieldCheck } from 'lucide-react';
+import { Rocket, Sparkles, UserSearch, DollarSign, Zap, BookOpen, ShieldCheck } from 'lucide-react';
 
 interface ProjectStrategy_SummaryProps {
     strategyData: any;
     activeHeaderItem: string | null;
     setActiveHeaderItem: (item: string | null) => void;
-    handleTooltipHover: (e: React.MouseEvent, content: string[]) => void;
-    handleTooltipLeave: () => void;
 }
 
-export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = ({ 
-    strategyData, 
-    handleTooltipHover, 
-    handleTooltipLeave 
-}) => {
+export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = ({ strategyData }) => {
     // Extraemos los items de la visión general
     const overviewItems = [...(strategyData.meta.insights.overview.items || [])];
-
-    // Mapeo de explicaciones genéricas para los campos
-    const getTooltipContent = (label: string) => {
-        switch (label) {
-            case 'Nicho':
-                return ["Área de mercado específica donde se mueve tu producto y se concentra la demanda."];
-            case 'Público Objetivo':
-                return ["Perfil detallado de la persona ideal que tiene el problema que tu producto resuelve."];
-            case 'Estrategia':
-                return ["El método lógico y la secuencia de pasos que seguiremos para convertir extraños en clientes."];
-            case 'Objetivo del Sistema':
-                return ["El resultado final buscado al implementar este ecosistema digital automatizado."];
-            case 'Precio Full del Producto':
-                return ["El valor total de venta al público del producto que estás promocionando."];
-            case 'Comisión (65%)':
-                return ["Tu ganancia neta estimada por cada venta realizada a través de tu enlace de afiliado."];
-            default:
-                return [];
-        }
-    };
 
     return (
         <div className="space-y-16">
@@ -45,7 +19,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                     <Sparkles className="w-4 h-4" /> Inteligencia de Mercado
                 </div>
                 <h2 className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
-                    <Search className="w-12 h-12 text-blue-500" /> Diagnóstico del Cliente Ideal
+                    <UserSearch className="w-12 h-12 text-blue-500" /> Diagnóstico del Cliente Ideal
                 </h2>
                 
                 <div className="space-y-6 text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
@@ -74,15 +48,11 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                         {/* Renderizado Dinámico de Items de la Estrategia */}
                         {overviewItems.map((item: any, i: number) => {
                             const isProduct = i === 0;
-                            const tooltipContent = getTooltipContent(item.label);
 
                             return (
                                 <div 
                                     key={i} 
-                                    id={`psd-summary-item-${i}`}
-                                    className={`p-6 md:p-8 rounded-2xl border transition-all duration-300 bg-gray-900/40 backdrop-blur-sm ${item.border} flex flex-col h-full ${isProduct ? 'md:col-span-2 border-indigo-500/30' : 'cursor-help hover:border-blue-500/50 hover:bg-gray-900/60'}`}
-                                    onMouseEnter={(e) => tooltipContent.length > 0 && handleTooltipHover(e, tooltipContent)}
-                                    onMouseLeave={handleTooltipLeave}
+                                    className={`p-6 md:p-8 rounded-2xl border transition-all duration-300 bg-gray-900/40 backdrop-blur-sm ${item.border} flex flex-col h-full ${isProduct ? 'md:col-span-2 border-indigo-500/30' : ''}`}
                                 >
                                     <div className="flex flex-col h-full">
                                         <div className="flex items-center gap-4 mb-4 shrink-0">
@@ -105,12 +75,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                         })}
 
                         {/* TARJETAS DE PRECIO Y COMISIÓN */}
-                        <div 
-                            id="psd-summary-price-card"
-                            className="p-6 md:p-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-emerald-500/10 cursor-help hover:border-emerald-500/50"
-                            onMouseEnter={(e) => handleTooltipHover(e, getTooltipContent('Precio Full del Producto'))}
-                            onMouseLeave={handleTooltipLeave}
-                        >
+                        <div className="p-6 md:p-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-emerald-500/10">
                             <div className="flex items-center gap-4 mb-4 shrink-0">
                                 <div className="p-3 rounded-xl bg-black/40 text-emerald-400 flex-shrink-0 shadow-lg border border-emerald-500/20">
                                     <DollarSign className="w-6 h-6" />
@@ -126,12 +91,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                             </div>
                         </div>
 
-                        <div 
-                            id="psd-summary-commission-card"
-                            className="p-6 md:p-8 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-yellow-500/10 cursor-help hover:border-yellow-500/50"
-                            onMouseEnter={(e) => handleTooltipHover(e, getTooltipContent('Comisión (65%)'))}
-                            onMouseLeave={handleTooltipLeave}
-                        >
+                        <div className="p-6 md:p-8 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-yellow-500/10">
                             <div className="flex items-center gap-4 mb-4 shrink-0">
                                 <div className="p-3 rounded-xl bg-black/40 text-yellow-400 flex-shrink-0 shadow-lg border border-yellow-500/20">
                                     <Zap className="w-6 h-6" />

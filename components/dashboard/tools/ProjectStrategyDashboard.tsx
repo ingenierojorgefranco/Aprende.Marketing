@@ -253,8 +253,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     strategyData={strategyData} 
                     activeHeaderItem={activeHeaderItem} 
                     setActiveHeaderItem={setActiveHeaderItem} 
-                    handleTooltipHover={handleTooltipHover}
-                    handleTooltipLeave={handleTooltipLeave}
                 />
 
                 <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} />
@@ -279,7 +277,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     handleTooltipLeave={handleTooltipLeave}
                     linkedPages={linkedPages}
                     onEditPage={(pageId) => navigate(`/dashboard/editor/${pageId}`)}
-                    // Props para límites
+                    // Props for limits
                     pageCount={pageCount}
                     domainCount={globalDomainCount}
                     planLimits={user.planLimits}
@@ -295,7 +293,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     toggleArticleSelection={toggleArticleSelection}
                     handleTooltipHover={handleTooltipHover}
                     handleTooltipLeave={handleTooltipLeave}
-                    // Props para límites
+                    // Props for limits
                     articleCount={articleCount}
                     planLimits={user.planLimits}
                     onUpgrade={() => setShowUpgradeModal(true)}
