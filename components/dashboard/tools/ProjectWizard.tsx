@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, Target, Zap, MessageCircle, User as UserIcon, DollarSign, Brain, Percent } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, Target, Zap, MessageCircle, User as UserIcon, DollarSign, Brain } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -26,8 +26,7 @@ export const ProjectWizard: React.FC = () => {
     const [productName, setProductName] = useState('');
     const [mentorName, setMentorName] = useState('');
     const [fullPrice, setFullPrice] = useState<number>(0);
-    const [commissionAmount, setCommissionAmount] = useState<number>(0);
-    const [calculatedRate, setCalculatedRate] = useState<number>(0);
+    const [commissionRate, setCommissionRate] = useState<number>(65);
 
     // Step 2: Estrategia y Psicología
     const [niche, setNiche] = useState('');
@@ -40,16 +39,6 @@ export const ProjectWizard: React.FC = () => {
     
     // Step 3: Enlaces
     const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([{ label: 'Checkout Principal', url: '' }]);
-
-    // Effect to calculate commission percentage automatically
-    useEffect(() => {
-        if (fullPrice > 0 && commissionAmount >= 0) {
-            const rate = (commissionAmount / fullPrice) * 100;
-            setCalculatedRate(Math.round(rate * 100) / 100);
-        } else {
-            setCalculatedRate(0);
-        }
-    }, [fullPrice, commissionAmount]);
 
     useEffect(() => {
         if (!id && user.planLimits) {
@@ -73,7 +62,7 @@ export const ProjectWizard: React.FC = () => {
                 setProductName(proj.productName || '');
                 setMentorName(proj.mentorName || '');
                 setFullPrice(proj.fullPrice || 0);
-                setCommissionAmount(proj.commissionAmount || 0);
+                setCommissionRate(proj.commissionRate || 65);
                 setNiche(proj.niche || '');
                 setTargetAudience(proj.targetAudience || '');
                 setBrandTone(proj.brandTone || 'Amigable y Profesional');
@@ -105,8 +94,7 @@ export const ProjectWizard: React.FC = () => {
             productName,
             mentorName,
             fullPrice,
-            commissionAmount, // Guardamos el valor monetario
-            commissionRate: calculatedRate, // Guardamos el porcentaje calculado
+            commissionRate,
             niche: niche || name,
             targetAudience,
             brandTone,
@@ -219,33 +207,25 @@ export const ProjectWizard: React.FC = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
-                                        <label className="block text-sm font-medium text-gray-400">Precio Full (PVP USD)</label>
+                                        <label className="block text-sm font-medium text-gray-400">Precio (USD)</label>
                                         <div className="relative">
                                             <DollarSign className="absolute top-3.5 left-4 w-4 h-4 text-gray-600" />
                                             <input 
                                                 type="number" 
-                                                value={fullPrice || ''} onChange={e => setFullPrice(parseFloat(e.target.value))} 
+                                                value={fullPrice} onChange={e => setFullPrice(parseFloat(e.target.value))} 
                                                 className="w-full bg-black border border-gray-700 rounded-lg py-3 pl-10 pr-4 text-white focus:border-primary outline-none"
                                                 placeholder="200"
                                             />
                                         </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="block text-sm font-medium text-gray-400">Tu Ganancia (USD)</label>
-                                        <div className="relative">
-                                            <DollarSign className="absolute top-3.5 left-4 w-4 h-4 text-gray-600" />
-                                            <input 
-                                                type="number" 
-                                                value={commissionAmount || ''} onChange={e => setCommissionAmount(parseFloat(e.target.value))} 
-                                                className="w-full bg-black border border-gray-700 rounded-lg py-3 pl-10 pr-4 text-white focus:border-primary outline-none"
-                                                placeholder="116"
-                                            />
-                                        </div>
-                                        {calculatedRate > 0 && (
-                                            <div className="flex items-center gap-1 mt-1.5 text-[10px] font-bold text-emerald-500 uppercase tracking-wider ml-1">
-                                                <Percent className="w-2.5 h-2.5" /> Comisión: {calculatedRate}%
-                                            </div>
-                                        )}
+                                        <label className="block text-sm font-medium text-gray-400">% Comisión</label>
+                                        <input 
+                                            type="number" 
+                                            value={commissionRate} onChange={e => setCommissionRate(parseFloat(e.target.value))} 
+                                            className="w-full bg-black border border-gray-700 rounded-lg py-3 px-4 text-white focus:border-primary outline-none"
+                                            placeholder="65"
+                                        />
                                     </div>
                                 </div>
                             </div>

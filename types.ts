@@ -439,7 +439,6 @@ export interface Project {
   mentorName?: string;
   fullPrice?: number;
   commissionRate?: number;
-  commissionAmount?: number; // Nuevo: Valor monetario de la ganancia
   leadMagnetType?: string;
   communityChannel?: string;
   keyPainPoint?: string;

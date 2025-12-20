@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v22_monetary_commission_logic'; 
+const SERVER_VERSION = 'v21_strategy_deep_integration'; 
 
 app.enable('trust proxy');
 
@@ -316,7 +316,6 @@ app.get('/api/projects/:id', authMiddleware, async (req, res) => {
         mentorName: project.mentor_name,
         fullPrice: project.full_price,
         commissionRate: project.commission_rate,
-        commissionAmount: project.commission_amount,
         leadMagnetType: project.lead_magnet_type,
         communityChannel: project.community_channel,
         keyPainPoint: project.key_pain_point,
@@ -332,7 +331,7 @@ app.get('/api/projects/:id', authMiddleware, async (req, res) => {
 app.post('/api/projects', authMiddleware, async (req, res) => {
   const {
     name, niche, description, targetAudience, brandTone,
-    productName, mentorName, fullPrice, commissionRate, commissionAmount, leadMagnetType, communityChannel,
+    productName, mentorName, fullPrice, commissionRate, leadMagnetType, communityChannel,
     keyPainPoint, keyTransformation, mainGoal, painPoints, keyBenefits, affiliateLinks
   } = req.body;
 
@@ -348,11 +347,11 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
 
     const [result] = await pool.query(
       `INSERT INTO projects 
-       (user_id, name, niche, description, target_audience, brand_tone, product_name, mentor_name, full_price, commission_rate, commission_amount, lead_magnet_type, community_channel, key_pain_point, key_transformation, main_goal, pain_points, key_benefits, affiliate_links, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+       (user_id, name, niche, description, target_audience, brand_tone, product_name, mentor_name, full_price, commission_rate, lead_magnet_type, community_channel, key_pain_point, key_transformation, main_goal, pain_points, key_benefits, affiliate_links, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         req.user.id, name, niche, description, targetAudience, brandTone, 
-        productName, mentorName, fullPrice, commissionRate, commissionAmount, leadMagnetType, communityChannel, 
+        productName, mentorName, fullPrice, commissionRate, leadMagnetType, communityChannel, 
         keyPainPoint, keyTransformation, mainGoal,
         JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []),
       ]
@@ -368,7 +367,7 @@ app.put('/api/projects/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
   const {
     name, niche, description, targetAudience, brandTone,
-    productName, mentorName, fullPrice, commissionRate, commissionAmount, leadMagnetType, communityChannel,
+    productName, mentorName, fullPrice, commissionRate, leadMagnetType, communityChannel,
     keyPainPoint, keyTransformation, mainGoal, painPoints, keyBenefits, affiliateLinks
   } = req.body;
 
@@ -378,11 +377,11 @@ app.put('/api/projects/:id', authMiddleware, async (req, res) => {
 
     await pool.query(
       `UPDATE projects 
-       SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, mentor_name=?, full_price=?, commission_rate=?, commission_amount=?, lead_magnet_type=?, community_channel=?, key_pain_point=?, key_transformation=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, updated_at=NOW()
+       SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, mentor_name=?, full_price=?, commission_rate=?, lead_magnet_type=?, community_channel=?, key_pain_point=?, key_transformation=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, updated_at=NOW()
        WHERE id=? AND user_id=?`,
       [
         name, niche, description, targetAudience, brandTone, 
-        productName, mentorName, fullPrice, commissionRate, commissionAmount, leadMagnetType, communityChannel, 
+        productName, mentorName, fullPrice, commissionRate, leadMagnetType, communityChannel, 
         keyPainPoint, keyTransformation, mainGoal,
         JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []),
         id, req.user.id,
@@ -401,7 +400,7 @@ app.post('/api/projects/:id/generate-strategy', authMiddleware, async (req, res)
         
         const strategyJson = await generateFullStrategy({
             name: p.name, niche: p.niche, productName: p.product_name, mentorName: p.mentor_name,
-            fullPrice: p.full_price, commissionRate: p.commission_rate, commissionAmount: p.commission_amount, description: p.description,
+            fullPrice: p.full_price, commissionRate: p.commission_rate, description: p.description,
             targetAudience: p.target_audience, brandTone: p.brand_tone, leadMagnetType: p.lead_magnet_type,
             communityChannel: p.community_channel, keyPainPoint: p.key_pain_point, keyTransformation: p.key_transformation,
             painPoints: JSON.parse(p.pain_points || '[]'), keyBenefits: JSON.parse(p.key_benefits || '[]')

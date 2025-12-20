@@ -52,10 +52,12 @@ const generateFullStrategy = async (projectData) => {
     }
 
     const { 
-        name, niche, productName, mentorName, fullPrice, commissionAmount, commissionRate,
+        name, niche, productName, mentorName, fullPrice, commissionRate,
         description, targetAudience, brandTone, leadMagnetType, communityChannel,
         keyPainPoint, keyTransformation, painPoints, keyBenefits 
     } = projectData;
+
+    const netCommission = (fullPrice * (commissionRate / 100)).toFixed(2);
 
     const prompt = `
     Rol: Motor de Análisis Estratégico de Marketing Digital de Elite.
@@ -66,7 +68,7 @@ const generateFullStrategy = async (projectData) => {
     - Producto: "${productName}"
     - Mentor/Experto: "${mentorName || 'No definido'}"
     - Precio Venta (PVP): "$${fullPrice} USD"
-    - Tu Ganancia Neta: "$${commissionAmount} USD" (equivale al ${commissionRate}%)
+    - Comisión: "${commissionRate}%" (Ganancia neta: $${netCommission} USD)
     - Nicho: "${niche}"
     - Audiencia Base: "${targetAudience || 'General'}"
     - Tono de Marca: "${brandTone}"
@@ -77,7 +79,7 @@ const generateFullStrategy = async (projectData) => {
 
     INSTRUCCIONES ESTRATÉGICAS:
     1. Expande el análisis basándote en estos datos REALES. 
-    2. En el bloque de 'product', menciona específicamente el precio de $${fullPrice} y tu ganancia líquida de $${commissionAmount}.
+    2. En el bloque de 'product', menciona específicamente el precio de $${fullPrice} y la ganancia de $${netCommission}.
     3. En el bloque de 'blueprint', adapta los pasos al Canal de Comunidad (${communityChannel}) y al Lead Magnet (${leadMagnetType}).
     4. Crea 3 avatares psicológicos que coincidan con la Audiencia Base y el Tono de Marca definido.
 
@@ -99,7 +101,7 @@ const generateFullStrategy = async (projectData) => {
                   ] 
               },
               "niche": { "title": "Potencial del Nicho: ${niche}", "description": "Análisis profundo de por qué este nicho es rentable..." },
-              "product": { "title": "Análisis de Rentabilidad", "description": "Venderás a $${fullPrice}. Tu ganancia neta es de $${commissionAmount}..." },
+              "product": { "title": "Análisis de Rentabilidad", "description": "Venderás a $${fullPrice}. Tu ganancia neta es de $${netCommission}..." },
               "objective": { "title": "Hoja de Ruta", "description": "Cómo escalaremos este producto usando ${brandTone}..." }
           }
       },
