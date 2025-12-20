@@ -1,6 +1,3 @@
-
-
-
 const pool = require('./db');
 
 /**
@@ -296,7 +293,16 @@ const initDb = async () => {
             await connection.query(table.query);
         }
 
-        // Migraciones adicionales
+        // Migraciones adicionales (STRATEGY DASHBOARD FIELDS)
+        await addColumnSafe(connection, 'projects', "mentor_name VARCHAR(255)");
+        await addColumnSafe(connection, 'projects', "full_price DECIMAL(10,2) DEFAULT 0");
+        await addColumnSafe(connection, 'projects', "commission_rate DECIMAL(10,2) DEFAULT 0");
+        await addColumnSafe(connection, 'projects', "commission_amount DECIMAL(10,2) DEFAULT 0");
+        await addColumnSafe(connection, 'projects', "lead_magnet_type VARCHAR(100)");
+        await addColumnSafe(connection, 'projects', "community_channel VARCHAR(100)");
+        await addColumnSafe(connection, 'projects', "key_pain_point TEXT");
+        await addColumnSafe(connection, 'projects', "key_transformation TEXT");
+
         await addColumnSafe(connection, 'projects', "strategy_json LONGTEXT");
         await addColumnSafe(connection, 'articles', "slug VARCHAR(255)");
         await addColumnSafe(connection, 'articles', "featured_image VARCHAR(500)");

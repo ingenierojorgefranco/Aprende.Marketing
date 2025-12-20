@@ -436,10 +436,15 @@ export interface Project {
   productName: string; // "Masterclass Uñas Premium"
   
   // New fields for conversational AI and financial tracking
-  salesPageUrl?: string;
+  mentorName?: string;
   fullPrice?: number;
   commissionRate?: number;
+  commissionAmount?: number; // Nuevo: Valor monetario de la ganancia
   leadMagnetType?: string;
+  communityChannel?: string;
+  keyPainPoint?: string;
+  keyTransformation?: string;
+  salesPageUrl?: string;
 
   // Strategy Assets
   mainGoal: string; // "Venta Directa"
