@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { UserSearch, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, X, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight } from 'lucide-react';
+import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, X, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight } from 'lucide-react';
 import { ProjectStrategy_Psychology } from './ProjectStrategy_Psychology';
 
 interface ProjectStrategy_AvatarDiagnosisProps {
@@ -64,7 +65,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     <Sparkles className="w-4 h-4" /> Inteligencia de Clientes
                 </div>
                 <h3 className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
-                    <UserSearch className="w-12 h-12 text-blue-500" /> Avatares Estratégicos Identificados
+                    <Search className="w-12 h-12 text-blue-500" /> Avatares Estratégicos Identificados
                 </h3>
                 
                 <div className="space-y-6 text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
