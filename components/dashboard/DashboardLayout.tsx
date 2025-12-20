@@ -351,32 +351,32 @@ export const DashboardLayout = ({
             </div>
         )}
 
-        {/* RE-DESIGNED UPGRADE WIDGET */}
+        {/* RE-DESIGNED UPGRADE WIDGET (MOD PURPLE GLASS) */}
         {!isMax && (
             <div className="border-t border-gray-800 bg-[#0a0a0a] p-4">
-                <div className="p-6 rounded-[2.5rem] border-2 border-amber-500/30 shadow-[0_0_40px_rgba(245,158,11,0.15)] relative overflow-hidden group bg-gradient-to-br from-amber-950 via-[#1a1103] to-black">
+                <div className="p-5 rounded-3xl border border-purple-500/20 bg-white/5 backdrop-blur-md shadow-[0_0_20px_rgba(168,85,247,0.05)] relative overflow-hidden group">
                     {/* Visual Effects */}
-                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.1),transparent)] pointer-events-none"></div>
-                    <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all duration-700"></div>
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-500/10 to-transparent pointer-events-none"></div>
+                    <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all duration-700"></div>
                     
                     <div className="flex flex-col items-center text-center relative z-10">
-                        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 text-white shadow-[0_10px_20px_rgba(217,119,6,0.3)] mb-5 animate-pulse transform group-hover:scale-110 transition-transform">
-                            <Crown className="w-8 h-8 fill-current" />
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <Sparkles className="w-5 h-5 fill-current" />
                         </div>
                         
-                        <h3 className="font-black text-white text-xl leading-tight mb-3 tracking-tighter uppercase">
-                            ¡Lleva tu Negocio <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-orange-500">al Máximo!</span>
+                        <h3 className="font-bold text-white text-base leading-tight mb-1">
+                            Lleva tu Negocio al siguiente Nivel
                         </h3>
                         
-                        <p className="text-xs text-gray-300 mb-6 leading-relaxed font-semibold px-2">
-                            Desbloquea Proyectos Ilimitados, IA de Alta Precisión y Dominios Propios para triplicar tus ventas.
+                        <p className="text-[10px] text-gray-400 mb-4 px-2 leading-normal">
+                            Desbloquea funciones avanzadas para hacer crecer tu negocio.
                         </p>
                         
                         <button 
                             onClick={() => setShowUpgradeModal(true)}
-                            className="w-full py-4 rounded-2xl font-black text-xs transition-all shadow-[0_15px_30px_rgba(0,0,0,0.5)] bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500 hover:scale-[1.05] active:scale-95 uppercase tracking-[0.15em] flex items-center justify-center gap-2 border-t border-white/20"
+                            className="w-full py-2.5 rounded-xl font-bold text-xs transition-all bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-900/20 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
                         >
-                            ACTIVA PRO AHORA 🚀
+                            Ver Planes
                         </button>
                     </div>
                 </div>

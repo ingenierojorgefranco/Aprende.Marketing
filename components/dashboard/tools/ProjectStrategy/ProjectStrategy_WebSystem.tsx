@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -191,10 +190,10 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         {data.type === 'header' ? <Sparkles className="w-4 h-4"/> : data.type === 'action' ? <ArrowRight className="w-4 h-4"/> : <Gift className="w-4 h-4"/>} 
                         {data.title}
                     </span>
-                    <p className="text-white font-serif text-[1.3rem] leading-[1.5] font-medium">"{data.content.h1}"</p>
+                    <p className="text-white font-serif text-lg leading-[1.5] font-medium">"{data.content.h1}"</p>
                 </div>
                 <div className="py-3">
-                    <p className="text-gray-200 text-[1.2rem] leading-[1.5]">{data.content.h2}</p>
+                    <p className="text-gray-200 text-lg leading-[1.5]">{data.content.h2}</p>
                 </div>
             </div>
         );
@@ -215,18 +214,21 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     <h2 id="psd-system-title" className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">
                         ¿Qué creará nuestro sistema por ti?
                     </h2>
-                    <p id="psd-system-desc" className="text-xl text-gray-300 font-light max-w-4xl mx-auto leading-[2rem]">
+                    <p id="psd-system-desc" className="text-[1.3rem] leading-[1.8] text-gray-300 font-light max-w-4xl mx-auto">
                         Nuestro sistema redactará, diseñará y conectará cada pieza (Web, Email, Contenido) utilizando la psicología de tu público objetivo para ahorrarte semanas de trabajo manual.
                     </p>
                 </div>
             </div>
 
             <div id="psd-web-section">
-                <div id="psd-web-header-container" className="w-[80%] mx-auto py-6">
-                    <h3 id="psd-web-title" className="text-3xl font-bold text-white mb-6 flex items-center gap-2">
-                        <Globe className="w-8 h-8 text-blue-500" /> Páginas web que nuestra inteligencia artificial creará por ti
+                <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-6 py-6">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-widest animate-pulse">
+                        <Sparkles className="w-4 h-4" /> Ecosistema Digital
+                    </div>
+                    <h3 id="psd-web-title" className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
+                        <Globe className="w-12 h-12 text-blue-500" /> Páginas web que nuestra inteligencia artificial creará por ti
                     </h3>
-                    <p id="psd-web-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light mb-8">
+                    <p id="psd-web-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
                         Haremos todo el trabajo difícil por ti. Te ahorraremos cientos de horas de diseño y redacción creando páginas web 100% optimizadas para captar audiencia cualificada y generar ventas en automático.
                     </p>
                     
@@ -361,7 +363,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         <p className="text-yellow-100 font-bold text-base uppercase mb-2 tracking-wide flex items-center gap-2">
                                             💰 Lógica de Conversión
                                         </p>
-                                        <p className="text-gray-300 text-[1.2rem] leading-[1.7] font-light">
+                                        <p className="text-gray-300 text-lg leading-relaxed font-light">
                                             Hemos analizado miles de páginas exitosas. Nuestra IA creará la estructura lógica perfecta para convertir visitantes fríos en registros, preparándolos para recibir tu contenido de valor.
                                         </p>
                                     </div>
@@ -519,7 +521,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         <p className="text-yellow-100 font-bold text-base uppercase mb-2 tracking-wide flex items-center gap-2">
                                             💰 Lógica de Conversión
                                         </p>
-                                        <p className="text-gray-300 text-[1.2rem] leading-[1.7] font-light">
+                                        <p className="text-gray-300 text-lg leading-relaxed font-light">
                                             Retención y Compromiso. Aprovechamos la dopamina del registro para moverlos a un canal más íntimo (WhatsApp) donde la conversión es 10x más alta.
                                         </p>
                                     </div>

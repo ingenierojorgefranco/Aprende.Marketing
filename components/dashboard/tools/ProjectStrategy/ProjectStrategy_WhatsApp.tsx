@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MessageCircle, Sparkles, Check, MessageSquare, Brain } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -100,7 +99,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                 className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all cursor-pointer group flex items-center justify-between gap-4 ${activeWaScript === idx ? 'bg-green-900/10 border-green-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800'}`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${activeWaScript === idx ? 'bg-green-500 text-black' : 'bg-gray-800 text-gray-500'}`}>
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${activeWaScript === idx ? 'bg-green-500 text-black' : 'bg-gray-800 text-gray-400'}`}>
                                         {idx + 1}
                                     </div>
                                     <div>

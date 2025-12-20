@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Mail, Sparkles, Check, Info, Wand2, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -31,11 +30,14 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
     return (
         <div id="psd-email-section" className="pt-8">
-            <div id="psd-email-header-container" className="w-[80%] mx-auto py-6">
-                <h3 id="psd-email-title" className="text-3xl font-bold text-white mb-6 flex items-center gap-2">
-                    <Mail className="w-8 h-8 text-yellow-500" /> Secuencia de Nutrición (7 Días)
+            <div id="psd-email-header-container" className="max-w-[70em] mx-auto text-left space-y-6 py-6">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-widest animate-pulse">
+                    <Sparkles className="w-4 h-4" /> Estrategia de Email
+                </div>
+                <h3 id="psd-email-title" className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
+                    <Mail className="w-12 h-12 text-yellow-500" /> Secuencia de Nutrición (7 Días)
                 </h3>
-                <p id="psd-email-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light mb-8">
+                <p id="psd-email-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
                     La bandeja de entrada es un espacio sagrado. Hemos diseñado esta secuencia para educar a tu lead, derribar sus objeciones internas y presentar tu oferta justo cuando están listos para comprar.
                 </p>
                 

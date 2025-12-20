@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { ClipboardList, Sparkles, Target, Zap, MousePointerClick, Info, Rocket } from 'lucide-react';
+import { Rocket, Sparkles, UserSearch, DollarSign, Zap, BookOpen, ShieldCheck } from 'lucide-react';
 
 interface ProjectStrategy_SummaryProps {
     strategyData: any;
@@ -8,164 +7,115 @@ interface ProjectStrategy_SummaryProps {
     setActiveHeaderItem: (item: string | null) => void;
 }
 
-export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = ({ strategyData, activeHeaderItem, setActiveHeaderItem }) => {
+export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = ({ strategyData }) => {
+    // Extraemos los items de la visión general
+    const overviewItems = [...(strategyData.meta.insights.overview.items || [])];
+
     return (
-        <>
-            <div id="psd-summary-container" className="w-[80%] mx-auto py-6">
-                <h2 id="psd-summary-title" className="text-3xl font-bold text-white mb-6 flex items-center gap-2">
-                    <ClipboardList className="w-8 h-8 text-indigo-500" /> Resumen del Proyecto
+        <div className="space-y-16">
+            {/* --- BLOQUE: DIAGNÓSTICO DEL CLIENTE IDEAL --- */}
+            <div id="psd-diagnostico-intro" className="max-w-[70em] mx-auto text-left space-y-6">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-widest animate-pulse">
+                    <Sparkles className="w-4 h-4" /> Inteligencia de Mercado
+                </div>
+                <h2 className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
+                    <UserSearch className="w-12 h-12 text-blue-500" /> Diagnóstico del Cliente Ideal
                 </h2>
-                <p id="psd-summary-desc-1" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light mb-8">
-                    A continuación, descubrirás los pilares fundamentales de tu estrategia. Nuestro sistema de inteligencia artificial te guiará para crear la mejor estrategia de marketing adaptada al producto digital de Hotmart que has elegido.
-                </p>
-                <p id="psd-summary-desc-2" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light mt-4">
-                    Pasa el cursor sobre las tarjetas de la izquierda para explorar detalles completos de cada pilar.
-                </p>
+                
+                <div className="space-y-6 text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
+                    <p>
+                        Antes de crear cualquier página o contenido, Nuestro Sistema de Inteligencia Artificial ha analizado profundamente a tu público objetivo con base en el mercado del nicho de la belleza.
+                    </p>
+                    <p>
+                        Este diagnóstico garantiza que todo lo que se genere conecte con la realidad de tu cliente final y asegure resultados reales para tu estrategia.
+                    </p>
+                </div>
             </div>
 
-            <div id="psd-grid-container" className="grid lg:grid-cols-12 gap-8 items-stretch">
-                
-                {/* Left Column: Interactive Menu */}
-                <div id="psd-menu-container" className="flex flex-col gap-4 lg:col-span-5">
-                    <div 
-                        id="psd-menu-card-overview"
-                        onMouseEnter={() => setActiveHeaderItem('overview')}
-                        className={`p-6 rounded-xl border transition-all duration-300 cursor-pointer group relative overflow-hidden ${activeHeaderItem === 'overview' ? 'bg-gray-800 border-indigo-500/50 shadow-lg shadow-indigo-500/10' : 'bg-gray-900 border-gray-800 hover:bg-gray-800'}`}
-                    >
-                        <div className="flex items-center gap-5 relative z-10">
-                            <div className={`p-4 rounded-xl ${activeHeaderItem === 'overview' ? 'bg-indigo-500 text-white' : 'bg-gray-800 text-indigo-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300'} transition-colors`}>
-                                <Sparkles className="w-8 h-8" />
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 uppercase font-bold tracking-wider mb-1">Visión General</p>
-                                <p className={`font-bold text-2xl ${activeHeaderItem === 'overview' ? 'text-white' : 'text-gray-300'}`}>Tu Estrategia Ganadora</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div 
-                        id="psd-menu-card-niche"
-                        onMouseEnter={() => setActiveHeaderItem('niche')}
-                        className={`p-6 rounded-xl border transition-all duration-300 cursor-pointer group relative overflow-hidden ${activeHeaderItem === 'niche' ? 'bg-gray-800 border-purple-500/50 shadow-lg shadow-purple-500/10' : 'bg-gray-900 border-gray-800 hover:bg-gray-800'}`}
-                    >
-                        <div className="flex items-center gap-5 relative z-10">
-                            <div className={`p-4 rounded-xl ${activeHeaderItem === 'niche' ? 'bg-purple-500 text-white' : 'bg-gray-800 text-purple-400 group-hover:bg-purple-500/20 group-hover:text-purple-300'} transition-colors`}>
-                                <Target className="w-8 h-8" />
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 uppercase font-bold tracking-wider mb-1">Nicho</p>
-                                <p className={`font-bold text-2xl ${activeHeaderItem === 'niche' ? 'text-white' : 'text-gray-300'}`}>{strategyData.meta.niche}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div 
-                        id="psd-menu-card-product"
-                        onMouseEnter={() => setActiveHeaderItem('product')}
-                        className={`p-6 rounded-xl border transition-all duration-300 cursor-pointer group relative overflow-hidden ${activeHeaderItem === 'product' ? 'bg-gray-800 border-yellow-500/50 shadow-lg shadow-yellow-500/10' : 'bg-gray-900 border-gray-800 hover:bg-gray-800'}`}
-                    >
-                        <div className="flex items-center gap-5 relative z-10">
-                            <div className={`p-4 rounded-xl ${activeHeaderItem === 'product' ? 'bg-yellow-500 text-black' : 'bg-gray-800 text-yellow-400 group-hover:bg-yellow-500/20 group-hover:text-yellow-300'} transition-colors`}>
-                                <Zap className="w-8 h-8" />
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 uppercase font-bold tracking-wider mb-1">Producto</p>
-                                <p className={`font-bold text-2xl ${activeHeaderItem === 'product' ? 'text-white' : 'text-gray-300'}`}>¿Cuánto vas a ganar?</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div 
-                        id="psd-menu-card-objective"
-                        onMouseEnter={() => setActiveHeaderItem('objective')}
-                        className={`p-6 rounded-xl border transition-all duration-300 cursor-pointer group relative overflow-hidden ${activeHeaderItem === 'objective' ? 'bg-gray-800 border-blue-500/50 shadow-lg shadow-blue-500/10' : 'bg-gray-900 border-gray-800 hover:bg-gray-800'}`}
-                    >
-                        <div className="flex items-center gap-5 relative z-10">
-                            <div className={`p-4 rounded-xl ${activeHeaderItem === 'objective' ? 'bg-blue-500 text-white' : 'bg-gray-800 text-blue-400 group-hover:bg-blue-500/20 group-hover:text-blue-300'} transition-colors`}>
-                                <MousePointerClick className="w-8 h-8" />
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 uppercase font-bold tracking-wider mb-1">Objetivo</p>
-                                <p className={`font-bold text-2xl ${activeHeaderItem === 'objective' ? 'text-white' : 'text-gray-300'}`}>¿Cómo vas a ganar?</p>
-                            </div>
-                        </div>
-                    </div>
+            {/* BLOQUE: RESUMEN ESTRATÉGICO DE TU PROYECTO */}
+            <div className="max-w-[70em] mx-auto bg-gradient-to-br from-indigo-900/10 via-purple-900/5 to-black p-8 md:p-12 rounded-[2.5rem] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div id="psd-panel-decorator" className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+                    <Rocket className="w-64 h-64 text-indigo-400" />
                 </div>
 
-                {/* Right Column: Dynamic Context Panel */}
-                <div id="psd-panel-container" className="lg:col-span-7 bg-gradient-to-br from-indigo-900/40 via-purple-900/20 to-black p-8 md:p-12 rounded-3xl border border-indigo-500/30 relative overflow-hidden flex flex-col justify-center min-h-[500px]">
-                    <div id="psd-panel-decorator" className="absolute top-0 right-0 p-10 opacity-10 pointer-events-none">
-                        <Rocket className="w-40 h-40 text-indigo-400" />
+                <div className="relative z-10">
+                    <h3 className="text-2xl md:text-3xl font-black text-white mb-10 flex items-center gap-4 border-b border-white/5 pb-8">
+                        <span className="text-indigo-400 p-2 bg-indigo-500/10 rounded-lg">⚡</span> 
+                        Resumen estratégico de tu Proyecto
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Renderizado Dinámico de Items de la Estrategia */}
+                        {overviewItems.map((item: any, i: number) => {
+                            const isProduct = i === 0;
+
+                            return (
+                                <div 
+                                    key={i} 
+                                    className={`p-6 md:p-8 rounded-2xl border transition-all duration-300 bg-gray-900/40 backdrop-blur-sm ${item.border} flex flex-col h-full ${isProduct ? 'md:col-span-2 border-indigo-500/30' : ''}`}
+                                >
+                                    <div className="flex flex-col h-full">
+                                        <div className="flex items-center gap-4 mb-4 shrink-0">
+                                            <div className={`p-3 rounded-xl bg-black/40 ${item.color} flex-shrink-0 shadow-lg`}>
+                                                <item.icon className="w-6 h-6" />
+                                            </div>
+                                            <p className={`text-xs md:text-sm font-black uppercase tracking-[0.2em] opacity-80 ${item.color}`}>
+                                                {item.label}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="flex-1">
+                                            <p className={`text-white font-bold leading-relaxed ${isProduct ? 'text-xl md:text-2xl text-indigo-100' : 'text-base md:text-lg'}`}>
+                                                {item.value}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        {/* TARJETAS DE PRECIO Y COMISIÓN */}
+                        <div className="p-6 md:p-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-emerald-500/10">
+                            <div className="flex items-center gap-4 mb-4 shrink-0">
+                                <div className="p-3 rounded-xl bg-black/40 text-emerald-400 flex-shrink-0 shadow-lg border border-emerald-500/20">
+                                    <DollarSign className="w-6 h-6" />
+                                </div>
+                                <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em] text-emerald-400 opacity-80">
+                                    Precio Full del Producto
+                                </p>
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-white font-black text-2xl md:text-3xl tracking-tight">
+                                    $200 USD
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="p-6 md:p-8 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-yellow-500/10">
+                            <div className="flex items-center gap-4 mb-4 shrink-0">
+                                <div className="p-3 rounded-xl bg-black/40 text-yellow-400 flex-shrink-0 shadow-lg border border-yellow-500/20">
+                                    <Zap className="w-6 h-6" />
+                                </div>
+                                <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em] text-yellow-400 opacity-80">
+                                    Comisión (65%)
+                                </p>
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-white font-black text-2xl md:text-3xl tracking-tight flex flex-col">
+                                    $47 Dólares
+                                    <span className="text-sm font-medium text-yellow-500/60 uppercase tracking-widest mt-1">por cada venta</span>
+                                </p>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div id="psd-panel-content" className="relative z-10 transition-all duration-500 ease-in-out">
-                        {!activeHeaderItem ? (
-                            <div id="psd-panel-default" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                <h2 className="text-4xl font-bold text-white mb-6">
-                                    Hola Admin, aquí tienes tu estrategia de venta para vender el producto digital.
-                                </h2>
-                                <p className="text-gray-300 mb-8 text-[1.3rem] leading-[1.8]">
-                                    Hemos analizado tu producto y el mercado actual. En este informe interactivo, no solo verás datos, sino que te explicaremos paso a paso la estrategia exacta que necesitas ejecutar para convertir desconocidos en clientes. Prepárate para dominar tu nicho.
-                                </p>
-                                <div className="flex items-center gap-3 text-lg text-indigo-300 font-medium">
-                                    <Info className="w-6 h-6" /> Pasa el cursor sobre las tarjetas de la izquierda para ver detalles estratégicos.
-                                </div>
-                            </div>
-                        ) : activeHeaderItem === 'overview' ? (
-                            <div id="psd-panel-overview" className="animate-in fade-in slide-in-from-right-4 duration-300">
-                                <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
-                                    <Sparkles className="w-8 h-8 text-indigo-400" /> {strategyData.meta.insights.overview.title}
-                                </h2>
-                                <div className="space-y-4">
-                                    {strategyData.meta.insights.overview.items.map((item: any, i: number) => (
-                                        <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border backdrop-blur-sm ${item.bg} ${item.border}`}>
-                                            <div className={`p-2.5 rounded-lg bg-black/40 ${item.color} flex-shrink-0`}>
-                                                <item.icon className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <p className={`text-sm font-bold uppercase mb-1 opacity-70 ${item.color}`}>{item.label}</p>
-                                                <p className="text-white font-medium text-xl leading-snug">{item.value}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ) : activeHeaderItem === 'niche' ? (
-                            <div id="psd-panel-niche" className="animate-in fade-in slide-in-from-right-4 duration-300">
-                                <h2 className="text-3xl font-bold text-white mb-4 flex items-center gap-3">
-                                    <Target className="w-8 h-8 text-purple-500" /> {strategyData.meta.insights.niche.title}
-                                </h2>
-                                <div className="text-gray-300 border-l-4 border-purple-500 pl-6 text-[1.3rem] leading-[1.8] space-y-4">
-                                    <p>El nicho de belleza es un mercado 'Evergreen' (siempre verde), resistente a crisis. Específicamente, el microblading tiene una barrera de entrada técnica que justifica precios altos.</p>
-                                    <p>La demanda de servicios estéticos semi-permanentes ha crecido un 40% anual. Tu oportunidad está en enseñar 'negocio' además de 'técnica', algo que la competencia ignora.</p>
-                                </div>
-                            </div>
-                        ) : activeHeaderItem === 'product' ? (
-                            <div id="psd-panel-product" className="animate-in fade-in slide-in-from-right-4 duration-300">
-                                <h2 className="text-3xl font-bold text-white mb-4 flex items-center gap-3">
-                                    <Zap className="w-8 h-8 text-yellow-500" /> ¿Cuánto vas a ganar?
-                                </h2>
-                                <div className="text-gray-300 border-l-4 border-yellow-500 pl-6 text-[1.3rem] leading-[2rem] space-y-4">
-                                    <p>Este es un producto de $200 USD. Tu ganancia por venta a precio full es de $116.81 (65% de comisión). Eso significa que con solo 10 ventas al mes, ya estás superando los $1,000 USD de ingreso neto.</p>
-                                    <p>Nuestra estrategia principal es vender a este precio para maximizar tu margen. No buscamos competir por precio bajo, sino por alto valor percibido.</p>
-                                    <p>Usaremos los descuentos (donde tu ganancia baja a $47) únicamente como una herramienta de rescate esporádica para recuperar carritos abandonados, pero tu objetivo principal siempre será facturar en grande.</p>
-                                </div>
-                            </div>
-                        ) : (
-                            <div id="psd-panel-objective" className="animate-in fade-in slide-in-from-right-4 duration-300 h-full flex flex-col justify-center">
-                                <h2 className="text-3xl font-bold text-white mb-4 flex items-center gap-3">
-                                    <MousePointerClick className="w-8 h-8 text-blue-500" /> ¿Cómo vas a ganar?
-                                </h2>
-                                <div className="text-gray-300 border-l-4 border-blue-500 pl-6 mb-6 text-[1.3rem] leading-[2rem] space-y-4">
-                                    <p>Vas a ganar implementando un ecosistema de venta directa matemáticamente probado. No dependerás de la suerte ni de perseguir clientes, sino de una estructura lógica donde atraemos tráfico cualificado del nicho de belleza y lo convertimos mediante una oferta irresistible de alto valor percibido, diseñada específicamente para resolver los dolores urgentes de tu avatar.</p>
-                                    <p>Al vender un producto High Ticket en un mercado 'Evergreen' como la estética, tu margen de maniobra es amplio. Utilizaremos la autoridad del curso y la promesa de rentabilidad rápida para derribar la barrera del precio. El sistema se encargará de elevar la consciencia del cliente para que vea el costo no como un gasto, sino como la inversión que cambiará su carrera.</p>
-                                    <p>Finalmente, tu victoria reside en la automatización y la escala. Una vez validado el embudo con las primeras ventas, tu único trabajo será supervisar el flujo constante de interesados que el sistema genera. Pasarás de ser un vendedor manual a ser el gestor de un negocio digital que factura de manera predecible, permitiéndote recuperar tu tiempo y libertad financiera.</p>
-                                </div>
-                            </div>
-                        )}
+                    {/* Nota de pie del bloque */}
+                    <div className="mt-10 flex items-center gap-3 text-gray-500 text-sm italic">
+                        <ShieldCheck className="w-4 h-4" />
+                        Esta configuración es la base para el cálculo de tu rentabilidad en el año 1.
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
