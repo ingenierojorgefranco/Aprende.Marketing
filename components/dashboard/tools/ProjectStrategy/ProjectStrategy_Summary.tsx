@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Rocket, Sparkles, Users, DollarSign, Zap, BookOpen, ShieldCheck } from 'lucide-react';
+import { Rocket, Sparkles, UserSearch, DollarSign, Zap, BookOpen, ShieldCheck } from 'lucide-react';
 
 interface ProjectStrategy_SummaryProps {
     strategyData: any;
@@ -20,7 +19,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                     <Sparkles className="w-4 h-4" /> Inteligencia de Mercado
                 </div>
                 <h2 className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
-                    <Users className="w-12 h-12 text-blue-500" /> Diagnóstico del Cliente Ideal
+                    <UserSearch className="w-12 h-12 text-blue-500" /> Diagnóstico del Cliente Ideal
                 </h2>
                 
                 <div className="space-y-6 text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
@@ -28,7 +27,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                         Antes de crear cualquier página o contenido, Nuestro Sistema de Inteligencia Artificial ha analizado profundamente a tu público objetivo con base en el mercado del nicho de la belleza.
                     </p>
                     <p>
-                        Este diagnóstico garantiza que todo lo que se genere conécte con la realidad de tu cliente final y asegure resultados reales para tu estrategia.
+                        Este diagnóstico garantiza que todo lo que se genere conecte con la realidad de tu cliente final y asegure resultados reales para tu estrategia.
                     </p>
                 </div>
             </div>
