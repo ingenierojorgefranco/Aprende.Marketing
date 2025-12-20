@@ -25,11 +25,14 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
 
     return (
         <div id="psd-evergreen-section" className="pt-12">
-            <div id="psd-evergreen-header-container" className="w-[80%] mx-auto py-6">
-                <h3 id="psd-evergreen-title" className="text-3xl font-bold text-white mb-6 flex items-center gap-2">
-                    <Calendar className="w-8 h-8 text-orange-500" /> Secuencia de Autoridad (30 Días)
+            <div id="psd-evergreen-header-container" className="max-w-[70em] mx-auto text-left space-y-6 py-6">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-widest animate-pulse">
+                    <Sparkles className="w-4 h-4" /> Estrategia Evergreen
+                </div>
+                <h3 id="psd-evergreen-title" className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
+                    <Calendar className="w-12 h-12 text-orange-500" /> Secuencia de Autoridad (30 Días)
                 </h3>
-                <div id="psd-evergreen-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light mb-8 space-y-4">
+                <div id="psd-evergreen-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
                     <p>
                         Esta secuencia te permite generar contenido informativo y motivacional que nutrirá a tu audiencia a largo plazo. Estos correos construyen una autoridad inquebrantable, manteniendo a tu marca en la mente del consumidor hasta que estén listos para comprar.
                     </p>

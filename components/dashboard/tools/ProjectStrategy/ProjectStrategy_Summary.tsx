@@ -14,16 +14,22 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
     return (
         <div className="space-y-16">
             {/* --- BLOQUE: DIAGNÓSTICO DEL CLIENTE IDEAL --- */}
-            <div id="psd-diagnostico-intro" className="max-w-5xl mx-auto text-left space-y-6">
+            <div id="psd-diagnostico-intro" className="max-w-[70em] mx-auto text-left space-y-6">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-widest animate-pulse">
                     <Sparkles className="w-4 h-4" /> Inteligencia de Mercado
                 </div>
                 <h2 className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
                     <UserSearch className="w-12 h-12 text-blue-500" /> Diagnóstico del Cliente Ideal
                 </h2>
-                <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
-                    Antes de crear cualquier página o contenido, Nuestro Sistema de Inteligencia Artificial ha analizado profundamente a tu público objetivo con base en el mercado del nicho de la belleza para garantizar que todo lo que se genere conecte con la realidad de tu cliente final y garantice resultados reales para tu estrategia.
-                </p>
+                
+                <div className="space-y-6 text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
+                    <p>
+                        Antes de crear cualquier página o contenido, Nuestro Sistema de Inteligencia Artificial ha analizado profundamente a tu público objetivo con base en el mercado del nicho de la belleza.
+                    </p>
+                    <p>
+                        Este diagnóstico garantiza que todo lo que se genere conecte con la realidad de tu cliente final y asegure resultados reales para tu estrategia.
+                    </p>
+                </div>
             </div>
 
             {/* BLOQUE: RESUMEN ESTRATÉGICO DE TU PROYECTO */}

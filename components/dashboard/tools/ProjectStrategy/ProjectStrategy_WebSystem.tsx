@@ -221,11 +221,14 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             </div>
 
             <div id="psd-web-section">
-                <div id="psd-web-header-container" className="w-[80%] mx-auto py-6">
-                    <h3 id="psd-web-title" className="text-3xl font-bold text-white mb-6 flex items-center gap-2">
-                        <Globe className="w-8 h-8 text-blue-500" /> Páginas web que nuestra inteligencia artificial creará por ti
+                <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-6 py-6">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-widest animate-pulse">
+                        <Sparkles className="w-4 h-4" /> Ecosistema Digital
+                    </div>
+                    <h3 id="psd-web-title" className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
+                        <Globe className="w-12 h-12 text-blue-500" /> Páginas web que nuestra inteligencia artificial creará por ti
                     </h3>
-                    <p id="psd-web-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light mb-8">
+                    <p id="psd-web-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
                         Haremos todo el trabajo difícil por ti. Te ahorraremos cientos de horas de diseño y redacción creando páginas web 100% optimizadas para captar audiencia cualificada y generar ventas en automático.
                     </p>
                     

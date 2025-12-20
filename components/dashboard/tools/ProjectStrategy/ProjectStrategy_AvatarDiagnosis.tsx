@@ -190,7 +190,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                 })}
             </div>
 
-            {/* --- NUEVO BLOQUE: DIAGNÓSTICO DE MERCADO PROFUNDO --- */}
+            {/* --- BLOQUE: DIAGNÓSTICO DE MERCADO PROFUNDO --- */}
             <div id="psd-market-deep-diagnosis" className="max-w-[70em] mx-auto space-y-12">
                 
                 {/* ENCABEZADO DE PERFIL PSICOLÓGICO */}
@@ -254,7 +254,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                         ].map((item, i) => (
                             <div key={i} className="bg-black/40 p-5 rounded-2xl border border-emerald-500/10">
                                 <p className="text-emerald-400 font-black text-base uppercase tracking-tight mb-1">{item.title}</p>
-                                <p className="text-gray-400 text-sm leading-snug">{item.desc}</p>
+                                <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -307,12 +307,19 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             </div>
 
             {/* --- PSICOLOGÍA DE COMPRA IDENTIFICADA --- */}
-            <div className="max-w-[70em] mx-auto space-y-10">
-                <div className="text-center space-y-4">
-                    <h4 className="text-3xl font-black text-white flex items-center gap-3 justify-center">
-                        <Brain className="w-8 h-8 text-yellow-400" /> Psicología de Compra Identificada
-                    </h4>
-                    <p className="text-gray-400 text-lg max-w-2xl mx-auto">Nuestro sistema ha configurado el mensaje de venta basándose en estos disparadores psicológicos.</p>
+            <div id="psd-buy-psychology-section" className="max-w-[70em] mx-auto space-y-12">
+                
+                {/* ENCABEZADO DE GATILLOS DE VENTA */}
+                <div id="psd-awareness-header" className="space-y-6 text-left">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm font-black uppercase tracking-widest animate-pulse">
+                        <Brain className="w-4 h-4" /> Gatillos de Venta
+                    </div>
+                    <h3 className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
+                        <Brain className="w-12 h-12 text-yellow-500" /> Psicología de Compra Identificada
+                    </h3>
+                    <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
+                        No compramos productos, compramos mejores versiones de nosotros mismos. Hemos configurado tu mensaje de ventas basándonos en los disparadores psicológicos exactos que activan el deseo de posesión y confianza en tu cliente ideal.
+                    </p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
@@ -331,7 +338,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                     <div className="w-2 h-2 rounded-full bg-rose-500 mt-2 shrink-0"></div>
                                     <div>
                                         <p className="text-white font-bold text-lg leading-none mb-1">{item.title}</p>
-                                        <p className="text-gray-500 text-sm leading-snug">{item.desc}</p>
+                                        <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.desc}</p>
                                     </div>
                                 </div>
                             ))}
@@ -354,7 +361,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                     <div className="w-2 h-2 rounded-full bg-emerald-500 mt-2 shrink-0"></div>
                                     <div>
                                         <p className="text-white font-bold text-lg leading-none mb-1">{item.title}</p>
-                                        <p className="text-gray-500 text-sm leading-snug">{item.desc}</p>
+                                        <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.desc}</p>
                                     </div>
                                 </div>
                             ))}
@@ -385,17 +392,22 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             </div>
 
             {/* --- BLOQUE 2: ESTRATEGIA DE CONVERSIÓN --- */}
-            <div className="space-y-12">
-                <div id="psd-strategy-header" className="max-w-[70em] mx-auto py-6 text-center">
-                    <h2 id="psd-strategy-title" className="text-4xl md:text-5xl font-black text-white mb-6 flex justify-center items-center gap-4 tracking-tight">
-                        <Zap className="w-12 h-12 text-yellow-500" /> 2️⃣ Estrategia de Conversión Definida
-                    </h2>
-                    <p id="psd-strategy-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl mx-auto">
+            <div id="psd-conversion-strategy-section" className="max-w-[70em] mx-auto space-y-12">
+                
+                {/* ENCABEZADO DE ESTRATEGIA */}
+                <div id="psd-strategy-header" className="space-y-6 text-left">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm font-black uppercase tracking-widest animate-pulse">
+                        <Zap className="w-4 h-4" /> Hoja de Ruta
+                    </div>
+                    <h3 id="psd-strategy-title" className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
+                        <Zap className="w-12 h-12 text-yellow-500" /> Estrategia de Conversión Definida
+                    </h3>
+                    <p id="psd-strategy-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
                         Basándonos en el análisis del avatar y su psicología de compra, el sistema ha definido la siguiente hoja de ruta estratégica para tus canales.
                     </p>
                 </div>
 
-                <div className="max-w-[70em] mx-auto bg-gradient-to-br from-indigo-900/10 via-black to-black rounded-[3rem] border border-white/5 p-8 md:p-12 shadow-2xl relative overflow-hidden">
+                <div className="bg-gradient-to-br from-indigo-900/10 via-black to-black rounded-[3rem] border border-white/5 p-8 md:p-12 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
                         <Target className="w-64 h-64 text-white" />
                     </div>
@@ -416,7 +428,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                 ].map((item, i) => (
                                     <li key={i} className="space-y-1">
                                         <p className="text-orange-400 font-bold text-base">{item.label}</p>
-                                        <p className="text-gray-500 text-sm leading-tight">{item.desc}</p>
+                                        <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.desc}</p>
                                     </li>
                                 ))}
                             </ul>
@@ -458,7 +470,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                 ].map((item, i) => (
                                     <li key={i} className="space-y-1">
                                         <p className="text-purple-400 font-bold text-base">{item.label}</p>
-                                        <p className="text-gray-500 text-sm leading-tight">{item.desc}</p>
+                                        <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.desc}</p>
                                     </li>
                                 ))}
                             </ul>
@@ -472,7 +484,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center shrink-0 border border-blue-500/30">
                         <ShieldCheck className="w-6 h-6 text-blue-400" />
                     </div>
-                    <p className="text-gray-400 text-sm leading-relaxed">
+                    <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">
                         <b className="text-blue-300 block mb-1">Nota Táctica:</b>
                         Este flujo está diseñado para calentar al prospecto en la Landing Page y llevarlo a WhatsApp, donde la tasa de cierre es 10 veces mayor para productos de alto valor. El sistema usará un lenguaje que evite tecnicismos para no intimidar al avatar.
                     </p>

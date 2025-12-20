@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, ArrowRight, ArrowDown, PlayCircle, Clapperboard, Globe, CheckCircle2, Users, MessageCircle, FileText, MonitorPlay, ShoppingCart } from 'lucide-react';
+import { Layers, ArrowRight, ArrowDown, PlayCircle, Clapperboard, Globe, CheckCircle2, Users, MessageCircle, FileText, MonitorPlay, ShoppingCart, Sparkles } from 'lucide-react';
 
 const ACQUISITION_STEPS = [
     { 
@@ -164,19 +164,24 @@ interface ProjectStrategy_BlueprintProps {
 export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps> = ({ handleTooltipHover, handleTooltipLeave, onOpenVideo }) => {
     return (
         <div id="psd-blueprint-container" className="space-y-6">
-            <div id="psd-blueprint-header-container" className="w-[80%] mx-auto py-6">
-                <h3 id="psd-blueprint-title" className="text-3xl font-bold text-white flex items-center gap-2 mb-6">
-                    <Layers className="w-8 h-8 text-blue-500" /> La estrategia que hará que tu negocio digital sea un éxito
+            <div id="psd-blueprint-header-container" className="max-w-[70em] mx-auto text-left space-y-6 py-6">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-widest animate-pulse">
+                    <Sparkles className="w-4 h-4" /> Arquitectura de Ventas
+                </div>
+                <h3 id="psd-blueprint-title" className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
+                    <Layers className="w-12 h-12 text-blue-500" /> La estrategia que hará que tu negocio digital sea un éxito
                 </h3>
-                <p id="psd-blueprint-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light mb-8">
-                    En nuestro entrenamiento aprenderás exactamente cómo funciona esta secuencia lógica. Está diseñado matemáticamente para garantizar ventas. Nuestro sistema te ayudará a construir cada paso para que logres tu objetivo de libertad financiera en 12 meses.
-                </p>
-                <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">
-                    El sistema creará por ti la mayor cantidad de elementos posibles para maximizar tu confianza y resultados.
-                </p>
+                <div className="space-y-6 text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
+                    <p>
+                        En nuestro entrenamiento aprenderás exactamente cómo funciona esta secuencia lógica. Está diseñado matemáticamente para garantizar ventas. Nuestro sistema te ayudará a construir cada paso para que logres tu objetivo de libertad financiera en 12 meses.
+                    </p>
+                    <p>
+                        El sistema creará por ti la mayor cantidad de elementos posibles para maximizar tu confianza y resultados.
+                    </p>
+                </div>
             </div>
             
-            <div id="psd-blueprint-grid-wrapper" className="rounded-3xl border border-gray-800 p-8 lg:p-12 relative">
+            <div id="psd-blueprint-grid-wrapper" className="max-w-[70em] mx-auto rounded-3xl border border-gray-800 p-8 lg:p-12 relative">
                 <div className="absolute inset-0 bg-[#0a0a0a] rounded-3xl overflow-hidden z-0">
                      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px]"></div>
                 </div>
