@@ -45,14 +45,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
     return (
         <div id="psd-content-section" className="pt-8">
-            <div id="psd-content-header-container" className="max-w-[70em] mx-auto text-left space-y-6 py-6">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-widest animate-pulse">
-                    <Sparkles className="w-4 h-4" /> Estrategia de Contenidos
-                </div>
-                <h3 id="psd-content-title" className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
-                    <FileText className="w-12 h-12 text-purple-500" /> Contenido SEO que crearemos automáticamente
+            <div id="psd-content-header-container" className="w-[80%] mx-auto py-6">
+                <h3 id="psd-content-title" className="text-3xl font-bold text-white mb-6 flex items-center gap-2">
+                    <FileText className="w-8 h-8 text-purple-500" /> Contenido SEO que crearemos automáticamente
                 </h3>
-                <div id="psd-content-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
+                <div id="psd-content-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light mb-8 space-y-4">
                     <p>
                         Los activos digitales son la clave de la libertad financiera. No basta con pagar anuncios; necesitas crear una red de contenidos que trabajen por ti 24/7. Como tu estratega, he diseñado este plan de contenidos SEO para posicionarte como la única autoridad lógica en tu nicho.
                     </p>

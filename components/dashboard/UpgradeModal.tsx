@@ -1,61 +1,53 @@
 
 import React, { useEffect, useState } from 'react';
-import { X, Check, Crown, ShieldCheck, Loader2, Zap, CreditCard } from 'lucide-react';
+import { X, Check, Crown, ShieldCheck, Loader2 } from 'lucide-react';
 import { api } from '../../services/api';
-import { Plan, User } from '../../types';
+import { Plan } from '../../types';
 
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose?: () => void;
   currentPlan?: string;
   reason?: string;
-  user?: User; // Opcional si viene de context
 }
 
-export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, currentPlan, reason, user }) => {
+export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, currentPlan, reason }) => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
-  const [activeProvider, setActiveProvider] = useState<string>('stripe');
 
   useEffect(() => {
       if (isOpen) {
           setLoading(true);
-          Promise.all([
-              api.getPublicPlans(),
-              api.getActivePaymentProvider()
-          ]).then(([plansData, provider]) => {
-              setPlans(plansData);
-              setActiveProvider(provider);
-          }).catch(err => console.error("Error loading plans", err))
-            .finally(() => setLoading(false));
+          api.getPublicPlans()
+             .then(setPlans)
+             .catch(err => console.error("Error loading plans", err))
+             .finally(() => setLoading(false));
       }
   }, [isOpen]);
 
-  const handleUpgrade = async (plan: Plan) => {
-      setProcessing(plan.slug);
-      
+  const handleUpgrade = async (planSlug: string) => {
+      setProcessing(planSlug);
+      console.log(`[UpgradeModal] Iniciando proceso de pago para plan: ${planSlug}`);
+
       try {
-          if (activeProvider === 'hotmart') {
-              // Lógica Hotmart: Redirigir directamente al Hotlink con el ID de usuario en parámetro xc
-              const userId = user?.id || 'anonymous';
-              const baseUrl = plan.hotmartUrl;
-              if (!baseUrl) {
-                  alert("Este plan no tiene link de Hotmart configurado.");
-                  return;
+          const response = await api.createCheckoutSession(planSlug);
+          console.log("[UpgradeModal] Respuesta del servidor:", response);
+
+          if (response && response.url) {
+              if (response.url === '#') {
+                  alert("⚠️ MODO OFFLINE DETECTADO\n\nEstás usando la versión Demo/Offline. La redirección a Stripe está simulada.\n\nPara probar pagos reales, asegúrate de iniciar sesión en modo 'Base de Datos'.");
+              } else {
+                  console.log("Redirigiendo a:", response.url);
+                  window.location.href = response.url; // Redirect to Stripe
               }
-              const separator = baseUrl.includes('?') ? '&' : '?';
-              const checkoutUrl = `${baseUrl}${separator}xc=${userId}`;
-              window.open(checkoutUrl, '_blank');
           } else {
-              // Lógica Stripe actual
-              const response = await api.createCheckoutSession(plan.slug);
-              if (response && response.url) {
-                  window.location.href = response.url;
-              }
+              console.error("Respuesta inválida:", response);
+              alert("Error: El servidor no devolvió una URL de pago válida. Revisa la consola.");
           }
       } catch (error: any) {
-          alert(`Error al iniciar el pago: ${error.message}`);
+          console.error("[UpgradeModal] Payment error critical:", error);
+          alert(`❌ Error al iniciar el pago:\n${error.message || JSON.stringify(error)}`);
       } finally {
           setProcessing(null);
       }
@@ -65,43 +57,110 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="relative w-full max-w-5xl bg-gray-900 border border-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
+      <div className="relative w-full max-w-6xl bg-gray-900 border border-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] md:max-h-none overflow-y-auto md:overflow-visible">
         
-        {onClose && <button onClick={onClose} className="absolute top-4 right-4 z-10 p-2 text-gray-400 hover:text-white transition"><X className="w-5 h-5" /></button>}
+        {onClose && (
+            <button 
+                onClick={onClose} 
+                className="absolute top-4 right-4 z-10 p-2 bg-gray-800 text-gray-400 rounded-full hover:text-white hover:bg-gray-700 transition"
+            >
+                <X className="w-5 h-5" />
+            </button>
+        )}
 
-        <div className="md:w-1/3 bg-black p-8 border-r border-gray-800 flex flex-col justify-center">
-            <div className="mb-6 inline-flex items-center gap-2 text-yellow-500 font-bold bg-yellow-500/10 px-4 py-1.5 rounded-full border border-yellow-500/20">
-                <Crown className="w-4 h-4 fill-current" /> Sube de Nivel
+        {/* Sidebar / Header Info */}
+        <div className="md:w-1/4 bg-gradient-to-br from-gray-900 to-black p-8 border-r border-gray-800 flex flex-col justify-center text-center md:text-left shrink-0">
+            <div className="mb-6 inline-flex items-center justify-center md:justify-start gap-2 text-yellow-500 font-bold bg-yellow-500/10 px-4 py-1.5 rounded-full border border-yellow-500/20 self-center md:self-start">
+                <Crown className="w-4 h-4 fill-current" /> Límite Alcanzado
             </div>
-            <h2 className="text-3xl font-black text-white mb-4 leading-tight">Escala tu Negocio</h2>
-            <p className="text-gray-400 text-sm mb-8 leading-relaxed">{reason || "Desbloquea todo el potencial de la IA para tus ventas."}</p>
-            <div className="flex flex-col gap-2 text-xs text-gray-500">
-                <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> Pagos seguros vía {activeProvider === 'stripe' ? 'Stripe' : 'Hotmart'}</div>
+            <h2 className="text-2xl md:text-3xl font-black text-white mb-4 leading-tight">
+                Escala tu Negocio al <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500">Siguiente Nivel</span>
+            </h2>
+            <p className="text-gray-400 text-sm mb-8 leading-relaxed">
+                {reason || "Has alcanzado los límites de tu plan actual. Actualiza para desbloquear todo el potencial."}
+            </p>
+            <div className="hidden md:block">
+                <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-4">Garantía de Confianza</p>
+                <div className="flex flex-col gap-2 text-gray-400 text-xs">
+                    <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> Cancelación fácil</div>
+                    <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> Pagos seguros por Stripe</div>
+                </div>
             </div>
         </div>
 
-        <div className="flex-1 p-8 bg-[#0a0a0a]">
-            {loading ? <div className="flex h-full items-center justify-center text-gray-500"><Loader2 className="w-8 h-8 animate-spin" /></div> : (
-                <div className="flex flex-col md:flex-row gap-4">
-                    {plans.map((plan) => (
-                        <div key={plan.id} className={`flex-1 rounded-2xl border p-6 flex flex-col relative transition ${plan.isRecommended ? 'border-orange-500 bg-gray-900 shadow-xl' : 'border-gray-800 bg-gray-900/50'}`}>
-                            <h3 className="font-bold text-gray-300 mb-2">{plan.name}</h3>
-                            <div className="text-3xl font-black text-white mb-4">${plan.priceMonthly}<span className="text-xs text-gray-500">/mes</span></div>
-                            <ul className="space-y-3 text-xs text-gray-400 mb-8 flex-1">
-                                {(plan.uiFeatures || []).map((feat, idx) => (
-                                    <li key={idx} className="flex gap-2"><Check className="w-3 h-3 text-green-500 flex-shrink-0" /> {feat}</li>
-                                ))}
-                            </ul>
-                            <button 
-                                onClick={() => handleUpgrade(plan)}
-                                disabled={!!processing || currentPlan === plan.slug}
-                                className={`w-full py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 ${plan.isRecommended ? 'bg-orange-600 text-white' : 'bg-white text-black'} disabled:opacity-50`}
+        {/* Pricing Columns */}
+        <div className="flex-1 p-6 md:p-8 bg-[#0a0a0a] overflow-x-auto">
+            {loading ? (
+                <div className="flex h-full items-center justify-center text-gray-500">
+                    <Loader2 className="w-8 h-8 animate-spin mr-2" /> Cargando planes...
+                </div>
+            ) : (
+                <div className="flex flex-col md:flex-row gap-4 h-full">
+                    {plans.map((plan) => {
+                        const isCurrent = currentPlan === plan.slug;
+                        const isRecommended = plan.isRecommended;
+                        const isProcessingThis = processing === plan.slug;
+
+                        return (
+                            <div 
+                                key={plan.id}
+                                className={`flex-1 min-w-[260px] rounded-2xl border p-6 flex flex-col relative transition ${
+                                    isRecommended 
+                                        ? 'border-orange-500 bg-gray-900 shadow-2xl shadow-orange-900/10 z-10 scale-105 md:scale-100 lg:scale-105' 
+                                        : 'border-gray-800 bg-gray-900/50 hover:border-gray-700'
+                                } ${isCurrent ? 'opacity-70' : ''}`}
                             >
-                                {processing === plan.slug && <Loader2 className="w-4 h-4 animate-spin" />}
-                                {currentPlan === plan.slug ? 'Tu Plan Actual' : 'Seleccionar Plan'}
-                            </button>
-                        </div>
-                    ))}
+                                {isRecommended && (
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-orange-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap">
+                                        Recomendado
+                                    </div>
+                                )}
+                                
+                                <div className="mb-4 text-center">
+                                    <h3 className={`font-bold text-lg ${isRecommended ? 'text-orange-400' : 'text-gray-300'}`}>{plan.name}</h3>
+                                    <div className="flex items-baseline justify-center gap-1">
+                                        <span className="text-3xl font-black text-white">
+                                            {plan.priceMonthly === 0 ? '$0' : `$${plan.priceMonthly}`}
+                                        </span>
+                                        <span className="text-xs text-gray-500">/mes</span>
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-2 min-h-[32px]">{plan.description}</p>
+                                </div>
+
+                                <ul className="space-y-3 text-sm text-gray-400 mb-6 flex-1">
+                                    {(plan.uiFeatures || []).map((feat, idx) => (
+                                        <li key={idx} className="flex gap-2 text-xs">
+                                            <Check className={`w-4 h-4 flex-shrink-0 ${isRecommended ? 'text-orange-500' : 'text-gray-600'}`} /> 
+                                            {feat}
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                {isCurrent ? (
+                                    <button disabled className="w-full py-2.5 rounded-lg border border-gray-700 text-gray-500 text-sm font-bold cursor-default bg-gray-800/50">
+                                        Plan Actual
+                                    </button>
+                                ) : plan.priceMonthly === 0 ? (
+                                    <button disabled className="w-full py-2.5 rounded-lg border border-gray-600 text-gray-400 text-sm font-bold cursor-default">
+                                        Plan Básico
+                                    </button>
+                                ) : (
+                                    <button 
+                                        onClick={() => handleUpgrade(plan.slug)}
+                                        disabled={!!processing}
+                                        className={`w-full py-2.5 rounded-lg font-bold text-sm transition transform hover:scale-[1.02] flex items-center justify-center gap-2 ${
+                                            isRecommended 
+                                                ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg' 
+                                                : 'border border-gray-600 text-white hover:bg-white hover:text-black'
+                                        }`}
+                                    >
+                                        {isProcessingThis ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                                        {isProcessingThis ? 'Procesando...' : `Obtener ${plan.name}`}
+                                    </button>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </div>

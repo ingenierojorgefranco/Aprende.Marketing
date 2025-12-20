@@ -1,12 +1,13 @@
 import React from 'react';
-import { ArrowLeft, ClipboardList } from 'lucide-react';
+import { ArrowLeft, Rocket, Download, ClipboardList } from 'lucide-react';
 
 interface ProjectStrategy_HeaderProps {
     projectName: string;
     onBack: () => void;
+    onBuild: () => void;
 }
 
-export const ProjectStrategy_Header: React.FC<ProjectStrategy_HeaderProps> = ({ projectName, onBack }) => {
+export const ProjectStrategy_Header: React.FC<ProjectStrategy_HeaderProps> = ({ projectName, onBack, onBuild }) => {
     return (
         <>
             {/* --- TOP BAR NAVIGATION --- */}
@@ -15,6 +16,14 @@ export const ProjectStrategy_Header: React.FC<ProjectStrategy_HeaderProps> = ({ 
                     <button id="psd-topbar-back-btn" onClick={onBack} className="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-medium transition">
                         <ArrowLeft className="w-4 h-4" /> Volver a Proyectos
                     </button>
+                    <div id="psd-topbar-actions" className="flex gap-3">
+                        <button id="psd-topbar-build-btn" onClick={onBuild} className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg text-xs font-bold transition shadow-lg shadow-primary/20 animate-pulse">
+                            <Rocket className="w-4 h-4" /> Construir Todo
+                        </button>
+                        <button id="psd-topbar-pdf-btn" className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-lg text-xs font-bold transition">
+                            <Download className="w-4 h-4" /> PDF
+                        </button>
+                    </div>
                 </div>
             </div>
 
