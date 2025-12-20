@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
@@ -254,7 +253,9 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 <ProjectStrategy_Summary 
                     strategyData={strategyData} 
                     activeHeaderItem={activeHeaderItem} 
-                    setActiveHeaderItem={setActiveHeaderItem} 
+                    setActiveHeaderItem={setActiveHeaderItem}
+                    handleTooltipHover={handleTooltipHover}
+                    handleTooltipLeave={handleTooltipLeave}
                 />
 
                 <ProjectStrategy_BusinessGrowth 

@@ -4,6 +4,7 @@ import { ArrowLeft, ClipboardList } from 'lucide-react';
 interface ProjectStrategy_HeaderProps {
     projectName: string;
     onBack: () => void;
+    onBuild?: () => void;
 }
 
 export const ProjectStrategy_Header: React.FC<ProjectStrategy_HeaderProps> = ({ projectName, onBack }) => {
