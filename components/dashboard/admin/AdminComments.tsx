@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { api } from '../../../services/api';
 import { Comment } from '../../../types';
@@ -51,19 +52,22 @@ export const AdminComments: React.FC = () => {
     // Filter Logic
     const uniqueCourses = Array.from(new Set(comments.map(c => c.courseTitle || 'Sin Curso')));
     
-    // 1. First, apply text/course filters defensively
+    // 1. First, apply text/course filters
     const filteredRawList = comments.filter(c => {
         const matchesCourse = filterCourse === 'all' || (c.courseTitle || 'Sin Curso') === filterCourse;
-        const matchesSearch = (c.text || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-                              (c.user || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = c.text.toLowerCase().includes(searchTerm.toLowerCase()) || c.user.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesCourse && matchesSearch;
     });
 
-    // 2. Reconstruct Hierarchy from the filtered list
+    // 2. Reconstruct Hierarchy from the filtered list (or full list to maintain context?)
+    // Note: To properly show hierarchy, we usually need the full list to find parents, but allow filtering.
+    // For this specific view, we will structure the *filtered* roots, and find their children from the *full* list 
+    // (so if you search for a parent, you see its replies).
+    
     // Get all root comments (no parentId) that match filters
     const rootComments = comments.filter(c => !c.parentId && (
         (filterCourse === 'all' || (c.courseTitle || 'Sin Curso') === filterCourse) &&
-        ((c.text || '').toLowerCase().includes(searchTerm.toLowerCase()) || (c.user || '').toLowerCase().includes(searchTerm.toLowerCase()))
+        (c.text.toLowerCase().includes(searchTerm.toLowerCase()) || c.user.toLowerCase().includes(searchTerm.toLowerCase()))
     ));
 
     // Helper to render a comment row
@@ -83,7 +87,7 @@ export const AdminComments: React.FC = () => {
                 )}
 
                 <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-primary font-bold shrink-0 ${isReply ? 'w-8 h-8 text-xs bg-gray-800 border-gray-700' : 'bg-gray-800 border-gray-700'}`}>
-                    {(comment.user || 'U').charAt(0).toUpperCase()}
+                    {comment.user.charAt(0).toUpperCase()}
                 </div>
                 
                 <div className="flex-1 min-w-0">
