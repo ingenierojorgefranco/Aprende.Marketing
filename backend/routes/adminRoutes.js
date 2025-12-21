@@ -218,7 +218,10 @@ router.get('/comments', authMiddleware, adminMiddleware, async (req, res) => {
         `);
         res.json(rows.map(r => ({ 
             ...r, 
+            id: String(r.id),
             text: r.content, // Map content from DB to text for frontend
+            date: r.created_at, // Map created_at from DB to date for frontend (Fix Invalid Date)
+            parentId: r.parent_id ? String(r.parent_id) : undefined, // Map parent_id to parentId (Fix hierarchy)
             isApproved: !!r.is_approved 
         })));
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -230,7 +233,13 @@ router.post('/comments/:id', authMiddleware, adminMiddleware, async (req, res) =
         if (action === 'delete') {
             await pool.query('DELETE FROM lesson_comments WHERE id = ? OR parent_id = ?', [req.params.id, req.params.id]);
         } else if (action === 'toggle_publish') {
-            await pool.query('UPDATE lesson_comments SET is_approved = NOT is_approved WHERE id = ?', [req.params.id]);
+            // Get current state to apply cascade logic correctly
+            const [current] = await pool.query('SELECT is_approved FROM lesson_comments WHERE id = ?', [req.params.id]);
+            if (current.length > 0) {
+                const nextStatus = current[0].is_approved ? 0 : 1;
+                // Update parent and children in cascade
+                await pool.query('UPDATE lesson_comments SET is_approved = ? WHERE id = ? OR parent_id = ?', [nextStatus, req.params.id, req.params.id]);
+            }
         }
         res.json({ success: true });
     } catch (e) { res.status(500).json({ error: e.message }); }
