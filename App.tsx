@@ -142,17 +142,35 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isOffline, setIsOffline] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const [domainSlug, setDomainSlug] = useState<string | null>(null);
+  const [domainLoading, setDomainLoading] = useState(true);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // --- DETECCIÓN DE DOMINIO PERSONALIZADO ---
-  const host = typeof window !== "undefined" ? window.location.hostname : "";
-  const CUSTOM_DOMAIN_LANDING_MAP: Record<string, string> = {
-    "bajardepeso.online": "especialista-cejas",
-    "www.bajardepeso.online": "especialista-cejas",
-  };
-  const customLandingSlug = CUSTOM_DOMAIN_LANDING_MAP[host];
+  // --- DETECCIÓN DINÁMICA DE DOMINIO PERSONALIZADO ---
+  useEffect(() => {
+    const resolveDomain = async () => {
+      const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+      const systemDomains = ["localhost", "127.0.0.1", "aprende.marketing", "plataformadeventa.com", "generatorlanding.com"];
+      const isSystem = systemDomains.some(d => hostname.includes(d));
+
+      if (!isSystem) {
+        try {
+          const res = await fetch(`/api/public/pages/by-domain?domain=${hostname}`);
+          if (res.ok) {
+            const data = await res.json();
+            // Asumimos que el backend retorna el objeto de la página y usamos su subdomain/slug
+            setDomainSlug(data.subdomain);
+          }
+        } catch (e) {
+          console.error("Error resolviendo dominio dinámico:", e);
+        }
+      }
+      setDomainLoading(false);
+    };
+    resolveDomain();
+  }, []);
 
   // Restaurar sesión
   useEffect(() => {
@@ -221,7 +239,7 @@ const App: React.FC = () => {
     }
   };
 
-  if (authLoading) {
+  if (authLoading || domainLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
@@ -246,19 +264,19 @@ const App: React.FC = () => {
         <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
         <Route path="/lp/:slug/*" element={<PublicLandingView />} />
 
-        {/* DOMINIOS PERSONALIZADOS */}
-        {customLandingSlug && (
+        {/* DOMINIOS PERSONALIZADOS DINÁMICOS */}
+        {domainSlug && (
             <>
-              <Route path="/blog/*" element={<PublicLandingView forcedSlug={customLandingSlug} />} />
-              <Route path="/gracias" element={<PublicLandingView forcedSlug={customLandingSlug} />} />
+              <Route path="/blog/*" element={<PublicLandingView forcedSlug={domainSlug} />} />
+              <Route path="/gracias" element={<PublicLandingView forcedSlug={domainSlug} />} />
             </>
         )}
 
         <Route
           path="/"
           element={
-            customLandingSlug ? (
-              <PublicLandingView forcedSlug={customLandingSlug} />
+            domainSlug ? (
+              <PublicLandingView forcedSlug={domainSlug} />
             ) : (
               <PublicHome user={user} onLogout={handleLogout} />
             )
