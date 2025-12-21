@@ -14,12 +14,13 @@ const stripeService = require('./stripeService');
 // Import Modules
 const { router: authRoutes, logSystemActivity, DEFAULT_LIMITS } = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const { studentRouter: courseStudentRouter } = require('./routes/courseRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v22_modular_admin'; 
+const SERVER_VERSION = 'v23_modular_lms'; 
 
 app.enable('trust proxy');
 
@@ -154,6 +155,7 @@ const isAdminRequest = (req) => {
 // ======================================================
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api', courseStudentRouter);
 
 // Legacy Login Route for compatibility
 app.post('/api/login', (req, res) => {
@@ -240,125 +242,6 @@ app.get('/api/public/plans', async (req, res) => {
         res.json(formattedPlans);
     } catch (e) {
         console.error("[Plans] Error fetching public plans:", e);
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// ======================================================
-//  COURSES (LMS) ROUTES (PUBLIC/STUDENT)
-// ======================================================
-app.get('/api/courses', authMiddleware, async (req, res) => {
-    try {
-        const [courses] = await pool.query('SELECT id, title, slug FROM courses WHERE is_active = 1 ORDER BY order_index ASC, created_at DESC');
-        res.json(courses);
-    } catch (e) {
-        console.error("[Courses] Error fetching list:", e);
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.get('/api/courses/:slug', authMiddleware, async (req, res) => {
-    const { slug } = req.params;
-    try {
-        const [courses] = await pool.query('SELECT * FROM courses WHERE slug = ?', [slug]);
-        if (courses.length === 0) return res.status(404).json({ error: 'Curso no encontrado' });
-        
-        const course = courses[0];
-        if (!course.is_active && req.user.role !== 'admin') {
-             return res.status(403).json({ error: 'Este curso no está disponible actualmente.' });
-        }
-
-        const [modules] = await pool.query('SELECT * FROM course_modules WHERE course_id = ? ORDER BY order_index ASC', [course.id]);
-        const modulesSimple = modules.map(mod => ({
-            ...mod,
-            id: mod.id.toString(),
-            lessons: [] 
-        }));
-
-        res.json({
-            id: course.id.toString(),
-            title: course.title,
-            subtitle: course.subtitle,
-            badge_text: course.badge_text,
-            description: course.description,
-            learningPoints: [],
-            modules: modulesSimple
-        });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.get('/api/modules/:moduleId/lessons', authMiddleware, async (req, res) => {
-    const { moduleId } = req.params;
-    try {
-        const [lessons] = await pool.query('SELECT * FROM course_lessons WHERE module_id = ? ORDER BY order_index ASC', [moduleId]);
-        const lessonsParsed = lessons.map(l => ({
-            ...l,
-            id: l.id.toString(),
-            learning_points: typeof l.learning_points === 'string' ? JSON.parse(l.learning_points) : (l.learning_points || [])
-        }));
-        res.json(lessonsParsed);
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.get('/api/lessons/:lessonId/comments', authMiddleware, async (req, res) => {
-    const { lessonId } = req.params;
-    try {
-        const [comments] = await pool.query(`
-            SELECT c.*, u.name as user_name 
-            FROM lesson_comments c
-            JOIN users u ON c.user_id = u.id
-            WHERE c.lesson_id = ? AND c.is_approved = 1
-            ORDER BY c.created_at DESC
-        `, [lessonId]);
-
-        const formatted = comments.map(c => ({
-            id: c.id.toString(),
-            user: c.user_name,
-            avatar: null,
-            date: new Date(c.created_at).toLocaleString(),
-            text: c.content,
-            likes: c.likes,
-            parentId: c.parent_id ? c.parent_id.toString() : null
-        }));
-
-        const rootComments = formatted.filter(c => !c.parentId);
-        const replies = formatted.filter(c => c.parentId);
-        const nested = rootComments.map(root => ({
-            ...root,
-            replies: replies.filter(r => r.parentId === root.id)
-        }));
-
-        res.json(nested);
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.post('/api/comments', authMiddleware, async (req, res) => {
-    const { lessonId, content, parentId } = req.body;
-    if (!lessonId || !content) return res.status(400).json({ error: "Datos incompletos" });
-
-    try {
-        await pool.query(
-            'INSERT INTO lesson_comments (lesson_id, user_id, content, parent_id, created_at, is_approved) VALUES (?, ?, ?, ?, NOW(), 1)',
-            [lessonId, req.user.id, content, parentId || null]
-        );
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.post('/api/comments/:id/like', authMiddleware, async (req, res) => {
-    const { id } = req.params;
-    try {
-        await pool.query('UPDATE lesson_comments SET likes = likes + 1 WHERE id = ?', [id]);
-        res.json({ success: true });
-    } catch (e) {
         res.status(500).json({ error: e.message });
     }
 });
