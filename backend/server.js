@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 
 const pool = require('./db');
 const initDb = require('./initDb');
-const { generateContent, generateFullStrategy } = require('./geminiService');
+const { generateContent } = require('./geminiService');
 const { authMiddleware } = require('./authMiddleware');
 const stripeService = require('./stripeService');
 
@@ -15,12 +15,13 @@ const stripeService = require('./stripeService');
 const { router: authRoutes, logSystemActivity, DEFAULT_LIMITS } = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const { studentRouter: courseStudentRouter } = require('./routes/courseRoutes');
+const projectRoutes = require('./routes/projectRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v23_modular_lms'; 
+const SERVER_VERSION = 'v24_modular_projects'; 
 
 app.enable('trust proxy');
 
@@ -156,6 +157,7 @@ const isAdminRequest = (req) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', courseStudentRouter);
+app.use('/api/projects', projectRoutes);
 
 // Legacy Login Route for compatibility
 app.post('/api/login', (req, res) => {
@@ -257,154 +259,6 @@ app.post('/api/gemini', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Error IA', details: error.message, text: '' });
   }
-});
-
-// ======================================================
-//  PROYECTOS (ESTRATEGIAS) - CRUD COMPLETO
-// ======================================================
-app.get('/api/projects', authMiddleware, async (req, res) => {
-  try {
-    const [rows] = await pool.query(
-      'SELECT * FROM projects WHERE user_id = ? ORDER BY updated_at DESC',
-      [req.user.id]
-    );
-    res.json(rows);
-  } catch (error) {
-    res.status(500).json({ error: 'Error cargando proyectos' });
-  }
-});
-
-app.get('/api/projects/:id', authMiddleware, async (req, res) => {
-  try {
-    const [rows] = await pool.query(
-      'SELECT * FROM projects WHERE id = ? AND user_id = ?',
-      [req.params.id, req.user.id]
-    );
-    if (rows.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
-    const project = rows[0];
-    if (typeof project.strategy_json === 'string') {
-        try {
-            project.strategy_json = JSON.parse(project.strategy_json);
-        } catch (e) {
-            project.strategy_json = null;
-        }
-    }
-    res.json(project);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/api/projects', authMiddleware, async (req, res) => {
-  const {
-    name, niche, description, targetAudience, brandTone,
-    productName, mainGoal, painPoints, keyBenefits, affiliateLinks
-  } = req.body;
-  try {
-    const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
-    const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
-    const [count] = await pool.query('SELECT COUNT(*) as c FROM projects WHERE user_id = ?', [req.user.id]);
-    if (count[0].c >= limits.maxProjects) {
-        return res.status(403).json({ error: `Has alcanzado el límite de almacenamiento de ${limits.maxProjects} proyectos.` });
-    }
-    const hasQuota = await checkMonthlyQuota(req.user.id, 'project', limits.maxProjects);
-    if (!hasQuota) {
-        return res.status(403).json({ error: `Has alcanzado tu cupo mensual de ${limits.maxProjects} generaciones de proyectos.` });
-    }
-    const [result] = await pool.query(
-      `INSERT INTO projects 
-       (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-      [
-        req.user.id,
-        name,
-        niche,
-        description,
-        targetAudience,
-        brandTone,
-        productName,
-        mainGoal,
-        JSON.stringify(painPoints || []),
-        JSON.stringify(keyBenefits || []),
-        JSON.stringify(affiliateLinks || []),
-      ]
-    );
-    await logUsage(req.user.id, 'project');
-    await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
-    res.json({ id: result.insertId, message: 'Proyecto guardado exitosamente' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error guardando proyecto en BD' });
-  }
-});
-
-app.put('/api/projects/:id', authMiddleware, async (req, res) => {
-  const { id } = req.params;
-  const {
-    name, niche, description, targetAudience, brandTone,
-    productName, mainGoal, painPoints, keyBenefits, affiliateLinks
-  } = req.body;
-  try {
-    const [check] = await pool.query('SELECT id FROM projects WHERE id = ? AND user_id = ?', [id, req.user.id]);
-    if (check.length === 0) return res.status(403).json({ error: 'No autorizado o no encontrado' });
-    await pool.query(
-      `UPDATE projects 
-       SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, updated_at=NOW()
-       WHERE id=? AND user_id=?`,
-      [
-        name,
-        niche,
-        description,
-        targetAudience,
-        brandTone,
-        productName,
-        mainGoal,
-        JSON.stringify(painPoints || []),
-        JSON.stringify(keyBenefits || []),
-        JSON.stringify(affiliateLinks || []),
-        id,
-        req.user.id,
-      ]
-    );
-    res.json({ message: 'Proyecto actualizado correctamente' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error actualizando proyecto' });
-  }
-});
-
-app.delete('/api/projects/:id', authMiddleware, async (req, res) => {
-  try {
-    const [proj] = await pool.query('SELECT name FROM projects WHERE id = ?', [req.params.id]);
-    const [result] = await pool.query('DELETE FROM projects WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
-    await logSystemActivity(req.user.id, req.user.email, 'DELETE_PROJECT', 'project', req.params.id, { name: proj[0]?.name });
-    res.json({ message: 'Proyecto eliminado' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/api/projects/:id/generate-strategy', authMiddleware, async (req, res) => {
-    const { id } = req.params;
-    try {
-        const [projects] = await pool.query('SELECT * FROM projects WHERE id = ? AND user_id = ?', [id, req.user.id]);
-        if (projects.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado.' });
-        const project = projects[0];
-        const safeParse = (str) => { try { return JSON.parse(str); } catch(e) { return []; } };
-        const projectData = {
-            name: project.name,
-            niche: project.niche,
-            productName: project.product_name,
-            description: project.description,
-            targetAudience: project.target_audience,
-            painPoints: typeof project.pain_points === 'string' ? safeParse(project.pain_points) : project.pain_points,
-            keyBenefits: typeof project.key_benefits === 'string' ? safeParse(project.key_benefits) : project.key_benefits,
-        };
-        const strategyJson = await generateFullStrategy(projectData);
-        await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), id]);
-        res.json(strategyJson);
-    } catch (e) {
-        res.status(500).json({ error: e.message || 'Error generando la estrategia.' });
-    }
 });
 
 // ======================================================
