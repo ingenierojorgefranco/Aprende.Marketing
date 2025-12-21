@@ -1,5 +1,6 @@
 
 
+
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../types";
 import { api } from "./api"; // Usamos la configuración centralizada de API
 
@@ -23,7 +24,7 @@ const callGeminiBackend = async (prompt: string, responseSchema?: any) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: "gemini-2.5-flash",
+                model: "gemini-3-flash-preview",
                 contents: prompt,
                 config: {
                     responseMimeType: responseSchema ? "application/json" : "text/plain",

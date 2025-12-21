@@ -12,7 +12,7 @@ if (apiKey) {
 
 /**
  * Genera contenido usando Google Gemini
- * @param {string} model - Nombre del modelo (ej. 'gemini-2.5-flash')
+ * @param {string} model - Nombre del modelo (ej. 'gemini-3-flash-preview')
  * @param {string|object} contents - Prompt o contenido
  * @param {object} config - Configuración opcional (schema, mimeType, etc.)
  */
@@ -23,7 +23,7 @@ const generateContent = async (model, contents, config = {}) => {
 
     try {
         const response = await aiClient.models.generateContent({
-            model: model || 'gemini-2.5-flash',
+            model: model || 'gemini-3-flash-preview',
             contents: contents,
             config: config
         });
@@ -112,7 +112,7 @@ const generateFullStrategy = async (projectData) => {
 
     try {
         const response = await aiClient.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3-pro-preview',
             contents: prompt,
             config: {
                 responseMimeType: "application/json"
