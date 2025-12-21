@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
-const { logCRMActivity, logSystemActivity } = require('../utils/helpers');
+const { logCRMActivity } = require('../utils/helpers');
 
 router.get('/contacts', authMiddleware, async (req, res) => {
     try {
@@ -19,10 +19,25 @@ router.post('/contacts', authMiddleware, async (req, res) => {
     try {
         const [result] = await pool.query(
             `INSERT INTO crm_contacts (user_id, name, email, phone, address, country, source, status, interest_level, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 'Manual', ?, ?, NOW(), NOW())`,
-            [req.user.id, name, email, phone, address, country, status || 'new', interestLevel || 'cold']
+            [req.user.id, name, email, phone, address, country, status || 'new', interestLevel || 'warm']
         );
         await logCRMActivity(result.insertId, 'system', `Creado manualmente por ${req.user.email}`);
         res.json({ id: result.insertId });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.get('/contacts/:id/history', authMiddleware, async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM crm_activities WHERE contact_id = ? ORDER BY created_at DESC', [req.params.id]);
+        res.json(rows);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.post('/contacts/:id/notes', authMiddleware, async (req, res) => {
+    const { content } = req.body;
+    try {
+        await logCRMActivity(req.params.id, 'note', content);
+        res.json({ success: true });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
