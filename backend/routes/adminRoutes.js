@@ -216,7 +216,11 @@ router.get('/comments', authMiddleware, adminMiddleware, async (req, res) => {
             JOIN courses c ON cm.course_id = c.id
             ORDER BY lc.created_at DESC
         `);
-        res.json(rows.map(r => ({ ...r, isApproved: !!r.is_approved })));
+        res.json(rows.map(r => ({ 
+            ...r, 
+            text: r.content, // Map content from DB to text for frontend
+            isApproved: !!r.is_approved 
+        })));
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
