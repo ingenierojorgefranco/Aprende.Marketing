@@ -26,16 +26,51 @@ router.get('/plans', async (req, res) => {
 router.get('/public/pages/:slug', async (req, res) => {
     const { slug } = req.params;
     try {
-        let rows = [];
-        if (/^\d+$/.test(slug)) [rows] = await pool.query('SELECT * FROM landing_pages WHERE id = ? AND is_published = 1 LIMIT 1', [slug]);
-        if (rows.length === 0) [rows] = await pool.query('SELECT * FROM landing_pages WHERE subdomain = ? AND is_published = 1 LIMIT 1', [slug]);
-        if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+        // Búsqueda robusta: por ID, subdominio exacto, prefijo de subdominio o dominio personalizado
+        const [rows] = await pool.query(
+            `SELECT * FROM landing_pages 
+             WHERE id = ? 
+                OR subdomain = ? 
+                OR subdomain LIKE ? 
+                OR custom_domain = ? 
+                OR custom_domain = ?
+             LIMIT 1`, 
+            [slug, slug, `${slug}.%`, slug, `www.${slug}`]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'La landing page solicitada no existe.' });
+        }
+
         const page = rows[0];
+
+        // Verificar estado de publicación
+        if (!page.is_published) {
+            // Si el que solicita es admin, le permitimos verla aunque no esté publicada (vista previa admin)
+            if (!isAdminRequest(req)) {
+                return res.status(403).json({ error: 'Esta página se encuentra en modo borrador y no es pública todavía.' });
+            }
+        }
+
+        // Solo registramos visita si no es una solicitud de administrador
         if (!isAdminRequest(req)) recordVisit(page.id);
+
+        // Parsear contenido JSON
         if (typeof page.content === 'string') page.content = JSON.parse(page.content);
-        if (page.thankyoupage_json) page.content.thankYouPage = typeof page.thankyoupage_json === 'string' ? JSON.parse(page.thankyoupage_json) : page.thankyoupage_json;
+        
+        // Integrar página de gracias si existe
+        if (page.thankyoupage_json) {
+            const ty = typeof page.thankyoupage_json === 'string' ? JSON.parse(page.thankyoupage_json) : page.thankyoupage_json;
+            if (!page.content.thankYouPage) {
+                page.content.thankYouPage = ty;
+            }
+        }
+        
         res.json(page);
-    } catch (e) { res.status(500).json({ error: 'Error' }); }
+    } catch (e) { 
+        console.error("[Public Page Fetch Error]:", e.message);
+        res.status(500).json({ error: 'Error interno al cargar la página.' }); 
+    }
 });
 
 router.get('/public/pages/:pageId/blog', async (req, res) => {
