@@ -26,7 +26,7 @@ router.get('/plans', async (req, res) => {
 router.get('/public/pages/:slug', async (req, res) => {
     const { slug } = req.params;
     try {
-        // Búsqueda robusta: por ID, subdominio exacto, prefijo de subdominio o dominio personalizado
+        // Búsqueda robusta: por ID, subdominio exacto, prefijo de subdominio, dominio personalizado o nombre exacto
         const [rows] = await pool.query(
             `SELECT * FROM landing_pages 
              WHERE id = ? 
@@ -34,8 +34,9 @@ router.get('/public/pages/:slug', async (req, res) => {
                 OR subdomain LIKE ? 
                 OR custom_domain = ? 
                 OR custom_domain = ?
+                OR name = ?
              LIMIT 1`, 
-            [slug, slug, `${slug}.%`, slug, `www.${slug}`]
+            [slug, slug, `${slug}.%`, slug, `www.${slug}`, slug]
         );
 
         if (rows.length === 0) {
