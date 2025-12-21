@@ -22,12 +22,12 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 const app = express();
 const PORT = process.env.PORT || 8080;
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v21_modular_architecture';
+const SERVER_VERSION = 'v22_fix_routes_alignment';
 
 app.enable('trust proxy');
 app.use(cors());
 
-// Webhook de Stripe (Raw Body requerido)
+// Webhook de Stripe
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -46,7 +46,6 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
     }
 });
 
-// Parsers Globales
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -64,21 +63,22 @@ app.use((req, res, next) => {
     next();
 });
 
-// Rutas API
+// Rutas API - Alineadas con frontend (api.ts)
 app.use('/api/auth', authRoutes);
-app.use('/api/login', authRoutes); // Alias
+app.use('/api/login', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/pages', landingRoutes);
-app.use('/api/public', landingRoutes);
+app.use('/api/public', landingRoutes); // landingRoutes maneja /public/pages, /public/leads y ahora /public/plans
 app.use('/api/articles', articleRoutes);
 app.use('/api/crm', crmRoutes);
 app.use('/api/gemini', aiRoutes);
-app.use('/api/courses', courseRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
-// Otros Endpoints Globales
+// El router de cursos se monta en la raíz de /api porque maneja múltiples prefijos (/courses, /modules, /lessons)
+app.use('/api', courseRoutes);
+
 app.get('/api/debug/db-status', async (req, res) => {
     try {
         await pool.query('SELECT 1');
@@ -101,7 +101,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
-// Inicio
 initDb().then(() => {
     app.listen(PORT, () => console.log(`🚀 Servidor ${SERVER_VERSION} en puerto ${PORT}`));
 }).catch(err => console.error("Error DB Init:", err));

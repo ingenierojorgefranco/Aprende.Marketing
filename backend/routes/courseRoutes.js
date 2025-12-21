@@ -3,14 +3,16 @@ const router = express.Router();
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
 
-router.get('/', authMiddleware, async (req, res) => {
+// Lista de cursos (prefijo /api/courses)
+router.get('/courses', authMiddleware, async (req, res) => {
     try {
         const [courses] = await pool.query('SELECT id, title, slug FROM courses WHERE is_active = 1 ORDER BY order_index ASC');
         res.json(courses);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/:slug', authMiddleware, async (req, res) => {
+// Detalle del curso por slug (prefijo /api/courses/:slug)
+router.get('/courses/:slug', authMiddleware, async (req, res) => {
     try {
         const [courses] = await pool.query('SELECT * FROM courses WHERE slug = ?', [req.params.slug]);
         if (courses.length === 0) return res.status(404).json({ error: 'No encontrado' });
@@ -20,13 +22,18 @@ router.get('/:slug', authMiddleware, async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Lecciones de un módulo (prefijo /api/modules/:moduleId/lessons)
 router.get('/modules/:moduleId/lessons', authMiddleware, async (req, res) => {
     try {
         const [lessons] = await pool.query('SELECT * FROM course_lessons WHERE module_id = ? ORDER BY order_index ASC', [req.params.moduleId]);
-        res.json(lessons.map(l => ({ ...l, learning_points: typeof l.learning_points === 'string' ? JSON.parse(l.learning_points) : (l.learning_points || []) })));
+        res.json(lessons.map(l => ({ 
+            ...l, 
+            learning_points: typeof l.learning_points === 'string' ? JSON.parse(l.learning_points) : (l.learning_points || []) 
+        })));
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Comentarios de una lección (prefijo /api/lessons/:lessonId/comments)
 router.get('/lessons/:lessonId/comments', authMiddleware, async (req, res) => {
     try {
         const [rows] = await pool.query(`
@@ -37,7 +44,6 @@ router.get('/lessons/:lessonId/comments', authMiddleware, async (req, res) => {
             ORDER BY lc.created_at DESC
         `, [req.params.lessonId]);
 
-        // Estructurar respuestas anidadas
         const rootComments = rows.filter(c => !c.parent_id);
         const replies = rows.filter(c => c.parent_id);
 
@@ -61,6 +67,7 @@ router.get('/lessons/:lessonId/comments', authMiddleware, async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Publicar comentario (prefijo /api/comments)
 router.post('/comments', authMiddleware, async (req, res) => {
     const { lessonId, content, parentId } = req.body;
     try {
@@ -72,6 +79,7 @@ router.post('/comments', authMiddleware, async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Dar like (prefijo /api/comments/:commentId/like)
 router.post('/comments/:commentId/like', authMiddleware, async (req, res) => {
     try {
         await pool.query('UPDATE lesson_comments SET likes = likes + 1 WHERE id = ?', [req.params.commentId]);

@@ -5,6 +5,24 @@ const { authMiddleware } = require('../authMiddleware');
 const { recordVisit, isAdminRequest, logSystemActivity, checkMonthlyQuota, logUsage, logCRMActivity } = require('../utils/helpers');
 
 // --- PUBLIC VIEW ENDPOINTS ---
+
+// Obtener planes públicos (para /api/public/plans)
+router.get('/plans', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM plans WHERE is_active = 1 ORDER BY price_monthly ASC');
+        res.json(rows.map(p => ({
+            ...p,
+            id: String(p.id),
+            priceMonthly: Number(p.price_monthly),
+            isRecommended: !!p.is_recommended,
+            isActive: !!p.is_active,
+            limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
+            uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : p.ui_features,
+            stripePriceId: p.stripe_price_id
+        })));
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 router.get('/public/pages/:slug', async (req, res) => {
     const { slug } = req.params;
     try {
@@ -45,11 +63,9 @@ router.post('/public/leads/submit', async (req, res) => {
         if (pageRows.length === 0) return res.status(404).json({ error: 'Página no existe' });
         const { user_id, pageName, subdomain } = pageRows[0];
 
-        // 1. Guardar en tabla Leads
         await pool.query('INSERT INTO leads (page_id, name, email) VALUES (?, ?, ?)', [pageId, name, email]);
         await pool.query('UPDATE landing_pages SET conversions = conversions + 1 WHERE id = ?', [pageId]);
 
-        // 2. Guardar en CRM del productor
         const [crmRes] = await pool.query(
             `INSERT INTO crm_contacts (user_id, page_id, name, email, phone, source, status, interest_level) 
              VALUES (?, ?, ?, ?, ?, ?, 'new', 'warm')
@@ -57,7 +73,13 @@ router.post('/public/leads/submit', async (req, res) => {
             [user_id, pageId, name, email, phone || null, `Landing: ${pageName}`]
         );
 
-        const contactId = crmRes.insertId || (await pool.query('SELECT id FROM crm_contacts WHERE email = ? AND user_id = ?', [email, user_id]))[0][0].id;
+        let contactId;
+        if (crmRes.insertId) {
+            contactId = crmRes.insertId;
+        } else {
+            const [existing] = await pool.query('SELECT id FROM crm_contacts WHERE email = ? AND user_id = ?', [email, user_id]);
+            contactId = existing[0].id;
+        }
         
         const activityDetails = JSON.stringify({ text: "Registro desde la página", slug: subdomain, pageName: pageName });
         await logCRMActivity(contactId, 'lead_submission', activityDetails);
