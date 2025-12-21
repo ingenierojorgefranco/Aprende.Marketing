@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Routes,
@@ -42,10 +41,10 @@ import { ProjectsList } from "./components/dashboard/tools/ProjectsList";
 import { MyPages } from "./components/dashboard/tools/MyPages";
 import { ProjectStrategyDashboard } from "./components/dashboard/tools/ProjectStrategyDashboard";
 
-// Dashboard CRM (NUEVO)
+// Dashboard CRM
 import { CRM_Layout } from "./components/dashboard/crm/CRM_Layout";
 
-import { User, LandingPage, Article } from "./types";
+import { User, LandingPage } from "./types";
 import {
   Loader2,
   PenTool,
@@ -54,7 +53,7 @@ import {
 import { api } from "./services/api";
 import { getCurrentUser, logout } from "./services/auth";
 
-// --- WRAPPER PARA EDITOR (Lazy Load by ID) ---
+// --- WRAPPER PARA EDITOR (Carga de datos por ID desde API) ---
 const EditorRouteWrapper = () => {
   const { id } = useParams() as { id: string };
   const navigate = useNavigate();
@@ -68,7 +67,7 @@ const EditorRouteWrapper = () => {
               const p = await api.getPageById(id);
               setPage(p);
           } catch (e) {
-              console.error(e);
+              console.error("Error cargando página en editor:", e);
           } finally {
               setLoading(false);
           }
@@ -79,21 +78,28 @@ const EditorRouteWrapper = () => {
   const handleSave = async (updatedPage: LandingPage) => {
       try {
           await api.updatePage(updatedPage);
-          setPage(updatedPage); // Update local state
+          setPage(updatedPage);
       } catch (e) {
           alert("Error actualizando la página");
       }
   };
 
   if (loading) {
-      return <div className="text-white text-center p-20"><Loader2 className="animate-spin w-8 h-8 mx-auto" /> Cargando editor...</div>;
+      return (
+        <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
+          <Loader2 className="animate-spin w-10 h-10 text-primary mb-4" />
+          <p>Iniciando Editor Pro...</p>
+        </div>
+      );
   }
 
   if (!page) {
       return (
-        <div className="text-white text-center p-10">
-          Página no encontrada o ID incorrecto.{" "}
-          <button onClick={() => navigate("/dashboard/pages")} className="underline">Volver</button>
+        <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-10 text-center">
+          <AlertTriangle className="w-12 h-12 text-yellow-500 mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Página no encontrada</h2>
+          <p className="text-gray-400 mb-6">El ID especificado no existe o no tienes permisos.</p>
+          <button onClick={() => navigate("/dashboard/pages")} className="px-6 py-2 bg-primary rounded-lg font-bold">Volver a Mis Páginas</button>
         </div>
       );
   }
@@ -107,30 +113,27 @@ const EditorRouteWrapper = () => {
   );
 };
 
-// Componente 404 para Debug
+// Componente 404
 const NotFoundPage = () => {
   const location = useLocation();
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6 text-center">
       <AlertTriangle className="w-16 h-16 text-yellow-500 mb-4" />
       <h1 className="text-3xl font-bold mb-2">404 - Ruta no encontrada</h1>
-      <p className="text-gray-400 mb-6">
-        No se encontró contenido para esta dirección.
+      <p className="text-gray-400 mb-6 max-w-md">
+        Lo sentimos, la dirección que buscas no existe o ha sido movida.
       </p>
 
-      <div className="bg-gray-900 p-4 rounded-lg font-mono text-sm text-gray-300 border border-gray-800 mb-6 max-w-lg break-all">
-        <p>
-          <span className="text-blue-400">Path actual:</span>{" "}
-          {location.pathname}
-        </p>
+      <div className="bg-gray-900 p-4 rounded-lg font-mono text-xs text-gray-300 border border-gray-800 mb-8 max-w-lg break-all">
+        <p><span className="text-blue-400">Path:</span> {location.pathname}</p>
       </div>
 
-      <a
-        href="/"
-        className="px-6 py-3 bg-primary rounded-lg font-bold hover:bg-indigo-600 transition"
+      <button
+        onClick={() => window.location.href = '/'}
+        className="px-8 py-3 bg-primary rounded-xl font-bold hover:bg-indigo-600 transition shadow-lg shadow-primary/20"
       >
-        Ir al Inicio
-      </a>
+        Volver al Inicio
+      </button>
     </div>
   );
 };
@@ -143,7 +146,7 @@ const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // --- DETECCIÓN DE DOMINIO PERSONALIZADO → SLUG DE LANDING ---
+  // --- DETECCIÓN DE DOMINIO PERSONALIZADO ---
   const host = typeof window !== "undefined" ? window.location.hostname : "";
   const CUSTOM_DOMAIN_LANDING_MAP: Record<string, string> = {
     "bajardepeso.online": "especialista-cejas",
@@ -151,11 +154,10 @@ const App: React.FC = () => {
   };
   const customLandingSlug = CUSTOM_DOMAIN_LANDING_MAP[host];
 
-  // Restaurar sesión al inicio
+  // Restaurar sesión
   useEffect(() => {
     const restoreSession = async () => {
       const token = localStorage.getItem("plataformadeventacom_token");
-
       if (token) {
         try {
           const authUser = await getCurrentUser();
@@ -172,24 +174,18 @@ const App: React.FC = () => {
             });
           }
         } catch (error) {
-          console.error("Sesión expirada o inválida");
           logout();
         }
       }
       setAuthLoading(false);
     };
-
     restoreSession();
   }, []);
 
-  // Check connection status lightly
+  // Check Modo Offline
   useEffect(() => {
       if (user && location.pathname.startsWith("/dashboard")) {
-          if (api.isUsingMockData()) {
-              setIsOffline(true);
-          } else {
-              setIsOffline(false); 
-          }
+          setIsOffline(api.isUsingMockData());
       }
   }, [user, location.pathname]);
 
@@ -198,28 +194,21 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    try {
-        await api.logout();
-    } catch (e) {
-        console.warn("Logout log failed", e);
-    }
+    try { await api.logout(); } catch (e) {}
     logout();
     setUser(null);
     navigate("/");
   };
 
-  // --- HANDLERS PÁGINAS ---
   const handlePageGenerated = async (page: LandingPage) => {
     try {
       const savedPage = await api.createPage(page);
-      setIsOffline(api.isUsingMockData());
       navigate(`/dashboard/editor/${savedPage.id}`);
     } catch (e: any) {
       alert(`Error guardando la página: ${e.message}`);
     }
   };
 
-  // --- HANDLERS ARTÍCULOS ---
   const handleArticleSave = async (articleData: any) => {
     try {
       if (articleData.id) {
@@ -228,7 +217,6 @@ const App: React.FC = () => {
           await api.saveArticle(articleData);
       }
     } catch (e) {
-      console.error(e);
       throw e; 
     }
   };
@@ -236,37 +224,31 @@ const App: React.FC = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
       </div>
     );
   }
 
-  // Ruta protegida
   const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
-    if (!user) {
-      return <Navigate to="/login" replace />;
-    }
+    if (!user) return <Navigate to="/login" replace />;
     return <>{children}</>;
   };
 
-  // Ruta Admin
   const AdminRoute = ({ children }: { children?: React.ReactNode }) => {
-    if (!user || user.role !== 'admin') {
-        return <Navigate to="/dashboard" replace />;
-    }
+    if (!user || user.role !== 'admin') return <Navigate to="/dashboard" replace />;
     return <>{children}</>;
   };
 
   return (
     <>
       <Routes>
+        {/* RUTAS PÚBLICAS */}
         <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
         <Route path="/lp/:slug/*" element={<PublicLandingView />} />
 
-        {/* RUTAS ESPECÍFICAS PARA DOMINIO PERSONALIZADO (Evitar 404) */}
+        {/* DOMINIOS PERSONALIZADOS */}
         {customLandingSlug && (
             <>
-              <Route path="/blog" element={<PublicLandingView forcedSlug={customLandingSlug} />} />
               <Route path="/blog/*" element={<PublicLandingView forcedSlug={customLandingSlug} />} />
               <Route path="/gracias" element={<PublicLandingView forcedSlug={customLandingSlug} />} />
             </>
@@ -283,28 +265,10 @@ const App: React.FC = () => {
           }
         />
 
-        <Route
-          path="/login"
-          element={
-            user ? (
-              <Navigate to="/dashboard" />
-            ) : (
-              <Login onLogin={handleLoginSubmit} />
-            )
-          }
-        />
+        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login onLogin={handleLoginSubmit} />} />
+        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register onLogin={handleLoginSubmit} />} />
 
-        <Route
-          path="/register"
-          element={
-            user ? (
-              <Navigate to="/dashboard" />
-            ) : (
-              <Register onLogin={handleLoginSubmit} />
-            )
-          }
-        />
-
+        {/* RUTAS DEL DASHBOARD (PROTEGIDAS) */}
         <Route
           path="/dashboard"
           element={
@@ -320,93 +284,45 @@ const App: React.FC = () => {
         >
           <Route index element={<DashboardHome />} />
 
-          {/* ADMIN ROUTES */}
-          <Route path="admin" element={
-              <AdminRoute>
-                  <AdminPanel />
-              </AdminRoute>
-          } />
-          <Route path="admin/courses" element={
-              <AdminRoute>
-                  <AdminCourses />
-              </AdminRoute>
-          } />
-          <Route path="admin/comments" element={
-              <AdminRoute>
-                  <AdminComments />
-              </AdminRoute>
-          } />
-          <Route path="admin/plans" element={
-              <AdminRoute>
-                  <AdminPlans />
-              </AdminRoute>
-          } />
-          <Route path="admin/logs" element={
-              <AdminRoute>
-                  <AdminLogs />
-              </AdminRoute>
-          } />
+          {/* ADMIN */}
+          <Route path="admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
+          <Route path="admin/courses" element={<AdminRoute><AdminCourses /></AdminRoute>} />
+          <Route path="admin/comments" element={<AdminRoute><AdminComments /></AdminRoute>} />
+          <Route path="admin/plans" element={<AdminRoute><AdminPlans /></AdminRoute>} />
+          <Route path="admin/logs" element={<AdminRoute><AdminLogs /></AdminRoute>} />
 
-          {/* TRAINING ROUTES */}
+          {/* ACADEMIA */}
           <Route path="training/:moduleId" element={<TrainingViewer />} />
 
-          {/* CRM ROUTE (NUEVO) */}
+          {/* CRM */}
           <Route path="crm" element={<CRM_Layout />} />
 
-          {/* PROJECT ROUTES */}
+          {/* PROYECTOS */}
           <Route path="projects" element={<ProjectsList />} />
           <Route path="projects/create" element={<ProjectWizard />} />
           <Route path="projects/edit/:id" element={<ProjectWizard />} />
           <Route path="projects/:id/strategy" element={<ProjectStrategyDashboard />} />
 
-          {/* PAGES ROUTE */}
+          {/* PÁGINAS */}
           <Route path="pages" element={<MyPages />} />
+          <Route path="generator" element={<Generator onPageGenerated={handlePageGenerated} />} />
+          <Route path="editor/:id" element={<EditorRouteWrapper />} />
 
-          <Route
-            path="generator"
-            element={<Generator onPageGenerated={handlePageGenerated} />}
-          />
+          {/* CONTENIDO SEO */}
+          <Route path="articles" element={<ArticlesList onCreateNew={() => navigate("/dashboard/content-creator")} />} />
+          <Route path="content-creator" element={<ContentGenerator onSave={handleArticleSave} />} />
+          <Route path="articles/edit/:id" element={<ContentGenerator onSave={handleArticleSave} />} />
+
+          {/* HERRAMIENTAS ADICIONALES */}
           <Route path="whatsapp" element={<WhatsAppCRM />} />
           <Route path="email" element={<EmailMarketing />} />
-          
-          <Route
-            path="content-creator"
-            element={<ContentGenerator onSave={handleArticleSave} />}
-          />
-          <Route
-            path="articles/edit/:id"
-            element={<ContentGenerator onSave={handleArticleSave} />}
-          />
-
-          <Route
-            path="articles"
-            element={
-              <ArticlesList
-                onCreateNew={() => navigate("/dashboard/content-creator")}
-              />
-            }
-          />
-
-          <Route
-            path="copy-pro"
-            element={
+          <Route path="copy-pro" element={
               <div className="flex flex-col items-center justify-center h-full bg-gray-900 rounded-xl border border-dashed border-gray-700 p-12 text-center">
-                <div className="w-20 h-20 bg-purple-900/30 rounded-full flex items-center justify-center mb-6">
-                  <PenTool className="w-10 h-10 text-purple-400" />
-                </div>
-                <h2 className="text-3xl font-bold text-white mb-2">
-                  CopySell Pro
-                </h2>
-                <p className="text-gray-400 max-w-md">Próximamente</p>
+                <PenTool className="w-16 h-16 text-purple-400 mb-6" />
+                <h2 className="text-3xl font-bold text-white mb-2">CopySell Pro</h2>
+                <p className="text-gray-400 max-w-md">Próximamente: El generador de guiones de ventas más avanzado del mercado.</p>
               </div>
-            }
-          />
-
-          {/* EDITOR ROUTE */}
-          <Route
-            path="editor/:id"
-            element={<EditorRouteWrapper />}
-          />
+          } />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
