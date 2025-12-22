@@ -18,41 +18,23 @@ const { studentRouter: courseStudentRouter } = require('./routes/courseRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const pageRoutes = require('./routes/pageRoutes');
 const articleRoutes = require('./routes/articleRoutes');
+const crmRoutes = require('./routes/crmRoutes');
+const webhookRoutes = require('./routes/webhookRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v26_modular_articles'; 
+const SERVER_VERSION = 'v28_modular_webhooks'; 
 
 app.enable('trust proxy');
 
 app.use(cors());
 
 // ======================================================
-//  STRIPE WEBHOOK (MUST BE BEFORE BODY PARSERS)
+//  WEBHOOKS (MUST BE BEFORE GLOBAL BODY PARSERS)
 // ======================================================
-app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-    const sig = req.headers['stripe-signature'];
-    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-    let event;
-
-    try {
-        if (endpointSecret) {
-            event = stripeService.stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-        } else {
-            event = JSON.parse(req.body.toString());
-        }
-        
-        await stripeService.handleWebhook(event);
-        res.json({ received: true });
-
-    } catch (err) {
-        console.error(`[Stripe Webhook Error]: ${err.message}`);
-        res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-});
+app.use('/api', webhookRoutes);
 
 // ======================================================
 //  GLOBAL MIDDLEWARE (Body Parsers)
@@ -116,6 +98,7 @@ app.use('/api', courseStudentRouter);
 app.use('/api/projects', projectRoutes);
 app.use('/api', pageRoutes);
 app.use('/api', articleRoutes);
+app.use('/api', crmRoutes);
 
 // Legacy Login Route for compatibility
 app.post('/api/login', (req, res) => {
@@ -190,95 +173,6 @@ app.post('/api/gemini', async (req, res) => {
 });
 
 // ======================================================
-//  CRM & LEADS (LEGACY/BACKUP)
-// ======================================================
-app.get('/api/crm/contacts', authMiddleware, async (req, res) => {
-    try {
-        const [contacts] = await pool.query(
-            `SELECT c.*, lp.subdomain as page_slug
-             FROM crm_contacts c
-             LEFT JOIN landing_pages lp ON c.page_id = lp.id
-             WHERE c.user_id = ? ORDER BY c.created_at DESC`,
-            [req.user.id]
-        );
-        res.json(contacts);
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.post('/api/crm/contacts', authMiddleware, async (req, res) => {
-    const { name, email, phone, address, country, status, interestLevel } = req.body;
-    try {
-        const [result] = await pool.query(
-            `INSERT INTO crm_contacts (user_id, name, email, phone, address, country, source, status, interest_level, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, 'Manual', ?, ?, NOW(), NOW())`,
-            [req.user.id, name, email, phone, address, country, status || 'new', interestLevel || 'cold']
-        );
-        res.json({ id: result.insertId, message: 'Contacto creado' });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.put('/api/crm/contacts/:id', authMiddleware, async (req, res) => {
-    const { id } = req.params;
-    const { name, email, phone, address, country, status, interestLevel } = req.body;
-    try {
-        const [check] = await pool.query('SELECT id FROM crm_contacts WHERE id = ? AND user_id = ?', [id, req.user.id]);
-        if (check.length === 0) return res.status(404).json({ error: 'Contacto no encontrado' });
-        await pool.query(
-            `UPDATE crm_contacts SET name=?, email=?, phone=?, address=?, country=?, status=?, interest_level=?, updated_at=NOW() WHERE id=?`,
-            [name, email, phone, address, country, status, interestLevel, id]
-        );
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.delete('/api/crm/contacts/:id', authMiddleware, async (req, res) => {
-    const { id } = req.params;
-    try {
-        await pool.query('DELETE FROM crm_contacts WHERE id = ? AND user_id = ?', [id, req.user.id]);
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.get('/api/crm/contacts/:id/history', authMiddleware, async (req, res) => {
-    const { id } = req.params;
-    try {
-        const [check] = await pool.query('SELECT id FROM crm_contacts WHERE id = ? AND user_id = ?', [id, req.user.id]);
-        if (check.length === 0) return res.status(404).json({ error: 'Contacto no encontrado' });
-        const [activities] = await pool.query(
-            `SELECT * FROM crm_activities WHERE contact_id = ? ORDER BY created_at DESC`,
-            [id]
-        );
-        res.json(activities);
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.post('/api/crm/contacts/:id/notes', authMiddleware, async (req, res) => {
-    const { id } = req.params;
-    const { content } = req.body;
-    try {
-        const [check] = await pool.query('SELECT id FROM crm_contacts WHERE id = ? AND user_id = ?', [id, req.user.id]);
-        if (check.length === 0) return res.status(404).json({ error: 'Contacto no encontrado' });
-        await pool.query(
-            `INSERT INTO crm_activities (contact_id, type, content, created_at) VALUES (?, 'note', ?, NOW())`,
-            [id, content]
-        );
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// ======================================================
 //  DEBUG DB
 // ======================================================
 app.get('/api/debug/db-status', async (req, res) => {
@@ -293,13 +187,6 @@ app.get('/api/debug/db-status', async (req, res) => {
   } catch (e) {
       res.status(500).json({ status: 'offline', error: e.message, server_version: SERVER_VERSION });
   }
-});
-
-app.get('/api/leads', authMiddleware, async (req, res) => {
-  try {
-    const [rows] = await pool.query(`SELECT l.*, p.name as page_name FROM leads l JOIN landing_pages p ON l.page_id = p.id WHERE p.user_id = ? ORDER BY l.captured_at DESC`, [req.user.id]);
-    res.json(rows);
-  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ======================================================
