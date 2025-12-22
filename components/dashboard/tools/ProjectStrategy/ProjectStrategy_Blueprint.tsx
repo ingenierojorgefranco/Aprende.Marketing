@@ -181,7 +181,7 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                 </div>
             </div>
             
-            <div id="psd-blueprint-grid-wrapper" className="max-w-[70em] mx-auto rounded-3xl border border-gray-800 p-8 lg:p-12 relative">
+            <div id="psd-blueprint-grid-wrapper" className="max-w-[90em] mx-auto rounded-3xl border border-gray-800 p-8 lg:p-12 relative">
                 <div className="absolute inset-0 bg-[#0a0a0a] rounded-3xl overflow-hidden z-0">
                      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px]"></div>
                 </div>
