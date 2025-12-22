@@ -1,3 +1,4 @@
+
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
@@ -118,9 +119,16 @@ router.post('/pages', authMiddleware, async (req, res) => {
       'INSERT INTO landing_pages (user_id, project_id, name, niche, goal, subdomain, content, thankyoupage_json, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, NOW())',
       [req.user.id, projectId || null, name, niche, goal, subdomain, JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null]
     );
+
+    const pageId = resDb.insertId;
+    // NUEVA LÓGICA: Anteponer ID al subdominio para evitar conflictos
+    const finalSubdomain = `${pageId}-${subdomain}`;
+    await pool.query('UPDATE landing_pages SET subdomain = ? WHERE id = ?', [finalSubdomain, pageId]);
+
     await logUsage(req.user.id, 'landing');
-    await logSystemActivity(req.user.id, req.user.email, 'CREATE_PAGE', 'page', resDb.insertId, { name });
-    res.json({ id: resDb.insertId, message: 'Página creada' });
+    await logSystemActivity(req.user.id, req.user.email, 'CREATE_PAGE', 'page', pageId, { name, subdomain: finalSubdomain });
+    
+    res.json({ id: pageId, subdomain: finalSubdomain, message: 'Página creada correctamente con ID único en URL' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

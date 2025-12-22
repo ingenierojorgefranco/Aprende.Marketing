@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
@@ -200,6 +201,8 @@ export const MyPages: React.FC = () => {
             ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {pages.map((page) => {
+                        // ACTUALIZADO: El subdominio ya contiene el ID antepuesto por el backend.
+                        // Limpiamos el subdominio para obtener el slug exacto para el enlace.
                         const baseSlug = page.subdomain ? page.subdomain.split(".")[0] : page.id;
                         const publicUrl = `/admin/lp/${baseSlug}`;
 

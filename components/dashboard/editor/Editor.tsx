@@ -217,6 +217,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   };
 
   // URL calculation
+  // ACTUALIZADO: El subdominio ya contiene el ID prepended por el backend.
   const baseSlug = page.subdomain ? page.subdomain.split('.')[0] : page.id;
   const publicUrl = `/admin/lp/${baseSlug}`;
 

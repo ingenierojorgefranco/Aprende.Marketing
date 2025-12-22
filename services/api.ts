@@ -1,8 +1,4 @@
 
-
-
-
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, ProjectMasterStrategy, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_MASTER_STRATEGY, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 
@@ -206,7 +202,8 @@ export const api = {
             projectId: page.projectId // NEW: Send Project ID
         })
     });
-    return { ...page, id: data.id.toString() };
+    // ACTUALIZADO: Retornamos el subdominio final procesado por el backend (con ID prepended)
+    return { ...page, id: data.id.toString(), subdomain: data.subdomain };
   },
 
   updatePage: async (page: LandingPage): Promise<LandingPage> => {
@@ -242,7 +239,7 @@ export const api = {
 
       const projects = await fetchWithFallback('/projects', {
           method: 'GET',
-          headers: getAuthHeaders()
+          headers: { ...getAuthHeaders() }
       });
       return projects.map((p: any) => ({
           ...p,
