@@ -196,7 +196,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                 {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
             </p>
             <div className="max-w-md mx-auto">
-                <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} />
+                <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} basePath={basePath} />
             </div>
         </div>
     </section>
@@ -227,7 +227,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                       </div>
 
                       <div className="max-w-md mx-auto">
-                          <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} />
+                          <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} basePath={basePath} />
                           <p className={`mt-4 text-sm opacity-70 ${ds.hero.subtitleColor}`}>{content.hero.spotsLeft}</p>
                       </div>
                   </div>

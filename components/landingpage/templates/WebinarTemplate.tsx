@@ -78,7 +78,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                 </div>
                 <div className={`text-center flex-1 ${isMobilePreview ? '' : 'md:text-left'}`}>
                     <h4 className={`font-bold uppercase tracking-widest text-sm mb-2 opacity-80 ${ds.instructor.textColor}`}>{content.instructor.title || "Conoce a tu Mentor"}</h4>
-                    <h2 className={`text-4xl md:text-6xl font-black mb-6 ${ds.instructor.titleColor}`}>{content.instructor.name}</h2>
+                    <h2 id="instructor-name" className={`text-4xl md:text-6xl font-black mb-6 ${ds.instructor.titleColor}`}>{content.instructor.name}</h2>
                     {renderRichText(content.instructor.bio, `text-lg leading-relaxed mb-8 max-w-2xl font-light ${ds.instructor.bioColor} ${isMobilePreview ? 'mx-auto' : 'mx-auto md:mx-0'}`)}
                 </div>
             </div>
@@ -180,7 +180,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
             <p className={`text-lg mb-10 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>
                 {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
             </p>
-            <div className="max-w-md mx-auto"><SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} /></div>
+            <div className="max-w-md mx-auto"><SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} basePath={basePath} /></div>
         </div>
     </section>
   );
@@ -242,7 +242,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
 
                 {/* 5. CTA (Moved to bottom) */}
                 <div id="hero-cta" className="w-full max-w-md mt-4 animate-in slide-in-from-bottom-4 duration-700">
-                    <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} centered={true} pageId={pageId} />
+                    <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} centered={true} pageId={pageId} basePath={basePath} />
                 </div>
             </div>
          </header>

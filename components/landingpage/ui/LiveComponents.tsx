@@ -185,7 +185,7 @@ export const Navbar = ({
               </div>
           )}
       </nav>
-      {!isThankYouPage && showModal && <RegistrationModal content={content} ds={ds} onClose={() => setShowModal(false)} pageId={pageId} />}
+      {!isThankYouPage && showModal && <RegistrationModal content={content} ds={ds} onClose={() => setShowModal(false)} pageId={pageId} basePath={basePath} />}
       </>
     );
 };
@@ -298,7 +298,7 @@ export const Footer = ({
 }
 
 // --- Lead Capture Form ---
-const LeadCaptureForm = ({ btnClass, btnText, ds, pageId }: { btnClass: string, btnText: string, ds: any, pageId?: string }) => {
+const LeadCaptureForm = ({ btnClass, btnText, ds, pageId, basePath }: { btnClass: string, btnText: string, ds: any, pageId?: string, basePath?: string }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [submitting, setSubmitting] = useState(false);
@@ -319,11 +319,18 @@ const LeadCaptureForm = ({ btnClass, btnText, ds, pageId }: { btnClass: string, 
         try {
             await api.submitLead({ pageId, name, email });
             // Redirect to Thank You Page (Updated to /gracias)
-            // If we are in admin preview or public view, construct relative path
-            const currentPath = location.pathname;
-            // Remove trailing slash if present
-            const basePath = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath;
-            navigate(`${basePath}/gracias`);
+            // Use provided basePath for absolute-like redirect from any subpath (like blog posts)
+            let redirectBase = basePath;
+            
+            if (!redirectBase) {
+                const currentPath = location.pathname;
+                redirectBase = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath;
+            } else {
+                // Ensure redirectBase doesn't end with slash
+                if (redirectBase.endsWith('/')) redirectBase = redirectBase.slice(0, -1);
+            }
+            
+            navigate(`${redirectBase}/gracias`);
         } catch (error) {
             console.error("Error submitting lead:", error);
             alert("Hubo un error al registrar tus datos. Intenta nuevamente.");
@@ -367,7 +374,7 @@ const LeadCaptureForm = ({ btnClass, btnText, ds, pageId }: { btnClass: string, 
 };
 
 // --- Registration Modal ---
-export const RegistrationModal = ({ content, ds, onClose, pageId }: { content: GeneratedPageContent, ds: any, onClose: () => void, pageId?: string }) => {
+export const RegistrationModal = ({ content, ds, onClose, pageId, basePath }: { content: GeneratedPageContent, ds: any, onClose: () => void, pageId?: string, basePath?: string }) => {
     return (
         <div id="registration-modal" className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
@@ -380,7 +387,7 @@ export const RegistrationModal = ({ content, ds, onClose, pageId }: { content: G
                     <h3 id="modal-title" className={`text-2xl font-bold mb-2 ${ds.cta.cardTitleColor}`}>Reserva tu Cupo</h3>
                     <p id="modal-desc" className={`text-sm ${ds.cta.cardTextColor}`}>Completa el formulario para acceder ahora.</p>
                 </div>
-                <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.navCta || "Ingresar Ahora"} ds={ds} pageId={pageId} />
+                <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.navCta || "Ingresar Ahora"} ds={ds} pageId={pageId} basePath={basePath} />
                 <div className={`mt-4 flex items-center justify-center gap-2 text-xs ${ds.cta.cardTextColor}`}>
                     <Lock className="w-3 h-3" /> Datos seguros y encriptados.
                 </div>
@@ -390,7 +397,7 @@ export const RegistrationModal = ({ content, ds, onClose, pageId }: { content: G
 };
 
 // --- Smart CTA ---
-export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, centered = false, pageId }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean, fullWidth?: boolean, centered?: boolean, pageId?: string }) => {
+export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, centered = false, pageId, basePath }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean, fullWidth?: boolean, centered?: boolean, pageId?: string, basePath?: string }) => {
     const dest = content.destination;
     
     const handleClick = () => {
@@ -431,7 +438,7 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
 
           {/* Body Content */}
           {dest.type === 'form' ? (
-              <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} pageId={pageId} />
+              <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} pageId={pageId} basePath={basePath} />
           ) : (
               <div className="space-y-4">
                   {/* Motivational visual cue for non-form */}
