@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
@@ -154,8 +155,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
         const currentMonthIdx = today.getMonth(); 
         const currentYear = today.getFullYear();
 
-        // USAR DATOS DEL JSON (strategyData.meta.projection) O FALLBACK
-        const baseData = strategyData.meta.projection || [0, 0, 0, 116.81, 233.62, 584.05, 817.67, 1168.10, 1401.72, 1752.15, 2102.58, 2336.20];
+        // CAMBIO: Se elimina el array hardcoded. Si no hay datos, se inicializa en 0.
+        const baseData = strategyData.meta.projection || Array(12).fill(0);
 
         return baseData.map((income, i) => {
             const monthIndex = (currentMonthIdx + i) % 12;
