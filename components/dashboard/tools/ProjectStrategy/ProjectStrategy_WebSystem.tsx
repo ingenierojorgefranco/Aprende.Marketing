@@ -339,21 +339,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     Con el objetivo de personalizar tu estrategia, usaremos los siguientes elementos para crear una página web profesional que atraiga el público perfecto para maximizar sus ventas.
                                 </p>
                                 
-                                <div id="psd-lp-tabs-container" className="grid grid-cols-3 gap-3 mb-8 w-full">
-                                    {(Object.keys(LP_TABS_DATA) as Array<keyof typeof LP_TABS_DATA>).map(tabKey => (
-                                        <button 
-                                            key={tabKey}
-                                            id={`psd-lp-tab-${tabKey}`}
-                                            onClick={() => setSelectedLpTab(tabKey)}
-                                            onMouseMove={(e) => handleTooltipHover(e, ["Haz clic aquí para revelar la lógica persuasiva detrás de este elemento."])}
-                                            onMouseLeave={handleTooltipLeave}
-                                            className={`w-full py-3 rounded-lg text-sm font-bold uppercase tracking-wider transition-all border flex items-center justify-center text-center ${selectedLpTab === tabKey ? 'bg-blue-600 text-white border-blue-500 shadow-lg scale-105 z-10 ring-2 ring-blue-400/50' : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700'}`}
-                                        >
-                                            {LP_TABS_DATA[tabKey].label}
-                                        </button>
-                                    ))}
-                                </div>
-
                                 <div id="psd-lp-logic-box" className="bg-black/80 border border-gray-700 px-6 py-5 rounded-2xl flex gap-4 backdrop-blur-xl shadow-2xl w-full relative overflow-hidden group/box hover:border-yellow-500/30 transition-all mb-8 mx-auto">
                                     <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                                     <div className="p-3 bg-yellow-500/10 rounded-xl h-fit text-yellow-500 border border-yellow-500/20 shrink-0">
@@ -371,6 +356,21 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             </div>
 
                             <div id="psd-lp-right-col" className="bg-gray-800/30 relative h-full order-1 md:order-2 border-l border-gray-800 flex flex-col justify-center p-8 gap-6">
+                                <div id="psd-lp-tabs-container" className="grid grid-cols-3 gap-3 w-full">
+                                    {(Object.keys(LP_TABS_DATA) as Array<keyof typeof LP_TABS_DATA>).map(tabKey => (
+                                        <button 
+                                            key={tabKey}
+                                            id={`psd-lp-tab-${tabKey}`}
+                                            onClick={() => setSelectedLpTab(tabKey)}
+                                            onMouseMove={(e) => handleTooltipHover(e, ["Haz clic aquí para revelar la lógica persuasiva detrás de este elemento."])}
+                                            onMouseLeave={handleTooltipLeave}
+                                            className={`w-full py-3 rounded-lg text-sm font-bold uppercase tracking-wider transition-all border flex items-center justify-center text-center ${selectedLpTab === tabKey ? 'bg-blue-600 text-white border-blue-500 shadow-lg scale-105 z-10 ring-2 ring-blue-400/50' : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700'}`}
+                                        >
+                                            {LP_TABS_DATA[tabKey].label}
+                                        </button>
+                                    ))}
+                                </div>
+
                                 <div className="w-full relative flex flex-col">
                                     {selectedLpTab ? (
                                         <div id="psd-lp-dynamic-content" className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col justify-center gap-4">
@@ -497,21 +497,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     Esta página es crucial. Una vez se registran, debemos mantener la emoción alta. Aquí confirmamos el éxito, entregamos lo prometido inmediatamente y les damos la instrucción clara de unirse a la comunidad para no enfriar la venta.
                                 </p>
                                 
-                                <div id="psd-ty-tabs-container" className="grid grid-cols-3 gap-3 mb-8 w-full">
-                                    {(Object.keys(TY_TABS_DATA) as Array<keyof typeof TY_TABS_DATA>).map(tabKey => (
-                                        <button 
-                                            key={tabKey}
-                                            id={`psd-ty-tab-${tabKey}`}
-                                            onClick={() => setSelectedTyTab(tabKey)}
-                                            onMouseMove={(e) => handleTooltipHover(e, ["Haz clic aquí para revelar la lógica persuasiva detrás de este elemento."])}
-                                            onMouseLeave={handleTooltipLeave}
-                                            className={`w-full py-3 rounded-lg text-sm font-bold uppercase tracking-wider transition-all border flex items-center justify-center text-center ${selectedTyTab === tabKey ? 'bg-green-600 text-white border-green-500 shadow-lg scale-105 z-10 ring-2 ring-green-400/50' : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700'}`}
-                                        >
-                                            {TY_TABS_DATA[tabKey].label}
-                                        </button>
-                                    ))}
-                                </div>
-
                                 <div id="psd-ty-logic-box" className="bg-black/80 border border-gray-700 px-6 py-5 rounded-2xl flex gap-4 backdrop-blur-xl shadow-2xl w-full relative overflow-hidden group/box hover:border-yellow-500/30 transition-all mb-8 mx-auto">
                                     <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-500/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                                     <div className="p-3 bg-yellow-500/10 rounded-xl h-fit text-yellow-500 border border-yellow-500/20 shrink-0">
@@ -528,6 +513,21 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 </div>
                             </div>
                             <div id="psd-ty-right-col" className="bg-gray-800/30 relative h-full order-2 md:order-2 border-l border-gray-800 flex flex-col justify-center p-8 gap-6">
+                                <div id="psd-ty-tabs-container" className="grid grid-cols-3 gap-3 w-full">
+                                    {(Object.keys(TY_TABS_DATA) as Array<keyof typeof TY_TABS_DATA>).map(tabKey => (
+                                        <button 
+                                            key={tabKey}
+                                            id={`psd-ty-tab-${tabKey}`}
+                                            onClick={() => setSelectedTyTab(tabKey)}
+                                            onMouseMove={(e) => handleTooltipHover(e, ["Haz clic aquí para revelar la lógica persuasiva detrás de este elemento."])}
+                                            onMouseLeave={handleTooltipLeave}
+                                            className={`w-full py-3 rounded-lg text-sm font-bold uppercase tracking-wider transition-all border flex items-center justify-center text-center ${selectedTyTab === tabKey ? 'bg-green-600 text-white border-green-500 shadow-lg scale-105 z-10 ring-2 ring-green-400/50' : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700'}`}
+                                        >
+                                            {TY_TABS_DATA[tabKey].label}
+                                        </button>
+                                    ))}
+                                </div>
+
                                 <div className="w-full relative flex flex-col">
                                     {selectedTyTab ? (
                                         <div id="psd-ty-dynamic-content" className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col justify-center gap-4">
