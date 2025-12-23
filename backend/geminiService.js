@@ -1,4 +1,3 @@
-
 const { GoogleGenAI } = require("@google/genai");
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -55,59 +54,67 @@ const generateFullStrategy = async (projectData) => {
     const { name, niche, productName, description, targetAudience, painPoints, keyBenefits } = projectData;
 
     const prompt = `
-    Rol: Motor de Análisis Estratégico de Marketing Digital.
-    Tarea: Generar un "Informe Estratégico Maestro" en formato JSON para un proyecto específico.
+    Rol: Motor de Análisis Estratégico de Marketing Digital Maestro.
+    Tarea: Generar un "Informe Estratégico Maestro" ultra detallado en formato JSON para un proyecto específico.
     
     INFORMACIÓN DEL PROYECTO:
     - Nombre: "${name}"
     - Nicho: "${niche}"
     - Producto: "${productName}"
     - Descripción: "${description}"
-    - Audiencia (Input usuario): "${targetAudience || 'General'}"
-    - Dolores (Input usuario): "${(painPoints || []).join(', ')}"
-    - Beneficios (Input usuario): "${(keyBenefits || []).join(', ')}"
 
-    Debes profundizar y expandir esta información para crear una estrategia completa.
-    
-    ESTRUCTURA JSON REQUERIDA (NO AÑADAS TEXTO FUERA DEL JSON):
+    REGLAS DE GENERACIÓN FINANCIERA:
+    1. Basado en el nicho y producto, sugiere un "price" (número) realista entre 47 y 997 USD.
+    2. Sugiere una "commissionRate" (número entre 0.4 y 0.8).
+    3. Genera un array "projection" de EXACTAMENTE 12 números que representen los ingresos mensuales (comisión neta) proyectados para el primer año. Debe seguir una curva de aprendizaje: meses 1-3 bajos/cero, seguidos de crecimiento exponencial hasta el mes 12.
+
+    ESTRUCTURA JSON REQUERIDA (ESTRICTA):
     {
-      "avatar": {
-        "name": "Nombre ficticio del Avatar (ej. Ana la Emprendedora)",
-        "age": "Rango de edad",
-        "occupation": "Ocupación probable",
-        "story": "Breve historia de su situación actual y por qué necesita esto (Storytelling)",
-        "frustrations": ["Frustración 1", "Frustración 2", "Frustración 3"],
-        "desires": ["Deseo profundo 1", "Deseo profundo 2", "Deseo profundo 3"]
+      "meta": {
+        "projectName": "${name}",
+        "niche": "${niche}",
+        "price": number,
+        "commissionRate": number,
+        "projection": [number, number, ... 12 items],
+        "insights": {
+            "overview": { "title": "Estrategia General", "items": [...] },
+            "niche": { "title": "Análisis de Nicho", "description": "..." },
+            "product": { "title": "Rentabilidad", "description": "..." },
+            "objective": { "title": "Método de Cierre", "description": "..." }
+        }
       },
+      "avatars": [
+          {
+            "id": 1,
+            "name": "...",
+            "archetype": "...",
+            "age": "...",
+            "quote": "...",
+            "pain": "...",
+            "desire": "...",
+            "objection": "...",
+            "motivations": { "dinero": number, "tiempo": number, "estatus": number, "seguridad": number }
+          }
+      ],
       "psychology": {
-        "emotionalTriggers": ["Gatillo 1 (Miedo/Codicia/Vanidad...)", "Gatillo 2"],
-        "objections": ["Objeción 1", "Objeción 2", "Objeción 3"],
-        "falseBeliefs": ["Creencia limitante 1", "Creencia limitante 2"]
+        "pains": ["...", "..."],
+        "solutions": ["...", "..."]
       },
-      "funnel": {
-        "leadMagnetIdea": "Idea concreta para un recurso gratuito (PDF/Clase/Quiz)",
-        "tripwireIdea": "Idea para un producto de bajo costo (opcional)",
-        "coreOfferPitch": "El pitch de venta principal del producto en 1 frase",
-        "funnelSteps": ["Paso 1: Anuncio", "Paso 2: Landing", "Paso 3: Gracias..."]
-      },
-      "assets": {
-        "emailSequence": [
-           { "subject": "Asunto Email 1 (Bienvenida/Entrega)", "body": "Cuerpo del correo (corto, persuasivo)", "delay": "Inmediato" },
-           { "subject": "Asunto Email 2 (Aporte Valor/Historia)", "body": "Cuerpo del correo", "delay": "Día 1" },
-           { "subject": "Asunto Email 3 (Venta/Urgencia)", "body": "Cuerpo del correo", "delay": "Día 2" }
+      "modules": {
+        "content": [
+            { "id": 1, "title": "...", "keyword": "...", "difficulty": number, "strategy": "..." }
         ],
-        "whatsappScripts": [
-           { "scenario": "Primer Contacto", "script": "Hola [Nombre], vi que te interesaste en..." },
-           { "scenario": "Seguimiento", "script": "Hola de nuevo, solo quería asegurarme..." }
-        ],
-        "adCopies": [
-           { "platform": "Facebook/Instagram", "headline": "Gancho principal", "body": "Texto del anuncio..." },
-           { "platform": "Google Ads (Search)", "headline": "Título anuncio", "body": "Descripción..." }
+        "emails": {
+           "nurture": [ { "day": "Día 0", "subject": "...", "objective": "...", "bodyPreview": "..." } ],
+           "evergreen": [ { "day": "Día 8", "subject": "...", "objective": "...", "bodyPreview": "..." } ]
+        },
+        "whatsapp": [
+            { "id": 1, "title": "...", "objective": "...", "messages": [ { "role": "agent", "text": "..." } ] }
         ]
       }
     }
     
-    Usa un tono persuasivo, profesional y orientado a la conversión directa.
+    Responde SOLO en JSON válido. Sin texto adicional.
     `;
 
     try {
@@ -119,7 +126,6 @@ const generateFullStrategy = async (projectData) => {
             }
         });
 
-        // Parse JSON safely
         let strategyJson = {};
         try {
             if (response.text) {

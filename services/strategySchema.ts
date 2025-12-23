@@ -8,6 +8,9 @@ export interface ProjectMasterStrategy {
         niche: string;
         productType: string;
         objective: string;
+        price: number; // Nuevo field
+        commissionRate: number; // Nuevo field (ej: 0.65 para 65%)
+        projection: number[]; // Nuevo field (12 meses)
         insights: {
             overview: { title: string; items: any[] };
             niche: { title: string; description: string };
@@ -61,6 +64,9 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
         niche: "",
         productType: "",
         objective: "",
+        price: 0,
+        commissionRate: 0,
+        projection: Array(12).fill(0),
         insights: {
             overview: { title: "Estrategia General", items: [] },
             niche: { title: "Análisis de Nicho", description: "" },
@@ -93,6 +99,9 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
         niche: "Belleza y Estética",
         productType: "Curso Online (High Ticket)",
         objective: "Venta Directa (Crash Strategy)",
+        price: 200,
+        commissionRate: 0.65,
+        projection: [0, 0, 0, 116.81, 233.62, 584.05, 817.67, 1168.10, 1401.72, 600, 2102.58, 2336.20],
         insights: {
             overview: {
                 title: "Estrategia para vender en automático",

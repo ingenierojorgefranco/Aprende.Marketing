@@ -16,6 +16,11 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
 }) => {
     // Extraemos los items de la visión general
     const overviewItems = [...(strategyData.meta.insights.overview.items || [])];
+    
+    // Datos dinámicos del JSON
+    const price = strategyData.meta.price || 0;
+    const commissionRate = strategyData.meta.commissionRate || 0;
+    const netCommission = price * commissionRate;
 
     return (
         <div className="space-y-16">
@@ -82,9 +87,9 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                             );
                         })}
 
-                        {/* TARJETAS DE PRECIO Y COMISIÓN */}
+                        {/* TARJETAS DE PRECIO Y COMISIÓN DINÁMICAS */}
                         <div 
-                            onMouseEnter={(e) => handleTooltipHover(e, ["Precio de venta oficial configurado en el proyecto.", "Afecta directamente el cálculo de rentabilidad."])}
+                            onMouseEnter={(e) => handleTooltipHover(e, ["Precio de venta oficial sugerido por la IA para este producto.", "Afecta directamente el cálculo de rentabilidad."])}
                             onMouseLeave={handleTooltipLeave}
                             className="p-6 md:p-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-emerald-500/10 cursor-help"
                         >
@@ -93,18 +98,18 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                                     <DollarSign className="w-6 h-6" />
                                 </div>
                                 <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em] text-emerald-400 opacity-80">
-                                    Precio Full del Producto
+                                    Precio Sugerido del Producto
                                 </p>
                             </div>
                             <div className="flex-1">
                                 <p className="text-white font-black text-2xl md:text-3xl tracking-tight">
-                                    $200 USD
+                                    ${price} USD
                                 </p>
                             </div>
                         </div>
 
                         <div 
-                            onMouseEnter={(e) => handleTooltipHover(e, ["Tu ganancia neta estimada por cada cierre exitoso.", "Optimiza tu CPA (Coste por Adquisición) basándote en este margen."])}
+                            onMouseEnter={(e) => handleTooltipHover(e, ["Tu ganancia neta estimada basada en la tasa de comisión sugerida.", "Optimiza tu CPA (Coste por Adquisición) basándote en este margen."])}
                             onMouseLeave={handleTooltipLeave}
                             className="p-6 md:p-8 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-yellow-500/10 cursor-help"
                         >
@@ -113,12 +118,12 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                                     <Zap className="w-6 h-6" />
                                 </div>
                                 <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em] text-yellow-400 opacity-80">
-                                    Comisión (65%)
+                                    Comisión Neta ({Math.round(commissionRate * 100)}%)
                                 </p>
                             </div>
                             <div className="flex-1">
                                 <p className="text-white font-black text-2xl md:text-3xl tracking-tight flex flex-col">
-                                    $116.81 Dólares
+                                    ${netCommission.toFixed(2)} Dólares
                                     <span className="text-sm font-medium text-yellow-500/60 uppercase tracking-widest mt-1">por cada venta</span>
                                 </p>
                             </div>

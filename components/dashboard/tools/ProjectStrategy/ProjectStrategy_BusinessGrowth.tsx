@@ -5,13 +5,15 @@ import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tool
 interface ProjectStrategy_BusinessGrowthProps {
     chartData: any[];
     onOpenVideo: () => void;
+    commissionValue: number; // Nuevo prop
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, commissionValue }: any) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         const income = data.income;
-        const sales = Math.floor(income / 116.81);
+        // Calcular ventas basado en el valor de comisión dinámico
+        const sales = commissionValue > 0 ? Math.floor(income / commissionValue) : 0;
 
         return (
             <div id="psd-tooltip-chart" className="bg-gray-900/95 backdrop-blur-xl border border-gray-700 p-4 rounded-xl shadow-2xl min-w-[200px]">
@@ -35,7 +37,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGrowthProps> = ({ chartData, onOpenVideo }) => {
+export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGrowthProps> = ({ chartData, onOpenVideo, commissionValue }) => {
     return (
         <div id="psd-business-growth-section" className="space-y-12">
             
@@ -94,7 +96,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     tickLine={false}
                                     width={80}
                                 />
-                                <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#10b981', strokeWidth: 1, strokeDasharray: '5 5' }} />
+                                <Tooltip content={<CustomTooltip commissionValue={commissionValue} />} cursor={{ stroke: '#10b981', strokeWidth: 1, strokeDasharray: '5 5' }} />
                                 <Area 
                                     type="monotone" 
                                     dataKey="income" 

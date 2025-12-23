@@ -146,13 +146,16 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     // --- CHART DATA GENERATION LOGIC ---
     const chartData = useMemo(() => {
+        if (!strategyData) return [];
+        
         const monthNamesFull = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         const monthNamesShort = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
         const today = new Date();
         const currentMonthIdx = today.getMonth(); 
         const currentYear = today.getFullYear();
 
-        const baseData = [0, 0, 0, 116.81, 233.62, 584.05, 817.67, 1168.10, 1401.72, 1752.15, 2102.58, 2336.20];
+        // USAR DATOS DEL JSON (strategyData.meta.projection) O FALLBACK
+        const baseData = strategyData.meta.projection || [0, 0, 0, 116.81, 233.62, 584.05, 817.67, 1168.10, 1401.72, 1752.15, 2102.58, 2336.20];
 
         return baseData.map((income, i) => {
             const monthIndex = (currentMonthIdx + i) % 12;
@@ -168,7 +171,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 fullDate: fullDate 
             };
         });
-    }, []);
+    }, [strategyData]);
 
     const handleTooltipHover = (e: React.MouseEvent, content: string[]) => {
         setTooltipState({
@@ -310,6 +313,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 <ProjectStrategy_BusinessGrowth 
                     chartData={chartData} 
                     onOpenVideo={() => setShowVideoModal(true)} 
+                    commissionValue={strategyData.meta.price * strategyData.meta.commissionRate}
                 />
 
                 <ProjectStrategy_Blueprint 
