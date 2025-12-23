@@ -440,8 +440,8 @@ export const DashboardLayout = ({
 
         <div className="flex-1 overflow-auto bg-black p-4 sm:p-8 relative">
             <div className="max-w-[1600px] mx-auto">
-                 {/* Pass Context to Outlet (effectiveUser, projectCount, pageCount, articleCount) */}
-                 <Outlet context={{ user: effectiveUser, projectCount, pageCount, articleCount }} />
+                 {/* Pass Context to Outlet (effectiveUser, projectCount, pageCount, articleCount, isSimulating) */}
+                 <Outlet context={{ user: effectiveUser, projectCount, pageCount, articleCount, isSimulating: !!simulatedPlanSlug }} />
             </div>
         </div>
       </main>

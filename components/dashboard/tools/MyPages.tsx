@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
@@ -9,11 +8,12 @@ import { UpgradeModal } from '../UpgradeModal';
 interface DashboardContext {
   user: User;
   pageCount: number;
+  isSimulating: boolean;
 }
 
 export const MyPages: React.FC = () => {
     const navigate = useNavigate();
-    const { user, pageCount } = useOutletContext() as DashboardContext;
+    const { user, pageCount, isSimulating } = useOutletContext() as DashboardContext;
     const [pages, setPages] = useState<LandingPage[]>([]);
     const [loading, setLoading] = useState(true);
     const [pageToDelete, setPageToDelete] = useState<LandingPage | null>(null);
@@ -86,10 +86,11 @@ export const MyPages: React.FC = () => {
     }
 
     // Plan Logic (Pages)
+    const isRealAdmin = user.role === 'admin' && !isSimulating;
     const maxLandings = user.planLimits?.maxLandings || 3;
     const currentCount = pages.length;
     const usagePercent = Math.min(100, (currentCount / maxLandings) * 100);
-    const isAtLimit = currentCount >= maxLandings;
+    const isAtLimit = !isRealAdmin && currentCount >= maxLandings;
     
     // Plan Logic (Domains)
     const maxDomains = user.planLimits?.maxDomains || 1;
@@ -99,11 +100,11 @@ export const MyPages: React.FC = () => {
     // Color logic for bar
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";
-    if (usagePercent > 85) progressColor = "bg-red-500";
+    if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
     let domainProgressColor = "bg-blue-500";
     if (domainUsagePercent > 50) domainProgressColor = "bg-indigo-500";
-    if (domainUsagePercent > 90) domainProgressColor = "bg-red-500";
+    if (domainUsagePercent > 90) domainProgressColor = isRealAdmin ? "bg-blue-500" : "bg-red-500";
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
@@ -129,21 +130,21 @@ export const MyPages: React.FC = () => {
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner space-y-4">
                             <div>
                                 <div className="flex justify-between items-center mb-2 text-sm">
-                                    <span className="text-gray-300 font-medium">Páginas Creadas</span>
-                                    <span className="text-white font-bold">{currentCount} / {maxLandings}</span>
+                                    <span className="text-gray-300 font-medium">{isRealAdmin ? 'Páginas (Superusuario)' : 'Páginas Creadas'}</span>
+                                    <span className="text-white font-bold">{currentCount} / {isRealAdmin ? '∞' : maxLandings}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                    <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
+                                    <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                 </div>
                             </div>
 
                             <div>
                                 <div className="flex justify-between items-center mb-2 text-sm">
                                     <span className="text-gray-300 font-medium">Dominios Personalizados</span>
-                                    <span className="text-white font-bold">{currentDomainsCount} / {maxDomains}</span>
+                                    <span className="text-white font-bold">{currentDomainsCount} / {isRealAdmin ? '∞' : maxDomains}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                    <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${domainProgressColor}`} style={{ width: `${domainUsagePercent}%` }}></div>
+                                    <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${domainProgressColor}`} style={{ width: `${isRealAdmin ? (currentDomainsCount > 0 ? 100 : 0) : domainUsagePercent}%` }}></div>
                                 </div>
                             </div>
                         </div>
@@ -353,7 +354,7 @@ export const MyPages: React.FC = () => {
                                     <div className="flex items-start gap-3"><CheckCircle className="w-4 h-4 text-green-500 mt-0.5" /><p className="text-sm text-gray-300">Servidores CDN de Alta Velocidad</p></div>
                                 </div>
                                 <div className="text-center"><p className="text-xs text-blue-300 font-bold bg-blue-900/20 py-1.5 px-3 rounded-full inline-block border border-blue-500/20">ℹ️ En tu plan actual puedes añadir {maxDomains} dominios</p></div>
-                                {currentDomainsCount >= maxDomains ? (
+                                {(currentDomainsCount >= maxDomains && !isRealAdmin) ? (
                                     <div className="space-y-3">
                                         <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-xl flex items-center gap-3"><AlertTriangle className="w-6 h-6 text-red-500 shrink-0" /><p className="text-sm text-red-200">Has alcanzado el límite de dominios de tu plan.</p></div>
                                         <button onClick={() => setShowUpgradeModal(true)} className="w-full py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-bold border border-yellow-400/20">Actualizar Plan</button>

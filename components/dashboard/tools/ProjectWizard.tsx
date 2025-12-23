@@ -8,13 +8,14 @@ import { UpgradeModal } from '../UpgradeModal';
 
 interface DashboardContext {
   user: User;
-  projectCount: number; // Provided by Layout
+  projectCount: number;
+  isSimulating: boolean;
 }
 
 export const ProjectWizard: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams() as { id: string };
-    const { user, projectCount } = useOutletContext() as DashboardContext;
+    const { user, projectCount, isSimulating } = useOutletContext() as DashboardContext;
     
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -42,8 +43,10 @@ export const ProjectWizard: React.FC = () => {
 
     useEffect(() => {
         // LIMIT CHECK
-        // Only if creating new (no ID) and user has limits
-        if (!id && user.planLimits) {
+        const isRealAdmin = user.role === 'admin' && !isSimulating;
+        
+        // Only if creating new (no ID) and not a real admin
+        if (!id && !isRealAdmin && user.planLimits) {
             const max = user.planLimits.maxProjects;
             if (projectCount >= max) {
                 setShowUpgradeModal(true);
@@ -53,7 +56,7 @@ export const ProjectWizard: React.FC = () => {
         if (id) {
             loadProject(id);
         }
-    }, [id, user, projectCount]);
+    }, [id, user, projectCount, isSimulating]);
 
     const loadProject = async (projectId: string) => {
         setLoading(true);

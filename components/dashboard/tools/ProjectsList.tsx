@@ -7,11 +7,12 @@ import { UpgradeModal } from '../UpgradeModal';
 
 interface DashboardContext {
   user: User;
+  isSimulating: boolean;
 }
 
 export const ProjectsList: React.FC = () => {
     const navigate = useNavigate();
-    const { user } = useOutletContext() as DashboardContext;
+    const { user, isSimulating } = useOutletContext() as DashboardContext;
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     
@@ -61,15 +62,17 @@ export const ProjectsList: React.FC = () => {
     }
 
     // Plan Logic
+    const isRealAdmin = user.role === 'admin' && !isSimulating;
     const maxProjects = user.planLimits?.maxProjects || 1;
     const currentCount = projects.length;
     const usagePercent = Math.min(100, (currentCount / maxProjects) * 100);
-    const isAtLimit = currentCount >= maxProjects;
+    // El administrador real no tiene límites, a menos que esté simulando un plan
+    const isAtLimit = !isRealAdmin && currentCount >= maxProjects;
 
     // Color logic for bar
     let progressColor = "bg-blue-500";
     if (usagePercent > 50) progressColor = "bg-indigo-500";
-    if (usagePercent >= 100) progressColor = "bg-red-500";
+    if (usagePercent >= 100) progressColor = isRealAdmin ? "bg-blue-500" : "bg-red-500";
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
@@ -95,11 +98,11 @@ export const ProjectsList: React.FC = () => {
                         {/* Plan Usage Bar */}
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
                             <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-300 font-medium">Proyectos Activos</span>
-                                <span className="text-white font-bold">{currentCount} / {maxProjects}</span>
+                                <span className="text-gray-300 font-medium">{isRealAdmin ? 'Proyectos (Superusuario)' : 'Proyectos Activos'}</span>
+                                <span className="text-white font-bold">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
                             </div>
                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
+                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                             </div>
                             {isAtLimit && (
                                 <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">

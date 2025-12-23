@@ -8,6 +8,7 @@ import { UpgradeModal } from '../UpgradeModal';
 interface DashboardContext {
   user: User;
   articleCount: number;
+  isSimulating: boolean;
 }
 
 interface ArticlesListProps {
@@ -16,7 +17,7 @@ interface ArticlesListProps {
 
 export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   const navigate = useNavigate();
-  const { user, articleCount } = useOutletContext() as DashboardContext; 
+  const { user, articleCount, isSimulating } = useOutletContext() as DashboardContext; 
   const [localArticles, setLocalArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -51,10 +52,11 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   };
 
   const handleCreate = () => {
+      const isRealAdmin = user.role === 'admin' && !isSimulating;
       const maxArticles = user.planLimits?.maxArticles || 2;
       
-      // Check Limit before creating
-      if (articleCount >= maxArticles) {
+      // Check Limit before creating (unless real admin)
+      if (!isRealAdmin && articleCount >= maxArticles) {
           setShowUpgradeModal(true);
           return;
       }
@@ -73,14 +75,15 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   }
 
   // Plan Logic
+  const isRealAdmin = user.role === 'admin' && !isSimulating;
   const maxArticles = user.planLimits?.maxArticles || 2;
   const usagePercent = Math.min(100, (articleCount / maxArticles) * 100);
-  const isAtLimit = articleCount >= maxArticles;
+  const isAtLimit = !isRealAdmin && articleCount >= maxArticles;
 
   // Color logic for bar
   let progressColor = "bg-green-500";
   if (usagePercent > 50) progressColor = "bg-yellow-500";
-  if (usagePercent > 85) progressColor = "bg-red-500";
+  if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
@@ -113,11 +116,11 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   {/* Plan Usage Bar */}
                   <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
                       <div className="flex justify-between items-center mb-2 text-sm">
-                          <span className="text-gray-300 font-medium">Consumo de Artículos</span>
-                          <span className="text-white font-bold">{articleCount} / {maxArticles}</span>
+                          <span className="text-gray-300 font-medium">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span>
+                          <span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                       </div>
                       <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                          <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
+                          <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                       </div>
                       {isAtLimit && (
                           <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
