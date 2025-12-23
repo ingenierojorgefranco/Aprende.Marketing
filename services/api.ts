@@ -1,7 +1,6 @@
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
-import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY, DEFAULT_STRATEGY_TEMPLATE } from "./strategySchema";
+import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
 
 // --- HELPER PARA OBTENER BASE URL ---
 const getBaseUrl = () => {
@@ -248,7 +247,8 @@ export const api = {
           painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : (p.pain_points || p.painPoints),
           keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits),
           affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks),
-          strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json, // Parsing for strategy
+          strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json, 
+          project_strategy_json: typeof p.project_strategy_json === 'string' ? JSON.parse(p.project_strategy_json) : p.project_strategy_json,
           targetAudience: p.target_audience || p.targetAudience,
           brandTone: p.brand_tone || p.brandTone,
           productName: p.product_name || p.productName,
@@ -274,7 +274,8 @@ export const api = {
               painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : (p.pain_points || p.painPoints),
               keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits),
               affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks),
-              strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json, // Parsing for strategy
+              strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json,
+              project_strategy_json: typeof p.project_strategy_json === 'string' ? JSON.parse(p.project_strategy_json) : p.project_strategy_json,
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
@@ -286,35 +287,26 @@ export const api = {
       }
   },
 
-  // --- GET PROJECT MASTER STRATEGY (HYBRID LOGIC) ---
+  // --- NEW: GET PROJECT MASTER STRATEGY ---
   getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy> => {
-      // 1. MODO MOCK (OFFLINE / DEMO)
       if (isMockMode) {
           return Promise.resolve(MOCK_MASTER_STRATEGY);
       }
 
-      // 2. MODO ONLINE (BASE DE DATOS REAL)
       try {
           const project = await api.getProjectById(id);
-          
-          if (project && project.strategy_json) {
-              // Validar si el objeto tiene al menos la propiedad 'meta' para considerarlo válido
-              if (project.strategy_json.meta) {
-                  return project.strategy_json as ProjectMasterStrategy;
-              }
+          // Prioritize project_strategy_json (Master Strategy) over legacy strategy_json
+          if (project && project.project_strategy_json) {
+              return project.project_strategy_json as ProjectMasterStrategy;
           }
-          
-          // Si el proyecto existe pero no tiene estrategia generada, devolvemos la Plantilla Vacía
-          return {
-              ...DEFAULT_STRATEGY_TEMPLATE,
-              meta: {
-                  ...DEFAULT_STRATEGY_TEMPLATE.meta,
-                  projectName: project?.name || "Proyecto sin nombre"
-              }
-          };
+          if (project && project.strategy_json) {
+              return project.strategy_json as ProjectMasterStrategy;
+          }
+          // Fallback to mock data if strategy is not yet generated in DB
+          return Promise.resolve(MOCK_MASTER_STRATEGY);
       } catch (e) {
-          console.error("Error consultando estrategia real, usando fallback de molde.", e);
-          return Promise.resolve(DEFAULT_STRATEGY_TEMPLATE);
+          console.error("Error fetching project strategy, falling back to mock", e);
+          return Promise.resolve(MOCK_MASTER_STRATEGY);
       }
   },
 
@@ -376,6 +368,7 @@ export const api = {
 
   getWeeklyAnalytics: async (): Promise<{date: string, visits: number, conversions: number}[]> => {
       if (isMockMode) {
+          // Generar datos dummy para la gráfica
           const days = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
           const today = new Date();
           const data = [];
@@ -395,6 +388,7 @@ export const api = {
 
   getAnalyticsSummary: async (): Promise<{totalVisits: number, totalConversions: number, totalPages: number, totalArticles: number}> => {
       if (isMockMode) {
+          // Calculate from local data
           const totalVisits = localPages.reduce((acc, p) => acc + p.visits, 0);
           const totalConversions = localPages.reduce((acc, p) => acc + p.conversions, 0);
           return Promise.resolve({
@@ -514,7 +508,7 @@ export const api = {
 
   deleteArticle: async (id: string): Promise<void> => {
     if (isMockMode) {
-        localArticles = localArticles.filter(a => a.id !== id);
+        localArticles = localArticles.filter(p => p.id !== id);
         return Promise.resolve();
     }
     await fetchWithFallback(`/articles/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
@@ -603,11 +597,13 @@ export const api = {
       return await fetchWithFallback(`/admin/users/${userId}/resources?type=${type}`, { headers: getAuthHeaders() });
   },
 
+  // NEW: Get Payment History
   getUserPayments: async (userId: string): Promise<any[]> => {
       if (isMockMode) return Promise.resolve([]);
       return await fetchWithFallback(`/admin/users/${userId}/payments`, { headers: getAuthHeaders() });
   },
 
+  // NEW: Get System Logs (Admin)
   getSystemLogs: async (page: number, filters: { action?: string, search?: string }): Promise<SystemLog[]> => {
       if (isMockMode) return Promise.resolve([]);
       let query = `?page=${page}`;
@@ -617,11 +613,14 @@ export const api = {
       return await fetchWithFallback(`/admin/logs${query}`, { headers: getAuthHeaders() });
   },
 
+  // NEW: Get User Stats (Admin Lazy Load)
   getUserUsageStats: async (userId: string): Promise<UserUsageStats> => {
       if (isMockMode) return Promise.resolve({ projects: 5, landings: 2, articles: 1 });
       return await fetchWithFallback(`/admin/users/${userId}/stats`, { headers: getAuthHeaders() });
   },
 
+  // --- LMS / COURSES ---
+  
   getCoursesList: async (): Promise<{id: string, title: string, slug: string}[]> => {
       if (isMockMode) {
           return Promise.resolve(localCourses.map(c => ({ id: c.id, title: c.title, slug: c.slug })));
@@ -633,10 +632,11 @@ export const api = {
       if (isMockMode) {
           const course = localCourses.find(c => c.slug === slug);
           if (course) {
+              // Map to viewer format if needed, but structure should match DB
               return Promise.resolve({
                   ...course,
-                  learningPoints: [],
-                  modules: course.modules?.map(m => ({...m, lessons: []})) || []
+                  learningPoints: [], // Mock structure might need adjustment
+                  modules: course.modules?.map(m => ({...m, lessons: []})) || [] // Ensure mock also returns empty lessons initially to test lazy load
               });
           }
           return Promise.resolve({
@@ -650,13 +650,17 @@ export const api = {
 
   getModuleLessons: async (moduleId: string): Promise<CourseLesson[]> => {
       if (isMockMode) {
+          // Find module in mock data
           const module = localCourses.flatMap(c => c.modules).find(m => m.id === moduleId);
+          // Simulate network delay
           await new Promise(resolve => setTimeout(resolve, 500));
           return Promise.resolve(module?.lessons || []);
       }
       return await fetchWithFallback(`/modules/${moduleId}/lessons`, { headers: getAuthHeaders() });
   },
 
+  // --- ADMIN COURSE MANAGEMENT ---
+  
   getAdminCourses: async (): Promise<Course[]> => {
       if (isMockMode) return Promise.resolve(localCourses);
       return await fetchWithFallback('/admin/courses', { headers: getAuthHeaders() });
@@ -702,6 +706,8 @@ export const api = {
       await fetchWithFallback(`/admin/courses/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
   },
 
+  // --- ADMIN COMMENTS MANAGEMENT ---
+
   getAdminComments: async (): Promise<Comment[]> => {
       if (isMockMode) return Promise.resolve(localComments);
       return await fetchWithFallback('/admin/comments', { headers: getAuthHeaders() });
@@ -740,7 +746,7 @@ export const api = {
               userId: MOCK_USER.id,
               date: new Date().toISOString(),
               likes: 0,
-              isApproved: false
+              isApproved: false // or true based on context
           };
           if (parentId) newComment.parentId = parentId;
           
@@ -756,6 +762,7 @@ export const api = {
 
   likeComment: async (commentId: string): Promise<void> => {
       if (isMockMode) {
+          // Update local mock data
           const comment = localComments.find(c => c.id === commentId);
           if (comment) {
               comment.likes = (comment.likes || 0) + 1;
@@ -768,6 +775,8 @@ export const api = {
       });
   },
 
+  // --- ADMIN SETTINGS & REDIRECTS ---
+  
   getLoginRedirect: async (): Promise<string> => {
       if (isMockMode) return "/dashboard/training/bienvenida";
       try {
@@ -787,8 +796,9 @@ export const api = {
       });
   },
 
+  // --- ADMIN PLANS MANAGEMENT ---
   getPlans: async (): Promise<Plan[]> => {
-      if (isMockMode) return Promise.resolve([]);
+      if (isMockMode) return Promise.resolve([]); // Add mock plans if needed later
       return await fetchWithFallback('/admin/plans', { headers: getAuthHeaders() });
   },
 
@@ -841,6 +851,7 @@ export const api = {
       await fetchWithFallback(`/admin/plans/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
   },
 
+  // --- CRM API ENDPOINTS ---
   getContacts: async (): Promise<CRMContact[]> => {
       if (isMockMode) return Promise.resolve([...localCrmContacts]);
       
@@ -849,7 +860,7 @@ export const api = {
           ...c,
           id: c.id.toString(),
           pageId: c.page_id ? c.page_id.toString() : undefined,
-          pageSlug: c.page_slug, 
+          pageSlug: c.page_slug, // Mapped from backend join
           lastContactedAt: c.last_contacted_at ? new Date(c.last_contacted_at) : undefined,
           createdAt: new Date(c.created_at),
           updatedAt: new Date(c.updated_at)
@@ -896,6 +907,7 @@ export const api = {
       });
   },
 
+  // NEW: Delete Contact Method
   deleteContact: async (id: string): Promise<void> => {
       if (isMockMode) {
           localCrmContacts = localCrmContacts.filter(c => c.id !== id);
