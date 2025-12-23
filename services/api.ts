@@ -287,26 +287,28 @@ export const api = {
       }
   },
 
-  // --- NEW: GET PROJECT MASTER STRATEGY ---
-  getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy> => {
+  // --- GET PROJECT MASTER STRATEGY ---
+  getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy | null> => {
       if (isMockMode) {
           return Promise.resolve(MOCK_MASTER_STRATEGY);
       }
 
       try {
           const project = await api.getProjectById(id);
-          // Prioritize project_strategy_json (Master Strategy) over legacy strategy_json
-          if (project && project.project_strategy_json) {
-              return project.project_strategy_json as ProjectMasterStrategy;
+          if (project) {
+              // Prioritize project_strategy_json (Master Strategy) over legacy strategy_json
+              if (project.project_strategy_json) {
+                  return project.project_strategy_json as ProjectMasterStrategy;
+              }
+              if (project.strategy_json) {
+                  return project.strategy_json as ProjectMasterStrategy;
+              }
           }
-          if (project && project.strategy_json) {
-              return project.strategy_json as ProjectMasterStrategy;
-          }
-          // Fallback to mock data if strategy is not yet generated in DB
-          return Promise.resolve(MOCK_MASTER_STRATEGY);
+          // En modo online, si no hay datos, retornamos null
+          return null;
       } catch (e) {
-          console.error("Error fetching project strategy, falling back to mock", e);
-          return Promise.resolve(MOCK_MASTER_STRATEGY);
+          console.error("Error fetching project strategy", e);
+          return null;
       }
   },
 

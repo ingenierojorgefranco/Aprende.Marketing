@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
     Users, Target, MessageCircle, FileText,
     MonitorPlay, ShoppingCart, CheckCircle2,
-    BookOpen, Sparkles, Globe, Clapperboard, X, Loader2
+    BookOpen, Sparkles, Globe, Clapperboard, X, Loader2, Wand2, Rocket
 } from 'lucide-react';
 
 import { ProjectStrategy_Header } from './ProjectStrategy/ProjectStrategy_Header';
@@ -44,8 +43,9 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     const [strategyData, setStrategyData] = useState<ProjectMasterStrategy | null>(null);
     const [loading, setLoading] = useState(true);
+    const [generating, setGenerating] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
-    const [globalDomainCount, setGlobalDomainCount] = useState(0); // NUEVO
+    const [globalDomainCount, setGlobalDomainCount] = useState(0); 
     
     // Dynamic Plan Logic
     const [nextPlan, setNextPlan] = useState<Plan | null>(null);
@@ -75,17 +75,17 @@ export const ProjectStrategyDashboard: React.FC = () => {
     });
 
     // --- LOAD STRATEGY, PAGES & PLANS DATA ---
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
-            try {
-                // Fetch Strategy, Pages and Plans in parallel
-                const [strategy, pages, plansData] = await Promise.all([
-                    api.getProjectStrategy(id),
-                    api.getPages(),
-                    api.getPublicPlans()
-                ]);
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            // Fetch Strategy, Pages and Plans in parallel
+            const [strategy, pages, plansData] = await Promise.all([
+                api.getProjectStrategy(id),
+                api.getPages(),
+                api.getPublicPlans()
+            ]);
 
+            if (strategy) {
                 // Map icons from strings to components if coming from JSON
                 if (strategy.meta.insights.overview.items) {
                     strategy.meta.insights.overview.items = strategy.meta.insights.overview.items.map(item => ({
@@ -94,36 +94,55 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     }));
                 }
                 setStrategyData(strategy);
-
-                // Logic: Find all pages linked to this project (by ID or legacy Name match)
-                const projectPages = pages.filter(p => p.projectId === id || p.name === strategy.meta.projectName);
-                setLinkedPages(projectPages);
-
-                // NUEVO: Calcular conteo global de dominios
-                const domains = pages.filter(p => !!p.customDomain).length;
-                setGlobalDomainCount(domains);
-
-                // Logic: Determine Next Plan
-                const currentPlanName = user.planLimits?.planName || 'starter';
-                const sortedPlans = plansData.sort((a, b) => a.priceMonthly - b.priceMonthly);
-                const currentIndex = sortedPlans.findIndex(p => p.slug === currentPlanName);
-                
-                if (currentIndex !== -1 && currentIndex < sortedPlans.length - 1) {
-                    setNextPlan(sortedPlans[currentIndex + 1]);
-                } else {
-                    setNextPlan(null); // Already max or unknown
-                }
-
-            } catch (error) {
-                console.error("Failed to load strategy or pages", error);
-            } finally {
-                setLoading(false);
+            } else {
+                setStrategyData(null);
             }
-        };
+
+            // Logic: Find all pages linked to this project
+            const projectPages = pages.filter(p => p.projectId === id || (strategy && p.name === strategy.meta.projectName));
+            setLinkedPages(projectPages);
+
+            // Calcular conteo global de dominios
+            const domains = pages.filter(p => !!p.customDomain).length;
+            setGlobalDomainCount(domains);
+
+            // Logic: Determine Next Plan
+            const currentPlanName = user.planLimits?.planName || 'starter';
+            const sortedPlans = plansData.sort((a, b) => a.priceMonthly - b.priceMonthly);
+            const currentIndex = sortedPlans.findIndex(p => p.slug === currentPlanName);
+            
+            if (currentIndex !== -1 && currentIndex < sortedPlans.length - 1) {
+                setNextPlan(sortedPlans[currentIndex + 1]);
+            } else {
+                setNextPlan(null); 
+            }
+
+        } catch (error) {
+            console.error("Failed to load strategy or pages", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         if (id) {
             loadData();
         }
     }, [id, user.planLimits]);
+
+    const handleGenerateStrategy = async () => {
+        setGenerating(true);
+        try {
+            // Invocar generación de estrategia full por IA
+            await api.generateProjectStrategyFull(id);
+            // Recargar datos tras generación
+            await loadData();
+        } catch (e: any) {
+            alert(`Error generando estrategia: ${e.message}`);
+        } finally {
+            setGenerating(false);
+        }
+    };
 
     // --- CHART DATA GENERATION LOGIC ---
     const chartData = useMemo(() => {
@@ -168,7 +187,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
         if (selectedArticles.includes(index)) {
             setSelectedArticles(prev => prev.filter(i => i !== index));
         } else {
-            // Check dynamic limit instead of hardcoded 2
             const maxArticles = user.planLimits?.maxArticles || 2;
             if (selectedArticles.length < maxArticles) {
                 setSelectedArticles(prev => [...prev, index]);
@@ -190,10 +208,39 @@ export const ProjectStrategyDashboard: React.FC = () => {
         );
     }
 
+    // --- EMPTY STATE UI: CUANDO NO HAY ESTRATEGIA GENERADA ---
     if (!strategyData) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center text-white">
-                <p>No se pudo cargar la estrategia. Intenta nuevamente.</p>
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6 animate-in fade-in">
+                <div className="w-24 h-24 bg-blue-900/20 rounded-full flex items-center justify-center mb-8 border border-blue-500/20 shadow-2xl shadow-blue-500/10">
+                    <Rocket className="w-12 h-12 text-blue-500" />
+                </div>
+                <h2 className="text-3xl md:text-4xl font-black mb-4 text-center">Estrategia no generada</h2>
+                <p className="text-gray-400 text-lg max-w-xl text-center mb-10 leading-relaxed font-light">
+                    Tu proyecto aún no cuenta con un **Informe Estratégico Maestro**. Haz clic en el botón de abajo para que la Inteligencia Artificial analice tu nicho y cree tu plan de ventas completo.
+                </p>
+                
+                <button 
+                    onClick={handleGenerateStrategy}
+                    disabled={generating}
+                    className="group relative px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl font-black text-xl shadow-2xl shadow-blue-900/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-4 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                    {generating ? (
+                        <>
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                            Generando Informe...
+                        </>
+                    ) : (
+                        <>
+                            <Wand2 className="w-6 h-6" />
+                            Generar Estrategia Maestra
+                        </>
+                    )}
+                </button>
+                
+                <button onClick={() => navigate('/dashboard/projects')} className="mt-8 text-gray-500 hover:text-white transition text-sm font-medium">
+                    Volver a Proyectos
+                </button>
             </div>
         );
     }
@@ -280,7 +327,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     handleTooltipLeave={handleTooltipLeave}
                     linkedPages={linkedPages}
                     onEditPage={(pageId) => navigate(`/dashboard/editor/${pageId}`)}
-                    // Props for limits
                     pageCount={pageCount}
                     domainCount={globalDomainCount}
                     planLimits={user.planLimits}
@@ -296,7 +342,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     toggleArticleSelection={toggleArticleSelection}
                     handleTooltipHover={handleTooltipHover}
                     handleTooltipLeave={handleTooltipLeave}
-                    // Props for limits
                     articleCount={articleCount}
                     planLimits={user.planLimits}
                     onUpgrade={() => setShowUpgradeModal(true)}
@@ -308,7 +353,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     avatars={strategyData.avatars}
                     activeEmail={activeEmail}
                     setActiveEmail={setActiveEmail}
-                    // Updated to use feature flag
                     features={user.planLimits?.features}
                     onUpgrade={() => setShowUpgradeModal(true)}
                     planLimits={user.planLimits}
@@ -320,7 +364,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     avatars={strategyData.avatars}
                     activeEvergreenEmail={activeEvergreenEmail}
                     setActiveEvergreenEmail={setActiveEvergreenEmail}
-                    // Updated to use feature flag
                     features={user.planLimits?.features}
                     onUpgrade={() => setShowUpgradeModal(true)}
                     planLimits={user.planLimits}
