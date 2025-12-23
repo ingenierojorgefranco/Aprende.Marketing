@@ -1,6 +1,20 @@
-import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project, ProjectMasterStrategy } from "../types";
-import { api } from "./api";
-import { STRATEGY_SCHEMA, SchemaType as Type } from "./strategyBlueprint";
+
+
+
+import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../types";
+import { api } from "./api"; // Usamos la configuración centralizada de API
+
+// Mock Type Enum to replace @google/genai SDK dependency on frontend
+// This matches the structure expected by the backend logic if needed, 
+// though we primarily send raw prompts or simple schemas.
+const Type = {
+  STRING: 'STRING',
+  NUMBER: 'NUMBER',
+  INTEGER: 'INTEGER',
+  BOOLEAN: 'BOOLEAN',
+  ARRAY: 'ARRAY',
+  OBJECT: 'OBJECT'
+};
 
 // Helper to call backend
 const callGeminiBackend = async (prompt: string, responseSchema?: any) => {
@@ -32,44 +46,7 @@ const callGeminiBackend = async (prompt: string, responseSchema?: any) => {
     }
 };
 
-// --- MASTER PROJECT STRATEGY GENERATION (BLUEPRINT BASED) ---
-
-export const generateFullProjectMasterStrategy = async (project: Project): Promise<ProjectMasterStrategy> => {
-    const prompt = `Actúa como un estratega de marketing digital de élite. 
-    Tu tarea es generar un informe estratégico maestro COMPLETO para el proyecto "${project.name}".
-    
-    DATOS DEL PROYECTO:
-    - Nicho: "${project.niche}"
-    - Producto: "${project.productName}"
-    - Descripción: "${project.description}"
-    - Tono de Marca: "${project.brandTone}"
-    - Audiencia Base: "${project.targetAudience}"
-    - Dolores Iniciales: ${project.painPoints?.join(", ")}
-    - Beneficios Clave: ${project.keyBenefits?.join(", ")}
-    
-    INSTRUCCIONES ESTRATÉGICAS:
-    1. Define 3 Avatares detallados con motivaciones psicológicas.
-    2. Crea una matriz de psicología (Pains vs Solutions).
-    3. Diseña el sistema Web (Estructura de Landing y Gracias).
-    4. Propón 5 artículos de blog SEO virales.
-    5. Redacta los resúmenes de una secuencia de Email de 7 días (Nurture) y 30 días (Evergreen).
-    6. Crea 4 scripts de WhatsApp para cierre de ventas.
-
-    IMPORTANTE: Responde estrictamente siguiendo el JSON Schema proporcionado.`;
-
-    try {
-        const response = await callGeminiBackend(prompt, STRATEGY_SCHEMA);
-        if (response.text) {
-            return JSON.parse(response.text) as ProjectMasterStrategy;
-        }
-        throw new Error("Empty response from AI");
-    } catch (error) {
-        console.error("Master Strategy Generation Error", error);
-        throw new Error("Fallo al generar la estrategia maestra");
-    }
-};
-
-// --- LEGACY PROJECT STRATEGY IDEAS ---
+// --- PROJECT STRATEGY GENERATION ---
 export interface ProjectStrategyIdeas {
     targetAudience: string;
     painPoints: string[];
@@ -97,11 +74,11 @@ export const generateProjectStrategy = async (
     Responde SOLO en JSON válido.`;
 
     const schema = {
-        type: 'OBJECT',
+        type: Type.OBJECT,
         properties: {
-            targetAudience: { type: 'STRING' },
-            painPoints: { type: 'ARRAY', items: { type: 'STRING' } },
-            keyBenefits: { type: 'ARRAY', items: { type: 'STRING' } }
+            targetAudience: { type: Type.STRING },
+            painPoints: { type: Type.ARRAY, items: { type: Type.STRING } },
+            keyBenefits: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
         required: ["targetAudience", "painPoints", "keyBenefits"]
     };
@@ -128,9 +105,10 @@ export const generateLandingPageContent = async (
   palette: ColorPalette,
   structure: StructureType,
   destination: DestinationConfig,
-  projectContext?: Project 
+  projectContext?: Project // NEW PARAMETER
 ): Promise<GeneratedPageContent> => {
   
+  // Contexto específico para el prompt
   let ctaContext = "";
   if (destination.type === 'whatsapp') {
     ctaContext = "El objetivo es que contacten por WhatsApp. El botón (CTA) debe invitar a chatear.";
@@ -140,6 +118,7 @@ export const generateLandingPageContent = async (
     ctaContext = "El objetivo es redirigir a una página de ventas externa o checkout.";
   }
 
+  // ENRICH PROMPT WITH PROJECT DATA IF AVAILABLE
   let projectStrategy = "";
   if (projectContext) {
       projectStrategy = `
@@ -163,6 +142,17 @@ export const generateLandingPageContent = async (
 
   IMPORTANTE: Independientemente de la estructura visual elegida, DEBES generar contenido rico y detallado para TODAS las secciones. No omitas ninguna sección.
   
+  Genera campos específicos:
+  - brandName: Nombre corto y pegadizo para la marca del sitio (ej: "NicheMaster").
+  - topTagline: Una frase corta y llamativa para la parte superior (ej: "🔥 Clase Gratuita Online - [Tema]").
+  - navCta: Un texto MUY corto (máximo 3 palabras) para el botón del menú superior (ej: "Reservar Cupo", "Ingresar Ahora").
+  - navLinks: Genera EXACTAMENTE 3 enlaces de navegación que coincidan con la estructura de la página. USA ESTRICTAMENTE ESTOS 'href' para que funcionen los anclajes del menú (no inventes otros hashtags):
+       1. Label: (Algo relacionado a Beneficios/Descubre), href: "#seccion-beneficios"
+       2. Label: (Algo relacionado a Testimonios/Resultados), href: "#seccion-testimonios"
+       3. Label: (Algo relacionado al Experto/Instructor), href: "#seccion-instructor"
+  - testimonialTitle: Un título persuasivo para los testimonios (ej: "Ellas ya cambiaron su historia:", "Resultados reales de alumnos:").
+  - logoSvg: Genera el código crudo string de un elemento <svg> completo. El diseño debe ser PREMIUM, ESTILIZADO y COLORIDO (usa <defs> con <linearGradient> para dar profundidad y profesionalismo). Debe relacionarse visualmente con el nicho "${niche}". NO uses 'currentColor' ni 'fill="none"', usa colores hex o gradientes que contrasten bien sobre fondo oscuro o claro. viewBox="0 0 64 64".
+  
   Estructura requerida del JSON:
   1. Hero: Título impactante (H1), subtítulo persuasivo y texto del botón principal (CTA). IMPORTANTE: En el campo 'headline', encierra la parte más importante o emocional de la frase entre etiquetas <b> y </b> (ejemplo: "¿Tu perro rompe cosas o <b>se porta mal?</b>").
   2. Testimonios: Genera 3 testimonios muy cortos (máximo 15 palabras) de clientes satisfechos, nombre y rating (5).
@@ -178,56 +168,56 @@ export const generateLandingPageContent = async (
   Devuelve JSON.`;
 
   const schema = {
-    type: 'OBJECT',
+    type: Type.OBJECT,
     properties: {
-    brandName: { type: 'STRING' },
-    topTagline: { type: 'STRING' },
-    navCta: { type: 'STRING' },
+    brandName: { type: Type.STRING },
+    topTagline: { type: Type.STRING },
+    navCta: { type: Type.STRING },
     navLinks: {
-        type: 'ARRAY',
+        type: Type.ARRAY,
         items: {
-            type: 'OBJECT',
+            type: Type.OBJECT,
             properties: {
-                label: { type: 'STRING' },
-                href: { type: 'STRING' }
+                label: { type: Type.STRING },
+                href: { type: Type.STRING }
             }
         }
     },
-    testimonialTitle: { type: 'STRING' },
-    logoSvg: { type: 'STRING' },
+    testimonialTitle: { type: Type.STRING },
+    logoSvg: { type: Type.STRING, description: "Raw SVG string for a premium, colorful, niche-related icon" },
     hero: {
-        type: 'OBJECT',
+        type: Type.OBJECT,
         properties: {
-        headline: { type: 'STRING' },
-        subheadline: { type: 'STRING' },
-        ctaText: { type: 'STRING' },
+        headline: { type: Type.STRING, description: "Headline with <b> tags around key phrase" },
+        subheadline: { type: Type.STRING },
+        ctaText: { type: Type.STRING },
         },
         required: ["headline", "subheadline", "ctaText"],
     },
     testimonials: {
-        type: 'ARRAY',
+        type: Type.ARRAY,
         items: {
-        type: 'OBJECT',
+        type: Type.OBJECT,
         properties: {
-            name: { type: 'STRING' },
-            text: { type: 'STRING' },
-            rating: { type: 'NUMBER' },
+            name: { type: Type.STRING },
+            text: { type: Type.STRING },
+            rating: { type: Type.NUMBER },
         },
         },
     },
     intro: {
-        type: 'OBJECT',
+        type: Type.OBJECT,
         properties: {
-        title: { type: 'STRING' },
-        description: { type: 'STRING' },
-        imageCardText: { type: 'STRING' },
+        title: { type: Type.STRING },
+        description: { type: Type.STRING },
+        imageCardText: { type: Type.STRING, description: "Short persuasive text over image" },
         items: {
-            type: 'ARRAY',
+            type: Type.ARRAY,
             items: {
-                type: 'OBJECT',
+                type: Type.OBJECT,
                 properties: {
-                    title: { type: 'STRING' },
-                    description: { type: 'STRING' }
+                    title: { type: Type.STRING },
+                    description: { type: Type.STRING }
                 }
             }
         }
@@ -235,57 +225,57 @@ export const generateLandingPageContent = async (
         required: ["title", "description"],
     },
     benefits: {
-        type: 'OBJECT',
+        type: Type.OBJECT,
         properties: {
-        title: { type: 'STRING' },
+        title: { type: Type.STRING },
         items: {
-            type: 'ARRAY',
+            type: Type.ARRAY,
             items: {
-            type: 'OBJECT',
+            type: Type.OBJECT,
             properties: {
-                title: { type: 'STRING' },
-                description: { type: 'STRING' },
+                title: { type: Type.STRING },
+                description: { type: Type.STRING },
             },
             },
         },
         },
     },
     whatYouWillLearn: {
-        type: 'OBJECT',
+        type: Type.OBJECT,
         properties: {
-        title: { type: 'STRING' },
+        title: { type: Type.STRING },
         items: {
-            type: 'ARRAY',
-            items: { type: 'STRING' },
+            type: Type.ARRAY,
+            items: { type: Type.STRING },
         },
         },
     },
     faq: {
-        type: 'ARRAY',
+        type: Type.ARRAY,
         items: {
-            type: 'OBJECT',
+            type: Type.OBJECT,
             properties: {
-                question: { type: 'STRING' },
-                answer: { type: 'STRING' }
+                question: { type: Type.STRING },
+                answer: { type: Type.STRING }
             }
         }
     },
     instructor: {
-        type: 'OBJECT',
+        type: Type.OBJECT,
         properties: {
-        name: { type: 'STRING' },
-        bio: { type: 'STRING' },
+        name: { type: Type.STRING },
+        bio: { type: Type.STRING },
         },
     },
     footer: {
-        type: 'OBJECT',
+        type: Type.OBJECT,
         properties: {
-        copyright: { type: 'STRING' },
-        contact: { type: 'STRING' },
+        copyright: { type: Type.STRING },
+        contact: { type: Type.STRING },
         },
     },
-    thankYouMessage: { type: 'STRING' },
-    redirectUrl: { type: 'STRING' },
+    thankYouMessage: { type: Type.STRING },
+    redirectUrl: { type: Type.STRING },
     },
     required: ["hero", "testimonials", "intro", "benefits", "whatYouWillLearn", "instructor", "footer", "thankYouMessage", "redirectUrl"],
   };
@@ -296,22 +286,32 @@ export const generateLandingPageContent = async (
     if (response.text) {
         const content = JSON.parse(response.text) as GeneratedPageContent;
         
+        // --- LOGIC UPDATE: DEFAULT SUBTITLE FOR BENEFITS ---
         if (!content.benefits.subtitle) {
             content.benefits.subtitle = "Descubre las herramientas exclusivas que acelerarán tus resultados desde el primer día.";
         }
+        
+        // --- LOGIC UPDATE: DEFAULT TITLE FOR INSTRUCTOR ---
         if (!content.instructor.title) {
             content.instructor.title = "Conoce a tu Mentor";
         }
+
+        // --- NEW DEFAULTS FOR EDITABLE TEXTS ---
         if (!content.instructor.badgeText) content.instructor.badgeText = "Instructor Destacado";
         if (!content.instructor.badgeSubtext) content.instructor.badgeSubtext = "Certificado Oficial";
         if (!content.instructor.statsStudents) content.instructor.statsStudents = "+500 Alumnos";
         if (!content.instructor.statsRating) content.instructor.statsRating = "5.0 Estrellas";
+        
         if (!content.intro.imageCardText) content.intro.imageCardText = "Método Exclusivo";
         if (!content.hero.socialProofCount) content.hero.socialProofCount = "+1000";
+
+        // --- NEW DEFAULTS FOR HERO & TESTIMONIALS (User Request) ---
         if (!content.hero.videoTitle) content.hero.videoTitle = "Clase Exclusiva";
         if (!content.hero.videoDuration) content.hero.videoDuration = "45 Minutos";
         if (!content.hero.spotsLeft) content.hero.spotsLeft = "¡Cupos Limitados!";
         if (!content.testimonialSubtitle) content.testimonialSubtitle = "Resultados reales de alumnos";
+        
+        // --- NEW DEFAULT FOR CLOSING OFFER TEXT ---
         if (!content.closingOfferText) {
             content.closingOfferText = "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios.";
         }
@@ -323,6 +323,7 @@ export const generateLandingPageContent = async (
                 "Quito, Ecuador", "Medellín, Colombia", "Monterrey, México", 
                 "Valencia, España", "Guadalajara, México", "Cali, Colombia"
             ];
+            
             content.testimonials.forEach(t => {
                 if (!t.location) {
                     t.location = randomLocations[Math.floor(Math.random() * randomLocations.length)];
@@ -368,6 +369,7 @@ export interface ArticleTitleIdea {
 }
 
 export const generateArticleTitles = async (topic: string, objective: string, keyword: string): Promise<ArticleTitleIdea[]> => {
+    // Prompt optimizado con restricciones estrictas para evitar texto basura (ej: chars count)
     const prompt = `Genera 4 títulos virales para un artículo sobre: "${topic}".
     Objetivo: "${objective}".
     ${keyword ? `Keyword SEO: "${keyword}"` : ''}
@@ -381,12 +383,12 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
     Devuelve JSON Array: [{ "title": "...", "description": "" }]`;
 
     const schema = {
-        type: 'ARRAY',
+        type: Type.ARRAY,
         items: {
-            type: 'OBJECT',
+            type: Type.OBJECT,
             properties: {
-                title: { type: 'STRING' },
-                description: { type: 'STRING' }
+                title: { type: Type.STRING },
+                description: { type: Type.STRING }
             }
         }
     };
@@ -397,6 +399,7 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
         return JSON.parse(response.text);
     } catch (e) {
         console.warn("Fallo IA en títulos, usando fallback local para no bloquear.", e);
+        // Fallback rápido si falla la IA
         return [
             { title: `Guía esencial sobre ${topic}`, description: "" },
             { title: `${topic}: Estrategias probadas`, description: "" },
@@ -432,8 +435,8 @@ export const generateArticleOutline = async (title: string, objective: string): 
     Ejemplo de formato de items: "H1: Título...", "H2: Atención...", etc.`;
 
     const schema = {
-        type: 'ARRAY',
-        items: { type: 'STRING' }
+        type: Type.ARRAY,
+        items: { type: Type.STRING }
     };
 
     try {
@@ -450,9 +453,10 @@ export const generateFullArticle = async (
     objective: string, 
     ctaLink: string, 
     keyword: string,
-    projectContext?: Project 
+    projectContext?: Project // NEW PARAMETER
 ): Promise<{ html: string; metaDescription: string }> => {
     
+    // Enrich with Project Context
     let projectStrategy = "";
     if (projectContext) {
         projectStrategy = `
@@ -492,10 +496,10 @@ export const generateFullArticle = async (
     Idioma: Español Neutro.`;
 
     const schema = {
-        type: 'OBJECT',
+        type: Type.OBJECT,
         properties: {
-            html: { type: 'STRING' },
-            metaDescription: { type: 'STRING' }
+            html: { type: Type.STRING },
+            metaDescription: { type: Type.STRING }
         },
         required: ["html", "metaDescription"]
     };

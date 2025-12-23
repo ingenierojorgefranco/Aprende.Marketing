@@ -1,3 +1,4 @@
+
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
   LOGIN = 'LOGIN',
@@ -345,59 +346,6 @@ export interface AffiliateLink {
   url: string;
 }
 
-// NEW: Master Strategy JSON Structure (For Dashboard Strategy)
-export interface ProjectMasterStrategy {
-    meta: {
-        projectName: string;
-        createdAt: string;
-        niche: string;
-        productType: string;
-        objective: string;
-        insights: {
-            overview: { title: string; items: any[] };
-            niche: { title: string; description: string };
-            product: { title: string; description: string };
-            objective: { title: string; description: string };
-        };
-    };
-    avatars: Array<{
-        id: number;
-        name: string;
-        archetype: string;
-        age: string;
-        quote: string;
-        pain: string;
-        desire: string;
-        objection: string;
-        motivations: { dinero: number; tiempo: number; estatus: number; seguridad: number };
-    }>;
-    psychology: {
-        pains: string[];
-        solutions: string[];
-        powerWords: string[];
-    };
-    modules: {
-        web: {
-            landingPageTabs: any; // LP_TABS_DATA
-            thankYouPageTabs: any; // TY_TABS_DATA
-        };
-        content: Array<{
-            id: number;
-            title: string;
-            traffic: number;
-            difficulty: number;
-            keyword: string;
-            objective: string;
-            strategy: string;
-        }>;
-        emails: {
-            nurture: Array<any>; // 7 days
-            evergreen: Array<any>; // 30 days
-        };
-        whatsapp: Array<any>;
-    };
-}
-
 // NEW: Strategy JSON Structure (Legacy/Simple AI Gen)
 export interface StrategyJSON {
   avatar: {
@@ -448,7 +396,7 @@ export interface Project {
   
   affiliateLinks: AffiliateLink[]; // Centralized links
   
-  strategy_json?: StrategyJSON | ProjectMasterStrategy | any; // Updated to accept both types
+  strategy_json?: StrategyJSON | any; // Updated to accept both types
   
   createdAt: Date;
 }

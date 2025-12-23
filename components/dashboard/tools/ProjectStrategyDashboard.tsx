@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
@@ -20,7 +21,8 @@ import { ProjectStrategy_Psychology } from './ProjectStrategy/ProjectStrategy_Ps
 
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
-import { ProjectMasterStrategy, LandingPage, User, Plan } from '../../../types';
+import { ProjectMasterStrategy } from '../../../services/strategySchema';
+import { LandingPage, User, Plan } from '../../../types';
 
 // --- ICONS MAPPING FOR DYNAMIC DATA ---
 const iconMap: any = {
