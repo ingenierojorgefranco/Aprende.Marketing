@@ -9,6 +9,7 @@ import {
 
 import { ProjectStrategy_Header } from './ProjectStrategy/ProjectStrategy_Header';
 import { ProjectStrategy_Summary } from './ProjectStrategy/ProjectStrategy_Summary';
+import { ProjectStrategy_AvatarDiagnosis } from './ProjectStrategy/ProjectStrategy_AvatarDiagnosis';
 import { ProjectStrategy_BusinessGrowth } from './ProjectStrategy/ProjectStrategy_BusinessGrowth';
 import { ProjectStrategy_Blueprint } from './ProjectStrategy/ProjectStrategy_Blueprint';
 import { ProjectStrategy_WebSystem } from './ProjectStrategy/ProjectStrategy_WebSystem';
@@ -134,9 +135,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const handleGenerateStrategy = async () => {
         setGenerating(true);
         try {
-            // Invocar generación de estrategia full por IA
             await api.generateProjectStrategyFull(id);
-            // Recargar datos tras generación
             await loadData();
         } catch (e: any) {
             alert(`Error generando estrategia: ${e.message}`);
@@ -155,7 +154,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
         const currentMonthIdx = today.getMonth(); 
         const currentYear = today.getFullYear();
 
-        // CAMBIO: Se elimina el array hardcoded. Si no hay datos, se inicializa en 0.
+        // Datos dinámicos de la base de datos
         const baseData = strategyData.meta.projection || Array(12).fill(0);
 
         return baseData.map((income, i) => {
@@ -212,7 +211,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
         );
     }
 
-    // --- EMPTY STATE UI: CUANDO NO HAY ESTRATEGIA GENERADA ---
     if (!strategyData) {
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6 animate-in fade-in">
@@ -298,7 +296,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
             <ProjectStrategy_Header 
                 projectName={strategyData.meta.projectName} 
                 onBack={() => navigate('/dashboard/projects')} 
-                onBuild={() => navigate('/dashboard/generator')} 
             />
 
             <div id="psd-main-content" className="max-w-[1400px] mx-auto p-6 space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-500 mt-8">
@@ -309,6 +306,11 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     setActiveHeaderItem={setActiveHeaderItem}
                     handleTooltipHover={handleTooltipHover}
                     handleTooltipLeave={handleTooltipLeave}
+                />
+
+                <ProjectStrategy_AvatarDiagnosis 
+                    avatars={strategyData.avatars} 
+                    psychology={strategyData.psychology} 
                 />
 
                 <ProjectStrategy_BusinessGrowth 
