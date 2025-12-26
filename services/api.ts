@@ -65,14 +65,15 @@ const getAuthHeaders = () => {
 
 const safeJsonParse = (data: any, fieldName: string = 'unknown') => {
     if (!data) {
-        console.debug(`[API Debug] safeJsonParse(${fieldName}): No hay datos para parsear (null/empty)`);
+        console.debug(`[API Debug] safeJsonParse(${fieldName}): No hay datos (null/empty).`);
         return null;
     }
     if (typeof data === 'object') {
-        console.debug(`[API Debug] safeJsonParse(${fieldName}): Los datos ya son un objeto.`);
+        console.debug(`[API Debug] safeJsonParse(${fieldName}): Los datos ya son un objeto:`, data);
         return data;
     }
     try {
+        console.debug(`[API Debug] safeJsonParse(${fieldName}): Intentando parsear string:`, data.substring?.(0, 100) + '...');
         let parsed = JSON.parse(data);
         // Manejar doble serialización
         if (typeof parsed === 'string') {
@@ -81,7 +82,7 @@ const safeJsonParse = (data: any, fieldName: string = 'unknown') => {
         }
         return parsed;
     } catch (e: any) {
-        console.error(`[API Error] safeJsonParse(${fieldName}) falló:`, e.message, "Data:", data);
+        console.error(`[API Error] safeJsonParse(${fieldName}) falló:`, e.message, "Data bruta:", data);
         return data;
     }
 };
@@ -292,7 +293,7 @@ export const api = {
               headers: getAuthHeaders()
           });
           
-          console.debug(`[API Debug] Proyecto ${id} recibido del servidor:`, p);
+          console.debug(`[API Debug] Proyecto ${id} recibido del servidor (Raw):`, p);
 
           const mappedProject = {
               ...p,
@@ -300,7 +301,7 @@ export const api = {
               painPoints: safeJsonParse(p.pain_points, 'proj.painPoints') || [],
               keyBenefits: safeJsonParse(p.key_benefits, 'proj.keyBenefits') || [],
               affiliateLinks: safeJsonParse(p.affiliate_links, 'proj.affiliateLinks') || [],
-              strategy_json: safeJsonParse(p.strategy_json, 'proj.strategyJson'),
+              strategy_json: safeJsonParse(p.strategy_json || p.project_strategy_json, 'proj.strategyJson'),
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
@@ -308,7 +309,7 @@ export const api = {
               createdAt: new Date(p.created_at || p.createdAt)
           };
 
-          console.debug(`[API Debug] Proyecto ${id} mapeado:`, mappedProject);
+          console.debug(`[API Debug] Proyecto ${id} mapeado final:`, mappedProject);
           return mappedProject;
       } catch (e: any) {
           console.error(`[API Error] getProjectById(${id}) falló:`, e.message);
@@ -325,11 +326,17 @@ export const api = {
       console.debug(`[API Debug] Intentando obtener estrategia para proyecto: ${id}`);
       try {
           const project = await api.getProjectById(id);
-          if (project && project.strategy_json) {
-              console.debug(`[API Debug] Estrategia encontrada en strategy_json:`, project.strategy_json);
-              return project.strategy_json as ProjectMasterStrategy;
+          if (project) {
+              console.debug(`[API Debug] Project data for strategy:`, { 
+                hasStrategy: !!project.strategy_json,
+                strategyType: typeof project.strategy_json
+              });
+
+              if (project.strategy_json) {
+                  return project.strategy_json as ProjectMasterStrategy;
+              }
           }
-          console.warn(`[API Debug] No se encontró estrategia para el proyecto ${id}`);
+          console.warn(`[API Debug] No se encontró estrategia válida en strategy_json para el proyecto ${id}`);
           return null;
       } catch (e: any) {
           console.error(`[API Error] getProjectStrategy(${id}) falló:`, e.message);

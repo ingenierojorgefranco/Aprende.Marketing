@@ -79,34 +79,44 @@ export const ProjectStrategyDashboard: React.FC = () => {
         setLoading(true);
         try {
             // Fetch Strategy, Pages and Plans in parallel
+            console.debug(`[StrategyDashboard Debug] Llamando a APIs en paralelo...`);
             const [strategy, pages, plansData] = await Promise.all([
                 api.getProjectStrategy(id),
                 api.getPages(),
                 api.getPublicPlans()
             ]);
 
-            console.debug(`[StrategyDashboard Debug] Objeto strategy obtenido:`, strategy);
+            console.debug(`[StrategyDashboard Debug] Resultado api.getProjectStrategy(${id}):`, strategy);
 
-            if (strategy && strategy.meta && strategy.meta.insights) {
-                console.debug(`[StrategyDashboard Debug] Estructura válida de estrategia detectada.`);
-                // Map icons from strings to components if coming from JSON
-                if (strategy.meta.insights.overview.items) {
-                    strategy.meta.insights.overview.items = strategy.meta.insights.overview.items.map(item => ({
-                        ...item,
-                        icon: typeof item.icon === 'string' ? iconMap[item.icon] || Sparkles : item.icon
-                    }));
-                }
-                setStrategyData(strategy);
-            } else {
-                console.warn(`[StrategyDashboard Debug] Estructura de estrategia INVÁLIDA o nula:`, {
-                    exists: !!strategy,
-                    hasMeta: !!strategy?.meta,
-                    hasInsights: !!strategy?.meta?.insights
+            if (strategy) {
+                console.debug(`[StrategyDashboard Debug] Inspección de estructura strategy:`, {
+                    hasMeta: !!strategy.meta,
+                    hasInsights: !!strategy.meta?.insights,
+                    hasAvatars: !!strategy.avatars,
+                    hasModules: !!strategy.modules
                 });
+
+                if (strategy.meta && strategy.meta.insights) {
+                    console.debug(`[StrategyDashboard Debug] Estructura VÁLIDA detectada. Actualizando estado.`);
+                    
+                    // Map icons from strings to components if coming from JSON
+                    if (strategy.meta.insights.overview && strategy.meta.insights.overview.items) {
+                        strategy.meta.insights.overview.items = strategy.meta.insights.overview.items.map(item => ({
+                            ...item,
+                            icon: typeof item.icon === 'string' ? iconMap[item.icon] || Sparkles : item.icon
+                        }));
+                    }
+                    setStrategyData(strategy);
+                } else {
+                    console.warn(`[StrategyDashboard Debug] strategy existe pero le falta 'meta' o 'insights'. Estructura incompleta.`);
+                    setStrategyData(null);
+                }
+            } else {
+                console.warn(`[StrategyDashboard Debug] api.getProjectStrategy devolvió NULL para el proyecto ${id}`);
                 setStrategyData(null);
             }
 
-            // Logic: Find all pages linked to this project - USAR STRING COMPARISON PARA SEGURIDAD
+            // Logic: Find all pages linked to this project
             const projectPages = pages.filter(p => String(p.projectId) === String(id) || (strategy && p.name === strategy.meta.projectName));
             setLinkedPages(projectPages);
 
@@ -126,7 +136,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
             }
 
         } catch (error: any) {
-            console.error("[StrategyDashboard Error] Failed to load strategy or pages:", error.message);
+            console.error("[StrategyDashboard Error] Error crítico cargando datos:", error.message);
         } finally {
             setLoading(false);
         }
@@ -140,10 +150,13 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     const handleGenerateStrategy = async () => {
         setGenerating(true);
+        console.debug(`[StrategyDashboard Debug] Solicitando generación completa de estrategia para ID: ${id}`);
         try {
-            await api.generateProjectStrategyFull(id);
+            const result = await api.generateProjectStrategyFull(id);
+            console.debug(`[StrategyDashboard Debug] Generación terminada. Resultado:`, result);
             await loadData();
         } catch (e: any) {
+            console.error(`[StrategyDashboard Debug] Fallo en generación:`, e.message);
             alert(`Error generando estrategia: ${e.message}`);
         } finally {
             setGenerating(false);
