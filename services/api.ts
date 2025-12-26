@@ -1,4 +1,3 @@
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -64,18 +63,25 @@ const getAuthHeaders = () => {
     };
 };
 
-const safeJsonParse = (data: any) => {
-    if (!data) return null;
-    if (typeof data === 'object') return data;
+const safeJsonParse = (data: any, fieldName: string = 'unknown') => {
+    if (!data) {
+        console.debug(`[API Debug] safeJsonParse(${fieldName}): No hay datos para parsear (null/empty)`);
+        return null;
+    }
+    if (typeof data === 'object') {
+        console.debug(`[API Debug] safeJsonParse(${fieldName}): Los datos ya son un objeto.`);
+        return data;
+    }
     try {
         let parsed = JSON.parse(data);
         // Manejar doble serialización
         if (typeof parsed === 'string') {
+            console.debug(`[API Debug] safeJsonParse(${fieldName}): Doble serialización detectada, parseando de nuevo.`);
             parsed = JSON.parse(parsed);
         }
         return parsed;
-    } catch (e) {
-        console.error("API Parse Error:", e);
+    } catch (e: any) {
+        console.error(`[API Error] safeJsonParse(${fieldName}) falló:`, e.message, "Data:", data);
         return data;
     }
 };
@@ -172,11 +178,11 @@ export const api = {
     
     // Map backend response (which might include raw thankyoupage_json) to frontend Structure
     return pages.map((p: any) => {
-        const content = safeJsonParse(p.content);
+        const content = safeJsonParse(p.content, 'page.content');
         
         // If DB has separated TY JSON, merge it here if backend didn't already
         if (p.thankyoupage_json && !content.thankYouPage) {
-            content.thankYouPage = safeJsonParse(p.thankyoupage_json);
+            content.thankYouPage = safeJsonParse(p.thankyoupage_json, 'page.thankyoupage');
         }
 
         return {
@@ -261,10 +267,10 @@ export const api = {
       return projects.map((p: any) => ({
           ...p,
           id: String(p.id),
-          painPoints: safeJsonParse(p.pain_points) || [],
-          keyBenefits: safeJsonParse(p.key_benefits) || [],
-          affiliateLinks: safeJsonParse(p.affiliate_links) || [],
-          strategy_json: safeJsonParse(p.strategy_json), 
+          painPoints: safeJsonParse(p.pain_points, 'proj.painPoints') || [],
+          keyBenefits: safeJsonParse(p.key_benefits, 'proj.keyBenefits') || [],
+          affiliateLinks: safeJsonParse(p.affiliate_links, 'proj.affiliateLinks') || [],
+          strategy_json: safeJsonParse(p.strategy_json, 'proj.strategyJson'), 
           targetAudience: p.target_audience || p.targetAudience,
           brandTone: p.brand_tone || p.brandTone,
           productName: p.product_name || p.productName,
@@ -274,74 +280,59 @@ export const api = {
   },
 
   getProjectById: async (id: string): Promise<Project | null> => {
-      console.log(`[DEBUG API] getProjectById llamado para ID: ${id}`);
       if (isMockMode) {
-          const proj = localProjects.find(p => String(p.id) === String(id));
+          const proj = localProjects.find(p => p.id === id);
           return proj ? Promise.resolve(proj) : Promise.resolve(null);
       }
 
+      console.debug(`[API Debug] Llamando a getProjectById para ID: ${id}`);
       try {
           const p = await fetchWithFallback(`/projects/${id}`, {
               method: 'GET',
               headers: getAuthHeaders()
           });
-          console.log(`[DEBUG API] Servidor devolvió proyecto para ID ${id}:`, p);
-          return {
+          
+          console.debug(`[API Debug] Proyecto ${id} recibido del servidor:`, p);
+
+          const mappedProject = {
               ...p,
               id: String(p.id),
-              painPoints: safeJsonParse(p.pain_points) || [],
-              keyBenefits: safeJsonParse(p.key_benefits) || [],
-              affiliateLinks: safeJsonParse(p.affiliate_links) || [],
-              strategy_json: safeJsonParse(p.strategy_json),
+              painPoints: safeJsonParse(p.pain_points, 'proj.painPoints') || [],
+              keyBenefits: safeJsonParse(p.key_benefits, 'proj.keyBenefits') || [],
+              affiliateLinks: safeJsonParse(p.affiliate_links, 'proj.affiliateLinks') || [],
+              strategy_json: safeJsonParse(p.strategy_json, 'proj.strategyJson'),
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
               mainGoal: p.main_goal || p.mainGoal,
               createdAt: new Date(p.created_at || p.createdAt)
           };
-      } catch (e) {
-          console.error(`[DEBUG API] Error en getProjectById para ID ${id}:`, e.message);
+
+          console.debug(`[API Debug] Proyecto ${id} mapeado:`, mappedProject);
+          return mappedProject;
+      } catch (e: any) {
+          console.error(`[API Error] getProjectById(${id}) falló:`, e.message);
           return null;
       }
   },
 
   // --- GET PROJECT MASTER STRATEGY ---
   getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy | null> => {
-      console.group(`🔍 DEBUG API: getProjectStrategy(ID: ${id})`);
       if (isMockMode) {
-          console.log("Modo Mock: Retornando MOCK_MASTER_STRATEGY");
-          console.groupEnd();
           return Promise.resolve(MOCK_MASTER_STRATEGY);
       }
 
+      console.debug(`[API Debug] Intentando obtener estrategia para proyecto: ${id}`);
       try {
           const project = await api.getProjectById(id);
-          if (!project) {
-              console.error(`ERROR: No se encontró el proyecto con ID ${id}`);
-              console.groupEnd();
-              return null;
+          if (project && project.strategy_json) {
+              console.debug(`[API Debug] Estrategia encontrada en strategy_json:`, project.strategy_json);
+              return project.strategy_json as ProjectMasterStrategy;
           }
-
-          console.log("Proyecto recuperado de la API:", project);
-
-          if (!project.strategy_json) {
-              console.warn("ADVERTENCIA: El campo strategy_json está VACÍO en la base de datos para este proyecto.");
-              console.groupEnd();
-              return null;
-          }
-
-          console.log("strategy_json encontrado:", project.strategy_json);
-          const strategy = project.strategy_json as ProjectMasterStrategy;
-
-          if (!strategy.meta) {
-              console.error("ERROR CRÍTICO: El objeto strategy_json NO contiene la propiedad 'meta'. Estructura inválida.");
-          }
-
-          console.groupEnd();
-          return strategy;
-      } catch (e) {
-          console.error("EXCEPCIÓN en getProjectStrategy:", e.message);
-          console.groupEnd();
+          console.warn(`[API Debug] No se encontró estrategia para el proyecto ${id}`);
+          return null;
+      } catch (e: any) {
+          console.error(`[API Error] getProjectStrategy(${id}) falló:`, e.message);
           return null;
       }
   },
