@@ -3,7 +3,7 @@ import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
     Users, Target, MessageCircle, FileText,
     MonitorPlay, ShoppingCart, CheckCircle2,
-    BookOpen, Sparkles, Globe, Clapperboard, X, Loader2, Wand2, Rocket
+    BookOpen, Sparkles, Globe, Clapperboard, X, Loader2, Wand2, Rocket, AlertTriangle, RefreshCw
 } from 'lucide-react';
 
 import { ProjectStrategy_Header } from './ProjectStrategy/ProjectStrategy_Header';
@@ -75,58 +75,53 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     // --- LOAD STRATEGY, PAGES & PLANS DATA ---
     const loadData = async () => {
+        if (!id) return;
         console.debug(`[StrategyDashboard Debug] Iniciando carga de datos para ID: ${id}`);
         setLoading(true);
         try {
             // Fetch Strategy, Pages and Plans in parallel
-            console.debug(`[StrategyDashboard Debug] Llamando a APIs en paralelo...`);
             const [strategy, pages, plansData] = await Promise.all([
-                api.getProjectStrategy(id),
-                api.getPages(),
-                api.getPublicPlans()
+                api.getProjectStrategy(id).catch(e => { console.error("Strategy load fail", e); return null; }),
+                api.getPages().catch(e => { console.error("Pages load fail", e); return []; }),
+                api.getPublicPlans().catch(e => { console.error("Plans load fail", e); return []; })
             ]);
 
-            console.debug(`[StrategyDashboard Debug] Resultado api.getProjectStrategy(${id}):`, strategy);
+            console.debug(`[StrategyDashboard Debug] Objeto strategy obtenido:`, strategy);
 
-            if (strategy) {
-                console.debug(`[StrategyDashboard Debug] Inspección de estructura strategy:`, {
-                    hasMeta: !!strategy.meta,
-                    hasInsights: !!strategy.meta?.insights,
-                    hasAvatars: !!strategy.avatars,
-                    hasModules: !!strategy.modules
-                });
+            // Validación extrema de estructura JSON
+            const isStrategyValid = strategy && 
+                                   strategy.meta && 
+                                   strategy.meta.insights && 
+                                   strategy.avatars && 
+                                   strategy.psychology && 
+                                   strategy.modules;
 
-                if (strategy.meta && strategy.meta.insights) {
-                    console.debug(`[StrategyDashboard Debug] Estructura VÁLIDA detectada. Actualizando estado.`);
-                    
-                    // Map icons from strings to components if coming from JSON
-                    if (strategy.meta.insights.overview && strategy.meta.insights.overview.items) {
-                        strategy.meta.insights.overview.items = strategy.meta.insights.overview.items.map(item => ({
-                            ...item,
-                            icon: typeof item.icon === 'string' ? iconMap[item.icon] || Sparkles : item.icon
-                        }));
-                    }
-                    setStrategyData(strategy);
-                } else {
-                    console.warn(`[StrategyDashboard Debug] strategy existe pero le falta 'meta' o 'insights'. Estructura incompleta.`);
-                    setStrategyData(null);
+            if (isStrategyValid) {
+                console.debug(`[StrategyDashboard Debug] Estructura válida de estrategia detectada.`);
+                // Map icons from strings to components if coming from JSON
+                if (strategy.meta.insights.overview?.items) {
+                    strategy.meta.insights.overview.items = strategy.meta.insights.overview.items.map((item: any) => ({
+                        ...item,
+                        icon: typeof item.icon === 'string' ? iconMap[item.icon] || Sparkles : (item.icon || Sparkles)
+                    }));
                 }
+                setStrategyData(strategy);
             } else {
-                console.warn(`[StrategyDashboard Debug] api.getProjectStrategy devolvió NULL para el proyecto ${id}`);
+                console.warn(`[StrategyDashboard Debug] Estructura de estrategia INVÁLIDA o incompleta detectada.`);
                 setStrategyData(null);
             }
 
             // Logic: Find all pages linked to this project
-            const projectPages = pages.filter(p => String(p.projectId) === String(id) || (strategy && p.name === strategy.meta.projectName));
+            const projectPages = Array.isArray(pages) ? pages.filter(p => String(p.projectId) === String(id) || (strategy && p.name === strategy.meta?.projectName)) : [];
             setLinkedPages(projectPages);
 
             // Calcular conteo global de dominios
-            const domains = pages.filter(p => !!p.customDomain).length;
+            const domains = Array.isArray(pages) ? pages.filter(p => !!p.customDomain).length : 0;
             setGlobalDomainCount(domains);
 
             // Logic: Determine Next Plan
             const currentPlanName = user.planLimits?.planName || 'starter';
-            const sortedPlans = plansData.sort((a, b) => a.priceMonthly - b.priceMonthly);
+            const sortedPlans = Array.isArray(plansData) ? [...plansData].sort((a, b) => a.priceMonthly - b.priceMonthly) : [];
             const currentIndex = sortedPlans.findIndex(p => p.slug === currentPlanName);
             
             if (currentIndex !== -1 && currentIndex < sortedPlans.length - 1) {
@@ -136,7 +131,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
             }
 
         } catch (error: any) {
-            console.error("[StrategyDashboard Error] Error crítico cargando datos:", error.message);
+            console.error("[StrategyDashboard Error] Fatal load failure:", error.message);
+            setStrategyData(null);
         } finally {
             setLoading(false);
         }
@@ -150,13 +146,10 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     const handleGenerateStrategy = async () => {
         setGenerating(true);
-        console.debug(`[StrategyDashboard Debug] Solicitando generación completa de estrategia para ID: ${id}`);
         try {
-            const result = await api.generateProjectStrategyFull(id);
-            console.debug(`[StrategyDashboard Debug] Generación terminada. Resultado:`, result);
+            await api.generateProjectStrategyFull(id);
             await loadData();
         } catch (e: any) {
-            console.error(`[StrategyDashboard Debug] Fallo en generación:`, e.message);
             alert(`Error generando estrategia: ${e.message}`);
         } finally {
             setGenerating(false);
@@ -165,7 +158,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     // --- CHART DATA GENERATION LOGIC ---
     const chartData = useMemo(() => {
-        if (!strategyData || !strategyData.meta) return [];
+        if (!strategyData || !strategyData.meta || !strategyData.meta.projection) return [];
         
         const monthNamesFull = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         const monthNamesShort = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
@@ -174,7 +167,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
         const currentYear = today.getFullYear();
 
         // Datos dinámicos de la base de datos
-        const baseData = strategyData.meta.projection || Array(12).fill(0);
+        const baseData = strategyData.meta.projection;
 
         return baseData.map((income, i) => {
             const monthIndex = (currentMonthIdx + i) % 12;
@@ -186,7 +179,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
             
             return {
                 month: monthNameShort, 
-                income: income,
+                income: income || 0,
                 fullDate: fullDate 
             };
         });
@@ -230,38 +223,51 @@ export const ProjectStrategyDashboard: React.FC = () => {
         );
     }
 
+    // Pantalla de error/regeneración elegante
     if (!strategyData || !strategyData.meta) {
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6 animate-in fade-in">
                 <div className="w-24 h-24 bg-blue-900/20 rounded-full flex items-center justify-center mb-8 border border-blue-500/20 shadow-2xl shadow-blue-500/10">
                     <Rocket className="w-12 h-12 text-blue-500" />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-black mb-4 text-center">Estrategia no generada</h2>
+                <h2 className="text-3xl md:text-4xl font-black mb-4 text-center">Datos incompletos o corruptos</h2>
                 <p className="text-gray-400 text-lg max-w-xl text-center mb-10 leading-relaxed font-light">
-                    Tu proyecto aún no cuenta con un **Informe Estratégico Maestro**. Haz clic en el botón de abajo para que la Inteligencia Artificial analice tu nicho y cree tu plan de ventas completo.
+                    No hemos podido cargar la estrategia de este proyecto correctamente. Esto puede deberse a un error en la generación previa o datos truncados por la IA. 
+                    <br/><br/>
+                    <span className="text-blue-400 font-bold">La mejor solución es volver a generar la estrategia ahora mismo.</span>
                 </p>
                 
-                <button 
-                    onClick={handleGenerateStrategy}
-                    disabled={generating}
-                    className="group relative px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl font-black text-xl shadow-2xl shadow-blue-900/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-4 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                    {generating ? (
-                        <>
-                            <Loader2 className="w-6 h-6 animate-spin" />
-                            Generando Informe...
-                        </>
-                    ) : (
-                        <>
-                            <Wand2 className="w-6 h-6" />
-                            Generar Estrategia Maestra
-                        </>
-                    )}
-                </button>
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <button 
+                        onClick={handleGenerateStrategy}
+                        disabled={generating}
+                        className="group relative px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl font-black text-xl shadow-2xl shadow-blue-900/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-4 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                        {generating ? (
+                            <>
+                                <Loader2 className="w-6 h-6 animate-spin" />
+                                Generando...
+                            </>
+                        ) : (
+                            <>
+                                <RefreshCw className="w-6 h-6" />
+                                Regenerar Estrategia
+                            </>
+                        )}
+                    </button>
+
+                    <button 
+                        onClick={() => navigate('/dashboard/projects')}
+                        className="px-10 py-5 bg-gray-900 hover:bg-gray-800 text-gray-300 border border-gray-800 rounded-2xl font-bold transition-all"
+                    >
+                        Cancelar
+                    </button>
+                </div>
                 
-                <button onClick={() => navigate('/dashboard/projects')} className="mt-8 text-gray-500 hover:text-white transition text-sm font-medium">
-                    Volver a Proyectos
-                </button>
+                <div className="mt-12 flex items-center gap-3 text-gray-500 text-sm">
+                    <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                    <span>Esto consumirá un crédito de generación de tu plan actual.</span>
+                </div>
             </div>
         );
     }
@@ -313,7 +319,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
             )}
 
             <ProjectStrategy_Header 
-                projectName={strategyData.meta.projectName} 
+                projectName={strategyData.meta?.projectName || "Proyecto"} 
                 onBack={() => navigate('/dashboard/projects')} 
             />
 
@@ -327,15 +333,17 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     handleTooltipLeave={handleTooltipLeave}
                 />
 
-                <ProjectStrategy_AvatarDiagnosis 
-                    avatars={strategyData.avatars} 
-                    psychology={strategyData.psychology} 
-                />
+                {strategyData.avatars && (
+                    <ProjectStrategy_AvatarDiagnosis 
+                        avatars={strategyData.avatars} 
+                        psychology={strategyData.psychology} 
+                    />
+                )}
 
                 <ProjectStrategy_BusinessGrowth 
                     chartData={chartData} 
                     onOpenVideo={() => setShowVideoModal(true)} 
-                    commissionValue={strategyData.meta.price * strategyData.meta.commissionRate}
+                    commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)}
                 />
 
                 <ProjectStrategy_Blueprint 
@@ -360,41 +368,47 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     nextPlan={nextPlan}
                 />
 
-                <ProjectStrategy_Content 
-                    contentData={strategyData.modules.content}
-                    activeArticle={activeArticle}
-                    setActiveArticle={setActiveArticle}
-                    selectedArticles={selectedArticles}
-                    toggleArticleSelection={toggleArticleSelection}
-                    handleTooltipHover={handleTooltipHover}
-                    handleTooltipLeave={handleTooltipLeave}
-                    articleCount={articleCount}
-                    planLimits={user.planLimits}
-                    onUpgrade={() => setShowUpgradeModal(true)}
-                    nextPlan={nextPlan}
-                />
+                {strategyData.modules?.content && (
+                    <ProjectStrategy_Content 
+                        contentData={strategyData.modules.content}
+                        activeArticle={activeArticle}
+                        setActiveArticle={setActiveArticle}
+                        selectedArticles={selectedArticles}
+                        toggleArticleSelection={toggleArticleSelection}
+                        handleTooltipHover={handleTooltipHover}
+                        handleTooltipLeave={handleTooltipLeave}
+                        articleCount={articleCount}
+                        planLimits={user.planLimits}
+                        onUpgrade={() => setShowUpgradeModal(true)}
+                        nextPlan={nextPlan}
+                    />
+                )}
 
-                <ProjectStrategy_Email 
-                    emailData={strategyData.modules.emails.nurture}
-                    avatars={strategyData.avatars}
-                    activeEmail={activeEmail}
-                    setActiveEmail={setActiveEmail}
-                    features={user.planLimits?.features}
-                    onUpgrade={() => setShowUpgradeModal(true)}
-                    planLimits={user.planLimits}
-                    nextPlan={nextPlan}
-                />
+                {strategyData.modules?.emails?.nurture && (
+                    <ProjectStrategy_Email 
+                        emailData={strategyData.modules.emails.nurture}
+                        avatars={strategyData.avatars}
+                        activeEmail={activeEmail}
+                        setActiveEmail={setActiveEmail}
+                        features={user.planLimits?.features}
+                        onUpgrade={() => setShowUpgradeModal(true)}
+                        planLimits={user.planLimits}
+                        nextPlan={nextPlan}
+                    />
+                )}
 
-                <ProjectStrategy_Evergreen 
-                    evergreenData={strategyData.modules.emails.evergreen}
-                    avatars={strategyData.avatars}
-                    activeEvergreenEmail={activeEvergreenEmail}
-                    setActiveEvergreenEmail={setActiveEvergreenEmail}
-                    features={user.planLimits?.features}
-                    onUpgrade={() => setShowUpgradeModal(true)}
-                    planLimits={user.planLimits}
-                    nextPlan={nextPlan}
-                />
+                {strategyData.modules?.emails?.evergreen && (
+                    <ProjectStrategy_Evergreen 
+                        evergreenData={strategyData.modules.emails.evergreen}
+                        avatars={strategyData.avatars}
+                        activeEvergreenEmail={activeEvergreenEmail}
+                        setActiveEvergreenEmail={setActiveEvergreenEmail}
+                        features={user.planLimits?.features}
+                        onUpgrade={() => setShowUpgradeModal(true)}
+                        planLimits={user.planLimits}
+                        nextPlan={nextPlan}
+                    />
+                )}
 
             </div>
         </div>

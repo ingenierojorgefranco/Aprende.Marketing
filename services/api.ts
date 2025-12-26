@@ -63,28 +63,55 @@ const getAuthHeaders = () => {
     };
 };
 
+/**
+ * Intenta parsear JSON de forma segura, incluso si tiene errores comunes de LLMs
+ */
 const safeJsonParse = (data: any, fieldName: string = 'unknown') => {
-    if (!data) {
-        console.debug(`[API Debug] safeJsonParse(${fieldName}): No hay datos (null/empty).`);
-        return null;
-    }
-    if (typeof data === 'object') {
-        console.debug(`[API Debug] safeJsonParse(${fieldName}): Los datos ya son un objeto:`, data);
-        return data;
-    }
-    try {
-        console.debug(`[API Debug] safeJsonParse(${fieldName}): Intentando parsear string:`, data.substring?.(0, 100) + '...');
-        let parsed = JSON.parse(data);
-        // Manejar doble serialización
-        if (typeof parsed === 'string') {
-            console.debug(`[API Debug] safeJsonParse(${fieldName}): Doble serialización detectada, parseando de nuevo.`);
-            parsed = JSON.parse(parsed);
+    if (!data) return null;
+    if (typeof data === 'object') return data;
+
+    const tryParse = (str: string) => {
+        try {
+            let p = JSON.parse(str);
+            if (typeof p === 'string') p = JSON.parse(p);
+            return p;
+        } catch (e) {
+            return null;
         }
-        return parsed;
-    } catch (e: any) {
-        console.error(`[API Error] safeJsonParse(${fieldName}) falló:`, e.message, "Data bruta:", data);
-        return data;
-    }
+    };
+
+    // Intento 1: Normal
+    let result = tryParse(data);
+    if (result) return result;
+
+    // Intento 2: Reparación de emergencia (Comillas no escapadas)
+    try {
+        console.warn(`[API Repair] Intentando reparar JSON malformado para: ${fieldName}`);
+        let repaired = data.toString().trim();
+        
+        // Limpiar bloques de markdown si existen
+        repaired = repaired.replace(/^```json/, "").replace(/```$/, "").trim();
+
+        // Regex para buscar comillas dobles "huérfanas" dentro de valores de texto
+        // Esta es una aproximación: busca comillas que NO están precedidas por : o [ o {
+        // y que NO están seguidas por , o ] o }
+        // Nota: Es arriesgado pero útil para casos como "Nombre "Apodo" Apellido"
+        const suspiciousQuotesRegex = /([^:{\[,])"([^,}\]])/g;
+        let iteration = 0;
+        while (suspiciousQuotesRegex.test(repaired) && iteration < 10) {
+            repaired = repaired.replace(suspiciousQuotesRegex, '$1\\"$2');
+            iteration++;
+        }
+
+        result = tryParse(repaired);
+        if (result) {
+            console.log(`[API Repair] Éxito reparando JSON de ${fieldName}`);
+            return result;
+        }
+    } catch (e) {}
+
+    console.error(`[API Error] safeJsonParse(${fieldName}) falló definitivamente:`, data);
+    return data;
 };
 
 export const api = {
@@ -293,7 +320,7 @@ export const api = {
               headers: getAuthHeaders()
           });
           
-          console.debug(`[API Debug] Proyecto ${id} recibido del servidor (Raw):`, p);
+          console.debug(`[API Debug] Proyecto ${id} recibido del servidor:`, p);
 
           const mappedProject = {
               ...p,
@@ -301,7 +328,7 @@ export const api = {
               painPoints: safeJsonParse(p.pain_points, 'proj.painPoints') || [],
               keyBenefits: safeJsonParse(p.key_benefits, 'proj.keyBenefits') || [],
               affiliateLinks: safeJsonParse(p.affiliate_links, 'proj.affiliateLinks') || [],
-              strategy_json: safeJsonParse(p.strategy_json || p.project_strategy_json, 'proj.strategyJson'),
+              strategy_json: safeJsonParse(p.strategy_json, 'proj.strategyJson'),
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
@@ -309,7 +336,7 @@ export const api = {
               createdAt: new Date(p.created_at || p.createdAt)
           };
 
-          console.debug(`[API Debug] Proyecto ${id} mapeado final:`, mappedProject);
+          console.debug(`[API Debug] Proyecto ${id} mapeado:`, mappedProject);
           return mappedProject;
       } catch (e: any) {
           console.error(`[API Error] getProjectById(${id}) falló:`, e.message);
@@ -326,17 +353,11 @@ export const api = {
       console.debug(`[API Debug] Intentando obtener estrategia para proyecto: ${id}`);
       try {
           const project = await api.getProjectById(id);
-          if (project) {
-              console.debug(`[API Debug] Project data for strategy:`, { 
-                hasStrategy: !!project.strategy_json,
-                strategyType: typeof project.strategy_json
-              });
-
-              if (project.strategy_json) {
-                  return project.strategy_json as ProjectMasterStrategy;
-              }
+          if (project && project.strategy_json) {
+              console.debug(`[API Debug] Estrategia encontrada en strategy_json:`, project.strategy_json);
+              return project.strategy_json as ProjectMasterStrategy;
           }
-          console.warn(`[API Debug] No se encontró estrategia válida en strategy_json para el proyecto ${id}`);
+          console.warn(`[API Debug] No se encontró estrategia para el proyecto ${id}`);
           return null;
       } catch (e: any) {
           console.error(`[API Error] getProjectStrategy(${id}) falló:`, e.message);

@@ -50,15 +50,21 @@ const generateFullStrategy = async (projectData) => {
 
     const prompt = `
     Rol: Motor de Análisis Estratégico de Marketing Digital Maestro.
-    Tarea: Generar un "Informe Estratégico Maestro" en formato JSON.
+    Tarea: Generar un "Informe Estratégico Maestro" en formato JSON puro.
     
+    REGLAS TÉCNICAS CRÍTICAS (OBLIGATORIO):
+    1. Respuesta: Devuelve EXCLUSIVAMENTE el JSON. Sin explicaciones ni bloques de markdown.
+    2. Comillas: ESCAPA OBLIGATORIAMENTE cualquier comilla doble (") que aparezca DENTRO de un valor de texto usando barra invertida (ej: "Deseo \"independencia\" financiera").
+    3. Integridad: El JSON debe estar completo. No lo trunques bajo ninguna circunstancia.
+    4. Formato: Mantén estrictamente la jerarquía de campos definida abajo.
+
     INFORMACIÓN DEL PROYECTO:
     - Nombre: "${name}"
     - Nicho: "${niche}"
     - Producto: "${productName}"
     - Descripción: "${description}"
 
-    REGLAS DE GENERACIÓN PSICOGRÁFICA (OBLIGATORIO):
+    REGLAS DE GENERACIÓN PSICOGRÁFICA:
     Para el avatar principal (id: 1), DEBES incluir los siguientes campos basados en este perfil:
     1. age: Un rango entre 22 y 38 años.
     2. interests: Intereses relacionados con estética, belleza y autoempleo.
@@ -100,7 +106,19 @@ const generateFullStrategy = async (projectData) => {
       ],
       "psychology": {
         "pains": ["...", "..."],
-        "solutions": ["...", "..."]
+        "solutions": ["...", "..."],
+        "awarenessStages": { "stage1_pain": "...", "stage2_solution": "...", "stage3_barrier": "..." },
+        "buyingPsychology": { 
+           "notBuyingReasons": [ { "title": "...", "description": "..." } ],
+           "buyingReasons": [ { "title": "...", "description": "..." } ],
+           "strategistConclusion": "..."
+        },
+        "conversionStrategy": {
+           "mainFocus": [ { "label": "...", "description": "..." } ],
+           "prioritizedChannels": [ { "label": "...", "type": "LP" } ],
+           "communicationStyle": [ { "label": "...", "description": "..." } ],
+           "tacticalNote": "..."
+        }
       },
       "modules": {
         "content": [ { "id": 1, "title": "...", "keyword": "...", "difficulty": number, "strategy": "..." } ],
@@ -111,8 +129,6 @@ const generateFullStrategy = async (projectData) => {
         "whatsapp": [ { "id": 1, "title": "...", "objective": "...", "messages": [...] } ]
       }
     }
-    
-    Responde SOLO en JSON válido.
     `;
 
     try {
@@ -126,7 +142,14 @@ const generateFullStrategy = async (projectData) => {
 
         let strategyJson = {};
         if (response.text) {
-            strategyJson = JSON.parse(response.text);
+            try {
+                strategyJson = JSON.parse(response.text);
+            } catch (pErr) {
+                console.error("❌ [GEMINI] JSON Parse failed, attempting fallback cleanup.");
+                // Limpieza agresiva de caracteres no imprimibles o decorativos
+                const clean = response.text.replace(/[\u0000-\u001F\u007F-\u009F]/g, "").trim();
+                strategyJson = JSON.parse(clean);
+            }
         }
 
         return strategyJson;
