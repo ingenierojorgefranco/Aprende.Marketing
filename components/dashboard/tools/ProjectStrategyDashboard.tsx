@@ -76,8 +76,10 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     // --- LOAD STRATEGY, PAGES & PLANS DATA ---
     const loadData = async () => {
+        console.group(`🏠 DEBUG UI: ProjectStrategyDashboard.loadData(ID: ${id})`);
         setLoading(true);
         try {
+            console.log("Iniciando peticiones paralelas: getProjectStrategy, getPages, getPublicPlans...");
             // Fetch Strategy, Pages and Plans in parallel
             const [strategy, pages, plansData] = await Promise.all([
                 api.getProjectStrategy(id),
@@ -85,7 +87,11 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 api.getPublicPlans()
             ]);
 
+            console.log("Resultado Strategy:", strategy);
+            console.log("Resultado Pages (Total):", pages.length);
+
             if (strategy && strategy.meta && strategy.meta.insights) {
+                console.log("Validación Exitosa: La estrategia tiene la estructura mínima requerida.");
                 // Map icons from strings to components if coming from JSON
                 if (strategy.meta.insights.overview.items) {
                     strategy.meta.insights.overview.items = strategy.meta.insights.overview.items.map(item => ({
@@ -95,11 +101,16 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 }
                 setStrategyData(strategy);
             } else {
+                console.error("ERROR DE VALIDACIÓN UI: La estrategia recibida es nula o le falta la propiedad 'meta' o 'insights'.");
+                if (!strategy) console.error("Motivo: 'strategy' es null.");
+                else if (!strategy.meta) console.error("Motivo: falta 'strategy.meta'.");
+                else if (!strategy.meta.insights) console.error("Motivo: falta 'strategy.meta.insights'.");
                 setStrategyData(null);
             }
 
             // Logic: Find all pages linked to this project - USAR STRING COMPARISON PARA SEGURIDAD
             const projectPages = pages.filter(p => String(p.projectId) === String(id) || (strategy && p.name === strategy.meta.projectName));
+            console.log("Páginas vinculadas detectadas:", projectPages.length);
             setLinkedPages(projectPages);
 
             // Calcular conteo global de dominios
@@ -117,8 +128,10 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 setNextPlan(null); 
             }
 
+            console.groupEnd();
         } catch (error) {
-            console.error("Failed to load strategy or pages", error);
+            console.error("FALLO CRÍTICO EN loadData:", error);
+            console.groupEnd();
         } finally {
             setLoading(false);
         }

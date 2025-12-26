@@ -274,8 +274,9 @@ export const api = {
   },
 
   getProjectById: async (id: string): Promise<Project | null> => {
+      console.log(`[DEBUG API] getProjectById llamado para ID: ${id}`);
       if (isMockMode) {
-          const proj = localProjects.find(p => p.id === id);
+          const proj = localProjects.find(p => String(p.id) === String(id));
           return proj ? Promise.resolve(proj) : Promise.resolve(null);
       }
 
@@ -284,6 +285,7 @@ export const api = {
               method: 'GET',
               headers: getAuthHeaders()
           });
+          console.log(`[DEBUG API] Servidor devolvió proyecto para ID ${id}:`, p);
           return {
               ...p,
               id: String(p.id),
@@ -298,24 +300,48 @@ export const api = {
               createdAt: new Date(p.created_at || p.createdAt)
           };
       } catch (e) {
+          console.error(`[DEBUG API] Error en getProjectById para ID ${id}:`, e.message);
           return null;
       }
   },
 
   // --- GET PROJECT MASTER STRATEGY ---
   getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy | null> => {
+      console.group(`🔍 DEBUG API: getProjectStrategy(ID: ${id})`);
       if (isMockMode) {
+          console.log("Modo Mock: Retornando MOCK_MASTER_STRATEGY");
+          console.groupEnd();
           return Promise.resolve(MOCK_MASTER_STRATEGY);
       }
 
       try {
           const project = await api.getProjectById(id);
-          if (project && project.strategy_json) {
-              return project.strategy_json as ProjectMasterStrategy;
+          if (!project) {
+              console.error(`ERROR: No se encontró el proyecto con ID ${id}`);
+              console.groupEnd();
+              return null;
           }
-          return null;
+
+          console.log("Proyecto recuperado de la API:", project);
+
+          if (!project.strategy_json) {
+              console.warn("ADVERTENCIA: El campo strategy_json está VACÍO en la base de datos para este proyecto.");
+              console.groupEnd();
+              return null;
+          }
+
+          console.log("strategy_json encontrado:", project.strategy_json);
+          const strategy = project.strategy_json as ProjectMasterStrategy;
+
+          if (!strategy.meta) {
+              console.error("ERROR CRÍTICO: El objeto strategy_json NO contiene la propiedad 'meta'. Estructura inválida.");
+          }
+
+          console.groupEnd();
+          return strategy;
       } catch (e) {
-          console.error("Error fetching project strategy", e);
+          console.error("EXCEPCIÓN en getProjectStrategy:", e.message);
+          console.groupEnd();
           return null;
       }
   },
