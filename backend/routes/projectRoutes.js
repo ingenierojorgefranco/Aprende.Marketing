@@ -14,8 +14,14 @@ const router = express.Router();
 const safeParseJson = (str) => {
     if (!str) return null;
     try {
-        return typeof str === 'string' ? JSON.parse(str) : str;
+        // Manejar doble serialización si ocurre
+        let parsed = typeof str === 'string' ? JSON.parse(str) : str;
+        if (typeof parsed === 'string') {
+            parsed = JSON.parse(parsed);
+        }
+        return parsed;
     } catch (e) {
+        console.error("Error parsing JSON:", e.message);
         return null;
     }
 };
@@ -59,10 +65,18 @@ router.use(authMiddleware);
 
 router.get('/', async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM projects WHERE user_id = ? ORDER BY updated_at DESC',
-      [req.user.id]
-    );
+    // Si es admin, puede ver todo, si no, solo lo suyo
+    let query = 'SELECT * FROM projects';
+    let params = [];
+    
+    if (req.user.role !== 'admin') {
+        query += ' WHERE user_id = ?';
+        params.push(req.user.id);
+    }
+    
+    query += ' ORDER BY updated_at DESC';
+    
+    const [rows] = await pool.query(query, params);
 
     // Mapear y parsear campos JSON para la respuesta
     const projects = rows.map(p => ({
@@ -81,11 +95,17 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM projects WHERE id = ? AND user_id = ?',
-      [req.params.id, req.user.id]
-    );
-    if (rows.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
+    let query = 'SELECT * FROM projects WHERE id = ?';
+    let params = [req.params.id];
+    
+    if (req.user.role !== 'admin') {
+        query += ' AND user_id = ?';
+        params.push(req.user.id);
+    }
+
+    const [rows] = await pool.query(query, params);
+    
+    if (rows.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado o sin permisos' });
     
     const project = rows[0];
     project.pain_points = safeParseJson(project.pain_points);
@@ -109,7 +129,7 @@ router.post('/', async (req, res) => {
     const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
     
     const [count] = await pool.query('SELECT COUNT(*) as c FROM projects WHERE user_id = ?', [req.user.id]);
-    if (count[0].c >= limits.maxProjects) {
+    if (count[0].c >= limits.maxProjects && req.user.role !== 'admin') {
         return res.status(403).json({ error: `Has alcanzado el límite de almacenamiento de ${limits.maxProjects} proyectos.` });
     }
     
@@ -152,13 +172,19 @@ router.put('/:id', async (req, res) => {
     productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json
   } = req.body;
   try {
-    const [check] = await pool.query('SELECT id FROM projects WHERE id = ? AND user_id = ?', [id, req.user.id]);
-    if (check.length === 0) return res.status(403).json({ error: 'No autorizado o no encontrado' });
+    const [check] = await pool.query('SELECT id FROM projects WHERE id = ?', [id]);
+    if (check.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
+    
+    // Solo el dueño o un admin pueden editar
+    const [ownerCheck] = await pool.query('SELECT user_id FROM projects WHERE id = ?', [id]);
+    if (ownerCheck[0].user_id !== req.user.id && req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'No autorizado' });
+    }
     
     await pool.query(
       `UPDATE projects 
        SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, updated_at=NOW()
-       WHERE id=? AND user_id=?`,
+       WHERE id=?`,
       [
         name,
         niche,
@@ -171,8 +197,7 @@ router.put('/:id', async (req, res) => {
         JSON.stringify(keyBenefits || []),
         JSON.stringify(affiliateLinks || []),
         strategy_json ? JSON.stringify(strategy_json) : null,
-        id,
-        req.user.id,
+        id
       ]
     );
     res.json({ message: 'Proyecto actualizado correctamente' });
@@ -183,9 +208,14 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const [proj] = await pool.query('SELECT name FROM projects WHERE id = ?', [req.params.id]);
-    const [result] = await pool.query('DELETE FROM projects WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
+    const [proj] = await pool.query('SELECT name, user_id FROM projects WHERE id = ?', [req.params.id]);
+    if (proj.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
+    
+    if (proj[0].user_id !== req.user.id && req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'No autorizado' });
+    }
+
+    await pool.query('DELETE FROM projects WHERE id = ?', [req.params.id]);
     await logSystemActivity(req.user.id, req.user.email, 'DELETE_PROJECT', 'project', req.params.id, { name: proj[0]?.name });
     res.json({ message: 'Proyecto eliminado' });
   } catch (error) {
@@ -200,13 +230,21 @@ router.delete('/:id', async (req, res) => {
 router.post('/:id/generate-strategy', async (req, res) => {
     const { id } = req.params;
     try {
-        const [projects] = await pool.query('SELECT * FROM projects WHERE id = ? AND user_id = ?', [id, req.user.id]);
-        if (projects.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado.' });
+        let query = 'SELECT * FROM projects WHERE id = ?';
+        let params = [id];
+        
+        if (req.user.role !== 'admin') {
+            query += ' AND user_id = ?';
+            params.push(req.user.id);
+        }
+
+        const [projects] = await pool.query(query, params);
+        if (projects.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado o sin permisos.' });
         const project = projects[0];
         
         const safeParse = (str) => { 
             if (!str) return [];
-            try { return JSON.parse(str); } catch(e) { return []; } 
+            try { return typeof str === 'string' ? JSON.parse(str) : str; } catch(e) { return []; } 
         };
 
         const projectData = {
@@ -215,8 +253,8 @@ router.post('/:id/generate-strategy', async (req, res) => {
             productName: project.product_name,
             description: project.description,
             targetAudience: project.target_audience,
-            painPoints: typeof project.pain_points === 'string' ? safeParse(project.pain_points) : project.pain_points,
-            keyBenefits: typeof project.key_benefits === 'string' ? safeParse(project.key_benefits) : project.key_benefits,
+            painPoints: safeParse(project.pain_points),
+            keyBenefits: safeParse(project.key_benefits),
         };
 
         const strategyJson = await generateFullStrategy(projectData);

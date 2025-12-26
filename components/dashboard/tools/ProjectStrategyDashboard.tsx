@@ -85,7 +85,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 api.getPublicPlans()
             ]);
 
-            if (strategy) {
+            if (strategy && strategy.meta && strategy.meta.insights) {
                 // Map icons from strings to components if coming from JSON
                 if (strategy.meta.insights.overview.items) {
                     strategy.meta.insights.overview.items = strategy.meta.insights.overview.items.map(item => ({
@@ -98,8 +98,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 setStrategyData(null);
             }
 
-            // Logic: Find all pages linked to this project
-            const projectPages = pages.filter(p => p.projectId === id || (strategy && p.name === strategy.meta.projectName));
+            // Logic: Find all pages linked to this project - USAR STRING COMPARISON PARA SEGURIDAD
+            const projectPages = pages.filter(p => String(p.projectId) === String(id) || (strategy && p.name === strategy.meta.projectName));
             setLinkedPages(projectPages);
 
             // Calcular conteo global de dominios
@@ -144,7 +144,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     // --- CHART DATA GENERATION LOGIC ---
     const chartData = useMemo(() => {
-        if (!strategyData) return [];
+        if (!strategyData || !strategyData.meta) return [];
         
         const monthNamesFull = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         const monthNamesShort = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
@@ -209,7 +209,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
         );
     }
 
-    if (!strategyData) {
+    if (!strategyData || !strategyData.meta) {
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6 animate-in fade-in">
                 <div className="w-24 h-24 bg-blue-900/20 rounded-full flex items-center justify-center mb-8 border border-blue-500/20 shadow-2xl shadow-blue-500/10">

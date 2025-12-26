@@ -64,6 +64,22 @@ const getAuthHeaders = () => {
     };
 };
 
+const safeJsonParse = (data: any) => {
+    if (!data) return null;
+    if (typeof data === 'object') return data;
+    try {
+        let parsed = JSON.parse(data);
+        // Manejar doble serialización
+        if (typeof parsed === 'string') {
+            parsed = JSON.parse(parsed);
+        }
+        return parsed;
+    } catch (e) {
+        console.error("API Parse Error:", e);
+        return data;
+    }
+};
+
 export const api = {
   getBaseUrl: getBaseUrl,
   
@@ -156,11 +172,11 @@ export const api = {
     
     // Map backend response (which might include raw thankyoupage_json) to frontend Structure
     return pages.map((p: any) => {
-        const content = typeof p.content === 'string' ? JSON.parse(p.content) : p.content;
+        const content = safeJsonParse(p.content);
         
         // If DB has separated TY JSON, merge it here if backend didn't already
         if (p.thankyoupage_json && !content.thankYouPage) {
-            content.thankYouPage = typeof p.thankyoupage_json === 'string' ? JSON.parse(p.thankyoupage_json) : p.thankyoupage_json;
+            content.thankYouPage = safeJsonParse(p.thankyoupage_json);
         }
 
         return {
@@ -181,7 +197,7 @@ export const api = {
           return page ? Promise.resolve(page) : Promise.resolve(null);
       }
       const pages = await api.getPages();
-      return pages.find(p => p.id === id) || null;
+      return pages.find(p => String(p.id) === String(id)) || null;
   },
 
   createPage: async (page: LandingPage): Promise<LandingPage> => {
@@ -245,10 +261,10 @@ export const api = {
       return projects.map((p: any) => ({
           ...p,
           id: String(p.id),
-          painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : (p.pain_points || p.painPoints),
-          keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits),
-          affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks),
-          strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json, 
+          painPoints: safeJsonParse(p.pain_points) || [],
+          keyBenefits: safeJsonParse(p.key_benefits) || [],
+          affiliateLinks: safeJsonParse(p.affiliate_links) || [],
+          strategy_json: safeJsonParse(p.strategy_json), 
           targetAudience: p.target_audience || p.targetAudience,
           brandTone: p.brand_tone || p.brandTone,
           productName: p.product_name || p.productName,
@@ -271,10 +287,10 @@ export const api = {
           return {
               ...p,
               id: String(p.id),
-              painPoints: typeof p.pain_points === 'string' ? JSON.parse(p.pain_points) : (p.pain_points || p.painPoints),
-              keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits),
-              affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks),
-              strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json,
+              painPoints: safeJsonParse(p.pain_points) || [],
+              keyBenefits: safeJsonParse(p.key_benefits) || [],
+              affiliateLinks: safeJsonParse(p.affiliate_links) || [],
+              strategy_json: safeJsonParse(p.strategy_json),
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
@@ -576,7 +592,6 @@ export const api = {
   deleteUser: async (id: string): Promise<void> => {
       if (isMockMode) return Promise.resolve();
       await fetchWithFallback(`/admin/users/${id}`, {
-          method: 'DELETE',
           headers: getAuthHeaders()
       });
   },
