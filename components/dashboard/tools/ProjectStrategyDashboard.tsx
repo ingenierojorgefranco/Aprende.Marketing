@@ -17,8 +17,6 @@ import { ProjectStrategy_Content } from './ProjectStrategy/ProjectStrategy_Conte
 import { ProjectStrategy_Email } from './ProjectStrategy/ProjectStrategy_Email';
 import { ProjectStrategy_Evergreen } from './ProjectStrategy/ProjectStrategy_Evergreen';
 import { ProjectStrategy_WhatsApp } from './ProjectStrategy/ProjectStrategy_WhatsApp';
-import { ProjectStrategy_Market } from './ProjectStrategy/ProjectStrategy_Market';
-import { ProjectStrategy_Psychology } from './ProjectStrategy/ProjectStrategy_Psychology';
 
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
@@ -376,21 +374,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     planLimits={user.planLimits}
                     nextPlan={nextPlan}
                 />
-
-                <div id="psd-system-summary-footer" className="w-full mx-auto py-12 border-y border-gray-800 bg-[#0a0a0a]">
-                    <div className="max-w-[1400px] mx-auto px-6 text-center">
-                        <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">
-                            ¿Cómo lograremos vender?
-                        </h2>
-                        <p className="text-xl text-gray-300 font-light max-w-4xl mx-auto leading-[2rem]">
-                            El secreto está en atraer a tu público objetivo para que se sienta identificado con el contenido. Nuestro sistema redactará, diseñará y conectará cada pieza utilizando la psicología de tu cliente para generar confianza y ventas.
-                        </p>
-                    </div>
-                </div>
-
-                <ProjectStrategy_Market avatars={strategyData.avatars} />
-
-                <ProjectStrategy_Psychology psychology={strategyData.psychology} />
 
             </div>
         </div>

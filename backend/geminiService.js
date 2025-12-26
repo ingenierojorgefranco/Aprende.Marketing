@@ -11,9 +11,6 @@ if (apiKey) {
 
 /**
  * Genera contenido usando Google Gemini
- * @param {string} model - Nombre del modelo (ej. 'gemini-3-flash-preview')
- * @param {string|object} contents - Prompt o contenido
- * @param {object} config - Configuración opcional (schema, mimeType, etc.)
  */
 const generateContent = async (model, contents, config = {}) => {
     if (!aiClient) {
@@ -27,13 +24,11 @@ const generateContent = async (model, contents, config = {}) => {
             config: config
         });
 
-        // Safe extraction of text, handling cases where it might be undefined/blocked
         if (response) {
             try {
-                // Accessing .text might throw if the response was blocked by safety filters
                 return response.text || "";
             } catch (textError) {
-                console.warn("⚠️ [GEMINI] Could not access response.text (possibly blocked):", textError.message);
+                console.warn("⚠️ [GEMINI] Could not access response.text:", textError.message);
                 return "";
             }
         }
@@ -51,11 +46,11 @@ const generateFullStrategy = async (projectData) => {
         throw new Error("Gemini API Key not configured on server.");
     }
 
-    const { name, niche, productName, description, targetAudience, painPoints, keyBenefits } = projectData;
+    const { name, niche, productName, description } = projectData;
 
     const prompt = `
     Rol: Motor de Análisis Estratégico de Marketing Digital Maestro.
-    Tarea: Generar un "Informe Estratégico Maestro" ultra detallado en formato JSON para un proyecto específico.
+    Tarea: Generar un "Informe Estratégico Maestro" en formato JSON.
     
     INFORMACIÓN DEL PROYECTO:
     - Nombre: "${name}"
@@ -63,19 +58,22 @@ const generateFullStrategy = async (projectData) => {
     - Producto: "${productName}"
     - Descripción: "${description}"
 
-    REGLAS DE GENERACIÓN FINANCIERA:
-    1. Basado en el nicho y producto, sugiere un "price" (número) realista entre 47 y 997 USD.
-    2. Sugiere una "commissionRate" (número entre 0.4 y 0.8).
-    3. Genera un array "projection" de EXACTAMENTE 12 números que representen los ingresos mensuales (comisión neta) proyectados para el primer año. Debe seguir una curva de aprendizaje: meses 1-3 bajos/cero, seguidos de crecimiento exponencial hasta el mes 12.
+    REGLAS DE GENERACIÓN PSICOGRÁFICA (OBLIGATORIO):
+    Para el avatar principal (id: 1), DEBES incluir los siguientes campos basados en este perfil:
+    1. age: Un rango entre 22 y 38 años.
+    2. interests: Intereses relacionados con estética, belleza y autoempleo.
+    3. desire: Deseo de generar ingresos propios ofreciendo servicios de alto valor.
+    4. behavior: Canales de consumo Instagram y WhatsApp.
+    5. objection: Desconfianza en promesas vacías y cursos online de baja calidad.
 
-    ESTRUCTURA JSON REQUERIDA (ESTRICTA):
+    ESTRUCTURA JSON REQUERIDA:
     {
       "meta": {
         "projectName": "${name}",
         "niche": "${niche}",
         "price": number,
         "commissionRate": number,
-        "projection": [number, number, ... 12 items],
+        "projection": [12 numbers],
         "insights": {
             "overview": { "title": "Estrategia General", "items": [...] },
             "niche": { "title": "Análisis de Nicho", "description": "..." },
@@ -88,33 +86,33 @@ const generateFullStrategy = async (projectData) => {
             "id": 1,
             "name": "...",
             "archetype": "...",
-            "age": "...",
+            "age": "22-38 años",
             "quote": "...",
+            "interests": "Estética, belleza y autoempleo",
+            "desire": "Generar ingresos propios ofreciendo servicios de alto valor",
+            "behavior": "Consume contenido en Instagram y WhatsApp",
+            "objection": "Desconfía de promesas vacías en cursos online",
             "pain": "...",
-            "desire": "...",
-            "objection": "...",
             "motivations": { "dinero": number, "tiempo": number, "estatus": number, "seguridad": number }
-          }
+          },
+          { "id": 2, ... },
+          { "id": 3, ... }
       ],
       "psychology": {
         "pains": ["...", "..."],
         "solutions": ["...", "..."]
       },
       "modules": {
-        "content": [
-            { "id": 1, "title": "...", "keyword": "...", "difficulty": number, "strategy": "..." }
-        ],
+        "content": [ { "id": 1, "title": "...", "keyword": "...", "difficulty": number, "strategy": "..." } ],
         "emails": {
            "nurture": [ { "day": "Día 0", "subject": "...", "objective": "...", "bodyPreview": "..." } ],
            "evergreen": [ { "day": "Día 8", "subject": "...", "objective": "...", "bodyPreview": "..." } ]
         },
-        "whatsapp": [
-            { "id": 1, "title": "...", "objective": "...", "messages": [ { "role": "agent", "text": "..." } ] }
-        ]
+        "whatsapp": [ { "id": 1, "title": "...", "objective": "...", "messages": [...] } ]
       }
     }
     
-    Responde SOLO en JSON válido. Sin texto adicional.
+    Responde SOLO en JSON válido.
     `;
 
     try {
@@ -127,13 +125,8 @@ const generateFullStrategy = async (projectData) => {
         });
 
         let strategyJson = {};
-        try {
-            if (response.text) {
-                strategyJson = JSON.parse(response.text);
-            }
-        } catch (parseError) {
-            console.error("Error parsing strategy JSON:", parseError);
-            throw new Error("La IA generó una respuesta inválida.");
+        if (response.text) {
+            strategyJson = JSON.parse(response.text);
         }
 
         return strategyJson;

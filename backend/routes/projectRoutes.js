@@ -1,3 +1,4 @@
+
 const express = require('express');
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
@@ -69,8 +70,7 @@ router.get('/', async (req, res) => {
         pain_points: safeParseJson(p.pain_points),
         key_benefits: safeParseJson(p.key_benefits),
         affiliate_links: safeParseJson(p.affiliate_links),
-        strategy_json: safeParseJson(p.strategy_json),
-        project_strategy_json: safeParseJson(p.project_strategy_json)
+        strategy_json: safeParseJson(p.strategy_json)
     }));
 
     res.json(projects);
@@ -92,7 +92,6 @@ router.get('/:id', async (req, res) => {
     project.key_benefits = safeParseJson(project.key_benefits);
     project.affiliate_links = safeParseJson(project.affiliate_links);
     project.strategy_json = safeParseJson(project.strategy_json);
-    project.project_strategy_json = safeParseJson(project.project_strategy_json);
 
     res.json(project);
   } catch (error) {
@@ -103,7 +102,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const {
     name, niche, description, targetAudience, brandTone,
-    productName, mainGoal, painPoints, keyBenefits, affiliateLinks, project_strategy_json
+    productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json
   } = req.body;
   try {
     const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
@@ -121,7 +120,7 @@ router.post('/', async (req, res) => {
 
     const [result] = await pool.query(
       `INSERT INTO projects 
-       (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, project_strategy_json, created_at, updated_at)
+       (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         req.user.id,
@@ -135,7 +134,7 @@ router.post('/', async (req, res) => {
         JSON.stringify(painPoints || []),
         JSON.stringify(keyBenefits || []),
         JSON.stringify(affiliateLinks || []),
-        project_strategy_json ? JSON.stringify(project_strategy_json) : null
+        strategy_json ? JSON.stringify(strategy_json) : null
       ]
     );
     await logUsage(req.user.id, 'project');
@@ -150,7 +149,7 @@ router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const {
     name, niche, description, targetAudience, brandTone,
-    productName, mainGoal, painPoints, keyBenefits, affiliateLinks, project_strategy_json
+    productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json
   } = req.body;
   try {
     const [check] = await pool.query('SELECT id FROM projects WHERE id = ? AND user_id = ?', [id, req.user.id]);
@@ -158,7 +157,7 @@ router.put('/:id', async (req, res) => {
     
     await pool.query(
       `UPDATE projects 
-       SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, project_strategy_json=?, updated_at=NOW()
+       SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, updated_at=NOW()
        WHERE id=? AND user_id=?`,
       [
         name,
@@ -171,7 +170,7 @@ router.put('/:id', async (req, res) => {
         JSON.stringify(painPoints || []),
         JSON.stringify(keyBenefits || []),
         JSON.stringify(affiliateLinks || []),
-        project_strategy_json ? JSON.stringify(project_strategy_json) : null,
+        strategy_json ? JSON.stringify(strategy_json) : null,
         id,
         req.user.id,
       ]
@@ -221,8 +220,8 @@ router.post('/:id/generate-strategy', async (req, res) => {
         };
 
         const strategyJson = await generateFullStrategy(projectData);
-        // Actualizamos ambos campos por retrocompatibilidad, project_strategy_json es el nuevo estándar maestro
-        await pool.query('UPDATE projects SET strategy_json = ?, project_strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), JSON.stringify(strategyJson), id]);
+        // Unificamos todo en strategy_json
+        await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), id]);
         res.json(strategyJson);
     } catch (e) {
         console.error("[Project Strategy Error]", e);

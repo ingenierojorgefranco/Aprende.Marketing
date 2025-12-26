@@ -397,7 +397,6 @@ export interface Project {
   affiliateLinks: AffiliateLink[]; // Centralized links
   
   strategy_json?: StrategyJSON | any; // Updated to accept both types
-  project_strategy_json?: any; // NEW: Field for full Master Strategy JSON
   
   createdAt: Date;
 }

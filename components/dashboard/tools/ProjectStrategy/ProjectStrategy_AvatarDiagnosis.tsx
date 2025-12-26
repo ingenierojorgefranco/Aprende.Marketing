@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, X, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight } from 'lucide-react';
 import { ProjectStrategy_Psychology } from './ProjectStrategy_Psychology';
@@ -8,6 +7,29 @@ interface ProjectStrategy_AvatarDiagnosisProps {
     psychology: {
         pains: string[];
         solutions: string[];
+        awarenessStages: {
+            stage1_pain: string;
+            stage2_solution: string;
+            stage3_barrier: string;
+        };
+        buyingPsychology: {
+            notBuyingReasons: Array<{ title: string; description: string }>;
+            buyingReasons: Array<{ title: string; description: string }>;
+            strategistConclusion: string;
+        };
+        conversionStrategy: {
+            mainFocus: Array<{ label: string; description: string }>;
+            prioritizedChannels: Array<{ label: string; type: string }>;
+            communicationStyle: Array<{ label: string; description: string }>;
+            tacticalNote: string;
+        };
+        psychographicProfile?: {
+            ageRange: string;
+            interests: string;
+            primaryDesire: string;
+            digitalBehavior: string;
+            mainBarrier: string;
+        };
     };
 }
 
@@ -56,6 +78,11 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
         );
     };
 
+    // Extraemos el perfil psicográfico para renderizado dinámico
+    const profile = psychology.psychographicProfile;
+    const buyingPsych = psychology.buyingPsychology;
+    const convStrategy = psychology.conversionStrategy;
+
     return (
         <div id="psd-avatar-diagnosis-section" className="space-y-16 pt-8">
             
@@ -78,7 +105,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                 </div>
             </div>
 
-            {/* --- LISTA DE AVATARES (70em) --- */}
+            {/* --- LISTA DE AVATARES --- */}
             <div id="psd-avatars-list" className="space-y-12 max-w-[70em] mx-auto">
                 {avatars.map((avatar: any, idx: number) => {
                     const role = roles[idx] || roles[0];
@@ -87,14 +114,11 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     return (
                         <div key={avatar.id} className={`group relative bg-gray-900/40 backdrop-blur-md rounded-[2.5rem] border transition-all duration-500 shadow-2xl overflow-hidden ${isMain ? 'border-pink-500/30 shadow-pink-500/5' : idx === 1 ? 'border-purple-500/20' : 'border-blue-500/20'}`}>
                             
-                            {/* Decoración de fondo */}
                             <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[100px] opacity-10 pointer-events-none ${idx === 0 ? 'bg-pink-500' : idx === 1 ? 'bg-purple-500' : 'bg-blue-500'}`}></div>
 
-                            {/* Badge de Rol Estratégico */}
                             {getAvatarRoleBadge(idx)}
 
                             <div className="p-8 md:p-12">
-                                {/* Fila 1: Identidad y Hook */}
                                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start mb-12">
                                     <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
                                         <div className="relative mb-6">
@@ -123,7 +147,6 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                     </div>
                                 </div>
 
-                                {/* Fila 2: Motivaciones vs Diagnóstico */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                                     <div className="space-y-8">
                                         <div>
@@ -191,10 +214,9 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                 })}
             </div>
 
-            {/* --- BLOQUE: DIAGNÓSTICO DE MERCADO PROFUNDO --- */}
+            {/* --- BLOQUE: DIAGNÓSTICO DE MERCADO PROFUNDO (DINÁMICO) --- */}
             <div id="psd-market-deep-diagnosis" className="max-w-[70em] mx-auto space-y-12">
                 
-                {/* ENCABEZADO DE PERFIL PSICOLÓGICO */}
                 <div id="psd-psychographic-header" className="space-y-6 text-left">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-black uppercase tracking-widest animate-pulse">
                         <Brain className="w-4 h-4" /> Análisis Psicológico
@@ -203,69 +225,100 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                         <Brain className="w-12 h-12 text-purple-500" /> Perfil Psicológico de tu Cliente Ideal
                     </h3>
                     <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
-                        Para vender con éxito en el nicho de la belleza, no basta con saber quién es tu cliente; debemos entender cómo piensa, qué le quita el sueño y qué transformación está dispuesta a pagar. Este análisis es la brújula que guía cada palabra de tu estrategia.
+                        Este análisis ha sido generado por nuestra IA cruzando los datos de tu producto con los perfiles de avatar detectados anteriormente. Es la brújula que guía cada palabra de tu estrategia.
                     </p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
-                    {/* Perfil Psicográfico */}
-                    <div className="bg-gray-900/60 rounded-[2rem] border border-gray-800 p-8 shadow-xl">
+                    {/* Perfil Psicográfico Dinámico (EXTRAIDO DEL SCHEMA) */}
+                    <div className="bg-gray-900/60 rounded-[2rem] border border-gray-800 p-8 shadow-xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                            <Zap className="w-24 h-24 text-purple-500" />
+                        </div>
                         <h4 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
                             <Brain className="w-6 h-6 text-purple-400" /> Perfil Psicográfico
                         </h4>
-                        <div className="space-y-4 text-gray-300 text-[1.3rem] leading-[1.8] font-light">
-                            <ul className="space-y-4">
-                                <li className="flex gap-3"><Check className="w-5 h-5 text-purple-500 shrink-0 mt-2" /> Mujer entre 22 y 38 años</li>
-                                <li className="flex gap-3"><Check className="w-5 h-5 text-purple-500 shrink-0 mt-2" /> Interesada en estética, belleza y autoempleo</li>
-                                <li className="flex gap-3"><Check className="w-5 h-5 text-purple-500 shrink-0 mt-2" /> Desea generar ingresos propios ofreciendo servicios de alto valor</li>
-                                <li className="flex gap-3"><Check className="w-5 h-5 text-purple-500 shrink-0 mt-2" /> Consume contenido en Instagram y WhatsApp</li>
-                                <li className="flex gap-3"><Check className="w-5 h-5 text-purple-500 shrink-0 mt-2" /> Ha considerado cursos online, pero desconfía de promesas vacías</li>
+                        <div className="space-y-4 text-gray-300 text-[1.2rem] leading-[1.6] font-light">
+                            <ul className="space-y-5">
+                                <li className="flex gap-4 items-start">
+                                    <Check className="w-5 h-5 text-purple-500 shrink-0 mt-1" /> 
+                                    <div>
+                                        <b className="text-white block text-sm uppercase tracking-wider mb-1">Rango de Edad:</b> 
+                                        {profile?.ageRange || avatars[0].age}
+                                    </div>
+                                </li>
+                                <li className="flex gap-4 items-start">
+                                    <Check className="w-5 h-5 text-purple-500 shrink-0 mt-1" /> 
+                                    <div>
+                                        <b className="text-white block text-sm uppercase tracking-wider mb-1">Intereses Detectados:</b> 
+                                        {profile?.interests || "Estética, belleza y autoempleo"}
+                                    </div>
+                                </li>
+                                <li className="flex gap-4 items-start">
+                                    <Check className="w-5 h-5 text-purple-500 shrink-0 mt-1" /> 
+                                    <div>
+                                        <b className="text-white block text-sm uppercase tracking-wider mb-1">Deseo Principal:</b> 
+                                        {profile?.primaryDesire || avatars[0].desire}
+                                    </div>
+                                </li>
+                                <li className="flex gap-4 items-start">
+                                    <Check className="w-5 h-5 text-purple-500 shrink-0 mt-1" /> 
+                                    <div>
+                                        <b className="text-white block text-sm uppercase tracking-wider mb-1">Comportamiento Digital:</b> 
+                                        {profile?.digitalBehavior || avatars[0].behavior}
+                                    </div>
+                                </li>
+                                <li className="flex gap-4 items-start">
+                                    <Check className="w-5 h-5 text-purple-500 shrink-0 mt-1" /> 
+                                    <div>
+                                        <b className="text-white block text-sm uppercase tracking-wider mb-1">Miedo o Barrera:</b> 
+                                        {profile?.mainBarrier || avatars[0].objection}
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                     </div>
 
-                    {/* Dolores Detectados */}
+                    {/* Dolores Detectados Dinámicos */}
                     <div className="bg-gray-900/60 rounded-[2rem] border border-gray-800 p-8 shadow-xl">
                         <h4 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
                             <AlertCircle className="w-6 h-6 text-rose-400" /> Dolores Detectados
                         </h4>
                         <div className="space-y-4 text-gray-300 text-[1.3rem] leading-[1.8] font-light">
                             <ul className="space-y-4">
-                                <li className="flex gap-3"><X className="w-5 h-5 text-rose-500 shrink-0 mt-2" /> Sentir que su tiempo no vale lo suficiente</li>
-                                <li className="flex gap-3"><X className="w-5 h-5 text-rose-500 shrink-0 mt-2" /> Miedo a dañar a una clienta (falta práctica)</li>
-                                <li className="flex gap-3"><X className="w-5 h-5 text-rose-500 shrink-0 mt-2" /> Frustración por cursos demasiado teóricos</li>
-                                <li className="flex gap-3"><X className="w-5 h-5 text-rose-500 shrink-0 mt-2" /> Bloqueo total para conseguir clientas reales</li>
-                                <li className="flex gap-3"><X className="w-5 h-5 text-rose-500 shrink-0 mt-2" /> Inseguridad sobre cobrar precios altos</li>
+                                {psychology.pains.map((pain, pIdx) => (
+                                    <li key={pIdx} className="flex gap-3">
+                                        <X className="w-5 h-5 text-rose-500 shrink-0 mt-2" /> 
+                                        {pain}
+                                    </li>
+                                ))}
+                                {psychology.pains.length === 0 && <li className="text-gray-500 italic">No hay dolores definidos.</li>}
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                {/* Transformación Buscada */}
+                {/* Transformación Buscada Dinámica */}
                 <div className="bg-gradient-to-r from-emerald-900/20 to-teal-900/10 rounded-[2rem] border border-emerald-500/20 p-8 shadow-xl">
                     <h4 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
                         <Sparkles className="w-6 h-6 text-emerald-400" /> Transformación Buscada
                     </h4>
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {[
-                            { title: "Técnica rentable", desc: "Servicios altamente demandados." },
-                            { title: "Seguridad total", desc: "Sentirse segura y profesional." },
-                            { title: "Método probado", desc: "Respaldo y paso a paso claro." },
-                            { title: "Valoración real", desc: "Cobrar precios altos sin culpa." }
-                        ].map((item, i) => (
-                            <div key={i} className="bg-black/40 p-5 rounded-2xl border border-emerald-500/10">
-                                <p className="text-emerald-400 font-black text-base uppercase tracking-tight mb-1">{item.title}</p>
-                                <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.desc}</p>
+                        {psychology.solutions.map((sol, sIdx) => (
+                            <div key={sIdx} className="bg-black/40 p-5 rounded-2xl border border-emerald-500/10">
+                                <p className="text-emerald-400 font-black text-base uppercase tracking-tight mb-1">Pilar #{sIdx + 1}</p>
+                                <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{sol}</p>
                             </div>
                         ))}
+                        {psychology.solutions.length === 0 && (
+                            <div className="col-span-full py-4 text-center text-gray-500 italic">No hay soluciones definidas.</div>
+                        )}
                     </div>
                 </div>
             </div>
 
             {/* --- NIVELES DE CONCIENCIA DEL PROSPECTO --- */}
             <div id="psd-awareness-section" className="max-w-[70em] mx-auto space-y-12">
-                
-                {/* ENCABEZADO DE NIVEL DE CONCIENCIA */}
                 <div id="psd-awareness-header" className="space-y-6 text-left">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-widest animate-pulse">
                         <Target className="w-4 h-4" /> Grados de Consciencia
@@ -281,36 +334,31 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
                     <div className="absolute top-1/2 left-0 w-full h-px bg-gray-800 hidden md:block -z-10"></div>
                     
-                    {/* Nivel Dolor */}
                     <div className="bg-gray-900 rounded-3xl p-8 border border-gray-800 text-center flex flex-col items-center gap-4 hover:border-orange-500/30 transition-all">
                         <div className="w-12 h-12 bg-rose-500/20 rounded-full flex items-center justify-center text-rose-400 font-black">1</div>
                         <p className="text-rose-400 font-black uppercase text-xs tracking-widest">Nivel: Dolor</p>
                         <h5 className="text-xl font-bold text-white">Consciente del Problema</h5>
-                        <p className="text-gray-400 text-base leading-relaxed">Sabe que no gana lo suficiente para la vida que desea.</p>
+                        <p className="text-gray-400 text-base leading-relaxed">"{psychology.awarenessStages.stage1_pain}"</p>
                     </div>
 
-                    {/* Nivel Solución */}
                     <div className="bg-gray-900 rounded-3xl p-8 border border-gray-800 text-center flex flex-col items-center gap-4 hover:border-orange-500/30 transition-all">
                         <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 font-black">2</div>
                         <p className="text-blue-400 font-black uppercase text-xs tracking-widest">Nivel: Solución</p>
                         <h5 className="text-xl font-bold text-white">Consciente de la Solución</h5>
-                        <p className="text-gray-400 text-base leading-relaxed">Sabe que aprender una técnica mejor es el camino.</p>
+                        <p className="text-gray-400 text-base leading-relaxed">"{psychology.awarenessStages.stage2_solution}"</p>
                     </div>
 
-                    {/* Oportunidad de Cierre */}
                     <div className="bg-orange-500/10 rounded-3xl p-8 border border-orange-500/40 text-center flex flex-col items-center gap-4 transform md:scale-105 shadow-2xl">
                         <div className="w-12 h-12 bg-orange-500 text-black rounded-full flex items-center justify-center text-xl font-black">!</div>
                         <p className="text-orange-400 font-black uppercase text-xs tracking-widest">Oportunidad de Cierre</p>
-                        <h5 className="text-xl font-bold text-white">Inseguridad sobre el Producto</h5>
-                        <p className="text-gray-300 text-base leading-relaxed">No está segura de qué curso es confiable. Aquí entra tu autoridad.</p>
+                        <h5 className="text-xl font-bold text-white">Barrera Detectada</h5>
+                        <p className="text-gray-300 text-base leading-relaxed">"{psychology.awarenessStages.stage3_barrier}"</p>
                     </div>
                 </div>
             </div>
 
             {/* --- PSICOLOGÍA DE COMPRA IDENTIFICADA --- */}
             <div id="psd-buy-psychology-section" className="max-w-[70em] mx-auto space-y-12">
-                
-                {/* ENCABEZADO DE GATILLOS DE VENTA */}
                 <div id="psd-awareness-header" className="space-y-6 text-left">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm font-black uppercase tracking-widest animate-pulse">
                         <Brain className="w-4 h-4" /> Gatillos de Venta
@@ -324,53 +372,43 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
-                    {/* NO COMPRA */}
                     <div className="bg-red-900/5 border border-red-500/20 rounded-[2.5rem] p-8 space-y-8">
                         <h5 className="text-xl font-black text-rose-400 flex items-center gap-2 uppercase tracking-tight">
                             <X className="w-6 h-6" /> El cliente NO COMPRA cuando:
                         </h5>
                         <div className="space-y-6">
-                            {[
-                                { title: "Mensaje genérico", desc: "Siente que eres 'una más' del montón." },
-                                { title: "Exceso de estética", desc: "Todo parece demasiado 'bonito' o irreal." },
-                                { title: "Falta de procesos", desc: "No se le muestra el proceso real paso a paso." }
-                            ].map((item, i) => (
+                            {buyingPsych.notBuyingReasons.map((item, i) => (
                                 <div key={i} className="flex gap-4 items-start">
                                     <div className="w-2 h-2 rounded-full bg-rose-500 mt-2 shrink-0"></div>
                                     <div>
                                         <p className="text-white font-bold text-lg leading-none mb-1">{item.title}</p>
-                                        <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.desc}</p>
+                                        <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.description}</p>
                                     </div>
                                 </div>
                             ))}
+                            {buyingPsych.notBuyingReasons.length === 0 && <p className="text-gray-500 italic">No se han definido razones de no-compra.</p>}
                         </div>
                     </div>
 
-                    {/* SÍ COMPRA */}
                     <div className="bg-emerald-900/5 border border-emerald-500/20 rounded-[2.5rem] p-8 space-y-8">
                         <h5 className="text-xl font-black text-emerald-400 flex items-center gap-2 uppercase tracking-tight">
                             <Check className="w-6 h-6" /> El cliente COMPRA cuando:
                         </h5>
                         <div className="space-y-6">
-                            {[
-                                { title: "Siente Seguridad", desc: "Percibe que el riesgo de fracaso es mínimo." },
-                                { title: "Percibe Autoridad", desc: "Nota que dominas la técnica y el negocio." },
-                                { title: "Resultados Tangibles", desc: "Ve pruebas claras de que funciona para otros." },
-                                { title: "Nota que no estará sola", desc: "El acompañamiento es el factor decisivo." }
-                            ].map((item, i) => (
+                            {buyingPsych.buyingReasons.map((item, i) => (
                                 <div key={i} className="flex gap-4 items-start">
                                     <div className="w-2 h-2 rounded-full bg-emerald-500 mt-2 shrink-0"></div>
                                     <div>
                                         <p className="text-white font-bold text-lg leading-none mb-1">{item.title}</p>
-                                        <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.desc}</p>
+                                        <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.description}</p>
                                     </div>
                                 </div>
                             ))}
+                            {buyingPsych.buyingReasons.length === 0 && <p className="text-gray-500 italic">No se han definido razones de compra.</p>}
                         </div>
                     </div>
                 </div>
 
-                {/* Conclusión del Estratega */}
                 <div className="bg-gray-900/80 border border-gray-800 rounded-[2rem] p-8 flex flex-col md:flex-row items-center gap-8 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-8 opacity-5">
                         <Lock className="w-32 h-32 text-white" />
@@ -381,21 +419,18 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     <div>
                         <h5 className="text-blue-400 font-black text-sm uppercase tracking-widest mb-2">Conclusión del Estratega</h5>
                         <p className="text-white italic text-xl md:text-2xl leading-relaxed font-serif">
-                            "El mensaje se enfocará en seguridad, respaldo, práctica real y resultados. Evitaremos promesas exageradas para generar confianza genuina."
+                            "{buyingPsych.strategistConclusion || "El sistema optimizará el mensaje basándose en la seguridad y el respaldo técnico."}"
                         </p>
                     </div>
                 </div>
             </div>
 
-            {/* --- BLOQUE: PSICOLOGÍA INTEGRADA --- */}
             <div className="max-w-[70em] mx-auto">
                 <ProjectStrategy_Psychology psychology={psychology} />
             </div>
 
-            {/* --- BLOQUE 2: ESTRATEGIA DE CONVERSIÓN --- */}
+            {/* --- ESTRATEGIA DE CONVERSIÓN DEFINIDA (DINÁMICA) --- */}
             <div id="psd-conversion-strategy-section" className="max-w-[70em] mx-auto space-y-12">
-                
-                {/* ENCABEZADO DE ESTRATEGIA */}
                 <div id="psd-strategy-header" className="space-y-6 text-left">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm font-black uppercase tracking-widest animate-pulse">
                         <Zap className="w-4 h-4" /> Hoja de Ruta
@@ -403,7 +438,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     <h3 id="psd-strategy-title" className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
                         <Zap className="w-12 h-12 text-yellow-500" /> Estrategia de Conversión Definida
                     </h3>
-                    <p id="psd-strategy-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
+                    <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
                         Basándonos en el análisis del avatar y su psicología de compra, el sistema ha definido la siguiente hoja de ruta estratégica para tus canales.
                     </p>
                 </div>
@@ -414,80 +449,68 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
-                        
-                        {/* Pilar 1: Enfoque */}
+                        {/* Enfoque Principal Dinámico */}
                         <div className="space-y-6 group">
                             <div className="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 group-hover:scale-110 transition-transform">
                                 <Flame className="w-8 h-8 text-orange-500" />
                             </div>
                             <h4 className="text-2xl font-black text-white uppercase tracking-tight">Enfoque Principal</h4>
                             <ul className="space-y-4">
-                                {[
-                                    { label: "Mensaje Directo", desc: "Empatía sin rodeos sobre el problema." },
-                                    { label: "Autoridad Humana", desc: "Liderazgo sin arrogancia profesional." },
-                                    { label: "Énfasis Práctico", desc: "Foco total en acompañamiento real." }
-                                ].map((item, i) => (
+                                {convStrategy.mainFocus.map((item, i) => (
                                     <li key={i} className="space-y-1">
                                         <p className="text-orange-400 font-bold text-base">{item.label}</p>
-                                        <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.desc}</p>
+                                        <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.description}</p>
                                     </li>
                                 ))}
+                                {convStrategy.mainFocus.length === 0 && <p className="text-gray-500 italic">No definido.</p>}
                             </ul>
                         </div>
 
-                        {/* Pilar 2: Canales */}
+                        {/* Canales Prioritarios Dinámicos */}
                         <div className="space-y-6 group">
                             <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
                                 <MessageSquare className="w-8 h-8 text-blue-500" />
                             </div>
                             <h4 className="text-2xl font-black text-white uppercase tracking-tight">Canales Prioritarios</h4>
                             <div className="space-y-4">
-                                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 group/item hover:bg-white/10 transition-colors">
-                                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-xs shrink-0">LP</div>
-                                    <p className="text-gray-300 font-bold text-sm">Landing Page (Captación)</p>
-                                </div>
-                                <div className="flex items-center gap-3 p-3 rounded-xl bg-green-500/10 border border-green-500/30 group/item hover:bg-green-500/20 transition-colors">
-                                    <div className="w-8 h-8 rounded-lg bg-green-600 flex items-center justify-center text-white font-black text-xs shrink-0">WA</div>
-                                    <p className="text-green-300 font-bold text-sm">WhatsApp (Canal de Cierre)</p>
-                                </div>
-                                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 opacity-70 group/item hover:bg-white/10 transition-colors">
-                                    <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center text-white font-black text-xs shrink-0">EM</div>
-                                    <p className="text-gray-300 font-bold text-sm">Email (Refuerzo & Seguimiento)</p>
-                                </div>
+                                {convStrategy.prioritizedChannels.map((chan, i) => (
+                                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 group/item hover:bg-white/10 transition-colors">
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-xs shrink-0 ${chan.type === 'LP' ? 'bg-blue-600' : chan.type === 'WA' ? 'bg-green-600' : 'bg-orange-600'}`}>
+                                            {chan.type}
+                                        </div>
+                                        <p className="text-gray-300 font-bold text-sm">{chan.label}</p>
+                                    </div>
+                                ))}
+                                {convStrategy.prioritizedChannels.length === 0 && <p className="text-gray-500 italic">No definidos.</p>}
                             </div>
                         </div>
 
-                        {/* Pilar 3: Comunicación */}
+                        {/* Tipo de Comunicación Dinámico */}
                         <div className="space-y-6 group">
                             <div className="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:scale-110 transition-transform">
                                 <GraduationCap className="w-8 h-8 text-purple-500" />
                             </div>
                             <h4 className="text-2xl font-black text-white uppercase tracking-tight">Tipo de Comunicación</h4>
                             <ul className="space-y-4">
-                                {[
-                                    { label: "Educativa + Emocional", desc: "Enseñamos para generar confianza." },
-                                    { label: "Lenguaje Cercano", desc: "Claridad profesional sin tecnicismos." },
-                                    { label: "Cercanía Total", desc: "Hablar como una mentora amiga." }
-                                ].map((item, i) => (
+                                {convStrategy.communicationStyle.map((item, i) => (
                                     <li key={i} className="space-y-1">
                                         <p className="text-purple-400 font-bold text-base">{item.label}</p>
-                                        <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.desc}</p>
+                                        <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.description}</p>
                                     </li>
                                 ))}
+                                {convStrategy.communicationStyle.length === 0 && <p className="text-gray-500 italic">No definido.</p>}
                             </ul>
                         </div>
-
                     </div>
                 </div>
 
-                {/* Nota Final del Estratega */}
                 <div className="max-w-[70em] mx-auto flex gap-6 items-center bg-gray-900/50 p-6 rounded-2xl border border-gray-800 border-dashed">
                     <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center shrink-0 border border-blue-500/30">
                         <ShieldCheck className="w-6 h-6 text-blue-400" />
                     </div>
                     <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">
                         <b className="text-blue-300 block mb-1">Nota Táctica:</b>
-                        Este flujo está diseñado para calentar al prospecto en la Landing Page y llevarlo a WhatsApp, donde la tasa de cierre es 10 veces mayor para productos de alto valor. El sistema usará un lenguaje que evite tecnicismos para no intimidar al avatar.
+                        {convStrategy.tacticalNote || "El sistema optimizará el flujo basándose en la máxima tasa de conversión detectada para tu nicho."}
                     </p>
                 </div>
             </div>

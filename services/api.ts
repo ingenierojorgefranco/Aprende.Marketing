@@ -1,3 +1,4 @@
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -131,7 +132,7 @@ export const api = {
       }
       return await fetchWithFallback('/stripe/create-checkout-session', {
           method: 'POST',
-          headers: getAuthHeaders(),
+          headers: { ...getAuthHeaders() },
           body: JSON.stringify({ planSlug })
       });
   },
@@ -248,7 +249,6 @@ export const api = {
           keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits),
           affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks),
           strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json, 
-          project_strategy_json: typeof p.project_strategy_json === 'string' ? JSON.parse(p.project_strategy_json) : p.project_strategy_json,
           targetAudience: p.target_audience || p.targetAudience,
           brandTone: p.brand_tone || p.brandTone,
           productName: p.product_name || p.productName,
@@ -275,7 +275,6 @@ export const api = {
               keyBenefits: typeof p.key_benefits === 'string' ? JSON.parse(p.key_benefits) : (p.key_benefits || p.keyBenefits),
               affiliateLinks: typeof p.affiliate_links === 'string' ? JSON.parse(p.affiliate_links) : (p.affiliate_links || p.affiliateLinks),
               strategy_json: typeof p.strategy_json === 'string' ? JSON.parse(p.strategy_json) : p.strategy_json,
-              project_strategy_json: typeof p.project_strategy_json === 'string' ? JSON.parse(p.project_strategy_json) : p.project_strategy_json,
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
@@ -295,16 +294,9 @@ export const api = {
 
       try {
           const project = await api.getProjectById(id);
-          if (project) {
-              // Prioritize project_strategy_json (Master Strategy) over legacy strategy_json
-              if (project.project_strategy_json) {
-                  return project.project_strategy_json as ProjectMasterStrategy;
-              }
-              if (project.strategy_json) {
-                  return project.strategy_json as ProjectMasterStrategy;
-              }
+          if (project && project.strategy_json) {
+              return project.strategy_json as ProjectMasterStrategy;
           }
-          // En modo online, si no hay datos, retornamos null
           return null;
       } catch (e) {
           console.error("Error fetching project strategy", e);
