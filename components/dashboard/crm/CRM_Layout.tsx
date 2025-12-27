@@ -1,14 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Users, Plus, Search, Filter, RefreshCw, Loader2, X } from 'lucide-react';
+import { Users, Plus, Search, Filter, RefreshCw, Loader2, X, Globe } from 'lucide-react';
 import { CRMTable } from './CRM_Table';
 import { CRMContactDrawer } from './CRM_ContactDrawer';
-import { CRMContact } from '../../../types';
+import { CRMContact, LandingPage } from '../../../types';
 import { api } from '../../../services/api';
 
 export const CRM_Layout: React.FC = () => {
     const [contacts, setContacts] = useState<CRMContact[]>([]);
+    const [allPages, setAllPages] = useState<LandingPage[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedContact, setSelectedContact] = useState<CRMContact | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -17,29 +18,32 @@ export const CRM_Layout: React.FC = () => {
     
     // --- FILTRADO POR URL ---
     const [searchParams, setSearchParams] = useSearchParams();
-    const filterPageId = searchParams.get('pageId');
+    const filterPageId = searchParams.get('pageId') || 'all';
     const filterPageName = searchParams.get('pageName');
 
     useEffect(() => {
-        loadContacts();
+        loadData();
     }, []);
 
-    const loadContacts = async () => {
+    const loadData = async () => {
         setLoading(true);
         try {
-            const data = await api.getContacts();
-            setContacts(data);
+            const [contactsData, pagesData] = await Promise.all([
+                api.getContacts(),
+                api.getPages()
+            ]);
+            setContacts(contactsData);
+            setAllPages(pagesData);
         } catch (error) {
-            console.error("Error loading CRM contacts", error);
+            console.error("Error loading CRM data", error);
         } finally {
             setLoading(false);
         }
     };
 
     const handleCreateNew = () => {
-        // Prepare empty contact for creation
         const newContact: CRMContact = {
-            id: 'new', // placeholder
+            id: 'new',
             name: '',
             email: '',
             phone: '',
@@ -47,7 +51,7 @@ export const CRM_Layout: React.FC = () => {
             address: '',
             source: 'Manual',
             status: 'new',
-            interestLevel: 'warm', // Default changed to warm (Medio)
+            interestLevel: 'warm',
             createdAt: new Date(),
             updatedAt: new Date()
         };
@@ -94,18 +98,28 @@ export const CRM_Layout: React.FC = () => {
         }
     };
 
-    const clearPageFilter = () => {
+    const handlePageFilterChange = (pageId: string) => {
         const newParams = new URLSearchParams(searchParams);
-        newParams.delete('pageId');
-        newParams.delete('pageName');
+        if (pageId === 'all') {
+            newParams.delete('pageId');
+            newParams.delete('pageName');
+        } else {
+            const page = allPages.find(p => p.id === pageId);
+            newParams.set('pageId', pageId);
+            if (page) newParams.set('pageName', page.name);
+        }
         setSearchParams(newParams);
+    };
+
+    const clearPageFilter = () => {
+        handlePageFilterChange('all');
     };
 
     const filteredContacts = contacts.filter(contact => {
         const matchesSearch = contact.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                               contact.email.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterStatus === 'all' || contact.status === filterStatus;
-        const matchesPage = !filterPageId || String(contact.pageId) === String(filterPageId);
+        const matchesPage = filterPageId === 'all' || String(contact.pageId) === String(filterPageId);
         
         return matchesSearch && matchesStatus && matchesPage;
     });
@@ -124,29 +138,16 @@ export const CRM_Layout: React.FC = () => {
                 </button>
             </div>
 
-            {/* UI de Filtro Activo por Página */}
-            {filterPageId && (
-                <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-xl w-fit animate-in slide-in-from-left-2 shadow-lg shrink-0">
-                    <span className="text-sm text-primary font-medium">Filtrando por: <b className="text-white ml-1">{filterPageName || 'Página'}</b></span>
-                    <button 
-                        onClick={clearPageFilter} 
-                        className="ml-2 p-1 hover:bg-primary/20 rounded-full text-primary transition-colors group"
-                        title="Quitar filtro de página"
-                    >
-                        <X className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                    </button>
-                </div>
-            )}
-
             {/* Toolbar */}
-            <div className="bg-gray-900 p-4 rounded-xl border border-gray-800 flex flex-col md:flex-row gap-4 justify-between items-center shrink-0">
-                <div className="flex gap-4 w-full md:w-auto">
+            <div className="bg-gray-900 p-4 rounded-xl border border-gray-800 flex flex-col xl:flex-row gap-4 justify-between items-center shrink-0">
+                <div className="flex flex-col md:flex-row gap-4 w-full xl:w-auto flex-1">
+                    {/* Filtro por Estado */}
                     <div className="relative">
                         <Filter className="absolute top-2.5 left-3 w-4 h-4 text-gray-500" />
                         <select 
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
-                            className="bg-black border border-gray-700 text-white text-sm rounded-lg pl-9 pr-4 py-2 outline-none focus:border-primary appearance-none cursor-pointer w-full md:w-48"
+                            className="bg-black border border-gray-700 text-white text-sm rounded-lg pl-9 pr-4 py-2 outline-none focus:border-primary appearance-none cursor-pointer w-full md:w-44"
                         >
                             <option value="all">Todos los Estados</option>
                             <option value="new">Nuevos</option>
@@ -156,7 +157,24 @@ export const CRM_Layout: React.FC = () => {
                             <option value="lost">Perdidos</option>
                         </select>
                     </div>
-                    <div className="relative flex-1 md:w-64">
+
+                    {/* Filtro por Página */}
+                    <div className="relative">
+                        <Globe className="absolute top-2.5 left-3 w-4 h-4 text-gray-500" />
+                        <select 
+                            value={filterPageId}
+                            onChange={(e) => handlePageFilterChange(e.target.value)}
+                            className="bg-black border border-gray-700 text-white text-sm rounded-lg pl-9 pr-4 py-2 outline-none focus:border-primary appearance-none cursor-pointer w-full md:w-56"
+                        >
+                            <option value="all">Todas las Páginas</option>
+                            {allPages.map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Buscador */}
+                    <div className="relative flex-1">
                         <Search className="absolute top-2.5 left-3 w-4 h-4 text-gray-500" />
                         <input 
                             type="text" 
@@ -167,13 +185,24 @@ export const CRM_Layout: React.FC = () => {
                         />
                     </div>
                 </div>
-                <button 
-                    onClick={loadContacts} 
-                    className="p-2 bg-gray-800 hover:bg-gray-700 rounded-full text-gray-400 hover:text-white transition"
-                    title="Recargar"
-                >
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                </button>
+
+                <div className="flex items-center gap-2">
+                    {filterPageId !== 'all' && (
+                        <button 
+                            onClick={clearPageFilter}
+                            className="flex items-center gap-2 px-3 py-2 bg-red-900/20 text-red-400 border border-red-900/30 rounded-lg text-xs font-bold hover:bg-red-900/40 transition"
+                        >
+                            <X className="w-3 h-3" /> Limpiar Filtro Pág.
+                        </button>
+                    )}
+                    <button 
+                        onClick={loadData} 
+                        className="p-2 bg-gray-800 hover:bg-gray-700 rounded-full text-gray-400 hover:text-white transition"
+                        title="Recargar"
+                    >
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                    </button>
+                </div>
             </div>
 
             {/* Content Area */}
