@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -18,6 +18,7 @@ export const ProjectWizard: React.FC = () => {
     
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [loadingStatus, setLoadingStatus] = useState('');
     
     // Blocking Logic
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -74,7 +75,6 @@ export const ProjectWizard: React.FC = () => {
                 setBrandTone(proj.brandTone || 'Amigable y Cercano');
                 
                 setFullPrice(proj.fullPrice || 0);
-                // Si la comisión viene como tasa (decimal 0-1) en la BD, la convertimos a valor USD para el input
                 if (proj.commissionRate && proj.fullPrice) {
                     setCommissionValue(proj.commissionRate * proj.fullPrice);
                 }
@@ -105,6 +105,8 @@ export const ProjectWizard: React.FC = () => {
         if (!name || !productName) return alert('Por favor completa el nombre del proyecto y del producto.');
         
         setLoading(true);
+        setLoadingStatus('Fase 1/2: Guardando información en base de datos...');
+        
         const projectData = {
             name,
             productName,
@@ -114,7 +116,6 @@ export const ProjectWizard: React.FC = () => {
             commissionRate: fullPrice > 0 ? commissionValue / fullPrice : 0,
             leadMagnetType,
             salesPageUrl,
-            // Keep legacy
             niche: niche || name, 
             targetAudience: targetAudience || '',
             mainGoal: mainGoal || 'Venta Directa',
@@ -124,22 +125,30 @@ export const ProjectWizard: React.FC = () => {
         };
 
         try {
+            let projectId = id;
             if (id) {
                 await api.updateProject(id, projectData as any);
-                alert('Proyecto actualizado correctamente.');
             } else {
-                await api.createProject(projectData as any);
+                const saved = await api.createProject(projectData as any);
+                projectId = saved.id;
             }
-            navigate('/dashboard/projects');
+
+            setLoadingStatus('Fase 2/2: La IA está diseñando tu Estrategia Maestra (esto puede tardar unos 20 segundos)...');
+            
+            // Generar la estrategia completa (esto guarda el JSON en la base de datos)
+            await api.generateProjectStrategyFull(projectId);
+            
+            // Redirigir al panel de estrategia una vez terminado
+            navigate(`/dashboard/projects/${projectId}/strategy`);
         } catch (error) {
             console.error(error);
-            alert('Error al guardar el proyecto. Revisa tu conexión.');
-        } finally {
+            alert('Error al procesar el proyecto. Revisa tu conexión.');
             setLoading(false);
+            setLoadingStatus('');
         }
     };
 
-    if (loading && id) {
+    if (loading && id && !loadingStatus) {
         return (
             <div className="flex items-center justify-center h-64 text-white">
                 <Loader2 className="w-8 h-8 animate-spin" />
@@ -148,18 +157,45 @@ export const ProjectWizard: React.FC = () => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto pb-12">
+        <div className="max-w-4xl mx-auto pb-12 relative">
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
                 onClose={() => navigate('/dashboard/projects')} 
                 reason={`Has alcanzado el límite de ${user.planLimits?.maxProjects} proyectos de tu plan ${user.planLimits?.planName}.`}
             />
 
+            {/* OVERLAY DE CARGA INTELIGENTE */}
+            {loadingStatus && (
+                <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
+                    <div className="relative mb-10">
+                        <div className="absolute -inset-10 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
+                        <div className="w-24 h-24 bg-gray-900 border-4 border-primary/30 rounded-3xl flex items-center justify-center shadow-2xl relative">
+                            <Brain className="w-12 h-12 text-primary animate-bounce" />
+                        </div>
+                        <div className="absolute -bottom-2 -right-2 bg-green-500 p-2 rounded-full shadow-lg border-2 border-black">
+                            <Sparkles className="w-4 h-4 text-white animate-spin-slow" />
+                        </div>
+                    </div>
+                    <h3 className="text-2xl font-black text-white mb-4 tracking-tight max-w-lg">
+                        Tu Estrategia está siendo diseñada...
+                    </h3>
+                    <p className="text-blue-400 font-bold mb-8 uppercase tracking-widest text-sm animate-pulse">
+                        {loadingStatus}
+                    </p>
+                    <div className="w-full max-w-sm bg-gray-800 h-2 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                        <div className="h-full bg-gradient-to-r from-primary to-indigo-600 w-full origin-left animate-loading-bar"></div>
+                    </div>
+                    <p className="text-gray-500 text-xs mt-10 max-w-xs leading-relaxed italic">
+                        "Estamos analizando tu nicho, redactando secuencias de email y configurando tu embudo psicológico de ventas."
+                    </p>
+                </div>
+            )}
+
             <button onClick={() => navigate('/dashboard/projects')} className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
                 <ArrowLeft className="w-4 h-4" /> Volver a Proyectos
             </button>
 
-            <div className={`bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
+            <div className={`bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden ${showUpgradeModal || loadingStatus ? 'opacity-30 pointer-events-none' : ''}`}>
                 <div className="bg-gray-800/50 p-6 border-b border-gray-800 flex justify-between items-center">
                     <div>
                         <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -368,7 +404,7 @@ export const ProjectWizard: React.FC = () => {
                     ) : (
                         <button onClick={saveProject} disabled={loading} className="px-10 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-green-900/20 transform hover:scale-[1.02] active:scale-95">
                             {loading ? <Loader2 className="w-5 h-5 animate-spin"/> : <Save className="w-5 h-5"/>}
-                            {id ? 'Actualizar Proyecto' : 'Finalizar y Crear'}
+                            {id ? 'Actualizar y Generar' : 'Finalizar y Generar con IA'}
                         </button>
                     )}
                 </div>

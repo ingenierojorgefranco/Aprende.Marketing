@@ -92,7 +92,8 @@ const generateFullStrategy = async (projectData) => {
                 "items": [
                     { "label": "Producto", "value": "${productName}", "icon": "BookOpen", "color": "text-pink-400", "border": "border-pink-500/20" },
                     { "label": "Nicho", "value": "${niche}", "icon": "Sparkles", "color": "text-purple-400", "border": "border-purple-500/20" },
-                    { "label": "Estrategia", "value": "Embudo con ${leadMagnetType}", "icon": "MessageCircle", "color": "text-green-400", "border": "border-green-500/20" }
+                    { "label": "Estrategia", "value": "Embudo con ${leadMagnetType}", "icon": "MessageCircle", "color": "text-green-400", "border": "border-green-500/20" },
+                    { "label": "Objetivo", "value": "Venta Directa de Alto Impacto", "icon": "Target", "color": "text-blue-400", "border": "border-blue-500/20" }
                 ] 
             },
             "niche": { "title": "Análisis de Nicho", "description": "..." },
@@ -114,8 +115,8 @@ const generateFullStrategy = async (projectData) => {
             "objection": "...",
             "motivations": { "dinero": 85, "tiempo": 70, "estatus": 50, "seguridad": 90 }
           },
-          { "id": 2, "name": "Avatar Secundario (Escéptico)", ... },
-          { "id": 3, "name": "Avatar Terciario (Aspiracional)", ... }
+          { "id": 2, "name": "Avatar Secundario (Escéptico)", "archetype": "...", "age": "...", "quote": "...", "interests": "...", "behavior": "...", "desire": "...", "pain": "...", "objection": "...", "motivations": { "dinero": 95, "tiempo": 60, "estatus": 70, "seguridad": 80 } },
+          { "id": 3, "name": "Avatar Terciario (Aspiracional)", "archetype": "...", "age": "...", "quote": "...", "interests": "...", "behavior": "...", "desire": "...", "pain": "...", "objection": "...", "motivations": { "dinero": 70, "tiempo": 100, "estatus": 50, "seguridad": 90 } }
       ],
       "psychology": {
         "pains": ["Dolor 1", "Dolor 2", "Dolor 3", "Dolor 4"],
@@ -135,11 +136,30 @@ const generateFullStrategy = async (projectData) => {
            "prioritizedChannels": [ { "label": "Landing Page", "type": "LP" }, { "label": "WhatsApp CRM", "type": "WA" } ],
            "communicationStyle": [ { "label": "Tono", "description": "${brandTone}" } ],
            "tacticalNote": "..."
+        },
+        "psychographicProfile": {
+            "ageRange": "...",
+            "interests": "...",
+            "primaryDesire": "...",
+            "digitalBehavior": "...",
+            "mainBarrier": "..."
         }
       },
       "modules": {
+        "web": {
+            "landingPageTabs": {
+                "hero": { "label": "1. Encabezado", "title": "Promesa de Valor", "type": "hero", "h1": "...", "h2": "...", "strategyText": "..." },
+                "pain": { "label": "2. Dolores", "title": "Identificación del Problema", "type": "pain", "items": ["...", "..."], "strategyText": "..." },
+                "benefits": { "label": "3. Beneficios", "title": "Oferta Irresistible", "type": "benefits", "items": [{ "title": "...", "desc": "..." }], "strategyText": "..." }
+            },
+            "thankYouPageTabs": {
+                "header": { "label": "1. Confirmación", "title": "Mensaje de Éxito", "type": "header", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." },
+                "action": { "label": "2. Siguiente Paso", "title": "Redirección", "type": "action", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." },
+                "magnet": { "label": "3. Regalo", "title": "Lead Magnet", "type": "magnet", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." }
+            }
+        },
         "content": [ 
-            { "id": 1, "title": "...", "keyword": "...", "difficulty": 25, "strategy": "Por qué esta keyword..." },
+            { "id": 1, "title": "...", "keyword": "...", "difficulty": 25, "strategy": "..." },
             { "id": 2, "title": "...", "keyword": "...", "difficulty": 40, "strategy": "..." }
         ],
         "emails": {
@@ -155,7 +175,7 @@ const generateFullStrategy = async (projectData) => {
            ]
         },
         "whatsapp": [ 
-            { "id": 1, "title": "Cierre por WhatsApp", "objective": "Resolver dudas y enviar checkout", "messages": [ { "role": "agent", "text": "..." } ] } 
+            { "id": 1, "title": "Cierre por WhatsApp", "objective": "Resolver dudas y enviar checkout", "messages": [ { "role": "agent", "text": "..." }, { "role": "user", "text": "..." } ] } 
         ]
       }
     }
