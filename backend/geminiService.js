@@ -41,92 +41,122 @@ const generateContent = async (model, contents, config = {}) => {
     }
 };
 
+/**
+ * Genera el Informe Estratégico Maestro completo (JSON 100% funcional)
+ */
 const generateFullStrategy = async (projectData) => {
     if (!aiClient) {
         throw new Error("Gemini API Key not configured on server.");
     }
 
-    const { name, niche, productName, description } = projectData;
+    const { 
+        name, niche, productName, description, 
+        brandTone, fullPrice, commissionRate, 
+        leadMagnetType, salesPageUrl 
+    } = projectData;
+
+    const netCommission = fullPrice * commissionRate;
 
     const prompt = `
-    Rol: Motor de Análisis Estratégico de Marketing Digital Maestro.
-    Tarea: Generar un "Informe Estratégico Maestro" en formato JSON puro.
+    Actúa como un Director de Marketing y Estratega Senior de Lanzamientos Digitales.
+    Tu tarea es generar un "Informe Estratégico Maestro" extremadamente detallado en formato JSON puro.
     
-    REGLAS TÉCNICAS CRÍTICAS (OBLIGATORIO):
-    1. Respuesta: Devuelve EXCLUSIVAMENTE el JSON. Sin explicaciones ni bloques de markdown.
-    2. Comillas: ESCAPA OBLIGATORIAMENTE cualquier comilla doble (") que aparezca DENTRO de un valor de texto usando barra invertida (ej: "Deseo \"independencia\" financiera").
-    3. Integridad: El JSON debe estar completo. No lo trunques bajo ninguna circunstancia.
-    4. Formato: Mantén estrictamente la jerarquía de campos definida abajo.
-
-    INFORMACIÓN DEL PROYECTO:
-    - Nombre: "${name}"
-    - Nicho: "${niche}"
-    - Producto: "${productName}"
+    CONTEXTO DEL NEGOCIO:
+    - Nombre del Proyecto: "${name}"
+    - Nicho de Mercado: "${niche}"
+    - Producto a vender: "${productName}"
+    - Tono de Comunicación: "${brandTone}" (OBLIGATORIO: Redacta todos los textos en este estilo).
     - Descripción: "${description}"
+    - Precio de Venta: $${fullPrice} USD
+    - Comisión por Venta: $${netCommission.toFixed(2)} USD (Tasa: ${Math.round(commissionRate * 100)}%)
+    - Regalo de Bienvenida (Lead Magnet): "${leadMagnetType}"
+    ${salesPageUrl ? `- URL de referencia: ${salesPageUrl}` : ''}
 
-    REGLAS DE GENERACIÓN PSICOGRÁFICA:
-    Para el avatar principal (id: 1), DEBES incluir los siguientes campos basados en este perfil:
-    1. age: Un rango entre 22 y 38 años.
-    2. interests: Intereses relacionados con estética, belleza y autoempleo.
-    3. desire: Deseo de generar ingresos propios ofreciendo servicios de alto valor.
-    4. behavior: Canales de consumo Instagram y WhatsApp.
-    5. objection: Desconfianza en promesas vacías y cursos online de baja calidad.
+    REGLAS TÉCNICAS CRÍTICAS:
+    1. Respuesta: Devuelve EXCLUSIVAMENTE el JSON válido. Sin markdown.
+    2. Comillas: ESCAPA comillas dobles DENTRO de los textos.
+    3. Idioma: Español Neutro de alta conversión.
+    4. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representando los ingresos netos esperados por mes (mes 1 a 12). Sé realista (curva de aprendizaje y luego escalado).
 
-    ESTRUCTURA JSON REQUERIDA:
+    ESTRUCTURA JSON REQUERIDA (OBLIGATORIA):
     {
       "meta": {
-        "projectName": "${name}",
+        "projectName": "${productName}",
         "niche": "${niche}",
-        "price": number,
-        "commissionRate": number,
-        "projection": [12 numbers],
+        "price": ${fullPrice},
+        "commissionRate": ${commissionRate},
+        "projection": [12 numbers starting small and growing],
         "insights": {
-            "overview": { "title": "Estrategia General", "items": [...] },
+            "overview": { 
+                "title": "Estrategia para vender en automático", 
+                "items": [
+                    { "label": "Producto", "value": "${productName}", "icon": "BookOpen", "color": "text-pink-400", "border": "border-pink-500/20" },
+                    { "label": "Nicho", "value": "${niche}", "icon": "Sparkles", "color": "text-purple-400", "border": "border-purple-500/20" },
+                    { "label": "Estrategia", "value": "Embudo con ${leadMagnetType}", "icon": "MessageCircle", "color": "text-green-400", "border": "border-green-500/20" }
+                ] 
+            },
             "niche": { "title": "Análisis de Nicho", "description": "..." },
-            "product": { "title": "Rentabilidad", "description": "..." },
+            "product": { "title": "Rentabilidad", "description": "Tu ganancia de $${netCommission.toFixed(2)} permite un margen de inversión de hasta..." },
             "objective": { "title": "Método de Cierre", "description": "..." }
         }
       },
       "avatars": [
           {
             "id": 1,
-            "name": "...",
-            "archetype": "...",
-            "age": "22-38 años",
+            "name": "Avatar Principal",
+            "archetype": "Perfil de compra masiva",
+            "age": "25-45 años",
             "quote": "...",
-            "interests": "Estética, belleza y autoempleo",
-            "desire": "Generar ingresos propios ofreciendo servicios de alto valor",
-            "behavior": "Consume contenido en Instagram y WhatsApp",
-            "objection": "Desconfía de promesas vacías en cursos online",
+            "interests": "...",
+            "behavior": "Instagram y WhatsApp",
+            "desire": "...",
             "pain": "...",
-            "motivations": { "dinero": number, "tiempo": number, "estatus": number, "seguridad": number }
+            "objection": "...",
+            "motivations": { "dinero": 85, "tiempo": 70, "estatus": 50, "seguridad": 90 }
           },
-          { "id": 2, ... },
-          { "id": 3, ... }
+          { "id": 2, "name": "Avatar Secundario (Escéptico)", ... },
+          { "id": 3, "name": "Avatar Terciario (Aspiracional)", ... }
       ],
       "psychology": {
-        "pains": ["...", "..."],
-        "solutions": ["...", "..."],
-        "awarenessStages": { "stage1_pain": "...", "stage2_solution": "...", "stage3_barrier": "..." },
+        "pains": ["Dolor 1", "Dolor 2", "Dolor 3", "Dolor 4"],
+        "solutions": ["Solución 1", "Solución 2", "Solución 3", "Solución 4"],
+        "awarenessStages": { 
+            "stage1_pain": "Consciente del problema pero no de la solución...", 
+            "stage2_solution": "Busca cursos pero no sabe cuál elegir...", 
+            "stage3_barrier": "Miedo a perder su dinero o no tener tiempo..." 
+        },
         "buyingPsychology": { 
            "notBuyingReasons": [ { "title": "...", "description": "..." } ],
            "buyingReasons": [ { "title": "...", "description": "..." } ],
-           "strategistConclusion": "..."
+           "strategistConclusion": "Estrategia final para el cierre..."
         },
         "conversionStrategy": {
-           "mainFocus": [ { "label": "...", "description": "..." } ],
-           "prioritizedChannels": [ { "label": "...", "type": "LP" } ],
-           "communicationStyle": [ { "label": "...", "description": "..." } ],
+           "mainFocus": [ { "label": "Eje Central", "description": "..." } ],
+           "prioritizedChannels": [ { "label": "Landing Page", "type": "LP" }, { "label": "WhatsApp CRM", "type": "WA" } ],
+           "communicationStyle": [ { "label": "Tono", "description": "${brandTone}" } ],
            "tacticalNote": "..."
         }
       },
       "modules": {
-        "content": [ { "id": 1, "title": "...", "keyword": "...", "difficulty": number, "strategy": "..." } ],
+        "content": [ 
+            { "id": 1, "title": "...", "keyword": "...", "difficulty": 25, "strategy": "Por qué esta keyword..." },
+            { "id": 2, "title": "...", "keyword": "...", "difficulty": 40, "strategy": "..." }
+        ],
         "emails": {
-           "nurture": [ { "day": "Día 0", "subject": "...", "objective": "...", "bodyPreview": "..." } ],
-           "evergreen": [ { "day": "Día 8", "subject": "...", "objective": "...", "bodyPreview": "..." } ]
+           "nurture": [ 
+                { "day": "Día 0", "subject": "...", "objective": "...", "type": "Bienvenida", "bodyPreview": "..." },
+                { "day": "Día 1", "subject": "...", "objective": "...", "type": "Valor", "bodyPreview": "..." },
+                { "day": "Día 3", "subject": "...", "objective": "...", "type": "Prueba Social", "bodyPreview": "..." },
+                { "day": "Día 5", "subject": "...", "objective": "...", "type": "Escasez", "bodyPreview": "..." },
+                { "day": "Día 7", "subject": "...", "objective": "...", "type": "Cierre", "bodyPreview": "..." }
+           ],
+           "evergreen": [ 
+                { "day": "Día 8", "subject": "...", "objective": "...", "type": "Autoridad", "bodyPreview": "..." } 
+           ]
         },
-        "whatsapp": [ { "id": 1, "title": "...", "objective": "...", "messages": [...] } ]
+        "whatsapp": [ 
+            { "id": 1, "title": "Cierre por WhatsApp", "objective": "Resolver dudas y enviar checkout", "messages": [ { "role": "agent", "text": "..." } ] } 
+        ]
       }
     }
     `;
@@ -136,26 +166,18 @@ const generateFullStrategy = async (projectData) => {
             model: 'gemini-3-pro-preview',
             contents: prompt,
             config: {
-                responseMimeType: "application/json"
+                responseMimeType: "application/json",
+                thinkingConfig: { thinkingBudget: 24576 }
             }
         });
 
-        let strategyJson = {};
-        if (response.text) {
-            try {
-                strategyJson = JSON.parse(response.text);
-            } catch (pErr) {
-                console.error("❌ [GEMINI] JSON Parse failed, attempting fallback cleanup.");
-                // Limpieza agresiva de caracteres no imprimibles o decorativos
-                const clean = response.text.replace(/[\u0000-\u001F\u007F-\u009F]/g, "").trim();
-                strategyJson = JSON.parse(clean);
-            }
-        }
+        if (!response.text) throw new Error("IA returned empty response");
 
+        let strategyJson = JSON.parse(response.text.trim());
         return strategyJson;
 
     } catch (error) {
-        console.error("❌ [GEMINI STRATEGY ERROR]:", error);
+        console.error("❌ [GEMINI STRATEGY MASTER ERROR]:", error);
         throw error;
     }
 };

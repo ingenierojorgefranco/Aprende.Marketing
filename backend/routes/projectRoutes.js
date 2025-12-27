@@ -1,4 +1,3 @@
-
 const express = require('express');
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
@@ -14,7 +13,6 @@ const router = express.Router();
 const safeParseJson = (str) => {
     if (!str) return null;
     try {
-        // Manejar doble serialización si ocurre
         let parsed = typeof str === 'string' ? JSON.parse(str) : str;
         if (typeof parsed === 'string') {
             parsed = JSON.parse(parsed);
@@ -56,7 +54,6 @@ const logUsage = async (userId, resourceType) => {
     }
 };
 
-// Aplicar middleware de autenticación a todas las rutas de proyectos
 router.use(authMiddleware);
 
 // ======================================================
@@ -65,7 +62,6 @@ router.use(authMiddleware);
 
 router.get('/', async (req, res) => {
   try {
-    // Si es admin, puede ver todo, si no, solo lo suyo
     let query = 'SELECT * FROM projects';
     let params = [];
     
@@ -78,7 +74,6 @@ router.get('/', async (req, res) => {
     
     const [rows] = await pool.query(query, params);
 
-    // Mapear y parsear campos JSON para la respuesta
     const projects = rows.map(p => ({
         ...p,
         pain_points: safeParseJson(p.pain_points),
@@ -122,7 +117,8 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const {
     name, niche, description, targetAudience, brandTone,
-    productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json
+    productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json,
+    fullPrice, commissionRate, leadMagnetType, salesPageUrl
   } = req.body;
   try {
     const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
@@ -140,8 +136,8 @@ router.post('/', async (req, res) => {
 
     const [result] = await pool.query(
       `INSERT INTO projects 
-       (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+       (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, full_price, commission_rate, lead_magnet_type, sales_page_url, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         req.user.id,
         name,
@@ -154,13 +150,18 @@ router.post('/', async (req, res) => {
         JSON.stringify(painPoints || []),
         JSON.stringify(keyBenefits || []),
         JSON.stringify(affiliateLinks || []),
-        strategy_json ? JSON.stringify(strategy_json) : null
+        strategy_json ? JSON.stringify(strategy_json) : null,
+        fullPrice || 0,
+        commissionRate || 0,
+        leadMagnetType || '',
+        salesPageUrl || ''
       ]
     );
     await logUsage(req.user.id, 'project');
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
     res.json({ id: result.insertId, message: 'Proyecto guardado exitosamente' });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error guardando proyecto en BD' });
   }
 });
@@ -169,21 +170,20 @@ router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const {
     name, niche, description, targetAudience, brandTone,
-    productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json
+    productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json,
+    fullPrice, commissionRate, leadMagnetType, salesPageUrl
   } = req.body;
   try {
-    const [check] = await pool.query('SELECT id FROM projects WHERE id = ?', [id]);
+    const [check] = await pool.query('SELECT user_id FROM projects WHERE id = ?', [id]);
     if (check.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
     
-    // Solo el dueño o un admin pueden editar
-    const [ownerCheck] = await pool.query('SELECT user_id FROM projects WHERE id = ?', [id]);
-    if (ownerCheck[0].user_id !== req.user.id && req.user.role !== 'admin') {
+    if (check[0].user_id !== req.user.id && req.user.role !== 'admin') {
         return res.status(403).json({ error: 'No autorizado' });
     }
     
     await pool.query(
       `UPDATE projects 
-       SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, updated_at=NOW()
+       SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, sales_page_url=?, updated_at=NOW()
        WHERE id=?`,
       [
         name,
@@ -197,6 +197,10 @@ router.put('/:id', async (req, res) => {
         JSON.stringify(keyBenefits || []),
         JSON.stringify(affiliateLinks || []),
         strategy_json ? JSON.stringify(strategy_json) : null,
+        fullPrice || 0,
+        commissionRate || 0,
+        leadMagnetType || '',
+        salesPageUrl || '',
         id
       ]
     );
@@ -215,6 +219,7 @@ router.delete('/:id', async (req, res) => {
         return res.status(403).json({ error: 'No autorizado' });
     }
 
+    await pool.query('DELETE FROM landing_pages WHERE project_id = ?', [req.params.id]);
     await pool.query('DELETE FROM projects WHERE id = ?', [req.params.id]);
     await logSystemActivity(req.user.id, req.user.email, 'DELETE_PROJECT', 'project', req.params.id, { name: proj[0]?.name });
     res.json({ message: 'Proyecto eliminado' });
@@ -242,23 +247,18 @@ router.post('/:id/generate-strategy', async (req, res) => {
         if (projects.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado o sin permisos.' });
         const project = projects[0];
         
-        const safeParse = (str) => { 
-            if (!str) return [];
-            try { return typeof str === 'string' ? JSON.parse(str) : str; } catch(e) { return []; } 
-        };
-
-        const projectData = {
+        const strategyJson = await generateFullStrategy({
             name: project.name,
-            niche: project.niche,
+            niche: project.niche || project.name,
             productName: project.product_name,
             description: project.description,
-            targetAudience: project.target_audience,
-            painPoints: safeParse(project.pain_points),
-            keyBenefits: safeParse(project.key_benefits),
-        };
+            brandTone: project.brand_tone,
+            fullPrice: project.full_price,
+            commissionRate: project.commission_rate,
+            leadMagnetType: project.lead_magnet_type,
+            salesPageUrl: project.sales_page_url
+        });
 
-        const strategyJson = await generateFullStrategy(projectData);
-        // Unificamos todo en strategy_json
         await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), id]);
         res.json(strategyJson);
     } catch (e) {
