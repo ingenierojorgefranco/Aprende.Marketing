@@ -217,9 +217,14 @@ export const MyPages: React.FC = () => {
                                         <Link to={`/dashboard/editor/${page.id}`}>
                                             <h3 className="font-bold text-lg text-white truncate group-hover:text-primary transition-colors hover:underline">{page.name}</h3>
                                         </Link>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <Briefcase className="w-3 h-3 text-gray-500" />
-                                            <p className="text-xs text-gray-500 truncate">{page.projectName || 'Sin Proyecto'}</p>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <Briefcase className="w-4 h-4 text-gray-400" />
+                                            <Link 
+                                                to={page.projectId ? `/dashboard/projects/${page.projectId}/strategy` : "/dashboard/projects"}
+                                                className="text-base md:text-lg text-gray-400 truncate hover:text-primary transition-colors hover:underline"
+                                            >
+                                                {page.projectName || 'Sin Proyecto'}
+                                            </Link>
                                         </div>
                                     </div>
                                     <span className={`flex-shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide border shadow-sm ${page.isPublished ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>
@@ -227,15 +232,18 @@ export const MyPages: React.FC = () => {
                                     </span>
                                 </div>
                                 
-                                <div className="grid grid-cols-2 gap-2 mb-6 bg-black/40 p-3 rounded-xl border border-white/5">
+                                <div className="grid grid-cols-2 gap-2 mb-6 bg-black/40 p-3 rounded-xl border border-white/5 overflow-hidden">
                                     <div className="text-center p-1">
                                         <p className="text-lg font-bold text-white">{page.visits}</p>
                                         <p className="text-[10px] text-gray-500 uppercase tracking-wider">Visitas</p>
                                     </div>
-                                    <div className="text-center p-1 border-l border-white/10">
-                                        <p className="text-lg font-bold text-white">{page.conversions}</p>
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider">Leads</p>
-                                    </div>
+                                    <Link 
+                                        to={`/dashboard/crm?pageId=${page.id}&pageName=${encodeURIComponent(page.name)}`}
+                                        className="text-center p-1 border-l border-white/10 hover:bg-primary/10 transition-all cursor-pointer group/stat"
+                                    >
+                                        <p className="text-lg font-bold text-white group-hover:text-primary transition-colors">{page.conversions}</p>
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider group-hover:text-primary transition-colors">Leads</p>
+                                    </Link>
                                 </div>
 
                                 <div className="flex flex-col gap-2.5 mt-auto">

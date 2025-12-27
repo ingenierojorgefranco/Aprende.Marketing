@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Users, Plus, Search, Filter, RefreshCw, Loader2 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Users, Plus, Search, Filter, RefreshCw, Loader2, X } from 'lucide-react';
 import { CRMTable } from './CRM_Table';
 import { CRMContactDrawer } from './CRM_ContactDrawer';
 import { CRMContact } from '../../../types';
@@ -13,6 +14,11 @@ export const CRM_Layout: React.FC = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<string>('all');
+    
+    // --- FILTRADO POR URL ---
+    const [searchParams, setSearchParams] = useSearchParams();
+    const filterPageId = searchParams.get('pageId');
+    const filterPageName = searchParams.get('pageName');
 
     useEffect(() => {
         loadContacts();
@@ -88,11 +94,20 @@ export const CRM_Layout: React.FC = () => {
         }
     };
 
+    const clearPageFilter = () => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('pageId');
+        newParams.delete('pageName');
+        setSearchParams(newParams);
+    };
+
     const filteredContacts = contacts.filter(contact => {
         const matchesSearch = contact.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                               contact.email.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterStatus === 'all' || contact.status === filterStatus;
-        return matchesSearch && matchesStatus;
+        const matchesPage = !filterPageId || String(contact.pageId) === String(filterPageId);
+        
+        return matchesSearch && matchesStatus && matchesPage;
     });
 
     return (
@@ -108,6 +123,20 @@ export const CRM_Layout: React.FC = () => {
                     <Plus className="w-4 h-4" /> Nuevo Prospecto
                 </button>
             </div>
+
+            {/* UI de Filtro Activo por Página */}
+            {filterPageId && (
+                <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-xl w-fit animate-in slide-in-from-left-2 shadow-lg shrink-0">
+                    <span className="text-sm text-primary font-medium">Filtrando por: <b className="text-white ml-1">{filterPageName || 'Página'}</b></span>
+                    <button 
+                        onClick={clearPageFilter} 
+                        className="ml-2 p-1 hover:bg-primary/20 rounded-full text-primary transition-colors group"
+                        title="Quitar filtro de página"
+                    >
+                        <X className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    </button>
+                </div>
+            )}
 
             {/* Toolbar */}
             <div className="bg-gray-900 p-4 rounded-xl border border-gray-800 flex flex-col md:flex-row gap-4 justify-between items-center shrink-0">
