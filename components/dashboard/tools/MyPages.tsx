@@ -1,8 +1,9 @@
+
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext, Link } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { LandingPage, User } from '../../../types';
-import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle } from 'lucide-react';
+import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface DashboardContext {
@@ -213,10 +214,12 @@ export const MyPages: React.FC = () => {
 
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="flex-1 min-w-0 pr-3">
-                                        <h3 className="font-bold text-lg text-white truncate group-hover:text-primary transition-colors">{page.name}</h3>
+                                        <Link to={`/dashboard/editor/${page.id}`}>
+                                            <h3 className="font-bold text-lg text-white truncate group-hover:text-primary transition-colors hover:underline">{page.name}</h3>
+                                        </Link>
                                         <div className="flex items-center gap-2 mt-1">
-                                            <span className="w-2 h-2 rounded-full bg-gray-600"></span>
-                                            <p className="text-xs text-gray-500 truncate">{page.niche}</p>
+                                            <Briefcase className="w-3 h-3 text-gray-500" />
+                                            <p className="text-xs text-gray-500 truncate">{page.projectName || 'Sin Proyecto'}</p>
                                         </div>
                                     </div>
                                     <span className={`flex-shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide border shadow-sm ${page.isPublished ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>

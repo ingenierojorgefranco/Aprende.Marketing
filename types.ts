@@ -287,6 +287,7 @@ export interface LandingPage {
   subdomain: string;
   customDomain?: string; // New: Supports custom domains
   projectId?: string; // NEW: Linked Project ID
+  projectName?: string; // NEW: Project Name for UI
   content: GeneratedPageContent;
   createdAt: Date;
   visits: number;

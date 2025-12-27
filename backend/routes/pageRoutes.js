@@ -83,7 +83,14 @@ const logCRMActivity = async (contactId, type, content) => {
 
 router.get('/pages', authMiddleware, async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT *, thankyoupage_json FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
+    const [rows] = await pool.query(`
+      SELECT lp.*, lp.thankyoupage_json, pr.name as project_name 
+      FROM landing_pages lp 
+      LEFT JOIN projects pr ON lp.project_id = pr.id 
+      WHERE lp.user_id = ? 
+      ORDER BY lp.created_at DESC
+    `, [req.user.id]);
+    
     rows.forEach(page => {
         if (typeof page.content === 'string') try { page.content = JSON.parse(page.content); } catch {}
         if (page.thankyoupage_json) {

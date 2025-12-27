@@ -1,3 +1,4 @@
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -99,9 +100,11 @@ const safeJsonParse = (data: any, fieldName: string = 'unknown') => {
         const suspiciousQuotesRegex = /([^:{\[,])"([^,}\]])/g;
         let iteration = 0;
         while (suspiciousQuotesRegex.test(repaired) && iteration < 10) {
-            repaired = repaired.replace(suspiciousQuotesRegex, '$1\\"$2');
+            repaired = repaired.replace(suspiciousQuotesRegex, '$1\\InternalQuotePlaceholder$2');
             iteration++;
         }
+        // Actually simpler: Escaping double quotes inside text is hard without better parser.
+        // Let's rely on standard JSON parse first.
 
         result = tryParse(repaired);
         if (result) {
@@ -219,6 +222,7 @@ export const api = {
             isPublished: !!(p.isPublished || p.is_published),
             customDomain: p.custom_domain || p.customDomain, // Mapeo explícito de snake_case a camelCase
             projectId: p.project_id ? String(p.project_id) : undefined, // NEW: Map Project ID
+            projectName: p.project_name, // NEW: Map Project Name from join
             content: content,
             createdAt: new Date(p.created_at || p.createdAt)
         };
@@ -295,9 +299,9 @@ export const api = {
       return projects.map((p: any) => ({
           ...p,
           id: String(p.id),
-          painPoints: safeJsonParse(p.pain_points, 'proj.painPoints') || [],
-          keyBenefits: safeJsonParse(p.key_benefits, 'proj.keyBenefits') || [],
-          affiliateLinks: safeJsonParse(p.affiliate_links, 'proj.affiliateLinks') || [],
+          painPoints: safeParseJsonList(p.pain_points),
+          keyBenefits: safeParseJsonList(p.key_benefits),
+          affiliateLinks: safeParseJsonList(p.affiliate_links),
           strategy_json: safeJsonParse(p.strategy_json, 'proj.strategyJson'), 
           targetAudience: p.target_audience || p.targetAudience,
           brandTone: p.brand_tone || p.brandTone,
@@ -325,9 +329,9 @@ export const api = {
           const mappedProject = {
               ...p,
               id: String(p.id),
-              painPoints: safeJsonParse(p.pain_points, 'proj.painPoints') || [],
-              keyBenefits: safeJsonParse(p.key_benefits, 'proj.keyBenefits') || [],
-              affiliateLinks: safeJsonParse(p.affiliate_links, 'proj.affiliateLinks') || [],
+              painPoints: safeParseJsonList(p.pain_points),
+              keyBenefits: safeParseJsonList(p.key_benefits),
+              affiliateLinks: safeParseJsonList(p.affiliate_links),
               strategy_json: safeJsonParse(p.strategy_json, 'proj.strategyJson'),
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
@@ -1004,3 +1008,16 @@ export const api = {
       });
   }
 };
+
+/**
+ * Helper to parse JSON list fields from projects (pain points, benefits, links)
+ */
+function safeParseJsonList(data: any): any[] {
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    try {
+        return typeof data === 'string' ? JSON.parse(data) : data;
+    } catch (e) {
+        return [];
+    }
+}
