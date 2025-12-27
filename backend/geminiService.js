@@ -76,7 +76,7 @@ const generateFullStrategy = async (projectData) => {
     1. Respuesta: Devuelve EXCLUSIVAMENTE el JSON válido. Sin markdown.
     2. Comillas: ESCAPA comillas dobles DENTRO de los textos.
     3. Idioma: Español Neutro de alta conversión.
-    4. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representando los ingresos netos esperados por mes (mes 1 a 12). Sé realista (curva de aprendizaje y luego escalado).
+    4. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representando los ingresos netos esperados por mes (mes 1 a 12), es normal esperar que los primeros 3 meses no se generen ingresos, pero luego se espera que haya un incremento de 1 a 3 o 4 ventas mensuales, las cuales pueden fluctuar segun tu consideracion en los meses, sin embargo la idea es que en el mes 12 la persona pueda estar generando mas de 1500 dolares mensuales. Sé realista (curva de aprendizaje y luego escalado).
 
     ESTRUCTURA JSON REQUERIDA (OBLIGATORIA):
     {
