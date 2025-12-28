@@ -1,3 +1,4 @@
+
 const { GoogleGenAI } = require("@google/genai");
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -38,6 +39,46 @@ const generateContent = async (model, contents, config = {}) => {
     } catch (error) {
         console.error("❌ [GEMINI SERVICE ERROR]:", error);
         throw error;
+    }
+};
+
+/**
+ * Analiza el contenido crudo de una página de ventas y extrae un informe estratégico.
+ */
+const analyzeSalesPageContent = async (htmlText) => {
+    if (!aiClient) throw new Error("Gemini API Key missing.");
+
+    const prompt = `
+    Actúa como un experto en Marketing de Afiliados y Copywriting de alta conversión.
+    He extraído el siguiente texto de una página de ventas. Necesito que lo analices exhaustivamente y generes un informe detallado que sirva como descripción del proyecto.
+
+    CONTENIDO EXTRAÍDO:
+    ---
+    ${htmlText.substring(0, 15000)}
+    ---
+
+    INSTRUCCIONES:
+    Genera un informe estructurado que incluya:
+    1. Resumen ejecutivo del producto (¿Qué es y para qué sirve?).
+    2. Promesa principal (¿Cuál es la gran transformación que ofrece?).
+    3. Perfil del Cliente Ideal (Edad, miedos, deseos).
+    4. Estructura de la oferta (¿Qué incluye? Módulos, bonus, precio sugerido).
+    5. Autoridad del Productor (¿Quién lo dicta y por qué es experto?).
+    6. Gatillos mentales detectados (Escasez, urgencia, prueba social, etc.).
+
+    Redacta el informe en ESPAÑOL, de forma persuasiva y profesional. Máximo 500 palabras.
+    RESPONDE SOLO CON EL TEXTO DEL INFORME, sin saludos ni introducciones.
+    `;
+
+    try {
+        const result = await aiClient.models.generateContent({
+            model: 'gemini-3-flash-preview',
+            contents: prompt
+        });
+        return result.text || "No se pudo generar el análisis.";
+    } catch (e) {
+        console.error("[Gemini Analysis Error]", e);
+        throw e;
     }
 };
 
@@ -202,4 +243,4 @@ const generateFullStrategy = async (projectData) => {
     }
 };
 
-module.exports = { generateContent, generateFullStrategy };
+module.exports = { generateContent, generateFullStrategy, analyzeSalesPageContent };

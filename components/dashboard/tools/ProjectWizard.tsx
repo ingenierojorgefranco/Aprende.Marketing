@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Wand2 } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -18,6 +19,7 @@ export const ProjectWizard: React.FC = () => {
     
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [loadingStatus, setLoadingStatus] = useState('');
     
     // Blocking Logic
@@ -28,12 +30,12 @@ export const ProjectWizard: React.FC = () => {
     const [productName, setProductName] = useState('');
     const [description, setDescription] = useState('');
     const [brandTone, setBrandTone] = useState('Amigable y Cercano');
+    const [salesPageUrl, setSalesPageUrl] = useState('');
     
     // Step 2: Business Model
     const [fullPrice, setFullPrice] = useState<number>(0);
     const [commissionValue, setCommissionValue] = useState<number>(0);
     const [leadMagnetType, setLeadMagnetType] = useState('Ebook / Guía PDF');
-    const [salesPageUrl, setSalesPageUrl] = useState('');
     
     // Hidden fields (legacy compatibility)
     const [niche, setNiche] = useState('');
@@ -92,6 +94,24 @@ export const ProjectWizard: React.FC = () => {
             console.error("Error loading project", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleAnalyzeSalesPage = async () => {
+        if (!salesPageUrl) return alert("Por favor ingresa una URL válida.");
+        if (!salesPageUrl.startsWith('http')) return alert("La URL debe empezar con http:// o https://");
+
+        setIsAnalyzing(true);
+        try {
+            const result = await api.analyzeSalesPage(salesPageUrl);
+            if (result && result.analysis) {
+                setDescription(result.analysis);
+            }
+        } catch (error: any) {
+            console.error("Error analizando sitio:", error);
+            alert("No se pudo analizar el sitio. Verifica que la URL sea pública o intenta copiar la descripción manualmente.");
+        } finally {
+            setIsAnalyzing(false);
         }
     };
 
@@ -241,13 +261,40 @@ export const ProjectWizard: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Descripción del Producto</label>
-                                <textarea 
-                                    value={description} onChange={e => setDescription(e.target.value)} 
-                                    className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none h-32 resize-none transition-all placeholder:text-gray-700"
-                                    placeholder="Describe brevemente de qué trata para que la IA genere el copy..."
-                                />
+                            <div className="bg-gray-800/30 p-6 rounded-2xl border border-gray-800 space-y-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">URL de la Carta de Ventas (Opcional)</label>
+                                    <div className="flex gap-2">
+                                        <div className="relative flex-1">
+                                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                                            <input 
+                                                type="text" 
+                                                value={salesPageUrl} onChange={e => setSalesPageUrl(e.target.value)} 
+                                                className="w-full bg-black border border-gray-700 rounded-xl px-10 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700"
+                                                placeholder="https://pagina-del-productor.com/..."
+                                            />
+                                        </div>
+                                        <button 
+                                            onClick={handleAnalyzeSalesPage}
+                                            disabled={isAnalyzing || !salesPageUrl}
+                                            className="px-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
+                                            title="La IA leerá el sitio y extraerá la información por ti"
+                                        >
+                                            {isAnalyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Wand2 className="w-5 h-5" />}
+                                            <span className="hidden sm:inline">Analizar sitio</span>
+                                        </button>
+                                    </div>
+                                    <p className="text-[10px] text-gray-500 mt-2">Introduce la URL del producto en Hotmart o su web oficial para que la IA extraiga los detalles automáticamente.</p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Descripción del Producto</label>
+                                    <textarea 
+                                        value={description} onChange={e => setDescription(e.target.value)} 
+                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none h-32 resize-none transition-all placeholder:text-gray-700"
+                                        placeholder="Describe brevemente de qué trata para que la IA genere el copy..."
+                                    />
+                                </div>
                             </div>
 
                             <div>
@@ -306,31 +353,17 @@ export const ProjectWizard: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Lead Magnet (Regalo)</label>
-                                    <select 
-                                        value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)}
-                                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all"
-                                    >
-                                        <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
-                                        <option value="Clase Gratis / VSL">Clase Gratis / VSL</option>
-                                        <option value="Masterclass en Vivo">Masterclass en Vivo</option>
-                                        <option value="Plantilla / Checklist">Plantilla / Checklist</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Página de Ventas Actual (Opcional)</label>
-                                    <div className="relative">
-                                        <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                                        <input 
-                                            type="text" 
-                                            value={salesPageUrl} onChange={e => setSalesPageUrl(e.target.value)} 
-                                            className="w-full bg-black border border-gray-700 rounded-xl px-10 py-3 text-white focus:border-primary outline-none transition-all"
-                                            placeholder="https://..."
-                                        />
-                                    </div>
-                                </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Lead Magnet (Regalo)</label>
+                                <select 
+                                    value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)}
+                                    className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all"
+                                >
+                                    <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
+                                    <option value="Clase Gratis / VSL">Clase Gratis / VSL</option>
+                                    <option value="Masterclass en Vivo">Masterclass en Vivo</option>
+                                    <option value="Plantilla / Checklist">Plantilla / Checklist</option>
+                                </select>
                             </div>
                         </div>
                     )}
