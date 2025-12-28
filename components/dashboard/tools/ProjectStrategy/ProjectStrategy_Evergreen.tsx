@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Calendar, Sparkles, Check, Info, Crown, Lock } from 'lucide-react';
 import { PlanFeatures, PlanLimits, Plan } from '../../../../types';
@@ -119,10 +118,10 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                             </div>
 
                             <div className="space-y-4 flex-1 overflow-y-auto max-h-[600px] custom-scrollbar pr-2">
-                                {(evergreenData || []).map((email: any, idx: number) => {
+                                {evergreenData.map((email: any, idx: number) => {
                                     const isGap = idx === 3; 
                                     return (
-                                        <React.Fragment key={email.id || idx}>
+                                        <React.Fragment key={email.id}>
                                             {isGap && (
                                                 <div className="flex flex-col items-center gap-1 py-2 opacity-30">
                                                     <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
@@ -137,11 +136,11 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                             >
                                                 <div className="flex items-center gap-4">
                                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${activeEvergreenEmail === idx ? 'bg-orange-500 text-white' : 'bg-gray-800 text-gray-400'}`}>
-                                                        {email.day?.replace('Día ', '') || idx + 1}
+                                                        {email.day.replace('Día ', '')}
                                                     </div>
                                                     <div>
-                                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">{email.day || `Día ${idx}`}</span>
-                                                        <h4 className={`text-lg font-bold leading-snug ${activeEvergreenEmail === idx ? 'text-orange-200' : 'text-gray-300'}`}>{email.subject || 'Sin Asunto'}</h4>
+                                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">{email.day}</span>
+                                                        <h4 className={`text-lg font-bold leading-snug ${activeEvergreenEmail === idx ? 'text-orange-200' : 'text-gray-300'}`}>{email.subject}</h4>
                                                     </div>
                                                 </div>
                                                 
@@ -163,52 +162,44 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         </div>
 
                         <div className="relative z-10 flex flex-col h-full">
-                            {evergreenData && evergreenData.length > 0 && evergreenData[activeEvergreenEmail] ? (
-                                <>
-                                    <div className="mb-8">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <span className="bg-orange-900/20 text-orange-400 border border-orange-900/50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                                                {evergreenData[activeEvergreenEmail].type}
-                                            </span>
-                                            <span className="text-gray-500 text-xs font-mono">{evergreenData[activeEvergreenEmail].day}</span>
-                                        </div>
-                                        
-                                        <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">{evergreenData[activeEvergreenEmail].subject}</h3>
-                                    </div>
-
-                                    <div className="bg-orange-900/10 border border-orange-500/20 p-6 rounded-xl mb-8">
-                                        <div className="flex gap-4">
-                                            <div className="p-2 bg-orange-500/20 rounded-lg h-fit"><Info className="w-5 h-5 text-orange-200" /></div>
-                                            <div>
-                                                <span className="text-orange-200 font-bold block mb-1">Misión de este correo</span>
-                                                <p className="text-gray-300 text-base font-light leading-relaxed">
-                                                    {evergreenData[activeEvergreenEmail].objective}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="bg-white text-gray-900 rounded-xl p-8 shadow-2xl relative overflow-hidden font-serif leading-relaxed text-lg flex-1 border-2 border-gray-200">
-                                        <div className="border-b border-gray-200 pb-4 mb-6 text-sm text-gray-500 font-sans">
-                                            <p><strong>De:</strong> Tu Nombre &lt;info@tuempresa.com&gt;</p>
-                                            <p><strong>Para:</strong> {avatars?.[0]?.name || 'Prospecto'}</p>
-                                        </div>
-
-                                        <p className="mb-4 font-bold">Hola {avatars?.[0]?.name?.split(' ')[0] || 'amiga/o'},</p>
-                                        <p className="mb-6">{evergreenData[activeEvergreenEmail].bodyPreview}</p>
-                                        
-                                        <div className="my-8 p-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg text-center text-gray-500 text-sm italic">
-                                            [... El sistema generará este contenido educativo para generar autoridad ...]
-                                        </div>
-
-                                        <p>Atentamente,<br/>Tu Equipo.</p>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center flex-1 text-gray-500 italic">
-                                    No hay datos de email evergreen disponibles.
+                            <div className="mb-8">
+                                <div className="flex items-center justify-between mb-4">
+                                    <span className="bg-orange-900/20 text-orange-400 border border-orange-900/50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                                        {evergreenData[activeEvergreenEmail].type}
+                                    </span>
+                                    <span className="text-gray-500 text-xs font-mono">{evergreenData[activeEvergreenEmail].day}</span>
                                 </div>
-                            )}
+                                
+                                <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">{evergreenData[activeEvergreenEmail].subject}</h3>
+                            </div>
+
+                            <div className="bg-orange-900/10 border border-orange-500/20 p-6 rounded-xl mb-8">
+                                <div className="flex gap-4">
+                                    <div className="p-2 bg-orange-500/20 rounded-lg h-fit"><Info className="w-5 h-5 text-orange-200" /></div>
+                                    <div>
+                                        <span className="text-orange-200 font-bold block mb-1">Misión de este correo</span>
+                                        <p className="text-gray-300 text-base font-light leading-relaxed">
+                                            {evergreenData[activeEvergreenEmail].objective}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-white text-gray-900 rounded-xl p-8 shadow-2xl relative overflow-hidden font-serif leading-relaxed text-lg flex-1 border-2 border-gray-200">
+                                <div className="border-b border-gray-200 pb-4 mb-6 text-sm text-gray-500 font-sans">
+                                    <p><strong>De:</strong> Tu Nombre &lt;info@tuempresa.com&gt;</p>
+                                    <p><strong>Para:</strong> {avatars[0].name}</p>
+                                </div>
+
+                                <p className="mb-4 font-bold">Hola {avatars[0].name.split(' ')[0]},</p>
+                                <p className="mb-6">{evergreenData[activeEvergreenEmail].bodyPreview}</p>
+                                
+                                <div className="my-8 p-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg text-center text-gray-500 text-sm italic">
+                                    [... El sistema generará este contenido educativo para generar autoridad ...]
+                                </div>
+
+                                <p>Atentamente,<br/>Tu Equipo.</p>
+                            </div>
 
                             <div className="mt-8 pt-8 border-t border-gray-800">
                                 <button 
