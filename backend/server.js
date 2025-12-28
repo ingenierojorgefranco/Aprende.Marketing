@@ -39,12 +39,13 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 // ======================================================
-//  REDIRECCIÓN WWW → DOMINIO RAÍZ
+//  REDIRECCIÓN WWW → DOMINIO RAÍZ (GENÉRICO)
 // ======================================================
 app.use((req, res, next) => {
   const host = req.hostname || req.headers.host || '';
-  if (host === `www.${BASE_DOMAIN}`) {
-    const targetUrl = `https://${BASE_DOMAIN}${req.originalUrl || ''}`;
+  if (host.startsWith('www.')) {
+    const newHost = host.slice(4); // Removemos 'www.'
+    const targetUrl = `https://${newHost}${req.originalUrl || ''}`;
     return res.redirect(301, targetUrl);
   }
   next();

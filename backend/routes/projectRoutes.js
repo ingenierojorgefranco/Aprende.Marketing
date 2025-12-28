@@ -219,10 +219,11 @@ router.delete('/:id', async (req, res) => {
         return res.status(403).json({ error: 'No autorizado' });
     }
 
-    await pool.query('DELETE FROM landing_pages WHERE project_id = ?', [req.params.id]);
+    // Al eliminar el proyecto, las páginas asociadas se mantienen gracias a ON DELETE SET NULL en la BD.
+    // Se elimina la instrucción que borraba las páginas explícitamente.
     await pool.query('DELETE FROM projects WHERE id = ?', [req.params.id]);
     await logSystemActivity(req.user.id, req.user.email, 'DELETE_PROJECT', 'project', req.params.id, { name: proj[0]?.name });
-    res.json({ message: 'Proyecto eliminado' });
+    res.json({ message: 'Proyecto eliminado. Las páginas asociadas han sido conservadas.' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
