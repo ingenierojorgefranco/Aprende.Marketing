@@ -1,9 +1,8 @@
-
 const express = require('express');
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
 const { logSystemActivity, DEFAULT_LIMITS } = require('./authRoutes');
-const { generateFullStrategy, analyzeSalesPageContent } = require('../geminiService');
+const { generateFullStrategy } = require('../geminiService');
 
 const router = express.Router();
 
@@ -56,43 +55,6 @@ const logUsage = async (userId, resourceType) => {
 };
 
 router.use(authMiddleware);
-
-// ======================================================
-//  ANÁLISIS DE URL EXTERNA
-// ======================================================
-
-router.post('/analyze-url', async (req, res) => {
-    const { url } = req.body;
-    if (!url) return res.status(400).json({ error: "URL no proporcionada" });
-
-    try {
-        // Fetch HTML content from the URL
-        const response = await fetch(url, {
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-        });
-        
-        if (!response.ok) throw new Error(`Could not fetch the URL: ${response.statusText}`);
-        
-        const html = await response.text();
-        
-        // Basic Cleanup: strip scripts and styles to save tokens
-        const cleanedText = html
-            .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gmb, '')
-            .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gmb, '')
-            .replace(/<[^>]+>/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-
-        // Call Gemini Service for strategic extraction
-        const analysis = await analyzeSalesPageContent(cleanedText);
-        
-        res.json({ analysis });
-
-    } catch (e) {
-        console.error("[Analyze URL Route Error]", e);
-        res.status(500).json({ error: "No se pudo extraer información del sitio. Verifica que la URL sea válida y accesible." });
-    }
-});
 
 // ======================================================
 //  CRUD DE PROYECTOS
