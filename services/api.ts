@@ -1,4 +1,3 @@
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -403,6 +402,22 @@ export const api = {
           return Promise.resolve();
       }
       await fetchWithFallback(`/projects/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+  },
+
+  analyzeSite: async (url: string): Promise<{ productName: string, description: string, niche: string }> => {
+      if (isMockMode) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          return {
+              productName: "Producto Demo Analizado",
+              description: "Esta es una descripción generada automáticamente al analizar la URL. El sistema ha identificado los puntos clave de ventas y los beneficios principales basándose en el contenido visualizado.",
+              niche: "Nicho de Prueba"
+          };
+      }
+      return await fetchWithFallback('/projects/analyze-site', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ url })
+      });
   },
 
   generateProjectStrategyFull: async (projectId: string): Promise<StrategyJSON> => {

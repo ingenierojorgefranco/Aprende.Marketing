@@ -42,6 +42,46 @@ const generateContent = async (model, contents, config = {}) => {
 };
 
 /**
+ * Analiza el contenido de un sitio web para extraer estrategia
+ */
+const analyzeWebsiteContent = async (rawText) => {
+    if (!aiClient) throw new Error("Gemini API Key not configured.");
+
+    const prompt = `
+    Actúa como un experto Analista de Marketing y Copywriter Senior.
+    Te proporcionaré el texto extraído de una página de ventas (Landing Page).
+    Tu tarea es:
+    1. Identificar el nombre del producto o servicio.
+    2. Redactar una descripción profesional, detallada y persuasiva (mínimo 3 párrafos) que explique de qué trata el producto, su propuesta única de valor y la transformación que ofrece al cliente.
+    3. Identificar el nicho de mercado.
+
+    TEXTO EXTRAÍDO:
+    ${rawText.substring(0, 15000)}
+
+    Responde EXCLUSIVAMENTE en formato JSON válido con esta estructura:
+    {
+      "productName": "Nombre del Producto",
+      "description": "Descripción profesional y detallada...",
+      "niche": "Nicho identificado"
+    }
+    `;
+
+    try {
+        const response = await aiClient.models.generateContent({
+            model: 'gemini-3-flash-preview',
+            contents: prompt,
+            config: { responseMimeType: "application/json" }
+        });
+
+        if (!response.text) throw new Error("IA returned empty response");
+        return JSON.parse(response.text.trim());
+    } catch (error) {
+        console.error("❌ [GEMINI ANALYZE ERROR]:", error);
+        throw error;
+    }
+};
+
+/**
  * Genera el Informe Estratégico Maestro completo (JSON 100% funcional)
  */
 const generateFullStrategy = async (projectData) => {
@@ -202,4 +242,4 @@ const generateFullStrategy = async (projectData) => {
     }
 };
 
-module.exports = { generateContent, generateFullStrategy };
+module.exports = { generateContent, analyzeWebsiteContent, generateFullStrategy };

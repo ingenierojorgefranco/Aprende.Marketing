@@ -2,7 +2,8 @@ const express = require('express');
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
 const { logSystemActivity, DEFAULT_LIMITS } = require('./authRoutes');
-const { generateFullStrategy } = require('../geminiService');
+const { generateFullStrategy, analyzeWebsiteContent } = require('../geminiService');
+const https = require('https');
 
 const router = express.Router();
 
@@ -55,6 +56,45 @@ const logUsage = async (userId, resourceType) => {
 };
 
 router.use(authMiddleware);
+
+// ======================================================
+//  ANALIZADOR INTELIGENTE
+// ======================================================
+
+router.post('/analyze-site', async (req, res) => {
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ error: 'URL no proporcionada' });
+
+    try {
+        // Fetch content from URL
+        const fetchUrl = (targetUrl) => {
+            return new Promise((resolve, reject) => {
+                https.get(targetUrl, (res) => {
+                    let data = '';
+                    res.on('data', (chunk) => data += chunk);
+                    res.on('end', () => resolve(data));
+                }).on('error', (err) => reject(err));
+            });
+        };
+
+        const html = await fetchUrl(url);
+        
+        // Basic clean text (strip tags, scripts, styles)
+        let cleanText = html
+            .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
+            .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "")
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        const analysis = await analyzeWebsiteContent(cleanText);
+        res.json(analysis);
+
+    } catch (error) {
+        console.error("[Analyze Site Error]", error);
+        res.status(500).json({ error: 'Error analizando el sitio web. Verifica que la URL sea pública.' });
+    }
+});
 
 // ======================================================
 //  CRUD DE PROYECTOS
