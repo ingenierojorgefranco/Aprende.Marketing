@@ -1,14 +1,13 @@
 
 const { GoogleGenAI } = require("@google/genai");
 
-// Según las directrices, la clave DEBE obtenerse exclusivamente de process.env.API_KEY
-const apiKey = process.env.API_KEY;
+const apiKey = process.env.GEMINI_API_KEY;
 let aiClient = null;
 
 if (apiKey) {
     aiClient = new GoogleGenAI({ apiKey });
 } else {
-    console.warn("⚠️ [GEMINI] No API_KEY found in environment variables.");
+    console.warn("⚠️ [GEMINI] No GEMINI_API_KEY found in environment variables.");
 }
 
 /**
@@ -27,8 +26,12 @@ const generateContent = async (model, contents, config = {}) => {
         });
 
         if (response) {
-            // Se accede a .text directamente según las nuevas directrices
-            return response.text || "";
+            try {
+                return response.text || "";
+            } catch (textError) {
+                console.warn("⚠️ [GEMINI] Could not access response.text:", textError.message);
+                return "";
+            }
         }
         
         return "";
@@ -114,28 +117,28 @@ const generateFullStrategy = async (projectData) => {
     1. Respuesta: Devuelve EXCLUSIVAMENTE el JSON válido. Sin markdown.
     2. Comillas: ESCAPA comillas dobles DENTRO de los textos.
     3. Idioma: Español Neutro de alta conversión.
-    4. Proyección: El campo 'projection' debe ser un array de 12 números (USD).
+    4. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representando los ingresos netos esperados por mes (mes 1 a 12), es normal esperar que los primeros 3 meses no se generen ingresos, pero luego se espera que haya un incremento de 1 a 3 o 4 ventas mensuales, las cuales pueden fluctuar segun tu consideracion en los meses, sin embargo la idea es que en el mes 12 la persona pueda estar generando mas de 1500 dolares mensuales. Sé realista (curva de aprendizaje y luego escalado).
 
-    ESTRUCTURA JSON REQUERIDA:
+    ESTRUCTURA JSON REQUERIDA (OBLIGATORIA):
     {
       "meta": {
         "projectName": "${productName}",
         "niche": "${niche}",
         "price": ${fullPrice},
         "commissionRate": ${commissionRate},
-        "projection": [12 números reales crecientes],
+        "projection": [12 numbers starting small and growing],
         "insights": {
             "overview": { 
-                "title": "Estrategia Maestra", 
+                "title": "Estrategia para vender en automático", 
                 "items": [
                     { "label": "Producto", "value": "${productName}", "icon": "BookOpen", "color": "text-pink-400", "border": "border-pink-500/20" },
                     { "label": "Nicho", "value": "${niche}", "icon": "Sparkles", "color": "text-purple-400", "border": "border-purple-500/20" },
                     { "label": "Estrategia", "value": "Embudo con ${leadMagnetType}", "icon": "MessageCircle", "color": "text-green-400", "border": "border-green-500/20" },
-                    { "label": "Objetivo", "value": "Venta Directa", "icon": "Target", "color": "text-blue-400", "border": "border-blue-500/20" }
+                    { "label": "Objetivo", "value": "Venta Directa de Alto Impacto", "icon": "Target", "color": "text-blue-400", "border": "border-blue-500/20" }
                 ] 
             },
             "niche": { "title": "Análisis de Nicho", "description": "..." },
-            "product": { "title": "Rentabilidad", "description": "..." },
+            "product": { "title": "Rentabilidad", "description": "Tu ganancia de $${netCommission.toFixed(2)} permite un margen de inversión de hasta..." },
             "objective": { "title": "Método de Cierre", "description": "..." }
         }
       },
@@ -143,36 +146,78 @@ const generateFullStrategy = async (projectData) => {
           {
             "id": 1,
             "name": "Avatar Principal",
-            "archetype": "Perfil Ideal",
-            "age": "25-45",
+            "archetype": "Perfil de compra masiva",
+            "age": "25-45 años",
             "quote": "...",
             "interests": "...",
-            "behavior": "...",
+            "behavior": "Instagram y WhatsApp",
             "desire": "...",
             "pain": "...",
             "objection": "...",
-            "motivations": { "dinero": 80, "tiempo": 70, "estatus": 50, "seguridad": 90 }
-          }
+            "motivations": { "dinero": 85, "tiempo": 70, "estatus": 50, "seguridad": 90 }
+          },
+          { "id": 2, "name": "Avatar Secundario (Escéptico)", "archetype": "...", "age": "...", "quote": "...", "interests": "...", "behavior": "...", "desire": "...", "pain": "...", "objection": "...", "motivations": { "dinero": 95, "tiempo": 60, "estatus": 70, "seguridad": 80 } },
+          { "id": 3, "name": "Avatar Terciario (Aspiracional)", "archetype": "...", "age": "...", "quote": "...", "interests": "...", "behavior": "...", "desire": "...", "pain": "...", "objection": "...", "motivations": { "dinero": 70, "tiempo": 100, "estatus": 50, "seguridad": 90 } }
       ],
       "psychology": {
-        "pains": ["Dolor 1", "Dolor 2"],
-        "solutions": ["Solución 1", "Solución 2"],
-        "awarenessStages": { "stage1_pain": "...", "stage2_solution": "...", "stage3_barrier": "..." },
-        "buyingPsychology": { "notBuyingReasons": [], "buyingReasons": [], "strategistConclusion": "..." },
-        "conversionStrategy": { "mainFocus": [], "prioritizedChannels": [], "communicationStyle": [], "tacticalNote": "..." },
-        "psychographicProfile": { "ageRange": "...", "interests": "...", "primaryDesire": "...", "digitalBehavior": "...", "mainBarrier": "..." }
+        "pains": ["Dolor 1", "Dolor 2", "Dolor 3", "Dolor 4"],
+        "solutions": ["Solución 1", "Solución 2", "Solución 3", "Solución 4"],
+        "awarenessStages": { 
+            "stage1_pain": "Consciente del problema pero no de la solución...", 
+            "stage2_solution": "Busca cursos pero no sabe cuál elegir...", 
+            "stage3_barrier": "Miedo a perder su dinero o no tener tiempo..." 
+        },
+        "buyingPsychology": { 
+           "notBuyingReasons": [ { "title": "...", "description": "..." } ],
+           "buyingReasons": [ { "title": "...", "description": "..." } ],
+           "strategistConclusion": "Estrategia final para el cierre..."
+        },
+        "conversionStrategy": {
+           "mainFocus": [ { "label": "Eje Central", "description": "..." } ],
+           "prioritizedChannels": [ { "label": "Landing Page", "type": "LP" }, { "label": "WhatsApp CRM", "type": "WA" } ],
+           "communicationStyle": [ { "label": "Tono", "description": "${brandTone}" } ],
+           "tacticalNote": "..."
+        },
+        "psychographicProfile": {
+            "ageRange": "...",
+            "interests": "...",
+            "primaryDesire": "...",
+            "digitalBehavior": "...",
+            "mainBarrier": "..."
+        }
       },
       "modules": {
         "web": {
             "landingPageTabs": {
                 "hero": { "label": "1. Encabezado", "title": "Promesa de Valor", "type": "hero", "h1": "...", "h2": "...", "strategyText": "..." },
-                "pain": { "label": "2. Dolores", "title": "El Problema", "type": "pain", "items": [], "strategyText": "..." },
-                "benefits": { "label": "3. Beneficios", "title": "La Oferta", "type": "benefits", "items": [], "strategyText": "..." }
+                "pain": { "label": "2. Dolores", "title": "Identificación del Problema", "type": "pain", "items": ["...", "..."], "strategyText": "..." },
+                "benefits": { "label": "3. Beneficios", "title": "Oferta Irresistible", "type": "benefits", "items": [{ "title": "...", "desc": "..." }], "strategyText": "..." }
+            },
+            "thankYouPageTabs": {
+                "header": { "label": "1. Confirmación", "title": "Mensaje de Éxito", "type": "header", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." },
+                "action": { "label": "2. Siguiente Paso", "title": "Redirección", "type": "action", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." },
+                "magnet": { "label": "3. Regalo", "title": "Lead Magnet", "type": "magnet", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." }
             }
         },
-        "content": [],
-        "emails": { "nurture": [], "evergreen": [] },
-        "whatsapp": []
+        "content": [ 
+            { "id": 1, "title": "...", "keyword": "...", "difficulty": 25, "strategy": "..." },
+            { "id": 2, "title": "...", "keyword": "...", "difficulty": 40, "strategy": "..." }
+        ],
+        "emails": {
+           "nurture": [ 
+                { "day": "Día 0", "subject": "...", "objective": "...", "type": "Bienvenida", "bodyPreview": "..." },
+                { "day": "Día 1", "subject": "...", "objective": "...", "type": "Valor", "bodyPreview": "..." },
+                { "day": "Día 3", "subject": "...", "objective": "...", "type": "Prueba Social", "bodyPreview": "..." },
+                { "day": "Día 5", "subject": "...", "objective": "...", "type": "Escasez", "bodyPreview": "..." },
+                { "day": "Día 7", "subject": "...", "objective": "...", "type": "Cierre", "bodyPreview": "..." }
+           ],
+           "evergreen": [ 
+                { "day": "Día 8", "subject": "...", "objective": "...", "type": "Autoridad", "bodyPreview": "..." } 
+           ]
+        },
+        "whatsapp": [ 
+            { "id": 1, "title": "Cierre por WhatsApp", "objective": "Resolver dudas y enviar checkout", "messages": [ { "role": "agent", "text": "..." }, { "role": "user", "text": "..." } ] } 
+        ]
       }
     }
     `;
@@ -183,7 +228,7 @@ const generateFullStrategy = async (projectData) => {
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
-                thinkingConfig: { thinkingBudget: 32768 }
+                thinkingConfig: { thinkingBudget: 24576 }
             }
         });
 
