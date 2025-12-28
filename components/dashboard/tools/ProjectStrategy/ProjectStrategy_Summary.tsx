@@ -25,51 +25,67 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
     const commissionRate = strategyData.meta.commissionRate || 0;
     const netCommission = price * commissionRate;
 
-    // Función para renderizar la descripción (texto plano o Auditoría Estructurada)
+    // Función para renderizar la descripción (texto plano con viñetas)
     const renderAuditContent = (data: string | undefined) => {
-        if (!data) return <p className="text-gray-500 italic">No hay descripción disponible.</p>;
+        if (!data) return <p className="text-gray-500 italic text-lg">No hay descripción disponible.</p>;
 
         try {
-            // Intentar parsear como JSON si es un string que parece objeto
-            let audit: any = null;
-            if (data.trim().startsWith('{')) {
-                audit = JSON.parse(data);
-            } else if (typeof data === 'object') {
-                audit = data;
-            }
-
-            if (audit && audit.sections && Array.isArray(audit.sections)) {
-                return (
-                    <div className="space-y-10">
-                        {audit.sections.map((section: any, sIdx: number) => (
-                            <div key={sIdx} className="animate-in fade-in slide-in-from-left-4" style={{ animationDelay: `${sIdx * 100}ms` }}>
-                                <h5 className="text-indigo-400 font-bold text-xl mb-4 flex items-center gap-3">
-                                    <span className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-sm">{sIdx + 1}</span>
-                                    {section.title}
-                                </h5>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {section.bullets.map((bullet: string, bIdx: number) => (
-                                        <div key={bIdx} className="flex items-start gap-3 bg-white/5 p-4 rounded-xl border border-white/5 hover:border-indigo-500/30 transition-all group">
-                                            <CheckCircle2 className="w-5 h-5 text-indigo-500/50 group-hover:text-indigo-400 shrink-0 mt-0.5 transition-colors" />
-                                            <p className="text-gray-300 text-base md:text-lg leading-relaxed">{bullet}</p>
-                                        </div>
-                                    ))}
+            // Intentar detectar si es JSON antiguo por compatibilidad
+            if (typeof data === 'string' && data.trim().startsWith('{')) {
+                const audit = JSON.parse(data);
+                if (audit && audit.sections && Array.isArray(audit.sections)) {
+                    return (
+                        <div className="space-y-12">
+                            {audit.sections.map((section: any, sIdx: number) => (
+                                <div key={sIdx} className="animate-in fade-in slide-in-from-left-4 duration-500" style={{ animationDelay: `${sIdx * 150}ms` }}>
+                                    <h5 className="text-indigo-400 font-black text-2xl mb-6 flex items-center gap-4">
+                                        <span className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-sm border border-indigo-500/20">{sIdx + 1}</span>
+                                        {section.title}
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {(section.bullets || []).map((bullet: string, bIdx: number) => (
+                                            <div key={bIdx} className="flex items-start gap-4 bg-white/5 p-5 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition-all group shadow-sm">
+                                                <div className="p-1.5 rounded-full bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white shrink-0 mt-0.5 transition-all">
+                                                    <CheckCircle2 className="w-4 h-4" />
+                                                </div>
+                                                <p className="text-gray-200 text-lg leading-relaxed font-medium">{bullet}</p>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                );
+                            ))}
+                        </div>
+                    );
+                }
             }
         } catch (e) {
-            // Si falla el parseo, caemos a renderizado de texto plano mejorado
+            // Error de parseo ignorado, usamos texto plano
         }
 
-        // Fallback: Texto plano formateado
+        // Renderizado de texto plano mejorado para el nuevo formato de Bullet Points
         return (
-            <div className="text-gray-300 text-lg md:text-xl leading-[1.8] font-light">
-                {data.split('\n').filter(p => p.trim() !== '').map((para, idx) => (
-                    <p key={idx} className="mb-6 last:mb-0">{para}</p>
-                ))}
+            <div className="space-y-6">
+                {data.split('\n').filter(line => line.trim() !== '').map((line, idx) => {
+                    const isBullet = line.trim().startsWith('-') || line.trim().startsWith('*');
+                    const cleanLine = isBullet ? line.trim().substring(1).trim() : line.trim();
+
+                    if (isBullet) {
+                        return (
+                            <div key={idx} className="flex items-start gap-4 bg-white/5 p-5 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition-all group">
+                                <div className="p-1.5 rounded-full bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white shrink-0 mt-0.5 transition-all">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                </div>
+                                <p className="text-gray-200 text-lg leading-relaxed font-medium">{cleanLine}</p>
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <p key={idx} className="text-gray-300 text-lg md:text-xl leading-[1.8] font-light mb-4">
+                            {cleanLine}
+                        </p>
+                    );
+                })}
             </div>
         );
     };
@@ -190,12 +206,12 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
 
                     {/* SECCIÓN: AUDITORÍA ESTRATÉGICA ESTRUCTURADA */}
                     <div id="psd-analisis-bloque" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                        <h4 className="text-xl md:text-2xl font-black text-white mb-8 flex items-center gap-3">
-                            <FileText className="w-6 h-6 text-indigo-400" /> Auditoría Estratégica del Proyecto
+                        <h4 className="text-xl md:text-2xl font-black text-white mb-10 flex items-center gap-4 uppercase tracking-widest">
+                            <FileText className="w-8 h-8 text-indigo-400" /> Auditoría Estratégica del Proyecto
                         </h4>
-                        <div className="bg-white/5 rounded-[2.5rem] p-8 md:p-12 border border-white/10 shadow-inner relative overflow-hidden group/analisis">
+                        <div className="bg-white/5 rounded-[2.5rem] p-8 md:p-14 border border-white/10 shadow-inner relative overflow-hidden group/analisis">
                             <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none group-hover/analisis:opacity-10 transition-opacity">
-                                <Sparkles className="w-32 h-32 text-white" />
+                                <Sparkles className="w-48 h-48 text-white" />
                             </div>
                             <div className="relative z-10">
                                 {renderAuditContent(description)}

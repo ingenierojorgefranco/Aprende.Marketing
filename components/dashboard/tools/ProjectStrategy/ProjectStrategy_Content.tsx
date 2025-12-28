@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { FileText, Sparkles, Check, Target, Search, PenTool, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -139,7 +140,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         </div>
                         
                         <div id="psd-content-items-list" className="space-y-4 flex-1">
-                            {contentData.map((art: any, idx: number) => {
+                            {(contentData || []).map((art: any, idx: number) => {
                                 const isSelected = selectedArticles.includes(idx);
                                 const isActive = activeArticle === idx;
                                 return (
@@ -182,44 +183,50 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     </div>
 
                     <div className="relative z-10 flex flex-col h-full">
-                        <div className="mb-auto">
-                            <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border bg-purple-500/10 text-purple-300 border-purple-500/20">
-                                Análisis de IA
-                            </span>
-                            
-                            <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
-                                {contentData[activeArticle].title}
-                            </h3>
+                        {contentData && contentData.length > 0 && contentData[activeArticle] ? (
+                            <div className="mb-auto">
+                                <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border bg-purple-500/10 text-purple-300 border-purple-500/20">
+                                    Análisis de IA
+                                </span>
+                                
+                                <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+                                    {contentData[activeArticle].title}
+                                </h3>
 
-                            <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6">
-                                <h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-                                    <Sparkles className="w-4 h-4 text-purple-400"/> Por qué esta keyword
-                                </h5>
-                                <p className="text-gray-300 text-xl leading-relaxed font-light">
-                                    {contentData[activeArticle].strategy}
-                                </p>
-                            </div>
-                            
-                            <div className="flex gap-4">
-                                <div 
-                                    className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 flex-1 text-center group cursor-help relative"
-                                    onMouseEnter={(e) => handleTooltipHover(e, ["Este artículo aparecerá en Google cuando tu cliente busque exactamente esta frase."])}
-                                    onMouseLeave={handleTooltipLeave}
-                                >
-                                    <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1"><Search className="w-3 h-3"/> Keyword SEO</p>
-                                    <p className="text-purple-300 font-bold text-lg leading-tight break-words">{contentData[activeArticle].keyword}</p>
+                                <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6">
+                                    <h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                                        <Sparkles className="w-4 h-4 text-purple-400"/> Por qué esta keyword
+                                    </h5>
+                                    <p className="text-gray-300 text-xl leading-relaxed font-light">
+                                        {contentData[activeArticle].strategy}
+                                    </p>
                                 </div>
+                                
+                                <div className="flex gap-4">
+                                    <div 
+                                        className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 flex-1 text-center group cursor-help relative"
+                                        onMouseEnter={(e) => handleTooltipHover(e, ["Este artículo aparecerá en Google cuando tu cliente busque exactamente esta frase."])}
+                                        onMouseLeave={handleTooltipLeave}
+                                    >
+                                        <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1"><Search className="w-3 h-3"/> Keyword SEO</p>
+                                        <p className="text-purple-300 font-bold text-lg leading-tight break-words">{contentData[activeArticle].keyword}</p>
+                                    </div>
 
-                                <div 
-                                    className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 flex-1 text-center cursor-help"
-                                    onMouseEnter={(e) => handleTooltipHover(e, ["Un número bajo indica que puedes posicionarte rápidamente en la primera página."])}
-                                    onMouseLeave={handleTooltipLeave}
-                                >
-                                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">Dificultad</p>
-                                    <p className="text-white font-bold text-3xl">{contentData[activeArticle].difficulty}<span className="text-sm text-gray-600">/100</span></p>
+                                    <div 
+                                        className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 flex-1 text-center cursor-help"
+                                        onMouseEnter={(e) => handleTooltipHover(e, ["Un número bajo indica que puedes posicionarte rápidamente en la primera página."])}
+                                        onMouseLeave={handleTooltipLeave}
+                                    >
+                                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">Dificultad</p>
+                                        <p className="text-white font-bold text-3xl">{contentData[activeArticle].difficulty}<span className="text-sm text-gray-600">/100</span></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center flex-1 text-gray-500 italic">
+                                No hay datos de artículos disponibles.
+                            </div>
+                        )}
 
                         <div className="mt-8 pt-8 border-t border-gray-800">
                             <button 

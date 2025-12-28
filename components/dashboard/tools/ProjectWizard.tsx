@@ -113,7 +113,7 @@ import React, { useState, useEffect } from 'react';
                 if (data.productName) setProductName(data.productName);
                 
                 if (data.description) {
-                    // Si el análisis devuelve un objeto estructurado, lo guardamos como JSON string
+                    // Si el análisis devuelve un objeto estructurado (Auditoría), lo guardamos como JSON string
                     const descValue = typeof data.description === 'object' 
                         ? JSON.stringify(data.description) 
                         : data.description;
@@ -121,7 +121,7 @@ import React, { useState, useEffect } from 'react';
                 }
                 
                 if (data.niche) setNiche(data.niche);
-                alert('¡Análisis completado! Hemos completado la información basándonos en la página web.');
+                alert('¡Análisis completado! Hemos generado una Auditoría Estratégica basada en la página web.');
             } catch (error: any) {
                 console.error("Analysis failure:", error);
                 alert(error.message || 'No se pudo analizar el sitio. Es posible que el servidor de la web bloquee el acceso automático o que la URL no sea válida.');

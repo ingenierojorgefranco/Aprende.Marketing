@@ -43,7 +43,7 @@ const generateContent = async (model, contents, config = {}) => {
 };
 
 /**
- * Analiza el contenido de un sitio web para extraer estrategia
+ * Analiza el contenido de un sitio web para extraer una Auditoría Estratégica Estructurada
  */
 const analyzeWebsiteContent = async (rawText) => {
     if (!aiClient) throw new Error("Gemini API Key not configured.");
@@ -55,28 +55,26 @@ const analyzeWebsiteContent = async (rawText) => {
     const prompt = `
     Actúa como un experto Analista de Marketing y Copywriter Senior.
     Te proporcionaré el texto extraído de una página de ventas (Landing Page).
-    Tu tarea es:
-    1. Identificar el nombre del producto o servicio.
-    2. Realizar una "Auditoría Estratégica Estructurada". Redacta una descripción profesional que explique la propuesta única de valor y la transformación del cliente.
-    3. Identificar el nicho de mercado.
+    Tu tarea es realizar una "Auditoría Estratégica" extremadamente profesional.
 
-    IMPORTANTE: El campo "description" debe ser un objeto JSON que contenga un array de "sections". Cada sección debe tener un "title" y una lista de "bullets" (mínimo 3 secciones con 3 bullets cada una).
-    Secciones sugeridas: "Propuesta de Valor", "Transformación Garantizada", "Ejes del Programa".
+    Extrae y organiza la información enfocándote en:
+    1. Propuesta Única de Valor (USP).
+    2. Ejes del Temario (Pilares Técnicos).
+    3. Autoridad y Respaldo.
+    4. Metodología de Aprendizaje.
+    5. Transformación y Resultados.
+    6. Factores de Rentabilidad.
+
+    REGLA CRÍTICA: El campo "description" DEBE ser un ÚNICO STRING (Texto Plano) que contenga una breve introducción y luego una lista exhaustiva de todos los puntos clave detectados utilizando viñetas (guiones "-"). NO uses arrays ni objetos dentro de description.
 
     TEXTO EXTRAÍDO:
     ${rawText.substring(0, 15000)}
 
-    Responde EXCLUSIVAMENTE en formato JSON válido con esta estructura:
+    Responde EXCLUSIVAMENTE en formato JSON válido:
     {
       "productName": "Nombre del Producto",
-      "description": {
-         "sections": [
-            { "title": "Título de Sección 1", "bullets": ["Punto 1", "Punto 2", "Punto 3"] },
-            { "title": "Título de Sección 2", "bullets": ["Punto 1", "Punto 2", "Punto 3"] },
-            { "title": "Título de Sección 3", "bullets": ["Punto 1", "Punto 2", "Punto 3"] }
-         ]
-      },
-      "niche": "Nicho identificado"
+      "niche": "Nicho identificado",
+      "description": "Introducción profesional aquí... \\n\\n- Punto clave 1\\n- Punto clave 2\\n- Punto clave 3..."
     }
     `;
 
@@ -119,119 +117,42 @@ const generateFullStrategy = async (projectData) => {
     - Nombre del Proyecto: "${name}"
     - Nicho de Mercado: "${niche}"
     - Producto a vender: "${productName}"
-    - Tono de Comunicación: "${brandTone}" (OBLIGATORIO: Redacta todos los textos en este estilo).
+    - Tono de Comunicación: "${brandTone}"
     - Descripción: "${description}"
     - Precio de Venta: $${fullPrice} USD
-    - Comisión por Venta: $${netCommission.toFixed(2)} USD (Tasa: ${Math.round(commissionRate * 100)}%)
+    - Comisión por Venta: $${netCommission.toFixed(2)} USD
     - Regalo de Bienvenida (Lead Magnet): "${leadMagnetType}"
-    ${salesPageUrl ? `- URL de referencia: ${salesPageUrl}` : ''}
 
-    REGLAS TÉCNICAS CRÍTICAS:
-    1. Respuesta: Devuelve EXCLUSIVAMENTE el JSON válido. Sin markdown.
-    2. Comillas: ESCAPA comillas dobles DENTRO de los textos.
-    3. Idioma: Español Neutro de alta conversión.
-    4. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representando los ingresos netos esperados por mes (mes 1 a 12), es normal esperar que los primeros 3 meses no se generen ingresos, pero luego se espera que haya un incremento de 1 a 3 o 4 ventas mensuales, las cuales pueden fluctuar segun tu consideracion en los meses, sin embargo la idea es que en el mes 12 la persona pueda estar generando mas de 1500 dolares mensuales. Sé realista (curva de aprendizaje y luego escalado).
+    REGLAS TÉCNICAS:
+    1. Respuesta: JSON válido. Sin markdown.
+    2. Proyección: Array de 12 números (USD) ingresos netos.
 
-    ESTRUCTURA JSON REQUERIDA (OBLIGATORIA):
+    ESTRUCTURA JSON REQUERIDA:
     {
       "meta": {
         "projectName": "${productName}",
         "niche": "${niche}",
         "price": ${fullPrice},
         "commissionRate": ${commissionRate},
-        "projection": [12 numbers starting small and growing],
+        "projection": [12 numbers],
         "insights": {
             "overview": { 
-                "title": "Estrategia para vender en automático", 
+                "title": "Estrategia de Ventas", 
                 "items": [
                     { "label": "Producto", "value": "${productName}", "icon": "BookOpen", "color": "text-pink-400", "border": "border-pink-500/20" },
                     { "label": "Nicho", "value": "${niche}", "icon": "Sparkles", "color": "text-purple-400", "border": "border-purple-500/20" },
                     { "label": "Estrategia", "value": "Embudo con ${leadMagnetType}", "icon": "MessageCircle", "color": "text-green-400", "border": "border-green-500/20" },
-                    { "label": "Objetivo", "value": "Venta Directa de Alto Impacto", "icon": "Target", "color": "text-blue-400", "border": "border-blue-500/20" }
+                    { "label": "Objetivo", "value": "Conversión Máxima", "icon": "Target", "color": "text-blue-400", "border": "border-blue-500/20" }
                 ] 
             },
             "niche": { "title": "Análisis de Nicho", "description": "..." },
-            "product": { "title": "Rentabilidad", "description": "Tu ganancia de $${netCommission.toFixed(2)} permite un margen de inversión de hasta..." },
+            "product": { "title": "Rentabilidad", "description": "..." },
             "objective": { "title": "Método de Cierre", "description": "..." }
         }
       },
-      "avatars": [
-          {
-            "id": 1,
-            "name": "Avatar Principal",
-            "archetype": "Perfil de compra masiva",
-            "age": "25-45 años",
-            "quote": "...",
-            "interests": "...",
-            "behavior": "Instagram y WhatsApp",
-            "desire": "...",
-            "pain": "...",
-            "objection": "...",
-            "motivations": { "dinero": 85, "tiempo": 70, "estatus": 50, "seguridad": 90 }
-          },
-          { "id": 2, "name": "Avatar Secundario (Escéptico)", "archetype": "...", "age": "...", "quote": "...", "interests": "...", "behavior": "...", "desire": "...", "pain": "...", "objection": "...", "motivations": { "dinero": 95, "tiempo": 60, "estatus": 70, "seguridad": 80 } },
-          { "id": 3, "name": "Avatar Terciario (Aspiracional)", "archetype": "...", "age": "...", "quote": "...", "interests": "...", "behavior": "...", "desire": "...", "pain": "...", "objection": "...", "motivations": { "dinero": 70, "tiempo": 100, "estatus": 50, "seguridad": 90 } }
-      ],
-      "psychology": {
-        "pains": ["Dolor 1", "Dolor 2", "Dolor 3", "Dolor 4"],
-        "solutions": ["Solución 1", "Solución 2", "Solución 3", "Solución 4"],
-        "awarenessStages": { 
-            "stage1_pain": "Consciente del problema pero no de la solución...", 
-            "stage2_solution": "Busca cursos pero no sabe cuál elegir...", 
-            "stage3_barrier": "Miedo a perder su dinero o no tener tiempo..." 
-        },
-        "buyingPsychology": { 
-           "notBuyingReasons": [ { "title": "...", "description": "..." } ],
-           "buyingReasons": [ { "title": "...", "description": "..." } ],
-           "strategistConclusion": "Estrategia final para el cierre..."
-        },
-        "conversionStrategy": {
-           "mainFocus": [ { "label": "Eje Central", "description": "..." } ],
-           "prioritizedChannels": [ { "label": "Landing Page", "type": "LP" }, { "label": "WhatsApp CRM", "type": "WA" } ],
-           "communicationStyle": [ { "label": "Tono", "description": "${brandTone}" } ],
-           "tacticalNote": "..."
-        },
-        "psychographicProfile": {
-            "ageRange": "...",
-            "interests": "...",
-            "primaryDesire": "...",
-            "digitalBehavior": "...",
-            "mainBarrier": "..."
-        }
-      },
-      "modules": {
-        "web": {
-            "landingPageTabs": {
-                "hero": { "label": "1. Encabezado", "title": "Promesa de Valor", "type": "hero", "h1": "...", "h2": "...", "strategyText": "..." },
-                "pain": { "label": "2. Dolores", "title": "Identificación del Problema", "type": "pain", "items": ["...", "..."], "strategyText": "..." },
-                "benefits": { "label": "3. Beneficios", "title": "Oferta Irresistible", "type": "benefits", "items": [{ "title": "...", "desc": "..." }], "strategyText": "..." }
-            },
-            "thankYouPageTabs": {
-                "header": { "label": "1. Confirmación", "title": "Mensaje de Éxito", "type": "header", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." },
-                "action": { "label": "2. Siguiente Paso", "title": "Redirección", "type": "action", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." },
-                "magnet": { "label": "3. Regalo", "title": "Lead Magnet", "type": "magnet", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." }
-            }
-        },
-        "content": [ 
-            { "id": 1, "title": "...", "keyword": "...", "difficulty": 25, "strategy": "..." },
-            { "id": 2, "title": "...", "keyword": "...", "difficulty": 40, "strategy": "..." }
-        ],
-        "emails": {
-           "nurture": [ 
-                { "day": "Día 0", "subject": "...", "objective": "...", "type": "Bienvenida", "bodyPreview": "..." },
-                { "day": "Día 1", "subject": "...", "objective": "...", "type": "Valor", "bodyPreview": "..." },
-                { "day": "Día 3", "subject": "...", "objective": "...", "type": "Prueba Social", "bodyPreview": "..." },
-                { "day": "Día 5", "subject": "...", "objective": "...", "type": "Escasez", "bodyPreview": "..." },
-                { "day": "Día 7", "subject": "...", "objective": "...", "type": "Cierre", "bodyPreview": "..." }
-           ],
-           "evergreen": [ 
-                { "day": "Día 8", "subject": "...", "objective": "...", "type": "Autoridad", "bodyPreview": "..." } 
-           ]
-        },
-        "whatsapp": [ 
-            { "id": 1, "title": "Cierre por WhatsApp", "objective": "Resolver dudas y enviar checkout", "messages": [ { "role": "agent", "text": "..." }, { "role": "user", "text": "..." } ] } 
-        ]
-      }
+      "avatars": [...],
+      "psychology": {...},
+      "modules": {...}
     }
     `;
 
@@ -246,9 +167,7 @@ const generateFullStrategy = async (projectData) => {
         });
 
         if (!response.text) throw new Error("IA returned empty response");
-
-        let strategyJson = JSON.parse(response.text.trim());
-        return strategyJson;
+        return JSON.parse(response.text.trim());
 
     } catch (error) {
         console.error("❌ [GEMINI STRATEGY MASTER ERROR]:", error);
