@@ -1,3 +1,4 @@
+
 const { GoogleGenAI } = require("@google/genai");
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -47,7 +48,6 @@ const generateContent = async (model, contents, config = {}) => {
 const analyzeWebsiteContent = async (rawText) => {
     if (!aiClient) throw new Error("Gemini API Key not configured.");
 
-    // Validation Guard: Ensure we have actual text to analyze
     if (!rawText || rawText.trim().length < 200) {
         throw new Error("El contenido extraído del sitio web es insuficiente para un análisis de marketing profesional.");
     }
@@ -57,8 +57,11 @@ const analyzeWebsiteContent = async (rawText) => {
     Te proporcionaré el texto extraído de una página de ventas (Landing Page).
     Tu tarea es:
     1. Identificar el nombre del producto o servicio.
-    2. Redactar una descripción profesional, detallada y persuasiva (mínimo 3 párrafos) que explique de qué trata el producto, su propuesta única de valor y la transformación que ofrece al cliente.
+    2. Realizar una "Auditoría Estratégica Estructurada". Redacta una descripción profesional que explique la propuesta única de valor y la transformación del cliente.
     3. Identificar el nicho de mercado.
+
+    IMPORTANTE: El campo "description" debe ser un objeto JSON que contenga un array de "sections". Cada sección debe tener un "title" y una lista de "bullets" (mínimo 3 secciones con 3 bullets cada una).
+    Secciones sugeridas: "Propuesta de Valor", "Transformación Garantizada", "Ejes del Programa".
 
     TEXTO EXTRAÍDO:
     ${rawText.substring(0, 15000)}
@@ -66,7 +69,13 @@ const analyzeWebsiteContent = async (rawText) => {
     Responde EXCLUSIVAMENTE en formato JSON válido con esta estructura:
     {
       "productName": "Nombre del Producto",
-      "description": "Descripción profesional y detallada...",
+      "description": {
+         "sections": [
+            { "title": "Título de Sección 1", "bullets": ["Punto 1", "Punto 2", "Punto 3"] },
+            { "title": "Título de Sección 2", "bullets": ["Punto 1", "Punto 2", "Punto 3"] },
+            { "title": "Título de Sección 3", "bullets": ["Punto 1", "Punto 2", "Punto 3"] }
+         ]
+      },
       "niche": "Nicho identificado"
     }
     `;

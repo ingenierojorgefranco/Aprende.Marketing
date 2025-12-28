@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
     import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
     import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain } from 'lucide-react';
@@ -110,7 +111,15 @@ import React, { useState, useEffect } from 'react';
                 const data = await api.analyzeSite(salesPageUrl);
                 // Si la respuesta es exitosa, autocompletar
                 if (data.productName) setProductName(data.productName);
-                if (data.description) setDescription(data.description);
+                
+                if (data.description) {
+                    // Si el análisis devuelve un objeto estructurado, lo guardamos como JSON string
+                    const descValue = typeof data.description === 'object' 
+                        ? JSON.stringify(data.description) 
+                        : data.description;
+                    setDescription(descValue);
+                }
+                
                 if (data.niche) setNiche(data.niche);
                 alert('¡Análisis completado! Hemos completado la información basándonos en la página web.');
             } catch (error: any) {
