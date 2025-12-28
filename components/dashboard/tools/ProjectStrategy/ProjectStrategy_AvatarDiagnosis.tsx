@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, X, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight } from 'lucide-react';
 import { ProjectStrategy_Psychology } from './ProjectStrategy_Psychology';
@@ -78,6 +79,17 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
         );
     };
 
+    // Helper para generar explicaciones estratégicas de los pilares de transformación
+    const getPilarStrategyReason = (index: number) => {
+        const reasons = [
+            "Al tener clara esta meta, nuestra IA redactará tus anuncios y el video de ventas enfocándose en la 'seguridad técnica', eliminando el miedo al error que frena la compra de tu prospecto.",
+            "Esta es la promesa económica. El sistema la usará en tus correos de seguimiento para pintar un cuadro de libertad financiera en la mente del cliente, haciendo que el precio del producto parezca una inversión pequeña comparada con el retorno.",
+            "Este pilar ataca la autoridad. Al identificarlo, el sistema genera testimonios y casos de éxito ficticios pero ultra-realistas que validan que tu método es el camino más corto al éxito.",
+            "Sirve para cerrar la venta por WhatsApp. Esta transformación específica le da a tu equipo de ventas el argumento final para derribar las últimas dudas del cliente más exigente."
+        ];
+        return reasons[index] || "Identificar este pilar permite que nuestra IA personalice cada mensaje de tu embudo, asegurando que el cliente sienta que el producto fue diseñado exclusivamente para sus necesidades.";
+    };
+
     // Extraemos el perfil psicográfico para renderizado dinámico
     const profile = psychology.psychographicProfile;
     const buyingPsych = psychology.buyingPsychology;
@@ -92,15 +104,12 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     <Sparkles className="w-4 h-4" /> Inteligencia de Clientes
                 </div>
                 <h3 className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
-                    <Search className="w-12 h-12 text-blue-500" /> Avatares Estratégicos Identificados
+                    <Search className="w-12 h-12 text-blue-500" /> ¿Cuales son tus clientes ideales?
                 </h3>
                 
                 <div className="space-y-6 text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
                     <p>
-                        Hemos identificado 3 perfiles estratégicos que representan los principales motores de compra dentro de tu mercado.
-                    </p>
-                    <p>
-                        Aunque el sistema genera 3 perfiles para darte una visión 360° del mercado, el contenido de tu Landing Page se ha redactado priorizando al <span className="text-pink-400 font-bold">Avatar Principal</span>.
+                        Hemos identificado 3 perfiles de clientes que podrían estar interesados en adquirir tu propudcto digital, lo que hará nuestro sistema es crear todos los contenidos y estrategia de venta basándose en estos 3 perfiles estrategicos.
                     </p>
                 </div>
             </div>
@@ -164,7 +173,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                                             <div 
                                                                 className={`h-full rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(255,255,255,0.1)] ${idx === 0 ? 'bg-gradient-to-r from-pink-600 to-rose-400' : idx === 1 ? 'bg-gradient-to-r from-purple-600 to-fuchsia-400' : 'bg-gradient-to-r from-blue-600 to-cyan-400'}`} 
                                                                 style={{width: `${value}%`}}
-                                                            ></div>
+                             ></div>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -301,13 +310,29 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                 {/* Transformación Buscada Dinámica */}
                 <div className="bg-gradient-to-r from-emerald-900/20 to-teal-900/10 rounded-[2rem] border border-emerald-500/20 p-8 shadow-xl">
                     <h4 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
-                        <Sparkles className="w-6 h-6 text-emerald-400" /> Transformación Buscada
+                        <Sparkles className="w-6 h-6 text-emerald-400" /> ¿Cuál es la transformación que busca tu cliente?
                     </h4>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid md:grid-cols-2 gap-8">
                         {psychology.solutions.map((sol, sIdx) => (
-                            <div key={sIdx} className="bg-black/40 p-5 rounded-2xl border border-emerald-500/10">
-                                <p className="text-emerald-400 font-black text-base uppercase tracking-tight mb-1">Pilar #{sIdx + 1}</p>
-                                <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{sol}</p>
+                            <div key={sIdx} className="bg-black/40 p-6 rounded-[2rem] border border-emerald-500/10 flex flex-col gap-4">
+                                <div>
+                                    <p className="text-emerald-400 font-black text-base uppercase tracking-[0.1em] mb-2">Pilar Estratégico #{sIdx + 1}</p>
+                                    <div className="h-px w-12 bg-emerald-500/30"></div>
+                                </div>
+                                
+                                <div>
+                                    <b className="text-white block text-sm uppercase tracking-wider mb-1 opacity-60">Lo que el cliente logrará:</b>
+                                    <p className="text-gray-200 text-[1.3rem] leading-[1.8] font-light italic">
+                                        "{sol}"
+                                    </p>
+                                </div>
+
+                                <div className="mt-auto pt-4 border-t border-white/5">
+                                    <b className="text-emerald-300 block text-xs uppercase tracking-widest mb-2">¿Para qué sirve identificar esto?</b>
+                                    <p className="text-gray-400 text-base leading-relaxed font-light">
+                                        {getPilarStrategyReason(sIdx)}
+                                    </p>
+                                </div>
                             </div>
                         ))}
                         {psychology.solutions.length === 0 && (
