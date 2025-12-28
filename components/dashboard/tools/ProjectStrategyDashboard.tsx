@@ -41,6 +41,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const { user, pageCount, articleCount } = useOutletContext() as DashboardContext;
 
     const [strategyData, setStrategyData] = useState<ProjectMasterStrategy | null>(null);
+    const [projectDescription, setProjectDescription] = useState<string>('');
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
@@ -79,14 +80,20 @@ export const ProjectStrategyDashboard: React.FC = () => {
         console.debug(`[StrategyDashboard Debug] Iniciando carga de datos para ID: ${id}`);
         setLoading(true);
         try {
-            // Fetch Strategy, Pages and Plans in parallel
-            const [strategy, pages, plansData] = await Promise.all([
+            // Fetch Strategy, Project Details, Pages and Plans in parallel
+            const [strategy, projectDetails, pages, plansData] = await Promise.all([
                 api.getProjectStrategy(id).catch(e => { console.error("Strategy load fail", e); return null; }),
+                api.getProjectById(id).catch(e => { console.error("Project details load fail", e); return null; }),
                 api.getPages().catch(e => { console.error("Pages load fail", e); return []; }),
                 api.getPublicPlans().catch(e => { console.error("Plans load fail", e); return []; })
             ]);
 
             console.debug(`[StrategyDashboard Debug] Objeto strategy obtenido:`, strategy);
+
+            // Set project description for summary section
+            if (projectDetails) {
+                setProjectDescription(projectDetails.description || '');
+            }
 
             // Validación extrema de estructura JSON
             const isStrategyValid = strategy && 
@@ -327,6 +334,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
                 <ProjectStrategy_Summary 
                     strategyData={strategyData} 
+                    description={projectDescription}
                     activeHeaderItem={activeHeaderItem} 
                     setActiveHeaderItem={setActiveHeaderItem}
                     handleTooltipHover={handleTooltipHover}

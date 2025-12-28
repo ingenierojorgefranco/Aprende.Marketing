@@ -1,8 +1,9 @@
 import React from 'react';
-import { Rocket, Sparkles, Search, DollarSign, Zap, BookOpen, ShieldCheck } from 'lucide-react';
+import { Rocket, Sparkles, Search, DollarSign, Zap, FileText, ShieldCheck } from 'lucide-react';
 
 interface ProjectStrategy_SummaryProps {
     strategyData: any;
+    description?: string;
     activeHeaderItem: string | null;
     setActiveHeaderItem: (item: string | null) => void;
     handleTooltipHover: (e: React.MouseEvent, content: string[]) => void;
@@ -11,6 +12,7 @@ interface ProjectStrategy_SummaryProps {
 
 export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = ({ 
     strategyData, 
+    description,
     handleTooltipHover, 
     handleTooltipLeave 
 }) => {
@@ -109,7 +111,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                         </div>
 
                         <div 
-                            onMouseEnter={(e) => handleTooltipHover(e, ["Tu ganancia neta estimada basada en la tasa de comisión sugerida.", "Optimiza tu CPA (Coste por Adquisición) basándote en este margen."])}
+                            onMouseEnter={(e) => handleTooltipHover(e, ["Desglose de rentabilidad por venta.", "Muestra tu porcentaje de afiliación y la ganancia neta en dólares."])}
                             onMouseLeave={handleTooltipLeave}
                             className="p-6 md:p-8 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-yellow-500/10 cursor-help"
                         >
@@ -118,23 +120,48 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                                     <Zap className="w-6 h-6" />
                                 </div>
                                 <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em] text-yellow-400 opacity-80">
-                                    Comisión Neta ({Math.round(commissionRate * 100)}%)
+                                    Rentabilidad por Venta
                                 </p>
                             </div>
-                            <div className="flex-1">
-                                <p className="text-white font-black text-2xl md:text-3xl tracking-tight flex flex-col">
-                                    ${netCommission.toFixed(2)} Dólares
-                                    <span className="text-sm font-medium text-yellow-500/60 uppercase tracking-widest mt-1">por cada venta</span>
-                                </p>
+                            <div className="flex-1 flex justify-between items-end">
+                                <div>
+                                    <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">Comisión</p>
+                                    <p className="text-white font-black text-2xl md:text-3xl tracking-tight">
+                                        {Math.round(commissionRate * 100)}%
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">Ganancia Neta</p>
+                                    <p className="text-white font-black text-2xl md:text-3xl tracking-tight">
+                                        ${netCommission.toFixed(2)} <span className="text-sm font-bold opacity-60">USD</span>
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
                     {/* Nota de pie del bloque */}
-                    <div className="mt-10 flex items-center gap-3 text-gray-500 text-sm italic">
+                    <div className="mt-10 flex items-center gap-3 text-gray-500 text-sm italic border-b border-white/5 pb-8 mb-12">
                         <ShieldCheck className="w-4 h-4" />
                         Esta configuración es la base para el cálculo de tu rentabilidad en el año 1.
                     </div>
+
+                    {/* NUEVA SECCIÓN: ANÁLISIS DEL PROYECTO */}
+                    {description && (
+                        <div id="psd-analisis-bloque" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <h4 className="text-xl md:text-2xl font-black text-white mb-6 flex items-center gap-3">
+                                <FileText className="w-6 h-6 text-indigo-400" /> Análisis del proyecto
+                            </h4>
+                            <div className="bg-white/5 rounded-3xl p-6 md:p-10 border border-white/10 shadow-inner relative overflow-hidden group/analisis">
+                                <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none group-hover/analisis:opacity-10 transition-opacity">
+                                    <Sparkles className="w-24 h-24 text-white" />
+                                </div>
+                                <p className="text-gray-300 text-lg md:text-xl leading-[1.8] font-light italic relative z-10 whitespace-pre-wrap">
+                                    {description}
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
