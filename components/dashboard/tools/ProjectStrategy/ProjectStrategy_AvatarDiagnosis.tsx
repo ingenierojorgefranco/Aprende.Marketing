@@ -90,10 +90,10 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
         return reasons[index] || "Identificar este pilar permite que nuestra IA personalice cada mensaje de tu embudo, asegurando que el cliente sienta que el producto fue diseñado exclusivamente para sus necesidades.";
     };
 
-    // Extraemos el perfil psicográfico para renderizado dinámico
-    const profile = psychology.psychographicProfile;
-    const buyingPsych = psychology.buyingPsychology;
-    const convStrategy = psychology.conversionStrategy;
+    // Extraemos los objetos hijos de psicología con null-checks preventivos
+    const profile = psychology?.psychographicProfile;
+    const buyingPsych = psychology?.buyingPsychology;
+    const convStrategy = psychology?.conversionStrategy;
 
     return (
         <div id="psd-avatar-diagnosis-section" className="space-y-16 pt-8">
@@ -116,12 +116,12 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
 
             {/* --- LISTA DE AVATARES --- */}
             <div id="psd-avatars-list" className="space-y-12 max-w-[70em] mx-auto">
-                {avatars.map((avatar: any, idx: number) => {
+                {(avatars || []).map((avatar: any, idx: number) => {
                     const role = roles[idx] || roles[0];
                     const isMain = idx === 0;
 
                     return (
-                        <div key={avatar.id} className={`group relative bg-gray-900/40 backdrop-blur-md rounded-[2.5rem] border transition-all duration-500 shadow-2xl overflow-hidden ${isMain ? 'border-pink-500/30 shadow-pink-500/5' : idx === 1 ? 'border-purple-500/20' : 'border-blue-500/20'}`}>
+                        <div key={avatar.id || idx} className={`group relative bg-gray-900/40 backdrop-blur-md rounded-[2.5rem] border transition-all duration-500 shadow-2xl overflow-hidden ${isMain ? 'border-pink-500/30 shadow-pink-500/5' : idx === 1 ? 'border-purple-500/20' : 'border-blue-500/20'}`}>
                             
                             <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[100px] opacity-10 pointer-events-none ${idx === 0 ? 'bg-pink-500' : idx === 1 ? 'bg-purple-500' : 'bg-blue-500'}`}></div>
 
@@ -136,10 +136,10 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                                 {idx === 0 ? '👩‍🎨' : idx === 1 ? '👩‍💼' : '👩‍👧'}
                                             </div>
                                         </div>
-                                        <h4 className="text-4xl font-black text-white leading-tight mb-4 tracking-tight">{avatar.name}</h4>
+                                        <h4 className="text-4xl font-black text-white leading-tight mb-4 tracking-tight">{avatar.name || "Avatar sin nombre"}</h4>
                                         <div className="flex flex-wrap justify-center lg:justify-start gap-3">
-                                            <span className="px-4 py-1.5 rounded-xl bg-white/10 border border-white/10 text-sm font-black text-gray-200 uppercase tracking-wider">{avatar.age}</span>
-                                            <span className="px-4 py-1.5 rounded-xl bg-white/10 border border-white/10 text-sm font-black text-gray-200 uppercase tracking-wider">{avatar.archetype}</span>
+                                            <span className="px-4 py-1.5 rounded-xl bg-white/10 border border-white/10 text-sm font-black text-gray-200 uppercase tracking-wider">{avatar.age || "N/A"}</span>
+                                            <span className="px-4 py-1.5 rounded-xl bg-white/10 border border-white/10 text-sm font-black text-gray-200 uppercase tracking-wider">{avatar.archetype || "N/A"}</span>
                                         </div>
                                     </div>
 
@@ -150,7 +150,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                         <div className="bg-white/5 border border-white/10 rounded-[2rem] p-8 relative group/quote">
                                             <Quote className="absolute top-6 left-6 w-12 h-12 text-white/5 -scale-x-100" />
                                             <p className="text-gray-200 italic text-xl md:text-xl leading-relaxed font-serif relative z-10 pl-4">
-                                                "{avatar.quote}"
+                                                "{avatar.quote || "Sin pensamiento definido."}"
                                             </p>
                                         </div>
                                     </div>
@@ -163,7 +163,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                                 <Zap className="w-4 h-4 text-yellow-500" /> Impulsores Psicológicos
                                             </h5>
                                             <div className="space-y-6">
-                                                {Object.entries(avatar.motivations).map(([key, value]: any) => (
+                                                {Object.entries(avatar.motivations || {}).map(([key, value]: any) => (
                                                     <div key={key} className="space-y-2">
                                                         <div className="flex justify-between items-end">
                                                             <span className="text-sm text-gray-300 font-bold capitalize tracking-wide">{key}</span>
@@ -173,10 +173,13 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                                             <div 
                                                                 className={`h-full rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(255,255,255,0.1)] ${idx === 0 ? 'bg-gradient-to-r from-pink-600 to-rose-400' : idx === 1 ? 'bg-gradient-to-r from-purple-600 to-fuchsia-400' : 'bg-gradient-to-r from-blue-600 to-cyan-400'}`} 
                                                                 style={{width: `${value}%`}}
-                             ></div>
+                                                            ></div>
                                                         </div>
                                                     </div>
                                                 ))}
+                                                {(!avatar.motivations || Object.keys(avatar.motivations).length === 0) && (
+                                                    <p className="text-gray-500 italic text-sm">No se generaron impulsores para este avatar.</p>
+                                                )}
                                             </div>
                                         </div>
 
@@ -197,7 +200,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                                 <div className="p-2 bg-rose-500/20 rounded-lg text-rose-400"><AlertCircle className="w-5 h-5" /></div>
                                                 <p className="text-xs font-black text-rose-400 uppercase tracking-widest">Dolor Principal</p>
                                             </div>
-                                            <p className="text-gray-200 text-lg leading-relaxed font-medium">{avatar.pain}</p>
+                                            <p className="text-gray-200 text-lg leading-relaxed font-medium">{avatar.pain || "Dolor no definido."}</p>
                                         </div>
 
                                         <div className="bg-emerald-500/5 border border-emerald-500/20 p-6 rounded-2xl group/card hover:bg-emerald-500/10 transition-colors">
@@ -205,7 +208,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                                 <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400"><Target className="w-5 h-5" /></div>
                                                 <p className="text-xs font-black text-emerald-400 uppercase tracking-widest">Deseo profundo</p>
                                             </div>
-                                            <p className="text-gray-200 text-lg leading-relaxed font-medium">{avatar.desire}</p>
+                                            <p className="text-gray-200 text-lg leading-relaxed font-medium">{avatar.desire || "Deseo no definido."}</p>
                                         </div>
 
                                         <div className="bg-blue-500/5 border border-blue-500/20 p-6 rounded-2xl group/card hover:bg-blue-500/10 transition-colors">
@@ -213,7 +216,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                                 <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400"><ShieldCheck className="w-5 h-5" /></div>
                                                 <p className="text-xs font-black text-blue-400 uppercase tracking-widest">Objeción de Ventas</p>
                                             </div>
-                                            <p className="text-gray-200 text-lg leading-relaxed font-medium">{avatar.objection}</p>
+                                            <p className="text-gray-200 text-lg leading-relaxed font-medium">{avatar.objection || "Objeción no definida."}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -239,7 +242,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
-                    {/* Perfil Psicográfico Dinámico (EXTRAIDO DEL SCHEMA) */}
+                    {/* Perfil Psicográfico Dinámico */}
                     <div className="bg-gray-900/60 rounded-[2rem] border border-gray-800 p-8 shadow-xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                             <Zap className="w-24 h-24 text-purple-500" />
@@ -253,35 +256,35 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                     <Check className="w-5 h-5 text-purple-500 shrink-0 mt-1" /> 
                                     <div>
                                         <b className="text-white block text-sm uppercase tracking-wider mb-1">Rango de Edad:</b> 
-                                        {profile?.ageRange || avatars[0].age}
+                                        {profile?.ageRange || "Información no disponible"}
                                     </div>
                                 </li>
                                 <li className="flex gap-4 items-start">
                                     <Check className="w-5 h-5 text-purple-500 shrink-0 mt-1" /> 
                                     <div>
                                         <b className="text-white block text-sm uppercase tracking-wider mb-1">Intereses Detectados:</b> 
-                                        {profile?.interests || "Estética, belleza y autoempleo"}
+                                        {profile?.interests || "Información no disponible"}
                                     </div>
                                 </li>
                                 <li className="flex gap-4 items-start">
                                     <Check className="w-5 h-5 text-purple-500 shrink-0 mt-1" /> 
                                     <div>
                                         <b className="text-white block text-sm uppercase tracking-wider mb-1">Deseo Principal:</b> 
-                                        {profile?.primaryDesire || avatars[0].desire}
+                                        {profile?.primaryDesire || "Información no disponible"}
                                     </div>
                                 </li>
                                 <li className="flex gap-4 items-start">
                                     <Check className="w-5 h-5 text-purple-500 shrink-0 mt-1" /> 
                                     <div>
                                         <b className="text-white block text-sm uppercase tracking-wider mb-1">Comportamiento Digital:</b> 
-                                        {profile?.digitalBehavior || avatars[0].behavior}
+                                        {profile?.digitalBehavior || "Información no disponible"}
                                     </div>
                                 </li>
                                 <li className="flex gap-4 items-start">
                                     <Check className="w-5 h-5 text-purple-500 shrink-0 mt-1" /> 
                                     <div>
                                         <b className="text-white block text-sm uppercase tracking-wider mb-1">Miedo o Barrera:</b> 
-                                        {profile?.mainBarrier || avatars[0].objection}
+                                        {profile?.mainBarrier || "Información no disponible"}
                                     </div>
                                 </li>
                             </ul>
@@ -295,13 +298,13 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                         </h4>
                         <div className="space-y-4 text-gray-300 text-[1.3rem] leading-[1.8] font-light">
                             <ul className="space-y-4">
-                                {psychology.pains.map((pain, pIdx) => (
+                                {(psychology?.pains || []).map((pain, pIdx) => (
                                     <li key={pIdx} className="flex gap-3">
                                         <X className="w-5 h-5 text-rose-500 shrink-0 mt-2" /> 
                                         {pain}
                                     </li>
                                 ))}
-                                {psychology.pains.length === 0 && <li className="text-gray-500 italic">No hay dolores definidos.</li>}
+                                {(!psychology?.pains || psychology.pains.length === 0) && <li className="text-gray-500 italic">No hay dolores definidos por la IA.</li>}
                             </ul>
                         </div>
                     </div>
@@ -313,7 +316,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                         <Sparkles className="w-6 h-6 text-emerald-400" /> ¿Cuál es la transformación que busca tu cliente?
                     </h4>
                     <div className="grid md:grid-cols-2 gap-8">
-                        {psychology.solutions.map((sol, sIdx) => (
+                        {(psychology?.solutions || []).map((sol, sIdx) => (
                             <div key={sIdx} className="bg-black/40 p-6 rounded-[2rem] border border-emerald-500/10 flex flex-col gap-4">
                                 <div>
                                     <p className="text-emerald-400 font-black text-base uppercase tracking-[0.1em] mb-2">Pilar Estratégico #{sIdx + 1}</p>
@@ -335,8 +338,8 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                 </div>
                             </div>
                         ))}
-                        {psychology.solutions.length === 0 && (
-                            <div className="col-span-full py-4 text-center text-gray-500 italic">No hay soluciones definidas.</div>
+                        {(!psychology?.solutions || psychology.solutions.length === 0) && (
+                            <div className="col-span-full py-4 text-center text-gray-500 italic">No hay pilares de solución definidos.</div>
                         )}
                     </div>
                 </div>
@@ -363,21 +366,21 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                         <div className="w-12 h-12 bg-rose-500/20 rounded-full flex items-center justify-center text-rose-400 font-black">1</div>
                         <p className="text-rose-400 font-black uppercase text-xs tracking-widest">Nivel: Dolor</p>
                         <h5 className="text-xl font-bold text-white">Consciente del Problema</h5>
-                        <p className="text-gray-400 text-base leading-relaxed">"{psychology.awarenessStages.stage1_pain}"</p>
+                        <p className="text-gray-400 text-base leading-relaxed">"{psychology?.awarenessStages?.stage1_pain || "No disponible."}"</p>
                     </div>
 
                     <div className="bg-gray-900 rounded-3xl p-8 border border-gray-800 text-center flex flex-col items-center gap-4 hover:border-orange-500/30 transition-all">
                         <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 font-black">2</div>
                         <p className="text-blue-400 font-black uppercase text-xs tracking-widest">Nivel: Solución</p>
                         <h5 className="text-xl font-bold text-white">Consciente de la Solución</h5>
-                        <p className="text-gray-400 text-base leading-relaxed">"{psychology.awarenessStages.stage2_solution}"</p>
+                        <p className="text-gray-400 text-base leading-relaxed">"{psychology?.awarenessStages?.stage2_solution || "No disponible."}"</p>
                     </div>
 
                     <div className="bg-orange-500/10 rounded-3xl p-8 border border-orange-500/40 text-center flex flex-col items-center gap-4 transform md:scale-105 shadow-2xl">
                         <div className="w-12 h-12 bg-orange-500 text-black rounded-full flex items-center justify-center text-xl font-black">!</div>
                         <p className="text-orange-400 font-black uppercase text-xs tracking-widest">Oportunidad de Cierre</p>
                         <h5 className="text-xl font-bold text-white">Barrera Detectada</h5>
-                        <p className="text-gray-300 text-base leading-relaxed">"{psychology.awarenessStages.stage3_barrier}"</p>
+                        <p className="text-gray-300 text-base leading-relaxed">"{psychology?.awarenessStages?.stage3_barrier || "No disponible."}"</p>
                     </div>
                 </div>
             </div>
@@ -402,7 +405,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                             <X className="w-6 h-6" /> El cliente NO COMPRA cuando:
                         </h5>
                         <div className="space-y-6">
-                            {buyingPsych.notBuyingReasons.map((item, i) => (
+                            {(buyingPsych?.notBuyingReasons || []).map((item, i) => (
                                 <div key={i} className="flex gap-4 items-start">
                                     <div className="w-2 h-2 rounded-full bg-rose-500 mt-2 shrink-0"></div>
                                     <div>
@@ -411,7 +414,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                     </div>
                                 </div>
                             ))}
-                            {buyingPsych.notBuyingReasons.length === 0 && <p className="text-gray-500 italic">No se han definido razones de no-compra.</p>}
+                            {(!buyingPsych?.notBuyingReasons || buyingPsych.notBuyingReasons.length === 0) && <p className="text-gray-500 italic">No se han definido razones de no-compra.</p>}
                         </div>
                     </div>
 
@@ -420,7 +423,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                             <Check className="w-6 h-6" /> El cliente COMPRA cuando:
                         </h5>
                         <div className="space-y-6">
-                            {buyingPsych.buyingReasons.map((item, i) => (
+                            {(buyingPsych?.buyingReasons || []).map((item, i) => (
                                 <div key={i} className="flex gap-4 items-start">
                                     <div className="w-2 h-2 rounded-full bg-emerald-500 mt-2 shrink-0"></div>
                                     <div>
@@ -429,7 +432,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                     </div>
                                 </div>
                             ))}
-                            {buyingPsych.buyingReasons.length === 0 && <p className="text-gray-500 italic">No se han definido razones de compra.</p>}
+                            {(!buyingPsych?.buyingReasons || buyingPsych.buyingReasons.length === 0) && <p className="text-gray-500 italic">No se han definido razones de compra.</p>}
                         </div>
                     </div>
                 </div>
@@ -444,7 +447,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     <div>
                         <h5 className="text-blue-400 font-black text-sm uppercase tracking-widest mb-2">Conclusión del Estratega</h5>
                         <p className="text-white italic text-xl md:text-2xl leading-relaxed font-serif">
-                            "{buyingPsych.strategistConclusion || "El sistema optimizará el mensaje basándose en la seguridad y el respaldo técnico."}"
+                            "{buyingPsych?.strategistConclusion || "El sistema optimizará el mensaje basándose en la seguridad y el respaldo técnico."}"
                         </p>
                     </div>
                 </div>
@@ -481,13 +484,13 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                             </div>
                             <h4 className="text-2xl font-black text-white uppercase tracking-tight">Enfoque Principal</h4>
                             <ul className="space-y-4">
-                                {convStrategy.mainFocus.map((item, i) => (
+                                {(convStrategy?.mainFocus || []).map((item, i) => (
                                     <li key={i} className="space-y-1">
                                         <p className="text-orange-400 font-bold text-base">{item.label}</p>
                                         <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.description}</p>
                                     </li>
                                 ))}
-                                {convStrategy.mainFocus.length === 0 && <p className="text-gray-500 italic">No definido.</p>}
+                                {(!convStrategy?.mainFocus || convStrategy.mainFocus.length === 0) && <p className="text-gray-500 italic">No definido.</p>}
                             </ul>
                         </div>
 
@@ -498,7 +501,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                             </div>
                             <h4 className="text-2xl font-black text-white uppercase tracking-tight">Canales Prioritarios</h4>
                             <div className="space-y-4">
-                                {convStrategy.prioritizedChannels.map((chan, i) => (
+                                {(convStrategy?.prioritizedChannels || []).map((chan, i) => (
                                     <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 group/item hover:bg-white/10 transition-colors">
                                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-xs shrink-0 ${chan.type === 'LP' ? 'bg-blue-600' : chan.type === 'WA' ? 'bg-green-600' : 'bg-orange-600'}`}>
                                             {chan.type}
@@ -506,7 +509,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                         <p className="text-gray-300 font-bold text-sm">{chan.label}</p>
                                     </div>
                                 ))}
-                                {convStrategy.prioritizedChannels.length === 0 && <p className="text-gray-500 italic">No definidos.</p>}
+                                {(!convStrategy?.prioritizedChannels || convStrategy.prioritizedChannels.length === 0) && <p className="text-gray-500 italic">No definidos.</p>}
                             </div>
                         </div>
 
@@ -517,13 +520,13 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                             </div>
                             <h4 className="text-2xl font-black text-white uppercase tracking-tight">Tipo de Comunicación</h4>
                             <ul className="space-y-4">
-                                {convStrategy.communicationStyle.map((item, i) => (
+                                {(convStrategy?.communicationStyle || []).map((item, i) => (
                                     <li key={i} className="space-y-1">
                                         <p className="text-purple-400 font-bold text-base">{item.label}</p>
                                         <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">{item.description}</p>
                                     </li>
                                 ))}
-                                {convStrategy.communicationStyle.length === 0 && <p className="text-gray-500 italic">No definido.</p>}
+                                {(!convStrategy?.communicationStyle || convStrategy.communicationStyle.length === 0) && <p className="text-gray-500 italic">No definido.</p>}
                             </ul>
                         </div>
                     </div>
@@ -535,7 +538,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     </div>
                     <p className="text-gray-300 text-[1.3rem] leading-[1.8] font-light">
                         <b className="text-blue-300 block mb-1">Nota Táctica:</b>
-                        {convStrategy.tacticalNote || "El sistema optimizará el flujo basándose en la máxima tasa de conversión detectada para tu nicho."}
+                        {convStrategy?.tacticalNote || "El sistema optimizará el flujo basándose en la máxima tasa de conversión detectada para tu nicho."}
                     </p>
                 </div>
             </div>
