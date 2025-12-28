@@ -108,12 +108,14 @@ import React, { useState, useEffect } from 'react';
             setAnalyzing(true);
             try {
                 const data = await api.analyzeSite(salesPageUrl);
+                // Si la respuesta es exitosa, autocompletar
                 if (data.productName) setProductName(data.productName);
                 if (data.description) setDescription(data.description);
                 if (data.niche) setNiche(data.niche);
                 alert('¡Análisis completado! Hemos completado la información basándonos en la página web.');
-            } catch (error) {
-                alert('No se pudo analizar el sitio. Asegúrate de que la URL sea válida y pública.');
+            } catch (error: any) {
+                console.error("Analysis failure:", error);
+                alert(error.message || 'No se pudo analizar el sitio. Es posible que el servidor de la web bloquee el acceso automático o que la URL no sea válida.');
             } finally {
                 setAnalyzing(false);
             }

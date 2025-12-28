@@ -66,14 +66,33 @@ router.post('/analyze-site', async (req, res) => {
     if (!url) return res.status(400).json({ error: 'URL no proporcionada' });
 
     try {
-        // Fetch content from URL
+        // Fetch content from URL identifying as a real browser
         const fetchUrl = (targetUrl) => {
             return new Promise((resolve, reject) => {
-                https.get(targetUrl, (res) => {
+                const options = {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                        'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8'
+                    },
+                    timeout: 10000
+                };
+
+                https.get(targetUrl, options, (response) => {
+                    // Handle redirects
+                    if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+                        return fetchUrl(new URL(response.headers.location, targetUrl).href).then(resolve).catch(reject);
+                    }
+
+                    if (response.statusCode !== 200) {
+                        return reject(new Error(`El servidor respondió con código ${response.statusCode}`));
+                    }
+
                     let data = '';
-                    res.on('data', (chunk) => data += chunk);
-                    res.on('end', () => resolve(data));
-                }).on('error', (err) => reject(err));
+                    response.on('data', (chunk) => data += chunk);
+                    response.on('end', () => resolve(data));
+                }).on('error', (err) => reject(err))
+                  .on('timeout', () => reject(new Error('Tiempo de espera agotado al conectar con el sitio.')));
             });
         };
 
@@ -87,12 +106,17 @@ router.post('/analyze-site', async (req, res) => {
             .replace(/\s+/g, ' ')
             .trim();
 
+        // Validation: If no significant text was extracted, don't waste AI credits
+        if (!cleanText || cleanText.length < 300) {
+            return res.status(422).json({ error: 'No se pudo extraer suficiente contenido legible de la página. Es posible que el sitio esté protegido o sea una página de carga dinámica.' });
+        }
+
         const analysis = await analyzeWebsiteContent(cleanText);
         res.json(analysis);
 
     } catch (error) {
         console.error("[Analyze Site Error]", error);
-        res.status(500).json({ error: 'Error analizando el sitio web. Verifica que la URL sea pública.' });
+        res.status(500).json({ error: error.message || 'Error analizando el sitio web. Verifica que la URL sea pública y accesible.' });
     }
 });
 

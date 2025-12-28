@@ -47,6 +47,11 @@ const generateContent = async (model, contents, config = {}) => {
 const analyzeWebsiteContent = async (rawText) => {
     if (!aiClient) throw new Error("Gemini API Key not configured.");
 
+    // Validation Guard: Ensure we have actual text to analyze
+    if (!rawText || rawText.trim().length < 200) {
+        throw new Error("El contenido extraído del sitio web es insuficiente para un análisis de marketing profesional.");
+    }
+
     const prompt = `
     Actúa como un experto Analista de Marketing y Copywriter Senior.
     Te proporcionaré el texto extraído de una página de ventas (Landing Page).
