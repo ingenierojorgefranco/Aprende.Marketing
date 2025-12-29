@@ -10,7 +10,7 @@ const LP_TABS_DATA = {
         title: "Promesa de Valor (Hero Section)",
         type: 'hero',
         h1: "Domina el Arte del Microblading 3D y Triplica tus Ingresos en 30 Días",
-        h2: "Descubre la técnica 'Pelo a Pelo' que está revolucionando la industria de la belleza. Sin experiencia previa y con baja inversión inicial.",
+        h2: "Descubre la técnica 'Pelo a Pelo' que está revolucionando la industry de la belleza. Sin experiencia previa y con baja inversión inicial.",
         strategyText: "Nuestra inteligencia artificial ha analizado tu nicho y ha definido este titular como la opción más potente. Está diseñado psicológicamente para detener el scroll, atacar el deseo principal de tu avatar y filtrar a los curiosos, atrayendo solo a compradores potenciales."
     },
     pain: {
@@ -219,7 +219,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         <div id="psd-web-section" className="space-y-16">
             <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/5">
-                    <Monitor className="w-5 h-5" /> Arquitectura de Conversión Web
+                    <Monitor className="w-5 h-5" /> Crea tu Página de Ventas Automatizada
                 </div>
                 <h3 id="psd-web-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
                     Tu ecosistema de páginas <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">creado automáticamente</span>
@@ -282,7 +282,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     <div id="psd-web-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-[2.5rem] flex flex-col gap-8 mt-12 shadow-lg shadow-purple-900/10 backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-700">
                         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                             <div className="flex items-center gap-6">
-                                <div className="p-4 bg-purple-500 text-white rounded-[1.2rem] shadow-lg shadow-purple-500/20 flex-shrink-0">
+                                <div className="p-4 bg-purple-500 text-white rounded-[1.2rem] shadow-lg shadow-emerald-500/20 flex-shrink-0">
                                     <Lock className="w-8 h-8" />
                                 </div>
                                 <div>

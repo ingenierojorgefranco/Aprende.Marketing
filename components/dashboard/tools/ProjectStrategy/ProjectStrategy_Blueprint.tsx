@@ -186,7 +186,7 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
         <div id="psd-blueprint-container" className="space-y-12">
             <div id="psd-blueprint-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/5">
-                    <Zap className="w-5 h-5 fill-current" /> Plano de Adquisición
+                    <Zap className="w-5 h-5 fill-current" /> ¿Cómo será mi estrategia?
                 </div>
                 <h3 id="psd-blueprint-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
                     Tu sistema de ventas de <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">Clase Mundial</span>

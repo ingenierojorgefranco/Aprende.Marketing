@@ -48,7 +48,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             {/* --- ENCABEZADO ESTRATÉGICO DE CLASE MUNDIAL --- */}
             <div id="psd-content-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-purple-500/5">
-                    <FileText className="w-5 h-5" /> Estrategia de Contenidos
+                    <FileText className="w-5 h-5" /> Contenidos Automáticos para Convertir Clientes
                 </div>
                 
                 <h3 id="psd-content-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">

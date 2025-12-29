@@ -360,34 +360,44 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     />
                 )}
 
-                {/* --- BLOQUE DE TRANSICIÓN: PUENTE DE EJECUCIÓN --- */}
-                <div id="psd-deployment-transition" className="max-w-[85em] mx-auto pt-10">
-                    <div className="bg-[#050505] border border-indigo-500/20 rounded-[3.5rem] p-12 md:p-20 relative overflow-hidden shadow-[0_0_50px_rgba(79,70,229,0.1)] group">
-                        {/* Background technical grid decoration */}
-                        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.05]"></div>
+                {/* --- BLOQUE DE TRANSICIÓN: RESUMEN DEL SISTEMA (DISEÑO IDÉNTICO AL HEADER) --- */}
+                <div id="psd-deployment-transition-block" className="relative bg-[#020202] border-y border-white/5 py-24 lg:py-32 overflow-hidden mx-[-2rem] md:mx-[-4rem]">
+                    {/* Visual Background Layers (Mirroring Header) */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        {/* Technical Grid */}
+                        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:45px_45px] opacity-[0.08]"></div>
                         
-                        <div className="relative z-10 flex flex-col items-center text-center space-y-8">
-                            <div className="flex items-center gap-3 px-5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black uppercase tracking-[0.3em] shadow-lg">
-                                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                SYSTEM STATUS: READY FOR DEPLOYMENT
-                            </div>
+                        {/* Radial Deep Glow */}
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#1e1e2e_0%,transparent_70%)] opacity-40"></div>
+                        
+                        {/* Focal Light Effect */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-indigo-500/5 blur-[120px] rounded-full"></div>
+                    </div>
 
-                            <div className="space-y-4">
-                                <h2 className="text-4xl md:text-6xl font-black text-white leading-tight tracking-tight">
-                                    Resumen del Sistema Estratégico
-                                </h2>
-                                <div className="flex items-center justify-center gap-2 text-indigo-400/60 font-mono text-sm tracking-widest uppercase">
-                                    {strategyData.meta?.projectName} 2.0 <span className="mx-2 opacity-30">|</span> IA Strategy Engine v4.0
-                                </div>
+                    <div className="relative z-10 max-w-[1400px] mx-auto px-6 text-center space-y-10">
+                        {/* 1. STRATEGIC BADGE */}
+                        <div className="flex justify-center">
+                            <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 to-blue-500/10 border border-indigo-500/20 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
+                                <span className="text-indigo-300 font-black text-sm uppercase tracking-[0.25em]">
+                                    Estrategia de Ventas Aplicada a tu Producto Digital
+                                </span>
                             </div>
-
-                            <p className="text-gray-400 font-light max-w-4xl mx-auto leading-[1.9] text-xl md:text-2xl border-t border-white/5 pt-10 italic">
-                                Nuestra inteligencia artificial ha analizado profundamente tu producto y el mercado actual para diseñar un <span className="text-white font-medium">ecosistema de ventas automatizado</span>. Este mapa de ingeniería inyecta psicología avanzada en cada punto de contacto para anular la resistencia del comprador y acelerar tu facturación.
-                            </p>
                         </div>
                         
-                        {/* Decorative bottom line */}
-                        <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent"></div>
+                        {/* 2. PROJECT TITLE & VERSION */}
+                        <div className="space-y-4">
+                            <h2 className="text-5xl md:text-7xl lg:text-7xl font-black text-white leading-tight tracking-tighter drop-shadow-2xl">
+                                {strategyData.meta?.projectName}
+                            </h2>
+                            <div className="flex items-center justify-center gap-2 text-indigo-400/60">
+                                <span className="text-xs font-bold uppercase tracking-[0.3em]">IA Strategy Engine v4.0</span>
+                            </div>
+                        </div>
+                        
+                        {/* 3. EXECUTIVE SUMMARY NARRATIVE */}
+                        <p className="text-gray-400 font-light max-w-4xl mx-auto leading-[1.9] text-[1.4rem] md:text-[1.6rem] border-t border-white/5 pt-10">
+                            Nuestra inteligencia artificial ha analizado profundamente tu producto y el mercado actual para diseñar un <span className="text-white font-medium italic">ecosistema de ventas automatizado</span>. Este mapa de ingeniería inyecta psicología avanzada en cada punto de contacto para anular la resistencia del comprador y acelerar tu facturación.
+                        </p>
                     </div>
                 </div>
 

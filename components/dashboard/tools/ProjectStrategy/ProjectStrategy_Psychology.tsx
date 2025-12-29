@@ -55,7 +55,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
             {/* --- ENCABEZADO ESTRATÉGICO DE CLASE MUNDIAL --- */}
             <div id="psd-psychology-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
-                    <Flame className="w-5 h-5 fill-current" /> Estrategia Psicológica
+                    <Flame className="w-5 h-5 fill-current" /> ¿Cómo les convencemos para que compren?
                 </div>
                 
                 <h3 id="psd-psychology-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">

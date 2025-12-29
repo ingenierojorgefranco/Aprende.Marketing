@@ -44,19 +44,19 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
     return (
         <div id="psd-business-growth-section" className="space-y-16 pt-8">
             
-            <div id="psd-business-header" className="max-w-[70em] mx-auto text-left space-y-8">
+            <div id="psd-business-header" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/5">
-                    <TrendingUp className="w-5 h-5" /> Proyección de Escala
+                    <TrendingUp className="w-5 h-5" /> ¿Cuánto voy a ganar con esto?
                 </div>
                 <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
                     Tu camino hacia la <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">libertad financiera</span>
                 </h3>
                 
                 <div className="grid md:grid-cols-2 gap-10 text-gray-300 text-[1.4rem] leading-[1.8] font-light">
-                    <p className="border-l-4 border-emerald-500/30 pl-8">
-                        No prometemos resultados de la noche a la mañana. Esta es una hoja de ruta real basada en la curva de aprendizaje y optimización del mercado.
+                    <p className="border-l-4 border-emerald-500/30 pl-8 py-2">
+                        Nuestro sistema no es magia, es estrategia. Como cualquier negocio requiere de tiempo y dedicación. Nuestro sistema se encuentra optimizado para darte grandes resultados en 1 año.
                     </p>
-                    <p className="border-l-4 border-teal-500/30 pl-8">
+                    <p className="border-l-4 border-teal-500/30 pl-8 py-2">
                         Durante los primeros meses "sembramos" autoridad. A partir del cuarto mes, la bola de nieve empieza a rodar y el interés compuesto de tu contenido SEO genera ingresos predecibles.
                     </p>
                 </div>
@@ -140,7 +140,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                             className="w-full md:w-auto px-10 py-6 rounded-[2rem] bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-[1.05] active:scale-95 group"
                         >
                             <PlayCircle className="w-8 h-8 fill-white text-emerald-600 group-hover:scale-110 transition-transform" />
-                            Análisis del Estratega
+                            ¿Qué quiere decir esto?
                             <ArrowUpRight className="w-5 h-5 opacity-50" />
                         </button>
                     </div>

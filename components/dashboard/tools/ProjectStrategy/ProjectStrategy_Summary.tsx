@@ -144,7 +144,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                     {description && (
                         <div id="psd-analisis-bloque" className="animate-in fade-in slide-in-from-bottom-4 duration-700 pt-10">
                             <h4 className="text-xl md:text-2xl font-black text-white mb-8 flex items-center gap-3">
-                                <FileText className="w-6 h-6 text-indigo-400" /> Análisis del proyecto
+                                <FileText className="w-6 h-6 text-indigo-400" /> Análisis del Producto Digital que vas a promocionar
                             </h4>
                             <div className="relative group/analisis border-l-4 border-indigo-500/30 pl-8 py-2">
                                 <div className="relative z-10">
