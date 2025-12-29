@@ -358,6 +358,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     <ProjectStrategy_AvatarDiagnosis 
                         avatars={strategyData.avatars} 
                         psychology={strategyData.psychology} 
+                        benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items}
                     />
                 )}
 

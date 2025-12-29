@@ -1,3 +1,4 @@
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -92,18 +93,12 @@ const safeJsonParse = (data: any, fieldName: string = 'unknown') => {
         // Limpiar bloques de markdown si existen
         repaired = repaired.replace(/^```json/, "").replace(/```$/, "").trim();
 
-        // Regex para buscar comillas dobles "huérfanas" dentro de valores de texto
-        // Esta es una aproximación: busca comillas que NO están precedidas por : o [ o {
-        // y que NO están seguidas por , o ] o }
-        // Nota: Es arriesgado pero útil para casos como "Nombre "Apodo" Apellido"
         const suspiciousQuotesRegex = /([^:{\[,])"([^,}\]])/g;
         let iteration = 0;
         while (suspiciousQuotesRegex.test(repaired) && iteration < 10) {
             repaired = repaired.replace(suspiciousQuotesRegex, '$1\\InternalQuotePlaceholder$2');
             iteration++;
         }
-        // Actually simpler: Escaping double quotes inside text is hard without better parser.
-        // Let's rely on standard JSON parse first.
 
         result = tryParse(repaired);
         if (result) {
@@ -306,6 +301,10 @@ export const api = {
           brandTone: p.brand_tone || p.brandTone,
           productName: p.product_name || p.productName,
           mainGoal: p.main_goal || p.mainGoal,
+          salesPageUrl: p.sales_page_url || p.salesPageUrl,
+          fullPrice: p.full_price ? parseFloat(p.full_price) : (p.fullPrice || 0),
+          commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
+          leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
           createdAt: new Date(p.created_at || p.createdAt)
       }));
   },
@@ -336,6 +335,10 @@ export const api = {
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
               mainGoal: p.main_goal || p.mainGoal,
+              salesPageUrl: p.sales_page_url || p.salesPageUrl,
+              fullPrice: p.full_price ? parseFloat(p.full_price) : (p.fullPrice || 0),
+              commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
+              leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
               createdAt: new Date(p.created_at || p.createdAt)
           };
 
@@ -442,7 +445,6 @@ export const api = {
 
   getWeeklyAnalytics: async (): Promise<{date: string, visits: number, conversions: number}[]> => {
       if (isMockMode) {
-          // Generar datos dummy para la gráfica
           const days = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
           const today = new Date();
           const data = [];
@@ -462,7 +464,6 @@ export const api = {
 
   getAnalyticsSummary: async (): Promise<{totalVisits: number, totalConversions: number, totalPages: number, totalArticles: number}> => {
       if (isMockMode) {
-          // Calculate from local data
           const totalVisits = localPages.reduce((acc, p) => acc + p.visits, 0);
           const totalConversions = localPages.reduce((acc, p) => acc + p.conversions, 0);
           return Promise.resolve({
@@ -683,7 +684,7 @@ export const api = {
       if (filters.action) query += `&action=${filters.action}`;
       if (filters.search) query += `&search=${filters.search}`;
       
-      return await fetchWithFallback(`/admin/logs${query}`, { headers: getAuthHeaders() });
+      return await fetchWithFallback('/admin/logs' + query, { headers: getAuthHeaders() });
   },
 
   // NEW: Get User Stats (Admin Lazy Load)
@@ -705,11 +706,10 @@ export const api = {
       if (isMockMode) {
           const course = localCourses.find(c => c.slug === slug);
           if (course) {
-              // Map to viewer format if needed, but structure should match DB
               return Promise.resolve({
                   ...course,
-                  learningPoints: [], // Mock structure might need adjustment
-                  modules: course.modules?.map(m => ({...m, lessons: []})) || [] // Ensure mock also returns empty lessons initially to test lazy load
+                  learningPoints: [], 
+                  modules: course.modules?.map(m => ({...m, lessons: []})) || [] 
               });
           }
           return Promise.resolve({
@@ -723,9 +723,7 @@ export const api = {
 
   getModuleLessons: async (moduleId: string): Promise<CourseLesson[]> => {
       if (isMockMode) {
-          // Find module in mock data
           const module = localCourses.flatMap(c => c.modules).find(m => m.id === moduleId);
-          // Simulate network delay
           await new Promise(resolve => setTimeout(resolve, 500));
           return Promise.resolve(module?.lessons || []);
       }
@@ -819,7 +817,7 @@ export const api = {
               userId: MOCK_USER.id,
               date: new Date().toISOString(),
               likes: 0,
-              isApproved: false // or true based on context
+              isApproved: false 
           };
           if (parentId) newComment.parentId = parentId;
           
@@ -835,7 +833,6 @@ export const api = {
 
   likeComment: async (commentId: string): Promise<void> => {
       if (isMockMode) {
-          // Update local mock data
           const comment = localComments.find(c => c.id === commentId);
           if (comment) {
               comment.likes = (comment.likes || 0) + 1;
@@ -871,7 +868,7 @@ export const api = {
 
   // --- ADMIN PLANS MANAGEMENT ---
   getPlans: async (): Promise<Plan[]> => {
-      if (isMockMode) return Promise.resolve([]); // Add mock plans if needed later
+      if (isMockMode) return Promise.resolve([]); 
       return await fetchWithFallback('/admin/plans', { headers: getAuthHeaders() });
   },
 
@@ -933,7 +930,7 @@ export const api = {
           ...c,
           id: c.id.toString(),
           pageId: c.page_id ? c.page_id.toString() : undefined,
-          pageSlug: c.page_slug, // Mapped from backend join
+          pageSlug: c.page_slug, 
           lastContactedAt: c.last_contacted_at ? new Date(c.last_contacted_at) : undefined,
           createdAt: new Date(c.created_at),
           updatedAt: new Date(c.updated_at)

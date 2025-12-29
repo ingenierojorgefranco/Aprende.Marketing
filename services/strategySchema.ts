@@ -1,4 +1,3 @@
-
 import { BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
 
 // --- INTERFAZ MAESTRA ---
@@ -229,7 +228,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             "Te detiene el miedo a las promesas vacías de internet que no enseñan nada realmente útil para tu futuro."
         ],
         solutions: [
-            "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo.",
+            "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo. Maximiza tu tiempo generando servicios de alto impacto económico.",
             "Certificación profesional y acompañamiento que eliminan todo temor a cometer errores técnicos.",
             "Metodología 100% práctica basada en resultados reales, con soporte paso a paso.",
             "Estrategia probada de captación de clientes en Instagram para llenar tu agenda con seguridad.",

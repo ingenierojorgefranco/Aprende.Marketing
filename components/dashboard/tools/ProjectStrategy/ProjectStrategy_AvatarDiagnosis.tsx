@@ -1,10 +1,11 @@
+
 import React from 'react';
-/* Added Users to the imports */
 import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, X, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight, Users } from 'lucide-react';
 import { ProjectStrategy_Psychology } from './ProjectStrategy_Psychology';
 
 interface ProjectStrategy_AvatarDiagnosisProps {
     avatars: any[];
+    benefitsItems?: Array<{ title: string; desc: string }>;
     psychology: {
         pains: string[];
         solutions: string[];
@@ -34,7 +35,7 @@ interface ProjectStrategy_AvatarDiagnosisProps {
     };
 }
 
-export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDiagnosisProps> = ({ avatars, psychology }) => {
+export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDiagnosisProps> = ({ avatars, psychology, benefitsItems }) => {
     // Roles estratégicos definidos
     const roles = [
         { 
@@ -215,7 +216,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             </div>
 
             <div className="max-w-[70em] mx-auto py-12">
-                <ProjectStrategy_Psychology psychology={psychology} />
+                <ProjectStrategy_Psychology psychology={psychology} benefitsItems={benefitsItems} />
             </div>
         </div>
     );

@@ -7,9 +7,10 @@ interface ProjectStrategy_PsychologyProps {
         pains: string[];
         solutions: string[];
     };
+    benefitsItems?: Array<{ title: string; desc: string }>;
 }
 
-export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProps> = ({ psychology }) => {
+export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProps> = ({ psychology, benefitsItems }) => {
     
     // Mapeo extendido con el "Cómo" para cada canal
     const applicationChannels = [
@@ -84,42 +85,54 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                     </div>
                     <div className="hidden md:flex items-center gap-4 px-8 py-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl md:col-start-2">
                         <Rocket className="w-6 h-6 text-emerald-500" />
-                        <span className="text-emerald-400 font-black uppercase tracking-[0.2em] text-sm">Argumentos de Venta</span>
+                        <span className="text-emerald-400 font-black uppercase tracking-[0.2em] text-sm">Beneficios del Producto Digital</span>
                     </div>
 
                     {/* El conector central (Desktop) */}
                     <div className="hidden md:block absolute left-1/2 top-32 bottom-10 w-px bg-gradient-to-b from-gray-800 via-gray-700 to-gray-800 -translate-x-1/2"></div>
 
                     {/* Mapeo del espejo */}
-                    {psychology.pains.map((pain, i) => (
-                        <React.Fragment key={i}>
-                            {/* Bloqueo (Dolor) */}
-                            <div className="relative group/mirror">
-                                <div className="bg-gray-900/40 border border-gray-800 group-hover/mirror:border-rose-500/30 p-8 rounded-[2rem] transition-all duration-500 h-full flex items-center shadow-xl relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-500 opacity-20 group-hover/mirror:opacity-100 transition-opacity"></div>
-                                    <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gray-900 border border-gray-800 hidden md:flex items-center justify-center z-10 text-gray-600 group-hover/mirror:text-rose-500 group-hover/mirror:border-rose-500/50 transition-all">
-                                        <ArrowRight className="w-4 h-4" />
+                    {psychology.pains.map((pain, i) => {
+                        // Buscamos el beneficio correspondiente en landingPageTabs.benefits.items
+                        const benefit = (benefitsItems && benefitsItems[i]) ? benefitsItems[i] : null;
+                        
+                        return (
+                            <React.Fragment key={i}>
+                                {/* Bloqueo (Dolor) */}
+                                <div className="relative group/mirror">
+                                    <div className="bg-gray-900/40 border border-gray-800 group-hover/mirror:border-rose-500/30 p-8 rounded-[2rem] transition-all duration-500 h-full flex items-center shadow-xl relative overflow-hidden">
+                                        <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-500 opacity-20 group-hover/mirror:opacity-100 transition-opacity"></div>
+                                        <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gray-900 border border-gray-800 hidden md:flex items-center justify-center z-10 text-gray-600 group-hover/mirror:text-rose-500 group-hover/mirror:border-rose-500/50 transition-all">
+                                            <ArrowRight className="w-4 h-4" />
+                                        </div>
+                                        <p className="text-gray-300 text-lg md:text-xl leading-relaxed font-medium">
+                                            "{pain}"
+                                        </p>
                                     </div>
-                                    <p className="text-gray-300 text-lg md:text-xl leading-relaxed font-medium">
-                                        "{pain}"
-                                    </p>
                                 </div>
-                            </div>
 
-                            {/* Argumento (Cura) */}
-                            <div className="relative group/solution">
-                                <div className="bg-gray-900/40 border border-gray-800 group-hover/solution:border-emerald-500/30 p-8 rounded-[2rem] transition-all duration-500 h-full flex items-center shadow-xl relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-1.5 h-full bg-emerald-500 opacity-20 group-hover/solution:opacity-100 transition-opacity"></div>
-                                    <div className="absolute -left-12 top-1/2 -translate-y-1/2 p-2 bg-emerald-500/10 rounded-lg hidden md:block">
-                                        <Check className="w-5 h-5 text-emerald-400" />
+                                {/* Argumento (Cura) */}
+                                <div className="relative group/solution">
+                                    <div className="bg-gray-900/40 border border-gray-800 group-hover/solution:border-emerald-500/30 p-8 rounded-[2rem] transition-all duration-500 h-full flex items-center shadow-xl relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-1.5 h-full bg-emerald-500 opacity-20 group-hover/solution:opacity-100 transition-opacity"></div>
+                                        <div className="absolute -left-12 top-1/2 -translate-y-1/2 p-2 bg-emerald-500/10 rounded-lg hidden md:block">
+                                            <Check className="w-5 h-5 text-emerald-400" />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-emerald-50 text-lg md:text-xl leading-relaxed font-bold">
+                                                {benefit ? benefit.title : (psychology.solutions[i] || "Transformación estratégica")}
+                                            </p>
+                                            {benefit?.desc && (
+                                                <p className="text-emerald-200/70 text-sm leading-relaxed font-light italic">
+                                                    {benefit.desc}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
-                                    <p className="text-emerald-50 text-lg md:text-xl leading-relaxed font-medium">
-                                        {psychology.solutions[i] || "Transformación estratégica definida por IA"}
-                                    </p>
                                 </div>
-                            </div>
-                        </React.Fragment>
-                    ))}
+                            </React.Fragment>
+                        );
+                    })}
                 </div>
             </div>
 
