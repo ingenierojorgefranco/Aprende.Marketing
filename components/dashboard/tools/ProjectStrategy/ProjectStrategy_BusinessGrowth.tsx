@@ -75,7 +75,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     Retorno de Inversión Estimado (Año 1)
                                     <div className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-black uppercase tracking-widest border border-emerald-500/30">ROI Optimizando</div>
                                 </h5>
-                                <p className="text-gray-400 text-base mt-1">Cálculo basado en una tasa de cierre promedio del 3% en WhatsApp.</p>
+                                <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light mt-1">Cálculo basado en una tasa de cierre promedio del 3% en WhatsApp.</p>
                             </div>
                             
                             <div className="flex gap-4">

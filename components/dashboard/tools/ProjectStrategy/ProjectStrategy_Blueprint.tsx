@@ -136,7 +136,7 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
                 <h4 className="text-white font-black text-xl mb-1 tracking-tight">{title}</h4>
                 <p className="text-[10px] text-emerald-400 font-black uppercase tracking-[0.2em] mb-4 bg-emerald-500/10 px-3 py-1 rounded-full">{subtitle}</p>
                 
-                <p className="text-gray-300 text-lg leading-relaxed font-light flex-1">
+                <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light flex-1">
                     {description}
                 </p>
 

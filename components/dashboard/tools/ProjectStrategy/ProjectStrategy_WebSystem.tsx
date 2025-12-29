@@ -353,7 +353,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <div className="absolute top-0 right-0 p-3 opacity-10"><Lightbulb className="w-10 h-10 text-blue-400" /></div>
                                 <div className="flex gap-4 items-start relative z-10">
                                     <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 shrink-0"><Info className="w-5 h-5" /></div>
-                                    <p className="text-gray-300 text-base leading-relaxed font-medium italic">
+                                    <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light italic">
                                         {LP_TABS_DATA[selectedLpTab as keyof typeof LP_TABS_DATA]?.strategyText}
                                     </p>
                                 </div>
@@ -410,7 +410,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <div className="absolute top-0 right-0 p-3 opacity-10"><Gift className="w-10 h-10 text-green-400" /></div>
                                 <div className="flex gap-4 items-start relative z-10">
                                     <div className="p-2 bg-green-500/20 rounded-lg text-green-400 shrink-0"><Info className="w-5 h-5" /></div>
-                                    <p className="text-gray-300 text-base leading-relaxed font-medium italic">
+                                    <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light italic">
                                         {TY_TABS_DATA[selectedTyTab as keyof typeof TY_TABS_DATA]?.strategyText}
                                     </p>
                                 </div>

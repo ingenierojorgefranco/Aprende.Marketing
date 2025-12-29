@@ -1,4 +1,3 @@
-
 const { GoogleGenAI } = require("@google/genai");
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -59,7 +58,12 @@ const analyzeWebsiteContent = async (rawText) => {
     
     INSTRUCCIONES DE REDACCIÓN:
     1. TONO: Usa un lenguaje natural, persuasivo, cercano y muy fácil de comprender. Evita tecnicismos innecesarios. El texto debe ser descriptivo tanto para un usuario como para una inteligencia artificial que lo usará como contexto.
-    2. FORMATO HTML REQUERIDO: Es OBLIGATORIO que el campo "description" contenga código HTML válido para estructurar la información. Utiliza etiquetas como <p>, <ul>, <li> y <strong> para resaltar puntos clave. NO uses etiquetas <html>, <body> ni <h1>.
+    2. FORMATO HTML ESTRUCTURAL (REGLAS ESTRICTAS): 
+       - Es OBLIGATORIO que el campo "description" contenga código HTML limpio para estructurar la información. 
+       - UTILIZA EXCLUSIVAMENTE: <p>, <ul>, <li>, <strong>, <em>.
+       - PROHIBIDO EL USO DE: etiquetas <span>, etiquetas <div> con estilos, o CUALQUIER atributo "style".
+       - PROHIBIDO el uso de CSS en línea o atributos de tamaño de fuente (font-size).
+       - NO uses etiquetas <html>, <body> ni <h1>.
     3. ESTRUCTURA DE LA "DESCRIPTION":
        - Empieza con una introducción detallada envuelta en etiquetas <p> acerca del producto, su propósito y su gran promesa de transformación.
        - Luego, genera una lista de ítems estructurada con <ul> y <li> que incluya la propuesta de valor, pilares del temario, autoridad, metodología, bonos, garantía, etc.
@@ -71,7 +75,7 @@ const analyzeWebsiteContent = async (rawText) => {
     Responde EXCLUSIVAMENTE en formato JSON válido:
     {
       "productName": "Nombre comercial del producto",
-      "description": "Código HTML aquí...",
+      "description": "Código HTML estructural aquí (SIN SPANS NI STYLES)...",
       "niche": "Nicho o categoría de mercado"
     }
     `;
@@ -126,7 +130,7 @@ const generateFullStrategy = async (projectData) => {
     1. Respuesta: Devuelve EXCLUSIVAMENTE el JSON válido. Sin markdown.
     2. Comillas: ESCAPA comillas dobles DENTRO de los textos.
     3. Idioma: Español Neutro de alta conversión.
-    4. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representando los ingresos netos esperados por mes (mes 1 a 12), es normal esperar que los primeros 3 meses no se generen ingresos, pero luego se espera que haya un incremento de 1 a 3 o 4 ventas mensuales, las cuales pueden fluctuar segun tu consideracion en los meses, sin embargo la idea es que en el mes 12 la persona pueda estar generando mas de 1500 dolares mensuales. Sé realista (curva de aprendizaje y luego escalado).
+    4. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representing los ingresos netos esperados por mes (mes 1 a 12), es normal esperar que los primeros 3 meses no se generen ingresos, pero luego se espera que haya un incremento de 1 a 3 o 4 ventas mensuales, las cuales pueden fluctuar segun tu consideracion en los meses, sin embargo la idea es que en el mes 12 la persona pueda estar generando mas de 1500 dolares mensuales. Sé realista (curva de aprendizaje y luego escalado).
 
     ESTRUCTURA JSON REQUERIDA (OBLIGATORIA):
     {

@@ -176,7 +176,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                             </div>
                                             <div>
                                                 <p className={`text-sm font-black uppercase tracking-[0.2em] mb-2 ${role.color}`}>{role.label}</p>
-                                                <p className="text-gray-300 text-base leading-relaxed font-light">{role.desc}</p>
+                                                <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light">{role.desc}</p>
                                             </div>
                                         </div>
                                     </div>
