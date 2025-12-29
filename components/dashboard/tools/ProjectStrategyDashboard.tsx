@@ -341,13 +341,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     handleTooltipLeave={handleTooltipLeave}
                 />
 
-                {strategyData.avatars && (
-                    <ProjectStrategy_AvatarDiagnosis 
-                        avatars={strategyData.avatars} 
-                        psychology={strategyData.psychology} 
-                    />
-                )}
-
                 <ProjectStrategy_BusinessGrowth 
                     chartData={chartData} 
                     onOpenVideo={() => setShowVideoModal(true)} 
@@ -359,6 +352,13 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     handleTooltipLeave={handleTooltipLeave} 
                     onOpenVideo={() => setShowVideoModal(true)} 
                 />
+
+                {strategyData.avatars && (
+                    <ProjectStrategy_AvatarDiagnosis 
+                        avatars={strategyData.avatars} 
+                        psychology={strategyData.psychology} 
+                    />
+                )}
 
                 <ProjectStrategy_WebSystem 
                     selectedLpTab={selectedLpTab}
