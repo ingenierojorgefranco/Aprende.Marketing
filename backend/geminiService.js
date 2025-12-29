@@ -57,12 +57,13 @@ const analyzeWebsiteContent = async (rawText) => {
     Tu objetivo es realizar un análisis exhaustivo y profesional de una página de ventas para extraer su ADN estratégico.
     
     INSTRUCCIONES DE REDACCIÓN:
-    1. TONO: Usa un lenguaje natural, persuasivo, cercano y muy fácil de comprender. Evita tecnicismos innecesarios. El texto debe ser descriptivo tanto para un usuario como para una inteligencia artificial que lo usará como contexto.
-    2. PROHIBICIÓN DE HTML: Está terminantemente PROHIBIDO el uso de etiquetas HTML (como <b>, <ul>, <li>, <br>). Utiliza únicamente texto plano y saltos de línea (\n).
+    1. TONO: Usa un lenguaje natural, persuasivo, cercano y muy fácil de comprender. Evita tecnicismos innecesarios. El texto debe ser altamente descriptivo tanto para un usuario como para una inteligencia artificial que lo usará como contexto.
+    2. FORMATO HTML: Genera el contenido EXCLUSIVAMENTE en formato HTML. Utiliza etiquetas <p> para párrafos, <ul> y <li> para listas, y <strong> para resaltar conceptos clave. No incluyas etiquetas <html> ni <body>.
     3. ESTRUCTURA DE LA "DESCRIPTION":
-       - Empieza con una introducción detallada y completa acerca del producto, su propósito y su gran promesa de transformación.
-       - Luego, genera una lista de ítems en forma de bullet points usando el guion (-) seguido de un espacio.
-       - Incluye TODO lo que el sistema pueda extraer de la web: propuesta de valor, pilares del temario, autoridad del mentor, metodología, bonos, soporte, comunidad, garantía, certificación y cualquier otro detalle relevante. Extrae el máximo valor posible del texto.
+       - Empieza con una introducción detallada y completa envuelta en etiquetas <p>. Divide la información en varios párrafos para que sea fácil de leer.
+       - Luego, genera una lista de ítems detallados usando <ul> y <li>.
+       - Asegúrate de que los puntos <li> sean ricos en contenido y cubran: propuesta de valor, pilares del temario, autoridad del mentor, metodología, bonos, soporte, comunidad, garantía y certificación.
+       - Extrae el máximo valor posible del texto original.
 
     TEXTO EXTRAÍDO DEL SITIO:
     ${rawText.substring(0, 15000)}
@@ -70,7 +71,7 @@ const analyzeWebsiteContent = async (rawText) => {
     Responde EXCLUSIVAMENTE en formato JSON válido:
     {
       "productName": "Nombre comercial del producto",
-      "description": "[Introducción aquí]\n\n- [Punto extraído 1]\n- [Punto extraído 2]\n...",
+      "description": "<p>[Introducción párrafo 1]</p><p>[Introducción párrafo 2]</p><ul><li><strong>Punto:</strong> Detalle...</li><li><strong>Punto:</strong> Detalle...</li></ul>",
       "niche": "Nicho o categoría de mercado"
     }
     `;

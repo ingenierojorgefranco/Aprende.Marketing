@@ -150,8 +150,8 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                                 <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none group-hover/analisis:opacity-10 transition-opacity">
                                     <Sparkles className="w-24 h-24 text-white" />
                                 </div>
-                                <div className="text-gray-300 text-lg md:text-xl leading-[1.8] font-light italic relative z-10 whitespace-pre-line">
-                                    {description}
+                                <div className="relative z-10 prose prose-invert prose-p:my-4 prose-ul:my-6 prose-li:my-2 prose-strong:text-indigo-300 max-w-none text-gray-300 text-lg md:text-xl font-light">
+                                    <div dangerouslySetInnerHTML={{ __html: description }} />
                                 </div>
                             </div>
                         </div>
