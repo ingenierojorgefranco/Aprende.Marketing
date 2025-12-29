@@ -53,38 +53,25 @@ const analyzeWebsiteContent = async (rawText) => {
     }
 
     const prompt = `
-    Actúa como un experto Analista de Marketing y Copywriter Senior.
-    Te proporcionaré el texto extraído de una página de ventas (Landing Page).
+    Actúa como un experto en Marketing Digital y Copywriting Senior. 
+    Tu objetivo es realizar un análisis exhaustivo y profesional de una página de ventas para extraer su ADN estratégico.
     
-    Tu tarea es:
-    1. Identificar el nombre del producto o servicio.
-    2. Identificar el nicho de mercado.
-    3. Redactar una "Auditoría Estratégica" del producto que sea profesional, detallada y persuasiva.
-    
-    ESTRUCTURA OBLIGATORIA PARA LA DESCRIPCIÓN:
-    - Comienza con una introducción de impacto que resuma el potencial del producto (ej: "Esta auditoría estratégica revela...").
-    - Luego, genera una lista detallada con los siguientes 9 puntos clave, usando encabezados específicos y saltos de línea (\n):
-      1. Propuesta Única de Valor (USP): ¿Qué lo hace diferente y por qué el cliente debería elegirlo?
-      2. Ejes del Temario: ¿Cuáles son los pilares de contenido que se enseñan?
-      3. Autoridad y Respaldo: ¿Quién avala este producto y qué confianza genera?
-      4. Metodología de Aprendizaje: ¿Cómo es el proceso educativo (paso a paso, inmersivo, etc.)?
-      5. Transformación y Resultados: ¿Cuál es el "antes" y "después" real del cliente?
-      6. Factores de Rentabilidad: ¿Por qué este producto es una oportunidad de negocio para el afiliado/productor?
-      7. Recursos y Bonos: ¿Qué herramientas extra, plantillas o bonus incluye la oferta?
-      8. Soporte y Comunidad: ¿Cómo es el acompañamiento post-venta?
-      9. Garantía y Certificación: ¿Qué seguridad de satisfacción y qué aval profesional se entrega?
+    INSTRUCCIONES DE REDACCIÓN:
+    1. TONO: Usa un lenguaje natural, persuasivo, cercano y muy fácil de comprender. Evita tecnicismos innecesarios. El texto debe ser descriptivo tanto para un usuario como para una inteligencia artificial que lo usará como contexto.
+    2. PROHIBICIÓN DE HTML: Está terminantemente PROHIBIDO el uso de etiquetas HTML (como <b>, <ul>, <li>, <br>). Utiliza únicamente texto plano y saltos de línea (\n).
+    3. ESTRUCTURA DE LA "DESCRIPTION":
+       - Empieza con una introducción detallada y completa acerca del producto, su propósito y su gran promesa de transformación.
+       - Luego, genera una lista de ítems en forma de bullet points usando el guion (-) seguido de un espacio.
+       - Incluye TODO lo que el sistema pueda extraer de la web: propuesta de valor, pilares del temario, autoridad del mentor, metodología, bonos, soporte, comunidad, garantía, certificación y cualquier otro detalle relevante. Extrae el máximo valor posible del texto.
 
     TEXTO EXTRAÍDO DEL SITIO:
     ${rawText.substring(0, 15000)}
 
-    INSTRUCCIONES DE FORMATO:
-    - Usa saltos de línea (\n) generosos entre cada sección para que la lectura sea fluida.
-    - El tono debe ser el de un consultor de alto nivel asesorando a un profesional.
-    - Responde EXCLUSIVAMENTE en formato JSON válido:
+    Responde EXCLUSIVAMENTE en formato JSON válido:
     {
-      "productName": "Nombre del Producto",
-      "description": "Introducción de impacto...\n\n1. Propuesta Única de Valor...\n\n2. Ejes del Temario...",
-      "niche": "Nicho identificado"
+      "productName": "Nombre comercial del producto",
+      "description": "[Introducción aquí]\n\n- [Punto extraído 1]\n- [Punto extraído 2]\n...",
+      "niche": "Nicho o categoría de mercado"
     }
     `;
 
