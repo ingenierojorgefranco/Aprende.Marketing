@@ -100,7 +100,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                     <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gray-900 border border-gray-800 hidden md:flex items-center justify-center z-10 text-gray-600 group-hover/mirror:text-rose-500 group-hover/mirror:border-rose-500/50 transition-all">
                                         <ArrowRight className="w-4 h-4" />
                                     </div>
-                                    <p className="text-gray-300 text-xl md:text-2xl leading-relaxed font-medium italic">
+                                    <p className="text-gray-300 text-lg md:text-xl leading-relaxed font-medium">
                                         "{pain}"
                                     </p>
                                 </div>
@@ -113,7 +113,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                     <div className="absolute -left-12 top-1/2 -translate-y-1/2 p-2 bg-emerald-500/10 rounded-lg hidden md:block">
                                         <Check className="w-5 h-5 text-emerald-400" />
                                     </div>
-                                    <p className="text-emerald-50 text-xl md:text-2xl leading-relaxed font-bold">
+                                    <p className="text-emerald-50 text-lg md:text-xl leading-relaxed font-medium">
                                         {psychology.solutions[i] || "Transformación estratégica definida por IA"}
                                     </p>
                                 </div>

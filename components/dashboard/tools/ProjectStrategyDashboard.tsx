@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
@@ -402,6 +403,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 </div>
 
                 <ProjectStrategy_WebSystem 
+                    lpTabsData={strategyData.modules.web.landingPageTabs}
+                    tyTabsData={strategyData.modules.web.thankYouPageTabs}
                     selectedLpTab={selectedLpTab}
                     setSelectedLpTab={setSelectedLpTab}
                     selectedTyTab={selectedTyTab}

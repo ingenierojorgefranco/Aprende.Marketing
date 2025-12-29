@@ -141,7 +141,7 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
     }
 };
 
-// --- DATOS MOCK CENTRALIZADOS (ACTUALIZADOS CON DOLORES DESCRIPTIVOS) ---
+// --- DATOS MOCK CENTRALIZADOS (ACTUALIZADOS CON BENEFICIOS SINCRONIZADOS) ---
 export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
     meta: {
         projectName: "Masterclass Microblading Pro",
@@ -261,7 +261,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             mainFocus: [
                 { label: "Mensaje Directo", description: "Empatía sin rodeos sobre la inestabilidad económica y el miedo técnico." },
                 { label: "Autoridad Humana", description: "Liderazgo inspirador basado en resultados reales de alumnas, no solo teoría." },
-                { label: "Énfasis Práctico", description: "Foco total en el acompañamiento y la técnica paso a paso para eliminar el miedo." }
+                { label: "Énfasis Práctico", description: "Foco total en el acompañamiento y la técnica paso a paso para elminar el miedo." }
             ],
             prioritizedChannels: [
                 { label: "Landing Page (Captación)", type: "LP" },
@@ -314,10 +314,13 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     title: "Oferta Irresistible",
                     type: 'benefits',
                     items: [
-                        { title: "Independencia Total", desc: "Aprende a gestionar tu propio tiempo y tarifas desde el día uno." },
-                        { title: "Técnica Hiperrealista", desc: "Servicios de alto valor percibido que las clientas están dispuestas a pagar." },
-                        { title: "Soporte Vía WhatsApp", desc: "No estarás sola; resolvemos tus dudas técnicas en tiempo real." },
-                        { title: "Estrategia Instagram", desc: "Cómo atraer tus primeras clientes sin invertir miles en publicidad." }
+                        { title: "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo." },
+                        { title: "Certificación profesional y acompañamiento que eliminan todo temor a cometer errores técnicos." },
+                        { title: "Metodología 100% práctica basada en resultados reales, con soporte paso a paso." },
+                        { title: "Estrategia probada de captación de clientes en Instagram para llenar tu agenda con seguridad." },
+                        { title: "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable." },
+                        { title: "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa." },
+                        { title: "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real." }
                     ],
                     strategyText: "Enfocamos los beneficios en la libertad y la calidad técnica para satisfacer la necesidad de autoempleo genuino del avatar."
                 }
@@ -367,7 +370,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             },
             {
                 id: 2,
-                title: "Microblading: La técnica de alto valor para generar ingresos propios en 2025",
+                title: "Microblading: La técnica de alto valor para generar ingresos propios in 2025",
                 traffic: 95,
                 difficulty: 60,
                 keyword: "ingresos propios microblading",

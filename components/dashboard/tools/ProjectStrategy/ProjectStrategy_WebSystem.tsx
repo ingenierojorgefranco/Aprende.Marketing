@@ -4,78 +4,11 @@ import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, A
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
 
-// Tabs Data (Mock estático sincronizado)
-const LP_TABS_DATA = {
-    hero: {
-        label: "1. Encabezado",
-        title: "Promesa de Valor (Hero Section)",
-        type: 'hero',
-        h1: "Domina el Arte del Microblading 3D y Triplica tus Ingresos en 30 Días",
-        h2: "Descubre la técnica 'Pelo a Pelo' que está revolucionando la industry de la belleza. Sin experiencia previa y con baja inversión inicial.",
-        strategyText: "Nuestra inteligencia artificial ha analizado tu nicho y ha definido este titular como la opción más potente. Está diseñado psicológicamente para detener el scroll, atacar el deseo principal de tu avatar y filtrar a los curiosos, atrayendo solo a compradores potenciales."
-    },
-    pain: {
-        label: "2. Dolores",
-        title: "Identificación del Problema",
-        type: 'pain',
-        items: [
-            "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
-            "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.",
-            "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.",
-            "Ves pasar oportunidades de éxito en Instagram, pero te falta la guía técnica para dar el paso con seguridad.",
-            "Te apasiona la estética pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.",
-            "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.",
-            "Te detiene el miedo a las promesas vacías de internet que no enseñan nada realmente útil para tu futuro."
-        ],
-        strategyText: "Hemos identificado los 7 dolores más agudos de tu cliente ideal. Al mencionarlos explícitamente, creamos una conexión empática inmediata ('me leyeron la mente'), lo cual es el primer paso para que confíen en tu solución."
-    },
-    benefits: {
-        label: "3. Beneficios",
-        title: "Oferta Irresistible (Lo que obtienes)",
-        type: 'benefits',
-        items: [
-            { title: "Kit Digital Completo", desc: "Plantillas de práctica imprimibles y manuales en PDF." },
-            { title: "Certificado Internacional", desc: "Diploma avalado para ejercer tu profesión en cualquier país." },
-            { title: "Estrategia Instagram", desc: "Cómo atraer tus primeras clientes sin invertir en publicidad." }
-        ],
-        strategyText: "No vendemos características, vendemos transformación. Estos beneficios han sido redactados para mostrarle a tu cliente exactamente cómo mejorará su vida tras comprar, eliminando la fricción del precio."
-    }
-};
-
-const TY_TABS_DATA = {
-    header: {
-        label: "1. Confirmación",
-        title: "Mensaje de Éxito",
-        type: 'header',
-        content: {
-            h1: "¡Bienvenida al inicio de tu independencia financiera!",
-            h2: "Has tomado la mejor decisión para tu carrera. Tu registro ha sido procesado exitosamente."
-        },
-        strategyText: "El momento post-compra es crítico. Este mensaje está diseñado para validar la decisión del cliente, reducir el remordimiento del comprador y mantener la dopamina alta."
-    },
-    action: {
-        label: "2. Siguiente Paso",
-        title: "Redirección a Comunidad",
-        type: 'action',
-        content: {
-            h1: "Únete al Grupo VIP de WhatsApp",
-            h2: "Es obligatorio unirte para recibir las notificaciones de las clases y soporte técnico."
-        },
-        strategyText: "La confusión mata la conversión. Aquí damos una instrucción única y clara. Moverlos a un canal íntimo como WhatsApp aumenta tu tasa de cierre en un 300% comparado con el email."
-    },
-    magnet: {
-        label: "3. Regalo",
-        title: "Lead Magnet",
-        type: 'magnet',
-        content: {
-            h1: "Descarga tu Plan de Negocios 2025",
-            h2: "Como regalo de bienvenida, hemos preparado una guía PDF exclusiva para ti. Encuéntrala en el grupo."
-        },
-        strategyText: "Cumplir la promesa de inmediato genera autoridad. Entregamos el Lead Magnet aquí mismo para activar el principio de reciprocidad."
-    }
-};
-
 interface ProjectStrategy_WebSystemProps {
+    // Nuevas props para datos dinámicos
+    lpTabsData?: any;
+    tyTabsData?: any;
+    
     selectedLpTab: string | null;
     setSelectedLpTab: (tab: string | null) => void;
     selectedTyTab: string | null;
@@ -92,6 +25,7 @@ interface ProjectStrategy_WebSystemProps {
 }
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
+    lpTabsData, tyTabsData,
     selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, linkedPages, onEditPage,
     pageCount = 0, domainCount = 0, planLimits, onUpgrade, nextPlan
 }) => {
@@ -118,12 +52,19 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     // Default to first tabs if null
     React.useEffect(() => {
-        if (!selectedLpTab) setSelectedLpTab('hero');
-        if (!selectedTyTab) setSelectedTyTab('header');
-    }, []);
+        if (!selectedLpTab && lpTabsData) {
+            const firstKey = Object.keys(lpTabsData)[0];
+            if (firstKey) setSelectedLpTab(firstKey);
+        }
+        if (!selectedTyTab && tyTabsData) {
+            const firstKey = Object.keys(tyTabsData)[0];
+            if (firstKey) setSelectedTyTab(firstKey);
+        }
+    }, [lpTabsData, tyTabsData]);
 
     const renderLpPreview = (tabKey: string) => {
-        const data = LP_TABS_DATA[tabKey as keyof typeof LP_TABS_DATA] as any;
+        if (!lpTabsData) return null;
+        const data = lpTabsData[tabKey];
         if (!data) return null;
 
         return (
@@ -156,17 +97,16 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         </div>
                     )}
                     {data.type === 'benefits' && (
-                        <div className="grid grid-cols-1 gap-4">
-                            <h4 className="text-gray-900 font-black text-xl mb-2 pointer-events-none">Tu transformación incluye:</h4>
-                            {data.items?.map((item: any, i: number) => (
-                                <div key={i} className="flex gap-3 items-center p-3 bg-green-50 rounded-xl border border-green-100">
-                                    <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 pointer-events-none" />
-                                    <div>
-                                        <p className="text-gray-900 font-bold text-sm select-text">{item.title}</p>
-                                        <p className="text-gray-600 text-[11px] select-text">{item.desc}</p>
+                        <div className="space-y-4">
+                            <h4 className="text-gray-900 font-black text-xl mb-4 pointer-events-none">Tu transformación incluye:</h4>
+                            <div className="grid grid-cols-1 gap-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar pointer-events-auto select-text">
+                                {data.items?.map((item: any, i: number) => (
+                                    <div key={i} className="flex gap-3 items-center p-3 bg-green-50 rounded-xl border border-green-100 transition-colors hover:bg-green-100/50">
+                                        <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 pointer-events-none" />
+                                        <p className="text-gray-900 font-bold text-sm select-text leading-tight">{item.title}</p>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -175,7 +115,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     };
 
     const renderTyPreview = (tabKey: string) => {
-        const data = TY_TABS_DATA[tabKey as keyof typeof TY_TABS_DATA];
+        if (!tyTabsData) return null;
+        const data = tyTabsData[tabKey];
         if (!data) return null;
 
         return (
@@ -190,8 +131,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-6 border border-green-500/30 pointer-events-none">
                                 <Check className="w-8 h-8 text-green-400" />
                             </div>
-                            <h4 className="text-white font-black text-xl mb-3 leading-tight select-text">{data.content.h1}</h4>
-                            <p className="text-gray-400 text-sm select-text">{data.content.h2}</p>
+                            <h4 className="text-white font-black text-xl mb-3 leading-tight select-text">{data.content?.h1}</h4>
+                            <p className="text-gray-400 text-sm select-text">{data.content?.h2}</p>
                         </>
                     )}
                     {data.type === 'action' && (
@@ -199,11 +140,11 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <div className="w-full h-2 bg-gray-800 rounded-full mb-8 overflow-hidden pointer-events-none">
                                 <div className="w-[80%] h-full bg-yellow-500"></div>
                             </div>
-                            <h4 className="text-white font-black text-xl mb-4 select-text">{data.content.h1}</h4>
+                            <h4 className="text-white font-black text-xl mb-4 select-text">{data.content?.h1}</h4>
                             <div className="w-full py-4 bg-green-600 rounded-xl flex items-center justify-center gap-2 text-white font-bold shadow-lg shadow-green-900/50 mb-4 pointer-events-none">
                                 <MessageCircle className="w-5 h-5" /> UNIRME AL GRUPO
                             </div>
-                            <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest select-text">{data.content.h2}</p>
+                            <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest select-text">{data.content?.h2}</p>
                         </>
                     )}
                     {data.type === 'magnet' && (
@@ -213,8 +154,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <div className="h-1 w-10 bg-white/30 rounded mb-1"></div>
                                 <div className="h-1 w-8 bg-white/30 rounded"></div>
                             </div>
-                            <h4 className="text-white font-black text-lg mb-2 select-text">{data.content.h1}</h4>
-                            <p className="text-gray-400 text-xs leading-relaxed select-text">{data.content.h2}</p>
+                            <h4 className="text-white font-black text-lg mb-2 select-text">{data.content?.h1}</h4>
+                            <p className="text-gray-400 text-xs leading-relaxed select-text">{data.content?.h2}</p>
                         </>
                     )}
                 </div>
@@ -337,26 +278,23 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     </div>
 
                     <div className="flex-1 space-y-10">
-                        {/* Selector de Tabs (Bloques) */}
+                        {/* Selector de Tabs (Bloques) Dinámicos */}
                         <div className="flex flex-wrap gap-2">
-                            {(Object.keys(LP_TABS_DATA) as Array<keyof typeof LP_TABS_DATA>).map(tabKey => (
+                            {lpTabsData && Object.keys(lpTabsData).map(tabKey => (
                                 <button 
                                     key={tabKey}
                                     onClick={() => setSelectedLpTab(tabKey)}
                                     className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border ${selectedLpTab === tabKey ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-900/40' : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700'}`}
                                 >
-                                    {LP_TABS_DATA[tabKey].label}
+                                    {lpTabsData[tabKey].label}
                                 </button>
                             ))}
                         </div>
 
                         {/* Visual Preview */}
                         <div className="relative group/preview">
-                            {/* Glow Overlay - Pointer events disabled to prevent blocking interaction */}
                             <div className="absolute -inset-4 bg-blue-500/5 blur-3xl opacity-0 group-hover/preview:opacity-100 transition-opacity pointer-events-none z-0"></div>
-                            
-                            {/* Contenedor de Previsualización */}
-                            {renderLpPreview(selectedLpTab || 'hero')}
+                            {renderLpPreview(selectedLpTab || '')}
                             
                             {/* Strategy Tooltip */}
                             <div className="mt-8 p-6 bg-blue-900/20 border border-blue-500/20 rounded-[1.5rem] relative overflow-hidden animate-in fade-in slide-in-from-top-2">
@@ -364,7 +302,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <div className="flex gap-4 items-start relative z-10">
                                     <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 shrink-0 pointer-events-none"><Info className="w-5 h-5" /></div>
                                     <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light italic select-text">
-                                        {LP_TABS_DATA[selectedLpTab as keyof typeof LP_TABS_DATA]?.strategyText}
+                                        {lpTabsData && selectedLpTab ? lpTabsData[selectedLpTab].strategyText : 'Análisis estratégico en curso...'}
                                     </p>
                                 </div>
                             </div>
@@ -397,15 +335,15 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     </div>
 
                     <div className="flex-1 space-y-10">
-                        {/* Selector de Tabs */}
+                        {/* Selector de Tabs Dinámicos */}
                         <div className="flex flex-wrap gap-2">
-                            {(Object.keys(TY_TABS_DATA) as Array<keyof typeof TY_TABS_DATA>).map(tabKey => (
+                            {tyTabsData && Object.keys(tyTabsData).map(tabKey => (
                                 <button 
                                     key={tabKey}
                                     onClick={() => setSelectedTyTab(tabKey)}
                                     className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border ${selectedTyTab === tabKey ? 'bg-green-600 text-white border-green-400 shadow-lg shadow-blue-900/40' : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700'}`}
                                 >
-                                    {TY_TABS_DATA[tabKey].label}
+                                    {tyTabsData[tabKey].label}
                                 </button>
                             ))}
                         </div>
@@ -413,7 +351,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         {/* Visual Preview */}
                         <div className="relative group/preview">
                             <div className="absolute -inset-4 bg-green-500/5 blur-3xl opacity-0 group-hover/preview:opacity-100 transition-opacity pointer-events-none z-0"></div>
-                            {renderTyPreview(selectedTyTab || 'header')}
+                            {renderTyPreview(selectedTyTab || '')}
                             
                             {/* Strategy Tooltip */}
                             <div className="mt-8 p-6 bg-green-900/20 border border-green-500/20 rounded-[1.5rem] relative overflow-hidden animate-in fade-in slide-in-from-top-2">
@@ -421,7 +359,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <div className="flex gap-4 items-start relative z-10">
                                     <div className="p-2 bg-green-500/20 rounded-lg text-green-400 shrink-0 pointer-events-none"><Info className="w-5 h-5" /></div>
                                     <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light italic select-text">
-                                        {TY_TABS_DATA[selectedTyTab as keyof typeof TY_TABS_DATA]?.strategyText}
+                                        {tyTabsData && selectedTyTab ? tyTabsData[selectedTyTab].strategyText : 'Analizando estrategia de compromiso...'}
                                     </p>
                                 </div>
                             </div>

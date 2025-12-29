@@ -132,8 +132,9 @@ const generateFullStrategy = async (projectData) => {
     2. Comillas: ESCAPA comillas dobles DENTRO de los textos.
     3. Idioma: Español Neutro de alta conversión.
     4. Puntos de Dolor (Pains): DEBES generar EXACTAMENTE 7 puntos de dolor redactados en SEGUNDA PERSONA ("Tú..."). El copy debe ser descriptivo, emocional y profundo (ej: "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo").
-    5. Coherencia Total: Los 7 dolores y las 7 soluciones en la sección "psychology" DEBEN SER IDÉNTICOS a los que coloques en "modules.web.landingPageTabs.pain.items".
-    6. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representando los ingresos netos esperados por mes (mes 1 a 12), es normal esperar que los primeros 3 meses no se generen ingresos, pero luego se espera que haya un incremento progresivo. En el mes 12 el objetivo es superar los $1500 USD.
+    5. Coherencia Total (Pains): Los 7 dolores en la sección "psychology" DEBEN SER IDÉNTICOS a los que coloques en "modules.web.landingPageTabs.pain.items".
+    6. Coherencia Total (Benefits): Genera EXACTAMENTE 7 soluciones en "psychology.solutions" y EXACTAMENTE 7 beneficios en "modules.web.landingPageTabs.benefits.items". El campo 'title' de cada uno de los 7 beneficios DEBE SER IDÉNTICO a cada una de las 7 soluciones de la sección psicología. NO generes descripciones secundarias para los beneficios, solo el título.
+    7. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representando los ingresos netos esperados por mes (mes 1 a 12), es normal esperar que los primeros 3 meses no se generen ingresos, pero luego se espera que haya un incremento progresivo. En el mes 12 el objetivo es superar los $1500 USD.
 
     ESTRUCTURA JSON REQUERIDA (OBLIGATORIA):
     {
@@ -201,7 +202,7 @@ const generateFullStrategy = async (projectData) => {
             "landingPageTabs": {
                 "hero": { "label": "1. Encabezado", "title": "Promesa de Valor", "type": "hero", "h1": "...", "h2": "...", "strategyText": "..." },
                 "pain": { "label": "2. Dolores", "title": "Identificación del Problema", "type": "pain", "items": ["Dolor 1 (Tú...)", "Dolor 2 (Tú...)", "Dolor 3 (Tú...)", "Dolor 4 (Tú...)", "Dolor 5 (Tú...)", "Dolor 6 (Tú...)", "Dolor 7 (Tú...)"], "strategyText": "..." },
-                "benefits": { "label": "3. Beneficios", "title": "Oferta Irresistible", "type": "benefits", "items": [{ "title": "...", "desc": "..." }], "strategyText": "..." }
+                "benefits": { "label": "3. Beneficios", "title": "Oferta Irresistible", "type": "benefits", "items": [{ "title": "Solución 1" }, { "title": "Solución 2" }, { "title": "Solución 3" }, { "title": "Solución 4" }, { "title": "Solución 5" }, { "title": "Solución 6" }, { "title": "Solución 7" }], "strategyText": "..." }
             },
             "thankYouPageTabs": {
                 "header": { "label": "1. Confirmación", "title": "Mensaje de Éxito", "type": "header", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." },
