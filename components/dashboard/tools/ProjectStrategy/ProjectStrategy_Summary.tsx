@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Rocket, Sparkles, Search, DollarSign, Zap, FileText, ShieldCheck } from 'lucide-react';
 
@@ -91,7 +92,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                             </div>
                         </div>
 
-                        {/* TARJETA DE COMISIÓN (Separada a la Izquierda) */}
+                        {/* TARJETA DE COMISIÓN */}
                         <div 
                             onMouseEnter={(e) => handleTooltipHover(e, ["Porcentaje de ganancia que recibes por cada venta realizada."])}
                             onMouseLeave={handleTooltipLeave}
@@ -112,7 +113,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                             </div>
                         </div>
 
-                        {/* TARJETA DE GANANCIA NETA (Separada a la Derecha) */}
+                        {/* TARJETA DE GANANCIA NETA */}
                         <div 
                             onMouseEnter={(e) => handleTooltipHover(e, ["Dinero real que entra a tu cuenta después de comisiones de plataforma."])}
                             onMouseLeave={handleTooltipLeave}
@@ -134,13 +135,13 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                         </div>
                     </div>
                     
-                    {/* Nota de pie del bloque - CENTRALIZADA */}
+                    {/* Nota de pie del bloque */}
                     <div className="mt-10 flex items-center justify-center gap-3 text-gray-500 text-sm italic border-b border-white/5 pb-8 mb-12 text-center">
                         <ShieldCheck className="w-4 h-4" />
                         Esta configuración es la base para el cálculo de tu rentabilidad en el año 1.
                     </div>
 
-                    {/* SECCIÓN: ANÁLISIS DEL PROYECTO */}
+                    {/* SECCIÓN: ANÁLISIS DEL PROYECTO (RENDERIZADO HTML) */}
                     {description && (
                         <div id="psd-analisis-bloque" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                             <h4 className="text-xl md:text-2xl font-black text-white mb-6 flex items-center gap-3">
@@ -150,8 +151,11 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                                 <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none group-hover/analisis:opacity-10 transition-opacity">
                                     <Sparkles className="w-24 h-24 text-white" />
                                 </div>
-                                <div className="relative z-10 prose prose-invert prose-p:my-4 prose-ul:my-6 prose-li:my-2 prose-strong:text-indigo-300 max-w-none text-gray-300 text-lg md:text-xl font-light">
-                                    <div dangerouslySetInnerHTML={{ __html: description }} />
+                                <div className="relative z-10">
+                                    <div 
+                                        className="prose prose-invert prose-p:text-gray-300 prose-li:text-gray-300 prose-strong:text-white max-w-none text-lg md:text-xl leading-[1.8] font-light italic"
+                                        dangerouslySetInnerHTML={{ __html: description || '' }} 
+                                    />
                                 </div>
                             </div>
                         </div>
