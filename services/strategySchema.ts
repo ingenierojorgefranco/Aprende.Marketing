@@ -141,7 +141,7 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
     }
 };
 
-// --- DATOS MOCK CENTRALIZADOS (ACTUALIZADOS CON BENEFICIOS SINCRONIZADOS) ---
+// --- DATOS MOCK CENTRALIZADOS (ACTUALIZADOS CON BENEFICIOS SINCRONIZADOS Y DESCRIPCIONES) ---
 export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
     meta: {
         projectName: "Masterclass Microblading Pro",
@@ -314,13 +314,13 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     title: "Oferta Irresistible",
                     type: 'benefits',
                     items: [
-                        { title: "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo." },
-                        { title: "Certificación profesional y acompañamiento que eliminan todo temor a cometer errores técnicos." },
-                        { title: "Metodología 100% práctica basada en resultados reales, con soporte paso a paso." },
-                        { title: "Estrategia probada de captación de clientes en Instagram para llenar tu agenda con seguridad." },
-                        { title: "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable." },
-                        { title: "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa." },
-                        { title: "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real." }
+                        { title: "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo.", desc: "Maximiza tu tiempo generando servicios de alto impacto económico." },
+                        { title: "Certificación profesional y acompañamiento que eliminan todo temor a cometer errores técnicos.", desc: "Seguridad absoluta respaldada por expertos en micropigmentación." },
+                        { title: "Metodología 100% práctica basada en resultados reales, con soporte paso a paso.", desc: "No más teoría vacía; aprende haciendo con modelos reales." },
+                        { title: "Estrategia probada de captación de clientes en Instagram para llenar tu agenda con seguridad.", desc: "Tu agenda llena desde la primera semana gracias a nuestro método de marketing." },
+                        { title: "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable.", desc: "Te enseñamos a escalar tu talento y construir un negocio sólido." },
+                        { title: "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa.", desc: "Toma el control total de tu carrera profesional y financiera." },
+                        { title: "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real.", desc: "Educación de élite diseñada para resultados inmediatos en el mercado." }
                     ],
                     strategyText: "Enfocamos los beneficios en la libertad y la calidad técnica para satisfacer la necesidad de autoempleo genuino del avatar."
                 }

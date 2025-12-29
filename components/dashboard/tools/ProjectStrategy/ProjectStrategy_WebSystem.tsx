@@ -103,7 +103,10 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 {data.items?.map((item: any, i: number) => (
                                     <div key={i} className="flex gap-3 items-center p-3 bg-green-50 rounded-xl border border-green-100 transition-colors hover:bg-green-100/50">
                                         <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 pointer-events-none" />
-                                        <p className="text-gray-900 font-bold text-sm select-text leading-tight">{item.title}</p>
+                                        <div>
+                                            <p className="text-gray-900 font-bold text-sm select-text leading-tight">{item.title}</p>
+                                            {item.desc && <p className="text-gray-600 text-[11px] select-text mt-1">{item.desc}</p>}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
