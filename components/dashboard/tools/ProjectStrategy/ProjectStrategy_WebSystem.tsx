@@ -206,16 +206,20 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     return (
         <div id="psd-web-section" className="space-y-16">
-            <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-10 py-12">
-                <div className="flex flex-col gap-6">
-                    <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/5 self-start">
-                        <Monitor className="w-5 h-5" /> Arquitectura de Conversión Web
-                    </div>
-                    <h3 id="psd-web-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
-                        Tu ecosistema de páginas <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">creado automáticamente</span>
-                    </h3>
-                    <p id="psd-web-desc" className="text-gray-300 text-[1.4rem] leading-[1.8] font-light max-w-4xl border-l-4 border-blue-500/30 pl-8 italic">
-                        "Olvídate del diseño y el copy. Nuestra IA utiliza principios de neuro-marketing para redactar cada palabra de tu web, asegurando que tu producto se sienta como la única solución lógica."
+            <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
+                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/5">
+                    <Monitor className="w-5 h-5" /> Arquitectura de Conversión Web
+                </div>
+                <h3 id="psd-web-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
+                    Tu ecosistema de páginas <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">creado automáticamente</span>
+                </h3>
+                
+                <div className="grid md:grid-cols-2 gap-10 text-gray-300 text-[1.4rem] leading-[1.8] font-light">
+                    <p className="border-l-4 border-blue-500/30 pl-8 py-2">
+                        Olvídate del diseño y el copy. Nuestra IA utiliza principios de neuro-marketing para redactar cada palabra de tu web.
+                    </p>
+                    <p className="border-l-4 border-cyan-500/30 pl-8 py-2">
+                        Aseguramos que tu producto se sienta como la única solución lógica, transformando la navegación en una experiencia de venta fluida.
                     </p>
                 </div>
             </div>

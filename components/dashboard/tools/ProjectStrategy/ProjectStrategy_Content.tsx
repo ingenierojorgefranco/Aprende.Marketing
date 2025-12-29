@@ -44,23 +44,29 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const progressColor = getProgressColor(usagePercent);
 
     return (
-        <div id="psd-content-section" className="pt-8">
-            <div id="psd-content-header-container" className="max-w-[70em] mx-auto text-left space-y-6 py-6">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-widest animate-pulse">
-                    <Sparkles className="w-4 h-4" /> Estrategia de Contenidos
+        <div id="psd-content-section" className="space-y-16">
+            {/* --- ENCABEZADO ESTRATÉGICO DE CLASE MUNDIAL --- */}
+            <div id="psd-content-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
+                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-purple-500/5">
+                    <FileText className="w-5 h-5" /> Estrategia de Contenidos
                 </div>
-                <h3 id="psd-content-title" className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
-                    <FileText className="w-12 h-12 text-purple-500" /> Contenido SEO que crearemos automáticamente
+                
+                <h3 id="psd-content-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
+                    Contenido SEO que <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-rose-400">crearemos automáticamente</span>
                 </h3>
-                <div id="psd-content-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
-                    <p>
-                        Los activos digitales son la clave de la libertad financiera. No basta con pagar anuncios; necesitas crear una red de contenidos que trabajen por ti 24/7. Como tu estratega, he diseñado este plan de contenidos SEO para posicionarte como la única autoridad lógica en tu nicho.
+                
+                <div className="grid md:grid-cols-2 gap-10 text-gray-300 text-[1.4rem] leading-[1.8] font-light">
+                    <p className="border-l-4 border-purple-500/30 pl-8 py-2">
+                        Los activos digitales son la clave de la libertad financiera. No basta con pagar anuncios; necesitas crear una red de contenidos que trabajen por ti 24/7.
+                    </p>
+                    <p className="border-l-4 border-rose-500/30 pl-8 py-2">
+                        Como tu estratega, he diseñado este plan de contenidos SEO para posicionarte como la única autoridad lógica en tu nicho y atraer tráfico gratuito de alta calidad.
                     </p>
                 </div>
                 
                 {/* DYNAMIC LIMITS BANNER */}
                 {!isLimitReached ? (
-                    <div id="psd-content-included-banner" className="bg-green-900/20 border border-green-500/30 p-8 rounded-2xl flex flex-col gap-6 mb-12 shadow-lg shadow-green-900/10 backdrop-blur-md">
+                    <div id="psd-content-included-banner" className="bg-green-900/20 border border-green-500/30 p-8 rounded-2xl flex flex-col gap-6 mt-8 shadow-lg shadow-green-900/10 backdrop-blur-md animate-in fade-in slide-in-from-top-2">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20 flex-shrink-0">
                                 <Check className="w-6 h-6" />
@@ -87,7 +93,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         </div>
                     </div>
                 ) : (
-                    <div id="psd-content-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-2xl flex flex-col gap-8 mb-12 shadow-lg shadow-purple-900/10 backdrop-blur-md">
+                    <div id="psd-content-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-2xl flex flex-col gap-8 mt-8 shadow-lg shadow-purple-900/10 backdrop-blur-md animate-in fade-in slide-in-from-top-2">
                         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20 flex-shrink-0">
@@ -224,7 +230,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         <div className="mt-8 pt-8 border-t border-gray-800">
                             <button 
                                 onClick={() => isLimitReached ? onUpgrade() : navigate('/dashboard/content-creator')} 
-                                className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg ${isLimitReached ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700' : 'bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:scale-[1.02]'}`}
+                                className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg ${isLimitReached ? 'bg-gray-800 text-gray-400 cursor-not-allowed border border-gray-700' : 'bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:scale-[1.02]'}`}
                             >
                                 {isLimitReached ? <Lock className="w-6 h-6" /> : <PenTool className="w-6 h-6" />}
                                 {isLimitReached ? 'Límite Alcanzado' : 'Redactar con IA'}

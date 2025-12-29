@@ -85,16 +85,23 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
     return (
         <div id="psd-avatar-diagnosis-section" className="space-y-16">
             
-            <div id="psd-integrated-avatars-header" className="max-w-[70em] mx-auto text-left space-y-8 py-12">
+            {/* --- CABECERA ESTILO BLUEPRINT --- */}
+            <div id="psd-integrated-avatars-header" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-pink-500/5">
                     <Users className="w-5 h-5" /> Diagnóstico de Audiencia
                 </div>
                 <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
                     Descubriendo el ADN de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500">comprador ideal</span>
                 </h3>
-                <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light max-w-4xl border-l-4 border-pink-500/30 pl-8">
-                    Un error común es intentar venderle a todo el mundo. Hemos segmentado a tu audiencia en 3 perfiles tácticos para que tu mensaje sea quirúrgicamente preciso.
-                </p>
+                
+                <div className="grid md:grid-cols-2 gap-10 text-gray-300 text-[1.4rem] leading-[1.8] font-light">
+                    <p className="border-l-4 border-pink-500/30 pl-8 py-2">
+                        Un error común es intentar venderle a todo el mundo. Hemos segmentado a tu audiencia en 3 perfiles tácticos para que tu mensaje sea quirúrgicamente preciso.
+                    </p>
+                    <p className="border-l-4 border-purple-500/30 pl-8 py-2">
+                        Al entender sus motivaciones profundas, podemos redactar textos que resuenen a nivel subconsciente, transformando la desconfianza en una decisión de compra.
+                    </p>
+                </div>
             </div>
 
             {/* --- LISTA DE AVATARES --- */}

@@ -25,22 +25,28 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
 
     return (
         <div id="psd-evergreen-section" className="pt-12">
-            <div id="psd-evergreen-header-container" className="max-w-[70em] mx-auto text-left space-y-6 py-6">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-widest animate-pulse">
+            {/* --- ENCABEZADO ESTRATÉGICO DE CLASE MUNDIAL --- */}
+            <div id="psd-evergreen-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
+                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
                     <Sparkles className="w-4 h-4" /> Estrategia Evergreen
                 </div>
-                <h3 id="psd-evergreen-title" className="text-4xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
-                    <Calendar className="w-12 h-12 text-orange-500" /> Secuencia de Autoridad (30 Días)
+                
+                <h3 id="psd-evergreen-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
+                    Secuencia de Autoridad <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">(30 Días)</span>
                 </h3>
-                <div id="psd-evergreen-desc" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light max-w-4xl">
-                    <p>
-                        Esta secuencia te permite generar contenido informativo y motivacional que nutrirá a tu audiencia a largo plazo. Estos correos construyen una autoridad inquebrantable, manteniendo a tu marca en la mente del consumidor hasta que estén listos para comprar.
+                
+                <div className="grid md:grid-cols-2 gap-10 text-gray-300 text-[1.4rem] leading-[1.8] font-light">
+                    <p className="border-l-4 border-blue-500/30 pl-8 py-2">
+                        Esta secuencia te permite generar contenido informativo y motivacional que nutrirá a tu audiencia a largo plazo, construyendo una autoridad inquebrantable.
+                    </p>
+                    <p className="border-l-4 border-orange-500/30 pl-8 py-2">
+                        Mantenemos tu marca en la mente del consumidor de forma estratégica, aportando valor constante hasta que el lead esté listo para realizar la compra.
                     </p>
                 </div>
 
                 {/* DYNAMIC LIMITS BANNER */}
                 {!isUnlocked ? (
-                    <div id="psd-evergreen-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-2xl flex flex-col gap-8 mb-12 shadow-lg shadow-purple-900/10 backdrop-blur-md">
+                    <div id="psd-evergreen-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-2xl flex flex-col gap-8 mb-12 shadow-lg shadow-purple-900/10 backdrop-blur-md animate-in fade-in slide-in-from-top-2">
                         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20 flex-shrink-0">
@@ -75,7 +81,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         </div>
                     </div>
                 ) : (
-                    <div id="psd-evergreen-included-banner" className="bg-green-900/20 border border-green-500/30 p-8 rounded-2xl flex flex-col gap-6 mb-12 shadow-lg shadow-green-900/10 backdrop-blur-md">
+                    <div id="psd-evergreen-included-banner" className="bg-green-900/20 border border-green-500/30 p-8 rounded-2xl flex flex-col gap-6 mb-12 shadow-lg shadow-green-900/10 backdrop-blur-md animate-in fade-in slide-in-from-top-2">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20 flex-shrink-0">
                                 <Check className="w-6 h-6" />
