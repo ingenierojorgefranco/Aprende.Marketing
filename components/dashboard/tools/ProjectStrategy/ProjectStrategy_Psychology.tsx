@@ -1,6 +1,5 @@
 import React from 'react';
-/* Added Sparkles to the imports */
-import { Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, Layout, Mail, MessageSquare, FileText, MousePointer2, Sparkles } from 'lucide-react';
+import { Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, Layout, Mail, MessageSquare, FileText, MousePointer2, Sparkles, Zap } from 'lucide-react';
 
 interface ProjectStrategy_PsychologyProps {
     psychology: {
@@ -11,13 +10,43 @@ interface ProjectStrategy_PsychologyProps {
 
 export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProps> = ({ psychology }) => {
     
-    // Mapeo de iconos para la matriz de aplicación
+    // Mapeo extendido con el "Cómo" para cada canal
     const applicationChannels = [
-        { label: "Headline de la landing", icon: MousePointer2, color: "text-blue-400" },
-        { label: "Bullets principales", icon: Layout, color: "text-indigo-400" },
-        { label: "Emails de objeciones", icon: Mail, color: "text-purple-400" },
-        { label: "Mensajes de WhatsApp", icon: MessageSquare, color: "text-green-400" },
-        { label: "Artículos de blog", icon: FileText, color: "text-orange-400" }
+        { 
+            label: "Headline de la landing", 
+            how: "Impacto inmediato capturando el deseo del avatar.", 
+            icon: MousePointer2, 
+            color: "text-blue-400", 
+            bg: "bg-blue-500/10" 
+        },
+        { 
+            label: "Bullets principales", 
+            how: "Transformación tangible que rompe la inercia.", 
+            icon: Layout, 
+            color: "text-indigo-400", 
+            bg: "bg-indigo-500/10" 
+        },
+        { 
+            label: "Emails de objeciones", 
+            how: "Lógica y autoridad para eliminar el miedo al riesgo.", 
+            icon: Mail, 
+            color: "text-purple-400", 
+            bg: "bg-purple-500/10" 
+        },
+        { 
+            label: "Mensajes de WhatsApp", 
+            how: "Cierre persuasivo en el canal más íntimo.", 
+            icon: MessageSquare, 
+            color: "text-green-400", 
+            bg: "bg-green-500/10" 
+        },
+        { 
+            label: "Artículos de blog", 
+            how: "Posicionamiento SEO educando al mercado.", 
+            icon: FileText, 
+            color: "text-orange-400", 
+            bg: "bg-orange-500/10" 
+        }
     ];
 
     return (
@@ -93,45 +122,67 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                 </div>
             </div>
 
-            {/* --- MATRIZ DE APLICACIÓN TÁCTICA --- */}
-            <div id="psd-tactical-matrix" className="max-w-[70em] mx-auto pt-20">
-                <div className="bg-black/40 rounded-[3.5rem] p-10 md:p-16 border border-white/5 relative overflow-hidden shadow-2xl">
-                    {/* Background decoration */}
-                    <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
-                        <Brain className="w-64 h-64 text-indigo-400" />
+            {/* --- MATRIZ DE DESPLIEGUE: CENTRO DE MANDO --- */}
+            <div id="psd-tactical-matrix" className="max-w-[85em] mx-auto pt-20">
+                <div className="bg-black/60 rounded-[4rem] p-10 md:p-20 border border-white/5 relative overflow-hidden shadow-2xl">
+                    
+                    {/* Background decoration & Grid */}
+                    <div className="absolute inset-0 z-0">
+                         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:40px_40px] opacity-10"></div>
+                         <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+                            <Brain className="w-96 h-96 text-indigo-400" />
+                         </div>
                     </div>
 
-                    <div className="relative z-10 flex flex-col items-center text-center mb-12">
-                        <div className="p-3 bg-purple-500/20 rounded-2xl mb-6">
-                            <Brain className="w-10 h-10 text-purple-400" />
+                    <div className="relative z-10 flex flex-col items-center text-center mb-16">
+                        <div className="p-4 bg-indigo-500/20 rounded-[2rem] mb-8 shadow-xl shadow-indigo-500/10">
+                            <Zap className="w-12 h-12 text-indigo-400 fill-current" />
                         </div>
-                        <h4 className="text-3xl font-black text-white tracking-tight mb-4">
-                            Despliegue de Impacto
+                        <h4 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-8">
+                            Distribución de Inteligencia en tu Ecosistema
                         </h4>
-                        <p className="text-gray-400 text-lg max-w-2xl font-light">
-                            Estos argumentos no son teóricos. Nuestra IA los integra estratégicamente en cada punto de contacto de tu embudo de ventas.
-                        </p>
+                        
+                        <div className="max-w-[70em] text-gray-300 text-[1.4rem] leading-[1.8] font-light border-l-4 border-indigo-500/30 pl-8 text-left italic">
+                            <p>
+                                Nuestra IA no genera textos genéricos; <span className="text-white font-bold">inyecta los dolores y soluciones</span> detectados anteriormente en cada punto de contacto de tu embudo. El resultado es un sistema que "lee la mente" del comprador y derriba sus barreras antes de que siquiera pueda verbalizarlas.
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 relative z-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
                         {applicationChannels.map((channel, i) => (
                             <div 
                                 key={i} 
-                                className="bg-gray-900/60 border border-gray-800 p-6 rounded-[1.5rem] flex flex-col items-center text-center gap-4 group hover:bg-gray-800 transition-all duration-300 hover:scale-[1.05]"
+                                className="bg-gray-900/80 backdrop-blur-md border border-gray-800 p-8 rounded-[2.5rem] flex flex-col items-start gap-6 group hover:border-indigo-500/40 transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)]"
                             >
-                                <div className={`p-3 bg-white/5 rounded-xl ${channel.color} group-hover:scale-110 transition-transform`}>
-                                    <channel.icon className="w-6 h-6" />
+                                <div className={`p-4 rounded-2xl ${channel.bg} ${channel.color} group-hover:scale-110 transition-transform shadow-lg`}>
+                                    <channel.icon className="w-8 h-8" />
                                 </div>
-                                <span className="text-xs font-black uppercase tracking-widest text-gray-300 group-hover:text-white transition-colors">
-                                    {channel.label}
-                                </span>
+                                <div className="space-y-2">
+                                    <span className="text-sm font-black uppercase tracking-[0.2em] text-gray-400 group-hover:text-white transition-colors">
+                                        {channel.label}
+                                    </span>
+                                    <p className="text-gray-300 text-lg leading-relaxed font-light">
+                                        {channel.how}
+                                    </p>
+                                </div>
                             </div>
                         ))}
+                        
+                        {/* Summary / Call to Action inside the grid for visual balance */}
+                        <div className="lg:col-span-1 flex flex-col justify-center p-8 bg-gradient-to-br from-indigo-900/20 to-rose-900/10 rounded-[2.5rem] border border-white/5 shadow-inner">
+                            <div className="flex items-center gap-3 text-indigo-400 font-black uppercase tracking-widest text-xs mb-4">
+                                <Sparkles className="w-5 h-5" /> Alineación Total
+                            </div>
+                            <p className="text-white text-xl font-bold leading-snug">
+                                Cada palabra del sistema está alineada para convertir.
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="mt-12 flex items-center justify-center gap-3 text-gray-500 text-sm italic">
-                        <Sparkles className="w-4 h-4 text-yellow-500" />
-                        Todo el copy del sistema está alineado para derribar estas barreras psicológicas.
+                    <div className="mt-20 pt-10 border-t border-white/5 flex items-center justify-center gap-4 text-gray-500 text-sm font-medium tracking-wide relative z-10">
+                        <Check className="w-5 h-5 text-emerald-500" />
+                        Sincronización semántica de alta precisión activada.
                     </div>
                 </div>
             </div>

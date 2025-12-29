@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Rocket, Sparkles, Search, DollarSign, Zap, FileText, ShieldCheck } from 'lucide-react';
 
@@ -141,19 +140,16 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                         Esta configuración es la base para el cálculo de tu rentabilidad en el año 1.
                     </div>
 
-                    {/* SECCIÓN: ANÁLISIS DEL PROYECTO (RENDERIZADO HTML) */}
+                    {/* SECCIÓN: ANÁLISIS DEL PROYECTO (ESTILO PREMIUM DE CLASE MUNDIAL) */}
                     {description && (
-                        <div id="psd-analisis-bloque" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            <h4 className="text-xl md:text-2xl font-black text-white mb-6 flex items-center gap-3">
+                        <div id="psd-analisis-bloque" className="animate-in fade-in slide-in-from-bottom-4 duration-700 pt-10">
+                            <h4 className="text-xl md:text-2xl font-black text-white mb-8 flex items-center gap-3">
                                 <FileText className="w-6 h-6 text-indigo-400" /> Análisis del proyecto
                             </h4>
-                            <div className="bg-white/5 rounded-3xl p-6 md:p-10 border border-white/10 shadow-inner relative overflow-hidden group/analisis">
-                                <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none group-hover/analisis:opacity-10 transition-opacity">
-                                    <Sparkles className="w-24 h-24 text-white" />
-                                </div>
+                            <div className="relative group/analisis border-l-4 border-indigo-500/30 pl-8 py-2">
                                 <div className="relative z-10">
                                     <div 
-                                        className="prose prose-invert prose-p:text-gray-300 prose-li:text-gray-300 prose-strong:text-white max-w-none text-lg md:text-xl leading-[1.8] font-light italic"
+                                        className="prose prose-invert prose-p:text-gray-300 prose-li:text-gray-300 prose-strong:text-white max-w-none text-[1.4rem] leading-[1.8] font-light"
                                         dangerouslySetInnerHTML={{ __html: description || '' }} 
                                     />
                                 </div>

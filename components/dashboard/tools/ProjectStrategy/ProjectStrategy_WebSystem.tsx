@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-/* Added MessageCircle and BookOpen to the imports */
 import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
@@ -95,16 +94,28 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [showPagesModal, setShowPagesModal] = useState(false);
     const [modalMode, setModalMode] = useState<'lp' | 'ty'>('lp');
 
+    // Lógica de Límites
+    const maxPages = planLimits?.maxLandings || 3;
+    const maxDomains = planLimits?.maxDomains || 1;
+    const isLimitReached = pageCount >= maxPages;
+    const currentPlanName = planLimits?.planName || 'Starter';
+    const nextPlanName = nextPlan?.name || 'Superior';
+
+    // Porcentajes de Uso
+    const pagesUsagePercent = Math.min(100, (pageCount / maxPages) * 100);
+    const domainsUsagePercent = Math.min(100, (domainCount / maxDomains) * 100);
+
+    const getProgressColor = (percent: number) => {
+        if (percent >= 90) return "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]";
+        if (percent > 60) return "bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]";
+        return "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]";
+    };
+
     // Default to first tabs if null
     React.useEffect(() => {
         if (!selectedLpTab) setSelectedLpTab('hero');
         if (!selectedTyTab) setSelectedTyTab('header');
     }, []);
-
-    const maxPages = planLimits?.maxLandings || 3;
-    const maxDomains = planLimits?.maxDomains || 1;
-    const isLimitReached = pageCount >= maxPages;
-    const currentPlanName = planLimits?.planName || 'Starter';
 
     const renderLpPreview = (tabKey: string) => {
         const data = LP_TABS_DATA[tabKey as keyof typeof LP_TABS_DATA] as any;
@@ -222,6 +233,85 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         Aseguramos que tu producto se sienta como la única solución lógica, transformando la navegación en una experiencia de venta fluida.
                     </p>
                 </div>
+
+                {/* --- BANNER DE CONTROL DE ACTIVOS (RESTAURADO) --- */}
+                {!isLimitReached ? (
+                    <div id="psd-web-included-banner" className="bg-emerald-900/20 border border-emerald-500/30 p-8 rounded-[2.5rem] flex flex-col gap-8 mt-12 shadow-lg shadow-emerald-900/10 backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-700">
+                        <div className="flex items-center gap-6">
+                            <div className="p-4 bg-emerald-500 text-white rounded-[1.2rem] shadow-lg shadow-emerald-500/20 flex-shrink-0">
+                                <Check className="w-8 h-8" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-emerald-300 font-black text-2xl mb-1">
+                                    Funcionalidad Incluida
+                                </p>
+                                <p className="text-gray-300 text-lg leading-relaxed font-light">
+                                    Tu plan "<span className="text-white font-bold uppercase">{currentPlanName}</span>" te otorga capacidad para múltiples activos digitales con infraestructura de alta velocidad.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Progress Indicators */}
+                        <div className="grid md:grid-cols-2 gap-8 bg-black/40 p-8 rounded-[2rem] border border-white/5 shadow-inner">
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-400 font-black uppercase tracking-widest flex items-center gap-2">
+                                        <Layout className="w-4 h-4 text-emerald-400" /> Landing Pages
+                                    </span>
+                                    <span className="text-white font-bold font-mono text-base">{pageCount} / {maxPages}</span>
+                                </div>
+                                <div className="w-full bg-gray-800 h-3 rounded-full overflow-hidden shadow-inner p-0.5">
+                                    <div className={`h-full transition-all duration-1000 ease-out rounded-full ${getProgressColor(pagesUsagePercent)}`} style={{ width: `${pagesUsagePercent}%` }}></div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-400 font-black uppercase tracking-widest flex items-center gap-2">
+                                        <Globe className="w-4 h-4 text-blue-400" /> Dominios Propios
+                                    </span>
+                                    <span className="text-white font-bold font-mono text-base">{domainCount} / {maxDomains}</span>
+                                </div>
+                                <div className="w-full bg-gray-800 h-3 rounded-full overflow-hidden shadow-inner p-0.5">
+                                    <div className={`h-full transition-all duration-1000 ease-out rounded-full ${getProgressColor(domainsUsagePercent)}`} style={{ width: `${domainsUsagePercent}%` }}></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div id="psd-web-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-[2.5rem] flex flex-col gap-8 mt-12 shadow-lg shadow-purple-900/10 backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-700">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div className="flex items-center gap-6">
+                                <div className="p-4 bg-purple-500 text-white rounded-[1.2rem] shadow-lg shadow-purple-500/20 flex-shrink-0">
+                                    <Lock className="w-8 h-8" />
+                                </div>
+                                <div>
+                                    <h4 className="text-purple-300 font-black text-2xl mb-1">Límite Alcanzado</h4>
+                                    <p className="text-gray-300 text-lg leading-relaxed font-light">
+                                        Has completado tu cuota de páginas en el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>. Actualiza a <span className="text-white font-bold uppercase">{nextPlanName}</span> para escalar tu ecosistema.
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={onUpgrade}
+                                className="w-full md:w-auto px-10 py-5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-2xl font-black text-xl shadow-2xl transform hover:scale-105 transition-all whitespace-nowrap"
+                            >
+                                Subir de Plan 🚀
+                            </button>
+                        </div>
+
+                        {/* Progress Bar for Limit View */}
+                        <div className="bg-black/50 p-8 rounded-[2rem] border border-white/5 shadow-inner">
+                            <div className="flex justify-between items-center mb-3">
+                                <span className="text-gray-400 font-black uppercase tracking-widest">Capacidad de Ecosistema</span>
+                                <span className="text-white font-bold">{pageCount} / {maxPages} Páginas</span>
+                            </div>
+                            <div className="w-full bg-gray-800 h-4 rounded-full overflow-hidden p-0.5">
+                                <div className="h-full transition-all duration-1000 ease-out bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)] rounded-full" style={{ width: `100%` }}></div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="grid lg:grid-cols-2 gap-10 max-w-[90em] mx-auto">
