@@ -134,7 +134,7 @@ const generateFullStrategy = async (projectData) => {
     4. Puntos de Dolor (Pains): DEBES generar EXACTAMENTE 7 puntos de dolor redactados en SEGUNDA PERSONA ("Tú..."). El copy debe ser descriptivo, emocional y profundo (ej: "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo").
     5. Coherencia Total (Pains): Los 7 dolores en la sección "psychology" DEBEN SER IDÉNTICOS a los que coloques en "modules.web.landingPageTabs.pain.items".
     6. Coherencia Total (Benefits): Genera EXACTAMENTE 7 soluciones en "psychology.solutions" y EXACTAMENTE 7 beneficios en "modules.web.landingPageTabs.benefits.items". El campo 'title' de cada uno de los 7 beneficios DEBE SER IDÉNTICO a cada una de las 7 soluciones de la sección psicología. Para cada beneficio, genera también un campo 'desc' con una descripción persuasiva de máximo 15 palabras.
-    7. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representando los ingresos netos esperados por mes (mes 1 a 12), es normal esperar que los primeros 3 meses no se generen ingresos, pero luego se espera que haya un incremento progresivo. En el mes 12 el objetivo es superar los $1500 USD.
+    7. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representando los ingresos netos esperados por mes (mes 1 a 12), es normal esperar que los primeros 3 meses no se generen ingresos, pero luego se espera que haya un incremento progresivo. En el mes 12 el objetivo es superar los $1000 USD.
 
     ESTRUCTURA JSON REQUERIDA (OBLIGATORIA):
     {
