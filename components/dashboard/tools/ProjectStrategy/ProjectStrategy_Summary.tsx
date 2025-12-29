@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Rocket, Sparkles, Search, DollarSign, Zap, FileText, ShieldCheck } from 'lucide-react';
 
@@ -24,35 +23,6 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
     const price = strategyData.meta.price || 0;
     const commissionRate = strategyData.meta.commissionRate || 0;
     const netCommission = price * commissionRate;
-
-    // Función para dividir texto largo en párrafos digeribles
-    const formatDescription = (text: string) => {
-        if (!text) return null;
-        
-        const maxLength = 150;
-        const paragraphs = [];
-        let remainingText = text;
-
-        while (remainingText.length > 0) {
-            if (remainingText.length <= maxLength) {
-                paragraphs.push(remainingText);
-                break;
-            }
-
-            // Buscar el último espacio antes del límite para no cortar palabras
-            let cutPoint = remainingText.lastIndexOf(' ', maxLength);
-            if (cutPoint === -1) cutPoint = maxLength;
-
-            paragraphs.push(remainingText.substring(0, cutPoint));
-            remainingText = remainingText.substring(cutPoint).trim();
-        }
-
-        return paragraphs.map((p, idx) => (
-            <p key={idx} className="mb-4 last:mb-0">
-                {p}
-            </p>
-        ));
-    };
 
     return (
         <div className="space-y-16">
@@ -180,8 +150,8 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                                 <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none group-hover/analisis:opacity-10 transition-opacity">
                                     <Sparkles className="w-24 h-24 text-white" />
                                 </div>
-                                <div className="text-gray-300 text-lg md:text-xl leading-[1.8] font-light italic relative z-10">
-                                    {formatDescription(description)}
+                                <div className="text-gray-300 text-lg md:text-xl leading-[1.8] font-light italic relative z-10 whitespace-pre-line">
+                                    {description}
                                 </div>
                             </div>
                         </div>
