@@ -1,3 +1,4 @@
+
 const { GoogleGenAI } = require("@google/genai");
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -59,7 +60,7 @@ const analyzeWebsiteContent = async (rawText) => {
     INSTRUCCIONES DE REDACCIÓN:
     1. TONO: Usa un lenguaje natural, persuasivo, cercano y muy fácil de comprender. Evita tecnicismos innecesarios. El texto debe ser descriptivo tanto para un usuario como para una inteligencia artificial que lo usará como contexto.
     2. FORMATO HTML ESTRUCTURAL (REGLAS ESTRICTAS): 
-       - Es OBLIGATORIO que el campo "description" contenga código HTML limpio para estructurar la información. 
+       - Es OBLIGATORIO que el campo "description" contenga código HTML limpio para estructurar la information. 
        - UTILIZA EXCLUSIVAMENTE: <p>, <ul>, <li>, <strong>, <em>.
        - PROHIBIDO EL USO DE: etiquetas <span>, etiquetas <div> con estilos, o CUALQUIER atributo "style".
        - PROHIBIDO el uso de CSS en línea o atributos de tamaño de fuente (font-size).
@@ -126,11 +127,13 @@ const generateFullStrategy = async (projectData) => {
     - Regalo de Bienvenida (Lead Magnet): "${leadMagnetType}"
     ${salesPageUrl ? `- URL de referencia: ${salesPageUrl}` : ''}
 
-    REGLAS TÉCNICAS CRÍTICAS:
+    REGLAS TÉCNICAS Y DE COPYWRITING CRÍTICAS:
     1. Respuesta: Devuelve EXCLUSIVAMENTE el JSON válido. Sin markdown.
     2. Comillas: ESCAPA comillas dobles DENTRO de los textos.
     3. Idioma: Español Neutro de alta conversión.
-    4. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representing los ingresos netos esperados por mes (mes 1 a 12), es normal esperar que los primeros 3 meses no se generen ingresos, pero luego se espera que haya un incremento de 1 a 3 o 4 ventas mensuales, las cuales pueden fluctuar segun tu consideracion en los meses, sin embargo la idea es que en el mes 12 la persona pueda estar generando mas de 1500 dolares mensuales. Sé realista (curva de aprendizaje y luego escalado).
+    4. Puntos de Dolor (Pains): DEBES generar EXACTAMENTE 7 puntos de dolor redactados en SEGUNDA PERSONA ("Tú..."). El copy debe ser descriptivo, emocional y profundo (ej: "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo").
+    5. Coherencia Total: Los 7 dolores y las 7 soluciones en la sección "psychology" DEBEN SER IDÉNTICOS a los que coloques en "modules.web.landingPageTabs.pain.items".
+    6. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representando los ingresos netos esperados por mes (mes 1 a 12), es normal esperar que los primeros 3 meses no se generen ingresos, pero luego se espera que haya un incremento progresivo. En el mes 12 el objetivo es superar los $1500 USD.
 
     ESTRUCTURA JSON REQUERIDA (OBLIGATORIA):
     {
@@ -173,17 +176,17 @@ const generateFullStrategy = async (projectData) => {
           { "id": 3, "name": "Avatar Terciario (Aspiracional)", "archetype": "...", "age": "...", "quote": "...", "interests": "...", "behavior": "...", "desire": "...", "pain": "...", "objection": "...", "motivations": { "dinero": 70, "tiempo": 100, "estatus": 50, "seguridad": 90 } }
       ],
       "psychology": {
-        "pains": ["Dolor 1", "Dolor 2", "Dolor 3", "Dolor 4"],
-        "solutions": ["Solución 1", "Solución 2", "Solución 3", "Solución 4"],
+        "pains": ["Dolor 1 (Tú...)", "Dolor 2 (Tú...)", "Dolor 3 (Tú...)", "Dolor 4 (Tú...)", "Dolor 5 (Tú...)", "Dolor 6 (Tú...)", "Dolor 7 (Tú...)"],
+        "solutions": ["Solución 1", "Solución 2", "Solución 3", "Solución 4", "Solución 5", "Solución 6", "Solución 7"],
         "awarenessStages": { 
-            "stage1_pain": "Consciente del problema pero no de la solución...", 
-            "stage2_solution": "Busca cursos pero no sabe cuál elegir...", 
-            "stage3_barrier": "Miedo a perder su dinero o no tener tiempo..." 
+            "stage1_pain": "...", 
+            "stage2_solution": "...", 
+            "stage3_barrier": "..." 
         },
         "buyingPsychology": { 
            "notBuyingReasons": [ { "title": "...", "description": "..." } ],
            "buyingReasons": [ { "title": "...", "description": "..." } ],
-           "strategistConclusion": "Estrategia final para el cierre..."
+           "strategistConclusion": "..."
         },
         "conversionStrategy": {
            "mainFocus": [ { "label": "Eje Central", "description": "..." } ],
@@ -197,7 +200,7 @@ const generateFullStrategy = async (projectData) => {
         "web": {
             "landingPageTabs": {
                 "hero": { "label": "1. Encabezado", "title": "Promesa de Valor", "type": "hero", "h1": "...", "h2": "...", "strategyText": "..." },
-                "pain": { "label": "2. Dolores", "title": "Identificación del Problema", "type": "pain", "items": ["...", "..."], "strategyText": "..." },
+                "pain": { "label": "2. Dolores", "title": "Identificación del Problema", "type": "pain", "items": ["Dolor 1 (Tú...)", "Dolor 2 (Tú...)", "Dolor 3 (Tú...)", "Dolor 4 (Tú...)", "Dolor 5 (Tú...)", "Dolor 6 (Tú...)", "Dolor 7 (Tú...)"], "strategyText": "..." },
                 "benefits": { "label": "3. Beneficios", "title": "Oferta Irresistible", "type": "benefits", "items": [{ "title": "...", "desc": "..." }], "strategyText": "..." }
             },
             "thankYouPageTabs": {
@@ -207,23 +210,18 @@ const generateFullStrategy = async (projectData) => {
             }
         },
         "content": [ 
-            { "id": 1, "title": "...", "keyword": "...", "difficulty": 25, "strategy": "..." },
-            { "id": 2, "title": "...", "keyword": "...", "difficulty": 40, "strategy": "..." }
+            { "id": 1, "title": "...", "keyword": "...", "difficulty": 25, "strategy": "..." }
         ],
         "emails": {
            "nurture": [ 
-                { "day": "Día 0", "subject": "...", "objective": "...", "type": "Bienvenida", "bodyPreview": "..." },
-                { "day": "Día 1", "subject": "...", "objective": "...", "type": "Valor", "bodyPreview": "..." },
-                { "day": "Día 3", "subject": "...", "objective": "...", "type": "Prueba Social", "bodyPreview": "..." },
-                { "day": "Día 5", "subject": "...", "objective": "...", "type": "Escasez", "bodyPreview": "..." },
-                { "day": "Día 7", "subject": "...", "objective": "...", "type": "Cierre", "bodyPreview": "..." }
+                { "day": "Día 0", "subject": "...", "objective": "...", "type": "Bienvenida", "bodyPreview": "..." }
            ],
            "evergreen": [ 
                 { "day": "Día 8", "subject": "...", "objective": "...", "type": "Autoridad", "bodyPreview": "..." } 
            ]
         },
         "whatsapp": [ 
-            { "id": 1, "title": "Cierre por WhatsApp", "objective": "Resolver dudas y enviar checkout", "messages": [ { "role": "agent", "text": "..." }, { "role": "user", "text": "..." } ] } 
+            { "id": 1, "title": "Cierre por WhatsApp", "objective": "...", "messages": [ { "role": "agent", "text": "..." } ] } 
         ]
       }
     }

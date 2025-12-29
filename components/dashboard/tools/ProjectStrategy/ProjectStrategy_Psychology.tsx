@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, Layout, Mail, MessageSquare, FileText, MousePointer2, Sparkles, Zap } from 'lucide-react';
 
@@ -79,7 +80,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                     {/* Headers del espejo */}
                     <div className="flex items-center gap-4 px-8 py-4 bg-rose-500/5 border border-rose-500/20 rounded-2xl md:col-start-1">
                         <AlertTriangle className="w-6 h-6 text-rose-500" />
-                        <span className="text-rose-400 font-black uppercase tracking-[0.2em] text-sm">Bloqueos de tu Cliente</span>
+                        <span className="text-rose-400 font-black uppercase tracking-[0.2em] text-sm">Dolores de tu Cliente</span>
                     </div>
                     <div className="hidden md:flex items-center gap-4 px-8 py-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl md:col-start-2">
                         <Rocket className="w-6 h-6 text-emerald-500" />

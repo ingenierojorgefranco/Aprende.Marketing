@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
 
-// Tabs Data (Keep static data)
+// Tabs Data (Mock estático sincronizado)
 const LP_TABS_DATA = {
     hero: {
         label: "1. Encabezado",
@@ -18,11 +19,15 @@ const LP_TABS_DATA = {
         title: "Identificación del Problema",
         type: 'pain',
         items: [
-            "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja el enorme esfuerzo que realizas.",
-            "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación para siempre.",
-            "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola y con manos temblorosas a la hora de practicar."
+            "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
+            "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.",
+            "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.",
+            "Ves pasar oportunidades de éxito en Instagram, pero te falta la guía técnica para dar el paso con seguridad.",
+            "Te apasiona la estética pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.",
+            "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.",
+            "Te detiene el miedo a las promesas vacías de internet que no enseñan nada realmente útil para tu futuro."
         ],
-        strategyText: "Hemos identificado los dolores más agudos de tu cliente ideal. Al mencionarlos explícitamente, creamos una conexión empática inmediata ('me leyeron la mente'), lo cual es el primer paso para que confíen en tu solución."
+        strategyText: "Hemos identificado los 7 dolores más agudos de tu cliente ideal. Al mencionarlos explícitamente, creamos una conexión empática inmediata ('me leyeron la mente'), lo cual es el primer paso para que confíen en tu solución."
     },
     benefits: {
         label: "3. Beneficios",
@@ -122,8 +127,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         if (!data) return null;
 
         return (
-            <div className="w-full bg-white rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 border border-gray-200">
-                <div className="h-6 bg-gray-100 border-b border-gray-200 flex items-center px-3 gap-1.5">
+            <div className="w-full bg-white rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 border border-gray-200 pointer-events-auto select-text relative z-10">
+                <div className="h-6 bg-gray-100 border-b border-gray-200 flex items-center px-3 gap-1.5 pointer-events-none">
                     <div className="w-2 h-2 rounded-full bg-red-400"></div>
                     <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
                     <div className="w-2 h-2 rounded-full bg-green-400"></div>
@@ -132,31 +137,33 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     {data.type === 'hero' && (
                         <div className="space-y-4">
                             <div className="h-4 w-32 bg-primary/10 rounded-full animate-pulse"></div>
-                            <h4 className="text-gray-900 font-black text-2xl leading-tight">{data.h1}</h4>
-                            <p className="text-gray-600 text-base leading-relaxed">{data.h2}</p>
+                            <h4 className="text-gray-900 font-black text-2xl leading-tight select-text">{data.h1}</h4>
+                            <p className="text-gray-600 text-base leading-relaxed select-text">{data.h2}</p>
                             <div className="h-12 w-48 bg-primary rounded-lg shadow-lg"></div>
                         </div>
                     )}
                     {data.type === 'pain' && (
                         <div className="space-y-4">
-                            <h4 className="text-gray-900 font-black text-xl mb-4">¿Te sientes identificada?</h4>
-                            {data.items?.map((item: string, i: number) => (
-                                <div key={i} className="flex gap-3 items-start p-3 bg-red-50 rounded-lg border border-red-100">
-                                    <X className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
-                                    <p className="text-gray-800 text-sm leading-tight font-medium">{item}</p>
-                                </div>
-                            ))}
+                            <h4 className="text-gray-900 font-black text-xl mb-4 pointer-events-none">¿Te sientes identificada?</h4>
+                            <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar pointer-events-auto select-text">
+                                {data.items?.map((item: string, i: number) => (
+                                    <div key={i} className="flex gap-3 items-start p-3 bg-red-50 rounded-lg border border-red-100 transition-colors hover:bg-red-100/50">
+                                        <X className="w-4 h-4 text-red-500 mt-0.5 shrink-0 pointer-events-none" />
+                                        <p className="text-gray-800 text-sm leading-tight font-medium select-text cursor-text">{item}</p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
                     {data.type === 'benefits' && (
                         <div className="grid grid-cols-1 gap-4">
-                            <h4 className="text-gray-900 font-black text-xl mb-2">Tu transformación incluye:</h4>
+                            <h4 className="text-gray-900 font-black text-xl mb-2 pointer-events-none">Tu transformación incluye:</h4>
                             {data.items?.map((item: any, i: number) => (
                                 <div key={i} className="flex gap-3 items-center p-3 bg-green-50 rounded-xl border border-green-100">
-                                    <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
+                                    <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 pointer-events-none" />
                                     <div>
-                                        <p className="text-gray-900 font-bold text-sm">{item.title}</p>
-                                        <p className="text-gray-600 text-[11px]">{item.desc}</p>
+                                        <p className="text-gray-900 font-bold text-sm select-text">{item.title}</p>
+                                        <p className="text-gray-600 text-[11px] select-text">{item.desc}</p>
                                     </div>
                                 </div>
                             ))}
@@ -172,42 +179,42 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         if (!data) return null;
 
         return (
-            <div className="w-full bg-[#0f1115] rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500 border border-gray-800">
-                <div className="h-5 bg-gray-900 border-b border-gray-800 flex items-center px-3 gap-1">
+            <div className="w-full bg-[#0f1115] rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500 border border-gray-800 pointer-events-auto select-text relative z-10">
+                <div className="h-5 bg-gray-900 border-b border-gray-800 flex items-center px-3 gap-1 pointer-events-none">
                     <div className="w-1.5 h-1.5 rounded-full bg-gray-700"></div>
                     <div className="w-1.5 h-1.5 rounded-full bg-gray-700"></div>
                 </div>
                 <div className="p-10 text-center flex flex-col items-center">
                     {data.type === 'header' && (
                         <>
-                            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-6 border border-green-500/30">
+                            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-6 border border-green-500/30 pointer-events-none">
                                 <Check className="w-8 h-8 text-green-400" />
                             </div>
-                            <h4 className="text-white font-black text-xl mb-3 leading-tight">{data.content.h1}</h4>
-                            <p className="text-gray-400 text-sm">{data.content.h2}</p>
+                            <h4 className="text-white font-black text-xl mb-3 leading-tight select-text">{data.content.h1}</h4>
+                            <p className="text-gray-400 text-sm select-text">{data.content.h2}</p>
                         </>
                     )}
                     {data.type === 'action' && (
                         <>
-                            <div className="w-full h-2 bg-gray-800 rounded-full mb-8 overflow-hidden">
+                            <div className="w-full h-2 bg-gray-800 rounded-full mb-8 overflow-hidden pointer-events-none">
                                 <div className="w-[80%] h-full bg-yellow-500"></div>
                             </div>
-                            <h4 className="text-white font-black text-xl mb-4">{data.content.h1}</h4>
-                            <div className="w-full py-4 bg-green-600 rounded-xl flex items-center justify-center gap-2 text-white font-bold shadow-lg shadow-green-900/50 mb-4">
+                            <h4 className="text-white font-black text-xl mb-4 select-text">{data.content.h1}</h4>
+                            <div className="w-full py-4 bg-green-600 rounded-xl flex items-center justify-center gap-2 text-white font-bold shadow-lg shadow-green-900/50 mb-4 pointer-events-none">
                                 <MessageCircle className="w-5 h-5" /> UNIRME AL GRUPO
                             </div>
-                            <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest">{data.content.h2}</p>
+                            <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest select-text">{data.content.h2}</p>
                         </>
                     )}
                     {data.type === 'magnet' && (
                         <>
-                            <div className="w-24 h-32 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-lg shadow-2xl mb-6 flex flex-col items-center justify-center p-3 text-white border-l-4 border-white/20 transform -rotate-3">
+                            <div className="w-24 h-32 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-lg shadow-2xl mb-6 flex flex-col items-center justify-center p-3 text-white border-l-4 border-white/20 transform -rotate-3 pointer-events-none">
                                 <BookOpen className="w-8 h-8 mb-2 opacity-50" />
                                 <div className="h-1 w-10 bg-white/30 rounded mb-1"></div>
                                 <div className="h-1 w-8 bg-white/30 rounded"></div>
                             </div>
-                            <h4 className="text-white font-black text-lg mb-2">{data.content.h1}</h4>
-                            <p className="text-gray-400 text-xs leading-relaxed">{data.content.h2}</p>
+                            <h4 className="text-white font-black text-lg mb-2 select-text">{data.content.h1}</h4>
+                            <p className="text-gray-400 text-xs leading-relaxed select-text">{data.content.h2}</p>
                         </>
                     )}
                 </div>
@@ -234,7 +241,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     </p>
                 </div>
 
-                {/* --- BANNER DE CONTROL DE ACTIVOS (RESTAURADO) --- */}
+                {/* --- BANNER DE CONTROL DE ACTIVOS --- */}
                 {!isLimitReached ? (
                     <div id="psd-web-included-banner" className="bg-emerald-900/20 border border-emerald-500/30 p-8 rounded-[2.5rem] flex flex-col gap-8 mt-12 shadow-lg shadow-emerald-900/10 backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-700">
                         <div className="flex items-center gap-6">
@@ -345,15 +352,18 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
                         {/* Visual Preview */}
                         <div className="relative group/preview">
-                            <div className="absolute -inset-4 bg-blue-500/5 blur-3xl opacity-0 group-hover/preview:opacity-100 transition-opacity"></div>
+                            {/* Glow Overlay - Pointer events disabled to prevent blocking interaction */}
+                            <div className="absolute -inset-4 bg-blue-500/5 blur-3xl opacity-0 group-hover/preview:opacity-100 transition-opacity pointer-events-none z-0"></div>
+                            
+                            {/* Contenedor de Previsualización */}
                             {renderLpPreview(selectedLpTab || 'hero')}
                             
                             {/* Strategy Tooltip */}
                             <div className="mt-8 p-6 bg-blue-900/20 border border-blue-500/20 rounded-[1.5rem] relative overflow-hidden animate-in fade-in slide-in-from-top-2">
-                                <div className="absolute top-0 right-0 p-3 opacity-10"><Lightbulb className="w-10 h-10 text-blue-400" /></div>
+                                <div className="absolute top-0 right-0 p-3 opacity-10 pointer-events-none"><Lightbulb className="w-10 h-10 text-blue-400" /></div>
                                 <div className="flex gap-4 items-start relative z-10">
-                                    <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 shrink-0"><Info className="w-5 h-5" /></div>
-                                    <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light italic">
+                                    <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 shrink-0 pointer-events-none"><Info className="w-5 h-5" /></div>
+                                    <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light italic select-text">
                                         {LP_TABS_DATA[selectedLpTab as keyof typeof LP_TABS_DATA]?.strategyText}
                                     </p>
                                 </div>
@@ -393,7 +403,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <button 
                                     key={tabKey}
                                     onClick={() => setSelectedTyTab(tabKey)}
-                                    className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border ${selectedTyTab === tabKey ? 'bg-green-600 text-white border-green-400 shadow-lg shadow-green-900/40' : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700'}`}
+                                    className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border ${selectedTyTab === tabKey ? 'bg-green-600 text-white border-green-400 shadow-lg shadow-blue-900/40' : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700'}`}
                                 >
                                     {TY_TABS_DATA[tabKey].label}
                                 </button>
@@ -402,15 +412,15 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
                         {/* Visual Preview */}
                         <div className="relative group/preview">
-                            <div className="absolute -inset-4 bg-green-500/5 blur-3xl opacity-0 group-hover/preview:opacity-100 transition-opacity"></div>
+                            <div className="absolute -inset-4 bg-green-500/5 blur-3xl opacity-0 group-hover/preview:opacity-100 transition-opacity pointer-events-none z-0"></div>
                             {renderTyPreview(selectedTyTab || 'header')}
                             
                             {/* Strategy Tooltip */}
                             <div className="mt-8 p-6 bg-green-900/20 border border-green-500/20 rounded-[1.5rem] relative overflow-hidden animate-in fade-in slide-in-from-top-2">
-                                <div className="absolute top-0 right-0 p-3 opacity-10"><Gift className="w-10 h-10 text-green-400" /></div>
+                                <div className="absolute top-0 right-0 p-3 opacity-10 pointer-events-none"><Gift className="w-10 h-10 text-green-400" /></div>
                                 <div className="flex gap-4 items-start relative z-10">
-                                    <div className="p-2 bg-green-500/20 rounded-lg text-green-400 shrink-0"><Info className="w-5 h-5" /></div>
-                                    <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light italic">
+                                    <div className="p-2 bg-green-500/20 rounded-lg text-green-400 shrink-0 pointer-events-none"><Info className="w-5 h-5" /></div>
+                                    <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light italic select-text">
                                         {TY_TABS_DATA[selectedTyTab as keyof typeof TY_TABS_DATA]?.strategyText}
                                     </p>
                                 </div>

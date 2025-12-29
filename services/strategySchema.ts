@@ -1,3 +1,4 @@
+
 import { BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
 
 // --- INTERFAZ MAESTRA ---
@@ -140,7 +141,7 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
     }
 };
 
-// --- DATOS MOCK CENTRALIZADOS (ACTUALIZADOS) ---
+// --- DATOS MOCK CENTRALIZADOS (ACTUALIZADOS CON DOLORES DESCRIPTIVOS) ---
 export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
     meta: {
         projectName: "Masterclass Microblading Pro",
@@ -185,7 +186,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             quote: "Deseo generar ingresos propios ofreciendo servicios de alto valor.",
             interests: "Estética, belleza y autoempleo",
             behavior: "Consume contenido en Instagram y WhatsApp",
-            pain: "Inestabilidad económica y miedo a promesas vacías",
+            pain: "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
             desire: "Generar ingresos propios ofreciendo servicios de alto valor",
             objection: "Desconfía de promesas vacías en cursos online",
             motivations: { dinero: 90, tiempo: 80, estatus: 70, seguridad: 60 }
@@ -219,16 +220,22 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
     ],
     psychology: {
         pains: [
-            "Sentir que trabajan mucho por poco dinero",
-            "Miedo a dañar a una clienta por falta de técnica",
-            "Frustración por cursos que no cumplen lo que prometen",
-            "Incertidumbre sobre cómo conseguir clientas reales"
+            "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
+            "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.",
+            "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.",
+            "Ves pasar oportunidades de éxito en Instagram, pero te falta la guía técnica para dar el paso con seguridad.",
+            "Te apasiona la estética pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.",
+            "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.",
+            "Te detiene el miedo a las promesas vacías de internet que no enseñan nada realmente útil para tu futuro."
         ],
         solutions: [
-            "Técnica de alta rentabilidad y valor percibido",
-            "Certificación profesional que elimina la inseguridad",
-            "Metodología probada con resultados tangibles",
-            "Estrategia de captación en Instagram y cierre en WhatsApp"
+            "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo.",
+            "Certificación profesional y acompañamiento que eliminan todo temor a cometer errores técnicos.",
+            "Metodología 100% práctica basada en resultados reales, con soporte paso a paso.",
+            "Estrategia probada de captación de clientes en Instagram para llenar tu agenda con seguridad.",
+            "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable.",
+            "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa.",
+            "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real."
         ],
         powerWords: ["Ingresos Propios", "Alto Valor", "Confianza Real", "Autoempleo", "Garantizado", "Estética Profesional"],
         awarenessStages: {
@@ -244,7 +251,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             ],
             buyingReasons: [
                 { title: "Siente Seguridad", description: "Percibe que el acompañamiento paso a paso minimiza cualquier riesgo de error técnico." },
-                { title: "Percibe Autoridad", description: "Nota que la metodología está avalada por años de práctica y miles de alumnas exitosas." },
+                { title: "Percibe Autoridad", description: "Nota que la metodología está avalada por years de práctica y miles de alumnas exitosas." },
                 { title: "Visualiza el Éxito", description: "Se ve logrando independencia financiera y manejando su propio estudio de belleza." },
                 { title: "Respaldo Total", description: "Siente que la comunidad y el soporte resolverán cualquier duda en tiempo real." }
             ],
@@ -292,12 +299,15 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     title: "Identificación del Problema",
                     type: 'pain',
                     items: [
-                        "Has considerado cursos online antes, pero te detiene el miedo a las promesas vacías que no enseñan nada real.",
-                        "Te apasiona la estética y la belleza, pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.",
-                        "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos ofreciendo servicios premium.",
-                        "Ves pasar oportunidades en Instagram, pero te falta la guía técnica para dar el paso con seguridad."
+                        "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
+                        "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.",
+                        "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.",
+                        "Ves pasar oportunidades de éxito en Instagram, pero te falta la guía técnica para dar el paso con seguridad.",
+                        "Te apasiona la estética pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.",
+                        "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.",
+                        "Te detiene el miedo a las promesas vacías de internet que no enseñan nada realmente útil para tu futuro."
                     ],
-                    strategyText: "Al mencionar la desconfianza en promesas vacías, validamos el sentimiento del usuario y nos diferenciamos como una opción seria y transparente."
+                    strategyText: "Al mencionar detalladamente estos 7 dolores, validamos el sentimiento del usuario y nos diferenciamos como una opción seria que entiende su realidad."
                 },
                 benefits: {
                     label: "3. Beneficios",
@@ -383,7 +393,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     subject: "¿Cansada de las promesas vacías en cursos online?",
                     type: "Educativo",
                     objective: "Empatizar con el miedo del cliente y posicionar el curso como la solución real.",
-                    bodyPreview: "Sé que has visto muchos anuncios. Hoy quiero contarte qué hace diferente a nuestra formación técnica..."
+                    bodyPreview: "Hola [Nombre], sé que has visto muchos anuncios. Hoy quiero contarte qué hace diferente a nuestra formación técnica..."
                 }
             ]
         },
