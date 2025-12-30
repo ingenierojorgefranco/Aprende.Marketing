@@ -57,7 +57,7 @@ export const ProjectStrategy_Header: React.FC<ProjectStrategy_HeaderProps> = ({ 
                     </div>
                     
                     {/* 3. EXECUTIVE SUMMARY NARRATIVE */}
-                    <p id="psd-hero-subtitle" className="text-gray-400 font-light max-w-4xl mx-auto leading-[1.9] text-[1.4rem] md:text-[1.6rem] border-t border-white/5 pt-10">
+                    <p id="psd-hero-subtitle" className="text-gray-400 font-light max-w-4xl mx-auto leading-[1.9] text-[1.4rem] md:text-[1.6rem] border-l-4 border-indigo-500/30 pl-8 py-2 text-left mt-10">
                         Hemos diseñado un sistema de ventas completo para este producto, pensado para atraer personas interesadas, guiarlas paso a paso y convertirlas en clientas. Para lograrlo, utilizamos inteligencia artificial que analiza el mercado y tu oferta, automatizando gran parte del proceso estratégico y ahorrándote tiempo en tareas complejas.
                     </p>
                 </div>

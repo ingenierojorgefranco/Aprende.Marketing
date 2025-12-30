@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
 import { GeneratedPageContent, LandingPage, ColorPalette, StructureType, DestinationConfig, DestinationType, Project, User } from '../../../types';
 import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase } from 'lucide-react';
-import { useOutletContext, useNavigate } from 'react-router-dom';
+import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface GeneratorProps {
@@ -19,6 +18,8 @@ interface DashboardContext {
 export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
   const { user, pageCount } = useOutletContext() as DashboardContext;
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const preSelectedProjectId = searchParams.get('projectId');
 
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: Info, 2: Structure/Design
@@ -61,6 +62,15 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
     };
     fetchProjects();
   }, [user, pageCount]);
+
+  // Sync pre-selected project from URL
+  useEffect(() => {
+    if (preSelectedProjectId && userProjects.length > 0) {
+      handleProjectSelect(preSelectedProjectId);
+      // Forzar el objetivo solicitado por el sistema de estrategia
+      setFormData(prev => ({ ...prev, goal: 'Registro a Webinar / Clase' }));
+    }
+  }, [preSelectedProjectId, userProjects]);
 
   // Handle project selection
   const handleProjectSelect = (projectId: string) => {
@@ -236,8 +246,8 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
       desc: 'Hero centrado y limpio + Contenido abajo.',
       wireframe: (
         <div className="w-full h-24 bg-gray-800 rounded border border-gray-700 flex flex-col items-center justify-center gap-1 p-1 overflow-hidden opacity-70">
-           <div className="w-3/4 h-2 bg-gray-600 rounded-sm mb-2"></div>
-           <div className="w-2/3 h-8 bg-gray-700 rounded-sm border border-dashed border-gray-600 flex items-center justify-center">
+           <div className="w-3/4 h-2 bg-gray-600 rounded-sm mb-1"></div>
+           <div className="w-2/3 h-6 bg-gray-700 rounded-sm border border-dashed border-gray-600 flex items-center justify-center">
               <div className="w-1/2 h-2 bg-primary rounded-sm"></div>
            </div>
         </div>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TrendingUp, PlayCircle, Calendar, Sparkles, DollarSign, ArrowUpRight, Users, Clock, Zap, Check, AlertTriangle, Cpu, ArrowRight } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
@@ -301,7 +300,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     ))}
                                 </div>
 
-                                <div className="mt-8 flex items-center gap-4 p-5 bg-black/60 border border-amber-500/30 rounded-2xl shadow-xl">
+                                <div className="mt-8 flex items-center gap-4 p-5 bg-black/60 border-l-4 border-amber-500/30 rounded-r-2xl shadow-xl">
                                     <div className="p-2 bg-amber-500/20 rounded-full shrink-0">
                                         <AlertTriangle className="w-6 h-6 text-amber-500" />
                                     </div>
@@ -316,8 +315,8 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                     <div className="flex flex-col items-center justify-center gap-8 pt-10 border-t border-white/5 relative z-10">
                         <div className="flex items-center gap-5 text-center">
                             <div className="p-3 bg-white/5 rounded-full shrink-0"><Sparkles className="w-6 h-6 text-yellow-500" /></div>
-                            <p className="max-w-3xl leading-relaxed italic text-white text-2xl font-medium">
-                                "Los ingresos crecen de forma acumulativa a medida que el contenido gana autoridad y visibilidad. Este modelo premia la constancia, no la urgencia."
+                            <p className="max-w-3xl leading-relaxed italic text-white text-2xl font-medium border-l-4 border-emerald-500/30 pl-8 py-2 text-left">
+                                Los ingresos crecen de forma acumulativa a medida que el contenido gana autoridad y visibilidad. Este modelo premia la constancia, no la urgencia.
                             </p>
                         </div>
                     </div>

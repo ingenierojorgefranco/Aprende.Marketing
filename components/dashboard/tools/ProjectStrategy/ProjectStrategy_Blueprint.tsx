@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Layers, ArrowRight, ArrowDown, PlayCircle, Clapperboard, Globe, CheckCircle2, Users, MessageCircle, FileText, MonitorPlay, ShoppingCart, Zap, RefreshCw, Sparkles, Rocket } from 'lucide-react';
 
@@ -338,12 +337,7 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                             </div>
                             <h4 className="text-3xl font-black text-white leading-tight">Tu Ecosistema de Ventas 24/7</h4>
                             <p className="text-gray-300 text-xl font-light leading-relaxed">
-                                Este sistema no depende de una sola acción ni de un solo canal. 
-                                Funciona como un <span className="text-emerald-400 font-bold">ecosistema completo</span> que trabaja por ti todos los días.
-                            </p>
-                            <p className="text-gray-400 text-lg font-light leading-relaxed border-t border-white/5 pt-8">
-                                Tú no necesitas dominar marketing, copywriting o automatizaciones. 
-                                El sistema se encarga de la estructura. <span className="text-white font-bold">Tú decides cuánto quieres crecer.</span>
+                                Este sistema no depende de una sola acción ni de un solo canal. Funciona como un <span className="text-emerald-400 font-bold">ecosistema completo</span> que trabaja por ti todos los días. Tú no necesitas dominar marketing, copywriting o automatizaciones. El sistema se encarga de la estructura. <span className="text-white font-bold">Tú decides cuánto quieres crecer.</span>
                             </p>
                         </div>
                     </div>

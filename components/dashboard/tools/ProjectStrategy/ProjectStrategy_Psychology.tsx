@@ -73,14 +73,16 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                 </div>
             </div>
 
-            {/* --- NUEVA SECCIÓN DE TÍTULO PARA EL ESPEJO --- */}
+            {/* --- SECCIÓN DE TÍTULO PARA EL ESPEJO --- */}
             <div className="max-w-[70em] mx-auto text-left mb-10 px-4 md:px-0">
                 <h4 className="text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">
                     Dolores vs Beneficios <span className="text-gray-500 font-light">(estructura clara y poderosa)</span>
                 </h4>
-                <p className="text-gray-400 text-lg md:text-xl font-light leading-relaxed border-l-4 border-orange-500/30 pl-6 py-1">
-                    Aquí es donde la persuasión ocurre de verdad. Cada dolor detectado tiene un beneficio específico que lo neutraliza.
-                </p>
+                <div className="space-y-4">
+                    <p className="text-gray-400 text-lg md:text-xl font-light leading-relaxed border-l-4 border-orange-500/30 pl-8 py-2">
+                        Aquí es donde la persuasión ocurre de verdad. Cada dolor detectado tiene un beneficio específico que lo neutraliza.
+                    </p>
+                </div>
             </div>
             
             {/* --- SISTEMA DE ESPEJO: DOLOR VS SOLUCIÓN --- */}
@@ -145,6 +147,13 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                 </div>
             </div>
 
+            {/* Texto de alineación reubicado debajo del espejo */}
+            <div className="max-w-[70em] mx-auto text-left px-4 md:px-0">
+                <p className="text-gray-400 text-lg md:text-xl font-light leading-relaxed border-l-4 border-orange-500/30 pl-8 py-2">
+                    Cada beneficio ha sido alineado meticulosamente con una debilidad emocional de tu comprador para maximizar la efectividad de tu oferta.
+                </p>
+            </div>
+
             {/* --- MATRIZ DE DESPLIEGUE: CENTRO DE MANDO --- */}
             <div id="psd-tactical-matrix" className="max-w-[85em] mx-auto pt-20">
                 <div className="bg-black/60 rounded-[4rem] p-10 md:p-20 border border-white/5 relative overflow-hidden shadow-2xl">
@@ -165,7 +174,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                             Distribución de Inteligencia en tu Ecosistema
                         </h4>
                         
-                        <div className="max-w-[70em] text-gray-300 text-[1.4rem] leading-[1.8] font-light border-l-4 border-indigo-500/30 pl-8 text-left italic">
+                        <div className="max-w-[70em] text-gray-300 text-[1.4rem] leading-[1.8] font-light border-l-4 border-indigo-500/30 pl-8 py-2 text-left italic">
                             <p>
                                 Nuestra IA no genera textos genéricos; <span className="text-white font-bold">inyecta los dolores y soluciones</span> detectados anteriormente en cada punto de contacto de tu embudo. El resultado es un sistema que "lee la mente" del comprador y derriba sus barreras antes de que siquiera pueda verbalizarlas.
                             </p>

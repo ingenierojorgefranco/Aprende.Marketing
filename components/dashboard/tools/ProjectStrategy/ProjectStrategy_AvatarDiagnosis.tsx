@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, X, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight, Users } from 'lucide-react';
 import { ProjectStrategy_Psychology } from './ProjectStrategy_Psychology';
@@ -42,25 +41,25 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             label: "Estrategia de Atracción", 
             desc: "Diseñada para captar la atención inmediata y generar curiosidad. <br/> <span class='font-bold text-white'>Se utiliza para:</span> Títulos principales (H1), Anuncios, Video de Ventas (VSL) y Mensaje principal de la Landing Page.", 
             icon: Magnet, 
-            color: "text-pink-400", 
-            bg: "bg-pink-500/10",
-            border: "border-pink-500/20"
+            color: "text-amber-400", 
+            bg: "bg-amber-500/10",
+            border: "border-amber-500/20"
         },
         { 
             label: "Estrategia de Autoridad", 
             desc: "Base para Emails de Lógica y casos de éxito.", 
             icon: Shield, 
-            color: "text-purple-400", 
-            bg: "bg-purple-500/10",
-            border: "border-purple-500/20"
+            color: "text-amber-400", 
+            bg: "bg-amber-500/10",
+            border: "border-amber-500/20"
         },
         { 
             label: "Estrategia de Cierre", 
             desc: "Base para Scripts de WhatsApp y manejo de objeciones.", 
             icon: MessageSquare, 
-            color: "text-blue-400", 
-            bg: "bg-blue-500/10",
-            border: "border-blue-500/20"
+            color: "text-amber-400", 
+            bg: "bg-amber-500/10",
+            border: "border-amber-500/20"
         }
     ];
 
@@ -135,7 +134,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                     <div className="lg:col-span-7 flex flex-col justify-center">
                                         <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[3rem] p-10 relative group/quote hover:bg-white/[0.05] transition-all">
                                             <Quote className="absolute top-8 right-8 w-16 h-16 text-white/5" />
-                                            <p className="text-gray-100 italic text-2xl md:text-3xl leading-relaxed font-serif relative z-10 pl-6 border-l-2 border-primary/40">
+                                            <p className="text-gray-100 italic text-2xl md:text-3xl leading-relaxed font-serif relative z-10 pl-6 border-l-4 border-amber-500/30 py-1">
                                                 "{avatar.quote}"
                                             </p>
                                         </div>
@@ -167,7 +166,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                             </div>
                                         </div>
 
-                                        <div className={`p-8 rounded-[2rem] border ${role.bg} ${role.border} flex gap-6 items-start hover:scale-[1.02] transition-transform`}>
+                                        <div className={`p-8 rounded-[2rem] border-l-4 ${role.bg} ${role.border} flex gap-6 items-start hover:scale-[1.02] transition-transform`}>
                                             <div className={`p-4 rounded-2xl bg-black/60 ${role.color} shrink-0 shadow-2xl`}>
                                                 <role.icon className="w-8 h-8" />
                                             </div>
@@ -180,7 +179,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
 
                                     {/* Pains & Solutions List */}
                                     <div className="grid grid-cols-1 gap-6">
-                                        <div className="bg-rose-500/[0.03] border border-rose-500/20 p-8 rounded-[2.5rem] hover:bg-rose-500/[0.06] transition-colors group/card">
+                                        <div className="bg-rose-500/[0.03] border-l-4 border-rose-500/20 p-8 rounded-r-[2.5rem] hover:bg-rose-500/[0.06] transition-colors group/card">
                                             <div className="flex items-center gap-4 mb-5">
                                                 <div className="p-3 bg-rose-500/20 rounded-2xl text-rose-400 shadow-lg group-hover/card:scale-110 transition-transform"><AlertTriangle className="w-6 h-6" /></div>
                                                 <p className="text-sm font-black text-rose-400 uppercase tracking-[0.2em]">Punto de Dolor Agudo</p>
@@ -188,15 +187,17 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                             <p className="text-gray-200 text-xl leading-relaxed font-medium">{avatar.pain}</p>
                                         </div>
 
-                                        <div className="bg-emerald-500/[0.03] border border-emerald-500/20 p-8 rounded-[2.5rem] hover:bg-emerald-500/[0.06] transition-colors group/card">
+                                        <div className="bg-emerald-500/[0.03] border-l-4 border-emerald-500/20 p-8 rounded-r-[2.5rem] hover:bg-emerald-500/[0.06] transition-colors group/card">
                                             <div className="flex items-center gap-4 mb-5">
                                                 <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400 shadow-lg group-hover/card:scale-110 transition-transform"><Rocket className="w-6 h-6" /></div>
                                                 <p className="text-sm font-black text-emerald-400 uppercase tracking-[0.2em]">Transformación Deseada</p>
                                             </div>
-                                            <p className="text-gray-200 text-xl leading-relaxed font-medium">{avatar.desire}</p>
+                                            <p className="text-gray-200 text-xl leading-relaxed font-medium border-l-4 border-amber-500/30 pl-8 py-2 text-left italic">
+                                                {avatar.desire}
+                                            </p>
                                         </div>
 
-                                        <div className="bg-blue-500/[0.03] border border-blue-500/20 p-8 rounded-[2.5rem] hover:bg-blue-500/[0.06] transition-colors group/card">
+                                        <div className="bg-blue-500/[0.03] border-l-4 border-blue-500/20 p-8 rounded-r-[2.5rem] hover:bg-blue-500/[0.06] transition-colors group/card">
                                             <div className="flex items-center gap-4 mb-5">
                                                 <div className="p-3 bg-blue-500/20 rounded-2xl text-blue-400 shadow-lg group-hover/card:scale-110 transition-transform"><Lock className="w-6 h-6" /></div>
                                                 <p className="text-sm font-black text-blue-400 uppercase tracking-[0.2em]">Barrera de Venta (Objeción)</p>

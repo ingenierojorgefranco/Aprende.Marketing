@@ -108,7 +108,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                         Resumen estratégico de tu Proyecto
                     </h3>
                     
-                    <p className="text-gray-400 text-lg md:text-xl font-light leading-relaxed mb-10 border-b border-white/5 pb-8">
+                    <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light mb-10 border-l-4 border-indigo-500/30 pl-8 py-2">
                         Nuestra inteligencia artificial ha analizado profundamente tu producto elegido y el mercado actual para diseñar un ecosistema de ventas automatizado. Hará todo el trabajo difícil por ti de forma automática.
                     </p>
 
@@ -140,8 +140,8 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                     </div>
                     
                     {/* Nota de pie del bloque */}
-                    <div className="mt-10 flex items-center justify-center gap-3 text-gray-500 text-sm italic border-b border-white/5 pb-8 mb-12 text-center">
-                        <ShieldCheck className="w-4 h-4" />
+                    <div className="mt-10 flex items-center justify-center gap-3 text-gray-300 text-[1.4rem] leading-[1.8] font-light border-l-4 border-amber-500/30 pl-8 py-2 mb-12 text-left">
+                        <ShieldCheck className="w-4 h-4 text-amber-500/60" />
                         Esta configuración es la base para el cálculo de tu rentabilidad en el año 1.
                     </div>
 

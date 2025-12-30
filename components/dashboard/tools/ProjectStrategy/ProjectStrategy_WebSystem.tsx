@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
 
 interface ProjectStrategy_WebSystemProps {
+    projectId: string;
     // Nuevas props para datos dinámicos
     lpTabsData?: any;
     tyTabsData?: any;
@@ -25,7 +25,7 @@ interface ProjectStrategy_WebSystemProps {
 }
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
-    lpTabsData, tyTabsData,
+    projectId, lpTabsData, tyTabsData,
     selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, linkedPages, onEditPage,
     pageCount = 0, domainCount = 0, planLimits, onUpgrade, nextPlan
 }) => {
@@ -314,7 +314,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
                     <div className="mt-12 pt-8 border-t border-white/5">
                         <button 
-                            onClick={() => isLimitReached ? (onUpgrade && onUpgrade()) : navigate('/dashboard/generator')}
+                            onClick={() => isLimitReached ? (onUpgrade && onUpgrade()) : navigate(`/dashboard/generator?projectId=${projectId}`)}
                             className="w-full py-5 rounded-[1.5rem] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-lg shadow-2xl shadow-blue-900/40 flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95"
                         >
                             {isLimitReached ? <Lock className="w-6 h-6" /> : <PenTool className="w-6 h-6" />}

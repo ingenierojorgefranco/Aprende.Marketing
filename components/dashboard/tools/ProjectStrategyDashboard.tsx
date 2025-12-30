@@ -403,6 +403,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 </div>
 
                 <ProjectStrategy_WebSystem 
+                    projectId={id}
                     lpTabsData={strategyData.modules.web.landingPageTabs}
                     tyTabsData={strategyData.modules.web.thankYouPageTabs}
                     selectedLpTab={selectedLpTab}
