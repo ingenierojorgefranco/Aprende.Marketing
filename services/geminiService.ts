@@ -128,16 +128,29 @@ export const generateLandingPageContent = async (
     ctaContext = "El objetivo es redirigir a una página de ventas externa o checkout.";
   }
 
-  // OPTIMIZACIÓN RADICAL: Si el proyecto tiene dolores y beneficios ya generados,
-  // los inyectamos con la instrucción "USA EXACTAMENTE ESTOS". Esto evita que la IA
-  // gaste tiempo "pensando" o "alucinando" nueva estrategia.
+  // OPTIMIZACIÓN RADICAL E INYECCIÓN DE DOLORES DEL JSON:
+  // Si el proyecto tiene una Estrategia Maestra (JSON), buscamos los dolores ahí.
   let projectStrategy = "";
   if (projectContext) {
-      const painsText = (projectContext.painPoints && projectContext.painPoints.length > 0) 
-          ? `- Dolores del Cliente (USA ESTOS 6 PUNTOS EXACTAMENTE): ${projectContext.painPoints.slice(0, 6).join(", ")}` 
+      let finalPains = projectContext.painPoints || [];
+      let finalBenefits = projectContext.keyBenefits || [];
+
+      // Búsqueda en cascada: Priorizamos el JSON estratégico profundo si existe
+      const masterStrategy = projectContext.strategy_json;
+      if (masterStrategy && masterStrategy.psychology) {
+          if (masterStrategy.psychology.pains && masterStrategy.psychology.pains.length > 0) {
+              finalPains = masterStrategy.psychology.pains;
+          }
+          if (masterStrategy.psychology.solutions && masterStrategy.psychology.solutions.length > 0) {
+              finalBenefits = masterStrategy.psychology.solutions;
+          }
+      }
+
+      const painsText = (finalPains.length > 0) 
+          ? `- Dolores del Cliente (DEBES USAR ESTOS EXACTAMENTE): ${finalPains.slice(0, 7).join(", ")}` 
           : "";
-      const benefitsText = (projectContext.keyBenefits && projectContext.keyBenefits.length > 0) 
-          ? `- Beneficios Clave (USA ESTOS 6 PUNTOS EXACTAMENTE): ${projectContext.keyBenefits.slice(0, 6).join(", ")}` 
+      const benefitsText = (finalBenefits.length > 0) 
+          ? `- Beneficios Clave (DEBES USAR ESTOS EXACTAMENTE): ${finalBenefits.slice(0, 7).join(", ")}` 
           : "";
 
       projectStrategy = `
@@ -148,7 +161,7 @@ export const generateLandingPageContent = async (
       ${benefitsText}
       - Descripción del Proyecto: ${projectContext.description}.
       
-      REGLA OBLIGATORIA: Si te he proporcionado los Dolores y Beneficios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
+      REGLA OBLIGATORIA: He extraído los Dolores y Beneficios directamente de la base de datos estratégica del proyecto. DEBES usarlos para construir las secciones de 'Dolores/Problema' y 'Beneficios' de la landing. NO inventes textos genéricos, usa la información proporcionada arriba.
       `;
   }
 
@@ -159,7 +172,7 @@ export const generateLandingPageContent = async (
   
   ${projectStrategy}
 
-  REQUERIMIENTO DE VELOCIDAD: No generes código SVG para logos. Solo genera los textos persuasivos.
+  REQUERIMIENTO DE VELOCIDAD: No generes código SVG para logos. Solo genera los textos persuasivos detallados.
   
   Genera campos específicos:
   - brandName: Nombre de marca (ej: "MicroMaster").
@@ -299,7 +312,6 @@ export const generateLandingPageContent = async (
         const content = JSON.parse(response.text) as GeneratedPageContent;
         
         // --- ASIGNACIÓN DE LOGO DESDE LIBRERÍA (REDUCCIÓN DE TIEMPO IA) ---
-        // Al no pedirle a la IA que genere el SVG, el proceso es mucho más rápido.
         content.logoSvg = PREDEFINED_LOGOS[Math.floor(Math.random() * PREDEFINED_LOGOS.length)];
 
         // --- BLINDAJE DE SEGURIDAD PARA ARRAYS ---
