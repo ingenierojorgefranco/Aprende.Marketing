@@ -2,6 +2,7 @@ import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, P
 import { api } from "./api"; // Usamos la configuración centralizada de API
 
 // --- LIBRERÍA DE LOGOS PROFESIONALES PRE-DEFINIDOS ---
+// Al usar una lista estática, ahorramos a la IA la tarea pesada de dibujar SVG, reduciendo el tiempo de respuesta.
 const PREDEFINED_LOGOS = [
     `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" /><stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" /></linearGradient></defs><rect x="12" y="12" width="40" height="40" rx="8" fill="url(#g1)"/><path d="M22 32h20M32 22v20" stroke="white" stroke-width="4" stroke-linecap="round"/></svg>`,
     `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" fill="#ec4899" opacity="0.2"/><circle cx="32" cy="32" r="20" fill="#ec4899"/><path d="M25 32l5 5 10-10" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`,
@@ -114,7 +115,7 @@ export const generateLandingPageContent = async (
   palette: ColorPalette,
   structure: StructureType,
   destination: DestinationConfig,
-  projectContext?: Project // NEW PARAMETER
+  projectContext?: Project // CONTEXTO DEL PROYECTO
 ): Promise<GeneratedPageContent> => {
   
   // Contexto específico para el prompt
@@ -127,59 +128,57 @@ export const generateLandingPageContent = async (
     ctaContext = "El objetivo es redirigir a una página de ventas externa o checkout.";
   }
 
-  // OPTIMIZACIÓN: Si el proyecto tiene dolores y beneficios ya generados, los inyectamos directamente
-  // para que la IA no pierda tiempo inventándolos.
+  // OPTIMIZACIÓN RADICAL: Si el proyecto tiene dolores y beneficios ya generados,
+  // los inyectamos con la instrucción "USA EXACTAMENTE ESTOS". Esto evita que la IA
+  // gaste tiempo "pensando" o "alucinando" nueva estrategia.
   let projectStrategy = "";
   if (projectContext) {
       const painsText = (projectContext.painPoints && projectContext.painPoints.length > 0) 
-          ? `- Dolores del Cliente (USA EXACTAMENTE ESTOS): ${projectContext.painPoints.join(", ")}` 
+          ? `- Dolores del Cliente (USA ESTOS 6 PUNTOS EXACTAMENTE): ${projectContext.painPoints.slice(0, 6).join(", ")}` 
           : "";
       const benefitsText = (projectContext.keyBenefits && projectContext.keyBenefits.length > 0) 
-          ? `- Beneficios Clave (USA EXACTAMENTE ESTOS): ${projectContext.keyBenefits.join(", ")}` 
+          ? `- Beneficios Clave (USA ESTOS 6 PUNTOS EXACTAMENTE): ${projectContext.keyBenefits.slice(0, 6).join(", ")}` 
           : "";
 
       projectStrategy = `
-      CONTEXTO ESTRATÉGICO DEL PROYECTO (PRIORIDAD ALTA):
+      CONTEXTO ESTRATÉGICO DEL PROYECTO (ORDEN DE PRIORIDAD MÁXIMA):
       - Nombre del Producto: "${projectContext.productName}"
-      - Tono de Voz de Marca: "${projectContext.brandTone}" (Usa este tono en todo el copy).
+      - Tono de Voz de Marca: "${projectContext.brandTone}" (Usa este tono en TODO el copy).
       ${painsText}
       ${benefitsText}
       - Descripción del Proyecto: ${projectContext.description}.
       
-      IMPORTANTE: Si te he proporcionado la lista de Dolores y Beneficios arriba, DEBES usarlos para construir las secciones correspondientes de la página. No inventes unos nuevos.
+      REGLA OBLIGATORIA: Si te he proporcionado los Dolores y Beneficios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
       `;
   }
 
-  const prompt = `Actúa como un experto en copywriting, diseño y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
-  El objetivo es "${goal}". La audiencia objetivo is "${targetAudience}".
+  const prompt = `Actúa como un experto en copywriting y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
+  El objetivo es "${goal}". La audiencia objetivo es "${targetAudience}".
   La oferta es de tipo "${offerType}".
   ${ctaContext}
   
   ${projectStrategy}
 
-  REGLA CRÍTICA: No omitas ninguna sección. Genera textos persuasivos y detallados.
+  REQUERIMIENTO DE VELOCIDAD: No generes código SVG para logos. Solo genera los textos persuasivos.
   
   Genera campos específicos:
-  - brandName: Nombre corto y pegadizo para la marca del sitio (ej: "NicheMaster").
-  - topTagline: Una frase corta y llamativa para la parte superior (ej: "🔥 Clase Gratuita Online - [Tema]").
-  - navCta: Un texto MUY corto (máximo 3 palabras) para el botón del menú superior (ej: "Reservar Cupo", "Ingresar Ahora").
-  - navLinks: Genera EXACTAMENTE 3 enlaces de navegación que coincidan con la estructura de la página. USA ESTRICTAMENTE ESTOS 'href' para que funcionen los anclajes del menú:
-       1. Label: (Beneficios/Descubre), href: "#seccion-beneficios"
-       2. Label: (Testimonios/Resultados), href: "#seccion-testimonios"
-       3. Label: (Instructor), href: "#seccion-instructor"
-  - testimonialTitle: Un título persuasivo para los testimonios.
+  - brandName: Nombre de marca (ej: "MicroMaster").
+  - topTagline: Frase corta llamativa (ej: "🔥 Oferta Limitada").
+  - navCta: Texto corto botón menú (ej: "Reservar").
+  - navLinks: 3 enlaces con estos hrefs estrictos: ["#seccion-beneficios", "#seccion-testimonios", "#seccion-instructor"].
+  - testimonialTitle: Título persuasivo para testimonios.
   
-  Estructura requerida del JSON:
-  1. Hero: Título impactante (H1) con etiquetas <b> en la parte emocional, subtítulo y texto botón.
+  Estructura JSON:
+  1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
   2. Testimonios: 3 testimonios cortos y realistas.
-  3. Intro: Explicación de qué es el producto. Genera 'imageCardText' (frase corta) y 'items' (3 bullets técnicos).
-  4. Beneficios: Lista detallada.
+  3. Intro: Qué es el producto. Genera 'imageCardText' (frase corta) y 'items' (3 bullets).
+  4. Beneficios: Lista detallada (usa los proporcionados en el contexto si existen).
   5. Lo que aprenderás: 4-6 puntos clave.
-  6. FAQ: 4 preguntas que derriben objeciones.
+  6. FAQ: 4 preguntas que maten objeciones.
   7. Instructor: Nombre y biografía.
   8. Footer: Copyright y contacto.
   
-  Responde SOLO en formato JSON.`;
+  Responde ÚNICAMENTE con el objeto JSON válido.`;
 
   const schema = {
     type: Type.OBJECT,
@@ -299,8 +298,8 @@ export const generateLandingPageContent = async (
     if (response.text) {
         const content = JSON.parse(response.text) as GeneratedPageContent;
         
-        // --- ASIGNACIÓN DE LOGO DESDE LIBRERÍA (OPTIMIZACIÓN) ---
-        // Asignamos un logo aleatorio de los 10 predefinidos para ahorrar tiempo a la IA
+        // --- ASIGNACIÓN DE LOGO DESDE LIBRERÍA (REDUCCIÓN DE TIEMPO IA) ---
+        // Al no pedirle a la IA que genere el SVG, el proceso es mucho más rápido.
         content.logoSvg = PREDEFINED_LOGOS[Math.floor(Math.random() * PREDEFINED_LOGOS.length)];
 
         // --- BLINDAJE DE SEGURIDAD PARA ARRAYS ---
@@ -314,7 +313,7 @@ export const generateLandingPageContent = async (
         if (!content.whatYouWillLearn) content.whatYouWillLearn = { title: "", items: [] };
         if (!content.whatYouWillLearn.items) content.whatYouWillLearn.items = [];
 
-        // Defaults para campos opcionales
+        // Defaults para campos opcionales que la IA podría omitir por brevedad
         if (!content.benefits.subtitle) content.benefits.subtitle = "Descubre las herramientas exclusivas que acelerarán tus resultados.";
         if (!content.instructor) content.instructor = { name: "", bio: "" };
         if (!content.instructor.title) content.instructor.title = "Conoce a tu Mentor";
@@ -328,7 +327,7 @@ export const generateLandingPageContent = async (
         if (!content.hero.videoDuration) content.hero.videoDuration = "45 Minutos";
         if (!content.hero.spotsLeft) content.hero.spotsLeft = "¡Cupos Limitados!";
         if (!content.testimonialSubtitle) content.testimonialSubtitle = "Resultados reales de alumnos";
-        if (!content.closingOfferText) content.closingOfferText = "No dejes pasar esta oportunidad. Quedan pocos cupos.";
+        if (!content.closingOfferText) content.closingOfferText = "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder.";
         
         if (content.testimonials && Array.isArray(content.testimonials)) {
             const randomLocations = ["Bogotá, CO", "CDMX, MX", "Lima, PE", "Santiago, CL", "Madrid, ES", "Quito, EC", "Medellín, CO", "Buenos Aires, AR"];
