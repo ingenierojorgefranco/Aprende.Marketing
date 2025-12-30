@@ -40,7 +40,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
     const roles = [
         { 
             label: "Estrategia de Atracción", 
-            desc: "Base para Títulos (H1), Anuncios y Video de Ventas (VSL).", 
+            desc: "Diseñada para captar la atención inmediata y generar curiosidad. <br/> <span class='font-bold text-white'>Se utiliza para:</span> Títulos principales (H1), Anuncios, Video de Ventas (VSL) y Mensaje principal de la Landing Page.", 
             icon: Magnet, 
             color: "text-pink-400", 
             bg: "bg-pink-500/10",
@@ -66,22 +66,18 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
 
     const getAvatarRoleBadge = (idx: number) => {
         const badges = [
-            { label: "Avatar Principal", gradient: "from-pink-600 to-rose-600" },
+            { label: "Avatar Principal — Perfil de Atracción", gradient: "from-pink-600 to-rose-600" },
             { label: "Avatar Secundario", gradient: "from-purple-600 to-indigo-600" },
             { label: "Avatar de Apoyo", gradient: "from-blue-600 to-cyan-600" }
         ];
         const badge = badges[idx] || badges[0];
 
         return (
-            <div className={`absolute top-0 right-0 bg-gradient-to-l ${badge.gradient} text-white text-[10px] font-black px-6 py-2 rounded-bl-2xl uppercase tracking-[0.2em] shadow-lg flex items-center gap-2 z-20`}>
+            <div className={`absolute top-0 left-0 bg-gradient-to-r ${badge.gradient} text-white text-[10px] font-black px-6 py-2 rounded-br-2xl uppercase tracking-[0.2em] shadow-lg flex items-center gap-2 z-20`}>
                 <Crown className="w-3 h-3" /> {badge.label}
             </div>
         );
     };
-
-    const profile = psychology.psychographicProfile;
-    const buyingPsych = psychology.buyingPsychology;
-    const convStrategy = psychology.conversionStrategy;
 
     return (
         <div id="psd-avatar-diagnosis-section" className="space-y-16">
@@ -97,10 +93,10 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                 
                 <div className="grid md:grid-cols-2 gap-10 text-gray-300 text-[1.4rem] leading-[1.8] font-light">
                     <p className="border-l-4 border-pink-500/30 pl-8 py-2">
-                        Un error común es intentar venderle a todo el mundo. Hemos segmentado a tu audiencia en 3 perfiles tácticos para que tu mensaje sea quirúrgicamente preciso.
+                        El 90% de los embudos fracasan porque el mensaje es demasiado genérico. Aquí tienes los 3 perfiles psicológicos exactos de las personas que realmente comprarán tu producto.
                     </p>
                     <p className="border-l-4 border-purple-500/30 pl-8 py-2">
-                        Al entender sus motivaciones profundas, podemos redactar textos que resuenen a nivel subconsciente, transformando la desconfianza en una decisión de compra.
+                        Entender qué les duele y qué sueñan nos permite crear una conexión emocional y racional tan fuerte que sentirán que la única solución lógica es comprar tu oferta.
                     </p>
                 </div>
             </div>
@@ -119,7 +115,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                             {getAvatarRoleBadge(idx)}
 
                             <div className="p-10 md:p-16">
-                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-16">
+                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-8">
                                     {/* Perfil Visual */}
                                     <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
                                         <div className="relative mb-8">
@@ -177,7 +173,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                             </div>
                                             <div>
                                                 <p className={`text-sm font-black uppercase tracking-[0.2em] mb-2 ${role.color}`}>{role.label}</p>
-                                                <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light">{role.desc}</p>
+                                                <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light" dangerouslySetInnerHTML={{ __html: role.desc }}></p>
                                             </div>
                                         </div>
                                     </div>

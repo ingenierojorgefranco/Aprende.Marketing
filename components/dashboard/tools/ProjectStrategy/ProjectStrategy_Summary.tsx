@@ -1,5 +1,5 @@
 import React from 'react';
-import { Rocket, Sparkles, Search, DollarSign, Zap, FileText, ShieldCheck } from 'lucide-react';
+import { Rocket, FileText, DollarSign, Zap, ShieldCheck, BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
 
 interface ProjectStrategy_SummaryProps {
     strategyData: any;
@@ -12,126 +12,131 @@ interface ProjectStrategy_SummaryProps {
 
 export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = ({ 
     strategyData, 
-    description,
-    handleTooltipHover, 
-    handleTooltipLeave 
+    description
 }) => {
-    // Extraemos los items de la visión general
-    const overviewItems = [...(strategyData.meta.insights.overview.items || [])];
-    
-    // Datos dinámicos del JSON
+    // Extraemos los datos dinámicos del JSON de estrategia
+    const overviewItems = strategyData.meta.insights.overview.items || [];
     const price = strategyData.meta.price || 0;
     const commissionRate = strategyData.meta.commissionRate || 0;
     const netCommission = price * commissionRate;
+    
+    // Lista unificada de 10 puntos en el orden exacto solicitado
+    const orderedCards = [
+        {
+            label: "Producto que vas a vender",
+            value: overviewItems[0]?.value || strategyData.meta.projectName,
+            icon: BookOpen,
+            color: "text-pink-400",
+            border: "border-pink-500/20"
+        },
+        {
+            label: "sector",
+            value: strategyData.meta.niche || (overviewItems[1]?.value),
+            icon: Sparkles,
+            color: "text-purple-400",
+            border: "border-purple-500/20"
+        },
+        {
+            label: "Objetivo principal",
+            value: overviewItems[4]?.value || "Maximizar conversiones en automático",
+            icon: Target,
+            color: "text-indigo-400",
+            border: "border-indigo-500/20"
+        },
+        {
+            label: "Qué hace el sistema por ti",
+            value: "Crea las páginas, mensajes y contenidos necesarios",
+            icon: Rocket,
+            color: "text-orange-400",
+            border: "border-orange-500/20"
+        },
+        {
+            label: "¿Cómo se vende?",
+            value: "Embudo automático con página + guía PDF + WhatsApp",
+            icon: MessageCircle,
+            color: "text-green-400",
+            border: "border-green-500/20"
+        },
+        {
+            label: "Para quién es",
+            value: "Mujeres que quieren aprender microblading y generar ingresos",
+            icon: Users,
+            color: "text-blue-400",
+            border: "border-blue-500/20"
+        },
+        {
+            label: "Edades de tu Público objetivo",
+            value: "Mujeres entre 22 y 38 años",
+            icon: Users,
+            color: "text-blue-400",
+            border: "border-blue-500/20"
+        },
+        {
+            label: "Porcentaje de Comisión por Venta",
+            value: `${Math.round(commissionRate * 100)}%`,
+            icon: Zap,
+            color: "text-yellow-400",
+            border: "border-yellow-500/20"
+        },
+        {
+            label: "precio del curso",
+            value: `$${price} USD`,
+            icon: DollarSign,
+            color: "text-blue-400",
+            border: "border-blue-500/20"
+        },
+        {
+            label: "Tu Ganancia por Venta",
+            value: `$${netCommission.toFixed(2)} USD`,
+            icon: DollarSign,
+            color: "text-emerald-400",
+            border: "border-emerald-500/20"
+        }
+    ];
 
     return (
         <div className="space-y-16">
             {/* BLOQUE: RESUMEN ESTRATÉGICO DE TU PROYECTO */}
             <div className="max-w-[70em] mx-auto bg-gradient-to-br from-indigo-900/10 via-purple-900/5 to-black p-8 md:p-12 rounded-[2.5rem] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div id="psd-panel-decorator" className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+                <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
                     <Rocket className="w-64 h-64 text-indigo-400" />
                 </div>
 
                 <div className="relative z-10">
-                    <h3 className="text-2xl md:text-3xl font-black text-white mb-10 flex items-center gap-4 border-b border-white/5 pb-8">
+                    <h3 className="text-2xl md:text-3xl font-black text-white mb-4 flex items-center gap-4">
                         <span className="text-indigo-400 p-2 bg-indigo-500/10 rounded-lg">⚡</span> 
                         Resumen estratégico de tu Proyecto
                     </h3>
+                    
+                    <p className="text-gray-400 text-lg md:text-xl font-light leading-relaxed mb-10 border-b border-white/5 pb-8">
+                        Nuestra inteligencia artificial ha analizado profundamente tu producto elegido y el mercado actual para diseñar un ecosistema de ventas automatizado. Hará todo el trabajo difícil por ti de forma automática.
+                    </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Renderizado Dinámico de Items de la Estrategia */}
-                        {overviewItems.map((item: any, i: number) => {
-                            const isProduct = i === 0;
-
-                            return (
-                                <div 
-                                    key={i} 
-                                    onMouseEnter={(e) => handleTooltipHover(e, [`Análisis del pilar: ${item.label}`, "Este punto define la coherencia de toda la secuencia de ventas."])}
-                                    onMouseLeave={handleTooltipLeave}
-                                    className={`p-6 md:p-8 rounded-2xl border transition-all duration-300 bg-gray-900/40 backdrop-blur-sm cursor-help ${item.border} flex flex-col h-full ${isProduct ? 'md:col-span-2 border-indigo-500/30' : 'hover:border-indigo-500/50'}`}
-                                >
-                                    <div className="flex flex-col h-full">
-                                        <div className="flex items-center gap-4 mb-4 shrink-0">
-                                            <div className={`p-3 rounded-xl bg-black/40 ${item.color} flex-shrink-0 shadow-lg`}>
-                                                <item.icon className="w-6 h-6" />
-                                            </div>
-                                            <p className={`text-xs md:text-sm font-black uppercase tracking-[0.2em] opacity-80 ${item.color}`}>
-                                                {item.label}
-                                            </p>
+                        {/* Renderizado de las 10 tarjetas unificadas */}
+                        {orderedCards.map((card, i) => (
+                            <div 
+                                key={i} 
+                                className={`p-6 md:p-8 rounded-2xl border transition-all duration-300 bg-gray-900/40 backdrop-blur-sm flex flex-col h-full ${card.border} hover:border-indigo-500/40 group`}
+                            >
+                                <div className="flex flex-col h-full">
+                                    <div className="flex items-center gap-4 mb-4 shrink-0">
+                                        <div className={`p-3 rounded-xl bg-black/40 ${card.color} flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform`}>
+                                            <card.icon className="w-6 h-6" />
                                         </div>
-                                        
-                                        <div className="flex-1">
-                                            <p className={`text-white font-bold leading-relaxed ${isProduct ? 'text-xl md:text-2xl text-indigo-100' : 'text-base md:text-lg'}`}>
-                                                {item.value}
-                                            </p>
-                                        </div>
+                                        <p className={`text-xs md:text-sm font-black uppercase tracking-[0.2em] opacity-80 ${card.color}`}>
+                                            {card.label}
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="flex-1">
+                                        <p className="text-white font-bold text-base md:text-lg leading-relaxed">
+                                            {card.value}
+                                        </p>
                                     </div>
                                 </div>
-                            );
-                        })}
-
-                        {/* TARJETA DE PRECIO */}
-                        <div 
-                            onMouseEnter={(e) => handleTooltipHover(e, ["Precio de venta oficial sugerido por la IA para este producto.", "Afecta directamente el cálculo de rentabilidad."])}
-                            onMouseLeave={handleTooltipLeave}
-                            className="p-6 md:p-8 rounded-2xl border border-blue-500/20 bg-blue-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-blue-500/10 cursor-help"
-                        >
-                            <div className="flex items-center gap-4 mb-4 shrink-0">
-                                <div className="p-3 rounded-xl bg-black/40 text-blue-400 flex-shrink-0 shadow-lg border border-blue-500/20">
-                                    <DollarSign className="w-6 h-6" />
-                                </div>
-                                <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em] text-blue-400 opacity-80">
-                                    Precio Sugerido del Producto
-                                </p>
                             </div>
-                            <div className="flex-1">
-                                <p className="text-white font-black text-2xl md:text-3xl tracking-tight">
-                                    ${price} USD
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* TARJETA DE COMISIÓN */}
-                        <div 
-                            onMouseEnter={(e) => handleTooltipHover(e, ["Porcentaje de ganancia que recibes por cada venta realizada."])}
-                            onMouseLeave={handleTooltipLeave}
-                            className="p-6 md:p-8 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-yellow-500/10 cursor-help"
-                        >
-                            <div className="flex items-center gap-4 mb-4 shrink-0">
-                                <div className="p-3 rounded-xl bg-black/40 text-yellow-400 flex-shrink-0 shadow-lg border border-yellow-500/20">
-                                    <Zap className="w-6 h-6" />
-                                </div>
-                                <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em] text-yellow-400 opacity-80">
-                                    Comisión por Venta
-                                </p>
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-white font-black text-2xl md:text-3xl tracking-tight">
-                                    {Math.round(commissionRate * 100)}%
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* TARJETA DE GANANCIA NETA */}
-                        <div 
-                            onMouseEnter={(e) => handleTooltipHover(e, ["Dinero real que entra a tu cuenta después de comisiones de plataforma."])}
-                            onMouseLeave={handleTooltipLeave}
-                            className="p-6 md:p-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 backdrop-blur-sm flex flex-col h-full transition-all hover:bg-emerald-500/10 cursor-help md:col-start-2"
-                        >
-                            <div className="flex items-center gap-4 mb-4 shrink-0">
-                                <div className="p-3 rounded-xl bg-black/40 text-emerald-400 flex-shrink-0 shadow-lg border border-emerald-500/20">
-                                    <DollarSign className="w-6 h-6" />
-                                </div>
-                                <p className="text-xs md:text-sm font-black uppercase tracking-[0.2em] text-emerald-400 opacity-80">
-                                    Ganancia Neta por Venta
-                                </p>
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-white font-black text-2xl md:text-3xl tracking-tight">
-                                    ${netCommission.toFixed(2)} <span className="text-sm font-bold opacity-60">USD</span>
-                                </p>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                     
                     {/* Nota de pie del bloque */}
@@ -140,13 +145,13 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                         Esta configuración es la base para el cálculo de tu rentabilidad en el año 1.
                     </div>
 
-                    {/* SECCIÓN: ANÁLISIS DEL PROYECTO (ESTILO PREMIUM DE CLASE MUNDIAL) */}
+                    {/* SECCIÓN: ANÁLISIS DEL PROYECTO */}
                     {description && (
-                        <div id="psd-analisis-bloque" className="animate-in fade-in slide-in-from-bottom-4 duration-700 pt-10">
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 pt-10">
                             <h4 className="text-xl md:text-2xl font-black text-white mb-8 flex items-center gap-3">
                                 <FileText className="w-6 h-6 text-indigo-400" /> Análisis del Producto Digital que vas a promocionar
                             </h4>
-                            <div className="relative group/analisis border-l-4 border-indigo-500/30 pl-8 py-2">
+                            <div className="relative border-l-4 border-indigo-500/30 pl-8 py-2">
                                 <div className="relative z-10">
                                     <div 
                                         className="prose prose-invert prose-p:text-gray-300 prose-li:text-gray-300 prose-strong:text-white max-w-none text-[1.4rem] leading-[1.8] font-light"

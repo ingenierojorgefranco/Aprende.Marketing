@@ -65,12 +65,22 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
 
                 <div className="grid md:grid-cols-2 gap-10 text-gray-300 text-[1.4rem] leading-[1.8] font-light">
                     <p className="border-l-4 border-orange-500/30 pl-8 py-2">
-                        La venta es un proceso emocional justificado por la lógica. Hemos decodificado los bloqueos subconscientes de tu cliente para transformarlos en argumentos de compra irrefutables.
+                        Comprar no es un acto racional, es un acto emocional que luego se justifica con lógica. Por eso, nuestra estrategia no vende características técnicas, vende la solución al dolor que no deja dormir a tu cliente.
                     </p>
                     <p className="border-l-4 border-rose-500/30 pl-8 py-2">
-                        Al exponer el dolor y ofrecer el "antídoto" exacto en el momento preciso, eliminamos la parálisis por análisis y posicionamos tu oferta como la única salida segura.
+                        Hemos analizado los miedos, inseguridades y objeciones más comunes de tu audiencia para convertirlos en argumentos de venta irrefutables. El objetivo es reducir la fricción mental y que la compra se sienta como el paso más natural y seguro del mundo.
                     </p>
                 </div>
+            </div>
+
+            {/* --- NUEVA SECCIÓN DE TÍTULO PARA EL ESPEJO --- */}
+            <div className="max-w-[70em] mx-auto text-left mb-10 px-4 md:px-0">
+                <h4 className="text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">
+                    Dolores vs Beneficios <span className="text-gray-500 font-light">(estructura clara y poderosa)</span>
+                </h4>
+                <p className="text-gray-400 text-lg md:text-xl font-light leading-relaxed border-l-4 border-orange-500/30 pl-6 py-1">
+                    Aquí es donde la persuasión ocurre de verdad. Cada dolor detectado tiene un beneficio específico que lo neutraliza.
+                </p>
             </div>
             
             {/* --- SISTEMA DE ESPEJO: DOLOR VS SOLUCIÓN --- */}
