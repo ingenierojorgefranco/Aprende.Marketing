@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, Layout, Mail, MessageSquare, FileText, MousePointer2, Sparkles, Zap } from 'lucide-react';
 
@@ -76,36 +75,36 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
             
             {/* --- SISTEMA DE ESPEJO: DOLOR VS SOLUCIÓN --- */}
             <div id="psd-mirror-container" className="max-w-[85em] mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-10 relative">
+                <div className="space-y-10">
                     
-                    {/* Headers del espejo */}
-                    <div className="flex items-center gap-4 px-8 py-4 bg-rose-500/5 border border-rose-500/20 rounded-2xl md:col-start-1">
-                        <AlertTriangle className="w-6 h-6 text-rose-500" />
-                        <span className="text-rose-400 font-black uppercase tracking-[0.2em] text-sm">Dolores de tu Cliente</span>
-                    </div>
-                    <div className="hidden md:flex items-center gap-4 px-8 py-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl md:col-start-2">
-                        <Rocket className="w-6 h-6 text-emerald-500" />
-                        <span className="text-emerald-400 font-black uppercase tracking-[0.2em] text-sm">Beneficios del Producto Digital</span>
+                    {/* Headers del espejo (Grid para mantener alineación) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-4">
+                        <div className="flex items-center gap-4 px-8 py-4 bg-rose-500/5 border border-rose-500/20 rounded-2xl">
+                            <AlertTriangle className="w-6 h-6 text-rose-500" />
+                            <span className="text-rose-400 font-black uppercase tracking-[0.2em] text-sm">Dolores de tu Cliente</span>
+                        </div>
+                        <div className="hidden md:flex items-center gap-4 px-8 py-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl">
+                            <Rocket className="w-6 h-6 text-emerald-500" />
+                            <span className="text-emerald-400 font-black uppercase tracking-[0.2em] text-sm">Beneficios del Producto Digital</span>
+                        </div>
                     </div>
 
-                    {/* El conector central (Desktop) */}
-                    <div className="hidden md:block absolute left-1/2 top-32 bottom-10 w-px bg-gradient-to-b from-gray-800 via-gray-700 to-gray-800 -translate-x-1/2"></div>
-
-                    {/* Mapeo del espejo */}
+                    {/* Mapeo del espejo por filas relativas */}
                     {psychology.pains.map((pain, i) => {
-                        // Buscamos el beneficio correspondiente en landingPageTabs.benefits.items
                         const benefit = (benefitsItems && benefitsItems[i]) ? benefitsItems[i] : null;
                         
                         return (
-                            <React.Fragment key={i}>
+                            <div key={i} className="relative grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-10 group/row">
+                                {/* Flecha Conectora Central (Solo Desktop) */}
+                                <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-gray-900 border border-gray-800 items-center justify-center text-gray-500 group-hover/row:text-orange-500 group-hover/row:border-orange-500/50 group-hover/row:scale-110 transition-all duration-500 shadow-2xl">
+                                    <ArrowRight className="w-6 h-6" />
+                                </div>
+
                                 {/* Bloqueo (Dolor) */}
                                 <div className="relative group/mirror">
                                     <div className="bg-gray-900/40 border border-gray-800 group-hover/mirror:border-rose-500/30 p-8 rounded-[2rem] transition-all duration-500 h-full flex items-center shadow-xl relative overflow-hidden">
                                         <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-500 opacity-20 group-hover/mirror:opacity-100 transition-opacity"></div>
-                                        <div className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gray-900 border border-gray-800 hidden md:flex items-center justify-center z-10 text-gray-600 group-hover/mirror:text-rose-500 group-hover/mirror:border-rose-500/50 transition-all">
-                                            <ArrowRight className="w-4 h-4" />
-                                        </div>
-                                        <p className="text-gray-300 text-lg md:text-xl leading-relaxed font-medium">
+                                        <p className="text-gray-300 text-lg md:text-xl leading-relaxed font-normal italic">
                                             "{pain}"
                                         </p>
                                     </div>
@@ -115,7 +114,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                 <div className="relative group/solution">
                                     <div className="bg-gray-900/40 border border-gray-800 group-hover/solution:border-emerald-500/30 p-8 rounded-[2rem] transition-all duration-500 h-full flex items-center shadow-xl relative overflow-hidden">
                                         <div className="absolute top-0 right-0 w-1.5 h-full bg-emerald-500 opacity-20 group-hover/solution:opacity-100 transition-opacity"></div>
-                                        <div className="absolute -left-12 top-1/2 -translate-y-1/2 p-2 bg-emerald-500/10 rounded-lg hidden md:block">
+                                        <div className="absolute -left-14 top-1/2 -translate-y-1/2 p-2 bg-emerald-500/10 rounded-lg hidden md:block opacity-0 group-hover/solution:opacity-100 transition-opacity">
                                             <Check className="w-5 h-5 text-emerald-400" />
                                         </div>
                                         <div className="flex flex-col gap-2">
@@ -123,14 +122,14 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                                 {benefit ? benefit.title : (psychology.solutions[i] || "Transformación estratégica")}
                                             </p>
                                             {benefit?.desc && (
-                                                <p className="text-emerald-200/70 text-sm leading-relaxed font-light italic">
+                                                <p className="text-emerald-200/70 text-base leading-relaxed font-light italic">
                                                     {benefit.desc}
                                                 </p>
                                             )}
                                         </div>
                                     </div>
                                 </div>
-                            </React.Fragment>
+                            </div>
                         );
                     })}
                 </div>

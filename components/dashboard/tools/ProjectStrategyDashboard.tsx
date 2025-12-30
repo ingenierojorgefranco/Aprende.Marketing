@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
@@ -363,7 +362,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 )}
 
                 {/* --- BLOQUE DE TRANSICIÓN: RESUMEN DEL SISTEMA (DISEÑO IDÉNTICO AL HEADER) --- */}
-                <div id="psd-deployment-transition-block" className="relative bg-[#020202] border-y border-white/5 py-24 lg:py-32 overflow-hidden mx-[-2rem] md:mx-[-4rem]">
+                <div id="psd-deployment-transition-block" className="relative bg-[#020202] border-y border-white/5 py-20 overflow-hidden mx-[-2rem] md:mx-[-4rem]">
                     {/* Visual Background Layers (Mirroring Header) */}
                     <div className="absolute inset-0 pointer-events-none">
                         {/* Technical Grid */}
@@ -392,13 +391,13 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                 {strategyData.meta?.projectName}
                             </h2>
                             <div className="flex items-center justify-center gap-2 text-indigo-400/60">
-                                <span className="text-xs font-bold uppercase tracking-[0.3em]">IA Strategy Engine v4.0</span>
+                                <span className="text-xs font-bold uppercase tracking-[0.3em]">Estrategia Perfecta para Vender tu Producto Digital</span>
                             </div>
                         </div>
                         
                         {/* 3. EXECUTIVE SUMMARY NARRATIVE */}
                         <p className="text-gray-400 font-light max-w-4xl mx-auto leading-[1.9] text-[1.4rem] md:text-[1.6rem] border-t border-white/5 pt-10">
-                            Nuestra inteligencia artificial ha analizado profundamente tu producto y el mercado actual para diseñar un <span className="text-white font-medium italic">ecosistema de ventas automatizado</span>. Este mapa de ingeniería inyecta psicología avanzada en cada punto de contacto para anular la resistencia del comprador y acelerar tu facturación.
+                            Nuestra inteligencia artificial ha analizado profundamente tu producto elegido y el mercado actual para diseñar un ecosistema de ventas automatizado. Hará todo el trabajo difícil por ti de forma automática.
                         </p>
                     </div>
                 </div>

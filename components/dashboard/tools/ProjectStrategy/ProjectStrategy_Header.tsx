@@ -20,7 +20,7 @@ export const ProjectStrategy_Header: React.FC<ProjectStrategy_HeaderProps> = ({ 
             </div>
 
             {/* --- HERO HEADER: COMMAND CENTER AESTHETIC --- */}
-            <div id="psd-hero-container" className="relative bg-[#020202] border-b border-white/5 py-24 lg:py-32 overflow-hidden">
+            <div id="psd-hero-container" className="relative bg-[#020202] border-b border-white/5 py-32 overflow-hidden">
                 
                 {/* Visual Background Layers */}
                 <div className="absolute inset-0 pointer-events-none">
@@ -54,16 +54,11 @@ export const ProjectStrategy_Header: React.FC<ProjectStrategy_HeaderProps> = ({ 
                         <h1 id="psd-hero-title" className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-tight tracking-tighter drop-shadow-2xl">
                             {projectName}
                         </h1>
-                        <div className="flex items-center justify-center gap-2 text-indigo-400/60">
-                            <Sparkles className="w-4 h-4 fill-current" />
-                            <span className="text-xs font-bold uppercase tracking-[0.3em]">IA Strategy Engine v4.0</span>
-                            <Sparkles className="w-4 h-4 fill-current" />
-                        </div>
                     </div>
                     
                     {/* 3. EXECUTIVE SUMMARY NARRATIVE */}
                     <p id="psd-hero-subtitle" className="text-gray-400 font-light max-w-4xl mx-auto leading-[1.9] text-[1.4rem] md:text-[1.6rem] border-t border-white/5 pt-10">
-                        Nuestra inteligencia artificial ha analizado profundamente tu producto y el mercado actual para diseñar un <span className="text-white font-medium italic">ecosistema de ventas automatizado</span>. Este mapa de ingeniería inyecta psicología avanzada en cada punto de contacto para anular la resistencia del comprador y acelerar tu facturación.
+                        Hemos diseñado un sistema de ventas completo para este producto, pensado para atraer personas interesadas, guiarlas paso a paso y convertirlas en clientas. Para lograrlo, utilizamos inteligencia artificial que analiza el mercado y tu oferta, automatizando gran parte del proceso estratégico y ahorrándote tiempo en tareas complejas.
                     </p>
                 </div>
             </div>
