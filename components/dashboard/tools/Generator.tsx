@@ -78,11 +78,30 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
       const proj = userProjects.find(p => p.id === projectId);
       
       if (proj) {
+          // Lógica avanzada para detectar la mejor descripción de audiencia
+          let audienceInfo = proj.targetAudience || '';
+          
+          // Si el proyecto tiene una estrategia generada, extraemos datos más ricos
+          if (proj.strategy_json) {
+              const s = proj.strategy_json;
+              
+              // Caso 1: Estructura de Estrategia Maestra (Proyecto Nuevo)
+              if (s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0) {
+                  const main = s.avatars[0];
+                  // Combinamos el perfil con su dolor y deseo para que la IA tenga contexto máximo
+                  audienceInfo = `${main.archetype}. Su principal dolor es: ${main.pain}. Su gran deseo: ${main.desire}`;
+              } 
+              // Caso 2: Estructura Legada (Simple)
+              else if (s.avatar && s.avatar.story) {
+                  audienceInfo = s.avatar.story;
+              }
+          }
+
           // Auto-fill form data based on project strategy
           setFormData(prev => ({
               ...prev,
-              pageName: proj.name, // Can be edited
-              targetAudience: proj.targetAudience || '',
+              pageName: proj.productName || proj.name, // Usar el nombre del producto si existe
+              targetAudience: audienceInfo,
               // Pre-select destination if links exist
               destinationType: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? 'external_url' : 'form',
               destinationUrl: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks[0].url : '',
