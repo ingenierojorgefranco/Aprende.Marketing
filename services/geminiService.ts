@@ -1,12 +1,7 @@
-
-
-
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../types";
 import { api } from "./api"; // Usamos la configuración centralizada de API
 
 // Mock Type Enum to replace @google/genai SDK dependency on frontend
-// This matches the structure expected by the backend logic if needed, 
-// though we primarily send raw prompts or simple schemas.
 const Type = {
   STRING: 'STRING',
   NUMBER: 'NUMBER',
@@ -286,12 +281,28 @@ export const generateLandingPageContent = async (
     if (response.text) {
         const content = JSON.parse(response.text) as GeneratedPageContent;
         
+        // --- BLINDAJE DE SEGURIDAD PARA ARRAYS ---
+        // Aseguramos que si la IA omitió algún campo, el sistema tenga arrays vacíos para evitar .map error
+        if (!content.testimonials) content.testimonials = [];
+        if (!content.faq) content.faq = [];
+        if (!content.navLinks) content.navLinks = [];
+        
+        if (!content.intro) content.intro = { title: "", description: "" };
+        if (!content.intro.items) content.intro.items = [];
+        
+        if (!content.benefits) content.benefits = { title: "", items: [] };
+        if (!content.benefits.items) content.benefits.items = [];
+        
+        if (!content.whatYouWillLearn) content.whatYouWillLearn = { title: "", items: [] };
+        if (!content.whatYouWillLearn.items) content.whatYouWillLearn.items = [];
+
         // --- LOGIC UPDATE: DEFAULT SUBTITLE FOR BENEFITS ---
         if (!content.benefits.subtitle) {
             content.benefits.subtitle = "Descubre las herramientas exclusivas que acelerarán tus resultados desde el primer día.";
         }
         
         // --- LOGIC UPDATE: DEFAULT TITLE FOR INSTRUCTOR ---
+        if (!content.instructor) content.instructor = { name: "", bio: "" };
         if (!content.instructor.title) {
             content.instructor.title = "Conoce a tu Mentor";
         }
@@ -316,7 +327,7 @@ export const generateLandingPageContent = async (
             content.closingOfferText = "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios.";
         }
         
-        if (content.testimonials) {
+        if (content.testimonials && Array.isArray(content.testimonials)) {
             const randomLocations = [
                 "Bogotá, Colombia", "Ciudad de México, México", "Lima, Perú", 
                 "Santiago, Chile", "Buenos Aires, Argentina", "Madrid, España", 

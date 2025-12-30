@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { PlayCircle, Plus, Minus, CheckCircle, ScanFace, Palette, Feather, Award, Users, Star, BookOpen } from 'lucide-react';
@@ -75,7 +74,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
                   </h2>
               </div>
               <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
-                  {content.whatYouWillLearn.items.map((item, idx) => (
+                  {(content.whatYouWillLearn.items || []).map((item, idx) => (
                       <div key={idx} className={`flex items-center gap-3 p-4 rounded-xl border bg-white/50 backdrop-blur-sm ${ds.features.cardBorder}`}>
                           <div className={`p-1 rounded-full ${ds.decorations.checkColor} bg-current/10`}>
                               <CheckCircle className="w-4 h-4" />
@@ -182,7 +181,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
         <section id="faq-section" className="py-16 max-w-3xl mx-auto px-6">
             <h2 className={`text-2xl md:text-4xl font-bold mb-12 text-center ${ds.faq.titleColor}`}>Preguntas Frecuentes</h2>
             <div className="space-y-4">
-                {questions.map((q, idx) => (
+                {(questions || []).map((q, idx) => (
                     <div key={idx} id={`faq-card-${idx}`} className={`rounded-xl border transition-all duration-300 overflow-hidden ${openIndex === idx ? `shadow-lg border-opacity-0 ${ds.faq.cardBg}` : `border-transparent ${ds.faq.cardBg} hover:bg-opacity-80`}`}>
                         <button onClick={() => setOpenIndex(openIndex === idx ? null : idx)} className="w-full flex items-center justify-between p-6 text-left">
                             <span className={`font-bold text-lg ${ds.faq.questionColor}`}>{q.question}</span>
