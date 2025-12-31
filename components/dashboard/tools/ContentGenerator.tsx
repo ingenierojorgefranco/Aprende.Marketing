@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../../../services/geminiService';
 import { api } from '../../../services/api';
@@ -21,6 +20,7 @@ interface ContentGeneratorProps {
 interface DashboardContext {
   user: User;
   articleCount: number;
+  isSimulating: boolean; // Actualización 23/05/2024 16:30 - Se añade isSimulating al tipo del contexto
 }
 
 export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) => {
@@ -28,7 +28,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [loading, setLoading] = useState(false);
   const { id: editArticleId } = useParams() as { id: string };
   const navigate = useNavigate();
-  const { user, articleCount } = useOutletContext() as DashboardContext;
+  const { user, articleCount, isSimulating } = useOutletContext() as DashboardContext; // Actualización 23/05/2024 16:30 - Se extrae isSimulating del contexto
   
   // Limit Check State
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -65,13 +65,15 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   // LIMIT CHECK EFFECT
   useEffect(() => {
       // Only check limits if creating new article (not editing)
-      if (!editArticleId && user.planLimits) {
+      // Actualización 23/05/2024 16:30 - Se añade validación de administrador real para no bloquear el generador
+      const isRealAdmin = user.role === 'admin' && !isSimulating;
+      if (!editArticleId && user.planLimits && !isRealAdmin) {
           const max = user.planLimits.maxArticles || 2;
           if (articleCount >= max) {
               setShowUpgradeModal(true);
           }
       }
-  }, [editArticleId, user, articleCount]);
+  }, [editArticleId, user, articleCount, isSimulating]); // Actualización 23/05/2024 16:30 - Se añade isSimulating a las dependencias
 
   useEffect(() => {
     const fetchContext = async () => {

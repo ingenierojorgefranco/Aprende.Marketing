@@ -13,10 +13,11 @@ interface GeneratorProps {
 interface DashboardContext {
   user: User;
   pageCount: number; // Provided by Layout
+  isSimulating: boolean; // Actualización 23/05/2024 16:30 - Se añade isSimulating al contexto
 }
 
 export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
-  const { user, pageCount } = useOutletContext() as DashboardContext;
+  const { user, pageCount, isSimulating } = useOutletContext() as DashboardContext; // Actualización 23/05/2024 16:30 - Se extrae isSimulating
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preSelectedProjectId = searchParams.get('projectId');
@@ -45,7 +46,9 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
   // Load projects & check limits
   useEffect(() => {
     // Check Limits
-    if (user.planLimits) {
+    // Actualización 23/05/2024 16:30 - Se añade validación de administrador real para permitir acceso ilimitado
+    const isRealAdmin = user.role === 'admin' && !isSimulating;
+    if (user.planLimits && !isRealAdmin) {
         const max = user.planLimits.maxLandings;
         if (pageCount >= max) {
             setShowUpgradeModal(true);
@@ -61,7 +64,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         }
     };
     fetchProjects();
-  }, [user, pageCount]);
+  }, [user, pageCount, isSimulating]); // Actualización 23/05/2024 16:30 - Se añade isSimulating a dependencias
 
   // Sync pre-selected project from URL
   useEffect(() => {
@@ -247,15 +250,8 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
       desc: 'Diseño a 2 columnas para alta conversión.',
       wireframe: (
         <div className="w-full h-24 bg-gray-800 rounded border border-gray-700 flex gap-1 p-1 overflow-hidden opacity-70">
-           <div className="w-1/2 flex flex-col gap-1">
-              <div className="w-full h-2 bg-gray-600 rounded-sm"></div>
-              <div className="w-full h-2 bg-gray-600 rounded-sm"></div>
-              <div className="w-3/4 h-1 bg-gray-700 rounded-sm"></div>
-           </div>
-           <div className="w-1/2 bg-gray-700 rounded-sm flex flex-col items-center justify-center gap-1">
-              <div className="w-3/4 h-1 bg-gray-500 rounded-sm"></div>
-              <div className="w-3/4 h-2 bg-primary rounded-sm"></div>
-           </div>
+           <div className="w-1/2 flex flex-col gap-1"><div className="w-full h-2 bg-gray-600 rounded-sm"></div><div className="w-full h-2 bg-gray-600 rounded-sm"></div><div className="w-3/4 h-1 bg-gray-700 rounded-sm"></div></div>
+           <div className="w-1/2 bg-gray-700 rounded-sm flex flex-col items-center justify-center gap-1"><div className="w-3/4 h-1 bg-gray-500 rounded-sm"></div><div className="w-3/4 h-2 bg-primary rounded-sm"></div></div>
         </div>
       )
     },
