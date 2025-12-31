@@ -381,654 +381,655 @@ export const api = {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify(project)
-      });
-      return { ...project, id: data.id.toString(), createdAt: new Date() };
-  },
-
-  updateProject: async (id: string, project: Omit<Project, 'id' | 'createdAt'>): Promise<void> => {
+        });
+        return { ...project, id: data.id.toString(), createdAt: new Date() };
+    },
+  
+    updateProject: async (id: string, project: Omit<Project, 'id' | 'createdAt'>): Promise<void> => {
+        if (isMockMode) {
+            localProjects = localProjects.map(p => p.id === id ? { ...project, id, createdAt: p.createdAt } : p);
+            return Promise.resolve();
+        }
+  
+        await fetchWithFallback(`/projects/${id}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(project)
+        });
+    },
+  
+    deleteProject: async (id: string): Promise<void> => {
+        if (isMockMode) {
+            localProjects = localProjects.filter(p => p.id !== id);
+            return Promise.resolve();
+        }
+        await fetchWithFallback(`/projects/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+    },
+  
+    analyzeSite: async (url: string): Promise<{ productName: string, description: string, niche: string }> => {
+        if (isMockMode) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            return {
+                productName: "Producto Demo Analizado",
+                description: "Esta es una descripción generada automáticamente al analizar la URL. El sistema ha identificado los puntos clave de ventas y los beneficios principales basándose en el contenido visualizado.",
+                niche: "Nicho de Prueba"
+            };
+        }
+        return await fetchWithFallback('/projects/analyze-site', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ url })
+        });
+    },
+  
+    generateProjectStrategyFull: async (projectId: string): Promise<StrategyJSON> => {
+        if (isMockMode) {
+            return Promise.resolve({
+                avatar: { name: "Mock Avatar", age: "30", occupation: "Tester", story: "Fake story", frustrations: [], desires: [] } as any,
+                psychology: { emotionalTriggers: [], objections: [], falseBeliefs: [] },
+                funnel: { leadMagnetIdea: "Free Ebook", tripwireIdea: "Mini Course", coreOfferPitch: "Masterclass", funnelSteps: [] },
+                assets: { emailSequence: [], whatsappScripts: [], adCopies: [] }
+            });
+        }
+        return await fetchWithFallback(`/projects/${projectId}/generate-strategy`, {
+            method: 'POST',
+            headers: getAuthHeaders()
+        });
+    },
+  
+    getLeads: async (): Promise<Lead[]> => {
+        if (isMockMode) return Promise.resolve([...localLeads]);
+        return await fetchWithFallback('/leads', { headers: getAuthHeaders() });
+    },
+  
+    getWeeklyAnalytics: async (): Promise<{date: string, visits: number, conversions: number}[]> => {
+        if (isMockMode) {
+            const days = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+            const today = new Date();
+            const data = [];
+            for(let i=6; i>=0; i--) {
+                const d = new Date(today);
+                d.setDate(today.getDate() - i);
+                data.push({
+                    date: d.toISOString().split('T')[0],
+                    visits: Math.floor(Math.random() * 50) + 10,
+                    conversions: Math.floor(Math.random() * 5)
+                });
+            }
+            return Promise.resolve(data);
+        }
+        return await fetchWithFallback('/analytics/weekly', { headers: getAuthHeaders() });
+    },
+  
+    getAnalyticsSummary: async (): Promise<{totalVisits: number, totalConversions: number, totalPages: number, totalArticles: number, totalProjects: number}> => {
+        if (isMockMode) {
+            const totalVisits = localPages.reduce((acc, p) => acc + p.visits, 0);
+            const totalConversions = localPages.reduce((acc, p) => acc + p.conversions, 0);
+            return Promise.resolve({
+                totalVisits,
+                totalConversions,
+                totalPages: localPages.length,
+                totalArticles: localArticles.length,
+                totalProjects: localProjects.length
+            });
+        }
+        return await fetchWithFallback('/analytics/summary', { headers: getAuthHeaders() });
+    },
+  
+    getArticles: async (): Promise<Article[]> => {
+        if (isMockMode) return Promise.resolve([...localArticles]);
+  
+        const articles = await fetchWithFallback('/articles', { headers: getAuthHeaders() });
+        return articles.map((a: any) => ({
+            id: a.id.toString(),
+            pageId: a.page_id ? a.page_id.toString() : undefined,
+            pageSubdomain: a.page_subdomain,
+            pageName: a.page_name,
+            title: a.title,
+            slug: a.slug,
+            description: a.description,
+            contentHtml: a.content_html,
+            featuredImage: a.featured_image,
+            keyword: a.keyword,
+            seoScore: a.seo_score,
+            metaTitle: a.meta_title,
+            metaDescription: a.meta_description,
+            status: a.status || 'published',
+            publishedAt: new Date(a.published_at || a.created_at),
+            createdAt: new Date(a.created_at)
+        }));
+    },
+  
+    getArticleById: async (id: string): Promise<Article | null> => {
       if (isMockMode) {
-          localProjects = localProjects.map(p => p.id === id ? { ...project, id, createdAt: p.createdAt } : p);
-          return Promise.resolve();
-      }
-
-      await fetchWithFallback(`/projects/${id}`, {
-          method: 'PUT',
-          headers: getAuthHeaders(),
-          body: JSON.stringify(project)
-      });
-  },
-
-  deleteProject: async (id: string): Promise<void> => {
-      if (isMockMode) {
-          localProjects = localProjects.filter(p => p.id !== id);
-          return Promise.resolve();
-      }
-      await fetchWithFallback(`/projects/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-  },
-
-  analyzeSite: async (url: string): Promise<{ productName: string, description: string, niche: string }> => {
-      if (isMockMode) {
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          return {
-              productName: "Producto Demo Analizado",
-              description: "Esta es una descripción generada automáticamente al analizar la URL. El sistema ha identificado los puntos clave de ventas y los beneficios principales basándose en el contenido visualizado.",
-              niche: "Nicho de Prueba"
-          };
-      }
-      return await fetchWithFallback('/projects/analyze-site', {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ url })
-      });
-  },
-
-  generateProjectStrategyFull: async (projectId: string): Promise<StrategyJSON> => {
-      if (isMockMode) {
-          return Promise.resolve({
-              avatar: { name: "Mock Avatar", age: "30", occupation: "Tester", story: "Fake story", frustrations: [], desires: [] } as any,
-              psychology: { emotionalTriggers: [], objections: [], falseBeliefs: [] },
-              funnel: { leadMagnetIdea: "Free Ebook", tripwireIdea: "Mini Course", coreOfferPitch: "Masterclass", funnelSteps: [] },
-              assets: { emailSequence: [], whatsappScripts: [], adCopies: [] }
-          });
-      }
-      return await fetchWithFallback(`/projects/${projectId}/generate-strategy`, {
-          method: 'POST',
-          headers: getAuthHeaders()
-      });
-  },
-
-  getLeads: async (): Promise<Lead[]> => {
-      if (isMockMode) return Promise.resolve([...localLeads]);
-      return await fetchWithFallback('/leads', { headers: getAuthHeaders() });
-  },
-
-  getWeeklyAnalytics: async (): Promise<{date: string, visits: number, conversions: number}[]> => {
-      if (isMockMode) {
-          const days = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
-          const today = new Date();
-          const data = [];
-          for(let i=6; i>=0; i--) {
-              const d = new Date(today);
-              d.setDate(today.getDate() - i);
-              data.push({
-                  date: d.toISOString().split('T')[0],
-                  visits: Math.floor(Math.random() * 50) + 10,
-                  conversions: Math.floor(Math.random() * 5)
-              });
-          }
-          return Promise.resolve(data);
-      }
-      return await fetchWithFallback('/analytics/weekly', { headers: getAuthHeaders() });
-  },
-
-  getAnalyticsSummary: async (): Promise<{totalVisits: number, totalConversions: number, totalPages: number, totalArticles: number}> => {
-      if (isMockMode) {
-          const totalVisits = localPages.reduce((acc, p) => acc + p.visits, 0);
-          const totalConversions = localPages.reduce((acc, p) => acc + p.conversions, 0);
-          return Promise.resolve({
-              totalVisits,
-              totalConversions,
-              totalPages: localPages.length,
-              totalArticles: localArticles.length
-          });
-      }
-      return await fetchWithFallback('/analytics/summary', { headers: getAuthHeaders() });
-  },
-
-  getArticles: async (): Promise<Article[]> => {
-      if (isMockMode) return Promise.resolve([...localArticles]);
-
-      const articles = await fetchWithFallback('/articles', { headers: getAuthHeaders() });
-      return articles.map((a: any) => ({
-          id: a.id.toString(),
-          pageId: a.page_id ? a.page_id.toString() : undefined,
-          pageSubdomain: a.page_subdomain,
-          pageName: a.page_name,
-          title: a.title,
-          slug: a.slug,
-          description: a.description,
-          contentHtml: a.content_html,
-          featuredImage: a.featured_image,
-          keyword: a.keyword,
-          seoScore: a.seo_score,
-          metaTitle: a.meta_title,
-          metaDescription: a.meta_description,
-          status: a.status || 'published',
-          publishedAt: new Date(a.published_at || a.created_at),
-          createdAt: new Date(a.created_at)
-      }));
-  },
-
-  getArticleById: async (id: string): Promise<Article | null> => {
-    if (isMockMode) {
-        const art = localArticles.find(a => a.id === id);
-        return art ? Promise.resolve(art) : Promise.resolve(null);
-    }
-
-    try {
-        const a = await fetchWithFallback(`/articles/${id}`, { headers: getAuthHeaders() });
-        return {
-              id: a.id.toString(),
-              pageId: a.page_id ? a.page_id.toString() : undefined,
-              title: a.title,
-              slug: a.slug,
-              description: a.description,
-              contentHtml: a.content_html,
-              featuredImage: a.featured_image,
-              keyword: a.keyword,
-              seoScore: a.seo_score,
-              metaTitle: a.meta_title,
-              metaDescription: a.meta_description,
-              status: a.status || 'published',
-              publishedAt: new Date(a.published_at || a.created_at),
-              createdAt: new Date(a.created_at)
-        };
-    } catch (e) { return null; }
-  },
-
-  saveArticle: async (article: Omit<Article, 'id' | 'createdAt'>): Promise<Article> => {
-      if (isMockMode) {
-          const newArticle: Article = { ...article, id: `mock-art-${Date.now()}`, createdAt: new Date() };
-          localArticles.unshift(newArticle);
-          return Promise.resolve(newArticle);
-      }
-
-      const saved = await fetchWithFallback('/articles', {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
-              page_id: article.pageId,
-              title: article.title,
-              slug: article.slug,
-              description: article.description,
-              content_html: article.contentHtml,
-              featured_image: article.featuredImage,
-              keyword: article.keyword,
-              seo_score: article.seoScore,
-              meta_title: article.metaTitle,
-              meta_description: article.metaDescription,
-              status: article.status,
-              published_at: article.publishedAt
-          })
-      });
-      return { ...article, id: saved.id.toString(), createdAt: new Date() };
-  },
-
-  updateArticle: async (id: string, article: Partial<Article>): Promise<void> => {
-    if (isMockMode) {
-        localArticles = localArticles.map(a => a.id === id ? { ...a, ...article } : a);
-        return Promise.resolve();
-    }
-
-    await fetchWithFallback(`/articles/${id}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-              page_id: article.pageId,
-              title: article.title,
-              slug: article.slug,
-              description: article.description,
-              content_html: article.contentHtml,
-              featured_image: article.featuredImage,
-              keyword: article.keyword,
-              seo_score: article.seoScore,
-              meta_title: article.metaTitle,
-              meta_description: article.metaDescription,
-              status: article.status,
-              published_at: article.publishedAt
-        })
-    });
-  },
-
-  deleteArticle: async (id: string): Promise<void> => {
-    if (isMockMode) {
-        localArticles = localArticles.filter(p => p.id !== id);
-        return Promise.resolve();
-    }
-    await fetchWithFallback(`/articles/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-  },
-
-  getPublicBlogArticles: async (pageId: string): Promise<Article[]> => {
-      if (isMockMode) {
-          return Promise.resolve(localArticles.filter(a => a.pageId === pageId));
-      }
-      const articles = await fetchWithFallback(`/public/pages/${pageId}/blog`);
-      return articles.map((a: any) => ({
-          id: a.id.toString(),
-          title: a.title,
-          slug: a.slug,
-          description: a.description,
-          metaDescription: a.meta_description, 
-          featuredImage: a.featured_image,
-          publishedAt: new Date(a.published_at),
-          contentHtml: '' 
-      } as Article));
-  },
-
-  getPublicArticle: async (slug: string): Promise<Article | null> => {
-      if (isMockMode) {
-          const art = localArticles.find(a => a.slug === slug);
+          const art = localArticles.find(a => a.id === id);
           return art ? Promise.resolve(art) : Promise.resolve(null);
       }
-      const article = await fetchWithFallback(`/public/articles/${slug}`);
-      return {
-          id: article.id.toString(),
-          title: article.title,
-          slug: article.slug,
-          description: article.description,
-          contentHtml: article.content_html,
-          featuredImage: article.featured_image,
-          metaTitle: article.meta_title,
-          metaDescription: article.meta_description,
-          publishedAt: new Date(article.published_at),
-          status: article.status,
-          createdAt: new Date(article.created_at),
-          keyword: '',
-          seoScore: 0
-      };
-  },
   
-  testConnection: async (): Promise<{ success: boolean; message: string }> => {
-      if (isMockMode) return { success: true, message: "Mock Mode Active" };
-
       try {
-          const data = await fetchWithFallback('/debug/db-status');
-          return { success: data.status === 'online', message: data.server_version || 'OK' };
-      } catch (error: any) {
-          return { success: false, message: error.message };
-      }
-  },
-
-  getUsers: async (): Promise<User[]> => {
-      if (isMockMode) return Promise.resolve([MOCK_USER]);
-      return await fetchWithFallback('/admin/users', { headers: getAuthHeaders() });
-  },
-
-  updateUser: async (id: string, data: { role: string, planLimits: PlanLimits, isActive: boolean }): Promise<void> => {
-      if (isMockMode) return Promise.resolve();
-      await fetchWithFallback(`/admin/users/${id}`, {
-          method: 'PUT',
-          headers: getAuthHeaders(),
-          body: JSON.stringify(data)
-      });
-  },
-
-  deleteUser: async (id: string): Promise<void> => {
-      if (isMockMode) return Promise.resolve();
-      await fetchWithFallback(`/admin/users/${id}`, {
-          headers: getAuthHeaders()
-      });
-  },
-
-  getAdminUserResources: async (userId: string, type: 'projects' | 'pages' | 'articles'): Promise<any[]> => {
-      if (isMockMode) {
-          if (type === 'projects') return Promise.resolve([...localProjects]);
-          if (type === 'pages') return Promise.resolve([...localPages]);
-          if (type === 'articles') return Promise.resolve([...localArticles]);
-          return Promise.resolve([]);
-      }
-      return await fetchWithFallback(`/admin/users/${userId}/resources?type=${type}`, { headers: getAuthHeaders() });
-  },
-
-  // NEW: Get Payment History
-  getUserPayments: async (userId: string): Promise<any[]> => {
-      if (isMockMode) return Promise.resolve([]);
-      return await fetchWithFallback(`/admin/users/${userId}/payments`, { headers: getAuthHeaders() });
-  },
-
-  // NEW: Get System Logs (Admin)
-  getSystemLogs: async (page: number, filters: { action?: string, search?: string }): Promise<SystemLog[]> => {
-      if (isMockMode) return Promise.resolve([]);
-      let query = `?page=${page}`;
-      if (filters.action) query += `&action=${filters.action}`;
-      if (filters.search) query += `&search=${filters.search}`;
-      
-      return await fetchWithFallback('/admin/logs' + query, { headers: getAuthHeaders() });
-  },
-
-  // NEW: Get User Stats (Admin Lazy Load)
-  getUserUsageStats: async (userId: string): Promise<UserUsageStats> => {
-      if (isMockMode) return Promise.resolve({ projects: 5, landings: 2, articles: 1 });
-      return await fetchWithFallback(`/admin/users/${userId}/stats`, { headers: getAuthHeaders() });
-  },
-
-  // --- LMS / COURSES ---
-  
-  getCoursesList: async (): Promise<{id: string, title: string, slug: string}[]> => {
-      if (isMockMode) {
-          return Promise.resolve(localCourses.map(c => ({ id: c.id, title: c.title, slug: c.slug })));
-      }
-      return await fetchWithFallback('/courses', { headers: getAuthHeaders() });
-  },
-
-  getCourseBySlug: async (slug: string): Promise<any> => {
-      if (isMockMode) {
-          const course = localCourses.find(c => c.slug === slug);
-          if (course) {
-              return Promise.resolve({
-                  ...course,
-                  learningPoints: [], 
-                  modules: course.modules?.map(m => ({...m, lessons: []})) || [] 
-              });
-          }
-          return Promise.resolve({
-              id: 'mock-course',
-              title: 'Curso Mock (Modo Offline)',
-              modules: []
-          });
-      }
-      return await fetchWithFallback(`/courses/${slug}`, { headers: getAuthHeaders() });
-  },
-
-  getModuleLessons: async (moduleId: string): Promise<CourseLesson[]> => {
-      if (isMockMode) {
-          const module = localCourses.flatMap(c => c.modules).find(m => m.id === moduleId);
-          await new Promise(resolve => setTimeout(resolve, 500));
-          return Promise.resolve(module?.lessons || []);
-      }
-      return await fetchWithFallback(`/modules/${moduleId}/lessons`, { headers: getAuthHeaders() });
-  },
-
-  // --- ADMIN COURSE MANAGEMENT ---
-  
-  getAdminCourses: async (): Promise<Course[]> => {
-      if (isMockMode) return Promise.resolve(localCourses);
-      return await fetchWithFallback('/admin/courses', { headers: getAuthHeaders() });
-  },
-
-  saveCourse: async (course: Course): Promise<Course> => {
-      if (isMockMode) {
-          if (course.id) {
-              localCourses = localCourses.map(c => c.id === course.id ? course : c);
-              return Promise.resolve(course);
-          } else {
-              const newCourse = { ...course, id: `new-${Date.now()}` };
-              localCourses.push(newCourse);
-              return Promise.resolve(newCourse);
-          }
-      }
-      
-      const method = course.id ? 'PUT' : 'POST';
-      const endpoint = course.id ? `/admin/courses/${course.id}` : '/admin/courses';
-      
-      const res = await fetchWithFallback(endpoint, {
-          method,
-          headers: getAuthHeaders(),
-          body: JSON.stringify(course)
-      });
-      return res;
-  },
-
-  reorderCourses: async (orderedIds: string[]): Promise<void> => {
-      if (isMockMode) return Promise.resolve();
-      await fetchWithFallback('/admin/courses/reorder', {
-          method: 'PUT',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ orderedIds })
-      });
-  },
-
-  deleteCourse: async (id: string): Promise<void> => {
-      if (isMockMode) {
-          localCourses = localCourses.filter(c => c.id !== id);
-          return Promise.resolve();
-      }
-      await fetchWithFallback(`/admin/courses/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-  },
-
-  // --- ADMIN COMMENTS MANAGEMENT ---
-
-  getAdminComments: async (): Promise<Comment[]> => {
-      if (isMockMode) return Promise.resolve(localComments);
-      return await fetchWithFallback('/admin/comments', { headers: getAuthHeaders() });
-  },
-
-  moderateComment: async (id: string, action: 'toggle_publish' | 'delete'): Promise<void> => {
-      if (isMockMode) {
-          if (action === 'delete') {
-              localComments = localComments.filter(c => c.id !== id);
-          } else {
-              localComments = localComments.map(c => c.id === id ? { ...c, isApproved: !c.isApproved } : c);
-          }
-          return Promise.resolve();
-      }
-      await fetchWithFallback(`/admin/comments/${id}`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ action })
-      });
-  },
-
-  getComments: async (lessonId: string): Promise<any[]> => {
-      if (isMockMode) {
-          return Promise.resolve(localComments.filter(c => c.lessonId === lessonId));
-      }
-      return await fetchWithFallback(`/lessons/${lessonId}/comments`, { headers: getAuthHeaders() });
-  },
-
-  postComment: async (lessonId: string, content: string, parentId?: string): Promise<void> => {
-      if (isMockMode) {
-          const newComment: any = {
-              id: `c-${Date.now()}`,
-              lessonId,
-              text: content,
-              user: MOCK_USER.name,
-              userId: MOCK_USER.id,
-              date: new Date().toISOString(),
-              likes: 0,
-              isApproved: false 
+          const a = await fetchWithFallback(`/articles/${id}`, { headers: getAuthHeaders() });
+          return {
+                id: a.id.toString(),
+                pageId: a.page_id ? a.page_id.toString() : undefined,
+                title: a.title,
+                slug: a.slug,
+                description: a.description,
+                contentHtml: a.content_html,
+                featuredImage: a.featured_image,
+                keyword: a.keyword,
+                seoScore: a.seo_score,
+                metaTitle: a.meta_title,
+                metaDescription: a.meta_description,
+                status: a.status || 'published',
+                publishedAt: new Date(a.published_at || a.created_at),
+                createdAt: new Date(a.created_at)
           };
-          if (parentId) newComment.parentId = parentId;
-          
-          localComments.unshift(newComment);
-          return Promise.resolve();
-      }
-      await fetchWithFallback('/comments', {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ lessonId, content, parentId })
-      });
-  },
-
-  likeComment: async (commentId: string): Promise<void> => {
-      if (isMockMode) {
-          const comment = localComments.find(c => c.id === commentId);
-          if (comment) {
-              comment.likes = (comment.likes || 0) + 1;
-          }
-          return Promise.resolve();
-      }
-      await fetchWithFallback(`/comments/${commentId}/like`, {
-          method: 'POST',
-          headers: getAuthHeaders()
-      });
-  },
-
-  // --- ADMIN SETTINGS & REDIRECTS ---
+      } catch (e) { return null; }
+    },
   
-  getLoginRedirect: async (): Promise<string> => {
-      if (isMockMode) return "/dashboard/training/bienvenida";
-      try {
-          const data = await fetchWithFallback('/settings/redirect');
-          return data.url;
-      } catch (e) {
-          return "/dashboard";
+    saveArticle: async (article: Omit<Article, 'id' | 'createdAt'>): Promise<Article> => {
+        if (isMockMode) {
+            const newArticle: Article = { ...article, id: `mock-art-${Date.now()}`, createdAt: new Date() };
+            localArticles.unshift(newArticle);
+            return Promise.resolve(newArticle);
+        }
+  
+        const saved = await fetchWithFallback('/articles', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                page_id: article.pageId,
+                title: article.title,
+                slug: article.slug,
+                description: article.description,
+                content_html: article.contentHtml,
+                featured_image: article.featuredImage,
+                keyword: article.keyword,
+                seo_score: article.seoScore,
+                meta_title: article.metaTitle,
+                meta_description: article.metaDescription,
+                status: article.status,
+                published_at: article.publishedAt
+            })
+        });
+        return { ...article, id: saved.id.toString(), createdAt: new Date() };
+    },
+  
+    updateArticle: async (id: string, article: Partial<Article>): Promise<void> => {
+      if (isMockMode) {
+          localArticles = localArticles.map(a => a.id === id ? { ...a, ...article } : a);
+          return Promise.resolve();
       }
-  },
-
-  updateLoginRedirect: async (url: string): Promise<void> => {
-      if (isMockMode) return Promise.resolve();
-      await fetchWithFallback('/admin/settings', {
+  
+      await fetchWithFallback(`/articles/${id}`, {
           method: 'PUT',
           headers: getAuthHeaders(),
-          body: JSON.stringify({ key: 'after_login_url', value: url })
+          body: JSON.stringify({
+                page_id: article.pageId,
+                title: article.title,
+                slug: article.slug,
+                description: article.description,
+                content_html: article.contentHtml,
+                featured_image: article.featuredImage,
+                keyword: article.keyword,
+                seo_score: article.seoScore,
+                meta_title: article.metaTitle,
+                meta_description: article.metaDescription,
+                status: article.status,
+                published_at: article.publishedAt
+          })
       });
-  },
-
-  // --- ADMIN PLANS MANAGEMENT ---
-  getPlans: async (): Promise<Plan[]> => {
-      if (isMockMode) return Promise.resolve([]); 
-      return await fetchWithFallback('/admin/plans', { headers: getAuthHeaders() });
-  },
-
-  getPublicPlans: async (): Promise<Plan[]> => {
+    },
+  
+    deleteArticle: async (id: string): Promise<void> => {
       if (isMockMode) {
-          return Promise.resolve([
-              {
-                  id: 'starter',
-                  name: 'Starter',
-                  slug: 'starter',
-                  description: 'Ideal para empezar sin riesgo.',
-                  priceMonthly: 0,
-                  currency: 'EUR',
-                  limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, maxDomains: 1, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } },
-                  uiFeatures: ['1 Proyecto / Nicho', '3 Landing Pages', 'IA Básica', 'Marca de Agua'],
-                  isActive: true,
-                  isRecommended: false
-              },
-              {
-                  id: 'pro',
-                  name: 'Pro',
-                  slug: 'pro',
-                  description: 'Para Productores y Afiliados serios.',
-                  priceMonthly: 19.99,
-                  currency: 'EUR',
-                  limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, maxDomains: 3, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } },
-                  uiFeatures: ['5 Proyectos', '20 Landing Pages', 'Bot WhatsApp', 'IA Avanzada', 'Sin Marca de Agua'],
-                  isActive: true,
-                  isRecommended: true
-              }
-          ]);
-      }
-      return await fetchWithFallback('/public/plans');
-  },
-
-  savePlan: async (plan: Plan): Promise<void> => {
-      if (isMockMode) return Promise.resolve();
-      const method = plan.id ? 'PUT' : 'POST';
-      const endpoint = plan.id ? `/admin/plans/${plan.id}` : '/admin/plans';
-      
-      await fetchWithFallback(endpoint, {
-          method,
-          headers: getAuthHeaders(),
-          body: JSON.stringify(plan)
-      });
-  },
-
-  deletePlan: async (id: string): Promise<void> => {
-      if (isMockMode) return Promise.resolve();
-      await fetchWithFallback(`/admin/plans/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-  },
-
-  // --- CRM API ENDPOINTS ---
-  getContacts: async (): Promise<CRMContact[]> => {
-      if (isMockMode) return Promise.resolve([...localCrmContacts]);
-      
-      const contacts = await fetchWithFallback('/crm/contacts', { headers: getAuthHeaders() });
-      return contacts.map((c: any) => ({
-          ...c,
-          id: c.id.toString(),
-          pageId: c.page_id ? c.page_id.toString() : undefined,
-          pageSlug: c.page_slug, 
-          lastContactedAt: c.last_contacted_at ? new Date(c.last_contacted_at) : undefined,
-          createdAt: new Date(c.created_at),
-          updatedAt: new Date(c.updated_at)
-      }));
-  },
-
-  createContact: async (contact: Omit<CRMContact, 'id' | 'createdAt' | 'updatedAt' | 'lastContactedAt'>): Promise<CRMContact> => {
-      if (isMockMode) {
-          const newContact: CRMContact = {
-              ...contact,
-              id: `mock-crm-${Date.now()}`,
-              lastContactedAt: undefined,
-              createdAt: new Date(),
-              updatedAt: new Date()
-          };
-          localCrmContacts.unshift(newContact);
-          return Promise.resolve(newContact);
-      }
-
-      const res = await fetchWithFallback('/crm/contacts', {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify(contact)
-      });
-      
-      return { 
-          ...contact, 
-          id: res.id.toString(), 
-          createdAt: new Date(), 
-          updatedAt: new Date() 
-      };
-  },
-
-  updateContact: async (contact: CRMContact): Promise<void> => {
-      if (isMockMode) {
-          localCrmContacts = localCrmContacts.map(c => c.id === contact.id ? { ...contact, updatedAt: new Date() } : c);
+          localArticles = localArticles.filter(p => p.id !== id);
           return Promise.resolve();
       }
-
-      await fetchWithFallback(`/crm/contacts/${contact.id}`, {
-          method: 'PUT',
-          headers: getAuthHeaders(),
-          body: JSON.stringify(contact)
-      });
-  },
-
-  // NEW: Delete Contact Method
-  deleteContact: async (id: string): Promise<void> => {
-      if (isMockMode) {
-          localCrmContacts = localCrmContacts.filter(c => c.id !== id);
-          return Promise.resolve();
-      }
-      await fetchWithFallback(`/crm/contacts/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-  },
-
-  getContactHistory: async (contactId: string): Promise<CRMActivity[]> => {
-      if (isMockMode) {
-          return Promise.resolve(localCrmActivities.filter(a => a.contactId === contactId));
-      }
-      
-      const activities = await fetchWithFallback(`/crm/contacts/${contactId}/history`, { headers: getAuthHeaders() });
-      return activities.map((a: any) => ({
-          id: a.id.toString(),
-          contactId: a.contact_id.toString(),
-          type: a.type,
-          content: a.content,
-          createdAt: new Date(a.created_at)
-      }));
-  },
-
-  addContactNote: async (contactId: string, content: string): Promise<void> => {
-      if (isMockMode) {
-          localCrmActivities.unshift({
-              id: `act-${Date.now()}`,
-              contactId,
-              type: 'note',
-              content,
-              createdAt: new Date()
-          });
-          return Promise.resolve();
-      }
-
-      await fetchWithFallback(`/crm/contacts/${contactId}/notes`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ content })
-      });
-  }
-};
-
-/**
- * Helper to parse JSON list fields from projects (pain points, benefits, links)
- */
-function safeParseJsonList(data: any): any[] {
-    if (!data) return [];
-    if (Array.isArray(data)) return data;
-    try {
-        return typeof data === 'string' ? JSON.parse(data) : data;
-    } catch (e) {
-        return [];
+      await fetchWithFallback(`/articles/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+    },
+  
+    getPublicBlogArticles: async (pageId: string): Promise<Article[]> => {
+        if (isMockMode) {
+            return Promise.resolve(localArticles.filter(a => a.pageId === pageId));
+        }
+        const articles = await fetchWithFallback(`/public/pages/${pageId}/blog`);
+        return articles.map((a: any) => ({
+            id: a.id.toString(),
+            title: a.title,
+            slug: a.slug,
+            description: a.description,
+            metaDescription: a.meta_description, 
+            featuredImage: a.featured_image,
+            publishedAt: new Date(a.published_at),
+            contentHtml: '' 
+        } as Article));
+    },
+  
+    getPublicArticle: async (slug: string): Promise<Article | null> => {
+        if (isMockMode) {
+            const art = localArticles.find(a => a.slug === slug);
+            return art ? Promise.resolve(art) : Promise.resolve(null);
+        }
+        const article = await fetchWithFallback(`/public/articles/${slug}`);
+        return {
+            id: article.id.toString(),
+            title: article.title,
+            slug: article.slug,
+            description: article.description,
+            contentHtml: article.content_html,
+            featuredImage: article.featured_image,
+            metaTitle: article.meta_title,
+            metaDescription: article.meta_description,
+            publishedAt: new Date(article.published_at),
+            status: article.status,
+            createdAt: new Date(article.created_at),
+            keyword: '',
+            seoScore: 0
+        };
+    },
+    
+    testConnection: async (): Promise<{ success: boolean; message: string }> => {
+        if (isMockMode) return { success: true, message: "Mock Mode Active" };
+  
+        try {
+            const data = await fetchWithFallback('/debug/db-status');
+            return { success: data.status === 'online', message: data.server_version || 'OK' };
+        } catch (error: any) {
+            return { success: false, message: error.message };
+        }
+    },
+  
+    getUsers: async (): Promise<User[]> => {
+        if (isMockMode) return Promise.resolve([MOCK_USER]);
+        return await fetchWithFallback('/admin/users', { headers: getAuthHeaders() });
+    },
+  
+    updateUser: async (id: string, data: { role: string, planLimits: PlanLimits, isActive: boolean }): Promise<void> => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback(`/admin/users/${id}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(data)
+        });
+    },
+  
+    deleteUser: async (id: string): Promise<void> => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback(`/admin/users/${id}`, {
+            headers: getAuthHeaders()
+        });
+    },
+  
+    getAdminUserResources: async (userId: string, type: 'projects' | 'pages' | 'articles'): Promise<any[]> => {
+        if (isMockMode) {
+            if (type === 'projects') return Promise.resolve([...localProjects]);
+            if (type === 'pages') return Promise.resolve([...localPages]);
+            if (type === 'articles') return Promise.resolve([...localArticles]);
+            return Promise.resolve([]);
+        }
+        return await fetchWithFallback(`/admin/users/${userId}/resources?type=${type}`, { headers: getAuthHeaders() });
+    },
+  
+    // NEW: Get Payment History
+    getUserPayments: async (userId: string): Promise<any[]> => {
+        if (isMockMode) return Promise.resolve([]);
+        return await fetchWithFallback(`/admin/users/${userId}/payments`, { headers: getAuthHeaders() });
+    },
+  
+    // NEW: Get System Logs (Admin)
+    getSystemLogs: async (page: number, filters: { action?: string, search?: string }): Promise<SystemLog[]> => {
+        if (isMockMode) return Promise.resolve([]);
+        let query = `?page=${page}`;
+        if (filters.action) query += `&action=${filters.action}`;
+        if (filters.search) query += `&search=${filters.search}`;
+        
+        return await fetchWithFallback('/admin/logs' + query, { headers: getAuthHeaders() });
+    },
+  
+    // NEW: Get User Stats (Admin Lazy Load)
+    getUserUsageStats: async (userId: string): Promise<UserUsageStats> => {
+        if (isMockMode) return Promise.resolve({ projects: 5, landings: 2, articles: 1 });
+        return await fetchWithFallback(`/admin/users/${userId}/stats`, { headers: getAuthHeaders() });
+    },
+  
+    // --- LMS / COURSES ---
+    
+    getCoursesList: async (): Promise<{id: string, title: string, slug: string}[]> => {
+        if (isMockMode) {
+            return Promise.resolve(localCourses.map(c => ({ id: c.id, title: c.title, slug: c.slug })));
+        }
+        return await fetchWithFallback('/courses', { headers: getAuthHeaders() });
+    },
+  
+    getCourseBySlug: async (slug: string): Promise<any> => {
+        if (isMockMode) {
+            const course = localCourses.find(c => c.slug === slug);
+            if (course) {
+                return Promise.resolve({
+                    ...course,
+                    learningPoints: [], 
+                    modules: course.modules?.map(m => ({...m, lessons: []})) || [] 
+                });
+            }
+            return Promise.resolve({
+                id: 'mock-course',
+                title: 'Curso Mock (Modo Offline)',
+                modules: []
+            });
+        }
+        return await fetchWithFallback(`/courses/${slug}`, { headers: getAuthHeaders() });
+    },
+  
+    getModuleLessons: async (moduleId: string): Promise<CourseLesson[]> => {
+        if (isMockMode) {
+            const module = localCourses.flatMap(c => c.modules).find(m => m.id === moduleId);
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return Promise.resolve(module?.lessons || []);
+        }
+        return await fetchWithFallback(`/modules/${moduleId}/lessons`, { headers: getAuthHeaders() });
+    },
+  
+    // --- ADMIN COURSE MANAGEMENT ---
+    
+    getAdminCourses: async (): Promise<Course[]> => {
+        if (isMockMode) return Promise.resolve(localCourses);
+        return await fetchWithFallback('/admin/courses', { headers: getAuthHeaders() });
+    },
+  
+    saveCourse: async (course: Course): Promise<Course> => {
+        if (isMockMode) {
+            if (course.id) {
+                localCourses = localCourses.map(c => c.id === course.id ? course : c);
+                return Promise.resolve(course);
+            } else {
+                const newCourse = { ...course, id: `new-${Date.now()}` };
+                localCourses.push(newCourse);
+                return Promise.resolve(newCourse);
+            }
+        }
+        
+        const method = course.id ? 'PUT' : 'POST';
+        const endpoint = course.id ? `/admin/courses/${course.id}` : '/admin/courses';
+        
+        const res = await fetchWithFallback(endpoint, {
+            method,
+            headers: getAuthHeaders(),
+            body: JSON.stringify(course)
+        });
+        return res;
+    },
+  
+    reorderCourses: async (orderedIds: string[]): Promise<void> => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback('/admin/courses/reorder', {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ orderedIds })
+        });
+    },
+  
+    deleteCourse: async (id: string): Promise<void> => {
+        if (isMockMode) {
+            localCourses = localCourses.filter(c => c.id !== id);
+            return Promise.resolve();
+        }
+        await fetchWithFallback(`/admin/courses/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+    },
+  
+    // --- ADMIN COMMENTS MANAGEMENT ---
+  
+    getAdminComments: async (): Promise<Comment[]> => {
+        if (isMockMode) return Promise.resolve(localComments);
+        return await fetchWithFallback('/admin/comments', { headers: getAuthHeaders() });
+    },
+  
+    moderateComment: async (id: string, action: 'toggle_publish' | 'delete'): Promise<void> => {
+        if (isMockMode) {
+            if (action === 'delete') {
+                localComments = localComments.filter(c => c.id !== id);
+            } else {
+                localComments = localComments.map(c => c.id === id ? { ...c, isApproved: !c.isApproved } : c);
+            }
+            return Promise.resolve();
+        }
+        await fetchWithFallback(`/admin/comments/${id}`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ action })
+        });
+    },
+  
+    getComments: async (lessonId: string): Promise<any[]> => {
+        if (isMockMode) {
+            return Promise.resolve(localComments.filter(c => c.lessonId === lessonId));
+        }
+        return await fetchWithFallback(`/lessons/${lessonId}/comments`, { headers: getAuthHeaders() });
+    },
+  
+    postComment: async (lessonId: string, content: string, parentId?: string): Promise<void> => {
+        if (isMockMode) {
+            const newComment: any = {
+                id: `c-${Date.now()}`,
+                lessonId,
+                text: content,
+                user: MOCK_USER.name,
+                userId: MOCK_USER.id,
+                date: new Date().toISOString(),
+                likes: 0,
+                isApproved: false 
+            };
+            if (parentId) newComment.parentId = parentId;
+            
+            localComments.unshift(newComment);
+            return Promise.resolve();
+        }
+        await fetchWithFallback('/comments', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ lessonId, content, parentId })
+        });
+    },
+  
+    likeComment: async (commentId: string): Promise<void> => {
+        if (isMockMode) {
+            const comment = localComments.find(c => c.id === commentId);
+            if (comment) {
+                comment.likes = (comment.likes || 0) + 1;
+            }
+            return Promise.resolve();
+        }
+        await fetchWithFallback(`/comments/${commentId}/like`, {
+            method: 'POST',
+            headers: getAuthHeaders()
+        });
+    },
+  
+    // --- ADMIN SETTINGS & REDIRECTS ---
+    
+    getLoginRedirect: async (): Promise<string> => {
+        if (isMockMode) return "/dashboard/training/bienvenida";
+        try {
+            const data = await fetchWithFallback('/settings/redirect');
+            return data.url;
+        } catch (e) {
+            return "/dashboard";
+        }
+    },
+  
+    updateLoginRedirect: async (url: string): Promise<void> => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback('/admin/settings', {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ key: 'after_login_url', value: url })
+        });
+    },
+  
+    // --- ADMIN PLANS MANAGEMENT ---
+    getPlans: async (): Promise<Plan[]> => {
+        if (isMockMode) return Promise.resolve([]); 
+        return await fetchWithFallback('/admin/plans', { headers: getAuthHeaders() });
+    },
+  
+    getPublicPlans: async (): Promise<Plan[]> => {
+        if (isMockMode) {
+            return Promise.resolve([
+                {
+                    id: 'starter',
+                    name: 'Starter',
+                    slug: 'starter',
+                    description: 'Ideal para empezar sin riesgo.',
+                    priceMonthly: 0,
+                    currency: 'EUR',
+                    limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, maxDomains: 1, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } },
+                    uiFeatures: ['1 Proyecto / Nicho', '3 Landing Pages', 'IA Básica', 'Marca de Agua'],
+                    isActive: true,
+                    isRecommended: false
+                },
+                {
+                    id: 'pro',
+                    name: 'Pro',
+                    slug: 'pro',
+                    description: 'Para Productores y Afiliados serios.',
+                    priceMonthly: 19.99,
+                    currency: 'EUR',
+                    limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, maxDomains: 3, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } },
+                    uiFeatures: ['5 Proyectos', '20 Landing Pages', 'Bot WhatsApp', 'IA Avanzada', 'Sin Marca de Agua'],
+                    isActive: true,
+                    isRecommended: true
+                }
+            ]);
+        }
+        return await fetchWithFallback('/public/plans');
+    },
+  
+    savePlan: async (plan: Plan): Promise<void> => {
+        if (isMockMode) return Promise.resolve();
+        const method = plan.id ? 'PUT' : 'POST';
+        const endpoint = plan.id ? `/admin/plans/${plan.id}` : '/admin/plans';
+        
+        await fetchWithFallback(endpoint, {
+            method,
+            headers: getAuthHeaders(),
+            body: JSON.stringify(plan)
+        });
+    },
+  
+    deletePlan: async (id: string): Promise<void> => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback(`/admin/plans/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+    },
+  
+    // --- CRM API ENDPOINTS ---
+    getContacts: async (): Promise<CRMContact[]> => {
+        if (isMockMode) return Promise.resolve([...localCrmContacts]);
+        
+        const contacts = await fetchWithFallback('/crm/contacts', { headers: getAuthHeaders() });
+        return contacts.map((c: any) => ({
+            ...c,
+            id: c.id.toString(),
+            pageId: c.page_id ? c.page_id.toString() : undefined,
+            pageSlug: c.page_slug, 
+            lastContactedAt: c.last_contacted_at ? new Date(c.last_contacted_at) : undefined,
+            createdAt: new Date(c.created_at),
+            updatedAt: new Date(c.updated_at)
+        }));
+    },
+  
+    createContact: async (contact: Omit<CRMContact, 'id' | 'createdAt' | 'updatedAt' | 'lastContactedAt'>): Promise<CRMContact> => {
+        if (isMockMode) {
+            const newContact: CRMContact = {
+                ...contact,
+                id: `mock-crm-${Date.now()}`,
+                lastContactedAt: undefined,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+            localCrmContacts.unshift(newContact);
+            return Promise.resolve(newContact);
+        }
+  
+        const res = await fetchWithFallback('/crm/contacts', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(contact)
+        });
+        
+        return { 
+            ...contact, 
+            id: res.id.toString(), 
+            createdAt: new Date(), 
+            updatedAt: new Date() 
+        };
+    },
+  
+    updateContact: async (contact: CRMContact): Promise<void> => {
+        if (isMockMode) {
+            localCrmContacts = localCrmContacts.map(c => c.id === contact.id ? { ...contact, updatedAt: new Date() } : c);
+            return Promise.resolve();
+        }
+  
+        await fetchWithFallback(`/crm/contacts/${contact.id}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(contact)
+        });
+    },
+  
+    // NEW: Delete Contact Method
+    deleteContact: async (id: string): Promise<void> => {
+        if (isMockMode) {
+            localCrmContacts = localCrmContacts.filter(c => c.id !== id);
+            return Promise.resolve();
+        }
+        await fetchWithFallback(`/crm/contacts/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+    },
+  
+    getContactHistory: async (contactId: string): Promise<CRMActivity[]> => {
+        if (isMockMode) {
+            return Promise.resolve(localCrmActivities.filter(a => a.contactId === contactId));
+        }
+        
+        const activities = await fetchWithFallback(`/crm/contacts/${contactId}/history`, { headers: getAuthHeaders() });
+        return activities.map((a: any) => ({
+            id: a.id.toString(),
+            contactId: a.contact_id.toString(),
+            type: a.type,
+            content: a.content,
+            createdAt: new Date(a.created_at)
+        }));
+    },
+  
+    addContactNote: async (contactId: string, content: string): Promise<void> => {
+        if (isMockMode) {
+            localCrmActivities.unshift({
+                id: `act-${Date.now()}`,
+                contactId,
+                type: 'note',
+                content,
+                createdAt: new Date()
+            });
+            return Promise.resolve();
+        }
+  
+        await fetchWithFallback(`/crm/contacts/${contactId}/notes`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ content })
+        });
     }
-}
+  };
+  
+  /**
+   * Helper to parse JSON list fields from projects (pain points, benefits, links)
+   */
+  function safeParseJsonList(data: any): any[] {
+      if (!data) return [];
+      if (Array.isArray(data)) return data;
+      try {
+          return typeof data === 'string' ? JSON.parse(data) : data;
+      } catch (e) {
+          return [];
+      }
+  }
