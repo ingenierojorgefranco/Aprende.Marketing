@@ -191,7 +191,7 @@ export const generateLandingPageContent = async (
 console.log("///////////////");
 console.log(schema);
 
-/*
+
 
   try {
     const response = await callGeminiBackend(prompt, schema);
@@ -264,4 +264,4 @@ console.log(schema);
 
 
 };
-*/
+
