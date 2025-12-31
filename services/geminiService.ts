@@ -1,22 +1,12 @@
+
+
+
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../types";
 import { api } from "./api"; // Usamos la configuración centralizada de API
 
-// --- LIBRERÍA DE LOGOS PROFESIONALES PRE-DEFINIDOS ---
-// Al usar una lista estática, ahorramos a la IA la tarea pesada de dibujar SVG, reduciendo el tiempo de respuesta.
-const PREDEFINED_LOGOS = [
-    `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" /><stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" /></linearGradient></defs><rect x="12" y="12" width="40" height="40" rx="8" fill="url(#g1)"/><path d="M22 32h20M32 22v20" stroke="white" stroke-width="4" stroke-linecap="round"/></svg>`,
-    `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" fill="#ec4899" opacity="0.2"/><circle cx="32" cy="32" r="20" fill="#ec4899"/><path d="M25 32l5 5 10-10" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`,
-    `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M32 4L10 16v32l22 12 22-12V16L32 4z" fill="#3b82f6"/><path d="M32 12l14 8v16l-14 8-14-8V20l14-8z" fill="white" opacity="0.3"/></svg>`,
-    `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" /><stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" /></linearGradient></defs><path d="M32 8l24 40H8L32 8z" fill="url(#g2)"/><circle cx="32" cy="35" r="5" fill="white"/></svg>`,
-    `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="20" height="20" rx="4" fill="#8b5cf6"/><rect x="34" y="10" width="20" height="20" rx="4" fill="#6366f1" opacity="0.7"/><rect x="10" y="34" width="20" height="20" rx="4" fill="#3b82f6" opacity="0.5"/><rect x="34" y="34" width="20" height="20" rx="4" fill="#06b6d4" opacity="0.3"/></svg>`,
-    `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M32 2C15.4 2 2 15.4 2 32s13.4 30 30 30 30-13.4 30-30S48.6 2 32 2zm0 54c-13.3 0-24-10.7-24-24S18.7 8 32 8s24 10.7 24 24-10.7 24-24 24z" fill="#10b981"/><path d="M32 16v32M16 32h32" stroke="#10b981" stroke-width="4" stroke-linecap="round"/></svg>`,
-    `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M32 4s-18 12-18 28 18 28 18 28 18-12 18-28S32 4 32 4z" fill="#6366f1"/><circle cx="32" cy="28" r="8" fill="white" opacity="0.3"/></svg>`,
-    `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M48 16L16 48M16 16l32 32" stroke="#ef4444" stroke-width="8" stroke-linecap="round"/><circle cx="32" cy="32" r="10" fill="white" stroke="#ef4444" stroke-width="2"/></svg>`,
-    `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M32 2L2 32l30 30 30-30L32 2z" fill="#f97316"/><path d="M32 15l17 17-17 17-17-17 17-17z" fill="white" opacity="0.4"/></svg>`,
-    `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="12" width="40" height="40" rx="20" fill="none" stroke="#06b6d4" stroke-width="4"/><path d="M32 20v24M20 32h24" stroke="#06b6d4" stroke-width="4" stroke-linecap="round"/></svg>`
-];
-
 // Mock Type Enum to replace @google/genai SDK dependency on frontend
+// This matches the structure expected by the backend logic if needed, 
+// though we primarily send raw prompts or simple schemas.
 const Type = {
   STRING: 'STRING',
   NUMBER: 'NUMBER',
@@ -115,7 +105,7 @@ export const generateLandingPageContent = async (
   palette: ColorPalette,
   structure: StructureType,
   destination: DestinationConfig,
-  projectContext?: Project // CONTEXTO DEL PROYECTO
+  projectContext?: Project // NEW PARAMETER
 ): Promise<GeneratedPageContent> => {
   
   // Contexto específico para el prompt
@@ -128,57 +118,54 @@ export const generateLandingPageContent = async (
     ctaContext = "El objetivo es redirigir a una página de ventas externa o checkout.";
   }
 
-  // OPTIMIZACIÓN RADICAL: Si el proyecto tiene dolores y beneficios ya generados,
-  // los inyectamos con la instrucción "USA EXACTAMENTE ESTOS". Esto evita que la IA
-  // gaste tiempo "pensando" o "alucinando" nueva estrategia.
+  // ENRICH PROMPT WITH PROJECT DATA IF AVAILABLE
   let projectStrategy = "";
   if (projectContext) {
-      const painsText = (projectContext.painPoints && projectContext.painPoints.length > 0) 
-          ? `- Dolores del Cliente (USA ESTOS 6 PUNTOS EXACTAMENTE): ${projectContext.painPoints.slice(0, 6).join(", ")}` 
-          : "";
-      const benefitsText = (projectContext.keyBenefits && projectContext.keyBenefits.length > 0) 
-          ? `- Beneficios Clave (USA ESTOS 6 PUNTOS EXACTAMENTE): ${projectContext.keyBenefits.slice(0, 6).join(", ")}` 
-          : "";
-
       projectStrategy = `
-      CONTEXTO ESTRATÉGICO DEL PROYECTO (ORDEN DE PRIORIDAD MÁXIMA):
+      CONTEXTO ESTRATÉGICO DEL PROYECTO (PRIORIDAD ALTA):
       - Nombre del Producto: "${projectContext.productName}"
-      - Tono de Voz de Marca: "${projectContext.brandTone}" (Usa este tono en TODO el copy).
-      ${painsText}
-      ${benefitsText}
+      - Tono de Voz de Marca: "${projectContext.brandTone}" (Usa este tono en todo el copy).
+      - Dolores del Cliente (Pain Points): ${projectContext.painPoints?.join(", ")}.
+      - Beneficios Clave (Key Benefits): ${projectContext.keyBenefits?.join(", ")}.
       - Descripción del Proyecto: ${projectContext.description}.
       
-      REGLA OBLIGATORIA: Si te he proporcionado los Dolores y Beneficios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
+      Usa esta información para personalizar profundamente los textos, haciéndolos resonar con la audiencia específica definida.
       `;
   }
 
-  const prompt = `Actúa como un experto en copywriting y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
+  const prompt = `Actúa como un experto en copywriting, diseño y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
   El objetivo es "${goal}". La audiencia objetivo es "${targetAudience}".
   La oferta es de tipo "${offerType}".
   ${ctaContext}
   
   ${projectStrategy}
 
-  REQUERIMIENTO DE VELOCIDAD: No generes código SVG para logos. Solo genera los textos persuasivos.
+  IMPORTANTE: Independientemente de la estructura visual elegida, DEBES generar contenido rico y detallado para TODAS las secciones. No omitas ninguna sección.
   
   Genera campos específicos:
-  - brandName: Nombre de marca (ej: "MicroMaster").
-  - topTagline: Frase corta llamativa (ej: "🔥 Oferta Limitada").
-  - navCta: Texto corto botón menú (ej: "Reservar").
-  - navLinks: 3 enlaces con estos hrefs estrictos: ["#seccion-beneficios", "#seccion-testimonios", "#seccion-instructor"].
-  - testimonialTitle: Título persuasivo para testimonios.
+  - brandName: Nombre corto y pegadizo para la marca del sitio (ej: "NicheMaster").
+  - topTagline: Una frase corta y llamativa para la parte superior (ej: "🔥 Clase Gratuita Online - [Tema]").
+  - navCta: Un texto MUY corto (máximo 3 palabras) para el botón del menú superior (ej: "Reservar Cupo", "Ingresar Ahora").
+  - navLinks: Genera EXACTAMENTE 3 enlaces de navegación que coincidan con la estructura de la página. USA ESTRICTAMENTE ESTOS 'href' para que funcionen los anclajes del menú (no inventes otros hashtags):
+       1. Label: (Algo relacionado a Beneficios/Descubre), href: "#seccion-beneficios"
+       2. Label: (Algo relacionado a Testimonios/Resultados), href: "#seccion-testimonios"
+       3. Label: (Algo relacionado al Experto/Instructor), href: "#seccion-instructor"
+  - testimonialTitle: Un título persuasivo para los testimonios (ej: "Ellas ya cambiaron su historia:", "Resultados reales de alumnos:").
+  - logoSvg: Genera el código crudo string de un elemento <svg> completo. El diseño debe ser PREMIUM, ESTILIZADO y COLORIDO (usa <defs> con <linearGradient> para dar profundidad y profesionalismo). Debe relacionarse visualmente con el nicho "${niche}". NO uses 'currentColor' ni 'fill="none"', usa colores hex o gradientes que contrasten bien sobre fondo oscuro o claro. viewBox="0 0 64 64".
   
-  Estructura JSON:
-  1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
-  2. Testimonios: 3 testimonios cortos y realistas.
-  3. Intro: Qué es el producto. Genera 'imageCardText' (frase corta) y 'items' (3 bullets).
-  4. Beneficios: Lista detallada (usa los proporcionados en el contexto si existen).
-  5. Lo que aprenderás: 4-6 puntos clave.
-  6. FAQ: 4 preguntas que maten objeciones.
-  7. Instructor: Nombre y biografía.
-  8. Footer: Copyright y contacto.
+  Estructura requerida del JSON:
+  1. Hero: Título impactante (H1), subtítulo persuasivo y texto del botón principal (CTA). IMPORTANTE: En el campo 'headline', encierra la parte más importante o emocional de la frase entre etiquetas <b> y </b> (ejemplo: "¿Tu perro rompe cosas o <b>se porta mal?</b>").
+  2. Testimonios: Genera 3 testimonios muy cortos (máximo 15 palabras) de clientes satisfechos, nombre y rating (5).
+  3. Intro: Explicación clara de qué es el producto/servicio ("Qué es"). 
+     - Genera 'imageCardText': Una frase corta y persuasiva (máx 12 palabras) que iría sobre una imagen destacada (ej: "El secreto que los expertos no te cuentan").
+     - Genera 'items': 3 puntos clave (bullets) específicos de este nicho que expliquen características técnicas o beneficios únicos.
+  4. Beneficios: Lista de 4 a 6 beneficios clave con títulos y descripciones cortas.
+  5. Lo que aprenderás: Lista de 4 a 6 puntos clave (bullet points) de lo que obtendrá el usuario.
+  6. FAQ: Genera 4 preguntas frecuentes con respuestas persuasivas que derriben objeciones de compra.
+  7. Instructor/Experto: Nombre, título profesional y una biografía breve que genere autoridad (ficticia pero realista).
+  8. Footer: Copyright y datos de contacto genéricos.
   
-  Responde ÚNICAMENTE con el objeto JSON válido.`;
+  Devuelve JSON.`;
 
   const schema = {
     type: Type.OBJECT,
@@ -197,10 +184,11 @@ export const generateLandingPageContent = async (
         }
     },
     testimonialTitle: { type: Type.STRING },
+    logoSvg: { type: Type.STRING, description: "Raw SVG string for a premium, colorful, niche-related icon" },
     hero: {
         type: Type.OBJECT,
         properties: {
-        headline: { type: Type.STRING },
+        headline: { type: Type.STRING, description: "Headline with <b> tags around key phrase" },
         subheadline: { type: Type.STRING },
         ctaText: { type: Type.STRING },
         },
@@ -222,7 +210,7 @@ export const generateLandingPageContent = async (
         properties: {
         title: { type: Type.STRING },
         description: { type: Type.STRING },
-        imageCardText: { type: Type.STRING },
+        imageCardText: { type: Type.STRING, description: "Short persuasive text over image" },
         items: {
             type: Type.ARRAY,
             items: {
@@ -298,41 +286,48 @@ export const generateLandingPageContent = async (
     if (response.text) {
         const content = JSON.parse(response.text) as GeneratedPageContent;
         
-        // --- ASIGNACIÓN DE LOGO DESDE LIBRERÍA (REDUCCIÓN DE TIEMPO IA) ---
-        // Al no pedirle a la IA que genere el SVG, el proceso es mucho más rápido.
-        content.logoSvg = PREDEFINED_LOGOS[Math.floor(Math.random() * PREDEFINED_LOGOS.length)];
+        // --- LOGIC UPDATE: DEFAULT SUBTITLE FOR BENEFITS ---
+        if (!content.benefits.subtitle) {
+            content.benefits.subtitle = "Descubre las herramientas exclusivas que acelerarán tus resultados desde el primer día.";
+        }
+        
+        // --- LOGIC UPDATE: DEFAULT TITLE FOR INSTRUCTOR ---
+        if (!content.instructor.title) {
+            content.instructor.title = "Conoce a tu Mentor";
+        }
 
-        // --- BLINDAJE DE SEGURIDAD PARA ARRAYS ---
-        if (!content.testimonials) content.testimonials = [];
-        if (!content.faq) content.faq = [];
-        if (!content.navLinks) content.navLinks = [];
-        if (!content.intro) content.intro = { title: "", description: "" };
-        if (!content.intro.items) content.intro.items = [];
-        if (!content.benefits) content.benefits = { title: "", items: [] };
-        if (!content.benefits.items) content.benefits.items = [];
-        if (!content.whatYouWillLearn) content.whatYouWillLearn = { title: "", items: [] };
-        if (!content.whatYouWillLearn.items) content.whatYouWillLearn.items = [];
-
-        // Defaults para campos opcionales que la IA podría omitir por brevedad
-        if (!content.benefits.subtitle) content.benefits.subtitle = "Descubre las herramientas exclusivas que acelerarán tus resultados.";
-        if (!content.instructor) content.instructor = { name: "", bio: "" };
-        if (!content.instructor.title) content.instructor.title = "Conoce a tu Mentor";
+        // --- NEW DEFAULTS FOR EDITABLE TEXTS ---
         if (!content.instructor.badgeText) content.instructor.badgeText = "Instructor Destacado";
         if (!content.instructor.badgeSubtext) content.instructor.badgeSubtext = "Certificado Oficial";
         if (!content.instructor.statsStudents) content.instructor.statsStudents = "+500 Alumnos";
         if (!content.instructor.statsRating) content.instructor.statsRating = "5.0 Estrellas";
+        
         if (!content.intro.imageCardText) content.intro.imageCardText = "Método Exclusivo";
         if (!content.hero.socialProofCount) content.hero.socialProofCount = "+1000";
+
+        // --- NEW DEFAULTS FOR HERO & TESTIMONIALS (User Request) ---
         if (!content.hero.videoTitle) content.hero.videoTitle = "Clase Exclusiva";
         if (!content.hero.videoDuration) content.hero.videoDuration = "45 Minutos";
         if (!content.hero.spotsLeft) content.hero.spotsLeft = "¡Cupos Limitados!";
         if (!content.testimonialSubtitle) content.testimonialSubtitle = "Resultados reales de alumnos";
-        if (!content.closingOfferText) content.closingOfferText = "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder.";
         
-        if (content.testimonials && Array.isArray(content.testimonials)) {
-            const randomLocations = ["Bogotá, CO", "CDMX, MX", "Lima, PE", "Santiago, CL", "Madrid, ES", "Quito, EC", "Medellín, CO", "Buenos Aires, AR"];
+        // --- NEW DEFAULT FOR CLOSING OFFER TEXT ---
+        if (!content.closingOfferText) {
+            content.closingOfferText = "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios.";
+        }
+        
+        if (content.testimonials) {
+            const randomLocations = [
+                "Bogotá, Colombia", "Ciudad de México, México", "Lima, Perú", 
+                "Santiago, Chile", "Buenos Aires, Argentina", "Madrid, España", 
+                "Quito, Ecuador", "Medellín, Colombia", "Monterrey, México", 
+                "Valencia, España", "Guadalajara, México", "Cali, Colombia"
+            ];
+            
             content.testimonials.forEach(t => {
-                if (!t.location) t.location = randomLocations[Math.floor(Math.random() * randomLocations.length)];
+                if (!t.location) {
+                    t.location = randomLocations[Math.floor(Math.random() * randomLocations.length)];
+                }
             });
         }
         
@@ -374,14 +369,16 @@ export interface ArticleTitleIdea {
 }
 
 export const generateArticleTitles = async (topic: string, objective: string, keyword: string): Promise<ArticleTitleIdea[]> => {
+    // Prompt optimizado con restricciones estrictas para evitar texto basura (ej: chars count)
     const prompt = `Genera 4 títulos virales para un artículo sobre: "${topic}".
     Objetivo: "${objective}".
     ${keyword ? `Keyword SEO: "${keyword}"` : ''}
 
     REGLAS ESTRICTAS:
     1. Longitud máxima: 60 caracteres por título.
-    2. En el campo 'title' devuelve SOLO el texto del título.
-    3. NO generes descripciones. Deja el campo 'description' como una cadena vacía "".
+    2. En el campo 'title' devuelve SOLO el texto del título. NO escribas la longitud entre paréntesis ni explicaciones.
+    3. NO generes descripciones. Deja el campo 'description' como una cadena vacía "". Solo queremos los títulos.
+    4. NO devuelvas una lista enumerada dentro de un solo campo string. Cada título debe ser un objeto JSON distinto en el array.
     
     Devuelve JSON Array: [{ "title": "...", "description": "" }]`;
 
@@ -401,7 +398,8 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
         if (!response.text) throw new Error("No response text");
         return JSON.parse(response.text);
     } catch (e) {
-        console.warn("Fallo IA en títulos, usando fallback local.", e);
+        console.warn("Fallo IA en títulos, usando fallback local para no bloquear.", e);
+        // Fallback rápido si falla la IA
         return [
             { title: `Guía esencial sobre ${topic}`, description: "" },
             { title: `${topic}: Estrategias probadas`, description: "" },
@@ -416,12 +414,25 @@ export const generateArticleOutline = async (title: string, objective: string): 
     Crea una estructura (outline) OBLIGATORIA para un artículo de blog titulado: "${title}".
     Objetivo: "${objective}".
     
-    DEBES SEGUIR ESTRICTAMENTE ESTA ESTRUCTURA:
+    DEBES SEGUIR ESTRICTAMENTE ESTA ESTRUCTURA (No añadas ni quites nada fuera de este patrón):
     1. H1: [Título Principal]
-    2. H2: [Título de Atención]
-    3. H3: [Subtítulos]
-    ...
-    Devuelve SOLO un JSON array de strings.`;
+    2. H2: [Título de Atención: Gancho fuerte relacionado al problema]
+    3. H3: [Título que apoya/expande la Atención]
+    4. H3: [Titulo que concluye la sección de Atención]
+    5. H2: [Título de Interés: Datos, curiosidades o profundización]
+    6. H3: [Título que apoya el Interés]
+    7. H3: [Titulo que concluye el Interés]
+    8. H2: [Título de Deseo: La solución o transformación]
+    9. H3: [Título que apoya el Deseo]
+    10. H3: [Titulo que concluye el Deseo]
+    11. H4: [Conclusión del Deseo: Beneficio final]
+    12. H2: [Título de Acción (CTA): Qué debe hacer ahora]
+    13. H3: [Título que apoya la Acción/Urgencia]
+    14. H3: [Titulo que concluye la Acción]
+    15. H4: [Recomendación Final: Cierre]
+
+    Devuelve SOLO un JSON array de strings.
+    Ejemplo de formato de items: "H1: Título...", "H2: Atención...", etc.`;
 
     const schema = {
         type: Type.ARRAY,
@@ -442,9 +453,10 @@ export const generateFullArticle = async (
     objective: string, 
     ctaLink: string, 
     keyword: string,
-    projectContext?: Project 
+    projectContext?: Project // NEW PARAMETER
 ): Promise<{ html: string; metaDescription: string }> => {
     
+    // Enrich with Project Context
     let projectStrategy = "";
     if (projectContext) {
         projectStrategy = `
@@ -469,10 +481,19 @@ export const generateFullArticle = async (
     ${projectStrategy}
 
     INSTRUCCIONES ADICIONALES:
-    1. Genera también una 'metaDescription' optimizada para SEO (Máx 155 car.).
-    2. NO incluyas el Título Principal (H1) dentro de la respuesta 'html'.
+    1. Genera también una 'metaDescription' optimizada para SEO.
+       - Debe tener MÁXIMO 155 caracteres.
+       - Debe ser persuasiva.
+       - Debe incluir un llamado a la acción (CTA) al final (ej: "¡Entra aquí!", "Lee más.").
+    2. NO incluyas el Título Principal (H1) dentro de la respuesta 'html'. Empieza directamente con la introducción o el primer párrafo del cuerpo. El título se gestiona por separado en el sistema.
     
-    Formato de Salida JSON: { "html": "...", "metaDescription": "..." }`;
+    Formato de Salida JSON:
+    {
+      "html": "Código HTML del artículo (usa <h2>, <p>, <ul>, <li>, <strong>, <a href='...'>). NO incluyas <h1>, <html> o <body>.",
+      "metaDescription": "Texto plano de la meta descripción."
+    }
+    
+    Idioma: Español Neutro.`;
 
     const schema = {
         type: Type.OBJECT,
@@ -490,6 +511,6 @@ export const generateFullArticle = async (
         }
         return { html: "<p>Error generando el artículo.</p>", metaDescription: "" };
     } catch (e) {
-        return { html: `<p>Error de conexión o timeout. Intenta con un tema más corto.</p>`, metaDescription: "" };
+        return { html: `<p>Error de conexión o timeout generando el artículo. Intenta con un tema más corto.</p>`, metaDescription: "" };
     }
 };

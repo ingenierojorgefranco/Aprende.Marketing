@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { SmartCTA, Navbar, Footer, FeatureCard } from '../ui/LiveComponents';
@@ -67,7 +68,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                     </h3>
                 </div>
                 <ul className="grid md:grid-cols-2 gap-x-12 gap-y-6">
-                    {(content.whatYouWillLearn.items || []).map((item, i) => (
+                    {content.whatYouWillLearn.items.map((item, i) => (
                         <li key={i} className={`flex items-start gap-3 ${ds.features.descColor}`}>
                             <CheckCircle className={`w-5 h-5 shrink-0 mt-0.5 ${ds.decorations.checkColor}`} />
                             <span className="text-base">{item}</span>
@@ -168,7 +169,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
         <section className={`py-24 px-6 max-w-3xl mx-auto ${ds.bg}`}>
             <h2 className={`text-3xl font-bold mb-12 text-center ${ds.features.titleColor}`}>Preguntas Frecuentes</h2>
             <div className="space-y-4">
-                {(questions || []).map((q, idx) => (
+                {questions.map((q, idx) => (
                     <div key={idx} className={`border rounded-xl overflow-hidden ${ds.faq.cardBorder} ${ds.faq.cardBg}`}>
                         <button onClick={() => setOpenIndex(openIndex === idx ? null : idx)} className="w-full flex items-center justify-between text-left p-5 hover:bg-black/5 transition">
                             <span className={`font-bold ${ds.faq.questionColor}`}>{q.question}</span>
