@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
-import { PlayCircle, Plus, Minus, CheckCircle, ScanFace, Palette, Feather, Award, Users, Star, BookOpen } from 'lucide-react';
+import { PlayCircle, Plus, Minus, CheckCircle, ScanFace, Palette, Feather, Award, Users, Star, BookOpen, AlertTriangle, XCircle } from 'lucide-react';
 import { Navbar, Footer, SmartCTA, FeatureCard } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
 
@@ -67,17 +68,18 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
           <div className="max-w-4xl mx-auto px-6">
               <div className="text-center mb-12">
                   <h2 className={`text-2xl md:text-3xl font-bold mb-4 flex items-center justify-center gap-3 ${ds.features.titleColor}`}>
-                      <div className="w-8 h-8 shrink-0 flex items-center justify-center">
-                        {content.whatYouWillLearn.icon ? getIcon(content.whatYouWillLearn.icon, <BookOpen className="w-full h-full"/>) : <BookOpen className="w-full h-full"/>}
+                      <div className="w-8 h-8 shrink-0 flex items-center justify-center text-orange-500">
+                        {/* Actualización: Icono de alerta para dolores en VSL - 31/12/2025 18:30 */}
+                        <AlertTriangle className="w-full h-full" />
                       </div>
-                      {content.whatYouWillLearn.title || "Lo que aprenderás"}
+                      {content.whatYouWillLearn.title || "¿Te sientes identificada con alguna de estas situaciones?"}
                   </h2>
               </div>
               <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
                   {(content.whatYouWillLearn.items || []).map((item, idx) => (
                       <div key={idx} className={`flex items-center gap-3 p-4 rounded-xl border bg-white/50 backdrop-blur-sm ${ds.features.cardBorder}`}>
-                          <div className={`p-1 rounded-full ${ds.decorations.checkColor} bg-current/10`}>
-                              <CheckCircle className="w-4 h-4" />
+                          <div className={`p-1 rounded-full text-red-500 bg-red-100`}>
+                              <XCircle className="w-4 h-4" />
                           </div>
                           <span className={`text-sm font-medium ${ds.features.descColor}`}>{item}</span>
                       </div>

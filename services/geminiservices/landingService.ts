@@ -1,3 +1,4 @@
+
 // Refactorización: Creación de servicio para contenido de landing pages - 22/05/2024 14:30
 import { callGeminiBackend, Type, PREDEFINED_LOGOS } from "./base";
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../../types";
@@ -13,51 +14,63 @@ export const generateLandingPageContent = async (
   projectContext?: Project
 ): Promise<GeneratedPageContent> => {
   
-  // Actualización 31/12/2025 18:50 - Log de inicio de preparación
-  console.log(`[IA-LOG] ${new Date().toLocaleTimeString()} - Preparando contexto y prompt...`);
-
   let ctaContext = "";
   if (destination.type === 'whatsapp') {
-    ctaContext = "Objetivo: Cierre por WhatsApp. El CTA debe invitar al chat.";
+    ctaContext = "El objetivo es que contacten por WhatsApp. El botón (CTA) debe invitar a chatear.";
   } else if (destination.type === 'form') {
-    ctaContext = "Objetivo: Captura de leads. El CTA debe invitar al registro.";
+    ctaContext = "El objetivo es capturar leads con un formulario.";
   } else {
-    ctaContext = "Objetivo: Redirección externa/checkout.";
+    ctaContext = "El objetivo es redirigir a una página de ventas externa o checkout.";
   }
 
   let projectStrategy = "";
   if (projectContext) {
       const painsText = (projectContext.painPoints && projectContext.painPoints.length > 0) 
-          ? `- Dolores (USAR ESTOS 6): ${projectContext.painPoints.slice(0, 6).join(", ")}` 
+          ? `- Dolores del Cliente (USA ESTOS 6 PUNTOS EXACTAMENTE): ${projectContext.painPoints.slice(0, 6).join(", ")}` 
           : "";
       const benefitsText = (projectContext.keyBenefits && projectContext.keyBenefits.length > 0) 
-          ? `- Beneficios (USAR ESTOS 6): ${projectContext.keyBenefits.slice(0, 6).join(", ")}` 
+          ? `- Beneficios Clave (USA ESTOS 6 PUNTOS EXACTAMENTE): ${projectContext.keyBenefits.slice(0, 6).join(", ")}` 
           : "";
 
       projectStrategy = `
-      ESTRATEGIA PROYECTO:
-      - Producto: "${projectContext.productName}"
-      - Tono: "${projectContext.brandTone}"
+      CONTEXTO ESTRATÉGICO DEL PROYECTO (ORDEN DE PRIORIDAD MÁXIMA):
+      - Nombre del Producto: "${projectContext.productName}"
+      - Tono de Voz de Marca: "${projectContext.brandTone}" (Usa este tono en TODO el copy).
       ${painsText}
       ${benefitsText}
-      - Contexto: ${projectContext.description}.
+      - Descripción del Proyecto: ${projectContext.description}.
       
-      REGLA: Sincroniza dolores y beneficios exactamente con los proporcionados.`;
+      REGLA OBLIGATORIA: Si te he proporcionado los Dolores y Beneficios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
+      `;
   }
 
-  // Actualización 31/12/2025 18:50 - Prompt optimizado para ser más directo
-  const prompt = `Actúa como Copywriter Senior. Genera contenido para una Landing de alta conversión en ESPAÑOL.
-  Nicho: "${niche}". Objetivo: "${goal}". Audiencia: "${targetAudience}". Oferta: "${offerType}".
+  const prompt = `Actúa como un experto en copywriting y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
+  El objetivo es "${goal}". La audiencia objetivo es "${targetAudience}".
+  La oferta es de tipo "${offerType}".
   ${ctaContext}
+  
   ${projectStrategy}
 
-  REQUERIMIENTOS:
-  - Sin SVG. Solo texto persuasivo.
-  - Usa <b> para resaltar partes clave en el Hero headline.
-  - NavLinks: ["#seccion-beneficios", "#seccion-testimonios", "#seccion-instructor"].
-  - Genera: brandName, topTagline, navCta, testimonialTitle, hero, testimonials(3), intro(imageCardText + 3 items), benefits, whatYouWillLearn(4-6), faq(4), instructor, footer, thankYouMessage, redirectUrl.
-
-  Responde EXCLUSIVAMENTE con el JSON solicitado.`;
+  REQUERIMIENTO DE VELOCIDAD: No generes código SVG para logos. Solo genera los textos persuasivos.
+  
+  Genera campos específicos:
+  - brandName: Nombre de marca (ej: "MicroMaster").
+  - topTagline: Frase corta llamativa (ej: "🔥 Oferta Limitada").
+  - navCta: Texto corto botón menú (ej: "Reservar").
+  - navLinks: 3 enlaces con estos hrefs estrictos: ["#seccion-beneficios", "#seccion-testimonios", "#seccion-instructor"].
+  - testimonialTitle: Título persuasivo para testimonios.
+  
+  Estructura JSON:
+  1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
+  2. Testimonios: 3 testimonios cortos y realistas.
+  3. Intro: Qué es el producto. Genera 'imageCardText' (frase corta) y 'items' (3 bullets).
+  4. Beneficios: Lista detallada (usa los proporcionados en el contexto si existen).
+  5. Lo que aprenderás: 4-6 puntos clave.
+  6. FAQ: 4 preguntas que maten objeciones.
+  7. Instructor: Nombre y biografía.
+  8. Footer: Copyright y contacto.
+  
+  Responde ÚNICAMENTE con el objeto JSON válido.`;
 
   const schema = {
     type: Type.OBJECT,
@@ -174,20 +187,8 @@ export const generateLandingPageContent = async (
   try {
     const response = await callGeminiBackend(prompt, schema);
     
-    // Actualización 31/12/2025 18:50 - Log de inicio de validación
-    console.log(`[IA-LOG] ${new Date().toLocaleTimeString()} - Iniciando validación y parseo de estructura...`);
-
     if (response.text) {
-        let content: GeneratedPageContent;
-        try {
-            content = JSON.parse(response.text) as GeneratedPageContent;
-        } catch (e) {
-            // Actualización 31/12/2025 18:50 - Intento de reparación de JSON malformado
-            console.warn("[IA-LOG] JSON malformado detectado. Intentando reparación de emergencia...");
-            const repaired = response.text.replace(/```json/g, "").replace(/```/g, "").trim();
-            content = JSON.parse(repaired) as GeneratedPageContent;
-        }
-
+        const content = JSON.parse(response.text) as GeneratedPageContent;
         content.logoSvg = PREDEFINED_LOGOS[Math.floor(Math.random() * PREDEFINED_LOGOS.length)];
 
         if (!content.testimonials) content.testimonials = [];
@@ -227,13 +228,14 @@ export const generateLandingPageContent = async (
         content.destination = destination;
         content.targetAudience = targetAudience;
 
-        // Actualización 31/12/2025 18:50 - Log de sincronización con estrategia
+        // Actualización 31/12/2025 15:23 - Sincronización forzada de beneficios desde la Estrategia Maestra del Proyecto
         if (projectContext?.strategy_json) {
-            console.log(`[IA-LOG] ${new Date().toLocaleTimeString()} - Sincronizando con Estrategia Maestra del Proyecto...`);
             const strategy = projectContext.strategy_json;
+            // Ruta del JSON de la estrategia maestra: modules.web.landingPageTabs.benefits.items
             const strategyBenefits = strategy?.modules?.web?.landingPageTabs?.benefits?.items;
             
             if (Array.isArray(strategyBenefits) && strategyBenefits.length > 0) {
+                // Mapeo para asegurar compatibilidad de tipos (desc -> description)
                 content.benefits.items = strategyBenefits.map((b: any) => ({
                     title: b.title,
                     description: b.desc || b.description || "", 
@@ -243,11 +245,10 @@ export const generateLandingPageContent = async (
             }
         }
 
-        console.log(`[IA-LOG] ${new Date().toLocaleTimeString()} - Generación completada con éxito.`);
         return content;
     }
   } catch (error) {
-      console.error("[IA-LOG] AI Generation Error:", error);
+      console.error("AI Generation Error", error);
       throw new Error("Failed to generate content");
   }
   throw new Error("Failed to generate content");

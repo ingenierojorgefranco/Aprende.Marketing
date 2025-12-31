@@ -1,3 +1,4 @@
+
 import { User, Project, LandingPage, Article, Lead, GeneratedPageContent, Course, Comment, CRMContact, CRMActivity } from "../types";
 import { MOCK_MASTER_STRATEGY } from "./strategySchema";
 
@@ -142,7 +143,7 @@ const MICROBLADING_CONTENT: GeneratedPageContent = {
     { label: "Testimonios", href: "#seccion-testimonios" },
     { label: "Tu Mentora", href: "#seccion-instructor" }
   ],
-  testimonialTitle: "Ellas ya viven de su pasión:",
+  testimonialTitle: "Ellas ya cambiaron su historia:",
   testimonialSubtitle: "Resultados reales de alumnas que empezaron desde cero.",
   logoSvg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#d946ef;stop-opacity:1" /><stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" /></linearGradient></defs><path d="M32 2C15.432 2 2 15.432 2 32s13.432 30 30 30 30-13.432 30-30S48.568 2 32 2zm0 56C17.664 58 6 46.336 6 32S17.664 6 32 6s26 11.664 26 26-11.664 26-26 26z" fill="url(#grad1)"/><path d="M42.5 24.5c-4.1-3.5-9.2-4.5-14.5-2.8-5.3 1.7-9.3 6.1-10.8 11.5-.3 1.1-.5 2.2-.5 3.3 0 1.9 1.6 3.5 3.5 3.5h.5c1.8-.2 3.2-1.6 3.4-3.4.1-.7.2-1.3.4-2 1-3.6 3.7-6.5 7.2-7.6 3.5-1.1 6.9-.5 9.6 1.8 1.4 1.2 3.5 1 4.7-.4 1.2-1.4 1-3.5-.4-4.7z" fill="#fff"/></svg>`,
   hero: {
@@ -179,15 +180,15 @@ const MICROBLADING_CONTENT: GeneratedPageContent = {
       { title: "Marketing para Esteticistas", description: "Módulo exclusivo para conseguir tus primeros 10 clientes en Instagram.", icon: "Rocket", color: "green" }
     ]
   },
+  // Actualización 31/12/2025 18:30 - Se reemplaza definitivamente el temario por identificación de dolores
   whatYouWillLearn: {
-    title: "Plan de Estudios",
-    icon: "BookOpen",
+    title: "¿Te sientes identificada con alguna de estas situaciones?",
+    icon: "AlertTriangle",
     items: [
-      "Módulo 1: Fundamentos de la piel y anatomía.",
-      "Módulo 2: Diseño y perfilado avanzado (Brow Mapping).",
-      "Módulo 3: Patrones de espina para efecto natural.",
-      "Módulo 4: Práctica en látex y piel sintética.",
-      "Módulo 5: Demostración en modelo real HD."
+      "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
+      "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.",
+      "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.",
+      "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium."
     ]
   },
   faq: [

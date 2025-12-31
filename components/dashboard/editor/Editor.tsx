@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType, ThankYouPageConfig } from '../../../types';
-import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift, AlertTriangle, Book, ShoppingBag } from 'lucide-react';
+import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift, AlertTriangle, Book, ShoppingBag, XCircle } from 'lucide-react';
 import { LivePage } from '../../LivePage';
 import { useLocation } from 'react-router-dom';
 
@@ -57,6 +57,8 @@ const AVAILABLE_ICONS = [
     { name: 'Anchor', icon: Anchor },
     { name: 'LayoutTemplate', icon: LayoutTemplate },
     { name: 'Star', icon: Star },
+    { name: 'AlertTriangle', icon: AlertTriangle },
+    { name: 'XCircle', icon: XCircle }
 ];
 
 const AVAILABLE_COLORS = [
@@ -286,7 +288,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
               return { ...prev, benefits: { ...prev.benefits, items: [...prev.benefits.items, { title: 'Nuevo Beneficio', description: 'Descripción corta aquí.' }] } };
           }
           if (section === 'whatYouWillLearn') {
-              return { ...prev, whatYouWillLearn: { ...prev.whatYouWillLearn, items: [...prev.whatYouWillLearn.items, 'Nuevo punto clave de aprendizaje'] } };
+              return { ...prev, whatYouWillLearn: { ...prev.whatYouWillLearn, items: [...prev.whatYouWillLearn.items, 'Nuevo punto de dolor detectado'] } };
           }
           if (section === 'testimonials') {
               return { ...prev, testimonials: [...(prev.testimonials || []), { name: 'Nuevo Cliente', text: 'Excelente servicio.', rating: 5 }] };
@@ -628,12 +630,12 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                 <Input value={content.hero.ctaText} onChange={(e) => updateNestedField('hero', 'ctaText', e.target.value)} />
                             </div>
 
-                            {/* 8. What You Will Learn (Moved inside Hero) */}
+                            {/* 8. Problem Identification (Dolores) - Actualización: Transformación semántica 31/12/2025 18:30 */}
                             <div className="pt-4 border-t border-gray-800">
-                                <Label>8. Lo Que Descubrirás Hoy</Label>
+                                <Label>8. Identificación del Problema (Dolores)</Label>
                                 <div className="mb-2 flex items-center gap-2">
                                      <div className="flex-1">
-                                        <Label>Título Lista</Label>
+                                        <Label>Título de la sección de Dolores</Label>
                                         <Input value={content.whatYouWillLearn.title} onChange={(e) => setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, title: e.target.value}})} />
                                      </div>
                                      <div>
@@ -648,7 +650,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                             <button onClick={() => removeItem('whatYouWillLearn', i)} className="p-2 text-red-500 hover:bg-red-900/20 rounded"><Trash2 className="w-4 h-4"/></button>
                                         </div>
                                     ))}
-                                    <button onClick={() => addItem('whatYouWillLearn')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Punto</button>
+                                    <button onClick={() => addItem('whatYouWillLearn')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Punto de Dolor</button>
                                 </div>
                             </div>
 

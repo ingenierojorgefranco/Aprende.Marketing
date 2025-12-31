@@ -1,3 +1,4 @@
+
 // Refactorización: Creación de lógica base para servicios de Gemini - 22/05/2024 14:30
 import { api } from "../api";
 
@@ -24,10 +25,6 @@ export const Type = {
 };
 
 export const callGeminiBackend = async (prompt: string, responseSchema?: any) => {
-    // Actualización 31/12/2025 18:50 - Implementación de Trazabilidad
-    const timestamp = new Date().toLocaleTimeString();
-    console.log(`[IA-LOG] ${timestamp} - Llamando al backend (Modelo: gemini-3-flash-preview)...`);
-    
     try {
         const baseUrl = api.getBaseUrl();
         const response = await fetch(`${baseUrl}/gemini`, {
@@ -48,11 +45,6 @@ export const callGeminiBackend = async (prompt: string, responseSchema?: any) =>
         }
 
         const data = await response.json();
-        
-        // Actualización 31/12/2025 18:50 - Log de tamaño de respuesta recibida
-        const sizeInKb = (JSON.stringify(data).length / 1024).toFixed(2);
-        console.log(`[IA-LOG] Datos recibidos del servidor (Tamaño: ${sizeInKb} kb)...`);
-        
         return { text: data.text };
 
     } catch (error) {

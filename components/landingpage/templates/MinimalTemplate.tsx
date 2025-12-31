@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { SmartCTA, Navbar, Footer, FeatureCard } from '../ui/LiveComponents';
 import { getIcon, renderRichText, renderStyledHeadline } from '../utils';
-import { Anchor, Sparkles, Plus, Minus, Star, Users, CheckCircle, BookOpen, Zap } from 'lucide-react';
+import { Anchor, Sparkles, Plus, Minus, Star, Users, CheckCircle, BookOpen, Zap, AlertTriangle, XCircle } from 'lucide-react';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -54,22 +55,23 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
     </section>
   );
 
-  // NEW SECTION: What You Will Learn
+  // NEW SECTION: What You Will Learn (Refactored to Dolores)
   const StudyPlanSection = () => (
       <section className={`py-24 px-6 max-w-4xl mx-auto`}>
           <div className={`p-8 md:p-12 rounded-3xl border ${ds.features.cardBorder} ${ds.intro.sectionBg} shadow-sm`}>
                 <div className="text-center mb-10">
                     <h3 className={`text-2xl md:text-3xl font-bold flex items-center justify-center gap-3 ${ds.features.titleColor}`}>
-                        <div className="w-8 h-8 shrink-0">
-                            {getIcon(content.whatYouWillLearn.icon, <BookOpen className="w-full h-full" />)}
+                        <div className="w-8 h-8 shrink-0 text-orange-500">
+                            {/* Actualización: Icono de alerta en Minimal - 31/12/2025 18:30 */}
+                            <AlertTriangle className="w-full h-full" />
                         </div>
-                        {content.whatYouWillLearn.title || "Lo que aprenderás"}
+                        {content.whatYouWillLearn.title || "¿Te sientes identificada con alguna de estas situaciones?"}
                     </h3>
                 </div>
                 <ul className="grid md:grid-cols-2 gap-x-12 gap-y-6">
                     {(content.whatYouWillLearn.items || []).map((item, i) => (
                         <li key={i} className={`flex items-start gap-3 ${ds.features.descColor}`}>
-                            <CheckCircle className={`w-5 h-5 shrink-0 mt-0.5 ${ds.decorations.checkColor}`} />
+                            <XCircle className={`w-5 h-5 shrink-0 mt-0.5 text-red-500`} />
                             <span className="text-base">{item}</span>
                         </li>
                     ))}
