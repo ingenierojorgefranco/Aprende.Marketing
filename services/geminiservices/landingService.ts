@@ -227,6 +227,24 @@ export const generateLandingPageContent = async (
         content.structure = structure;
         content.destination = destination;
         content.targetAudience = targetAudience;
+
+        // Actualización 31/12/2025 15:23 - Sincronización forzada de beneficios desde la Estrategia Maestra del Proyecto
+        if (projectContext?.strategy_json) {
+            const strategy = projectContext.strategy_json;
+            // Ruta del JSON de la estrategia maestra: modules.web.landingPageTabs.benefits.items
+            const strategyBenefits = strategy?.modules?.web?.landingPageTabs?.benefits?.items;
+            
+            if (Array.isArray(strategyBenefits) && strategyBenefits.length > 0) {
+                // Mapeo para asegurar compatibilidad de tipos (desc -> description)
+                content.benefits.items = strategyBenefits.map((b: any) => ({
+                    title: b.title,
+                    description: b.desc || b.description || "", 
+                    icon: b.icon,
+                    color: b.color
+                }));
+            }
+        }
+
         return content;
     }
   } catch (error) {
