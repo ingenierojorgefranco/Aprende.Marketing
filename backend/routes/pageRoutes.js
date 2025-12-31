@@ -1,3 +1,4 @@
+
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
@@ -190,13 +191,11 @@ router.get('/analytics/summary', authMiddleware, async (req, res) => {
     const [visitsRes] = await pool.query('SELECT SUM(visits) as v, SUM(conversions) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
     const [pagesRes] = await pool.query('SELECT COUNT(*) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
     const [articlesRes] = await pool.query('SELECT COUNT(*) as c FROM articles WHERE user_id = ?', [req.user.id]);
-    const [projectsRes] = await pool.query('SELECT COUNT(*) as c FROM projects WHERE user_id = ?', [req.user.id]);
     res.json({
         totalVisits: visitsRes[0].v || 0,
         totalConversions: visitsRes[0].c || 0,
         totalPages: pagesRes[0].c || 0,
-        totalArticles: articlesRes[0].c || 0,
-        totalProjects: projectsRes[0].c || 0
+        totalArticles: articlesRes[0].c || 0
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
