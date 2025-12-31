@@ -8,7 +8,7 @@ const dbConfig = {
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    connectTimeout: 10000 // Aumentado a 10 segundos
+    connectTimeout: 30000 // Aumentado a 30 segundos para mayor estabilidad
 };
 
 // Detección de entorno

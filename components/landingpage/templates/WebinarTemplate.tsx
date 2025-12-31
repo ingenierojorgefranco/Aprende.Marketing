@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { User, Target, Zap, CheckCircle, Plus, Minus, ScanFace, Palette, Feather, Star } from 'lucide-react';
@@ -160,7 +159,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
             <div className="w-full max-w-4xl mx-auto px-6">
                 <div className="text-center mb-16"><h2 className={`text-3xl md:text-4xl font-bold mb-4 ${ds.faq.titleColor}`}>Preguntas Frecuentes</h2></div>
                 <div className="space-y-4">
-                    {questions.map((q, idx) => (
+                    {(questions || []).map((q, idx) => (
                         <div key={idx} className={`rounded-xl border transition-all duration-300 overflow-hidden ${openIndex === idx ? `shadow-lg border-opacity-0 ${ds.faq.cardBg}` : `border-transparent ${ds.faq.cardBg} hover:bg-opacity-80`}`}>
                             <button onClick={() => setOpenIndex(openIndex === idx ? null : idx)} className="w-full flex items-center justify-between p-6 text-left"><span className={`font-bold text-lg ${ds.faq.questionColor}`}>{q.question}</span><div className={`p-2 rounded-full ${ds.faq.iconBg} ${ds.faq.iconColor}`}>{openIndex === idx ? <Minus className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}</div></button>
                             <div className={`transition-all duration-300 ease-in-out px-6 ${openIndex === idx ? 'max-h-48 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}>{renderRichText(q.answer, `leading-relaxed ${ds.faq.answerColor}`)}</div>
@@ -176,7 +175,6 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
     <section id="final-cta-section" className={`py-24 relative overflow-hidden ${ds.cta.sectionBg}`}>
         <div className="w-full max-w-[75em] mx-auto px-6 text-center relative z-10">
             <h2 className={`text-3xl md:text-5xl font-bold mb-6 ${ds.cta.sectionTitleColor}`}>¿Lista para cambiar tu vida?</h2>
-            {/* Added closingOfferText paragraph */}
             <p className={`text-lg mb-10 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>
                 {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
             </p>
@@ -231,7 +229,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                         {content.whatYouWillLearn.title}
                     </h4>
                     <ul className={`grid gap-4 ${isMobilePreview ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                        {content.whatYouWillLearn.items.map((item, i) => (
+                        {(content.whatYouWillLearn.items || []).map((item, i) => (
                             <li key={i} className={`flex items-start gap-3 text-base ${ds.features.descColor}`}>
                                 <CheckCircle className={`w-5 h-5 shrink-0 mt-0.5 ${ds.decorations.checkColor}`} />
                                 {item}

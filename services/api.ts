@@ -1,4 +1,3 @@
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -36,9 +35,9 @@ let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
 const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     const url = `${API_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
 
-    // Aumentado a 90 segundos para permitir generaciones largas de artículos
+    // Aumentado a 180 segundos (3 minutos) para permitir generaciones largas sin 504 Timeout
     const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Timeout: Servidor tardó demasiado")), 90000)
+        setTimeout(() => reject(new Error("Timeout: Servidor tardó demasiado")), 180000)
     );
 
     const fetchPromise = fetch(url, options);

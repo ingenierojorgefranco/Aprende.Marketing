@@ -16,6 +16,23 @@ const addColumnSafe = async (connection, tableName, columnDef) => {
 };
 
 /**
+ * Helper para añadir índices de forma segura en MySQL (idempotente)
+ */
+const addIndexSafe = async (connection, tableName, indexName, column) => {
+    try {
+        await connection.query(`CREATE INDEX ${indexName} ON ${tableName}(${column})`);
+        console.log(`[DB] Índice creado: ${indexName} en ${tableName}(${column})`);
+    } catch (err) {
+        // Ignorar si el índice ya existe
+        if (err.code === 'ER_DUP_KEYNAME') {
+            console.log(`[DB] Índice ya existe: ${indexName} en ${tableName}`);
+        } else {
+            console.warn(`[DB] Error creando índice ${indexName}: ${err.message}`);
+        }
+    }
+};
+
+/**
  * Función principal de inicialización
  */
 const initDb = async () => {
@@ -337,6 +354,12 @@ const initDb = async () => {
         } catch (e) {
             // Ignore constraint already exists or similar safe errors
         }
+
+        // --- OPTIMIZACIÓN: CREACIÓN DE ÍNDICES PARA ELIMINAR "Out of sort memory" ---
+        console.log('[DB Init] 🚀 Creando índices de optimización...');
+        await addIndexSafe(connection, 'landing_pages', 'idx_lp_created_at', 'created_at');
+        await addIndexSafe(connection, 'projects', 'idx_proj_created_at', 'created_at');
+        await addIndexSafe(connection, 'articles', 'idx_art_created_at', 'created_at');
 
         // --- SEED SYSTEM SETTINGS ---
         await connection.query(`
