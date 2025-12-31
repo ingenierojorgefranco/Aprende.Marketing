@@ -94,15 +94,13 @@ export const DashboardLayout = ({
               }));
               setCourseItems(items);
 
-              // Usage Stats for Limits
-              const [projects, pages, articles] = await Promise.all([
-                  api.getProjects(),
-                  api.getPages(),
-                  api.getArticles()
-              ]);
-              setProjectCount(projects.length);
-              setPageCount(pages.length);
-              setArticleCount(articles.length);
+              // REFACTOR: Carga Lazy/Ligera de estadísticas para evitar Out of Sort Memory
+              // En lugar de getProjects/Pages/Articles que cargan todo el objeto con LONGTEXT,
+              // usamos el summary que solo retorna conteos (COUNT(*) en DB).
+              const summary = await api.getAnalyticsSummary();
+              setProjectCount(summary.totalProjects || 0);
+              setPageCount(summary.totalPages || 0);
+              setArticleCount(summary.totalArticles || 0);
 
               // Load Plans if Admin
               if (user.role === 'admin') {
@@ -115,7 +113,7 @@ export const DashboardLayout = ({
           }
       };
       loadData();
-  }, [user.role]); // Re-run if role changes (unlikely but safe)
+  }, [user.role, location.pathname]); // Re-run if role changes or path changes to refresh counts
 
   // Auto-expand menu based on current route
   useEffect(() => {
@@ -134,18 +132,16 @@ export const DashboardLayout = ({
           
           getCurrentUser().then(authUser => {
               if (authUser && onUpdateUser) {
-                  api.getAdminUserResources(authUser.id.toString(), 'projects').then(() => {
-                       const updatedUser: User = {
-                           id: authUser.id.toString(),
-                           name: authUser.name,
-                           email: authUser.email,
-                           role: (authUser as any).role,
-                           planLimits: (authUser as any).planLimits,
-                           avatarUrl: (authUser as any).avatarUrl,
-                           birthDate: (authUser as any).birthDate
-                       };
-                       onUpdateUser(updatedUser);
-                  });
+                  const updatedUser: User = {
+                      id: authUser.id.toString(),
+                      name: authUser.name,
+                      email: authUser.email,
+                      role: (authUser as any).role,
+                      planLimits: (authUser as any).planLimits,
+                      avatarUrl: (authUser as any).avatarUrl,
+                      birthDate: (authUser as any).birthDate
+                  };
+                  onUpdateUser(updatedUser);
               }
           }).catch(console.error);
       }
