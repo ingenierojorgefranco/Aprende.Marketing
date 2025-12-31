@@ -510,7 +510,8 @@ export const FeatureCard: React.FC<{ item: any, idx: number, ds: any, content: G
                 <div className={`w-full h-full ${iconColorClass}`}>{IconComponent}</div>
             </div>
             <h3 id={`feature-title-${idx}`} className={`text-xl font-bold mb-3 ${ds.features.titleColor}`}>{item.title}</h3>
-            {renderRichText(item.description, `leading-relaxed ${ds.features.descColor}`)}
+            {/* Actualización: Refuerzo de lógica de extracción de descripción e iconos en FeatureCard - 24/10/2023 14:15 */}
+            {renderRichText(item.description || item.desc || "", `leading-relaxed ${ds.features.descColor}`)}
         </div>
     );
 };

@@ -125,6 +125,7 @@ export const MOCK_PROJECTS: Project[] = [
   }
 ];
 
+// Actualización: Mapeo exacto de beneficios desde la estrategia maestra - 24/10/2023 14:15
 const MICROBLADING_CONTENT: GeneratedPageContent = {
   palette: 'elegant-purple',
   structure: 'classic-sales',
@@ -172,13 +173,13 @@ const MICROBLADING_CONTENT: GeneratedPageContent = {
   },
   benefits: {
     title: "Tu Arsenal para el Éxito",
-    subtitle: "No solo te enseñamos la técnica, te damos las herramientas para venderla.",
-    items: [
-      { title: "Kit Digital Completo", description: "Acceso a plantillas de práctica imprimibles y manuales en PDF de alta resolución.", icon: "FileText", color: "purple" },
-      { title: "Certificado Internacional", description: "Diploma avalado para ejercer tu profesión en cualquier país de habla hispana.", icon: "Award", color: "yellow" },
-      { title: "Comunidad Privada", description: "Acceso de por vida a nuestro grupo de soporte VIP en Telegram.", icon: "Users", color: "blue" },
-      { title: "Marketing para Esteticistas", description: "Módulo exclusivo para conseguir tus primeros 10 clientes en Instagram.", icon: "Rocket", color: "green" }
-    ]
+    subtitle: "Sincronizado con la Estrategia Maestra del Proyecto.",
+    items: MOCK_MASTER_STRATEGY.modules.web.landingPageTabs.benefits.items.map((b: any) => ({
+        title: b.title,
+        description: b.desc || b.description || "", 
+        icon: b.icon || "Sparkles",
+        color: b.color || "purple"
+    }))
   },
   // Actualización 31/12/2025 18:30 - Se reemplaza definitivamente el temario por identificación de dolores
   whatYouWillLearn: {
