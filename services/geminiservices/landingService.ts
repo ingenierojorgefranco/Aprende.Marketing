@@ -44,7 +44,7 @@ export const generateLandingPageContent = async (
       `;
   }
 
-  //console.log(projectStrategy);
+
 
   const prompt = `Actúa como un experto en copywriting y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
   El objetivo es "${goal}". La audiencia objetivo es "${targetAudience}".
@@ -186,6 +186,13 @@ export const generateLandingPageContent = async (
     required: ["hero", "testimonials", "intro", "benefits", "whatYouWillLearn", "instructor", "footer", "thankYouMessage", "redirectUrl"],
   };
 
+
+  console.log(prompt);
+console.log("///////////////");
+console.log(schema);
+
+/*
+
   try {
     const response = await callGeminiBackend(prompt, schema);
     
@@ -254,4 +261,6 @@ export const generateLandingPageContent = async (
       throw new Error("Failed to generate content");
   }
   throw new Error("Failed to generate content");
+*/
+
 };
