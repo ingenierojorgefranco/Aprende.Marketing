@@ -44,6 +44,8 @@ export const generateLandingPageContent = async (
       `;
   }
 
+  console.log(projectStrategy);
+
   const prompt = `Actúa como un experto en copywriting y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
   El objetivo es "${goal}". La audiencia objetivo es "${targetAudience}".
   La oferta es de tipo "${offerType}".
