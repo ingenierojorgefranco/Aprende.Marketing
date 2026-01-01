@@ -42,6 +42,14 @@ export const generateLandingPageContent = async (
       
       REGLA OBLIGATORIA: Si te he proporcionado los Dolores y Beneficios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
       `;
+
+      // DEBUG LOG: Se añade para verificar la integración de la estrategia del proyecto - 26/10/2023 10:30
+      console.log("[DEBUG LANDING] Integración de Estrategia del Proyecto:", {
+          projectContext: projectContext,
+          painsTextFound: painsText.length > 0,
+          benefitsTextFound: benefitsText.length > 0,
+          finalStrategyString: projectStrategy
+      });
   }
 
 
@@ -65,7 +73,7 @@ export const generateLandingPageContent = async (
   Estructura JSON:
   1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
   2. Testimonios: 3 testimonios cortos y realistas.
-  3. Intro: Qué es el producto. Genera 'imageCardText' (frase corta) y 'items' (3 bullets).
+  3. Intro: Qué es el producto. Genera 'imageCardText' (frase corta) and 'items' (3 bullets).
   4. Beneficios: Lista detallada (usa los proporcionados en el contexto si existen).
   5. Lo que aprenderás: 4-6 puntos clave.
   6. FAQ: 4 preguntas que maten objeciones.
@@ -187,11 +195,6 @@ export const generateLandingPageContent = async (
   };
 
 
-  console.log(prompt);
-console.log("///////////////");
-console.log(schema);
-
-
 
   try {
     const response = await callGeminiBackend(prompt, schema);
@@ -264,4 +267,3 @@ console.log(schema);
 
 
 };
-
