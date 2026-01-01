@@ -36,9 +36,16 @@ router.post('/stripe/webhook', express.raw({ type: 'application/json' }), async 
  * Webhook de Hotmart (Postback)
  * Recibe notificaciones de ventas aprobadas, cancelaciones o reembolsos.
  */
-router.post('/hotmart/webhook', express.json(), async (req, res) => {
+////////// Parser JSON configurado explícitamente para compatibilidad con Hotmart - 25/05/2025 11:30 //////////
+router.post('/hotmart/webhook', express.json({ limit: '10mb' }), async (req, res) => {
     try {
         // Hotmart envía un JSON estándar que se procesa en el servicio correspondiente
+        // Validamos que el body no esté vacío
+        if (!req.body || Object.keys(req.body).length === 0) {
+            console.warn("[Hotmart Webhook] Recibido body vacío.");
+            return res.status(400).json({ error: "Empty body" });
+        }
+        
         await hotmartService.handleWebhook(req.body);
         res.json({ success: true });
     } catch (err) {
@@ -46,5 +53,6 @@ router.post('/hotmart/webhook', express.json(), async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+////////// Fin de actualización - 25/05/2025 11:30 //////////
 
 module.exports = router;

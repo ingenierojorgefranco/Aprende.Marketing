@@ -1,4 +1,3 @@
-
 const pool = require('./db');
 
 /**
@@ -17,16 +16,18 @@ const handleWebhook = async (payload) => {
     const productId = data.product?.id?.toString();
     const userEmail = data.buyer?.email;
     
+    ////////// Lógica reforzada para detección de userId - 25/05/2025 11:30 //////////
     // Intentamos obtener el ID del usuario desde el parámetro 'src' que enviamos en el link
-    // Formato sugerido: hotmart.com/...&src=USER_ID
-    const src = data.purchase?.src;
-    let userId = src;
+    // Hotmart puede enviarlo en data.purchase.src o a veces en parámetros de tracking personalizados
+    let userId = data.purchase?.src || data.affiliate?.src || null;
 
     if (!userId && userEmail) {
-        // Fallback: Buscar usuario por email si no viene el SRC
+        // Fallback 1: Buscar usuario por email si no viene el SRC o es inválido
+        console.log(`[Hotmart Webhook] SRC no encontrado, intentando fallback por email: ${userEmail}`);
         const [uRows] = await pool.query("SELECT id FROM users WHERE email = ?", [userEmail]);
         if (uRows.length > 0) userId = uRows[0].id;
     }
+    ////////// Fin de actualización - 25/05/2025 11:30 //////////
 
     if (!userId) {
         console.warn("[Hotmart Webhook] No se pudo identificar al usuario (ni por SRC ni por Email).");

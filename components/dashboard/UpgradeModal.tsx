@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { X, Check, Crown, ShieldCheck, Loader2 } from 'lucide-react';
 import { api } from '../../services/api';
@@ -9,9 +8,12 @@ interface UpgradeModalProps {
   onClose?: () => void;
   currentPlan?: string;
   reason?: string;
+  ////////// Se añade userId opcional a las props para tracking SRC - 25/05/2025 11:30 //////////
+  userId?: string;
+  ////////// Fin de actualización - 25/05/2025 11:30 //////////
 }
 
-export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, currentPlan, reason }) => {
+export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, currentPlan, reason, userId }) => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   ////////// Estado para el método de pago activo del sistema - 24/05/2025 10:30 //////////
@@ -44,10 +46,11 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
           ////////// Lógica de redirección dinámica según el método configurado - 24/05/2025 10:30 //////////
           if (activePaymentMethod === 'hotmart') {
               if (plan.hotmartId) {
-                  // Redirección directa al checkout de Hotmart
-                  // Se intenta obtener el ID de usuario desde localStorage para el tracking SRC
-                  const userId = localStorage.getItem('user_id') || '0';
-                  const hotmartUrl = `https://pay.hotmart.com/${plan.hotmartId}?checkoutMode=10&src=${userId}`;
+                  ////////// Obtención robusta del userId para el tracking SRC - 25/05/2025 11:30 //////////
+                  // Priorizamos la prop userId, si no existe buscamos en localStorage (formato compatible con auth.ts)
+                  const finalUserId = userId || localStorage.getItem('plataformadeventacom_user_id') || '0';
+                  const hotmartUrl = `https://pay.hotmart.com/${plan.hotmartId}?checkoutMode=10&src=${finalUserId}`;
+                  ////////// Fin de actualización - 25/05/2025 11:30 //////////
                   window.location.href = hotmartUrl;
               } else {
                   alert("⚠️ Error: El administrador no ha configurado un ID de Hotmart para este plan.");
@@ -164,7 +167,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                         Plan Actual
                                     </button>
                                 ) : plan.priceMonthly === 0 ? (
-                                    <button disabled className="w-full py-2.5 rounded-lg border border-gray-600 text-gray-400 text-sm font-bold cursor-default">
+                                    <button disabled className="w-full py-2.5 rounded-lg border border-gray-700 text-gray-400 text-sm font-bold cursor-default">
                                         Plan Básico
                                     </button>
                                 ) : (
