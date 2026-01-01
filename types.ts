@@ -41,6 +41,9 @@ export interface Plan {
   priceMonthly: number;
   currency: string;
   stripePriceId?: string; // NEW: Dynamic ID for Stripe
+  ////////// Se añade hotmartId a la interfaz Plan para soporte de Hotmart - 24/05/2025 10:30 //////////
+  hotmartId?: string;
+  ////////// Fin de actualización - 24/05/2025 10:30 //////////
   limitsConfig: PlanLimits;
   uiFeatures: string[]; // List of strings for the pricing card bullets
   isActive: boolean;

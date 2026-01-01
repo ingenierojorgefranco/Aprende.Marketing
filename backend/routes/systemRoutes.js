@@ -1,3 +1,4 @@
+
 const express = require('express');
 const pool = require('../db');
 const { generateContent } = require('../geminiService');
@@ -54,6 +55,21 @@ router.get('/settings/redirect', async (req, res) => {
     }
 });
 
+////////// Se añade endpoint para obtener el método de pago activo del sistema - 24/05/2025 10:30 //////////
+/**
+ * Obtiene el método de pago activo configurado globalmente.
+ */
+router.get('/settings/payment-method', async (req, res) => {
+    try {
+        const [rows] = await pool.query("SELECT setting_value FROM system_settings WHERE setting_key = 'active_payment_method'");
+        const method = rows.length > 0 ? rows[0].setting_value : 'stripe';
+        res.json({ method });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+////////// Fin de actualización - 24/05/2025 10:30 //////////
+
 /**
  * Lista los planes activos para la landing page pública o modal de upgrade.
  */
@@ -68,6 +84,9 @@ router.get('/public/plans', async (req, res) => {
             priceMonthly: parseFloat(p.price_monthly),
             currency: p.currency,
             stripePriceId: p.stripe_price_id,
+            ////////// Se incluye hotmartId en la respuesta pública - 24/05/2025 10:30 //////////
+            hotmartId: p.hotmart_id,
+            ////////// Fin de actualización - 24/05/2025 10:30 //////////
             limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
             uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : (p.ui_features || []),
             isRecommended: !!p.is_recommended

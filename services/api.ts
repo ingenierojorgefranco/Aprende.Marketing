@@ -1,3 +1,4 @@
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -856,6 +857,18 @@ export const api = {
             return "/dashboard";
         }
     },
+
+    ////////// Método para obtener el método de pago activo - 24/05/2025 10:30 //////////
+    getActivePaymentMethod: async (): Promise<'stripe' | 'hotmart'> => {
+        if (isMockMode) return 'stripe';
+        try {
+            const data = await fetchWithFallback('/settings/payment-method');
+            return data.method;
+        } catch (e) {
+            return 'stripe';
+        }
+    },
+    ////////// Fin de actualización - 24/05/2025 10:30 //////////
   
     updateLoginRedirect: async (url: string): Promise<void> => {
         if (isMockMode) return Promise.resolve();
@@ -865,6 +878,17 @@ export const api = {
             body: JSON.stringify({ key: 'after_login_url', value: url })
         });
     },
+
+    ////////// Método para actualizar el método de pago activo - 24/05/2025 10:30 //////////
+    updateActivePaymentMethod: async (method: 'stripe' | 'hotmart'): Promise<void> => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback('/admin/settings', {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ key: 'active_payment_method', value: method })
+        });
+    },
+    ////////// Fin de actualización - 24/05/2025 10:30 //////////
   
     // --- ADMIN PLANS MANAGEMENT ---
     getPlans: async (): Promise<Plan[]> => {

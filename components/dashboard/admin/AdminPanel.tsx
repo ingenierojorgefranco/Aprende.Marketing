@@ -1,7 +1,13 @@
+
 import React, { useEffect, useState } from 'react';
 import { User, PlanLimits, Plan, UserUsageStats } from '../../../types';
 import { api } from '../../../services/api';
 import { Loader2, Shield, Users, Edit, Trash2, Check, X, Save, AlertTriangle, Eye, ChevronDown, ChevronUp, Folder, FileText, Globe, Link as LinkIcon, User as UserIcon, Mail, Calendar, Upload, BarChart, RefreshCw, CreditCard, ExternalLink, Zap } from 'lucide-react';
+
+// FIX: Added missing Input component definition
+const Input = ({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
+    <input className={`w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:border-primary outline-none transition ${className || ''}`} {...props} />
+);
 
 // --- Sub-component for viewing user resources (Lazy Loaded) ---
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -139,7 +145,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                     <div className="border border-gray-700 rounded-xl overflow-hidden">
                         <button 
                             onClick={() => toggleSection('articles')}
-                            className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 transition text-left"
+                            className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition text-left"
                         >
                             <div className="flex items-center gap-3 font-bold text-white">
                                 <FileText className="w-5 h-5 text-purple-500" /> Artículos
@@ -211,6 +217,9 @@ export const AdminPanel: React.FC = () => {
 
     // System Settings
     const [redirectUrl, setRedirectUrl] = useState('');
+    ////////// Estado para el método de pago activo - 24/05/2025 10:30 //////////
+    const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'hotmart'>('stripe');
+    ////////// Fin de actualización - 24/05/2025 10:30 //////////
     const [loadingSettings, setLoadingSettings] = useState(false);
 
     useEffect(() => {
@@ -220,14 +229,20 @@ export const AdminPanel: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [usersData, plansData, settingsData] = await Promise.all([
+            const [usersData, plansData, settingsData, pMethodData] = await Promise.all([
                 api.getUsers(),
                 api.getPlans(),
-                api.getLoginRedirect().catch(() => '/dashboard')
+                api.getLoginRedirect().catch(() => '/dashboard'),
+                ////////// Se consulta el método de pago activo del sistema - 24/05/2025 10:30 //////////
+                api.getActivePaymentMethod().catch(() => 'stripe')
+                ////////// Fin de actualización - 24/05/2025 10:30 //////////
             ]);
             setUsers(usersData);
             setPlans(plansData);
             setRedirectUrl(settingsData || '/dashboard');
+            ////////// Se asigna el método recuperado del sistema - 24/05/2025 10:30 //////////
+            setPaymentMethod(pMethodData as any);
+            ////////// Fin de actualización - 24/05/2025 10:30 //////////
         } catch (error) {
             console.error("Error loading admin data:", error);
         } finally {
@@ -239,6 +254,9 @@ export const AdminPanel: React.FC = () => {
         setLoadingSettings(true);
         try {
             await api.updateLoginRedirect(redirectUrl);
+            ////////// Se guarda la configuración del método de pago activo - 24/05/2025 10:30 //////////
+            await api.updateActivePaymentMethod(paymentMethod);
+            ////////// Fin de actualización - 24/05/2025 10:30 //////////
             alert("Configuración actualizada.");
         } catch (e) {
             alert("Error al guardar configuración.");
@@ -399,26 +417,55 @@ export const AdminPanel: React.FC = () => {
                 <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                     <LinkIcon className="w-5 h-5 text-primary" /> Configuración Global
                 </h2>
-                <div className="max-w-2xl">
-                    <label className="block text-sm font-medium text-gray-400 mb-2">URL de Redirección (Login/Registro Exitoso)</label>
-                    <div className="flex gap-2">
-                        <input 
+                <div className="max-w-2xl space-y-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-2">URL de Redirección (Login/Registro Exitoso)</label>
+                        <Input 
                             type="text" 
                             value={redirectUrl}
                             onChange={(e) => setRedirectUrl(e.target.value)}
-                            className="flex-1 bg-black border border-gray-700 rounded-lg px-4 py-2 text-white outline-none focus:border-primary"
                             placeholder="/dashboard"
                         />
-                        <button 
-                            onClick={handleSaveSettings}
-                            disabled={loadingSettings}
-                            className="bg-primary hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold transition flex items-center gap-2"
-                        >
-                            {loadingSettings ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                            Guardar
-                        </button>
+                        <p className="text-xs text-gray-500 mt-2">Define a dónde van los usuarios inmediatamente después de iniciar sesión por defecto.</p>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">Define a dónde van los usuarios inmediatamente después de iniciar sesión por defecto.</p>
+
+                    {/* ////////// Selector visual para el método de pago activo global - 24/05/2025 10:30 ////////// */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-2">Método de Pago Activo (Global)</label>
+                        <div className="grid grid-cols-2 gap-4">
+                            <button 
+                                onClick={() => setPaymentMethod('stripe')}
+                                className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === 'stripe' ? 'bg-primary/20 border-primary text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
+                            >
+                                <CreditCard className={`w-6 h-6 ${paymentMethod === 'stripe' ? 'text-primary' : ''}`} />
+                                <div className="text-left">
+                                    <p className="font-bold text-sm">Stripe</p>
+                                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Suscripciones</p>
+                                </div>
+                            </button>
+                            <button 
+                                onClick={() => setPaymentMethod('hotmart')}
+                                className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === 'hotmart' ? 'bg-orange-500/20 border-orange-500 text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
+                            >
+                                <ExternalLink className={`w-6 h-6 ${paymentMethod === 'hotmart' ? 'text-orange-500' : ''}`} />
+                                <div className="text-left">
+                                    <p className="font-bold text-sm">Hotmart</p>
+                                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Pago Único/Recurrente</p>
+                                </div>
+                            </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-3 italic">* El método seleccionado se aplicará a todos los usuarios que intenten comprar un plan.</p>
+                    </div>
+                    {/* ////////// Fin de actualización - 24/05/2025 10:30 ////////// */}
+
+                    <button 
+                        onClick={handleSaveSettings}
+                        disabled={loadingSettings}
+                        className="bg-primary hover:bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 w-full md:w-auto"
+                    >
+                        {loadingSettings ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                        Guardar Cambios del Sistema
+                    </button>
                 </div>
             </div>
 
@@ -804,7 +851,8 @@ export const AdminPanel: React.FC = () => {
                         <p className="text-gray-400 text-sm mb-6">Esta acción borrará permanentemente al usuario y todos sus datos.</p>
                         <div className="flex justify-center gap-3">
                             <button onClick={() => setShowDeleteConfirm(null)} className="px-4 py-2 border border-gray-700 rounded text-gray-300">Cancelar</button>
-                            <button onClick={() => handleDeleteUser(showDeleteConfirm)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-bold">Sí, Eliminar</button>
+                            {/* FIX: Uso de referencia a función para evitar ejecución inmediata en onClick - 24/05/2025 10:30 */}
+                            <button onClick={() => handleDeleteUser(showDeleteConfirm!)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-bold">Sí, Eliminar</button>
                         </div>
                     </div>
                 </div>

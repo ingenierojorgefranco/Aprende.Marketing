@@ -1,11 +1,8 @@
 
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Plan, PlanLimits } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Plus, Edit, Trash2, CheckCircle, XCircle, Save, X, Star } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, CheckCircle, XCircle, Save, X, Star, CreditCard, Tag } from 'lucide-react';
 
 const DEFAULT_LIMITS: PlanLimits = {
     planName: 'custom',
@@ -53,6 +50,9 @@ export const AdminPlans: React.FC = () => {
             priceMonthly: 0,
             currency: 'EUR',
             stripePriceId: '', // Default empty
+            ////////// Nuevo campo hotmartId inicializado vacío - 24/05/2025 10:30 //////////
+            hotmartId: '',
+            ////////// Fin de actualización - 24/05/2025 10:30 //////////
             limitsConfig: { ...DEFAULT_LIMITS },
             uiFeatures: [],
             isActive: true,
@@ -156,6 +156,8 @@ export const AdminPlans: React.FC = () => {
                             <p>Artículos SEO: <strong>{plan.limitsConfig.maxArticles || 0}</strong></p>
                             <p>Features: {Object.values(plan.limitsConfig.features).filter(Boolean).length} activas</p>
                             {plan.stripePriceId && <p className="text-xs text-blue-400 truncate mt-2">Stripe: {plan.stripePriceId}</p>}
+                            {/* ////////// Visualización de Hotmart ID en la lista - 24/05/2025 10:30 ////////// */}
+                            {plan.hotmartId && <p className="text-xs text-orange-400 truncate mt-1">Hotmart: {plan.hotmartId}</p>}
                         </div>
 
                         <div className="flex gap-2">
@@ -247,17 +249,31 @@ export const AdminPlans: React.FC = () => {
                                         </div>
                                     </div>
                                     
-                                    {/* STRIPE PRICE ID INPUT */}
-                                    <div>
-                                        <label className="block text-xs font-bold text-blue-400 uppercase mb-1">Stripe Price ID (API)</label>
-                                        <input 
-                                            type="text" 
-                                            value={editingPlan.stripePriceId || ''}
-                                            onChange={(e) => setEditingPlan({...editingPlan, stripePriceId: e.target.value})}
-                                            className="w-full bg-black border border-blue-900/50 rounded px-3 py-2 text-blue-100 font-mono placeholder-gray-600 focus:border-blue-500"
-                                            placeholder="price_1SdGwIRJVKdziYWKRDtjacOl"
-                                        />
-                                        <p className="text-[10px] text-gray-500 mt-1">Copia este ID desde tu Dashboard de Stripe (Productos {'>'} Precios).</p>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {/* STRIPE PRICE ID INPUT */}
+                                        <div>
+                                            <label className="block text-xs font-bold text-blue-400 uppercase mb-1 flex items-center gap-1"><CreditCard className="w-3 h-3"/> Stripe Price ID</label>
+                                            <input 
+                                                type="text" 
+                                                value={editingPlan.stripePriceId || ''}
+                                                onChange={(e) => setEditingPlan({...editingPlan, stripePriceId: e.target.value})}
+                                                className="w-full bg-black border border-blue-900/50 rounded px-3 py-2 text-blue-100 font-mono placeholder-gray-600 focus:border-blue-500"
+                                                placeholder="Ej: price_1SdGw..."
+                                            />
+                                        </div>
+
+                                        {/* ////////// Se añade campo para Hotmart Product ID - 24/05/2025 10:30 ////////// */}
+                                        <div>
+                                            <label className="block text-xs font-bold text-orange-400 uppercase mb-1 flex items-center gap-1"><Tag className="w-3 h-3"/> Hotmart Product ID</label>
+                                            <input 
+                                                type="text" 
+                                                value={editingPlan.hotmartId || ''}
+                                                onChange={(e) => setEditingPlan({...editingPlan, hotmartId: e.target.value})}
+                                                className="w-full bg-black border border-orange-900/50 rounded px-3 py-2 text-orange-100 font-mono placeholder-gray-600 focus:border-orange-500"
+                                                placeholder="Ej: 2458123"
+                                            />
+                                        </div>
+                                        {/* ////////// Fin de actualización - 24/05/2025 10:30 ////////// */}
                                     </div>
 
                                     <div>

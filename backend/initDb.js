@@ -1,3 +1,4 @@
+
 const pool = require('./db');
 
 /**
@@ -138,6 +139,7 @@ const initDb = async () => {
             price_monthly DECIMAL(10, 2) DEFAULT 0,
             currency VARCHAR(10) DEFAULT 'EUR',
             stripe_price_id VARCHAR(255),
+            hotmart_id VARCHAR(255),
             limits_config JSON,
             ui_features JSON,
             is_active BOOLEAN DEFAULT TRUE,
@@ -337,6 +339,9 @@ const initDb = async () => {
         await addColumnSafe(connection, 'users', "subscription_status VARCHAR(50)");
         
         await addColumnSafe(connection, 'plans', "stripe_price_id VARCHAR(255)");
+        ////////// Se asegura columna hotmart_id en la tabla plans - 24/05/2025 10:30 //////////
+        await addColumnSafe(connection, 'plans', "hotmart_id VARCHAR(255)");
+        ////////// Fin de actualización - 24/05/2025 10:30 //////////
         
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");
         await addColumnSafe(connection, 'courses', "badge_text VARCHAR(100) DEFAULT 'Certificado'");
@@ -366,6 +371,13 @@ const initDb = async () => {
             INSERT IGNORE INTO system_settings (setting_key, setting_value) 
             VALUES ('after_login_url', '/dashboard/training/bienvenida')
         `);
+
+        ////////// Inicialización de método de pago activo predeterminado - 24/05/2025 10:30 //////////
+        await connection.query(`
+            INSERT IGNORE INTO system_settings (setting_key, setting_value) 
+            VALUES ('active_payment_method', 'stripe')
+        `);
+        ////////// Fin de actualización - 24/05/2025 10:30 //////////
 
         // --- SEED PLANS ---
         const [existingPlans] = await connection.query("SELECT id FROM plans LIMIT 1");
@@ -480,7 +492,7 @@ const initDb = async () => {
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
                 [m1.insertId, 'El Mapa del Tesoro: Nichos Rentables', '15:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Encuentra tu océano azul.', pointsM1, 3]);
 
-            const pointsM2 = JSON.stringify(['Estructura de curso', 'Grabación básica', 'Materiales PDF']);
+            const pointsM2 = JSON.stringify(['Estructura de un curso', 'Grabación básica', 'Materiales PDF']);
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
                 [m2.insertId, 'Estructura de un Curso Ganador', '20:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Diseña tu temario.', pointsM2, 1]);
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 

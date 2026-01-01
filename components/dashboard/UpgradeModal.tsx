@@ -14,37 +14,58 @@ interface UpgradeModalProps {
 export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, currentPlan, reason }) => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  ////////// Estado para el método de pago activo del sistema - 24/05/2025 10:30 //////////
+  const [activePaymentMethod, setActivePaymentMethod] = useState<'stripe' | 'hotmart'>('stripe');
+  ////////// Fin de actualización - 24/05/2025 10:30 //////////
   const [processing, setProcessing] = useState<string | null>(null);
 
   useEffect(() => {
       if (isOpen) {
           setLoading(true);
-          api.getPublicPlans()
-             .then(setPlans)
-             .catch(err => console.error("Error loading plans", err))
-             .finally(() => setLoading(false));
+          ////////// Se cargan los planes públicos y el método de pago activo - 24/05/2025 10:30 //////////
+          Promise.all([
+              api.getPublicPlans(),
+              api.getActivePaymentMethod().catch(() => 'stripe')
+          ]).then(([plansData, method]) => {
+              setPlans(plansData);
+              setActivePaymentMethod(method as any);
+          })
+          .catch(err => console.error("Error loading upgrade modal data", err))
+          .finally(() => setLoading(false));
+          ////////// Fin de actualización - 24/05/2025 10:30 //////////
       }
   }, [isOpen]);
 
-  const handleUpgrade = async (planSlug: string) => {
-      setProcessing(planSlug);
-      console.log(`[UpgradeModal] Iniciando proceso de pago para plan: ${planSlug}`);
+  const handleUpgrade = async (plan: Plan) => {
+      setProcessing(plan.slug);
+      console.log(`[UpgradeModal] Iniciando proceso de pago para plan: ${plan.slug} vía ${activePaymentMethod}`);
 
       try {
-          const response = await api.createCheckoutSession(planSlug);
-          console.log("[UpgradeModal] Respuesta del servidor:", response);
-
-          if (response && response.url) {
-              if (response.url === '#') {
-                  alert("⚠️ MODO OFFLINE DETECTADO\n\nEstás usando la versión Demo/Offline. La redirección a Stripe está simulada.\n\nPara probar pagos reales, asegúrate de iniciar sesión en modo 'Base de Datos'.");
+          ////////// Lógica de redirección dinámica según el método configurado - 24/05/2025 10:30 //////////
+          if (activePaymentMethod === 'hotmart') {
+              if (plan.hotmartId) {
+                  // Redirección directa al checkout de Hotmart
+                  // Se intenta obtener el ID de usuario desde localStorage para el tracking SRC
+                  const userId = localStorage.getItem('user_id') || '0';
+                  const hotmartUrl = `https://pay.hotmart.com/${plan.hotmartId}?checkoutMode=10&src=${userId}`;
+                  window.location.href = hotmartUrl;
               } else {
-                  console.log("Redirigiendo a:", response.url);
-                  window.location.href = response.url; // Redirect to Stripe
+                  alert("⚠️ Error: El administrador no ha configurado un ID de Hotmart para este plan.");
               }
           } else {
-              console.error("Respuesta inválida:", response);
-              alert("Error: El servidor no devolvió una URL de pago válida. Revisa la consola.");
+              // Lógica original de Stripe Checkout
+              const response = await api.createCheckoutSession(plan.slug);
+              if (response && response.url) {
+                  if (response.url === '#') {
+                      alert("⚠️ MODO OFFLINE DETECTADO\n\nEstás usando la versión Demo/Offline. La redirección a Stripe está simulada.\n\nPara probar pagos reales, asegúrate de iniciar sesión en modo 'Base de Datos'.");
+                  } else {
+                      window.location.href = response.url;
+                  }
+              } else {
+                  alert("Error: El servidor no devolvió una URL de pago válida.");
+              }
           }
+          ////////// Fin de actualización - 24/05/2025 10:30 //////////
       } catch (error: any) {
           console.error("[UpgradeModal] Payment error critical:", error);
           alert(`❌ Error al iniciar el pago:\n${error.message || JSON.stringify(error)}`);
@@ -83,7 +104,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                 <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-4">Garantía de Confianza</p>
                 <div className="flex flex-col gap-2 text-gray-400 text-xs">
                     <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> Cancelación fácil</div>
-                    <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> Pagos seguros por Stripe</div>
+                    {/* ////////// Texto dinámico según el procesador de pagos - 24/05/2025 10:30 ////////// */}
+                    <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> {activePaymentMethod === 'hotmart' ? 'Pagos protegidos por Hotmart' : 'Pagos seguros por Stripe'}</div>
+                    {/* ////////// Fin de actualización - 24/05/2025 10:30 ////////// */}
                 </div>
             </div>
         </div>
@@ -146,7 +169,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                     </button>
                                 ) : (
                                     <button 
-                                        onClick={() => handleUpgrade(plan.slug)}
+                                        onClick={() => handleUpgrade(plan)}
                                         disabled={!!processing}
                                         className={`w-full py-2.5 rounded-lg font-bold text-sm transition transform hover:scale-[1.02] flex items-center justify-center gap-2 ${
                                             isRecommended 
