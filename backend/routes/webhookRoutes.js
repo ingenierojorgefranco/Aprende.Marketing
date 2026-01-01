@@ -55,4 +55,14 @@ router.post('/hotmart/webhook', express.json({ limit: '10mb' }), async (req, res
 });
 ////////// Fin de actualización - 25/05/2025 11:30 //////////
 
+////////// Se añade manejador GET para verificación visual del webhook en navegador - 25/05/2025 20:45 //////////
+router.get('/hotmart/webhook', (req, res) => {
+    res.json({
+        status: "active",
+        message: "Sistema de Webhooks Hotmart v29: Activo y esperando datos de venta.",
+        timestamp: new Date().toISOString()
+    });
+});
+////////// Fin de actualización - 25/05/2025 20:45 //////////
+
 module.exports = router;
