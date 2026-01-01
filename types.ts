@@ -47,6 +47,9 @@ export interface Plan {
   ////////// Se añade hotmartOffer a la interfaz Plan para soportar códigos de oferta específicos - 25/05/2025 15:30 //////////
   hotmartOffer?: string;
   ////////// Fin de actualización - 25/05/2025 15:30 //////////
+  ////////// Se añade hotmartCheckoutMode a la interfaz Plan para soportar modos de checkout personalizados - 25/05/2025 18:45 //////////
+  hotmartCheckoutMode?: string;
+  ////////// Fin de actualización - 25/05/2025 18:45 //////////
   limitsConfig: PlanLimits;
   uiFeatures: string[]; // List of strings for the pricing card bullets
   isActive: boolean;

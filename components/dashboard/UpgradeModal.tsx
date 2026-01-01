@@ -51,7 +51,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                   // Priorizamos la prop userId, si no existe buscamos en localStorage (formato compatible con auth.ts)
                   const finalUserId = userId || localStorage.getItem('plataformadeventacom_user_id') || '0';
                   
-                  ////////// Nueva lógica para construcción de URL de Hotmart con Oferta - 25/05/2025 15:30 //////////
+                  ////////// Nueva lógica para construcción de URL de Hotmart con Oferta y CheckoutMode - 25/05/2025 18:45 //////////
                   const baseUrl = `https://pay.hotmart.com/${plan.hotmartId}`;
                   const params = new URLSearchParams();
                   
@@ -60,11 +60,18 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                       params.set('off', plan.hotmartOffer);
                   }
                   
-                  params.set('checkoutMode', '10');
+                  // Si el plan tiene un modo de checkout personalizado, lo usamos. 
+                  // Si no, podemos dejar el valor por defecto que Hotmart prefiera o un estándar como '10'
+                  if (plan.hotmartCheckoutMode) {
+                      params.set('checkoutMode', plan.hotmartCheckoutMode);
+                  } else {
+                      params.set('checkoutMode', '10');
+                  }
+                  
                   params.set('src', finalUserId);
                   
                   const hotmartUrl = `${baseUrl}?${params.toString()}`;
-                  ////////// Fin de actualización - 25/05/2025 15:30 //////////
+                  ////////// Fin de actualización - 25/05/2025 18:45 //////////
                   
                   window.location.href = hotmartUrl;
               } else {

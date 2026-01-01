@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Plan, PlanLimits } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Plus, Edit, Trash2, CheckCircle, XCircle, Save, X, Star, CreditCard, Tag, Sparkles } from 'lucide-react';
+/* Added LayoutTemplate to fix the 'Cannot find name LayoutTemplate' error - 25/05/2025 18:45 */
+import { Loader2, Plus, Edit, Trash2, CheckCircle, XCircle, Save, X, Star, CreditCard, Tag, Sparkles, LayoutTemplate } from 'lucide-react';
 
 const DEFAULT_LIMITS: PlanLimits = {
     planName: 'custom',
@@ -56,6 +57,9 @@ export const AdminPlans: React.FC = () => {
             ////////// Nuevo campo hotmartOffer inicializado vacío - 25/05/2025 15:30 //////////
             hotmartOffer: '',
             ////////// Fin de actualización - 25/05/2025 15:30 //////////
+            ////////// Nuevo campo hotmartCheckoutMode inicializado vacío - 25/05/2025 18:45 //////////
+            hotmartCheckoutMode: '',
+            ////////// Fin de actualización - 25/05/2025 18:45 //////////
             limitsConfig: { ...DEFAULT_LIMITS },
             uiFeatures: [],
             isActive: true,
@@ -159,13 +163,19 @@ export const AdminPlans: React.FC = () => {
                             <p>Artículos SEO: <strong>{plan.limitsConfig.maxArticles || 0}</strong></p>
                             <p>Features: {Object.values(plan.limitsConfig.features).filter(Boolean).length} activas</p>
                             {plan.stripePriceId && <p className="text-xs text-blue-400 truncate mt-2">Stripe: {plan.stripePriceId}</p>}
-                            {/* ////////// Visualización de Hotmart ID y Oferta en la lista - 25/05/2025 15:30 ////////// */}
+                            {/* ////////// Visualización de Hotmart ID, Oferta y Modo en la lista - 25/05/2025 18:45 ////////// */}
                             {plan.hotmartId && (
-                                <p className="text-xs text-orange-400 truncate mt-1">
-                                    Hotmart: {plan.hotmartId} {plan.hotmartOffer ? ` (off: ${plan.hotmartOffer})` : ''}
-                                </p>
+                                <div className="text-xs text-orange-400 truncate mt-1 space-y-0.5">
+                                    <p>ID Hotmart: {plan.hotmartId}</p>
+                                    {(plan.hotmartOffer || plan.hotmartCheckoutMode) && (
+                                        <p className="opacity-80">
+                                            {plan.hotmartOffer ? `off: ${plan.hotmartOffer}` : ''} 
+                                            {plan.hotmartCheckoutMode ? ` | mode: ${plan.hotmartCheckoutMode}` : ''}
+                                        </p>
+                                    )}
+                                </div>
                             )}
-                            {/* ////////// Fin de actualización - 25/05/2025 15:30 ////////// */}
+                            {/* ////////// Fin de actualización - 25/05/2025 18:45 ////////// */}
                         </div>
 
                         <div className="flex gap-2">
@@ -257,7 +267,7 @@ export const AdminPlans: React.FC = () => {
                                         </div>
                                     </div>
                                     
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {/* STRIPE PRICE ID INPUT */}
                                         <div>
                                             <label className="block text-xs font-bold text-blue-400 uppercase mb-1 flex items-center gap-1"><CreditCard className="w-3 h-3"/> Stripe Price ID</label>
@@ -281,8 +291,10 @@ export const AdminPlans: React.FC = () => {
                                                 placeholder="Ej: 2458123"
                                             />
                                         </div>
+                                    </div>
 
-                                        {/* ////////// Nuevo campo para Código de Oferta Hotmart (off) - 25/05/2025 15:30 ////////// */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {/* ////////// Campo para Código de Oferta Hotmart (off) - 25/05/2025 15:30 ////////// */}
                                         <div>
                                             <label className="block text-xs font-bold text-orange-400 uppercase mb-1 flex items-center gap-1"><Sparkles className="w-3 h-3"/> Código Oferta (off)</label>
                                             <input 
@@ -294,6 +306,19 @@ export const AdminPlans: React.FC = () => {
                                             />
                                         </div>
                                         {/* ////////// Fin de actualización - 25/05/2025 15:30 ////////// */}
+
+                                        {/* ////////// Nuevo campo para Modo de Checkout Hotmart (checkoutMode) - 25/05/2025 18:45 ////////// */}
+                                        <div>
+                                            <label className="block text-xs font-bold text-orange-400 uppercase mb-1 flex items-center gap-1"><LayoutTemplate className="w-3 h-3"/> Modo Checkout (checkoutMode)</label>
+                                            <input 
+                                                type="text" 
+                                                value={editingPlan.hotmartCheckoutMode || ''}
+                                                onChange={(e) => setEditingPlan({...editingPlan, hotmartCheckoutMode: e.target.value})}
+                                                className="w-full bg-black border border-orange-900/50 rounded px-3 py-2 text-orange-100 font-mono placeholder-gray-600 focus:border-orange-500"
+                                                placeholder="Ej: 6 o 10"
+                                            />
+                                        </div>
+                                        {/* ////////// Fin de actualización - 25/05/2025 18:45 ////////// */}
                                     </div>
 
                                     <div>
@@ -393,7 +418,7 @@ export const AdminPlans: React.FC = () => {
                                         <h4 className="text-sm font-bold text-white mb-3">Feature Flags</h4>
                                         <div className="grid grid-cols-2 gap-3">
                                             {Object.entries(editingPlan.limitsConfig.features).map(([key, val]) => (
-                                                <label key={key} className="flex items-center gap-2 cursor-pointer bg-black p-2 rounded border border-gray-800">
+                                                <label key={key} className="flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${val ? 'bg-green-900/10 border-green-500/30' : 'bg-black border-gray-800 hover:border-gray-700'}">
                                                     <input 
                                                         type="checkbox" 
                                                         checked={val}
@@ -406,7 +431,7 @@ export const AdminPlans: React.FC = () => {
                                                         })}
                                                         className="accent-primary"
                                                     />
-                                                    <span className="text-gray-300 text-sm capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                                                    <span className={`text-sm font-medium transition-colors ${val ? 'text-green-300' : 'text-gray-400 group-hover:text-gray-200'} capitalize`}>{key.replace(/([A-Z])/g, ' $1').trim()}</span>
                                                 </label>
                                             ))}
                                         </div>
