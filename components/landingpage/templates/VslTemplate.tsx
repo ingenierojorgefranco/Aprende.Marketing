@@ -314,8 +314,15 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
 
                     {/* 1. Headline & Subheadline */}
                     <div className="mb-10 space-y-6">
-                        {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-tight ${ds.hero.titleColor} ${isMobilePreview ? 'text-3xl' : 'text-4xl md:text-6xl'}`, ds.hero.highlightGradient)}
-                        {renderRichText(content.hero.subheadline, `text-lg md:text-2xl font-light opacity-90 max-w-3xl mx-auto leading-relaxed ${ds.hero.subtitleColor}`)}
+                        {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind - 25/05/2025 21:15 ////////// */}
+                        {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-tight ${ds.hero.titleColor} ${isMobilePreview ? 'text-3xl' : 'text-4xl md:text-7xl'}`, ds.hero.highlightGradient)}
+                        {/* ////////// Fin de actualización - 25/05/2025 21:15 ////////// */}
+                        
+                        {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind para subtítulo - 25/05/2025 21:30 ////////// */}
+                        <div id="subtitulo-principal">
+                            {renderRichText(content.hero.subheadline, `text-lg md:text-2xl font-light opacity-90 max-w-3xl mx-auto leading-tight ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-7xl'}`)}
+                        </div>
+                        {/* ////////// Fin de actualización - 25/05/2025 21:30 ////////// */}
                     </div>
 
                     {/* 2. Video Player Component */}

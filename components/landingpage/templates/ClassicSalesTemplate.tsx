@@ -210,8 +210,15 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                           <span className="text-xs md:text-sm font-black uppercase tracking-wider">{content.topTagline || "🔥 Oferta por tiempo limitado"}</span>
                       </div>
                  </div>
-                 {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.2] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-4xl md:text-[3.5rem]'}`, ds.hero.highlightGradient)}
-                 {renderRichText(content.hero.subheadline, `font-light opacity-90 max-w-3xl mx-auto leading-relaxed ${isDark ? 'text-white' : ds.hero.subtitleColor} ${isMobilePreview ? 'text-lg' : 'text-lg md:text-2xl'}`)}
+                 {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind - 25/05/2025 21:15 ////////// */}
+                 {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-tight max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-4xl md:text-7xl'}`, ds.hero.highlightGradient)}
+                 {/* ////////// Fin de actualización - 25/05/2025 21:15 ////////// */}
+                 
+                 {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind para subtítulo - 25/05/2025 21:30 ////////// */}
+                 <div id="subtitulo-principal">
+                    {renderRichText(content.hero.subheadline, `font-light opacity-90 max-w-3xl mx-auto leading-tight ${isDark ? 'text-white' : ds.hero.subtitleColor} ${isMobilePreview ? 'text-lg' : 'text-lg md:text-7xl'}`)}
+                 </div>
+                 {/* ////////// Fin de actualización - 25/05/2025 21:30 ////////// */}
              </div>
 
              <div className={`grid gap-8 items-start ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-12 lg:gap-12'}`}>

@@ -221,11 +221,15 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                           </div>
                       )}
 
-                      {renderStyledHeadline(content.hero.headline, `text-5xl md:text-7xl font-black mb-8 tracking-tight ${ds.hero.titleColor}`, ds.hero.highlightGradient)}
+                      {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind - 25/05/2025 21:15 ////////// */}
+                      {renderStyledHeadline(content.hero.headline, `text-5xl md:text-7xl font-black mb-8 tracking-tight leading-tight ${ds.hero.titleColor}`, ds.hero.highlightGradient)}
+                      {/* ////////// Fin de actualización - 25/05/2025 21:15 ////////// */}
                       
-                      <div className={`text-xl md:text-2xl mb-12 leading-relaxed opacity-90 max-w-2xl mx-auto ${ds.hero.subtitleColor}`}>
-                          {renderRichText(content.hero.subheadline)}
+                      {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind para subtítulo - 25/05/2025 21:30 ////////// */}
+                      <div id="subtitulo-principal">
+                          {renderRichText(content.hero.subheadline, `text-xl md:text-2xl mb-12 leading-tight opacity-90 max-w-2xl mx-auto ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-7xl'}`)}
                       </div>
+                      {/* ////////// Fin de actualización - 25/05/2025 21:30 ////////// */}
 
                       <div className="max-w-md mx-auto">
                           <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} basePath={basePath} />
@@ -235,7 +239,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
              </header>
 
              <IntroSection />
-             <BenefitsSection />
+             BenefitsSection />
              <StudyPlanSection /> {/* Added new section */}
              <StepsSection />
              <InstructorSection />

@@ -127,7 +127,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
     <section id="seccion-testimonios" className={`py-20 border-b ${ds.testimonials.sectionBg} ${ds.testimonials.sectionBorder}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className="text-center mb-12">
-                 <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Transformaron su pasión en Éxito"}</h2>
+                 <h2 id="testimonials-title" className={`text-3xl md:text-4xl font-bold mb-4 ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Transformaron su pasión en Éxito"}</h2>
                  <p className={`text-lg max-w-2xl mx-auto ${ds.testimonials.subtitleColor}`}>{content.testimonialSubtitle}</p>
             </div>
             <div className={`grid gap-6 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
@@ -158,7 +158,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
     return (
         <section id="faq-section" className={`py-24 ${ds.faq.sectionBg}`}>
             <div className="w-full max-w-4xl mx-auto px-6">
-                <div className="text-center mb-16"><h2 className={`text-3xl md:text-4xl font-bold mb-4 ${ds.faq.titleColor}`}>Preguntas Frecuentes</h2></div>
+                <div className="text-center mb-16"><h2 id="faq-title" className={`text-3xl md:text-4xl font-bold mb-4 ${ds.faq.titleColor}`}>Preguntas Frecuentes</h2></div>
                 <div className="space-y-4">
                     {(questions || []).map((q, idx) => (
                         <div key={idx} className={`rounded-xl border transition-all duration-300 overflow-hidden ${openIndex === idx ? `shadow-lg border-opacity-0 ${ds.faq.cardBg}` : `border-transparent ${ds.faq.cardBg} hover:bg-opacity-80`}`}>
@@ -205,8 +205,15 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
 
                 {/* 2. Headlines */}
                 <div className="space-y-4 max-w-4xl mx-auto">
-                    {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-[1.1] ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-5xl md:text-7xl'}`, ds.hero.highlightGradient)}
-                    {renderRichText(content.hero.subheadline, `text-xl opacity-90 leading-relaxed max-w-2xl mx-auto ${ds.hero.subtitleColor}`)}
+                    {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind - 25/05/2025 21:15 ////////// */}
+                    {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-tight ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-5xl md:text-7xl'}`, ds.hero.highlightGradient)}
+                    {/* ////////// Fin de actualización - 25/05/2025 21:15 ////////// */}
+                    
+                    {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind para subtítulo - 25/05/2025 21:30 ////////// */}
+                    <div id="subtitulo-principal">
+                       {renderRichText(content.hero.subheadline, `text-xl opacity-90 leading-tight max-w-2xl mx-auto ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-7xl'}`)}
+                    </div>
+                    {/* ////////// Fin de actualización - 25/05/2025 21:30 ////////// */}
                 </div>
                 
                 {/* 3. Details Row */}
