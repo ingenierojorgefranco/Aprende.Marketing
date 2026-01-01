@@ -216,11 +216,14 @@ export const generateLandingPageContent = async (
 
 
   try {
+    // Limpieza de Prototipos: Conversión del schema a objeto de datos puro para evitar metadatos de TypeScript/JS - 01/01/2026 13:55
+    const cleanSchema = JSON.parse(JSON.stringify(schema));
+
     // Inserción de logs de depuración para auditar el prompt y el schema antes de la llamada al backend de Gemini - 01/01/2026 13:40
     console.log("[DEBUG] PROMPT ENVIADO A LA IA:", prompt);
-    console.log("[DEBUG] SCHEMA JSON ENVIADO A LA IA:", schema);
+    console.log("[DEBUG] SCHEMA JSON LIMPIO ENVIADO A LA IA:", cleanSchema);
 
-    const response = await callGeminiBackend(prompt, schema);
+    const response = await callGeminiBackend(prompt, cleanSchema);
     
     if (response.text) {
         const content = JSON.parse(response.text) as GeneratedPageContent;
