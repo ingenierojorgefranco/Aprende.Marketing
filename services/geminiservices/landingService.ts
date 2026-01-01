@@ -25,11 +25,26 @@ export const generateLandingPageContent = async (
 
   let projectStrategy = "";
   if (projectContext) {
-      const painsText = (projectContext.painPoints && projectContext.painPoints.length > 0) 
-          ? `- Dolores del Cliente (USA ESTOS 6 PUNTOS EXACTAMENTE): ${projectContext.painPoints.slice(0, 6).join(", ")}` 
+      // Actualización: Mejora de extracción de datos inteligentes desde strategy_json - 01/01/2026 12:47
+      
+      // 1. Extraer Dolores (Pains) - Prioriza campo directo, sino busca en strategy_json
+      let extractedPains = projectContext.painPoints || [];
+      if (extractedPains.length === 0 && projectContext.strategy_json?.psychology?.pains) {
+          extractedPains = projectContext.strategy_json.psychology.pains;
+      }
+      
+      const painsText = (extractedPains.length > 0) 
+          ? `- Dolores del Cliente (USA ESTOS 6 PUNTOS EXACTAMENTE): ${extractedPains.slice(0, 6).join(", ")}` 
           : "";
-      const benefitsText = (projectContext.keyBenefits && projectContext.keyBenefits.length > 0) 
-          ? `- Beneficios Clave (USA ESTOS 6 PUNTOS EXACTAMENTE): ${projectContext.keyBenefits.slice(0, 6).join(", ")}` 
+
+      // 2. Extraer Beneficios - Prioriza campo directo, sino busca en strategy_json (títulos de items)
+      let extractedBenefits = projectContext.keyBenefits || [];
+      if (extractedBenefits.length === 0 && projectContext.strategy_json?.modules?.web?.landingPageTabs?.benefits?.items) {
+          extractedBenefits = projectContext.strategy_json.modules.web.landingPageTabs.benefits.items.map((b: any) => b.title);
+      }
+
+      const benefitsText = (extractedBenefits.length > 0) 
+          ? `- Beneficios Clave (USA ESTOS 6 PUNTOS EXACTAMENTE): ${extractedBenefits.slice(0, 6).join(", ")}` 
           : "";
 
       projectStrategy = `
