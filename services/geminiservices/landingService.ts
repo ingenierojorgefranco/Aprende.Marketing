@@ -259,22 +259,35 @@ export const generateLandingPageContent = async (
         content.destination = destination;
         content.targetAudience = targetAudience;
 
-        // Actualización: Sincronización forzada de beneficios con limpieza de datos estratégica - 01/01/2026 13:05
-        const cleanStrategy = projectContext?.strategy_json ? JSON.parse(JSON.stringify(projectContext.strategy_json)) : null;
-        
-        if (cleanStrategy) {
-            const strategy = cleanStrategy;
-            // Ruta del JSON de la estrategia maestra: modules.web.landingPageTabs.benefits.items
-            const strategyBenefits = strategy?.modules?.web?.landingPageTabs?.benefits?.items;
-            
-            if (Array.isArray(strategyBenefits) && strategyBenefits.length > 0) {
-                // Mapeo para asegurar compatibilidad de tipos (desc -> description)
-                content.benefits.items = strategyBenefits.map((b: any) => ({
-                    title: b.title,
-                    description: b.desc || b.description || "", 
-                    icon: b.icon,
-                    color: b.color
+        // Actualización: Persistencia forzada de 6 dolores y beneficios en el JSON - 01/01/2026 13:20
+        if (projectContext) {
+            const pStrategy = projectContext.strategy_json ? JSON.parse(JSON.stringify(projectContext.strategy_json)) : null;
+
+            // 1. Sincronización Estricta de Beneficios (Exactamente 6) - 01/01/2026 13:20
+            let rawBenefits = Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : [];
+            if (rawBenefits.length === 0 && pStrategy?.modules?.web?.landingPageTabs?.benefits?.items) {
+                rawBenefits = pStrategy.modules.web.landingPageTabs.benefits.items;
+            }
+
+            if (rawBenefits.length > 0) {
+                content.benefits.items = rawBenefits.slice(0, 6).map((b: any) => ({
+                    title: typeof b === 'string' ? b : (b.title || ""),
+                    description: typeof b === 'string' ? "" : (b.desc || b.description || ""), 
+                    icon: b.icon || "Sparkles",
+                    color: b.color || "blue"
                 }));
+            }
+
+            // 2. Sincronización Estricta de Dolores en "Lo que aprenderás" (Exactamente 6) - 01/01/2026 13:20
+            let rawPains = Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : [];
+            if (rawPains.length === 0 && pStrategy?.psychology?.pains) {
+                rawPains = pStrategy.psychology.pains;
+            }
+
+            if (rawPains.length > 0) {
+                content.whatYouWillLearn.items = rawPains.slice(0, 6).map((p: any) => String(p));
+                content.whatYouWillLearn.title = "¿Te sientes identificado con alguna de estas situaciones?";
+                content.whatYouWillLearn.icon = "AlertTriangle";
             }
         }
 
