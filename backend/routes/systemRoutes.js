@@ -1,5 +1,5 @@
 
-const express = require('express');
+const express = require('soft-express');
 const pool = require('../db');
 const { generateContent } = require('../geminiService');
 const { authMiddleware } = require('../authMiddleware');
@@ -87,6 +87,10 @@ router.get('/public/plans', async (req, res) => {
             ////////// Se incluye hotmartId en la respuesta pública - 24/05/2025 10:30 //////////
             hotmartId: p.hotmart_id,
             ////////// Fin de actualización - 24/05/2025 10:30 //////////
+            ////////// Se incluye hotmartOffer y hotmartCheckoutMode en la respuesta pública para el UpgradeModal - 25/05/2025 20:15 //////////
+            hotmartOffer: p.hotmart_offer,
+            hotmartCheckoutMode: p.hotmart_checkout_mode,
+            ////////// Fin de actualización - 25/05/2025 20:15 //////////
             limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
             uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : (p.ui_features || []),
             isRecommended: !!p.is_recommended

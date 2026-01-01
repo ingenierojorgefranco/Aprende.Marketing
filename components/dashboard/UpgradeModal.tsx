@@ -73,7 +73,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                   const hotmartUrl = `${baseUrl}?${params.toString()}`;
                   ////////// Fin de actualización - 25/05/2025 18:45 //////////
                   
-                  window.location.href = hotmartUrl;
+                  ////////// Apertura del checkout en pestaña nueva - 25/05/2025 20:15 //////////
+                  window.open(hotmartUrl, '_blank');
+                  ////////// Fin de actualización - 25/05/2025 20:15 //////////
               } else {
                   alert("⚠️ Error: El administrador no ha configurado un ID de Hotmart para este plan.");
               }
