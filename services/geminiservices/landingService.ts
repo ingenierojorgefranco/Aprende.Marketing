@@ -25,22 +25,26 @@ export const generateLandingPageContent = async (
 
   let projectStrategy = "";
   if (projectContext) {
-      // Actualización: Mejora de extracción de datos inteligentes desde strategy_json - 01/01/2026 12:47
-      
-      // 1. Extraer Dolores (Pains) - Prioriza campo directo, sino busca en strategy_json
-      let extractedPains = projectContext.painPoints || [];
-      if (extractedPains.length === 0 && projectContext.strategy_json?.psychology?.pains) {
-          extractedPains = projectContext.strategy_json.psychology.pains;
+      // Limpieza de Datos: Extracción de valores puros para eliminar la carga de prototipos y metadatos - 01/01/2026 13:05
+      const pName = String(projectContext.productName || "");
+      const pTone = String(projectContext.brandTone || "");
+      const pDesc = String(projectContext.description || "");
+      const pStrategy = projectContext.strategy_json ? JSON.parse(JSON.stringify(projectContext.strategy_json)) : null;
+
+      // 1. Extraer Dolores (Pains) - Prioriza campo directo, sino busca en strategy_json - 01/01/2026 13:05
+      let extractedPains = Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : [];
+      if (extractedPains.length === 0 && pStrategy?.psychology?.pains) {
+          extractedPains = pStrategy.psychology.pains;
       }
       
       const painsText = (extractedPains.length > 0) 
           ? `- Dolores del Cliente (USA ESTOS 6 PUNTOS EXACTAMENTE): ${extractedPains.slice(0, 6).join(", ")}` 
           : "";
 
-      // 2. Extraer Beneficios - Prioriza campo directo, sino busca en strategy_json (títulos de items)
-      let extractedBenefits = projectContext.keyBenefits || [];
-      if (extractedBenefits.length === 0 && projectContext.strategy_json?.modules?.web?.landingPageTabs?.benefits?.items) {
-          extractedBenefits = projectContext.strategy_json.modules.web.landingPageTabs.benefits.items.map((b: any) => b.title);
+      // 2. Extraer Beneficios - Prioriza campo directo, sino busca en strategy_json (títulos de items) - 01/01/2026 13:05
+      let extractedBenefits = Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : [];
+      if (extractedBenefits.length === 0 && pStrategy?.modules?.web?.landingPageTabs?.benefits?.items) {
+          extractedBenefits = pStrategy.modules.web.landingPageTabs.benefits.items.map((b: any) => b.title);
       }
 
       const benefitsText = (extractedBenefits.length > 0) 
@@ -49,21 +53,21 @@ export const generateLandingPageContent = async (
 
       projectStrategy = `
       CONTEXTO ESTRATÉGICO DEL PROYECTO (ORDEN DE PRIORIDAD MÁXIMA):
-      - Nombre del Producto: "${projectContext.productName}"
-      - Tono de Voz de Marca: "${projectContext.brandTone}" (Usa este tono en TODO el copy).
+      - Nombre del Producto: "${pName}"
+      - Tono de Voz de Marca: "${pTone}" (Usa este tono en TODO el copy).
       ${painsText}
       ${benefitsText}
-      - Descripción del Proyecto: ${projectContext.description}.
+      - Descripción del Proyecto: ${pDesc}.
       
       REGLA OBLIGATORIA: Si te he proporcionado los Dolores y Beneficios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
       `;
 
-      // DEBUG LOG: Se añade para verificar la integración de la estrategia del proyecto - 26/10/2023 10:30
-      console.log("[DEBUG LANDING] Integración de Estrategia del Proyecto:", {
-          projectContext: projectContext,
+      // DEBUG LOG: Se actualiza para verificar la integración con datos limpios - 01/01/2026 13:05
+      console.log("[DEBUG LANDING] Integración de Estrategia del Proyecto (Datos Limpios):", {
+          pName,
+          pTone,
           painsTextFound: painsText.length > 0,
-          benefitsTextFound: benefitsText.length > 0,
-          finalStrategyString: projectStrategy
+          benefitsTextFound: benefitsText.length > 0
       });
   }
 
@@ -255,9 +259,11 @@ export const generateLandingPageContent = async (
         content.destination = destination;
         content.targetAudience = targetAudience;
 
-        // Actualización 31/12/2025 15:23 - Sincronización forzada de beneficios desde la Estrategia Maestra del Proyecto
-        if (projectContext?.strategy_json) {
-            const strategy = projectContext.strategy_json;
+        // Actualización: Sincronización forzada de beneficios con limpieza de datos estratégica - 01/01/2026 13:05
+        const cleanStrategy = projectContext?.strategy_json ? JSON.parse(JSON.stringify(projectContext.strategy_json)) : null;
+        
+        if (cleanStrategy) {
+            const strategy = cleanStrategy;
             // Ruta del JSON de la estrategia maestra: modules.web.landingPageTabs.benefits.items
             const strategyBenefits = strategy?.modules?.web?.landingPageTabs?.benefits?.items;
             
