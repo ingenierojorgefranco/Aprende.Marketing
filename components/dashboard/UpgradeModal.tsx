@@ -73,9 +73,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                   const hotmartUrl = `${baseUrl}?${params.toString()}`;
                   ////////// Fin de actualización - 25/05/2025 18:45 //////////
                   
-                  ////////// Apertura del checkout en pestaña nueva - 25/05/2025 20:15 //////////
+                  ////////// Se abre Hotmart en una pestaña nueva - 25/05/2025 19:30 //////////
                   window.open(hotmartUrl, '_blank');
-                  ////////// Fin de actualización - 25/05/2025 20:15 //////////
+                  ////////// Fin de actualización - 25/05/2025 19:30 //////////
               } else {
                   alert("⚠️ Error: El administrador no ha configurado un ID de Hotmart para este plan.");
               }
@@ -86,7 +86,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                   if (response.url === '#') {
                       alert("⚠️ MODO OFFLINE DETECTADO\n\nEstás usando la versión Demo/Offline. La redirección a Stripe está simulada.\n\nPara probar pagos reales, asegúrate de iniciar sesión en modo 'Base de Datos'.");
                   } else {
-                      window.location.href = response.url;
+                      ////////// Se abre Stripe en una pestaña nueva - 25/05/2025 19:30 //////////
+                      window.open(response.url, '_blank');
+                      ////////// Fin de actualización - 25/05/2025 19:30 //////////
                   }
               } else {
                   alert("Error: El servidor no devolvió una URL de pago válida.");
