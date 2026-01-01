@@ -44,6 +44,9 @@ export interface Plan {
   ////////// Se añade hotmartId a la interfaz Plan para soporte de Hotmart - 24/05/2025 10:30 //////////
   hotmartId?: string;
   ////////// Fin de actualización - 24/05/2025 10:30 //////////
+  ////////// Se añade hotmartOffer a la interfaz Plan para soportar códigos de oferta específicos - 25/05/2025 15:30 //////////
+  hotmartOffer?: string;
+  ////////// Fin de actualización - 25/05/2025 15:30 //////////
   limitsConfig: PlanLimits;
   uiFeatures: string[]; // List of strings for the pricing card bullets
   isActive: boolean;

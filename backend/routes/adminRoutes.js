@@ -56,7 +56,7 @@ router.get('/users/:id/stats', async (req, res) => {
             FROM usage_logs 
             WHERE user_id = ? 
               AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-              AND YEAR(created_at) = YEAR(CURRENT_DATE())
+              AND YEAR(CURRENT_DATE()) = YEAR(created_at)
             GROUP BY resource_type
         `, [id]);
         const usage = { projects: 0, landings: 0, articles: 0 };
@@ -197,6 +197,9 @@ router.get('/plans', async (req, res) => {
             ////////// Se añade mapeo de hotmartId desde la base de datos - 24/05/2025 10:30 //////////
             hotmartId: p.hotmart_id,
             ////////// Fin de actualización - 24/05/2025 10:30 //////////
+            ////////// Se añade mapeo de hotmartOffer desde la base de datos - 25/05/2025 15:30 //////////
+            hotmartOffer: p.hotmart_offer,
+            ////////// Fin de actualización - 25/05/2025 15:30 //////////
             limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
             uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : (p.ui_features || []),
             isActive: !!p.is_active,
@@ -209,15 +212,15 @@ router.get('/plans', async (req, res) => {
 });
 
 router.post('/plans', async (req, res) => {
-    ////////// Se añade hotmartId en la creación de planes - 24/05/2025 10:30 //////////
-    const { name, slug, description, priceMonthly, currency, stripePriceId, hotmartId, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
+    ////////// Se añade hotmartId y hotmartOffer en la creación de planes - 25/05/2025 15:30 //////////
+    const { name, slug, description, priceMonthly, currency, stripePriceId, hotmartId, hotmartOffer, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
     try {
         await pool.query(
-            `INSERT INTO plans (name, slug, description, price_monthly, currency, stripe_price_id, hotmart_id, limits_config, ui_features, is_active, is_recommended) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [name, slug, description, priceMonthly, currency || 'EUR', stripePriceId, hotmartId, JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended]
+            `INSERT INTO plans (name, slug, description, price_monthly, currency, stripe_price_id, hotmart_id, hotmart_offer, limits_config, ui_features, is_active, is_recommended) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [name, slug, description, priceMonthly, currency || 'EUR', stripePriceId, hotmartId, hotmartOffer, JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended]
         );
-        ////////// Fin de actualización - 24/05/2025 10:30 //////////
+        ////////// Fin de actualización - 25/05/2025 15:30 //////////
         const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
         await logSystemActivity(req.user.id, admin[0]?.name, 'CREATE_PLAN', 'plan', null, { name, slug });
         res.json({ success: true });
@@ -228,14 +231,14 @@ router.post('/plans', async (req, res) => {
 
 router.put('/plans/:id', async (req, res) => {
     const { id } = req.params;
-    ////////// Se añade hotmartId en la actualización de planes - 24/05/2025 10:30 //////////
-    const { name, slug, description, priceMonthly, currency, stripePriceId, hotmartId, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
+    ////////// Se añade hotmartId y hotmartOffer en la actualización de planes - 25/05/2025 15:30 //////////
+    const { name, slug, description, priceMonthly, currency, stripePriceId, hotmartId, hotmartOffer, limitsConfig, uiFeatures, isActive, isRecommended } = req.body;
     try {
         await pool.query(
-            `UPDATE plans SET name=?, slug=?, description=?, price_monthly=?, currency=?, stripe_price_id=?, hotmart_id=?, limits_config=?, ui_features=?, is_active=?, is_recommended=? WHERE id=?`,
-            [name, slug, description, priceMonthly, currency || 'EUR', stripePriceId, hotmartId, JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended, id]
+            `UPDATE plans SET name=?, slug=?, description=?, price_monthly=?, currency=?, stripe_price_id=?, hotmart_id=?, hotmart_offer=?, limits_config=?, ui_features=?, is_active=?, is_recommended=? WHERE id=?`,
+            [name, slug, description, priceMonthly, currency || 'EUR', stripePriceId, hotmartId, hotmartOffer, JSON.stringify(limitsConfig), JSON.stringify(uiFeatures), isActive, isRecommended, id]
         );
-        ////////// Fin de actualización - 24/05/2025 10:30 //////////
+        ////////// Fin de actualización - 25/05/2025 15:30 //////////
         const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
         await logSystemActivity(req.user.id, admin[0]?.name, 'UPDATE_PLAN', 'plan', id, { name });
         res.json({ success: true });

@@ -342,6 +342,9 @@ const initDb = async () => {
         ////////// Se asegura columna hotmart_id en la tabla plans - 24/05/2025 10:30 //////////
         await addColumnSafe(connection, 'plans', "hotmart_id VARCHAR(255)");
         ////////// Fin de actualización - 24/05/2025 10:30 //////////
+        ////////// Se añade columna hotmart_offer para soportar códigos de oferta específicos - 25/05/2025 15:30 //////////
+        await addColumnSafe(connection, 'plans', "hotmart_offer VARCHAR(255)");
+        ////////// Fin de actualización - 25/05/2025 15:30 //////////
         
         await addColumnSafe(connection, 'lesson_comments', "is_approved BOOLEAN DEFAULT TRUE");
         await addColumnSafe(connection, 'courses', "badge_text VARCHAR(100) DEFAULT 'Certificado'");
