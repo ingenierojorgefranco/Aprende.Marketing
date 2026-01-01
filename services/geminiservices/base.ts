@@ -24,7 +24,11 @@ export const Type = {
   OBJECT: 'OBJECT'
 };
 
-export const callGeminiBackend = async (prompt: string, responseSchema?: any) => {
+/**
+ * Llama al backend de Gemini.
+ * @param forceJson Si es true, obliga al modelo a responder en formato JSON incluso sin schema - 01/01/2026 14:25
+ */
+export const callGeminiBackend = async (prompt: string, responseSchema?: any, forceJson: boolean = false) => {
     try {
         const baseUrl = api.getBaseUrl();
         const response = await fetch(`${baseUrl}/gemini`, {
@@ -34,8 +38,9 @@ export const callGeminiBackend = async (prompt: string, responseSchema?: any) =>
                 model: "gemini-3-flash-preview",
                 contents: prompt,
                 config: {
-                    responseMimeType: responseSchema ? "application/json" : "text/plain",
-                    responseSchema: responseSchema
+                    // Configuración dinámica de tipo de respuesta - 01/01/2026 14:25
+                    responseMimeType: (responseSchema || forceJson) ? "application/json" : "text/plain",
+                    ...(responseSchema ? { responseSchema } : {})
                 }
             })
         });

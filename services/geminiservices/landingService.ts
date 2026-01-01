@@ -1,7 +1,7 @@
 
 // Refactorización: Creación de servicio para contenido de landing pages - 22/05/2024 14:30
 import { callGeminiBackend, PREDEFINED_LOGOS } from "./base";
-import { LANDING_PAGE_SCHEMA } from "./schemas"; // Importación de esquema centralizado - 01/01/2026 14:10
+// LANDING_PAGE_SCHEMA eliminado para optimización de tokens de entrada - 01/01/2026 14:25
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../../types";
 
 export const generateLandingPageContent = async (
@@ -72,6 +72,25 @@ export const generateLandingPageContent = async (
       });
   }
 
+  // JSON Template Prompting: Definición compacta de la estructura requerida para reducir tokens - 01/01/2026 14:25
+  const jsonStructureTemplate = `{
+    "brandName": "string",
+    "topTagline": "string",
+    "navCta": "string",
+    "navLinks": [{"label": "string", "href": "string"}],
+    "testimonialTitle": "string",
+    "hero": { "headline": "string", "subheadline": "string", "ctaText": "string" },
+    "testimonials": [{"name": "string", "text": "string", "rating": number}],
+    "intro": { "title": "string", "description": "string", "imageCardText": "string", "items": [{"title": "string", "description": "string"}] },
+    "benefits": { "title": "string", "items": [{"title": "string", "description": "string"}] },
+    "whatYouWillLearn": { "title": "string", "items": ["string"] },
+    "faq": [{"question": "string", "answer": "string"}],
+    "instructor": { "name": "string", "bio": "string" },
+    "footer": { "copyright": "string", "contact": "string" },
+    "thankYouMessage": "string",
+    "redirectUrl": "string"
+  }`;
+
   const prompt = `Actúa como un experto en copywriting y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
   El objetivo es "${goal}". La audiencia objetivo es "${targetAudience}".
   La oferta es de tipo "${offerType}".
@@ -81,19 +100,15 @@ export const generateLandingPageContent = async (
 
   REQUERIMIENTO DE VELOCIDAD: No generes código SVG para logos. Solo genera los textos persuasivos.
   
-  Genera campos específicos:
-  - brandName: Nombre de marca (ej: "MicroMaster").
-  - topTagline: Frase corta llamativa (ej: "🔥 Oferta Limitada").
-  - navCta: Texto corto botón menú (ej: "Reservar").
-  - navLinks: 3 enlaces con estos hrefs estrictos: ["#seccion-beneficios", "#seccion-testimonios", "#seccion-instructor"].
-  - testimonialTitle: Título persuasivo para testimonios.
-  
-  Estructura JSON:
+  Estructura JSON requerida (Responde exactamente con esta forma):
+  ${jsonStructureTemplate}
+
+  Instrucciones de contenido:
   1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
   2. Testimonios: 3 testimonios cortos y realistas.
   3. Intro: Qué es el producto. Genera 'imageCardText' (frase corta) and 'items' (3 bullets).
   4. Beneficios: Lista detallada (usa los proporcionados en el contexto si existen).
-  5. Lo que aprenderás: 4-6 puntos clave.
+  5. Lo que aprenderás: 4-6 puntos clave (basados en dolores si existen).
   6. FAQ: 4 preguntas que maten objeciones.
   7. Instructor: Nombre y biografía.
   8. Footer: Copyright y contacto.
@@ -101,14 +116,12 @@ export const generateLandingPageContent = async (
   Responde ÚNICAMENTE con el objeto JSON válido.`;
 
   try {
-    // Limpieza Profunda: Clonación del esquema para asegurar que sea un POJO puro sin prototipos - 01/01/2026 14:10
-    const cleanSchema = JSON.parse(JSON.stringify(LANDING_PAGE_SCHEMA));
+    // Optimización de Tokens: Llamada al backend forzando JSON pero sin enviar el schema pesado - 01/01/2026 14:25
+    
+    // Auditoría de datos antes del envío - 01/01/2026 14:25
+    console.log("[DEBUG] PROMPT OPTIMIZADO ENVIADO A LA IA (Template Prompting):", prompt);
 
-    // Auditoría de datos antes del envío - 01/01/2026 14:10
-    console.log("[DEBUG] PROMPT ENVIADO A LA IA:", prompt);
-    console.log("[DEBUG] SCHEMA JSON LIMPIO ENVIADO A LA IA:", cleanSchema);
-
-    const response = await callGeminiBackend(prompt, cleanSchema);
+    const response = await callGeminiBackend(prompt, null, true);
     
     if (response.text) {
         const content = JSON.parse(response.text) as GeneratedPageContent;
