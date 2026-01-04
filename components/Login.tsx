@@ -19,6 +19,12 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<LoginMode>('db'); 
 
+  ////////// Se añade detección de entorno de producción - 25/05/2025 22:30 //////////
+  const isProduction = typeof window !== "undefined" && 
+    (window.location.hostname.includes("aprende.marketing") || 
+     window.location.hostname.includes("bajardepeso.online"));
+  ////////// Fin de actualización - 25/05/2025 22:30 //////////
+
   // Consola visual para debug
   const [logs, setLogs] = useState<string[]>([]);
   const navigate = useNavigate();
@@ -119,38 +125,41 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <p className="text-gray-400 mt-2">Ingresa a tu panel de administración</p>
         </div>
 
-        {/* Selector de modo de login */}
-        <div className="mb-6">
-          <p className="text-xs text-gray-400 mb-2">Modo de autenticación</p>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => setMode('db')}
-              className={`flex items-center justify-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
-                mode === 'db'
-                  ? 'border-primary bg-primary/10 text-primary font-bold'
-                  : 'border-gray-700 text-gray-400 hover:border-gray-500'
-              }`}
-              disabled={loading}
-            >
-              <Database className="w-4 h-4" />
-              BD (Cloud SQL)
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('offline')}
-              className={`flex items-center justify-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
-                mode === 'offline'
-                  ? 'border-yellow-400 bg-yellow-500/10 text-yellow-300 font-bold'
-                  : 'border-gray-700 text-gray-400 hover:border-gray-500'
-              }`}
-              disabled={loading}
-            >
-              <WifiOff className="w-4 h-4" />
-              Offline (demo)
-            </button>
+        {/* ////////// Selector de modo de login condicional - 25/05/2025 22:30 ////////// */}
+        {!isProduction && (
+          <div className="mb-6 animate-in fade-in zoom-in-95">
+            <p className="text-xs text-gray-400 mb-2">Modo de autenticación</p>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <button
+                type="button"
+                onClick={() => setMode('db')}
+                className={`flex items-center justify-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
+                  mode === 'db'
+                    ? 'border-primary bg-primary/10 text-primary font-bold'
+                    : 'border-gray-700 text-gray-400 hover:border-gray-500'
+                }`}
+                disabled={loading}
+              >
+                <Database className="w-4 h-4" />
+                BD (Cloud SQL)
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('offline')}
+                className={`flex items-center justify-center gap-1 px-3 py-2 rounded-lg border transition-colors ${
+                  mode === 'offline'
+                    ? 'border-yellow-400 bg-yellow-500/10 text-yellow-300 font-bold'
+                    : 'border-gray-700 text-gray-400 hover:border-gray-500'
+                }`}
+                disabled={loading}
+              >
+                <WifiOff className="w-4 h-4" />
+                Offline (demo)
+              </button>
+            </div>
           </div>
-        </div>
+        )}
+        {/* ////////// Fin de actualización - 25/05/2025 22:30 ////////// */}
 
         {error && (
           <div className="mb-6 bg-red-900/30 border border-red-800 text-red-200 p-3 rounded-lg flex items-start gap-2 text-sm">
@@ -216,17 +225,20 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </div>
       </div>
 
-      {/* Console Logs for Debugging */}
-      <div className="w-full max-w-md mt-6 bg-black border border-gray-800 rounded-lg p-4 font-mono text-xs max-h-48 overflow-y-auto">
-        <p className="text-gray-500 mb-2 border-b border-gray-800 pb-1">
-          Console Logs (Debug)
-        </p>
-        {logs.map((log, i) => (
-          <div key={i} className="text-green-400 mb-1">
-            {log}
-          </div>
-        ))}
-      </div>
+      {/* ////////// Consola de logs condicional para entorno de desarrollo - 25/05/2025 22:30 ////////// */}
+      {!isProduction && (
+        <div className="w-full max-w-md mt-6 bg-black border border-gray-800 rounded-lg p-4 font-mono text-xs max-h-48 overflow-y-auto animate-in slide-in-from-bottom-2">
+          <p className="text-gray-500 mb-2 border-b border-gray-800 pb-1">
+            Console Logs (Debug)
+          </p>
+          {logs.map((log, i) => (
+            <div key={i} className="text-green-400 mb-1">
+              {log}
+            </div>
+          ))}
+        </div>
+      )}
+      {/* ////////// Fin de actualización - 25/05/2025 22:30 ////////// */}
     </div>
   );
 };
