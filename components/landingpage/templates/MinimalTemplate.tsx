@@ -239,7 +239,9 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
              </header>
 
              <IntroSection />
-             BenefitsSection />
+             {/* ////////// Corrección de sintaxis: se añade el carácter '<' faltante - 25/05/2025 23:15 ////////// */}
+             <BenefitsSection />
+             {/* ////////// Fin de actualización - 25/05/2025 23:15 ////////// */}
              <StudyPlanSection /> {/* Added new section */}
              <StepsSection />
              <InstructorSection />
