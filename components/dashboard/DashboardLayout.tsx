@@ -204,6 +204,20 @@ export const DashboardLayout = ({
           <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-[#B0B0B0]"><X className="w-6 h-6" /></button>
         </div>
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">{menuStructure.map(item => <NavItemRender key={item.id} item={item} />)}</nav>
+        
+        {/* ////////// Reubicación del botón Únete a la Comunidad al Sidebar con el estilo exacto de la Home - 26/05/2025 12:00 ////////// */}
+        <div className="px-6 py-4">
+            <a 
+              href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full px-6 py-4 bg-transparent hover:bg-white/5 border border-white/20 hover:border-[#FF5A1F] hover:text-[#FF5A1F] rounded-full text-base font-bold transition flex items-center justify-center gap-3 text-white group"
+            >
+              <Users className="w-5 h-5 group-hover:text-[#FF5A1F] transition-colors" /> Únete a la Comunidad
+            </a>
+        </div>
+        {/* ////////// Fin de actualización - 26/05/2025 12:00 ////////// */}
+
         {user.role === 'admin' && (
             <div className="mt-auto px-6 py-2">
                 <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/20 p-3 rounded-xl">
