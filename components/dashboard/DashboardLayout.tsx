@@ -197,15 +197,19 @@ export const DashboardLayout = ({
     <div className="h-screen overflow-hidden bg-black text-[#FFFFFF] flex font-sans">
       <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0B0B0B] border-r border-white/5 shadow-2xl z-40 transition-transform duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="p-8 pb-6 flex justify-between items-center">
-          <div>
-              <h2 className="text-2xl font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
-              <p className="text-[10px] text-[#B0B0B0] uppercase tracking-widest mt-1.5 font-bold">Gestión de Conversión</p>
+          {/* ////////// Inclusión del logo AM junto al título del dashboard - 01/06/2025 10:00 ////////// */}
+          <div className="flex items-center gap-3">
+              <div className="w-10 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-base shadow-lg shadow-[#FF5A1F]/20 px-1.5">AM</div>
+              <div>
+                  <h2 className="text-xl font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
+                  <p className="text-[8px] text-[#B0B0B0] uppercase tracking-widest mt-0.5 font-bold">Gestión de Conversión</p>
+              </div>
           </div>
+          {/* ////////// Fin de actualización - 01/06/2025 10:00 ////////// */}
           <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-[#B0B0B0]"><X className="w-6 h-6" /></button>
         </div>
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">{menuStructure.map(item => <NavItemRender key={item.id} item={item} />)}</nav>
         
-        {/* ////////// Reubicación del botón Únete a la Comunidad al Sidebar con el estilo exacto de la Home - 26/05/2025 12:00 ////////// */}
         <div className="px-6 py-4">
             <a 
               href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1"
@@ -216,7 +220,6 @@ export const DashboardLayout = ({
               <Users className="w-5 h-5 group-hover:text-[#FF5A1F] transition-colors" /> Únete a la Comunidad
             </a>
         </div>
-        {/* ////////// Fin de actualización - 26/05/2025 12:00 ////////// */}
 
         {user.role === 'admin' && (
             <div className="mt-auto px-6 py-2">
@@ -229,18 +232,28 @@ export const DashboardLayout = ({
                 </div>
             </div>
         )}
+
+        {/* ////////// Eliminación del icono Sparkles superior en el bloque de actualización según lo solicitado - 01/06/2025 10:00 ////////// */}
         {currentPlan !== 'max' && (
-            <div className="border-t border-white/5 bg-[#0B0B0B] p-4">
-                <div className="p-5 rounded-3xl border border-[#FF5A1F]/20 bg-[#FF5A1F]/5 backdrop-blur-md relative overflow-hidden group">
+            <div className="border-t border-white/5 bg-[#0B0B0B] p-6">
+                <div className="p-8 rounded-[2rem] border border-[#FF5A1F]/30 bg-[#FF5A1F]/10 backdrop-blur-md relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
+                        <Sparkles className="w-24 h-24 text-white" />
+                    </div>
                     <div className="flex flex-col items-center text-center relative z-10">
-                        <div className="p-2.5 rounded-xl bg-[#FF5A1F] text-white shadow-lg mb-4"><Sparkles className="w-5 h-5 fill-current" /></div>
-                        <h3 className="font-bold text-white text-base leading-tight mb-1">Mejora tu capacidad</h3>
-                        <p className="text-[10px] text-[#B0B0B0] mb-4 px-2">Desbloquea generación ilimitada y dominios propios.</p>
-                        <button onClick={() => setShowUpgradeModal(true)} className="w-full py-2.5 rounded-xl font-bold text-xs bg-[#FF5A1F] hover:bg-[#D94A1E] text-white transition-all shadow-lg shadow-[#FF5A1F]/20">Ver Planes PRO</button>
+                        <h3 className="font-black text-white text-xl leading-tight mb-2 tracking-tight">Mejora tu capacidad</h3>
+                        <p className="text-sm text-[#B0B0B0] mb-6 px-4 font-medium leading-relaxed">Desbloquea generación ilimitada y dominios propios de inmediato.</p>
+                        <button 
+                            onClick={() => setShowUpgradeModal(true)} 
+                            className="w-full py-4 rounded-2xl font-black text-sm bg-[#FF5A1F] hover:bg-[#D94A1E] text-white transition-all shadow-[0_15px_30px_-5px_rgba(255,90,31,0.5)] transform hover:-translate-y-1 active:scale-95"
+                        >
+                            Ver Planes PRO
+                        </button>
                     </div>
                 </div>
             </div>
         )}
+        {/* ////////// Fin de actualización - 01/06/2025 10:00 ////////// */}
       </aside>
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
         {mobileMenuOpen && <div className="fixed inset-0 bg-black/80 z-30 md:hidden" onClick={() => setMobileMenuOpen(false)}></div>}

@@ -1,6 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
-import { X, Check, Crown, ShieldCheck, Loader2 } from 'lucide-react';
+import { X, Check, Crown, ShieldCheck, Loader2, Star, Sparkles, Zap, Rocket, Shield, ArrowRight } from 'lucide-react';
 import { api } from '../../services/api';
 import { Plan } from '../../types';
 
@@ -22,6 +21,16 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
   ////////// Fin de actualización - 24/05/2025 10:30 //////////
   const [processing, setProcessing] = useState<string | null>(null);
 
+  // ////////// Nuevo estado para el plan seleccionado e información persuasiva - 01/06/2025 10:00 //////////
+  const [selectedPlanSlug, setSelectedPlanSlug] = useState<string | null>(null);
+
+  const planPitchMap: Record<string, string> = {
+      'starter': "Perfecto para validar tu nicho sin costes fijos.",
+      'pro': "La suite completa para afiliados que buscan profesionalismo con dominios propios.",
+      'max': "Potencia ilimitada para escalar múltiples productos simultáneamente sin barreras."
+  };
+  // ////////// Fin de actualización - 01/06/2025 10:00 //////////
+
   useEffect(() => {
       if (isOpen) {
           setLoading(true);
@@ -32,6 +41,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
           ]).then(([plansData, method]) => {
               setPlans(plansData);
               setActivePaymentMethod(method as any);
+              
+              // ////////// Selección inicial inteligente - 27/05/2025 15:30 //////////
+              const recommended = plansData.find(p => p.isRecommended);
+              if (recommended) setSelectedPlanSlug(recommended.slug);
+              else if (plansData.length > 0) setSelectedPlanSlug(plansData[0].slug);
+              // ////////// Fin de actualización - 27/05/2025 15:30 //////////
           })
           .catch(err => console.error("Error loading upgrade modal data", err))
           .finally(() => setLoading(false));
@@ -105,116 +120,193 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
 
   if (!isOpen) return null;
 
+  // ////////// Lógica para obtener el plan actualmente enfocado/seleccionado - 27/05/2025 15:30 //////////
+  const selectedPlanData = plans.find(p => p.slug === selectedPlanSlug);
+  // ////////// Fin de actualización - 27/05/2025 15:30 //////////
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="relative w-full max-w-6xl bg-gray-900 border border-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] md:max-h-none overflow-y-auto md:overflow-visible">
+      {/* ////////// Modal ampliado a max-w-7xl para mejor distribución - 27/05/2025 15:30 ////////// */}
+      <div className="relative w-full max-w-7xl bg-gray-900 border border-gray-800 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
         
         {onClose && (
             <button 
                 onClick={onClose} 
-                className="absolute top-4 right-4 z-10 p-2 bg-gray-800 text-gray-400 rounded-full hover:text-white hover:bg-gray-700 transition"
+                className="absolute top-6 right-6 z-30 p-3 bg-gray-800/80 text-gray-400 rounded-full hover:text-white hover:bg-gray-700 transition backdrop-blur-md"
             >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
             </button>
         )}
 
-        {/* Sidebar / Header Info */}
-        <div className="md:w-1/4 bg-gradient-to-br from-gray-900 to-black p-8 border-r border-gray-800 flex flex-col justify-center text-center md:text-left shrink-0">
-            <div className="mb-6 inline-flex items-center justify-center md:justify-start gap-2 text-yellow-500 font-bold bg-yellow-500/10 px-4 py-1.5 rounded-full border border-yellow-500/20 self-center md:self-start">
-                <Crown className="w-4 h-4 fill-current" /> Límite Alcanzado
-            </div>
-            <h2 className="text-2xl md:text-3xl font-black text-white mb-4 leading-tight">
-                Escala tu Negocio al <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500">Siguiente Nivel</span>
-            </h2>
-            <p className="text-gray-400 text-sm mb-8 leading-relaxed">
-                {reason || "Has alcanzado los límites de tu plan actual. Actualiza para desbloquear todo el potencial."}
-            </p>
-            <div className="hidden md:block">
-                <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-4">Garantía de Confianza</p>
-                <div className="flex flex-col gap-2 text-gray-400 text-xs">
-                    <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> Cancelación fácil</div>
-                    {/* ////////// Texto dinámico según el procesador de pagos - 24/05/2025 10:30 ////////// */}
-                    <div className="flex items-center gap-2"><ShieldCheck className="w-3 h-3 text-green-500" /> {activePaymentMethod === 'hotmart' ? 'Pagos protegidos por Hotmart' : 'Pagos seguros por Stripe'}</div>
-                    {/* ////////// Fin de actualización - 24/05/2025 10:30 ////////// */}
+        <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+            {/* Sidebar / Header Info */}
+            <div className="md:w-1/4 bg-gradient-to-br from-gray-900 via-[#0b0b0b] to-black p-10 border-r border-white/5 flex flex-col justify-center text-center md:text-left shrink-0 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
+                    <Zap className="w-64 h-64 text-indigo-500 absolute -top-10 -left-10" />
+                </div>
+
+                <div className="relative z-10">
+                    <div className="mb-8 inline-flex items-center justify-center md:justify-start gap-2 text-[#FF5A1F] font-black bg-[#FF5A1F]/10 px-5 py-2 rounded-full border border-[#FF5A1F]/20 self-center md:self-start text-xs uppercase tracking-[0.2em]">
+                        <Crown className="w-4 h-4 fill-current" /> Plan Estratégico
+                    </div>
+                    {/* ////////// Actualización de titulares y sellos de confianza para mayor persuasión de venta - 01/06/2025 10:00 ////////// */}
+                    <h2 className="text-3xl md:text-5xl font-black text-white mb-6 leading-[1.1] tracking-tight">
+                        Impulsa tu <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500">Éxito Digital</span>
+                    </h2>
+                    <p className="text-gray-400 text-lg mb-10 leading-relaxed font-light">
+                        {reason ? "Desbloquea el siguiente nivel de tu negocio. Elige la potencia necesaria para escalar tus resultados en Hotmart." : "Desbloquea el siguiente nivel de tu negocio. Elige la potencia necesaria para escalar tus resultados en Hotmart."}
+                    </p>
+                    
+                    <div className="space-y-4 pt-10 border-t border-white/5">
+                        <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] font-black mb-4">Confianza Máxima</p>
+                        <div className="flex flex-col gap-3 text-gray-400 text-sm">
+                            <div className="flex items-center gap-3 font-medium"><ShieldCheck className="w-5 h-5 text-emerald-500" /> Compra 100% segura en Hotmart®</div>
+                            <div className="flex items-center gap-3 font-medium"><ShieldCheck className="w-5 h-5 text-emerald-500" /> Garantía incondicional de 7 días</div>
+                            <div className="flex items-center gap-3 font-medium"><ShieldCheck className="w-5 h-5 text-emerald-500" /> Activación automática e inmediata</div>
+                            <div className="flex items-center gap-3 font-medium"><ShieldCheck className="w-5 h-5 text-emerald-500" /> Soporte VIP Prioritario</div>
+                        </div>
+                    </div>
+                    {/* ////////// Fin de actualización - 01/06/2025 10:00 ////////// */}
                 </div>
             </div>
-        </div>
 
-        {/* Pricing Columns */}
-        <div className="flex-1 p-6 md:p-8 bg-[#0a0a0a] overflow-x-auto">
-            {loading ? (
-                <div className="flex h-full items-center justify-center text-gray-500">
-                    <Loader2 className="w-8 h-8 animate-spin mr-2" /> Cargando planes...
-                </div>
-            ) : (
-                <div className="flex flex-col md:flex-row gap-4 h-full">
-                    {plans.map((plan) => {
-                        const isCurrent = currentPlan === plan.slug;
-                        const isRecommended = plan.isRecommended;
-                        const isProcessingThis = processing === plan.slug;
+            {/* Pricing Columns */}
+            <div className="flex-1 flex flex-col bg-[#050505] overflow-y-auto custom-scrollbar relative">
+                {/* Visual Grid Background */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.03] pointer-events-none"></div>
 
-                        return (
-                            <div 
-                                key={plan.id}
-                                className={`flex-1 min-w-[260px] rounded-2xl border p-6 flex flex-col relative transition ${
-                                    isRecommended 
-                                        ? 'border-orange-500 bg-gray-900 shadow-2xl shadow-orange-900/10 z-10 scale-105 md:scale-100 lg:scale-105' 
-                                        : 'border-gray-800 bg-gray-900/50 hover:border-gray-700'
-                                } ${isCurrent ? 'opacity-70' : ''}`}
-                            >
-                                {isRecommended && (
-                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-orange-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap">
-                                        Recomendado
-                                    </div>
-                                )}
-                                
-                                <div className="mb-4 text-center">
-                                    <h3 className={`font-bold text-lg ${isRecommended ? 'text-orange-400' : 'text-gray-300'}`}>{plan.name}</h3>
-                                    <div className="flex items-baseline justify-center gap-1">
-                                        <span className="text-3xl font-black text-white">
-                                            {plan.priceMonthly === 0 ? '$0' : `$${plan.priceMonthly}`}
-                                        </span>
-                                        <span className="text-xs text-gray-500">/mes</span>
-                                    </div>
-                                    <p className="text-xs text-gray-500 mt-2 min-h-[32px]">{plan.description}</p>
-                                </div>
+                <div className="p-8 md:p-12 relative z-10 flex flex-col flex-1">
+                    {loading ? (
+                        <div className="flex-1 flex items-center justify-center text-gray-500 flex-col gap-4">
+                            <Loader2 className="w-12 h-12 animate-spin text-[#FF5A1F]" />
+                            <p className="font-bold uppercase tracking-widest text-xs">Sincronizando Planes...</p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                                {plans.map((plan) => {
+                                    const isCurrent = currentPlan === plan.slug;
+                                    const isRecommended = plan.isRecommended;
+                                    const isSelected = selectedPlanSlug === plan.slug;
 
-                                <ul className="space-y-3 text-sm text-gray-400 mb-6 flex-1">
-                                    {(plan.uiFeatures || []).map((feat, idx) => (
-                                        <li key={idx} className="flex gap-2 text-xs">
-                                            <Check className={`w-4 h-4 flex-shrink-0 ${isRecommended ? 'text-orange-500' : 'text-gray-600'}`} /> 
-                                            {feat}
-                                        </li>
-                                    ))}
-                                </ul>
+                                    // ////////// Estilos dinámicos para resaltar Plan Actual y Recomendado - 27/05/2025 15:30 //////////
+                                    const cardClasses = `
+                                        relative p-8 rounded-[2.5rem] border-2 transition-all duration-500 cursor-pointer flex flex-col gap-4 group
+                                        ${isSelected ? 'scale-105 z-20' : 'scale-100 z-10'}
+                                        ${isCurrent 
+                                            ? 'border-emerald-500/50 bg-emerald-500/5 shadow-[0_0_40px_rgba(16,185,129,0.1)]' 
+                                            : isRecommended 
+                                                ? 'border-[#FF5A1F]/50 bg-gray-900 shadow-[0_0_60px_rgba(255,90,31,0.15)]' 
+                                                : 'border-gray-800 bg-gray-900/40 hover:border-gray-700'}
+                                        ${isSelected && isRecommended ? 'ring-4 ring-[#FF5A1F]/20' : ''}
+                                        ${isSelected && isCurrent ? 'ring-4 ring-emerald-500/20' : ''}
+                                    `;
+                                    // ////////// Fin de actualización - 27/05/2025 15:30 //////////
 
-                                {isCurrent ? (
-                                    <button disabled className="w-full py-2.5 rounded-lg border border-gray-700 text-gray-500 text-sm font-bold cursor-default bg-gray-800/50">
-                                        Plan Actual
-                                    </button>
-                                ) : plan.priceMonthly === 0 ? (
-                                    <button disabled className="w-full py-2.5 rounded-lg border border-gray-700 text-gray-400 text-sm font-bold cursor-default">
-                                        Plan Básico
-                                    </button>
-                                ) : (
-                                    <button 
-                                        onClick={() => handleUpgrade(plan)}
-                                        disabled={!!processing}
-                                        className={`w-full py-2.5 rounded-lg font-bold text-sm transition transform hover:scale-[1.02] flex items-center justify-center gap-2 ${
-                                            isRecommended 
-                                                ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg' 
-                                                : 'border border-gray-600 text-white hover:bg-white hover:text-black'
-                                        }`}
-                                    >
-                                        {isProcessingThis ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                                        {isProcessingThis ? 'Procesando...' : `Obtener ${plan.name}`}
-                                    </button>
-                                )}
+                                    return (
+                                        <div 
+                                            key={plan.id}
+                                            onClick={() => setSelectedPlanSlug(plan.slug)}
+                                            className={cardClasses}
+                                        >
+                                            {/* Badges de Estado */}
+                                            {isCurrent && (
+                                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-emerald-500 text-black text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
+                                                    Tu Plan Actual
+                                                </div>
+                                            )}
+                                            {isRecommended && !isCurrent && (
+                                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FF5A1F] text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg animate-pulse">
+                                                    Más Popular
+                                                </div>
+                                            )}
+                                            
+                                            <div className="text-center">
+                                                <h3 className={`font-black text-xl mb-1 ${isCurrent ? 'text-emerald-400' : isRecommended ? 'text-[#FF5A1F]' : 'text-gray-300'}`}>{plan.name}</h3>
+                                                <div className="flex items-baseline justify-center gap-1">
+                                                    <span className="text-4xl font-black text-white tracking-tighter">
+                                                        {plan.priceMonthly === 0 ? '$0' : `$${plan.priceMonthly}`}
+                                                    </span>
+                                                    <span className="text-sm text-gray-500 font-bold uppercase">/mes</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="h-px bg-white/5 w-full my-2"></div>
+
+                                            <ul className="space-y-4 flex-1">
+                                                {(plan.uiFeatures || []).slice(0, 4).map((feat, idx) => (
+                                                    <li key={idx} className="flex gap-3 text-sm font-medium items-center text-gray-300">
+                                                        <div className={`p-1 rounded-full ${isCurrent ? 'bg-emerald-500/20 text-emerald-500' : isRecommended ? 'bg-[#FF5A1F]/20 text-[#FF5A1F]' : 'bg-gray-800 text-gray-500'}`}>
+                                                            <Check className="w-3 h-3" />
+                                                        </div>
+                                                        {feat}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            
+                                            <div className="pt-4">
+                                                <div className={`w-full py-2 rounded-xl text-center text-[10px] font-black uppercase tracking-widest transition-colors ${isSelected ? 'bg-white/10 text-white border border-white/20' : 'text-gray-600'}`}>
+                                                    {isSelected ? 'Seleccionado' : 'Hacer clic para ver detalles'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                        );
-                    })}
+
+                            {/* ////////// Reemplazo de estadísticas técnicas por argumentos de venta persuasivos en el panel de detalles - 01/06/2025 10:00 ////////// */}
+                            {selectedPlanData && (
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <div className="bg-gray-900/80 backdrop-blur-xl border border-white/5 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 p-10 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
+                                            {selectedPlanData.slug === 'max' ? <Rocket className="w-48 h-48 text-white" /> : <Shield className="w-48 h-48 text-white" />}
+                                        </div>
+
+                                        <div className="grid md:grid-cols-12 gap-12 items-center relative z-10">
+                                            <div className="md:col-span-8 space-y-6">
+                                                <div>
+                                                    <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.3em] mb-2 block">Análisis del Plan {selectedPlanData.name}</span>
+                                                    <h4 className="text-3xl font-black text-white leading-tight">
+                                                        {planPitchMap[selectedPlanData.slug] || "Potencia tu estrategia digital."}
+                                                    </h4>
+                                                </div>
+
+                                                <div className="p-8 rounded-2xl bg-black/40 border border-white/5">
+                                                    <p className="text-gray-300 text-lg leading-relaxed font-medium">
+                                                        {selectedPlanData.slug === 'starter' && "Inicia tu camino hoy mismo validando tus ofertas con la potencia de la IA sin riesgos innecesarios."}
+                                                        {selectedPlanData.slug === 'pro' && "Lleva tu negocio al estándar profesional con dominios propios, mayor capacidad de landing pages y todas las herramientas de conversión activadas."}
+                                                        {selectedPlanData.slug === 'max' && "Diseñado para agencias y productores de alto impacto. Control total, activos ilimitados y la máxima prioridad en nuestros servidores de generación."}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="md:col-span-4 flex flex-col gap-4">
+                                                <button 
+                                                    onClick={() => handleUpgrade(selectedPlanData)}
+                                                    disabled={!!processing || currentPlan === selectedPlanData.slug}
+                                                    className={`w-full py-6 rounded-2xl font-black text-xl transition-all shadow-2xl transform hover:scale-[1.03] active:scale-95 flex items-center justify-center gap-3 ${
+                                                        currentPlan === selectedPlanData.slug 
+                                                            ? 'bg-gray-800 text-gray-500 cursor-default opacity-50' 
+                                                            : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-[#FF5A1F]/20'
+                                                    }`}
+                                                >
+                                                    {processing === selectedPlanData.slug ? <Loader2 className="w-6 h-6 animate-spin" /> : null}
+                                                    {currentPlan === selectedPlanData.slug ? 'Tu Plan Actual' : `Activar ${selectedPlanData.name}`}
+                                                    <ArrowRight className="w-6 h-6" />
+                                                </button>
+                                                <p className="text-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                                                    Acceso instantáneo tras el pago
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            {/* ////////// Fin de actualización - 01/06/2025 10:00 ////////// */}
+                        </>
+                    )}
                 </div>
-            )}
+            </div>
         </div>
       </div>
     </div>
