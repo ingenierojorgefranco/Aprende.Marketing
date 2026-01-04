@@ -12,6 +12,11 @@ import { PublicHome } from "./components/PublicHome";
 import { Login } from "./components/Login";
 import { Register } from "./components/Register";
 import { PublicLandingView } from "./components/PublicLandingView";
+////////// Importación de nuevas páginas legales y contacto - 27/05/2025 01:15 //////////
+import { ContactPage } from "./components/ContactPage";
+import { TermsPage } from "./components/TermsPage";
+import { PrivacyPage } from "./components/PrivacyPage";
+////////// Fin de importación - 27/05/2025 01:15 //////////
 
 // Dashboard Core
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
@@ -285,6 +290,12 @@ const App: React.FC = () => {
 
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login onLogin={handleLoginSubmit} />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register onLogin={handleLoginSubmit} />} />
+
+        {/* ////////// Nuevas rutas legales y de contacto - 27/05/2025 01:15 ////////// */}
+        <Route path="/contacto" element={<ContactPage />} />
+        <Route path="/terminos" element={<TermsPage />} />
+        <Route path="/privacidad" element={<PrivacyPage />} />
+        {/* ////////// Fin de nuevas rutas - 27/05/2025 01:15 ////////// */}
 
         {/* RUTAS DEL DASHBOARD (PROTEGIDAS) */}
         <Route
