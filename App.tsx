@@ -49,6 +49,9 @@ import { ProjectWizard } from "./components/dashboard/tools/ProjectWizard";
 import { ProjectsList } from "./components/dashboard/tools/ProjectsList";
 import { MyPages } from "./components/dashboard/tools/MyPages";
 import { ProjectStrategyDashboard } from "./components/dashboard/tools/ProjectStrategyDashboard";
+////////// Importación de CopySell Pro - 18/06/2024 10:35 //////////
+import { CopySellPro } from "./components/dashboard/tools/CopySellPro";
+////////// Fin de actualización - 18/06/2024 10:35 //////////
 
 // Dashboard CRM
 import { CRM_Layout } from "./components/dashboard/crm/CRM_Layout";
@@ -352,13 +355,9 @@ const App: React.FC = () => {
           {/* HERRAMIENTAS ADICIONALES */}
           <Route path="whatsapp" element={<WhatsAppCRM />} />
           <Route path="email" element={<EmailMarketing />} />
-          <Route path="copy-pro" element={
-              <div className="flex flex-col items-center justify-center h-full bg-gray-900 rounded-xl border border-dashed border-gray-700 p-12 text-center">
-                <PenTool className="w-16 h-16 text-purple-400 mb-6" />
-                <h2 className="text-3xl font-bold text-white mb-2">CopySell Pro</h2>
-                <p className="text-gray-400 max-w-md">Próximamente: El generador de guiones de ventas más avanzado del mercado.</p>
-              </div>
-          } />
+          {/* ////////// Actualización de ruta CopySell Pro para usar el nuevo componente - 18/06/2024 10:40 ////////// */}
+          <Route path="copy-pro" element={<CopySellPro />} />
+          {/* ////////// Fin de actualización - 18/06/2024 10:40 ////////// */}
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

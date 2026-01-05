@@ -95,7 +95,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
   return (
     <div className="min-h-screen bg-[#FFFFFF] text-[#0B0B0B] font-sans selection:bg-[#FF5A1F] selection:text-white overflow-x-hidden">
       
-      {/* ////////// Actualización: Animación de terminal acelerada para efecto de carga de sistema - 27/05/2025 01:45 ////////// */}
+      {/* ////////// Actualización: Animación de terminal y marquesina infinita - 03/06/2025 15:45 ////////// */}
       <style>{`
         @keyframes typewriterStep {
           0%, 10% { opacity: 0; transform: translateX(-10px); }
@@ -106,8 +106,17 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
           animation: typewriterStep 8s infinite;
           opacity: 0;
         }
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-scroll {
+          display: inline-flex;
+          white-space: nowrap;
+          animation: marquee 30s linear infinite;
+        }
       `}</style>
-      {/* ////////// Fin de actualización - 27/05/2025 01:45 ////////// */}
+      {/* ////////// Fin de actualización - 03/06/2025 15:45 ////////// */}
 
       {/* Navigation */}
       <nav className="fixed w-full z-50 bg-[#0B0B0B]/95 backdrop-blur-xl border-b border-white/5">
@@ -199,17 +208,39 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
 
         <div className="container mx-auto px-6 text-center relative">
           
-          <div className="inline-flex items-center gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-base md:text-xl text-white mb-8 animate-fade-in-up hover:border-[#FF5A1F]/50 transition duration-300 cursor-default font-bold">
-            <span className="flex h-3 w-3 rounded-full bg-[#FF5A1F] animate-pulse"></span>
-            <span className="truncate">La plataforma #1 para Afiliados de Hotmart®</span>
+          {/* ////////// Actualización: Ajuste de ancho de marquesina Hero a 36rem (md:max-w-xl) para PC y Tablet - 15/06/2024 16:30 ////////// */}
+          <div className="inline-flex items-center gap-3 px-4 md:px-6 py-2 md:py-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-base md:text-xl text-white mb-8 animate-fade-in-up hover:border-[#FF5A1F]/50 transition duration-300 cursor-default font-bold max-w-full md:max-w-xl overflow-hidden relative">
+          {/* ////////// Fin de actualización - 15/06/2024 16:30 ////////// */}
+            <div className="flex items-center gap-3 shrink-0 z-10 bg-black/20 pr-3 border-r border-white/10">
+              <span className="flex h-3 w-3 rounded-full bg-[#FF5A1F] animate-pulse"></span>
+            </div>
+            <div className="overflow-hidden flex-1 relative">
+                <div className="animate-marquee-scroll flex gap-12 items-center whitespace-nowrap">
+                  <span className="flex items-center gap-8">
+                    La plataforma #1 para Afiliados de Hotmart® <span className="opacity-30">|</span> 
+                    Automatiza tu Negocio con Inteligencia Artificial <span className="opacity-30">|</span> 
+                    Crea Embudos de Venta en Segundos con IA <span className="opacity-30">|</span> 
+                    Escala tu Facturación en Piloto Automático
+                  </span>
+                  <span className="flex items-center gap-8">
+                    La plataforma #1 para Afiliados de Hotmart® <span className="opacity-30">|</span> 
+                    Automatiza tu Negocio con Inteligencia Artificial <span className="opacity-30">|</span> 
+                    Crea Embudos de Venta en Segundos con IA <span className="opacity-30">|</span> 
+                    Escala tu Facturación en Piloto Automático
+                  </span>
+                </div>
+            </div>
           </div>
+          {/* ////////// Fin de actualización - 03/06/2025 15:45 ////////// */}
 
-          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold mb-0 tracking-tight leading-[1.1] max-w-6xl mx-auto text-white">
+          {/* ////////// Actualización: Ajuste de padding horizontal, interlineado y tamaño de fuente - 27/05/2025 18:45 ////////// */}
+          <h1 className="text-[3rem] px-[0.5em] leading-[1.25] sm:text-5xl md:text-7xl lg:text-8xl font-extrabold mb-0 tracking-tight max-w-6xl mx-auto text-white text-center">
             Vende tus Infoproductos<br />
             <span className="text-[#FF5A1F]">
               En Piloto Automático
             </span>
           </h1>
+          {/* ////////// Fin de actualización - 27/05/2025 18:45 ////////// */}
 
           <section id="register-now" className="pb-12 relative overflow-hidden mb-4">
             <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
@@ -219,8 +250,8 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
             <div className="container mx-auto">
               <div className="relative">
                 <div className="flex flex-col lg:flex-row items-center text-left">
-                  {/* ////////// Ajuste de orden y espaciado para móviles - 27/05/2025 15:30 ////////// */}
-                  <div className="lg:w-1/2 h-[300px] md:h-[400px] lg:h-[600px] w-full relative group cursor-pointer overflow-hidden rounded-2xl md:rounded-none order-2 lg:order-1 mt-10 lg:mt-0">
+                  {/* ////////// Actualización: Reordenamiento de sección (Imagen primero en móvil) y espaciado optimizado - 24/05/2025 12:45 ////////// */}
+                  <div className="lg:w-1/2 h-[300px] md:h-[400px] lg:h-[600px] w-full relative group cursor-pointer overflow-hidden rounded-2xl md:rounded-none order-1 lg:order-1 mt-10 lg:mt-0">
                     <img 
                       src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1288&auto=format&fit=crop" 
                       alt="Éxito en Marketing Digital" 
@@ -235,7 +266,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0B0B] lg:hidden" />
                   </div>
 
-                  <div className="lg:w-1/2 p-0 md:p-8 lg:p-16 order-1 lg:order-2">
+                  <div className="lg:w-1/2 p-0 md:p-8 lg:p-16 order-2 lg:order-2">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black uppercase tracking-widest mb-4">
                       <Rocket className="w-4 h-4" /> Comienza Gratis Hoy
                     </div>
@@ -264,20 +295,22 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                        ))}
                     </div>
 
+                    {/* ////////// Actualización: Botón "Comienza Gratis Hoy" destacado y centrado en móviles - 24/05/2025 12:45 ////////// */}
                     <button
                       onClick={() => user ? navigate('/dashboard') : navigate('/register')}
-                      className="w-full md:w-auto px-8 md:px-12 py-5 md:py-6 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl md:text-2xl rounded-2xl transition-all shadow-[0_20px_40px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3"
+                      className="w-full md:w-auto mx-auto md:mx-0 px-8 md:px-12 py-7 md:py-6 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-2xl md:text-2xl rounded-2xl transition-all shadow-[0_20px_40px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3"
                     >
                       <span className="hidden sm:inline">Crear mi cuenta 100% gratis</span>
                       <span className="sm:hidden">Comenzar Gratis</span>
                       <ArrowRight className="w-6 md:w-7 h-6 md:h-7" />
                     </button>
+                    {/* ////////// Fin de actualización - 24/05/2025 12:45 ////////// */}
                     
                     <p className="text-[#B0B0B0] text-sm mt-6 text-center lg:text-left opacity-60">
                       * Sin compromisos. Cancela o mejora tu cuenta cuando quieras.
                     </p>
                   </div>
-                  {/* ////////// Fin de actualización - 27/05/2025 15:30 ////////// */}
+                  {/* ////////// Fin de actualización - 24/05/2025 12:45 ////////// */}
                 </div>
               </div>
             </div>
@@ -301,7 +334,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
                             <div className="flex gap-1 text-[#FF5A1F]">
                             {[...Array(5)].map((_, idx) => <Star key={idx} className="w-4 md:w-5 h-4 md:h-5 fill-current" />)}
                             </div>
-                            <span className="text-white font-black text-[10px] md:text-sm uppercase tracking-[0.2em]">Calificación 5/5 Verificada</span>
+                            <span className="text-white font-black text-[10px] md:sm uppercase tracking-[0.2em]">Calificación 5/5 Verificada</span>
                         </div>
                     </div>
                 </div>
