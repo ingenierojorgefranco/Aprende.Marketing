@@ -15,8 +15,16 @@ export const SaveLogModal: React.FC<SaveLogModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95">
+    <div 
+      ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
+      onClick={() => onClose()}
+      className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+    >
+      <div 
+        ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
+        onClick={(e) => e.stopPropagation()}
+        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95"
+      >
         <div className="p-4 bg-gray-800 border-b border-gray-700 flex justify-between items-center">
           <h3 className="font-bold text-white flex items-center gap-2">
             {saveStatus === 'saving' && <RefreshCw className="w-4 h-4 animate-spin text-blue-500" />}

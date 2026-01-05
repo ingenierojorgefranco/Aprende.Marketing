@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { User } from '../../types';
 import { api } from '../../services/api';
@@ -91,8 +90,16 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-[#0f1115] border border-gray-800 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div 
+            ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
+            onClick={() => onClose()}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+        >
+            <div 
+                ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
+                onClick={(e) => e.stopPropagation()}
+                className="bg-[#0f1115] border border-gray-800 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            >
                 
                 {/* Header with Cover */}
                 <div className="h-32 bg-gradient-to-r from-gray-800 to-gray-900 relative">

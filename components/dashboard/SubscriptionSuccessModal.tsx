@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { CheckCircle, Calendar, Star, X } from 'lucide-react';
 
@@ -13,8 +12,16 @@ export const SubscriptionSuccessModal: React.FC<SubscriptionSuccessModalProps> =
   nextPaymentDate.setDate(nextPaymentDate.getDate() + 30);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-500">
-      <div className="relative w-full max-w-5xl bg-[#0f1115] border border-green-500/30 rounded-3xl shadow-[0_0_50px_rgba(34,197,94,0.15)] overflow-hidden flex flex-col md:flex-row">
+    <div 
+      ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
+      onClick={() => onClose()}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-500"
+    >
+      <div 
+        ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-5xl bg-[#0f1115] border border-green-500/30 rounded-3xl shadow-[0_0_50px_rgba(34,197,94,0.15)] overflow-hidden flex flex-col md:flex-row"
+      >
         
         {/* Left Side: Video & Welcome */}
         <div className="md:w-3/5 p-8 md:p-12 flex flex-col justify-center relative bg-gradient-to-br from-gray-900 via-black to-black">

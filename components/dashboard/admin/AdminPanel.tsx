@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { User, PlanLimits, Plan, UserUsageStats } from '../../../types';
 import { api } from '../../../services/api';
@@ -43,8 +42,16 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
     };
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-3xl shadow-2xl animate-in zoom-in-95 flex flex-col max-h-[80vh]">
+        <div 
+            ////////// Actualización: Cierre al hacer clic en fondo - 28/05/2025 15:30 //////////
+            onClick={() => onClose()}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+        >
+            <div 
+                ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
+                onClick={(e) => e.stopPropagation()}
+                className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-3xl shadow-2xl animate-in zoom-in-95 flex flex-col max-h-[80vh]"
+            >
                 <div className="p-6 border-b border-gray-800 flex justify-between items-center shrink-0">
                     <div>
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -542,8 +549,16 @@ export const AdminPanel: React.FC = () => {
 
             {/* Edit User Modal */}
             {editingUser && tempPlanLimits && (
-                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]">
+                <div 
+                    ////////// Actualización: Cierre al hacer clic en fondo - 28/05/2025 15:30 //////////
+                    onClick={() => setEditingUser(null)}
+                    className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+                >
+                    <div 
+                        ////////// Actualización: Evitar propagación - 28/05/2025 15:30 //////////
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]"
+                    >
                         <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-850 shrink-0">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
                                 <Edit className="w-5 h-5 text-blue-400" /> Editar Usuario: {editingUser.name}
@@ -844,8 +859,16 @@ export const AdminPanel: React.FC = () => {
 
             {/* Delete Confirmation */}
             {showDeleteConfirm && (
-                <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-                    <div className="bg-gray-900 border border-red-900/50 p-6 rounded-xl max-w-sm w-full text-center">
+                <div 
+                    ////////// Actualización: Cierre al hacer clic en fondo - 28/05/2025 15:30 //////////
+                    onClick={() => setShowDeleteConfirm(null)}
+                    className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+                >
+                    <div 
+                        ////////// Actualización: Evitar propagación - 28/05/2025 15:30 //////////
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-gray-900 border border-red-900/50 p-6 rounded-xl max-w-sm w-full text-center"
+                    >
                         <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
                         <h3 className="text-xl font-bold text-white mb-2">¿Eliminar Usuario?</h3>
                         <p className="text-gray-400 text-sm mb-6">Esta acción borrará permanentemente al usuario y todos sus datos.</p>

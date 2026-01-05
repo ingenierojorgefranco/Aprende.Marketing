@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, DestinationType } from '../../../types';
 import { api } from '../../../services/api';
@@ -376,9 +375,18 @@ const LeadCaptureForm = ({ btnClass, btnText, ds, pageId, basePath }: { btnClass
 // --- Registration Modal ---
 export const RegistrationModal = ({ content, ds, onClose, pageId, basePath }: { content: GeneratedPageContent, ds: any, onClose: () => void, pageId?: string, basePath?: string }) => {
     return (
-        <div id="registration-modal" className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
-            <div className={`relative p-8 rounded-2xl border w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-300 ${ds.cta.containerBg} ${ds.cta.containerBorder}`}>
+        <div 
+            id="registration-modal" 
+            ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
+            onClick={() => onClose()}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200"
+        >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+            <div 
+                ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
+                onClick={(e) => e.stopPropagation()}
+                className={`relative p-8 rounded-2xl border w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-300 ${ds.cta.containerBg} ${ds.cta.containerBorder}`}
+            >
                 <button onClick={onClose} className={`absolute top-4 right-4 transition ${ds.cta.cardTextColor} hover:opacity-70`}><X className="w-6 h-6" /></button>
                 <div className={`absolute -top-3 left-1/2 -translate-x-1/2 ${ds.badges.spotsBg} ${ds.badges.spotsText} text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border ${ds.badges.spotsBorder}`}>
                     {content.hero.spotsLeft || "¡Cupos Limitados!"}

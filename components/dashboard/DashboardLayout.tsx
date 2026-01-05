@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { User, Plan } from '../../types';
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
 import { UpgradeModal } from './UpgradeModal';
@@ -116,6 +117,9 @@ export const DashboardLayout = ({
     { id: 'dashboard', label: 'Panel Principal', icon: LayoutDashboard, path: '/dashboard' },
     { id: 'admin', label: 'Administración', icon: Shield, adminOnly: true, subItems: [
           { label: 'Usuarios', path: '/dashboard/admin', icon: Users },
+          /* ////////// Adición del Panel Hotmart al menú - 01/06/2025 12:00 ////////// */
+          { label: 'Panel Hotmart', path: '/dashboard/admin/hotmart', icon: ShoppingCart },
+          /* ////////// Fin de actualización - 01/06/2025 12:00 ////////// */
           { label: 'Planes y Precios', path: '/dashboard/admin/plans', icon: CreditCard },
           { label: 'Gestionar Cursos', path: '/dashboard/admin/courses', icon: Video },
           { label: 'Gestionar Comentarios', path: '/dashboard/admin/comments', icon: MessageSquare },
@@ -197,15 +201,15 @@ export const DashboardLayout = ({
     <div className="h-screen overflow-hidden bg-black text-[#FFFFFF] flex font-sans">
       <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0B0B0B] border-r border-white/5 shadow-2xl z-40 transition-transform duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="p-8 pb-6 flex justify-between items-center">
-          {/* ////////// Inclusión del logo AM junto al título del dashboard - 01/06/2025 10:00 ////////// */}
+          {/* ////////// Actualización de Identidad Visual del Sidebar - 27/05/2025 10:00 ////////// */}
           <div className="flex items-center gap-3">
-              <div className="w-10 h-8 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-base shadow-lg shadow-[#FF5A1F]/20 px-1.5">AM</div>
+              <div className="w-12 h-10 bg-[#FF5A1F] rounded-lg flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-[#FF5A1F]/20 px-1.5">AM</div>
               <div>
-                  <h2 className="text-xl font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
-                  <p className="text-[8px] text-[#B0B0B0] uppercase tracking-widest mt-0.5 font-bold">Gestión de Conversión</p>
+                  <h2 className="text-2xl font-bold text-white tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></h2>
+                  <p className="text-[10px] text-[#B0B0B0] uppercase tracking-widest mt-1 font-black">Tu Panel de Control</p>
               </div>
           </div>
-          {/* ////////// Fin de actualización - 01/06/2025 10:00 ////////// */}
+          {/* ////////// Fin de actualización - 27/05/2025 10:00 ////////// */}
           <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-[#B0B0B0]"><X className="w-6 h-6" /></button>
         </div>
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">{menuStructure.map(item => <NavItemRender key={item.id} item={item} />)}</nav>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { api } from '../../../services/api';
 import { Comment } from '../../../types';
@@ -234,8 +233,16 @@ export const AdminComments: React.FC = () => {
 
             {/* Delete Modal */}
             {commentToDelete && (
-                <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-                    <div className="bg-gray-900 border border-red-900/50 p-6 rounded-xl max-w-sm w-full text-center animate-in zoom-in-95">
+                <div 
+                    ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
+                    onClick={() => setCommentToDelete(null)}
+                    className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+                >
+                    <div 
+                        ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-gray-900 border border-red-900/50 p-6 rounded-xl max-w-sm w-full text-center animate-in zoom-in-95"
+                    >
                         <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
                         <h3 className="text-xl font-bold text-white mb-2">¿Eliminar Comentario?</h3>
                         <p className="text-gray-400 text-sm mb-6">

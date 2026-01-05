@@ -203,7 +203,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         </div>
 
                         {/* Progress Indicators */}
-                        <div className="grid md:grid-cols-2 gap-8 bg-black/40 p-8 rounded-[2rem] border border-white/5 shadow-inner">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-black/40 p-8 rounded-[2rem] border border-white/5 shadow-inner">
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-gray-400 font-black uppercase tracking-widest flex items-center gap-2">
@@ -382,8 +382,16 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             
             {/* --- MULTIPLE PAGES MODAL --- */}
             {showPagesModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-                    <div className="bg-gray-900 border border-gray-700 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95">
+                <div 
+                    ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
+                    onClick={() => setShowPagesModal(false)}
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
+                >
+                    <div 
+                        ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-gray-900 border border-gray-700 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95"
+                    >
                         <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-850">
                             <h3 className="font-black text-white text-xl flex items-center gap-3">
                                 <Layout className="w-6 h-6 text-blue-500" /> 

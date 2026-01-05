@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext, Link } from 'react-router-dom';
 import { api } from '../../../services/api';
@@ -291,8 +290,16 @@ export const MyPages: React.FC = () => {
             />
 
             {showVideoModal && (
-                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
-                    <div className="relative w-full max-w-4xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+                <div 
+                    ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
+                    onClick={() => setShowVideoModal(false)}
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300"
+                >
+                    <div 
+                        ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800"
+                    >
                         <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
                             <h3 className="font-bold text-white flex items-center gap-2">
                                 <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Creación de Páginas
@@ -320,8 +327,16 @@ export const MyPages: React.FC = () => {
             )}
 
             {showDomainModal && selectedPageForDomain && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl p-6 relative animate-in zoom-in-95">
+                <div 
+                    ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
+                    onClick={closeDomainModal}
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+                >
+                    <div 
+                        ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl p-6 relative animate-in zoom-in-95"
+                    >
                         <button onClick={closeDomainModal} className="absolute top-4 right-4 text-gray-500 hover:text-white p-1 rounded-full hover:bg-gray-800 transition">
                             <X className="w-5 h-5" />
                         </button>
@@ -380,8 +395,16 @@ export const MyPages: React.FC = () => {
             )}
 
             {pageToDelete && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="bg-gray-900 border border-gray-700 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                <div 
+                    ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
+                    onClick={() => setPageToDelete(null)}
+                    className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+                >
+                    <div 
+                        ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-gray-900 border border-gray-700 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200"
+                    >
                         <div className="flex justify-between items-start mb-4">
                             <div className="flex items-center gap-3 text-red-500 font-bold text-lg">
                                 <div className="p-2 bg-red-900/20 rounded-full"><AlertTriangle className="w-6 h-6" /></div>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { User, Target, Zap, CheckCircle, Plus, Minus, ScanFace, Palette, Feather, Star, AlertTriangle, XCircle } from 'lucide-react';
@@ -209,11 +208,11 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                     {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-tight ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-5xl md:text-7xl'}`, ds.hero.highlightGradient)}
                     {/* ////////// Fin de actualización - 25/05/2025 21:15 ////////// */}
                     
-                    {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind para subtítulo - 25/05/2025 21:30 ////////// */}
+                    {/* ////////// Corrección de jerarquía visual del subtítulo de md:text-7xl a md:text-2xl - 01/06/2025 20:30 ////////// */}
                     <div id="subtitulo-principal">
-                       {renderRichText(content.hero.subheadline, `text-xl opacity-90 leading-tight max-w-2xl mx-auto ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-7xl'}`)}
+                       {renderRichText(content.hero.subheadline, `text-xl opacity-90 leading-tight max-w-2xl mx-auto ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-2xl'}`)}
                     </div>
-                    {/* ////////// Fin de actualización - 25/05/2025 21:30 ////////// */}
+                    {/* ////////// Fin de actualización - 01/06/2025 20:30 ////////// */}
                 </div>
                 
                 {/* 3. Details Row */}

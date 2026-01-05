@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Routes,
@@ -28,6 +29,9 @@ import { AdminCourses } from "./components/dashboard/admin/AdminCourses";
 import { AdminComments } from "./components/dashboard/admin/AdminComments";
 import { AdminPlans } from "./components/dashboard/admin/AdminPlans"; 
 import { AdminLogs } from "./components/dashboard/admin/AdminLogs";
+////////// Importación del Panel Hotmart - 01/06/2025 12:00 //////////
+import { AdminHotmartPanel } from "./components/dashboard/admin/AdminHotmartPanel";
+////////// Fin de actualización - 01/06/2025 12:00 //////////
 
 // Dashboard Training
 import { TrainingViewer } from "./components/dashboard/training/TrainingViewer";
@@ -319,6 +323,9 @@ const App: React.FC = () => {
           <Route path="admin/comments" element={<AdminRoute><AdminComments /></AdminRoute>} />
           <Route path="admin/plans" element={<AdminRoute><AdminPlans /></AdminRoute>} />
           <Route path="admin/logs" element={<AdminRoute><AdminLogs /></AdminRoute>} />
+          {/* ////////// Ruta del Panel Hotmart - 01/06/2025 12:00 ////////// */}
+          <Route path="admin/hotmart" element={<AdminRoute><AdminHotmartPanel /></AdminRoute>} />
+          {/* ////////// Fin de actualización - 01/06/2025 12:00 ////////// */}
 
           {/* ACADEMIA */}
           <Route path="training/:moduleId" element={<TrainingViewer />} />

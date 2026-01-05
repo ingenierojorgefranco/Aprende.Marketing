@@ -125,9 +125,16 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
   // ////////// Fin de actualización - 27/05/2025 15:30 //////////
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
-      {/* ////////// Modal ampliado a max-w-7xl para mejor distribución - 27/05/2025 15:30 ////////// */}
-      <div className="relative w-full max-w-7xl bg-gray-900 border border-gray-800 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
+    <div 
+      ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
+      onClick={() => onClose && onClose()}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300"
+    >
+      {/* ////////// Actualización: Evitar propagación del clic al contenido de la modal - 28/05/2025 15:30 ////////// */}
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-7xl bg-gray-900 border border-gray-800 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh]"
+      >
         
         {onClose && (
             <button 

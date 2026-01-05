@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { SmartCTA, Navbar, Footer, FeatureCard } from '../ui/LiveComponents';
@@ -94,7 +93,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                     { num: 3, title: "Empieza", text: "Inicia tu transformación hoy mismo." }
                  ].map((step, i) => (
                     <div key={i} className="relative z-10 bg-transparent">
-                         <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center text-3xl font-bold mb-6 border-4 ${ds.steps.iconContainer} ${ds.steps.cardBorder} ${ds.steps.numberColor} shadow-lg`}>
+                         <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center text-3xl font-bold mb-6 border-4 ${ds.steps.iconContainer} ${ds.steps.numberColor} shadow-lg`}>
                              {step.num}
                          </div>
                          <h3 className={`text-xl font-bold mb-3 ${ds.steps.titleColor}`}>{step.title}</h3>
@@ -225,11 +224,11 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                       {renderStyledHeadline(content.hero.headline, `text-5xl md:text-7xl font-black mb-8 tracking-tight leading-tight ${ds.hero.titleColor}`, ds.hero.highlightGradient)}
                       {/* ////////// Fin de actualización - 25/05/2025 21:15 ////////// */}
                       
-                      {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind para subtítulo - 25/05/2025 21:30 ////////// */}
+                      {/* ////////// Corrección de jerarquía visual del subtítulo de md:text-7xl a md:text-2xl - 01/06/2025 20:30 ////////// */}
                       <div id="subtitulo-principal">
-                          {renderRichText(content.hero.subheadline, `text-xl md:text-2xl mb-12 leading-tight opacity-90 max-w-2xl mx-auto ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-7xl'}`)}
+                          {renderRichText(content.hero.subheadline, `text-xl md:text-2xl leading-tight opacity-90 max-w-2xl mx-auto ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-2xl'}`)}
                       </div>
-                      {/* ////////// Fin de actualización - 25/05/2025 21:30 ////////// */}
+                      {/* ////////// Fin de actualización - 01/06/2025 20:30 ////////// */}
 
                       <div className="max-w-md mx-auto">
                           <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} basePath={basePath} />

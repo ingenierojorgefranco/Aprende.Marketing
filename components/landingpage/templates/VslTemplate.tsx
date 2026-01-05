@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { PlayCircle, Plus, Minus, CheckCircle, ScanFace, Palette, Feather, Award, Users, Star, BookOpen, AlertTriangle, XCircle } from 'lucide-react';
@@ -318,11 +317,11 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
                         {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-tight ${ds.hero.titleColor} ${isMobilePreview ? 'text-3xl' : 'text-4xl md:text-7xl'}`, ds.hero.highlightGradient)}
                         {/* ////////// Fin de actualización - 25/05/2025 21:15 ////////// */}
                         
-                        {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind para subtítulo - 25/05/2025 21:30 ////////// */}
+                        {/* ////////// Corrección de jerarquía visual del subtítulo de md:text-7xl a md:text-2xl - 01/06/2025 20:30 ////////// */}
                         <div id="subtitulo-principal">
-                            {renderRichText(content.hero.subheadline, `text-lg md:text-2xl font-light opacity-90 max-w-3xl mx-auto leading-tight ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-7xl'}`)}
+                            {renderRichText(content.hero.subheadline, `text-lg md:text-2xl font-light opacity-90 max-w-3xl mx-auto leading-tight ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-2xl'}`)}
                         </div>
-                        {/* ////////// Fin de actualización - 25/05/2025 21:30 ////////// */}
+                        {/* ////////// Fin de actualización - 01/06/2025 20:30 ////////// */}
                     </div>
 
                     {/* 2. Video Player Component */}

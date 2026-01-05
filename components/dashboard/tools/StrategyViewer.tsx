@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { StrategyJSON } from '../../../types';
 import { User as UserIcon, Brain, Zap, FileText, ArrowRight, CheckCircle, Mail, MessageSquare, Megaphone, Loader2 } from 'lucide-react';
@@ -21,8 +20,16 @@ export const StrategyViewer: React.FC<StrategyViewerProps> = ({ strategy, onClos
     );
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0f1115] border border-gray-800 rounded-3xl w-full max-w-5xl shadow-2xl flex flex-col h-[90vh] overflow-hidden animate-in zoom-in-95">
+        <div 
+            ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
+            onClick={() => onClose()}
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+        >
+            <div 
+                ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
+                onClick={(e) => e.stopPropagation()}
+                className="bg-[#0f1115] border border-gray-800 rounded-3xl w-full max-w-5xl shadow-2xl flex flex-col h-[90vh] overflow-hidden animate-in zoom-in-95"
+            >
                 
                 {/* Header */}
                 <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-900/50">
