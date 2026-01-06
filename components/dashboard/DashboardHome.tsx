@@ -42,7 +42,7 @@ export const DashboardHome: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  ////////// Lógica dinámica para cálculo de potencial basada en proyectos reales - 27/05/2025 16:30 //////////
+  ////////// Actualización: Cambio a Potencial Bruto (100% cierre) para reflejar oportunidad total sobre la mesa - 01/06/2025 20:30 //////////
   const [dynamicPotential, setDynamicPotential] = useState<string>('0.00');
 
   const calculateDynamicPotential = async () => {
@@ -53,27 +53,26 @@ export const DashboardHome: React.FC = () => {
           ]);
 
           let total = 0;
-          const convRate = 0.03; // 3% estimado de cierre
 
           // 1. Calcular potencial por proyectos con precio definido
           projects.forEach(project => {
               const projectPages = pages.filter(p => String(p.projectId) === String(project.id));
               const projectLeads = projectPages.reduce((sum, p) => sum + (p.conversions || 0), 0);
               const price = project.fullPrice || 47; // Fallback a 47 si no hay precio
-              total += (projectLeads * price * convRate);
+              total += (projectLeads * price);
           });
 
           // 2. Sumar potencial de páginas sin proyecto asociado (usando fallback 47)
           const orphanedPages = pages.filter(p => !p.projectId);
           const orphanedLeads = orphanedPages.reduce((sum, p) => sum + (p.conversions || 0), 0);
-          total += (orphanedLeads * 47 * convRate);
+          total += (orphanedLeads * 47);
 
           setDynamicPotential(total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
       } catch (e) {
           console.error("Error calculando potencial dinámico", e);
       }
   };
-  ////////// Fin de actualización - 27/05/2025 16:30 //////////
+  ////////// Fin de actualización - 01/06/2025 20:30 //////////
 
   const formatTooltipDate = (dateString: string) => {
       if (!dateString) return '';
@@ -83,7 +82,7 @@ export const DashboardHome: React.FC = () => {
           day: '2-digit', 
           month: 'long', 
           year: 'numeric' 
-      });
+        });
   };
 
   const formatDayName = (dateString: string) => {
@@ -175,7 +174,7 @@ export const DashboardHome: React.FC = () => {
         {/* COLUMNA IZQUIERDA: MÉTRICAS Y GRÁFICAS (8 Cols) */}
         <div className="xl:col-span-8 space-y-8">
             
-            {/* ////////// Corrección de visibilidad de tooltips: Eliminación de overflow-hidden y ajuste de iconos - 27/05/2025 15:30 ////////// */}
+            {/* ////////// Actualización: Optimización de tamaños de texto y limpieza de interfaz - 27/05/2025 17:15 ////////// */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 {/* 1. Visitas Recibidas */}
                 <div className="bg-[#111111] p-6 rounded-[2rem] border border-white/5 shadow-2xl relative group">
@@ -186,9 +185,9 @@ export const DashboardHome: React.FC = () => {
                     <div className="absolute top-2 right-2 p-4 opacity-5 group-hover:scale-110 transition-transform">
                         <Eye className="w-16 h-16 text-white" />
                     </div>
-                    <p className="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] mb-3">Visitas Recibidas</p>
+                    <p className="text-xs font-black text-blue-400 uppercase tracking-[0.2em] mb-3">Visitas Recibidas</p>
                     <h3 className="text-4xl font-black text-white leading-none">{summaryData.totalVisits}</h3>
-                    <p className="text-gray-500 text-[10px] mt-3 font-medium">Tráfico Bruto</p>
+                    <p className="text-gray-500 text-xs mt-3 font-medium">Tráfico Bruto</p>
                 </div>
 
                 {/* 2. Leads Capturados */}
@@ -200,9 +199,9 @@ export const DashboardHome: React.FC = () => {
                     <div className="absolute top-2 right-2 p-4 opacity-5 group-hover:scale-110 transition-transform">
                         <Users className="w-16 h-16 text-white" />
                     </div>
-                    <p className="text-[9px] font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-3">Leads Capturados</p>
+                    <p className="text-xs font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-3">Leads Capturados</p>
                     <h3 className="text-4xl font-black text-white leading-none">{summaryData.totalConversions}</h3>
-                    <p className="text-gray-500 text-[10px] mt-3 font-medium flex items-center gap-1">
+                    <p className="text-gray-500 text-xs mt-3 font-medium flex items-center gap-1">
                         <ArrowUpRight className="w-3 h-3 text-emerald-500" /> +5% vs ayer
                     </p>
                 </div>
@@ -216,30 +215,28 @@ export const DashboardHome: React.FC = () => {
                     <div className="absolute top-2 right-2 p-4 opacity-5 group-hover:scale-110 transition-transform">
                         <TrendingUp className="w-16 h-16 text-white" />
                     </div>
-                    <p className="text-[9px] font-black text-purple-400 uppercase tracking-[0.2em] mb-3">Tasa Conversión</p>
+                    <p className="text-xs font-black text-purple-400 uppercase tracking-[0.2em] mb-3">Tasa Conversión</p>
                     <h3 className="text-4xl font-black text-white leading-none">{summaryData.conversionRate}%</h3>
-                    <p className="text-gray-500 text-[10px] mt-3 font-medium italic">Ratio de Éxito</p>
+                    <p className="text-gray-500 text-xs mt-3 font-medium italic">Ratio de Éxito</p>
                 </div>
 
                 {/* 4. Potencial Facturación Dinámico */}
                 <div className="bg-gradient-to-br from-[#FF5A1F] to-[#D94A1E] p-6 rounded-[2rem] shadow-2xl relative group">
-                    {/* ////////// Actualización de Tooltip Dinámico - 27/05/2025 16:30 ////////// */}
+                    {/* ////////// Actualización: Ajuste de tooltip para Potencial Bruto - 01/06/2025 20:30 ////////// */}
                     <StrategicTooltip 
                         title="Dinero Proyectado" 
-                        content="Cálculo dinámico basado en los precios de tus productos activos y una tasa de cierre estimada del 3%." 
+                        content="Valor total de tus leads actuales si se cerraran al 100%. Representa la oportunidad total sobre la mesa." 
                     />
-                    {/* ////////// Fin de actualización - 27/05/2025 16:30 ////////// */}
                     <div className="absolute top-2 right-2 p-4 opacity-20 group-hover:scale-110 transition-transform">
                         <DollarSign className="w-16 h-16 text-white" />
                     </div>
-                    <p className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-3">Potencial Facturación</p>
-                    {/* ////////// Uso de variable dynamicPotential - 27/05/2025 16:30 ////////// */}
+                    <p className="text-xs font-black text-black/60 uppercase tracking-[0.2em] mb-3">Potencial Facturación</p>
                     <h3 className="text-3xl font-black text-white leading-none">${dynamicPotential}</h3>
-                    <p className="text-white/70 text-[10px] mt-3 font-medium">Basado en tus Proyectos</p>
-                    {/* ////////// Fin de actualización - 27/05/2025 16:30 ////////// */}
+                    <p className="text-white/70 text-xs mt-3 font-medium">Basado en tus Proyectos</p>
+                    {/* ////////// Fin de actualización - 01/06/2025 20:30 ////////// */}
                 </div>
             </div>
-            ////////// Fin de actualización - 27/05/2025 15:30 //////////
+            {/* ////////// Fin de actualización - 27/05/2025 17:15 ////////// */}
 
             {/* Bloque de Gráficas */}
             <div className="space-y-6">
@@ -326,7 +323,7 @@ export const DashboardHome: React.FC = () => {
         {/* COLUMNA DERECHA: CUENTA, ACCIONES Y NOVEDADES (4 Cols) */}
         <div className="xl:col-span-4 space-y-8">
             
-            {/* ////////// Sección Informativa: Tu Cuenta Actualizada - 27/05/2025 12:45 ////////// */}
+            {/* ////////// Actualización: Optimización de legibilidad en Estado de Cuenta - 27/05/2025 17:15 ////////// */}
             <div className="bg-[#111111] p-8 rounded-[2rem] border border-white/5 relative group">
                 <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-12 transition-transform">
                     <ShieldCheck className="w-16 h-16 text-white" />
@@ -339,7 +336,7 @@ export const DashboardHome: React.FC = () => {
                             <CreditCard className="w-6 h-6 text-[#FF5A1F]" />
                         </div>
                         <div>
-                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Plan Actual</p>
+                            <p className="text-xs text-gray-500 font-black uppercase tracking-widest">Plan Actual</p>
                             <p className="text-xl font-bold text-white capitalize">{user?.planLimits?.planName || 'Starter'}</p>
                         </div>
                     </div>
@@ -350,12 +347,12 @@ export const DashboardHome: React.FC = () => {
                                 <Calendar className="w-5 h-5 text-emerald-400" />
                             </div>
                             <div>
-                                <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest">Suscripción Activa</p>
+                                <p className="text-[11px] text-gray-500 font-black uppercase tracking-widest">Suscripción Activa</p>
                                 <p className="text-sm font-bold text-white">Próxima Facturación: Automática</p>
                             </div>
                         </div>
                     ) : (
-                        <p className="text-xs text-gray-500 font-medium leading-relaxed italic">
+                        <p className="text-sm text-gray-500 font-medium leading-relaxed italic">
                             Estás usando el plan gratuito. Sube de nivel para conectar dominios propios y eliminar marcas de agua.
                         </p>
                     )}
@@ -370,7 +367,7 @@ export const DashboardHome: React.FC = () => {
                     {/* ////////// Fin de actualización - 27/05/2025 12:45 ////////// */}
                 </div>
             </div>
-            {/* ////////// Fin de actualización - 27/05/2025 12:45 ////////// */}
+            {/* ////////// Fin de actualización - 27/05/2025 17:15 ////////// */}
 
             {/* ////////// Acciones Rápidas Actualizadas (Navegación a Paneles) - 27/05/2025 14:45 ////////// */}
             <div className="bg-[#111] p-8 rounded-[2rem] border border-white/5">
@@ -404,7 +401,7 @@ export const DashboardHome: React.FC = () => {
 
                     <button 
                         onClick={() => navigate('/dashboard/articles')}
-                        className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-purple-600 hover:border-purple-500 transition-all group"
+                        className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-purple-600 hover:border-purple-500 transition-all group"
                     >
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
