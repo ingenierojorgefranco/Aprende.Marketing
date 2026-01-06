@@ -32,6 +32,9 @@ import { AdminLogs } from "./components/dashboard/admin/AdminLogs";
 ////////// Importación del Panel Hotmart - 01/06/2025 12:00 //////////
 import { AdminHotmartPanel } from "./components/dashboard/admin/AdminHotmartPanel";
 ////////// Fin de actualización - 01/06/2025 12:00 //////////
+////////// Importación del Panel de Novedades - 07/06/2025 10:00 //////////
+import { AdminNews } from "./components/dashboard/admin/AdminNews";
+////////// Fin de actualización - 07/06/2025 10:00 //////////
 
 // Dashboard Training
 import { TrainingViewer } from "./components/dashboard/training/TrainingViewer";
@@ -329,6 +332,9 @@ const App: React.FC = () => {
           {/* ////////// Ruta del Panel Hotmart - 01/06/2025 12:00 ////////// */}
           <Route path="admin/hotmart" element={<AdminRoute><AdminHotmartPanel /></AdminRoute>} />
           {/* ////////// Fin de actualización - 01/06/2025 12:00 ////////// */}
+          {/* ////////// Ruta del Panel de Novedades - 07/06/2025 10:00 ////////// */}
+          <Route path="admin/news" element={<AdminRoute><AdminNews /></AdminRoute>} />
+          {/* ////////// Fin de actualización - 07/06/2025 10:00 ////////// */}
 
           {/* ACADEMIA */}
           <Route path="training/:moduleId" element={<TrainingViewer />} />

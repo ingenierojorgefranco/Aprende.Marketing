@@ -136,4 +136,48 @@ router.get('/debug/db-status', async (req, res) => {
   }
 });
 
+////////// Actualización: Endpoint público para el feed de novedades - 07/06/2025 10:00 //////////
+router.get('/system/news', async (req, res) => {
+    try {
+        const [news] = await pool.query('SELECT * FROM novedadestips ORDER BY created_at DESC LIMIT 5');
+        res.json(news.map(n => ({
+            id: n.id.toString(),
+            title: n.title,
+            content: n.content,
+            date: new Date(n.created_at).toLocaleDateString(),
+            iconType: n.icon_type
+        })));
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+router.get('/system/news/history', async (req, res) => {
+    const { month, year } = req.query;
+    try {
+        let query = 'SELECT * FROM novedadestips WHERE 1=1';
+        const params = [];
+        if (month) {
+            query += ' AND MONTH(created_at) = ?';
+            params.push(month);
+        }
+        if (year) {
+            query += ' AND YEAR(created_at) = ?';
+            params.push(year);
+        }
+        query += ' ORDER BY created_at DESC';
+        const [news] = await pool.query(query, params);
+        res.json(news.map(n => ({
+            id: n.id.toString(),
+            title: n.title,
+            content: n.content,
+            date: new Date(n.created_at).toLocaleDateString(),
+            iconType: n.icon_type
+        })));
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+////////// Fin de actualización - 07/06/2025 10:00 //////////
+
 module.exports = router;

@@ -14,7 +14,8 @@ import {
 import { api } from '../../services/api';
 import { MOCK_NEWS } from '../../services/mockData';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { User } from '../../types';
+import { User, DashboardNews } from '../../types';
+import { NewsHistoryModal } from './NewsHistoryModal';
 
 interface DashboardContext {
     user: User;
@@ -41,6 +42,11 @@ export const DashboardHome: React.FC = () => {
       conversionRate: '0'
   });
   const [loading, setLoading] = useState(true);
+  
+  ////////// Actualización: Estado para el feed de novedades real y modal de histórico - 07/06/2025 10:30 //////////
+  const [newsFeed, setNewsFeed] = useState<DashboardNews[]>([]);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  ////////// Fin de actualización - 07/06/2025 10:30 //////////
 
   ////////// Eliminación de la lógica de cálculo de Potencial Dinámico por solicitud del usuario - 01/06/2025 20:45 //////////
   // La métrica de Potencial de Facturación ha sido removida para centrar el Dashboard en datos de tráfico y leads reales.
@@ -67,9 +73,12 @@ export const DashboardHome: React.FC = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [weeklyData, summary] = await Promise.all([
+            const [weeklyData, summary, news] = await Promise.all([
                 api.getWeeklyAnalytics(),
-                api.getAnalyticsSummary()
+                api.getAnalyticsSummary(),
+                ////////// Actualización: Carga de novedades real - 07/06/2025 10:30 //////////
+                api.getNewsFeed()
+                ////////// Fin de actualización - 07/06/2025 10:30 //////////
             ]);
 
             const formatted = weeklyData.map(item => ({
@@ -79,6 +88,7 @@ export const DashboardHome: React.FC = () => {
                 conversions: item.conversions
             }));
             setAnalyticsData(formatted);
+            setNewsFeed(news);
 
             const rate = summary.totalVisits > 0 
                 ? ((summary.totalConversions / summary.totalVisits) * 100).toFixed(1) 
@@ -376,7 +386,7 @@ export const DashboardHome: React.FC = () => {
                 </div>
                 <h3 className="text-sm font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-8 relative z-10">Novedades y TIPS</h3>
                 <div className="space-y-10 relative z-10">
-                    {MOCK_NEWS.map(news => (
+                    {newsFeed.length > 0 ? newsFeed.map(news => (
                         <div key={news.id} className="group cursor-pointer">
                             <div className="flex items-start gap-5">
                                 <div className={`p-2.5 rounded-xl shrink-0 ${news.iconType === 'ia' ? 'bg-purple-500/10 text-purple-400' : news.iconType === 'update' ? 'bg-blue-500/10 text-blue-400' : 'bg-[#FF5A1F]/10 text-[#FF5A1F]'}`}>
@@ -391,14 +401,27 @@ export const DashboardHome: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                    ))}
+                    )) : (
+                        <p className="text-gray-500 italic text-sm">No hay novedades recientes.</p>
+                    )}
                 </div>
-                <button className="w-full mt-10 py-4 rounded-xl border border-white/5 text-[11px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-white hover:bg-white/5 transition-all">Ver Histórico</button>
+                <button 
+                    onClick={() => setShowHistoryModal(true)}
+                    className="w-full mt-10 py-4 rounded-xl border border-white/5 text-[11px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-white hover:bg-white/5 transition-all"
+                >
+                    Ver Histórico
+                </button>
             </div>
             {/* ////////// Fin de actualización - 27/05/2025 15:00 ////////// */}
 
         </div>
       </div>
+
+      {/* ////////// Actualización: Modal de histórico de novedades - 07/06/2025 10:30 ////////// */}
+      {showHistoryModal && (
+          <NewsHistoryModal isOpen={showHistoryModal} onClose={() => setShowHistoryModal(false)} />
+      )}
+      {/* ////////// Fin de actualización - 07/06/2025 10:30 ////////// */}
 
       {/* Footer del Dashboard */}
       <footer className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-30">

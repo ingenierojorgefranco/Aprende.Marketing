@@ -2,7 +2,7 @@
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper } from 'lucide-react';
 ////////// Fin de actualización - 05/06/2025 10:00 //////////
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
@@ -133,6 +133,9 @@ export const DashboardLayout = ({
           { label: 'Planes y Precios', path: '/dashboard/admin/plans', icon: CreditCard },
           { label: 'Gestionar Cursos', path: '/dashboard/admin/courses', icon: Video },
           { label: 'Gestionar Comentarios', path: '/dashboard/admin/comments', icon: MessageSquare },
+          ////////// Actualización: Opción de gestionar novedades para administradores - 07/06/2025 10:00 //////////
+          { label: 'Gestionar Novedades', path: '/dashboard/admin/news', icon: Newspaper },
+          ////////// Fin de actualización - 07/06/2025 10:00 //////////
           { label: 'Logs del Sistema', path: '/dashboard/admin/logs', icon: Activity }
       ]
     },

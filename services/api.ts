@@ -1,3 +1,4 @@
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -31,7 +32,7 @@ let localComments: Comment[] = [...MOCK_COMMENTS];
 let localCrmContacts: CRMContact[] = [...MOCK_CRM_CONTACTS];
 let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
 
-////////// Actualización: Expansión de Capa de Caché para Tráfico Público, Títulos SEO y Estrategias Maestras - 05/06/2025 21:15 //////////
+////////// Actualización: Expansión de Capa de Caché para Novedades e Histórico - 07/06/2025 10:15 //////////
 const apiCache: {
     pages: LandingPage[] | null;
     projects: Project[] | null;
@@ -50,6 +51,8 @@ const apiCache: {
     currentUser: User | null;
     crmStats: any | null;
     newsFeed: DashboardNews[] | null;
+    adminNews: DashboardNews[] | null;
+    newsHistory: Record<string, DashboardNews[] | null>;
     integrationSettings: Record<string, any> | null;
     lastGeneratedTitles: any[] | null;
     pageDetails: Record<string, LandingPage | null>;
@@ -86,6 +89,8 @@ const apiCache: {
     currentUser: null,
     crmStats: null,
     newsFeed: null,
+    adminNews: null,
+    newsHistory: {},
     integrationSettings: null,
     lastGeneratedTitles: null,
     pageDetails: {},
@@ -113,6 +118,8 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         } else {
             if (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis' || key === 'publicPages' || key === 'masterStrategies') {
                 (apiCache[key] as any) = {};
+            } else if (key === 'newsHistory') {
+                apiCache.newsHistory = {};
             } else {
                 (apiCache[key] as any) = null;
             }
@@ -147,6 +154,8 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.currentUser = null;
         apiCache.crmStats = null;
         apiCache.newsFeed = null;
+        apiCache.adminNews = null;
+        apiCache.newsHistory = {};
         apiCache.integrationSettings = null;
         apiCache.lastGeneratedTitles = null;
         apiCache.pageDetails = {};
@@ -167,7 +176,7 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.masterStrategies = {};
     }
 };
-////////// Fin de actualización - 05/06/2025 21:15 //////////
+////////// Fin de actualización - 07/06/2025 10:15 //////////
 
 // --- FUNCIÓN FETCH CON TIMEOUT ---
 const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
@@ -1222,6 +1231,65 @@ export const api = {
         }
     },
     ////////// Fin de actualización - 05/06/2025 21:30 //////////
+
+    ////////// Actualización: Métodos de gestión de novedades para administradores e histórico - 07/06/2025 10:15 //////////
+    getAdminNews: async (): Promise<DashboardNews[]> => {
+        if (isMockMode) return MOCK_NEWS;
+        if (apiCache.adminNews) return apiCache.adminNews;
+        const news = await fetchWithFallback('/admin/news', { headers: getAuthHeaders() });
+        const mapped = news.map((n: any) => ({
+            id: n.id.toString(),
+            title: n.title,
+            content: n.content,
+            date: new Date(n.created_at).toLocaleDateString(),
+            iconType: n.icon_type
+        }));
+        apiCache.adminNews = mapped;
+        return mapped;
+    },
+
+    saveNews: async (news: Partial<DashboardNews>): Promise<void> => {
+        if (isMockMode) return;
+        const method = news.id ? 'PUT' : 'POST';
+        const endpoint = news.id ? `/admin/news/${news.id}` : '/admin/news';
+        await fetchWithFallback(endpoint, {
+            method,
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                title: news.title,
+                content: news.content,
+                icon_type: news.iconType
+            })
+        });
+        clearCache('adminNews');
+        clearCache('newsFeed');
+        clearCache('newsHistory');
+    },
+
+    deleteNews: async (id: string): Promise<void> => {
+        if (isMockMode) return;
+        await fetchWithFallback(`/admin/news/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+        clearCache('adminNews');
+        clearCache('newsFeed');
+        clearCache('newsHistory');
+    },
+
+    getNewsHistory: async (month?: number, year?: number): Promise<DashboardNews[]> => {
+        const cacheKey = `${month || 'all'}_${year || 'all'}`;
+        if (apiCache.newsHistory[cacheKey]) return apiCache.newsHistory[cacheKey]!;
+        
+        let query = '';
+        if (month || year) {
+            query = '?';
+            if (month) query += `month=${month}&`;
+            if (year) query += `year=${year}`;
+        }
+        
+        const news = await fetchWithFallback(`/system/news/history${query}`, { headers: getAuthHeaders() });
+        apiCache.newsHistory[cacheKey] = news;
+        return news;
+    },
+    ////////// Fin de actualización - 07/06/2025 10:15 //////////
 
     getIntegrationSettings: async (): Promise<Record<string, any>> => {
         if (isMockMode) return { getResponseKey: 'gr_mock_key', waWebhook: 'https://wa.mock' };

@@ -217,6 +217,16 @@ const initDb = async () => {
             FOREIGN KEY (contact_id) REFERENCES crm_contacts(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
 
+        ////////// Actualización: Creación de tabla novedadestips para el sistema de noticias - 07/06/2025 10:00 //////////
+        await connection.query(`CREATE TABLE IF NOT EXISTS novedadestips (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            content TEXT NOT NULL,
+            icon_type VARCHAR(50) DEFAULT 'update', -- update, tip, ia
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+        ////////// Fin de actualización - 07/06/2025 10:00 //////////
+
         // Tablas existentes del sistema (Projects, Pages, etc.)
         const tables = [
             {
@@ -529,6 +539,36 @@ const initDb = async () => {
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
                 [aim1.insertId, 'Ingeniería de Prompts Básica', '15:00', 'https://www.youtube.com/embed/SChXl9k5r6E?rel=0&autoplay=1', 'Cómo hablar con la máquina.', pointsAi, 2]);
         }
+
+        ////////// Actualización: Inserción de datos semilla para novedadestips - 07/06/2025 10:00 //////////
+        const [existingNews] = await connection.query("SELECT id FROM novedadestips LIMIT 1");
+        if (existingNews.length === 0) {
+            console.log('[DB Init] 🌱 Insertando datos semilla de novedades...');
+            const seedNews = [
+                {
+                    title: 'Nueva Estructura VSL Optimizada',
+                    content: 'Hemos actualizado el motor de IA para generar guiones de video más persuasivos basados en la estructura de Jim Edwards.',
+                    icon_type: 'update'
+                },
+                {
+                    title: 'Tip de la IA: Tasa de Rebote',
+                    content: 'Tu landing de "Uñas Pro" tiene una carga lenta. Optimiza las imágenes para mejorar el posicionamiento SEO.',
+                    icon_type: 'ia'
+                },
+                {
+                    title: 'Masterclass: Cierre por WhatsApp',
+                    content: 'Ya disponible en la Academia la nueva lección sobre cómo usar el CRM para recuperar carritos abandonados.',
+                    icon_type: 'tip'
+                }
+            ];
+            for (const news of seedNews) {
+                await connection.query(
+                    'INSERT INTO novedadestips (title, content, icon_type, created_at) VALUES (?, ?, ?, NOW())',
+                    [news.title, news.content, news.icon_type]
+                );
+            }
+        }
+        ////////// Fin de actualización - 07/06/2025 10:00 //////////
 
         // Reactivar checks
         await connection.query('SET FOREIGN_KEY_CHECKS = 1');

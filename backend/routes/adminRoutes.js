@@ -281,4 +281,52 @@ router.put('/settings', async (req, res) => {
     }
 });
 
+////////// Actualización: Endpoints de gestión de novedades para administradores - 07/06/2025 10:00 //////////
+router.get('/news', async (req, res) => {
+    try {
+        const [news] = await pool.query('SELECT * FROM novedadestips ORDER BY created_at DESC');
+        res.json(news);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+router.post('/news', async (req, res) => {
+    const { title, content, icon_type } = req.body;
+    try {
+        const [result] = await pool.query(
+            'INSERT INTO novedadestips (title, content, icon_type, created_at) VALUES (?, ?, ?, NOW())',
+            [title, content, icon_type || 'update']
+        );
+        res.json({ id: result.insertId, success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+router.put('/news/:id', async (req, res) => {
+    const { id } = req.params;
+    const { title, content, icon_type } = req.body;
+    try {
+        await pool.query(
+            'UPDATE novedadestips SET title = ?, content = ?, icon_type = ? WHERE id = ?',
+            [title, content, icon_type, id]
+        );
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+router.delete('/news/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM novedadestips WHERE id = ?', [id]);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+////////// Fin de actualización - 07/06/2025 10:00 //////////
+
 module.exports = router;
