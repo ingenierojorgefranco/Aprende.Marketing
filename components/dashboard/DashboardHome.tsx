@@ -42,37 +42,9 @@ export const DashboardHome: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  ////////// Actualización: Cambio a Potencial Bruto (100% cierre) para reflejar oportunidad total sobre la mesa - 01/06/2025 20:30 //////////
-  const [dynamicPotential, setDynamicPotential] = useState<string>('0.00');
-
-  const calculateDynamicPotential = async () => {
-      try {
-          const [projects, pages] = await Promise.all([
-              api.getProjects(),
-              api.getPages()
-          ]);
-
-          let total = 0;
-
-          // 1. Calcular potencial por proyectos con precio definido
-          projects.forEach(project => {
-              const projectPages = pages.filter(p => String(p.projectId) === String(project.id));
-              const projectLeads = projectPages.reduce((sum, p) => sum + (p.conversions || 0), 0);
-              const price = project.fullPrice || 47; // Fallback a 47 si no hay precio
-              total += (projectLeads * price);
-          });
-
-          // 2. Sumar potencial de páginas sin proyecto asociado (usando fallback 47)
-          const orphanedPages = pages.filter(p => !p.projectId);
-          const orphanedLeads = orphanedPages.reduce((sum, p) => sum + (p.conversions || 0), 0);
-          total += (orphanedLeads * 47);
-
-          setDynamicPotential(total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-      } catch (e) {
-          console.error("Error calculando potencial dinámico", e);
-      }
-  };
-  ////////// Fin de actualización - 01/06/2025 20:30 //////////
+  ////////// Eliminación de la lógica de cálculo de Potencial Dinámico por solicitud del usuario - 01/06/2025 20:45 //////////
+  // La métrica de Potencial de Facturación ha sido removida para centrar el Dashboard en datos de tráfico y leads reales.
+  ////////// Fin de actualización - 01/06/2025 20:45 //////////
 
   const formatTooltipDate = (dateString: string) => {
       if (!dateString) return '';
@@ -119,10 +91,6 @@ export const DashboardHome: React.FC = () => {
                 conversionRate: rate
             });
 
-            ////////// Disparo del cálculo dinámico al cargar los datos - 27/05/2025 16:30 //////////
-            await calculateDynamicPotential();
-            ////////// Fin de actualización - 27/05/2025 16:30 //////////
-
         } catch (error) {
             console.error("Error cargando dashboard", error);
         } finally {
@@ -140,7 +108,7 @@ export const DashboardHome: React.FC = () => {
               <Sparkles className="w-3.5 h-3.5" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em]">{title}</span>
           </div>
-          <p className="text-xs text-gray-300 leading-relaxed font-medium">{content}</p>
+          <p className="text-xs text-gray-300 font-medium leading-relaxed">{content}</p>
           <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-[#FF5A1F]/50"></div>
       </div>
   );
@@ -174,8 +142,8 @@ export const DashboardHome: React.FC = () => {
         {/* COLUMNA IZQUIERDA: MÉTRICAS Y GRÁFICAS (8 Cols) */}
         <div className="xl:col-span-8 space-y-8">
             
-            {/* ////////// Actualización: Optimización de tamaños de texto y limpieza de interfaz - 27/05/2025 17:15 ////////// */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {/* ////////// Actualización: Reducción de 4 a 3 columnas para optimizar visualización de métricas reales - 01/06/2025 20:45 ////////// */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {/* 1. Visitas Recibidas */}
                 <div className="bg-[#111111] p-6 rounded-[2rem] border border-white/5 shadow-2xl relative group">
                     <StrategicTooltip 
@@ -220,23 +188,9 @@ export const DashboardHome: React.FC = () => {
                     <p className="text-gray-500 text-xs mt-3 font-medium italic">Ratio de Éxito</p>
                 </div>
 
-                {/* 4. Potencial Facturación Dinámico */}
-                <div className="bg-gradient-to-br from-[#FF5A1F] to-[#D94A1E] p-6 rounded-[2rem] shadow-2xl relative group">
-                    {/* ////////// Actualización: Ajuste de tooltip para Potencial Bruto - 01/06/2025 20:30 ////////// */}
-                    <StrategicTooltip 
-                        title="Dinero Proyectado" 
-                        content="Valor total de tus leads actuales si se cerraran al 100%. Representa la oportunidad total sobre la mesa." 
-                    />
-                    <div className="absolute top-2 right-2 p-4 opacity-20 group-hover:scale-110 transition-transform">
-                        <DollarSign className="w-16 h-16 text-white" />
-                    </div>
-                    <p className="text-xs font-black text-black/60 uppercase tracking-[0.2em] mb-3">Potencial Facturación</p>
-                    <h3 className="text-3xl font-black text-white leading-none">${dynamicPotential}</h3>
-                    <p className="text-white/70 text-xs mt-3 font-medium">Basado en tus Proyectos</p>
-                    {/* ////////// Fin de actualización - 01/06/2025 20:30 ////////// */}
-                </div>
+                {/* ////////// Eliminación de la tarjeta "Potencial Facturación" por solicitud del usuario - 01/06/2025 20:45 ////////// */}
             </div>
-            {/* ////////// Fin de actualización - 27/05/2025 17:15 ////////// */}
+            {/* ////////// Fin de actualización - 01/06/2025 20:45 ////////// */}
 
             {/* Bloque de Gráficas */}
             <div className="space-y-6">
