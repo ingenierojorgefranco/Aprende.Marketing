@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
     Users, Target, MessageCircle, FileText,
@@ -7,15 +7,18 @@ import {
 } from 'lucide-react';
 
 import { ProjectStrategy_Header } from './ProjectStrategy/ProjectStrategy_Header';
-import { ProjectStrategy_Summary } from './ProjectStrategy/ProjectStrategy_Summary';
-import { ProjectStrategy_AvatarDiagnosis } from './ProjectStrategy/ProjectStrategy_AvatarDiagnosis';
-import { ProjectStrategy_BusinessGrowth } from './ProjectStrategy/ProjectStrategy_BusinessGrowth';
-import { ProjectStrategy_Blueprint } from './ProjectStrategy/ProjectStrategy_Blueprint';
-import { ProjectStrategy_WebSystem } from './ProjectStrategy/ProjectStrategy_WebSystem';
-import { ProjectStrategy_Content } from './ProjectStrategy/ProjectStrategy_Content';
-import { ProjectStrategy_Email } from './ProjectStrategy/ProjectStrategy_Email';
-import { ProjectStrategy_Evergreen } from './ProjectStrategy/ProjectStrategy_Evergreen';
-import { ProjectStrategy_WhatsApp } from './ProjectStrategy/ProjectStrategy_WhatsApp';
+
+////////// Actualización: Carga Dinámica (Lazy Load) de Bloques Pesados de Estrategia - 05/06/2025 21:30 //////////
+const ProjectStrategy_Summary = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Summary').then(m => ({ default: m.ProjectStrategy_Summary })));
+const ProjectStrategy_AvatarDiagnosis = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_AvatarDiagnosis').then(m => ({ default: m.ProjectStrategy_AvatarDiagnosis })));
+const ProjectStrategy_BusinessGrowth = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_BusinessGrowth').then(m => ({ default: m.ProjectStrategy_BusinessGrowth })));
+const ProjectStrategy_Blueprint = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Blueprint').then(m => ({ default: m.ProjectStrategy_Blueprint })));
+const ProjectStrategy_WebSystem = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_WebSystem').then(m => ({ default: m.ProjectStrategy_WebSystem })));
+const ProjectStrategy_Content = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Content').then(m => ({ default: m.ProjectStrategy_Content })));
+const ProjectStrategy_Email = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Email').then(m => ({ default: m.ProjectStrategy_Email })));
+const ProjectStrategy_Evergreen = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Evergreen').then(m => ({ default: m.ProjectStrategy_Evergreen })));
+const ProjectStrategy_WhatsApp = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_WhatsApp').then(m => ({ default: m.ProjectStrategy_WhatsApp })));
+////////// Fin de actualización - 05/06/2025 21:30 //////////
 
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
@@ -332,34 +335,43 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
             <div id="psd-main-content" className="max-w-[1400px] mx-auto p-6 space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-500 mt-8">
 
-                <ProjectStrategy_Summary 
-                    strategyData={strategyData} 
-                    description={projectDescription}
-                    activeHeaderItem={activeHeaderItem} 
-                    setActiveHeaderItem={setActiveHeaderItem}
-                    handleTooltipHover={handleTooltipHover}
-                    handleTooltipLeave={handleTooltipLeave}
-                />
-
-                <ProjectStrategy_BusinessGrowth 
-                    chartData={chartData} 
-                    onOpenVideo={() => setShowVideoModal(true)} 
-                    commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)}
-                />
-
-                <ProjectStrategy_Blueprint 
-                    handleTooltipHover={handleTooltipHover} 
-                    handleTooltipLeave={handleTooltipLeave} 
-                    onOpenVideo={() => setShowVideoModal(true)} 
-                />
-
-                {strategyData.avatars && (
-                    <ProjectStrategy_AvatarDiagnosis 
-                        avatars={strategyData.avatars} 
-                        psychology={strategyData.psychology} 
-                        benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items}
+                {/* ////////// Actualización: Integración de Suspense para carga bajo demanda de bloques pesados - 05/06/2025 21:30 ////////// */}
+                <Suspense fallback={<div className="h-64 flex items-center justify-center text-gray-500 italic">Preparando bloque estratégico...</div>}>
+                    <ProjectStrategy_Summary 
+                        strategyData={strategyData} 
+                        description={projectDescription}
+                        activeHeaderItem={activeHeaderItem} 
+                        setActiveHeaderItem={setActiveHeaderItem}
+                        handleTooltipHover={handleTooltipHover}
+                        handleTooltipLeave={handleTooltipLeave}
                     />
-                )}
+                </Suspense>
+
+                <Suspense fallback={null}>
+                    <ProjectStrategy_BusinessGrowth 
+                        chartData={chartData} 
+                        onOpenVideo={() => setShowVideoModal(true)} 
+                        commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)}
+                    />
+                </Suspense>
+
+                <Suspense fallback={null}>
+                    <ProjectStrategy_Blueprint 
+                        handleTooltipHover={handleTooltipHover} 
+                        handleTooltipLeave={handleTooltipLeave} 
+                        onOpenVideo={() => setShowVideoModal(true)} 
+                    />
+                </Suspense>
+
+                <Suspense fallback={null}>
+                    {strategyData.avatars && (
+                        <ProjectStrategy_AvatarDiagnosis 
+                            avatars={strategyData.avatars} 
+                            psychology={strategyData.psychology} 
+                            benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items}
+                        />
+                    )}
+                </Suspense>
 
                 {/* --- BLOQUE DE TRANSICIÓN: RESUMEN DEL SISTEMA (DISEÑO IDÉNTICO AL HEADER) --- */}
                 <div id="psd-deployment-transition-block" className="relative bg-[#020202] border-y border-white/5 py-20 overflow-hidden mx-[-2rem] md:mx-[-4rem]">
@@ -402,66 +414,86 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     </div>
                 </div>
 
-                <ProjectStrategy_WebSystem 
-                    projectId={id}
-                    lpTabsData={strategyData.modules.web.landingPageTabs}
-                    tyTabsData={strategyData.modules.web.thankYouPageTabs}
-                    selectedLpTab={selectedLpTab}
-                    setSelectedLpTab={setSelectedLpTab}
-                    selectedTyTab={selectedTyTab}
-                    setSelectedTyTab={setSelectedTyTab}
-                    handleTooltipHover={handleTooltipHover}
-                    handleTooltipLeave={handleTooltipLeave}
-                    linkedPages={linkedPages}
-                    onEditPage={(pageId) => navigate(`/dashboard/editor/${pageId}`)}
-                    pageCount={pageCount}
-                    domainCount={globalDomainCount}
-                    planLimits={user.planLimits}
-                    onUpgrade={() => setShowUpgradeModal(true)}
-                    nextPlan={nextPlan}
-                />
-
-                {strategyData.modules?.content && (
-                    <ProjectStrategy_Content 
-                        contentData={strategyData.modules.content}
-                        activeArticle={activeArticle}
-                        setActiveArticle={setActiveArticle}
-                        selectedArticles={selectedArticles}
-                        toggleArticleSelection={toggleArticleSelection}
+                <Suspense fallback={null}>
+                    <ProjectStrategy_WebSystem 
+                        projectId={id}
+                        lpTabsData={strategyData.modules.web.landingPageTabs}
+                        tyTabsData={strategyData.modules.web.thankYouPageTabs}
+                        selectedLpTab={selectedLpTab}
+                        setSelectedLpTab={setSelectedLpTab}
+                        selectedTyTab={selectedTyTab}
+                        setSelectedTyTab={setSelectedTyTab}
                         handleTooltipHover={handleTooltipHover}
                         handleTooltipLeave={handleTooltipLeave}
-                        articleCount={articleCount}
+                        linkedPages={linkedPages}
+                        onEditPage={(pageId) => navigate(`/dashboard/editor/${pageId}`)}
+                        pageCount={pageCount}
+                        domainCount={globalDomainCount}
                         planLimits={user.planLimits}
                         onUpgrade={() => setShowUpgradeModal(true)}
                         nextPlan={nextPlan}
                     />
-                )}
+                </Suspense>
 
-                {strategyData.modules?.emails?.nurture && (
-                    <ProjectStrategy_Email 
-                        emailData={strategyData.modules.emails.nurture}
-                        avatars={strategyData.avatars}
-                        activeEmail={activeEmail}
-                        setActiveEmail={setActiveEmail}
-                        features={user.planLimits?.features}
-                        onUpgrade={() => setShowUpgradeModal(true)}
-                        planLimits={user.planLimits}
-                        nextPlan={nextPlan}
-                    />
-                )}
+                <Suspense fallback={null}>
+                    {strategyData.modules?.content && (
+                        <ProjectStrategy_Content 
+                            contentData={strategyData.modules.content}
+                            activeArticle={activeArticle}
+                            setActiveArticle={setActiveArticle}
+                            selectedArticles={selectedArticles}
+                            toggleArticleSelection={toggleArticleSelection}
+                            handleTooltipHover={handleTooltipHover}
+                            handleTooltipLeave={handleTooltipLeave}
+                            articleCount={articleCount}
+                            planLimits={user.planLimits}
+                            onUpgrade={() => setShowUpgradeModal(true)}
+                            nextPlan={nextPlan}
+                        />
+                    )}
+                </Suspense>
 
-                {strategyData.modules?.emails?.evergreen && (
-                    <ProjectStrategy_Evergreen 
-                        evergreenData={strategyData.modules.emails.evergreen}
-                        avatars={strategyData.avatars}
-                        activeEvergreenEmail={activeEvergreenEmail}
-                        setActiveEvergreenEmail={setActiveEvergreenEmail}
-                        features={user.planLimits?.features}
-                        onUpgrade={() => setShowUpgradeModal(true)}
-                        planLimits={user.planLimits}
-                        nextPlan={nextPlan}
-                    />
-                )}
+                <Suspense fallback={null}>
+                    {strategyData.modules?.emails?.nurture && (
+                        <ProjectStrategy_Email 
+                            emailData={strategyData.modules.emails.nurture}
+                            avatars={strategyData.avatars}
+                            activeEmail={activeEmail}
+                            setActiveEmail={setActiveEmail}
+                            features={user.planLimits?.features}
+                            onUpgrade={() => setShowUpgradeModal(true)}
+                            planLimits={user.planLimits}
+                            nextPlan={nextPlan}
+                        />
+                    )}
+                </Suspense>
+
+                <Suspense fallback={null}>
+                    {strategyData.modules?.emails?.evergreen && (
+                        <ProjectStrategy_Evergreen 
+                            evergreenData={strategyData.modules.emails.evergreen}
+                            avatars={strategyData.avatars}
+                            activeEvergreenEmail={activeEvergreenEmail}
+                            setActiveEvergreenEmail={setActiveEvergreenEmail}
+                            features={user.planLimits?.features}
+                            onUpgrade={() => setShowUpgradeModal(true)}
+                            planLimits={user.planLimits}
+                            nextPlan={nextPlan}
+                        />
+                    )}
+                </Suspense>
+
+                <Suspense fallback={null}>
+                    {strategyData.modules?.whatsapp && (
+                        <ProjectStrategy_WhatsApp 
+                            whatsappData={strategyData.modules.whatsapp}
+                            activeWaScript={activeWaScript}
+                            setActiveWaScript={setActiveWaScript}
+                            onUpgrade={() => setShowUpgradeModal(true)}
+                        />
+                    )}
+                </Suspense>
+                {/* ////////// Fin de actualización - 05/06/2025 21:30 ////////// */}
 
             </div>
         </div>

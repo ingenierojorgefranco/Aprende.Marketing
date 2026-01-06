@@ -31,7 +31,7 @@ let localComments: Comment[] = [...MOCK_COMMENTS];
 let localCrmContacts: CRMContact[] = [...MOCK_CRM_CONTACTS];
 let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
 
-////////// Actualización: Expansión de Capa de Caché para Sesión, CRM Stats, News y Ajustes - 05/06/2025 19:30 //////////
+////////// Actualización: Expansión de Capa de Caché para Tráfico Público, Títulos SEO y Estrategias Maestras - 05/06/2025 21:15 //////////
 const apiCache: {
     pages: LandingPage[] | null;
     projects: Project[] | null;
@@ -51,6 +51,7 @@ const apiCache: {
     crmStats: any | null;
     newsFeed: DashboardNews[] | null;
     integrationSettings: Record<string, any> | null;
+    lastGeneratedTitles: any[] | null;
     pageDetails: Record<string, LandingPage | null>;
     projectDetails: Record<string, Project | null>;
     articleDetails: Record<string, Article | null>;
@@ -65,6 +66,8 @@ const apiCache: {
     userUsageStats: Record<string, UserUsageStats | null>;
     userPayments: Record<string, any[] | null>;
     siteAnalysis: Record<string, any | null>;
+    publicPages: Record<string, LandingPage | null>;
+    masterStrategies: Record<string, ProjectMasterStrategy | null>;
 } = {
     pages: null,
     projects: null,
@@ -84,6 +87,7 @@ const apiCache: {
     crmStats: null,
     newsFeed: null,
     integrationSettings: null,
+    lastGeneratedTitles: null,
     pageDetails: {},
     projectDetails: {},
     articleDetails: {},
@@ -97,15 +101,17 @@ const apiCache: {
     publicArticleDetails: {},
     userUsageStats: {},
     userPayments: {},
-    siteAnalysis: {}
+    siteAnalysis: {},
+    publicPages: {},
+    masterStrategies: {}
 };
 
 const clearCache = (key?: keyof typeof apiCache, id?: string) => {
     if (key) {
-        if (id && (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis')) {
+        if (id && (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis' || key === 'publicPages' || key === 'masterStrategies')) {
             delete (apiCache[key] as any)[id];
         } else {
-            if (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis') {
+            if (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis' || key === 'publicPages' || key === 'masterStrategies') {
                 (apiCache[key] as any) = {};
             } else {
                 (apiCache[key] as any) = null;
@@ -142,6 +148,7 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.crmStats = null;
         apiCache.newsFeed = null;
         apiCache.integrationSettings = null;
+        apiCache.lastGeneratedTitles = null;
         apiCache.pageDetails = {};
         apiCache.projectDetails = {};
         apiCache.articleDetails = {};
@@ -156,9 +163,11 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.userUsageStats = {};
         apiCache.userPayments = {};
         apiCache.siteAnalysis = {};
+        apiCache.publicPages = {};
+        apiCache.masterStrategies = {};
     }
 };
-////////// Fin de actualización - 05/06/2025 19:30 //////////
+////////// Fin de actualización - 05/06/2025 21:15 //////////
 
 // --- FUNCIÓN FETCH CON TIMEOUT ---
 const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
@@ -276,7 +285,6 @@ export const api = {
       }
   },
 
-  ////////// Actualización: Implementación de caché para Sesión de Usuario - 05/06/2025 19:30 //////////
   getCurrentUser: async (): Promise<User | null> => {
       if (isMockMode) return MOCK_USER;
       if (apiCache.currentUser) return apiCache.currentUser;
@@ -289,7 +297,6 @@ export const api = {
           return null;
       }
   },
-  ////////// Fin de actualización //////////
 
   updateProfile: async (data: Partial<User>): Promise<User> => {
       if (isMockMode) {
@@ -300,9 +307,7 @@ export const api = {
           return Promise.resolve({ ...MOCK_USER });
       }
       clearCache('usersList');
-      ////////// Actualización: Invalidar caché de sesión al actualizar perfil - 05/06/2025 19:30 //////////
       apiCache.currentUser = null;
-      ////////// Fin de actualización //////////
       return await fetchWithFallback('/auth/profile', {
           method: 'PUT',
           headers: getAuthHeaders(),
@@ -374,6 +379,38 @@ export const api = {
       return page;
   },
 
+  ////////// Actualización: Método para obtener landing pública con caché - 05/06/2025 21:15 //////////
+  getPublicPage: async (slug: string, userSlug?: string): Promise<LandingPage | null> => {
+      if (isMockMode) return localPages.find(p => p.subdomain.includes(slug)) || null;
+      const cacheKey = userSlug ? `${userSlug}_${slug}` : slug;
+      if (apiCache.publicPages[cacheKey]) return apiCache.publicPages[cacheKey];
+
+      let endpoint = userSlug 
+          ? `/public/pages/by-user/${encodeURIComponent(userSlug)}/${encodeURIComponent(slug)}`
+          : `/public/pages/${encodeURIComponent(slug)}`;
+
+      try {
+          const data = await fetchWithFallback(endpoint);
+          const normalized: LandingPage = {
+              id: data.id?.toString() ?? slug,
+              name: data.name || "Landing sin título",
+              niche: data.niche || "",
+              goal: data.goal || "",
+              isPublished: !!data.is_published,
+              subdomain: data.subdomain || slug,
+              visits: data.visits ?? 0,
+              conversions: data.conversions ?? 0,
+              createdAt: data.created_at ? new Date(data.created_at) : new Date(),
+              content: typeof data.content === "string" ? JSON.parse(data.content) : data.content,
+          };
+          apiCache.publicPages[cacheKey] = normalized;
+          return normalized;
+      } catch (e) {
+          return null;
+      }
+  },
+  ////////// Fin de actualización - 05/06/2025 21:15 //////////
+
   createPage: async (page: LandingPage): Promise<LandingPage> => {
     if (isMockMode) {
         const newPage = { ...page, id: `mock-page-${Date.now()}`, createdAt: new Date() };
@@ -415,6 +452,9 @@ export const api = {
     });
     clearCache('pages');
     clearCache('pageDetails', page.id);
+    ////////// Actualización: Invalidar caché pública al actualizar - 05/06/2025 21:15 //////////
+    clearCache('publicPages');
+    ////////// Fin de actualización - 05/06/2025 21:15 //////////
     return page;
   },
 
@@ -427,6 +467,9 @@ export const api = {
     clearCache('pages');
     clearCache('pageDetails', id);
     clearCache('userUsageStats');
+    ////////// Actualización: Invalidar caché pública al eliminar - 05/06/2025 21:15 //////////
+    clearCache('publicPages');
+    ////////// Fin de actualización - 05/06/2025 21:15 //////////
   },
 
   getProjects: async (): Promise<Project[]> => {
@@ -495,10 +538,17 @@ export const api = {
 
   getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy | null> => {
       if (isMockMode) return Promise.resolve(MOCK_MASTER_STRATEGY);
+      ////////// Actualización: Intercepción de caché para Estrategia Maestra - 05/06/2025 21:15 //////////
+      if (apiCache.masterStrategies[id]) return apiCache.masterStrategies[id];
+      ////////// Fin de actualización - 05/06/2025 21:15 //////////
       try {
           const project = await api.getProjectById(id);
           if (project && project.strategy_json) {
-              return project.strategy_json as ProjectMasterStrategy;
+              const strategy = project.strategy_json as ProjectMasterStrategy;
+              ////////// Actualización: Guardar en caché profundo tras parseo - 05/06/2025 21:15 //////////
+              apiCache.masterStrategies[id] = strategy;
+              ////////// Fin de actualización - 05/06/2025 21:15 //////////
+              return strategy;
           }
           return null;
       } catch (e: any) {
@@ -534,6 +584,9 @@ export const api = {
         });
         clearCache('projects');
         clearCache('projectDetails', id);
+        ////////// Actualización: Invalidar caché de estrategia al actualizar proyecto - 05/06/2025 21:15 //////////
+        clearCache('masterStrategies', id);
+        ////////// Fin de actualización - 05/06/2025 21:15 //////////
     },
   
     deleteProject: async (id: string): Promise<void> => {
@@ -545,6 +598,9 @@ export const api = {
         clearCache('projects');
         clearCache('projectDetails', id);
         clearCache('userUsageStats');
+        ////////// Actualización: Invalidar caché de estrategia al eliminar proyecto - 05/06/2025 21:15 //////////
+        clearCache('masterStrategies', id);
+        ////////// Fin de actualización - 05/06/2025 21:15 //////////
     },
   
     analyzeSite: async (url: string): Promise<{ productName: string, description: string, niche: string }> => {
@@ -577,6 +633,9 @@ export const api = {
         });
         clearCache('projects');
         clearCache('projectDetails', projectId);
+        ////////// Actualización: Invalidar caché de estrategia maestra tras regeneración con IA - 05/06/2025 21:15 //////////
+        clearCache('masterStrategies', projectId);
+        ////////// Fin de actualización - 05/06/2025 21:15 //////////
         return strategy;
     },
   
@@ -692,7 +751,9 @@ export const api = {
                 title: article.title,
                 slug: article.slug,
                 description: article.description,
+                ////////// Actualización: Corrección de propiedad content_html para mapear a article.contentHtml - 05/06/2025 21:15 //////////
                 content_html: article.contentHtml,
+                ////////// Fin de actualización - 05/06/2025 21:15 //////////
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
@@ -1133,7 +1194,6 @@ export const api = {
         }
     },
 
-    ////////// Actualización: Implementación de caché para Estadísticas CRM, News y Ajustes - 05/06/2025 19:30 //////////
     getCRMStats: async (): Promise<any> => {
         if (isMockMode) return { newLeads: 5, contacted: 12, closed: 3 };
         if (apiCache.crmStats) return apiCache.crmStats;
@@ -1147,6 +1207,7 @@ export const api = {
         }
     },
 
+    ////////// Actualización: Refuerzo de intercepción de caché para Novedades - 05/06/2025 21:30 //////////
     getNewsFeed: async (): Promise<DashboardNews[]> => {
         if (isMockMode) return MOCK_NEWS;
         if (apiCache.newsFeed) return apiCache.newsFeed;
@@ -1156,9 +1217,11 @@ export const api = {
             apiCache.newsFeed = news;
             return news;
         } catch (e) {
+            // Fallback agresivo a Mock si falla la red para no dejar el dashboard vacío
             return MOCK_NEWS;
         }
     },
+    ////////// Fin de actualización - 05/06/2025 21:30 //////////
 
     getIntegrationSettings: async (): Promise<Record<string, any>> => {
         if (isMockMode) return { getResponseKey: 'gr_mock_key', waWebhook: 'https://wa.mock' };
@@ -1177,8 +1240,12 @@ export const api = {
         if (isMockMode) return;
         await fetchWithFallback('/system/integrations', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(settings) });
         clearCache('integrationSettings');
-    }
-    ////////// Fin de actualización //////////
+    },
+
+    ////////// Actualización: Métodos para persistencia de títulos SEO generados - 05/06/2025 21:15 //////////
+    getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,
+    setLastGeneratedTitles: (titles: any[]) => { apiCache.lastGeneratedTitles = titles; }
+    ////////// Fin de actualización - 05/06/2025 21:15 //////////
   };
   
   function safeParseJsonList(data: any): any[] {
