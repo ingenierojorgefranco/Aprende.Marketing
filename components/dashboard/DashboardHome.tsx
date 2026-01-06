@@ -1,22 +1,38 @@
 
 import React, { useEffect, useState } from 'react';
-////////// Importación de componentes necesarios para el nuevo Centro de Mando - 24/05/2024 16:45 //////////
+////////// Importación de componentes necesarios para el nuevo Centro de Mando - 27/05/2025 14:15 //////////
 import { 
     ResponsiveContainer, AreaChart, Area, 
     XAxis, YAxis, CartesianGrid, Tooltip 
 } from 'recharts';
 import { 
-    TrendingUp, Users, MousePointer, Loader2, 
+    TrendingUp, Users, Loader2, 
     Rocket, FileText, Sparkles, Zap, Newspaper, 
     Layout, ChevronRight, ArrowUpRight, Bot, 
-    Target, Briefcase, PlusCircle, DollarSign
+    Target, Briefcase, PlusCircle, DollarSign, Info, CreditCard, Calendar, ShieldCheck, Eye
 } from 'lucide-react';
 import { api } from '../../services/api';
-import { MOCK_NEWS, MOCK_TOP_PAGES } from '../../services/mockData';
-import { useNavigate } from 'react-router-dom';
+import { MOCK_NEWS } from '../../services/mockData';
+import { useNavigate, useOutletContext } from 'react-router-dom';
+import { User } from '../../types';
+
+interface DashboardContext {
+    user: User;
+    pageCount: number;
+    projectCount: number;
+    articleCount: number;
+    ////////// Adición de función para abrir el perfil desde el contexto - 27/05/2025 12:35 //////////
+    setShowProfileModal: (show: boolean) => void;
+    ////////// Fin de actualización - 27/05/2025 12:35 //////////
+}
+////////// Fin de actualización - 27/05/2025 14:15 /////////
 
 export const DashboardHome: React.FC = () => {
   const navigate = useNavigate();
+  ////////// Extracción de setShowProfileModal del contexto - 27/05/2025 12:35 //////////
+  const { user, setShowProfileModal } = useOutletContext() as DashboardContext;
+  ////////// Fin de actualización - 27/05/2025 12:35 //////////
+
   const [analyticsData, setAnalyticsData] = useState<any[]>([]);
   const [summaryData, setSummaryData] = useState({
       totalVisits: 0,
@@ -26,13 +42,49 @@ export const DashboardHome: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  ////////// Lógica para calcular potencial de facturación (leads * 3% conv * $47) - 24/05/2024 16:45 //////////
-  const calculatePotential = (leads: number) => {
-      const convRate = 0.03;
-      const price = 47;
-      return (leads * convRate * price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  ////////// Lógica dinámica para cálculo de potencial basada en proyectos reales - 27/05/2025 16:30 //////////
+  const [dynamicPotential, setDynamicPotential] = useState<string>('0.00');
+
+  const calculateDynamicPotential = async () => {
+      try {
+          const [projects, pages] = await Promise.all([
+              api.getProjects(),
+              api.getPages()
+          ]);
+
+          let total = 0;
+          const convRate = 0.03; // 3% estimado de cierre
+
+          // 1. Calcular potencial por proyectos con precio definido
+          projects.forEach(project => {
+              const projectPages = pages.filter(p => String(p.projectId) === String(project.id));
+              const projectLeads = projectPages.reduce((sum, p) => sum + (p.conversions || 0), 0);
+              const price = project.fullPrice || 47; // Fallback a 47 si no hay precio
+              total += (projectLeads * price * convRate);
+          });
+
+          // 2. Sumar potencial de páginas sin proyecto asociado (usando fallback 47)
+          const orphanedPages = pages.filter(p => !p.projectId);
+          const orphanedLeads = orphanedPages.reduce((sum, p) => sum + (p.conversions || 0), 0);
+          total += (orphanedLeads * 47 * convRate);
+
+          setDynamicPotential(total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+      } catch (e) {
+          console.error("Error calculando potencial dinámico", e);
+      }
   };
-  ////////// Fin de actualización - 24/05/2024 16:45 /////////
+  ////////// Fin de actualización - 27/05/2025 16:30 //////////
+
+  const formatTooltipDate = (dateString: string) => {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES', { 
+          weekday: 'long', 
+          day: '2-digit', 
+          month: 'long', 
+          year: 'numeric' 
+      });
+  };
 
   const formatDayName = (dateString: string) => {
       const date = new Date(dateString);
@@ -68,6 +120,10 @@ export const DashboardHome: React.FC = () => {
                 conversionRate: rate
             });
 
+            ////////// Disparo del cálculo dinámico al cargar los datos - 27/05/2025 16:30 //////////
+            await calculateDynamicPotential();
+            ////////// Fin de actualización - 27/05/2025 16:30 //////////
+
         } catch (error) {
             console.error("Error cargando dashboard", error);
         } finally {
@@ -77,6 +133,19 @@ export const DashboardHome: React.FC = () => {
 
     fetchData();
   }, []);
+
+  ////////// Componente de Tooltip Estratégico Corregido (Z-Index y visibilidad) - 27/05/2025 14:15 //////////
+  const StrategicTooltip = ({ title, content }: { title: string, content: string }) => (
+      <div className="absolute bottom-[105%] left-1/2 -translate-x-1/2 mb-2 w-64 bg-[#111111] border border-[#FF5A1F]/50 p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 z-[100] backdrop-blur-xl">
+          <div className="flex items-center gap-2 mb-2 text-[#FF5A1F]">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em]">{title}</span>
+          </div>
+          <p className="text-xs text-gray-300 leading-relaxed font-medium">{content}</p>
+          <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-[#FF5A1F]/50"></div>
+      </div>
+  );
+  ////////// Fin de actualización - 27/05/2025 14:15 /////////
 
   if (loading) {
       return (
@@ -88,7 +157,6 @@ export const DashboardHome: React.FC = () => {
   }
 
   return (
-    ////////// Estructura del nuevo Centro de Mando AM (Negro absoluto y Naranja) - 24/05/2024 16:45 //////////
     <div className="space-y-10 text-white animate-in fade-in slide-in-from-bottom-6 duration-700 bg-black min-h-screen">
       
       {/* Header Dinámico */}
@@ -98,171 +166,285 @@ export const DashboardHome: React.FC = () => {
             <p className="text-gray-500 font-light text-lg mt-1">Tu ecosistema ha crecido un <span className="text-[#FF5A1F] font-bold">12%</span> esta semana. Mantén el ritmo.</p>
         </div>
         <div className="flex gap-3">
-             <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-gray-400 flex items-center gap-2">
-                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div> Servidores Online
-             </div>
+             {/* ////////// Eliminación de "Servidores Online" por solicitud del usuario - 27/05/2025 14:15 ////////// */}
         </div>
       </header>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
         
-        {/* COLUMNA IZQUIERDA: MÉTRICAS Y PROYECCIONES (7 Cols) */}
+        {/* COLUMNA IZQUIERDA: MÉTRICAS Y GRÁFICAS (8 Cols) */}
         <div className="xl:col-span-8 space-y-8">
             
-            {/* Cards de Métricas Principales */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-[#111111] p-8 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 transition-transform">
-                        <Users className="w-20 h-20 text-white" />
+            {/* ////////// Corrección de visibilidad de tooltips: Eliminación de overflow-hidden y ajuste de iconos - 27/05/2025 15:30 ////////// */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                {/* 1. Visitas Recibidas */}
+                <div className="bg-[#111111] p-6 rounded-[2rem] border border-white/5 shadow-2xl relative group">
+                    <StrategicTooltip 
+                        title="Tráfico Total" 
+                        content="Cantidad total de personas que han aterrizado en tus páginas. Es el volumen inicial de tu embudo de ventas." 
+                    />
+                    <div className="absolute top-2 right-2 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                        <Eye className="w-16 h-16 text-white" />
                     </div>
-                    <p className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-4">Leads Capturados</p>
-                    <h3 className="text-5xl font-black text-white leading-none">{summaryData.totalConversions}</h3>
-                    <p className="text-gray-500 text-xs mt-4 font-medium flex items-center gap-1">
+                    <p className="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] mb-3">Visitas Recibidas</p>
+                    <h3 className="text-4xl font-black text-white leading-none">{summaryData.totalVisits}</h3>
+                    <p className="text-gray-500 text-[10px] mt-3 font-medium">Tráfico Bruto</p>
+                </div>
+
+                {/* 2. Leads Capturados */}
+                <div className="bg-[#111111] p-6 rounded-[2rem] border border-white/5 shadow-2xl relative group">
+                    <StrategicTooltip 
+                        title="Leads (Contactos)" 
+                        content="Personas que demostraron interés real dejando su email o iniciando chat. Son la base de tu base de datos." 
+                    />
+                    <div className="absolute top-2 right-2 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                        <Users className="w-16 h-16 text-white" />
+                    </div>
+                    <p className="text-[9px] font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-3">Leads Capturados</p>
+                    <h3 className="text-4xl font-black text-white leading-none">{summaryData.totalConversions}</h3>
+                    <p className="text-gray-500 text-[10px] mt-3 font-medium flex items-center gap-1">
                         <ArrowUpRight className="w-3 h-3 text-emerald-500" /> +5% vs ayer
                     </p>
                 </div>
 
-                <div className="bg-[#111111] p-8 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 transition-transform">
-                        <TrendingUp className="w-20 h-20 text-white" />
+                {/* 3. Tasa Conversión */}
+                <div className="bg-[#111111] p-6 rounded-[2rem] border border-white/5 shadow-2xl relative group">
+                    <StrategicTooltip 
+                        title="Efectividad" 
+                        content="Mide qué porcentaje de visitas se convierten en leads. Si es bajo, necesitas mejorar el copy de tu landing." 
+                    />
+                    <div className="absolute top-2 right-2 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                        <TrendingUp className="w-16 h-16 text-white" />
                     </div>
-                    <p className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-4">Tasa Conversión</p>
-                    <h3 className="text-5xl font-black text-white leading-none">{summaryData.conversionRate}%</h3>
-                    <p className="text-gray-500 text-xs mt-4 font-medium italic">Optimización Activa</p>
+                    <p className="text-[9px] font-black text-purple-400 uppercase tracking-[0.2em] mb-3">Tasa Conversión</p>
+                    <h3 className="text-4xl font-black text-white leading-none">{summaryData.conversionRate}%</h3>
+                    <p className="text-gray-500 text-[10px] mt-3 font-medium italic">Ratio de Éxito</p>
                 </div>
 
-                {/* Billing Potential Card */}
-                <div className="bg-gradient-to-br from-[#FF5A1F] to-[#D94A1E] p-8 rounded-[2rem] shadow-[0_20px_40px_-10px_rgba(255,90,31,0.3)] relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:scale-110 transition-transform">
-                        <DollarSign className="w-20 h-20 text-white" />
+                {/* 4. Potencial Facturación Dinámico */}
+                <div className="bg-gradient-to-br from-[#FF5A1F] to-[#D94A1E] p-6 rounded-[2rem] shadow-2xl relative group">
+                    {/* ////////// Actualización de Tooltip Dinámico - 27/05/2025 16:30 ////////// */}
+                    <StrategicTooltip 
+                        title="Dinero Proyectado" 
+                        content="Cálculo dinámico basado en los precios de tus productos activos y una tasa de cierre estimada del 3%." 
+                    />
+                    {/* ////////// Fin de actualización - 27/05/2025 16:30 ////////// */}
+                    <div className="absolute top-2 right-2 p-4 opacity-20 group-hover:scale-110 transition-transform">
+                        <DollarSign className="w-16 h-16 text-white" />
                     </div>
-                    <p className="text-[10px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Potencial Facturación</p>
-                    <h3 className="text-4xl font-black text-white leading-none">${calculatePotential(summaryData.totalConversions)}</h3>
-                    <p className="text-white/70 text-xs mt-4 font-medium">Estimado basado en leads</p>
+                    <p className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-3">Potencial Facturación</p>
+                    {/* ////////// Uso de variable dynamicPotential - 27/05/2025 16:30 ////////// */}
+                    <h3 className="text-3xl font-black text-white leading-none">${dynamicPotential}</h3>
+                    <p className="text-white/70 text-[10px] mt-3 font-medium">Basado en tus Proyectos</p>
+                    {/* ////////// Fin de actualización - 27/05/2025 16:30 ////////// */}
                 </div>
             </div>
+            ////////// Fin de actualización - 27/05/2025 15:30 //////////
 
-            {/* Gráfica Minimalista */}
-            <div className="bg-[#090909] p-8 rounded-[2rem] border border-white/5 shadow-2xl">
-                <div className="flex justify-between items-center mb-10">
-                    <h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3">
-                        <Target className="w-5 h-5 text-[#FF5A1F]" /> Evolución de Tráfico
-                    </h3>
+            {/* Bloque de Gráficas */}
+            <div className="space-y-6">
+                {/* Gráfica 1: Tráfico */}
+                <div className="bg-[#090909] p-8 rounded-[2rem] border border-white/5 shadow-2xl">
+                    <div className="flex justify-between items-center mb-10">
+                        <h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3">
+                            <Target className="w-5 h-5 text-[#FF5A1F]" /> Tráfico Semanal (Visitas)
+                        </h3>
+                    </div>
+                    <div className="h-[280px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={analyticsData} margin={{ left: -20, right: 10 }}>
+                                <defs>
+                                    <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#FF5A1F" stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor="#FF5A1F" stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="10 10" vertical={false} stroke="#ffffff" strokeOpacity={0.03} />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#444', fontSize: 11, fontWeight: 'bold'}} dy={15} />
+                                <YAxis hide={false} axisLine={false} tickLine={false} tick={{fill: '#444', fontSize: 11, fontWeight: 'bold'}} />
+                                <Tooltip 
+                                    contentStyle={{backgroundColor: '#111', borderRadius: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', color: '#fff'}}
+                                    itemStyle={{color: '#FF5A1F', fontWeight: 'black'}}
+                                    labelFormatter={(label, payload) => payload && payload.length > 0 ? formatTooltipDate(payload[0].payload.fullDate) : label}
+                                />
+                                <Area 
+                                    type="monotone" 
+                                    dataKey="visits" 
+                                    stroke="#FF5A1F" 
+                                    strokeWidth={4}
+                                    fillOpacity={1} 
+                                    fill="url(#colorVisits)" 
+                                    activeDot={{ r: 8, strokeWidth: 4, stroke: '#000', fill: '#FF5A1F' }}
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
                 </div>
-                <div className="h-[350px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={analyticsData}>
-                            <defs>
-                                <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#FF5A1F" stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor="#FF5A1F" stopOpacity={0}/>
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="10 10" vertical={false} stroke="#ffffff" strokeOpacity={0.03} />
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#444', fontSize: 11, fontWeight: 'bold'}} dy={15} />
-                            <YAxis hide />
-                            <Tooltip 
-                                contentStyle={{backgroundColor: '#111', borderRadius: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', color: '#fff'}}
-                                itemStyle={{color: '#FF5A1F', fontWeight: 'black'}}
-                            />
-                            <Area 
-                                type="monotone" 
-                                dataKey="visits" 
-                                stroke="#FF5A1F" 
-                                strokeWidth={4}
-                                fillOpacity={1} 
-                                fill="url(#colorVisits)" 
-                                activeDot={{ r: 8, strokeWidth: 4, stroke: '#000', fill: '#FF5A1F' }}
-                            />
-                        </AreaChart>
-                    </ResponsiveContainer>
+
+                {/* ////////// Gráfica 2: Leads Capturados (Nueva) - 27/05/2025 14:30 ////////// */}
+                <div className="bg-[#090909] p-8 rounded-[2rem] border border-white/5 shadow-2xl">
+                    <div className="flex justify-between items-center mb-10">
+                        <h3 className="font-black text-white uppercase tracking-widest text-sm flex items-center gap-3">
+                            <Users className="w-5 h-5 text-emerald-500" /> Leads Capturados (Éxito Semanal)
+                        </h3>
+                    </div>
+                    <div className="h-[280px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={analyticsData} margin={{ left: -20, right: 10 }}>
+                                <defs>
+                                    <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="10 10" vertical={false} stroke="#ffffff" strokeOpacity={0.03} />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#444', fontSize: 11, fontWeight: 'bold'}} dy={15} />
+                                <YAxis hide={false} axisLine={false} tickLine={false} tick={{fill: '#444', fontSize: 11, fontWeight: 'bold'}} />
+                                <Tooltip 
+                                    contentStyle={{backgroundColor: '#111', borderRadius: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', color: '#fff'}}
+                                    itemStyle={{color: '#10b981', fontWeight: 'black'}}
+                                    labelFormatter={(label, payload) => payload && payload.length > 0 ? formatTooltipDate(payload[0].payload.fullDate) : label}
+                                />
+                                <Area 
+                                    type="monotone" 
+                                    dataKey="conversions" 
+                                    stroke="#10b981" 
+                                    strokeWidth={4}
+                                    fillOpacity={1} 
+                                    fill="url(#colorLeads)" 
+                                    activeDot={{ r: 8, strokeWidth: 4, stroke: '#000', fill: '#10b981' }}
+                                    name="Leads"
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
                 </div>
+                {/* ////////// Fin de actualización - 27/05/2025 14:30 ////////// */}
             </div>
         </div>
 
-        {/* COLUMNA DERECHA: ACCIONES, TOPS Y NEWS (4 Cols) */}
+        {/* COLUMNA DERECHA: CUENTA, ACCIONES Y NOVEDADES (4 Cols) */}
         <div className="xl:col-span-4 space-y-8">
             
-            {/* Quick Launch Section */}
+            {/* ////////// Sección Informativa: Tu Cuenta Actualizada - 27/05/2025 12:45 ////////// */}
+            <div className="bg-[#111111] p-8 rounded-[2rem] border border-white/5 relative group">
+                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-12 transition-transform">
+                    <ShieldCheck className="w-16 h-16 text-white" />
+                </div>
+                <h3 className="text-sm font-black text-gray-500 uppercase tracking-[0.2em] mb-6">Estado de Tu Cuenta</h3>
+                
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-[#FF5A1F]/10 rounded-xl">
+                            <CreditCard className="w-6 h-6 text-[#FF5A1F]" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Plan Actual</p>
+                            <p className="text-xl font-bold text-white capitalize">{user?.planLimits?.planName || 'Starter'}</p>
+                        </div>
+                    </div>
+
+                    {(user?.planLimits?.planName === 'pro' || user?.planLimits?.planName === 'max') ? (
+                        <div className="flex items-center gap-4 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl">
+                            <div className="p-2 bg-emerald-500/10 rounded-lg">
+                                <Calendar className="w-5 h-5 text-emerald-400" />
+                            </div>
+                            <div>
+                                <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest">Suscripción Activa</p>
+                                <p className="text-sm font-bold text-white">Próxima Facturación: Automática</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="text-xs text-gray-500 font-medium leading-relaxed italic">
+                            Estás usando el plan gratuito. Sube de nivel para conectar dominios propios y eliminar marcas de agua.
+                        </p>
+                    )}
+
+                    {/* ////////// Actualización: Redirección al panel de gestión de usuario en lugar de al Home - 27/05/2025 12:45 ////////// */}
+                    <button 
+                        onClick={() => setShowProfileModal(true)} 
+                        className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest bg-white/5 border border-white/10 text-white hover:bg-[#FF5A1F] hover:border-[#FF5A1F] transition-all flex items-center justify-center gap-2"
+                    >
+                        <Zap className="w-4 h-4 fill-current" /> Gestionar Suscripción
+                    </button>
+                    {/* ////////// Fin de actualización - 27/05/2025 12:45 ////////// */}
+                </div>
+            </div>
+            {/* ////////// Fin de actualización - 27/05/2025 12:45 ////////// */}
+
+            {/* ////////// Acciones Rápidas Actualizadas (Navegación a Paneles) - 27/05/2025 14:45 ////////// */}
             <div className="bg-[#111] p-8 rounded-[2rem] border border-white/5">
                 <h3 className="text-sm font-black text-gray-500 uppercase tracking-[0.2em] mb-6">Acciones Rápidas</h3>
                 <div className="space-y-4">
                     <button 
-                        onClick={() => navigate('/dashboard/generator')}
+                        onClick={() => navigate('/dashboard/projects')}
+                        className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-blue-600 hover:border-blue-500 transition-all group"
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
+                                <Briefcase className="w-6 h-6 text-white" />
+                            </div>
+                            <span className="font-bold text-lg">Gestionar Proyectos</span>
+                        </div>
+                        <ChevronRight className="w-5 h-5 opacity-30 group-hover:opacity-100" />
+                    </button>
+
+                    <button 
+                        onClick={() => navigate('/dashboard/pages')}
                         className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-[#FF5A1F] hover:border-[#FF5A1F] transition-all group"
                     >
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
                                 <Layout className="w-6 h-6 text-white" />
                             </div>
-                            <span className="font-bold text-lg">Lanzar Landing</span>
+                            <span className="font-bold text-lg">Tus Páginas</span>
                         </div>
                         <ChevronRight className="w-5 h-5 opacity-30 group-hover:opacity-100" />
                     </button>
 
                     <button 
-                        onClick={() => navigate('/dashboard/content-creator')}
-                        className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-indigo-600 hover:border-indigo-500 transition-all group"
+                        onClick={() => navigate('/dashboard/articles')}
+                        className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-purple-600 hover:border-purple-500 transition-all group"
                     >
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
                                 <FileText className="w-6 h-6 text-white" />
                             </div>
-                            <span className="font-bold text-lg">Artículo SEO</span>
+                            <span className="font-bold text-lg">Contenidos SEO</span>
                         </div>
                         <ChevronRight className="w-5 h-5 opacity-30 group-hover:opacity-100" />
                     </button>
                 </div>
             </div>
+            {/* ////////// Fin de actualización - 27/05/2025 14:45 ////////// */}
 
-            {/* Top Converting Pages */}
-            <div className="bg-[#090909] p-8 rounded-[2rem] border border-white/5">
-                <h3 className="text-sm font-black text-gray-500 uppercase tracking-[0.2em] mb-6">Top Páginas</h3>
-                <div className="space-y-6">
-                    {MOCK_TOP_PAGES.map((page, i) => (
-                        <div key={page.id} className="flex items-center justify-between border-b border-white/5 pb-4 last:border-0 last:pb-0">
-                            <div className="flex items-center gap-4 min-w-0">
-                                <span className="text-gray-700 font-black italic text-xl">0{i+1}</span>
-                                <div className="truncate">
-                                    <p className="font-bold text-white truncate">{page.name}</p>
-                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{page.conversions} Leads</p>
-                                </div>
-                            </div>
-                            <div className="text-right">
-                                <div className="text-emerald-500 font-black text-sm">+{((page.conversions || 0)/(page.visits || 1)*100).toFixed(1)}%</div>
-                                <p className="text-[10px] text-gray-600 uppercase font-black">Conv.</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* News Feed / Tips IA */}
+            {/* ////////// Eliminación de "Top Páginas" y Rediseño de Novedades - 27/05/2025 15:00 ////////// */}
             <div className="bg-[#111] p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
                 <div className="absolute -top-10 -left-10 opacity-5 pointer-events-none">
-                    <Newspaper className="w-40 h-40" />
+                    < Newspaper className="w-40 h-40" />
                 </div>
-                <h3 className="text-sm font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-8 relative z-10">Novedades & Tips IA</h3>
-                <div className="space-y-8 relative z-10">
+                <h3 className="text-sm font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-8 relative z-10">Novedades y TIPS</h3>
+                <div className="space-y-10 relative z-10">
                     {MOCK_NEWS.map(news => (
                         <div key={news.id} className="group cursor-pointer">
-                            <div className="flex items-start gap-4">
-                                <div className={`p-2 rounded-lg shrink-0 ${news.iconType === 'ia' ? 'bg-purple-500/10 text-purple-400' : news.iconType === 'update' ? 'bg-blue-500/10 text-blue-400' : 'bg-[#FF5A1F]/10 text-[#FF5A1F]'}`}>
-                                    {news.iconType === 'ia' ? <Bot className="w-5 h-5" /> : news.iconType === 'update' ? <Rocket className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
+                            <div className="flex items-start gap-5">
+                                <div className={`p-2.5 rounded-xl shrink-0 ${news.iconType === 'ia' ? 'bg-purple-500/10 text-purple-400' : news.iconType === 'update' ? 'bg-blue-500/10 text-blue-400' : 'bg-[#FF5A1F]/10 text-[#FF5A1F]'}`}>
+                                    {news.iconType === 'ia' ? <Bot className="w-6 h-6" /> : news.iconType === 'update' ? <Rocket className="w-6 h-6" /> : <Sparkles className="w-6 h-6" />}
                                 </div>
                                 <div className="flex-1">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <h4 className="font-bold text-white group-hover:text-[#FF5A1F] transition-colors">{news.title}</h4>
-                                        <span className="text-[9px] text-gray-600 font-black uppercase tracking-tighter">{news.date}</span>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h4 className="text-xl font-bold text-white group-hover:text-[#FF5A1F] transition-colors leading-tight">{news.title}</h4>
+                                        <span className="text-[10px] text-gray-600 font-black uppercase tracking-tighter shrink-0">{news.date}</span>
                                     </div>
-                                    <p className="text-xs text-gray-500 leading-relaxed font-light">{news.content}</p>
+                                    <p className="text-base text-gray-400 leading-relaxed font-light">{news.content}</p>
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
-                <button className="w-full mt-8 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-white hover:bg-white/5 transition-all">Ver Histórico</button>
+                <button className="w-full mt-10 py-4 rounded-xl border border-white/5 text-[11px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-white hover:bg-white/5 transition-all">Ver Histórico</button>
             </div>
+            {/* ////////// Fin de actualización - 27/05/2025 15:00 ////////// */}
 
         </div>
       </div>
@@ -270,12 +452,7 @@ export const DashboardHome: React.FC = () => {
       {/* Footer del Dashboard */}
       <footer className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-30">
           <p className="text-xs font-medium uppercase tracking-[0.4em]">Aprende.Marketing v2.9 // Sistema Estratégico</p>
-          <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-lg bg-white/10"></div>
-              <div className="w-8 h-8 rounded-lg bg-white/10"></div>
-          </div>
       </footer>
     </div>
   );
 };
-////////// Fin de actualización - 24/05/2024 16:45 /////////

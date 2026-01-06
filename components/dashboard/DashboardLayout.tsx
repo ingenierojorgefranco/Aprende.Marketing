@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
@@ -324,9 +325,16 @@ export const DashboardLayout = ({
 
         <div className="flex-1 overflow-auto bg-black p-4 sm:p-8 relative">
             <div className="max-w-[1600px] mx-auto">
-                {/* ////////// Actualización: Se añade isSimulating al contexto para corregir el Modo Pruebas - 20/06/2025 11:30 ////////// */}
-                <Outlet context={{ user: effectiveUser, projectCount, pageCount, articleCount, isSimulating: !!simulatedPlanSlug && user.role === 'admin' }} />
-                {/* ////////// Fin de actualización - 20/06/2025 11:30 ////////// */}
+                {/* ////////// Actualización: Se añade setShowProfileModal al contexto para habilitar la gestión desde componentes hijos - 27/05/2025 12:30 ////////// */}
+                <Outlet context={{ 
+                    user: effectiveUser, 
+                    projectCount, 
+                    pageCount, 
+                    articleCount, 
+                    isSimulating: !!simulatedPlanSlug && user.role === 'admin',
+                    setShowProfileModal 
+                }} />
+                {/* ////////// Fin de actualización - 27/05/2025 12:30 ////////// */}
             </div>
         </div>
       </main>
