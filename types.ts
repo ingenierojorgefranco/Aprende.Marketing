@@ -1,4 +1,14 @@
 
+////////// Actualización: Definición de tipos para el Feed de Noticias del Dashboard - 24/05/2024 16:45 //////////
+export interface DashboardNews {
+    id: string;
+    title: string;
+    content: string;
+    date: string;
+    iconType: 'update' | 'tip' | 'ia';
+}
+////////// Fin de actualización - 24/05/2024 16:45 /////////
+
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
   LOGIN = 'LOGIN',
