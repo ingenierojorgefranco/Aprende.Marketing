@@ -31,7 +31,7 @@ let localComments: Comment[] = [...MOCK_COMMENTS];
 let localCrmContacts: CRMContact[] = [...MOCK_CRM_CONTACTS];
 let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
 
-////////// Actualización: Capa de Caché en el Lado del Cliente (Lazy Load Strategy) - 05/06/2025 11:30 //////////
+////////// Actualización: Capa de Caché en el Lado del Cliente (Lazy Load Strategy) - 05/06/2025 12:00 //////////
 const apiCache: {
     pages: LandingPage[] | null;
     projects: Project[] | null;
@@ -40,6 +40,10 @@ const apiCache: {
     contacts: CRMContact[] | null;
     summary: any | null;
     weekly: any[] | null;
+    // Cache de detalles individuales por ID para navegación instantánea
+    pageDetails: Record<string, LandingPage | null>;
+    projectDetails: Record<string, Project | null>;
+    articleDetails: Record<string, Article | null>;
 } = {
     pages: null,
     projects: null,
@@ -47,20 +51,45 @@ const apiCache: {
     articles: null,
     contacts: null,
     summary: null,
-    weekly: null
+    weekly: null,
+    pageDetails: {},
+    projectDetails: {},
+    articleDetails: {}
 };
 
-const clearCache = (key?: keyof typeof apiCache) => {
+const clearCache = (key?: keyof typeof apiCache, id?: string) => {
     if (key) {
-        apiCache[key] = null;
+        if (id && (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails')) {
+            delete apiCache[key][id];
+        } else {
+            if (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails') {
+                apiCache[key] = {};
+            } else {
+                apiCache[key] = null as any;
+            }
+        }
+        
         if (key === 'pages' || key === 'projects' || key === 'articles') {
             apiCache.summary = null;
+            // Al limpiar la lista, limpiamos también los detalles para forzar refresco
+            if (key === 'pages') apiCache.pageDetails = {};
+            if (key === 'projects') apiCache.projectDetails = {};
+            if (key === 'articles') apiCache.articleDetails = {};
         }
     } else {
-        Object.keys(apiCache).forEach(k => (apiCache[k as keyof typeof apiCache] = null));
+        apiCache.pages = null;
+        apiCache.projects = null;
+        apiCache.leads = null;
+        apiCache.articles = null;
+        apiCache.contacts = null;
+        apiCache.summary = null;
+        apiCache.weekly = null;
+        apiCache.pageDetails = {};
+        apiCache.projectDetails = {};
+        apiCache.articleDetails = {};
     }
 };
-////////// Fin de actualización - 05/06/2025 11:30 //////////
+////////// Fin de actualización - 05/06/2025 12:00 //////////
 
 // --- FUNCIÓN FETCH CON TIMEOUT ---
 const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
@@ -174,17 +203,17 @@ export const api = {
           body: JSON.stringify({ email, password })
       });
       if (user.token) localStorage.setItem('plataformadeventacom_token', user.token);
-      ////////// Actualización: Limpiar caché al iniciar sesión para evitar datos de usuarios previos - 05/06/2025 11:30 //////////
+      ////////// Actualización: Limpiar caché al iniciar sesión para evitar datos de usuarios previos - 05/06/2025 12:00 //////////
       clearCache();
-      ////////// Fin de actualización - 05/06/2025 11:30 //////////
+      ////////// Fin de actualización - 05/06/2025 12:00 //////////
       return user.user;
   },
 
   // NEW: Logout Helper
   logout: async (): Promise<void> => {
-      ////////// Actualización: Limpiar caché al cerrar sesión - 05/06/2025 11:30 //////////
+      ////////// Actualización: Limpiar caché al cerrar sesión - 05/06/2025 12:00 //////////
       clearCache();
-      ////////// Fin de actualización - 05/06/2025 11:30 //////////
+      ////////// Fin de actualización - 05/06/2025 12:00 //////////
       if (isMockMode) return;
       try {
           await fetchWithFallback('/auth/logout', { method: 'POST', headers: getAuthHeaders() });
@@ -230,18 +259,18 @@ export const api = {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
       });
-      ////////// Actualización: Invalidad caché de leads y contactos al recibir nuevo registro - 05/06/2025 11:30 //////////
+      ////////// Actualización: Invalidad caché de leads y contactos al recibir nuevo registro - 05/06/2025 12:00 //////////
       clearCache('leads');
       clearCache('contacts');
-      ////////// Fin de actualización - 05/06/2025 11:30 //////////
+      ////////// Fin de actualización - 05/06/2025 12:00 //////////
   },
 
   getPages: async (): Promise<LandingPage[]> => {
     if (isMockMode) return Promise.resolve([...localPages]);
     
-    ////////// Actualización: Intercepción de Caché para getPages - 05/06/2025 11:30 //////////
+    ////////// Actualización: Intercepción de Caché para getPages - 05/06/2025 12:00 //////////
     if (apiCache.pages) return apiCache.pages;
-    ////////// Fin de actualización - 05/06/2025 11:30 //////////
+    ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
     const pages = await fetchWithFallback('/pages', { method: 'GET', headers: getAuthHeaders() });
     
@@ -266,9 +295,9 @@ export const api = {
         };
     });
 
-    ////////// Actualización: Almacenar en caché tras carga exitosa - 05/06/2025 11:30 //////////
+    ////////// Actualización: Almacenar en caché tras carga exitosa - 05/06/2025 12:00 //////////
     apiCache.pages = mapped;
-    ////////// Fin de actualización - 05/06/2025 11:30 //////////
+    ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
     return mapped;
   },
@@ -278,8 +307,17 @@ export const api = {
           const page = localPages.find(p => p.id === id);
           return page ? Promise.resolve(page) : Promise.resolve(null);
       }
+      ////////// Actualización: Caché de detalle de página individual - 05/06/2025 12:00 //////////
+      if (apiCache.pageDetails[id]) return apiCache.pageDetails[id];
+      ////////// Fin de actualización //////////
+
       const pages = await api.getPages();
-      return pages.find(p => String(p.id) === String(id)) || null;
+      const page = pages.find(p => String(p.id) === String(id)) || null;
+
+      ////////// Actualización: Almacenar detalle individual en caché - 05/06/2025 12:00 //////////
+      if (page) apiCache.pageDetails[id] = page;
+      ////////// Fin de actualización //////////
+      return page;
   },
 
   createPage: async (page: LandingPage): Promise<LandingPage> => {
@@ -302,9 +340,9 @@ export const api = {
         })
     });
 
-    ////////// Actualización: Invalidad caché tras creación - 05/06/2025 11:30 //////////
+    ////////// Actualización: Invalidad caché tras creación - 05/06/2025 12:00 //////////
     clearCache('pages');
-    ////////// Fin de actualización - 05/06/2025 11:30 //////////
+    ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
     // ACTUALIZADO: Retornamos el subdominio final procesado por el backend (con ID prepended)
     return { ...page, id: data.id.toString(), subdomain: data.subdomain };
@@ -328,9 +366,10 @@ export const api = {
         })
     });
 
-    ////////// Actualización: Invalidad caché tras actualización - 05/06/2025 11:30 //////////
+    ////////// Actualización: Invalidad caché individual y global tras actualización - 05/06/2025 12:00 //////////
     clearCache('pages');
-    ////////// Fin de actualización - 05/06/2025 11:30 //////////
+    clearCache('pageDetails', page.id);
+    ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
     return page;
   },
@@ -341,17 +380,18 @@ export const api = {
         return Promise.resolve();
     }
     await fetchWithFallback(`/pages/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-    ////////// Actualización: Invalidad caché tras eliminación - 05/06/2025 11:30 //////////
+    ////////// Actualización: Invalidad caché individual y global tras eliminación - 05/06/2025 12:00 //////////
     clearCache('pages');
-    ////////// Fin de actualización - 05/06/2025 11:30 //////////
+    clearCache('pageDetails', id);
+    ////////// Fin de actualización - 05/06/2025 12:00 //////////
   },
 
   getProjects: async (): Promise<Project[]> => {
       if (isMockMode) return Promise.resolve([...localProjects]);
 
-      ////////// Actualización: Intercepción de Caché para getProjects - 05/06/2025 11:30 //////////
+      ////////// Actualización: Intercepción de Caché para getProjects - 05/06/2025 12:00 //////////
       if (apiCache.projects) return apiCache.projects;
-      ////////// Fin de actualización - 05/06/2025 11:30 //////////
+      ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
       const projects = await fetchWithFallback('/projects', {
           method: 'GET',
@@ -375,9 +415,9 @@ export const api = {
           createdAt: new Date(p.created_at || p.createdAt)
       }));
 
-      ////////// Actualización: Almacenar en caché tras carga exitosa - 05/06/2025 11:30 //////////
+      ////////// Actualización: Almacenar en caché tras carga exitosa - 05/06/2025 12:00 //////////
       apiCache.projects = mapped;
-      ////////// Fin de actualización - 05/06/2025 11:30 //////////
+      ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
       return mapped;
   },
@@ -387,6 +427,10 @@ export const api = {
           const proj = localProjects.find(p => p.id === id);
           return proj ? Promise.resolve(proj) : Promise.resolve(null);
       }
+
+      ////////// Actualización: Caché de detalle de proyecto individual - 05/06/2025 12:00 //////////
+      if (apiCache.projectDetails[id]) return apiCache.projectDetails[id];
+      ////////// Fin de actualización //////////
 
       console.debug(`[API Debug] Llamando a getProjectById para ID: ${id}`);
       try {
@@ -416,6 +460,9 @@ export const api = {
           };
 
           console.debug(`[API Debug] Proyecto ${id} mapeado:`, mappedProject);
+          ////////// Actualización: Guardar detalle de proyecto individual en caché - 05/06/2025 12:00 //////////
+          apiCache.projectDetails[id] = mappedProject;
+          ////////// Fin de actualización //////////
           return mappedProject;
       } catch (e: any) {
           console.error(`[API Error] getProjectById(${id}) falló:`, e.message);
@@ -456,9 +503,9 @@ export const api = {
           headers: getAuthHeaders(),
           body: JSON.stringify(project)
         });
-        ////////// Actualización: Invalidad caché tras creación - 05/06/2025 11:30 //////////
+        ////////// Actualización: Invalidad caché tras creación - 05/06/2025 12:00 //////////
         clearCache('projects');
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
         return { ...project, id: data.id.toString(), createdAt: new Date() };
     },
   
@@ -473,9 +520,10 @@ export const api = {
             headers: getAuthHeaders(),
             body: JSON.stringify(project)
         });
-        ////////// Actualización: Invalidad caché tras actualización - 05/06/2025 11:30 //////////
+        ////////// Actualización: Invalidad caché individual y global tras actualización - 05/06/2025 12:00 //////////
         clearCache('projects');
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        clearCache('projectDetails', id);
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
     },
   
     deleteProject: async (id: string): Promise<void> => {
@@ -484,9 +532,10 @@ export const api = {
             return Promise.resolve();
         }
         await fetchWithFallback(`/projects/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-        ////////// Actualización: Invalidad caché tras eliminación - 05/06/2025 11:30 //////////
+        ////////// Actualización: Invalidad caché individual y global tras eliminación - 05/06/2025 12:00 //////////
         clearCache('projects');
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        clearCache('projectDetails', id);
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
     },
   
     analyzeSite: async (url: string): Promise<{ productName: string, description: string, niche: string }> => {
@@ -518,23 +567,24 @@ export const api = {
             method: 'POST',
             headers: getAuthHeaders()
         });
-        ////////// Actualización: Invalidad caché de proyectos para reflejar nueva estrategia - 05/06/2025 11:30 //////////
+        ////////// Actualización: Invalidad caché individual y global tras generar estrategia - 05/06/2025 12:00 //////////
         clearCache('projects');
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        clearCache('projectDetails', projectId);
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
         return strategy;
     },
   
     getLeads: async (): Promise<Lead[]> => {
         if (isMockMode) return Promise.resolve([...localLeads]);
-        ////////// Actualización: Intercepción de Caché para getLeads - 05/06/2025 11:30 //////////
+        ////////// Actualización: Intercepción de Caché para getLeads - 05/06/2025 12:00 //////////
         if (apiCache.leads) return apiCache.leads;
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
         const leads = await fetchWithFallback('/leads', { headers: getAuthHeaders() });
         
-        ////////// Actualización: Almacenar en caché tras carga exitosa - 05/06/2025 11:30 //////////
+        ////////// Actualización: Almacenar en caché tras carga exitosa - 05/06/2025 12:00 //////////
         apiCache.leads = leads;
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
         
         return leads;
     },
@@ -555,15 +605,15 @@ export const api = {
             }
             return Promise.resolve(data);
         }
-        ////////// Actualización: Intercepción de Caché para weekly analytics - 05/06/2025 11:30 //////////
+        ////////// Actualización: Intercepción de Caché para weekly analytics - 05/06/2025 12:00 //////////
         if (apiCache.weekly) return apiCache.weekly;
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
         const data = await fetchWithFallback('/analytics/weekly', { headers: getAuthHeaders() });
         
-        ////////// Actualización: Almacenar en caché - 05/06/2025 11:30 //////////
+        ////////// Actualización: Almacenar en caché - 05/06/2025 12:00 //////////
         apiCache.weekly = data;
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
         
         return data;
     },
@@ -580,15 +630,15 @@ export const api = {
                 totalProjects: localProjects.length
             });
         }
-        ////////// Actualización: Intercepción de Caché para analytics summary - 05/06/2025 11:30 //////////
+        ////////// Actualización: Intercepción de Caché para analytics summary - 05/06/2025 12:00 //////////
         if (apiCache.summary) return apiCache.summary;
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
         const summary = await fetchWithFallback('/analytics/summary', { headers: getAuthHeaders() });
         
-        ////////// Actualización: Almacenar en caché - 05/06/2025 11:30 //////////
+        ////////// Actualización: Almacenar en caché - 05/06/2025 12:00 //////////
         apiCache.summary = summary;
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
         return summary;
     },
@@ -596,9 +646,9 @@ export const api = {
     getArticles: async (): Promise<Article[]> => {
         if (isMockMode) return Promise.resolve([...localArticles]);
         
-        ////////// Actualización: Intercepción de Caché para getArticles - 05/06/2025 11:30 //////////
+        ////////// Actualización: Intercepción de Caché para getArticles - 05/06/2025 12:00 //////////
         if (apiCache.articles) return apiCache.articles;
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
         const articles = await fetchWithFallback('/articles', { headers: getAuthHeaders() });
         const mapped = articles.map((a: any) => ({
@@ -620,9 +670,9 @@ export const api = {
             createdAt: new Date(a.created_at)
         }));
 
-        ////////// Actualización: Almacenar en caché tras carga exitosa - 05/06/2025 11:30 //////////
+        ////////// Actualización: Almacenar en caché tras carga exitosa - 05/06/2025 12:00 //////////
         apiCache.articles = mapped;
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
         return mapped;
     },
@@ -633,9 +683,13 @@ export const api = {
           return art ? Promise.resolve(art) : Promise.resolve(null);
       }
   
+      ////////// Actualización: Caché de detalle de artículo individual - 05/06/2025 12:00 //////////
+      if (apiCache.articleDetails[id]) return apiCache.articleDetails[id];
+      ////////// Fin de actualización //////////
+
       try {
           const a = await fetchWithFallback(`/articles/${id}`, { headers: getAuthHeaders() });
-          return {
+          const mapped = {
                 id: a.id.toString(),
                 pageId: a.page_id ? a.page_id.toString() : undefined,
                 title: a.title,
@@ -651,6 +705,10 @@ export const api = {
                 publishedAt: new Date(a.published_at || a.created_at),
                 createdAt: new Date(a.created_at)
           };
+          ////////// Actualización: Guardar detalle individual en caché - 05/06/2025 12:00 //////////
+          apiCache.articleDetails[id] = mapped;
+          ////////// Fin de actualización //////////
+          return mapped;
       } catch (e) { return null; }
     },
   
@@ -680,9 +738,9 @@ export const api = {
             })
         });
 
-        ////////// Actualización: Invalidad caché tras creación - 05/06/2025 11:30 //////////
+        ////////// Actualización: Invalidad caché tras creación - 05/06/2025 12:00 //////////
         clearCache('articles');
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
         return { ...article, id: saved.id.toString(), createdAt: new Date() };
     },
@@ -712,9 +770,10 @@ export const api = {
           })
       });
 
-      ////////// Actualización: Invalidad caché tras actualización - 05/06/2025 11:30 //////////
+      ////////// Actualización: Invalidad caché individual y global tras actualización - 05/06/2025 12:00 //////////
       clearCache('articles');
-      ////////// Fin de actualización - 05/06/2025 11:30 //////////
+      clearCache('articleDetails', id);
+      ////////// Fin de actualización - 05/06/2025 12:00 //////////
     },
   
     deleteArticle: async (id: string): Promise<void> => {
@@ -724,9 +783,10 @@ export const api = {
       }
       await fetchWithFallback(`/articles/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
 
-      ////////// Actualización: Invalidad caché tras eliminación - 05/06/2025 11:30 //////////
+      ////////// Actualización: Invalidad caché individual y global tras eliminación - 05/06/2025 12:00 //////////
       clearCache('articles');
-      ////////// Fin de actualización - 05/06/2025 11:30 //////////
+      clearCache('articleDetails', id);
+      ////////// Fin de actualización - 05/06/2025 12:00 //////////
     },
   
     getPublicBlogArticles: async (pageId: string): Promise<Article[]> => {
@@ -1088,9 +1148,9 @@ export const api = {
     getContacts: async (): Promise<CRMContact[]> => {
         if (isMockMode) return Promise.resolve([...localCrmContacts]);
         
-        ////////// Actualización: Intercepción de Caché para getContacts - 05/06/2025 11:30 //////////
+        ////////// Actualización: Intercepción de Caché para getContacts - 05/06/2025 12:00 //////////
         if (apiCache.contacts) return apiCache.contacts;
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
         const contacts = await fetchWithFallback('/crm/contacts', { headers: getAuthHeaders() });
         const mapped = contacts.map((c: any) => ({
@@ -1103,9 +1163,9 @@ export const api = {
             updatedAt: new Date(c.updated_at)
         }));
 
-        ////////// Actualización: Almacenar en caché - 05/06/2025 11:30 //////////
+        ////////// Actualización: Almacenar en caché - 05/06/2025 12:00 //////////
         apiCache.contacts = mapped;
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
         return mapped;
     },
@@ -1129,9 +1189,9 @@ export const api = {
             body: JSON.stringify(contact)
         });
         
-        ////////// Actualización: Invalidad caché tras creación - 05/06/2025 11:30 //////////
+        ////////// Actualización: Invalidad caché tras creación - 05/06/2025 12:00 //////////
         clearCache('contacts');
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
         return { 
             ...contact, 
@@ -1153,9 +1213,9 @@ export const api = {
             body: JSON.stringify(contact)
         });
 
-        ////////// Actualización: Invalidad caché tras actualización - 05/06/2025 11:30 //////////
+        ////////// Actualización: Invalidad caché tras actualización - 05/06/2025 12:00 //////////
         clearCache('contacts');
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
     },
   
     // NEW: Delete Contact Method
@@ -1166,9 +1226,9 @@ export const api = {
         }
         await fetchWithFallback(`/crm/contacts/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
 
-        ////////// Actualización: Invalidad caché tras eliminación - 05/06/2025 11:30 //////////
+        ////////// Actualización: Invalidad caché tras eliminación - 05/06/2025 12:00 //////////
         clearCache('contacts');
-        ////////// Fin de actualización - 05/06/2025 11:30 //////////
+        ////////// Fin de actualización - 05/06/2025 12:00 //////////
     },
   
     getContactHistory: async (contactId: string): Promise<CRMActivity[]> => {
