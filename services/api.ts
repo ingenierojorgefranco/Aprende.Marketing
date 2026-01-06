@@ -1,5 +1,5 @@
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity } from "../types";
-import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES } from "./mockData";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews } from "../types";
+import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
 
 // --- HELPER PARA OBTENER BASE URL ---
@@ -31,7 +31,7 @@ let localComments: Comment[] = [...MOCK_COMMENTS];
 let localCrmContacts: CRMContact[] = [...MOCK_CRM_CONTACTS];
 let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
 
-////////// Actualización: Capa de Caché en el Lado del Cliente (Lazy Load Strategy) - 05/06/2025 12:00 //////////
+////////// Actualización: Expansión de Capa de Caché para Sesión, CRM Stats, News y Ajustes - 05/06/2025 19:30 //////////
 const apiCache: {
     pages: LandingPage[] | null;
     projects: Project[] | null;
@@ -40,10 +40,31 @@ const apiCache: {
     contacts: CRMContact[] | null;
     summary: any | null;
     weekly: any[] | null;
-    // Cache de detalles individuales por ID para navegación instantánea
+    courses: any[] | null;
+    plans: Plan[] | null;
+    publicPlans: Plan[] | null;
+    loginRedirect: string | null;
+    activePaymentMethod: ('stripe' | 'hotmart') | null;
+    hotmartData: any | null;
+    usersList: User[] | null;
+    currentUser: User | null;
+    crmStats: any | null;
+    newsFeed: DashboardNews[] | null;
+    integrationSettings: Record<string, any> | null;
     pageDetails: Record<string, LandingPage | null>;
     projectDetails: Record<string, Project | null>;
     articleDetails: Record<string, Article | null>;
+    courseDetails: Record<string, any | null>;
+    moduleLessons: Record<string, CourseLesson[] | null>;
+    lessonComments: Record<string, any[] | null>;
+    adminUserResources: Record<string, any[] | null>;
+    systemLogs: Record<string, any[] | null>;
+    contactHistory: Record<string, CRMActivity[] | null>;
+    publicBlogArticles: Record<string, Article[] | null>;
+    publicArticleDetails: Record<string, Article | null>;
+    userUsageStats: Record<string, UserUsageStats | null>;
+    userPayments: Record<string, any[] | null>;
+    siteAnalysis: Record<string, any | null>;
 } = {
     pages: null,
     projects: null,
@@ -52,29 +73,55 @@ const apiCache: {
     contacts: null,
     summary: null,
     weekly: null,
+    courses: null,
+    plans: null,
+    publicPlans: null,
+    loginRedirect: null,
+    activePaymentMethod: null,
+    hotmartData: null,
+    usersList: null,
+    currentUser: null,
+    crmStats: null,
+    newsFeed: null,
+    integrationSettings: null,
     pageDetails: {},
     projectDetails: {},
-    articleDetails: {}
+    articleDetails: {},
+    courseDetails: {},
+    moduleLessons: {},
+    lessonComments: {},
+    adminUserResources: {},
+    systemLogs: {},
+    contactHistory: {},
+    publicBlogArticles: {},
+    publicArticleDetails: {},
+    userUsageStats: {},
+    userPayments: {},
+    siteAnalysis: {}
 };
 
 const clearCache = (key?: keyof typeof apiCache, id?: string) => {
     if (key) {
-        if (id && (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails')) {
-            delete apiCache[key][id];
+        if (id && (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis')) {
+            delete (apiCache[key] as any)[id];
         } else {
-            if (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails') {
-                apiCache[key] = {};
+            if (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis') {
+                (apiCache[key] as any) = {};
             } else {
-                apiCache[key] = null as any;
+                (apiCache[key] as any) = null;
             }
         }
         
         if (key === 'pages' || key === 'projects' || key === 'articles') {
             apiCache.summary = null;
-            // Al limpiar la lista, limpiamos también los detalles para forzar refresco
+            apiCache.weekly = null;
             if (key === 'pages') apiCache.pageDetails = {};
             if (key === 'projects') apiCache.projectDetails = {};
             if (key === 'articles') apiCache.articleDetails = {};
+        }
+
+        if (key === 'contacts') {
+            apiCache.crmStats = null;
         }
     } else {
         apiCache.pages = null;
@@ -84,18 +131,39 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.contacts = null;
         apiCache.summary = null;
         apiCache.weekly = null;
+        apiCache.courses = null;
+        apiCache.plans = null;
+        apiCache.publicPlans = null;
+        apiCache.loginRedirect = null;
+        apiCache.activePaymentMethod = null;
+        apiCache.hotmartData = null;
+        apiCache.usersList = null;
+        apiCache.currentUser = null;
+        apiCache.crmStats = null;
+        apiCache.newsFeed = null;
+        apiCache.integrationSettings = null;
         apiCache.pageDetails = {};
         apiCache.projectDetails = {};
         apiCache.articleDetails = {};
+        apiCache.courseDetails = {};
+        apiCache.moduleLessons = {};
+        apiCache.lessonComments = {};
+        apiCache.adminUserResources = {};
+        apiCache.systemLogs = {};
+        apiCache.contactHistory = {};
+        apiCache.publicBlogArticles = {};
+        apiCache.publicArticleDetails = {};
+        apiCache.userUsageStats = {};
+        apiCache.userPayments = {};
+        apiCache.siteAnalysis = {};
     }
 };
-////////// Fin de actualización - 05/06/2025 12:00 //////////
+////////// Fin de actualización - 05/06/2025 19:30 //////////
 
 // --- FUNCIÓN FETCH CON TIMEOUT ---
 const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     const url = `${API_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
 
-    // Aumentado a 180 segundos (3 minutos) para permitir generaciones largas sin 504 Timeout
     const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error("Timeout: Servidor tardó demasiado")), 180000)
     );
@@ -123,9 +191,6 @@ const getAuthHeaders = () => {
     };
 };
 
-/**
- * Intenta parsear JSON de forma segura, incluso si tiene errores comunes de LLMs
- */
 const safeJsonParse = (data: any, fieldName: string = 'unknown') => {
     if (!data) return null;
     if (typeof data === 'object') return data;
@@ -140,16 +205,12 @@ const safeJsonParse = (data: any, fieldName: string = 'unknown') => {
         }
     };
 
-    // Intento 1: Normal
     let result = tryParse(data);
     if (result) return result;
 
-    // Intento 2: Reparación de emergencia (Comillas no escapadas)
     try {
         console.warn(`[API Repair] Intentando reparar JSON malformado para: ${fieldName}`);
         let repaired = data.toString().trim();
-        
-        // Limpiar bloques de markdown si existen
         repaired = repaired.replace(/^```json/, "").replace(/```$/, "").trim();
 
         const suspiciousQuotesRegex = /([^:{\[,])"([^,}\]])/g;
@@ -173,13 +234,11 @@ const safeJsonParse = (data: any, fieldName: string = 'unknown') => {
 export const api = {
   getBaseUrl: getBaseUrl,
   
-  // Activa el modo de pruebas con datos locales
   enableMockMode: () => {
       isMockMode = true;
       console.log("🟡 MODO MOCK ACTIVADO: Usando datos locales de prueba.");
   },
 
-  // Desactiva el modo de pruebas
   disableMockMode: () => {
       isMockMode = false;
       console.log("🔴 MODO MOCK DESACTIVADO: Usando Base de Datos real.");
@@ -203,25 +262,34 @@ export const api = {
           body: JSON.stringify({ email, password })
       });
       if (user.token) localStorage.setItem('plataformadeventacom_token', user.token);
-      ////////// Actualización: Limpiar caché al iniciar sesión para evitar datos de usuarios previos - 05/06/2025 12:00 //////////
       clearCache();
-      ////////// Fin de actualización - 05/06/2025 12:00 //////////
       return user.user;
   },
 
-  // NEW: Logout Helper
   logout: async (): Promise<void> => {
-      ////////// Actualización: Limpiar caché al cerrar sesión - 05/06/2025 12:00 //////////
       clearCache();
-      ////////// Fin de actualización - 05/06/2025 12:00 //////////
       if (isMockMode) return;
       try {
           await fetchWithFallback('/auth/logout', { method: 'POST', headers: getAuthHeaders() });
       } catch (e) {
-          // Ignore error on logout if connection fails, just proceed client side
           console.warn("Server logout failed, clearing local session only.");
       }
   },
+
+  ////////// Actualización: Implementación de caché para Sesión de Usuario - 05/06/2025 19:30 //////////
+  getCurrentUser: async (): Promise<User | null> => {
+      if (isMockMode) return MOCK_USER;
+      if (apiCache.currentUser) return apiCache.currentUser;
+      
+      try {
+          const user = await fetchWithFallback('/auth/me', { headers: getAuthHeaders() });
+          apiCache.currentUser = user;
+          return user;
+      } catch (e) {
+          return null;
+      }
+  },
+  ////////// Fin de actualización //////////
 
   updateProfile: async (data: Partial<User>): Promise<User> => {
       if (isMockMode) {
@@ -231,6 +299,10 @@ export const api = {
           MOCK_USER.birthDate = data.birthDate || MOCK_USER.birthDate;
           return Promise.resolve({ ...MOCK_USER });
       }
+      clearCache('usersList');
+      ////////// Actualización: Invalidar caché de sesión al actualizar perfil - 05/06/2025 19:30 //////////
+      apiCache.currentUser = null;
+      ////////// Fin de actualización //////////
       return await fetchWithFallback('/auth/profile', {
           method: 'PUT',
           headers: getAuthHeaders(),
@@ -240,7 +312,7 @@ export const api = {
 
   createCheckoutSession: async (planSlug: string): Promise<{ url: string }> => {
       if (isMockMode) {
-          return Promise.resolve({ url: '#' }); // Mock behavior
+          return Promise.resolve({ url: '#' });
       }
       return await fetchWithFallback('/stripe/create-checkout-session', {
           method: 'POST',
@@ -259,46 +331,34 @@ export const api = {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
       });
-      ////////// Actualización: Invalidad caché de leads y contactos al recibir nuevo registro - 05/06/2025 12:00 //////////
       clearCache('leads');
       clearCache('contacts');
-      ////////// Fin de actualización - 05/06/2025 12:00 //////////
+      clearCache('summary');
+      clearCache('weekly');
   },
 
   getPages: async (): Promise<LandingPage[]> => {
     if (isMockMode) return Promise.resolve([...localPages]);
-    
-    ////////// Actualización: Intercepción de Caché para getPages - 05/06/2025 12:00 //////////
     if (apiCache.pages) return apiCache.pages;
-    ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
     const pages = await fetchWithFallback('/pages', { method: 'GET', headers: getAuthHeaders() });
-    
-    // Map backend response (which might include raw thankyoupage_json) to frontend Structure
     const mapped = pages.map((p: any) => {
         const content = safeJsonParse(p.content, 'page.content');
-        
-        // If DB has separated TY JSON, merge it here if backend didn't already
         if (p.thankyoupage_json && !content.thankYouPage) {
             content.thankYouPage = safeJsonParse(p.thankyoupage_json, 'page.thankyoupage');
         }
-
         return {
             ...p,
             id: String(p.id),
             isPublished: !!(p.isPublished || p.is_published),
-            customDomain: p.custom_domain || p.customDomain, // Mapeo explícito de snake_case a camelCase
-            projectId: p.project_id ? String(p.project_id) : undefined, // NEW: Map Project ID
-            projectName: p.project_name, // NEW: Map Project Name from join
+            customDomain: p.custom_domain || p.customDomain,
+            projectId: p.project_id ? String(p.project_id) : undefined,
+            projectName: p.project_name,
             content: content,
             createdAt: new Date(p.created_at || p.createdAt)
         };
     });
-
-    ////////// Actualización: Almacenar en caché tras carga exitosa - 05/06/2025 12:00 //////////
     apiCache.pages = mapped;
-    ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
     return mapped;
   },
 
@@ -307,16 +367,10 @@ export const api = {
           const page = localPages.find(p => p.id === id);
           return page ? Promise.resolve(page) : Promise.resolve(null);
       }
-      ////////// Actualización: Caché de detalle de página individual - 05/06/2025 12:00 //////////
       if (apiCache.pageDetails[id]) return apiCache.pageDetails[id];
-      ////////// Fin de actualización //////////
-
       const pages = await api.getPages();
       const page = pages.find(p => String(p.id) === String(id)) || null;
-
-      ////////// Actualización: Almacenar detalle individual en caché - 05/06/2025 12:00 //////////
       if (page) apiCache.pageDetails[id] = page;
-      ////////// Fin de actualización //////////
       return page;
   },
 
@@ -326,7 +380,6 @@ export const api = {
         localPages.unshift(newPage);
         return Promise.resolve(newPage);
     }
-
     const data = await fetchWithFallback('/pages', {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -336,15 +389,11 @@ export const api = {
             goal: page.goal,
             subdomain: page.subdomain,
             content: page.content,
-            projectId: page.projectId // NEW: Send Project ID
+            projectId: page.projectId
         })
     });
-
-    ////////// Actualización: Invalidad caché tras creación - 05/06/2025 12:00 //////////
     clearCache('pages');
-    ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
-    // ACTUALIZADO: Retornamos el subdominio final procesado por el backend (con ID prepended)
+    clearCache('userUsageStats');
     return { ...page, id: data.id.toString(), subdomain: data.subdomain };
   },
 
@@ -353,7 +402,6 @@ export const api = {
         localPages = localPages.map(p => p.id === page.id ? page : p);
         return Promise.resolve(page);
     }
-
     await fetchWithFallback(`/pages/${page.id}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
@@ -362,15 +410,11 @@ export const api = {
             niche: page.niche,
             content: page.content,
             isPublished: page.isPublished,
-            projectId: page.projectId // NEW: Send Project ID if updated
+            projectId: page.projectId
         })
     });
-
-    ////////// Actualización: Invalidad caché individual y global tras actualización - 05/06/2025 12:00 //////////
     clearCache('pages');
     clearCache('pageDetails', page.id);
-    ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
     return page;
   },
 
@@ -380,18 +424,14 @@ export const api = {
         return Promise.resolve();
     }
     await fetchWithFallback(`/pages/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-    ////////// Actualización: Invalidad caché individual y global tras eliminación - 05/06/2025 12:00 //////////
     clearCache('pages');
     clearCache('pageDetails', id);
-    ////////// Fin de actualización - 05/06/2025 12:00 //////////
+    clearCache('userUsageStats');
   },
 
   getProjects: async (): Promise<Project[]> => {
       if (isMockMode) return Promise.resolve([...localProjects]);
-
-      ////////// Actualización: Intercepción de Caché para getProjects - 05/06/2025 12:00 //////////
       if (apiCache.projects) return apiCache.projects;
-      ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
       const projects = await fetchWithFallback('/projects', {
           method: 'GET',
@@ -414,11 +454,7 @@ export const api = {
           leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
           createdAt: new Date(p.created_at || p.createdAt)
       }));
-
-      ////////// Actualización: Almacenar en caché tras carga exitosa - 05/06/2025 12:00 //////////
       apiCache.projects = mapped;
-      ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
       return mapped;
   },
 
@@ -427,20 +463,12 @@ export const api = {
           const proj = localProjects.find(p => p.id === id);
           return proj ? Promise.resolve(proj) : Promise.resolve(null);
       }
-
-      ////////// Actualización: Caché de detalle de proyecto individual - 05/06/2025 12:00 //////////
       if (apiCache.projectDetails[id]) return apiCache.projectDetails[id];
-      ////////// Fin de actualización //////////
-
-      console.debug(`[API Debug] Llamando a getProjectById para ID: ${id}`);
       try {
           const p = await fetchWithFallback(`/projects/${id}`, {
               method: 'GET',
               headers: getAuthHeaders()
           });
-          
-          console.debug(`[API Debug] Proyecto ${id} recibido del servidor:`, p);
-
           const mappedProject = {
               ...p,
               id: String(p.id),
@@ -458,35 +486,22 @@ export const api = {
               leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
               createdAt: new Date(p.created_at || p.createdAt)
           };
-
-          console.debug(`[API Debug] Proyecto ${id} mapeado:`, mappedProject);
-          ////////// Actualización: Guardar detalle de proyecto individual en caché - 05/06/2025 12:00 //////////
           apiCache.projectDetails[id] = mappedProject;
-          ////////// Fin de actualización //////////
           return mappedProject;
       } catch (e: any) {
-          console.error(`[API Error] getProjectById(${id}) falló:`, e.message);
           return null;
       }
   },
 
-  // --- GET PROJECT MASTER STRATEGY ---
   getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy | null> => {
-      if (isMockMode) {
-          return Promise.resolve(MOCK_MASTER_STRATEGY);
-      }
-
-      console.debug(`[API Debug] Intentando obtener estrategia para proyecto: ${id}`);
+      if (isMockMode) return Promise.resolve(MOCK_MASTER_STRATEGY);
       try {
           const project = await api.getProjectById(id);
           if (project && project.strategy_json) {
-              console.debug(`[API Debug] Estrategia encontrada en strategy_json:`, project.strategy_json);
               return project.strategy_json as ProjectMasterStrategy;
           }
-          console.warn(`[API Debug] No se encontró estrategia para el proyecto ${id}`);
           return null;
       } catch (e: any) {
-          console.error(`[API Error] getProjectStrategy(${id}) falló:`, e.message);
           return null;
       }
   },
@@ -497,15 +512,13 @@ export const api = {
           localProjects.unshift(newProject);
           return Promise.resolve(newProject);
       }
-
       const data = await fetchWithFallback('/projects', {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify(project)
         });
-        ////////// Actualización: Invalidad caché tras creación - 05/06/2025 12:00 //////////
         clearCache('projects');
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
+        clearCache('userUsageStats');
         return { ...project, id: data.id.toString(), createdAt: new Date() };
     },
   
@@ -514,16 +527,13 @@ export const api = {
             localProjects = localProjects.map(p => p.id === id ? { ...project, id, createdAt: p.createdAt } : p);
             return Promise.resolve();
         }
-  
         await fetchWithFallback(`/projects/${id}`, {
             method: 'PUT',
             headers: getAuthHeaders(),
             body: JSON.stringify(project)
         });
-        ////////// Actualización: Invalidad caché individual y global tras actualización - 05/06/2025 12:00 //////////
         clearCache('projects');
         clearCache('projectDetails', id);
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
     },
   
     deleteProject: async (id: string): Promise<void> => {
@@ -532,26 +542,24 @@ export const api = {
             return Promise.resolve();
         }
         await fetchWithFallback(`/projects/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-        ////////// Actualización: Invalidad caché individual y global tras eliminación - 05/06/2025 12:00 //////////
         clearCache('projects');
         clearCache('projectDetails', id);
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
+        clearCache('userUsageStats');
     },
   
     analyzeSite: async (url: string): Promise<{ productName: string, description: string, niche: string }> => {
         if (isMockMode) {
             await new Promise(resolve => setTimeout(resolve, 2000));
-            return {
-                productName: "Producto Demo Analizado",
-                description: "Esta es una descripción generada automáticamente al analizar la URL. El sistema ha identificado los puntos clave de ventas y los beneficios principales basándose en el contenido visualizado.",
-                niche: "Nicho de Prueba"
-            };
+            return { productName: "Producto Demo Analizado", description: "Descripción...", niche: "Nicho de Prueba" };
         }
-        return await fetchWithFallback('/projects/analyze-site', {
+        if (apiCache.siteAnalysis[url]) return apiCache.siteAnalysis[url];
+        const analysis = await fetchWithFallback('/projects/analyze-site', {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({ url })
         });
+        apiCache.siteAnalysis[url] = analysis;
+        return analysis;
     },
   
     generateProjectStrategyFull: async (projectId: string): Promise<StrategyJSON> => {
@@ -567,25 +575,16 @@ export const api = {
             method: 'POST',
             headers: getAuthHeaders()
         });
-        ////////// Actualización: Invalidad caché individual y global tras generar estrategia - 05/06/2025 12:00 //////////
         clearCache('projects');
         clearCache('projectDetails', projectId);
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
         return strategy;
     },
   
     getLeads: async (): Promise<Lead[]> => {
         if (isMockMode) return Promise.resolve([...localLeads]);
-        ////////// Actualización: Intercepción de Caché para getLeads - 05/06/2025 12:00 //////////
         if (apiCache.leads) return apiCache.leads;
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
         const leads = await fetchWithFallback('/leads', { headers: getAuthHeaders() });
-        
-        ////////// Actualización: Almacenar en caché tras carga exitosa - 05/06/2025 12:00 //////////
         apiCache.leads = leads;
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
-        
         return leads;
     },
   
@@ -605,16 +604,9 @@ export const api = {
             }
             return Promise.resolve(data);
         }
-        ////////// Actualización: Intercepción de Caché para weekly analytics - 05/06/2025 12:00 //////////
         if (apiCache.weekly) return apiCache.weekly;
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
         const data = await fetchWithFallback('/analytics/weekly', { headers: getAuthHeaders() });
-        
-        ////////// Actualización: Almacenar en caché - 05/06/2025 12:00 //////////
         apiCache.weekly = data;
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
-        
         return data;
     },
   
@@ -622,33 +614,17 @@ export const api = {
         if (isMockMode) {
             const totalVisits = localPages.reduce((acc, p) => acc + p.visits, 0);
             const totalConversions = localPages.reduce((acc, p) => acc + p.conversions, 0);
-            return Promise.resolve({
-                totalVisits,
-                totalConversions,
-                totalPages: localPages.length,
-                totalArticles: localArticles.length,
-                totalProjects: localProjects.length
-            });
+            return Promise.resolve({ totalVisits, totalConversions, totalPages: localPages.length, totalArticles: localArticles.length, totalProjects: localProjects.length });
         }
-        ////////// Actualización: Intercepción de Caché para analytics summary - 05/06/2025 12:00 //////////
         if (apiCache.summary) return apiCache.summary;
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
         const summary = await fetchWithFallback('/analytics/summary', { headers: getAuthHeaders() });
-        
-        ////////// Actualización: Almacenar en caché - 05/06/2025 12:00 //////////
         apiCache.summary = summary;
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
         return summary;
     },
   
     getArticles: async (): Promise<Article[]> => {
         if (isMockMode) return Promise.resolve([...localArticles]);
-        
-        ////////// Actualización: Intercepción de Caché para getArticles - 05/06/2025 12:00 //////////
         if (apiCache.articles) return apiCache.articles;
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
 
         const articles = await fetchWithFallback('/articles', { headers: getAuthHeaders() });
         const mapped = articles.map((a: any) => ({
@@ -669,11 +645,7 @@ export const api = {
             publishedAt: new Date(a.published_at || a.created_at),
             createdAt: new Date(a.created_at)
         }));
-
-        ////////// Actualización: Almacenar en caché tras carga exitosa - 05/06/2025 12:00 //////////
         apiCache.articles = mapped;
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
         return mapped;
     },
   
@@ -682,11 +654,7 @@ export const api = {
           const art = localArticles.find(a => a.id === id);
           return art ? Promise.resolve(art) : Promise.resolve(null);
       }
-  
-      ////////// Actualización: Caché de detalle de artículo individual - 05/06/2025 12:00 //////////
       if (apiCache.articleDetails[id]) return apiCache.articleDetails[id];
-      ////////// Fin de actualización //////////
-
       try {
           const a = await fetchWithFallback(`/articles/${id}`, { headers: getAuthHeaders() });
           const mapped = {
@@ -705,9 +673,7 @@ export const api = {
                 publishedAt: new Date(a.published_at || a.created_at),
                 createdAt: new Date(a.created_at)
           };
-          ////////// Actualización: Guardar detalle individual en caché - 05/06/2025 12:00 //////////
           apiCache.articleDetails[id] = mapped;
-          ////////// Fin de actualización //////////
           return mapped;
       } catch (e) { return null; }
     },
@@ -718,7 +684,6 @@ export const api = {
             localArticles.unshift(newArticle);
             return Promise.resolve(newArticle);
         }
-  
         const saved = await fetchWithFallback('/articles', {
             method: 'POST',
             headers: getAuthHeaders(),
@@ -737,11 +702,8 @@ export const api = {
                 published_at: article.publishedAt
             })
         });
-
-        ////////// Actualización: Invalidad caché tras creación - 05/06/2025 12:00 //////////
         clearCache('articles');
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
+        clearCache('userUsageStats');
         return { ...article, id: saved.id.toString(), createdAt: new Date() };
     },
   
@@ -750,7 +712,6 @@ export const api = {
           localArticles = localArticles.map(a => a.id === id ? { ...a, ...article } : a);
           return Promise.resolve();
       }
-  
       await fetchWithFallback(`/articles/${id}`, {
           method: 'PUT',
           headers: getAuthHeaders(),
@@ -769,11 +730,8 @@ export const api = {
                 published_at: article.publishedAt
           })
       });
-
-      ////////// Actualización: Invalidad caché individual y global tras actualización - 05/06/2025 12:00 //////////
       clearCache('articles');
       clearCache('articleDetails', id);
-      ////////// Fin de actualización - 05/06/2025 12:00 //////////
     },
   
     deleteArticle: async (id: string): Promise<void> => {
@@ -782,19 +740,16 @@ export const api = {
           return Promise.resolve();
       }
       await fetchWithFallback(`/articles/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-
-      ////////// Actualización: Invalidad caché individual y global tras eliminación - 05/06/2025 12:00 //////////
       clearCache('articles');
       clearCache('articleDetails', id);
-      ////////// Fin de actualización - 05/06/2025 12:00 //////////
+      clearCache('userUsageStats');
     },
   
     getPublicBlogArticles: async (pageId: string): Promise<Article[]> => {
-        if (isMockMode) {
-            return Promise.resolve(localArticles.filter(a => a.pageId === pageId));
-        }
+        if (isMockMode) return Promise.resolve(localArticles.filter(a => a.pageId === pageId));
+        if (apiCache.publicBlogArticles[pageId]) return apiCache.publicBlogArticles[pageId];
         const articles = await fetchWithFallback(`/public/pages/${pageId}/blog`);
-        return articles.map((a: any) => ({
+        const mapped = articles.map((a: any) => ({
             id: a.id.toString(),
             title: a.title,
             slug: a.slug,
@@ -804,6 +759,8 @@ export const api = {
             publishedAt: new Date(a.published_at),
             contentHtml: '' 
         } as Article));
+        apiCache.publicBlogArticles[pageId] = mapped;
+        return mapped;
     },
   
     getPublicArticle: async (slug: string): Promise<Article | null> => {
@@ -811,8 +768,9 @@ export const api = {
             const art = localArticles.find(a => a.slug === slug);
             return art ? Promise.resolve(art) : Promise.resolve(null);
         }
+        if (apiCache.publicArticleDetails[slug]) return apiCache.publicArticleDetails[slug];
         const article = await fetchWithFallback(`/public/articles/${slug}`);
-        return {
+        const mapped = {
             id: article.id.toString(),
             title: article.title,
             slug: article.slug,
@@ -827,11 +785,12 @@ export const api = {
             keyword: '',
             seoScore: 0
         };
+        apiCache.publicArticleDetails[slug] = mapped;
+        return mapped;
     },
     
     testConnection: async (): Promise<{ success: boolean; message: string }> => {
         if (isMockMode) return { success: true, message: "Mock Mode Active" };
-  
         try {
             const data = await fetchWithFallback('/debug/db-status');
             return { success: data.status === 'online', message: data.server_version || 'OK' };
@@ -842,23 +801,24 @@ export const api = {
   
     getUsers: async (): Promise<User[]> => {
         if (isMockMode) return Promise.resolve([MOCK_USER]);
-        return await fetchWithFallback('/admin/users', { headers: getAuthHeaders() });
+        if (apiCache.usersList) return apiCache.usersList;
+        const users = await fetchWithFallback('/admin/users', { headers: getAuthHeaders() });
+        apiCache.usersList = users;
+        return users;
     },
   
     updateUser: async (id: string, data: { role: string, planLimits: PlanLimits, isActive: boolean }): Promise<void> => {
         if (isMockMode) return Promise.resolve();
-        await fetchWithFallback(`/admin/users/${id}`, {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(data)
-        });
+        await fetchWithFallback(`/admin/users/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) });
+        clearCache('adminUserResources');
+        clearCache('usersList');
     },
   
     deleteUser: async (id: string): Promise<void> => {
         if (isMockMode) return Promise.resolve();
-        await fetchWithFallback(`/admin/users/${id}`, {
-            headers: getAuthHeaders()
-        });
+        await fetchWithFallback(`/admin/users/${id}`, { headers: getAuthHeaders() });
+        clearCache('adminUserResources');
+        clearCache('usersList');
     },
   
     getAdminUserResources: async (userId: string, type: 'projects' | 'pages' | 'articles'): Promise<any[]> => {
@@ -868,66 +828,72 @@ export const api = {
             if (type === 'articles') return Promise.resolve([...localArticles]);
             return Promise.resolve([]);
         }
-        return await fetchWithFallback(`/admin/users/${userId}/resources?type=${type}`, { headers: getAuthHeaders() });
+        const cacheKey = `${userId}_${type}`;
+        if (apiCache.adminUserResources[cacheKey]) return apiCache.adminUserResources[cacheKey];
+        const resources = await fetchWithFallback(`/admin/users/${userId}/resources?type=${type}`, { headers: getAuthHeaders() });
+        apiCache.adminUserResources[cacheKey] = resources;
+        return resources;
     },
   
-    // NEW: Get Payment History
     getUserPayments: async (userId: string): Promise<any[]> => {
         if (isMockMode) return Promise.resolve([]);
-        return await fetchWithFallback(`/admin/users/${userId}/payments`, { headers: getAuthHeaders() });
+        if (apiCache.userPayments[userId]) return apiCache.userPayments[userId];
+        const payments = await fetchWithFallback(`/admin/users/${userId}/payments`, { headers: getAuthHeaders() });
+        apiCache.userPayments[userId] = payments;
+        return payments;
     },
   
-    // NEW: Get System Logs (Admin)
     getSystemLogs: async (page: number, filters: { action?: string, search?: string }): Promise<SystemLog[]> => {
         if (isMockMode) return Promise.resolve([]);
+        const cacheKey = `${page}_${JSON.stringify(filters)}`;
+        if (apiCache.systemLogs[cacheKey]) return apiCache.systemLogs[cacheKey];
         let query = `?page=${page}`;
         if (filters.action) query += `&action=${filters.action}`;
         if (filters.search) query += `&search=${filters.search}`;
-        
-        return await fetchWithFallback('/admin/logs' + query, { headers: getAuthHeaders() });
+        const logs = await fetchWithFallback('/admin/logs' + query, { headers: getAuthHeaders() });
+        apiCache.systemLogs[cacheKey] = logs;
+        return logs;
     },
   
-    // NEW: Get User Stats (Admin Lazy Load)
     getUserUsageStats: async (userId: string): Promise<UserUsageStats> => {
         if (isMockMode) return Promise.resolve({ projects: 5, landings: 2, articles: 1 });
-        return await fetchWithFallback(`/admin/users/${userId}/stats`, { headers: getAuthHeaders() });
+        if (apiCache.userUsageStats[userId]) return apiCache.userUsageStats[userId];
+        const stats = await fetchWithFallback(`/admin/users/${userId}/stats`, { headers: getAuthHeaders() });
+        apiCache.userUsageStats[userId] = stats;
+        return stats;
     },
   
     // --- LMS / COURSES ---
     
     getCoursesList: async (): Promise<{id: string, title: string, slug: string}[]> => {
-        if (isMockMode) {
-            return Promise.resolve(localCourses.map(c => ({ id: c.id, title: c.title, slug: c.slug })));
-        }
-        return await fetchWithFallback('/courses', { headers: getAuthHeaders() });
+        if (isMockMode) return Promise.resolve(localCourses.map(c => ({ id: c.id, title: c.title, slug: c.slug })));
+        if (apiCache.courses) return apiCache.courses;
+        const courses = await fetchWithFallback('/courses', { headers: getAuthHeaders() });
+        apiCache.courses = courses;
+        return courses;
     },
   
     getCourseBySlug: async (slug: string): Promise<any> => {
         if (isMockMode) {
             const course = localCourses.find(c => c.slug === slug);
-            if (course) {
-                return Promise.resolve({
-                    ...course,
-                    learningPoints: [], 
-                    modules: course.modules?.map(m => ({...m, lessons: []})) || [] 
-                });
-            }
-            return Promise.resolve({
-                id: 'mock-course',
-                title: 'Curso Mock (Modo Offline)',
-                modules: []
-            });
+            if (course) return Promise.resolve({ ...course, learningPoints: [], modules: course.modules?.map(m => ({...m, lessons: []})) || [] });
+            return Promise.resolve({ id: 'mock-course', title: 'Curso Mock (Modo Offline)', modules: [] });
         }
-        return await fetchWithFallback(`/courses/${slug}`, { headers: getAuthHeaders() });
+        if (apiCache.courseDetails[slug]) return apiCache.courseDetails[slug];
+        const course = await fetchWithFallback(`/courses/${slug}`, { headers: getAuthHeaders() });
+        apiCache.courseDetails[slug] = course;
+        return course;
     },
   
     getModuleLessons: async (moduleId: string): Promise<CourseLesson[]> => {
         if (isMockMode) {
             const module = localCourses.flatMap(c => c.modules).find(m => m.id === moduleId);
-            await new Promise(resolve => setTimeout(resolve, 500));
             return Promise.resolve(module?.lessons || []);
         }
-        return await fetchWithFallback(`/modules/${moduleId}/lessons`, { headers: getAuthHeaders() });
+        if (apiCache.moduleLessons[moduleId]) return apiCache.moduleLessons[moduleId];
+        const lessons = await fetchWithFallback(`/modules/${moduleId}/lessons`, { headers: getAuthHeaders() });
+        apiCache.moduleLessons[moduleId] = lessons;
+        return lessons;
     },
   
     // --- ADMIN COURSE MANAGEMENT ---
@@ -948,25 +914,18 @@ export const api = {
                 return Promise.resolve(newCourse);
             }
         }
-        
         const method = course.id ? 'PUT' : 'POST';
         const endpoint = course.id ? `/admin/courses/${course.id}` : '/admin/courses';
-        
-        const res = await fetchWithFallback(endpoint, {
-            method,
-            headers: getAuthHeaders(),
-            body: JSON.stringify(course)
-        });
+        const res = await fetchWithFallback(endpoint, { method, headers: getAuthHeaders(), body: JSON.stringify(course) });
+        clearCache('courses');
+        if (course.slug) clearCache('courseDetails', course.slug);
         return res;
     },
   
     reorderCourses: async (orderedIds: string[]): Promise<void> => {
         if (isMockMode) return Promise.resolve();
-        await fetchWithFallback('/admin/courses/reorder', {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ orderedIds })
-        });
+        await fetchWithFallback('/admin/courses/reorder', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ orderedIds }) });
+        clearCache('courses');
     },
   
     deleteCourse: async (id: string): Promise<void> => {
@@ -975,6 +934,7 @@ export const api = {
             return Promise.resolve();
         }
         await fetchWithFallback(`/admin/courses/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+        clearCache('courses');
     },
   
     // --- ADMIN COMMENTS MANAGEMENT ---
@@ -986,172 +946,114 @@ export const api = {
   
     moderateComment: async (id: string, action: 'toggle_publish' | 'delete'): Promise<void> => {
         if (isMockMode) {
-            if (action === 'delete') {
-                localComments = localComments.filter(c => c.id !== id);
-            } else {
-                localComments = localComments.map(c => c.id === id ? { ...c, isApproved: !c.isApproved } : c);
-            }
+            if (action === 'delete') localComments = localComments.filter(c => c.id !== id);
+            else localComments = localComments.map(c => c.id === id ? { ...c, isApproved: !c.isApproved } : c);
             return Promise.resolve();
         }
-        await fetchWithFallback(`/admin/comments/${id}`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ action })
-        });
+        await fetchWithFallback(`/admin/comments/${id}`, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ action }) });
+        clearCache('lessonComments');
     },
   
     getComments: async (lessonId: string): Promise<any[]> => {
-        if (isMockMode) {
-            return Promise.resolve(localComments.filter(c => c.lessonId === lessonId));
-        }
-        return await fetchWithFallback(`/lessons/${lessonId}/comments`, { headers: getAuthHeaders() });
+        if (isMockMode) return Promise.resolve(localComments.filter(c => c.lessonId === lessonId));
+        if (apiCache.lessonComments[lessonId]) return apiCache.lessonComments[lessonId];
+        const comments = await fetchWithFallback(`/lessons/${lessonId}/comments`, { headers: getAuthHeaders() });
+        apiCache.lessonComments[lessonId] = comments;
+        return comments;
     },
   
     postComment: async (lessonId: string, content: string, parentId?: string): Promise<void> => {
         if (isMockMode) {
-            const newComment: any = {
-                id: `c-${Date.now()}`,
-                lessonId,
-                text: content,
-                user: MOCK_USER.name,
-                userId: MOCK_USER.id,
-                date: new Date().toISOString(),
-                likes: 0,
-                isApproved: false 
-            };
+            const newComment: any = { id: `c-${Date.now()}`, lessonId, text: content, user: MOCK_USER.name, userId: MOCK_USER.id, date: new Date().toISOString(), likes: 0, isApproved: false };
             if (parentId) newComment.parentId = parentId;
-            
             localComments.unshift(newComment);
             return Promise.resolve();
         }
-        await fetchWithFallback('/comments', {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ lessonId, content, parentId })
-        });
+        await fetchWithFallback('/comments', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ lessonId, content, parentId }) });
+        clearCache('lessonComments', lessonId);
     },
   
     likeComment: async (commentId: string): Promise<void> => {
         if (isMockMode) {
             const comment = localComments.find(c => c.id === commentId);
-            if (comment) {
-                comment.likes = (comment.likes || 0) + 1;
-            }
+            if (comment) comment.likes = (comment.likes || 0) + 1;
             return Promise.resolve();
         }
-        await fetchWithFallback(`/comments/${commentId}/like`, {
-            method: 'POST',
-            headers: getAuthHeaders()
-        });
+        await fetchWithFallback(`/comments/${commentId}/like`, { method: 'POST', headers: getAuthHeaders() });
     },
   
-    // --- ADMIN SETTINGS & REDIRECTS ---
-    
     getLoginRedirect: async (): Promise<string> => {
         if (isMockMode) return "/dashboard/training/bienvenida";
+        if (apiCache.loginRedirect) return apiCache.loginRedirect;
         try {
             const data = await fetchWithFallback('/settings/redirect');
+            apiCache.loginRedirect = data.url;
             return data.url;
-        } catch (e) {
-            return "/dashboard";
-        }
+        } catch (e) { return "/dashboard"; }
     },
 
-    ////////// Método para obtener el método de pago activo - 24/05/2025 10:30 //////////
     getActivePaymentMethod: async (): Promise<'stripe' | 'hotmart'> => {
         if (isMockMode) return 'stripe';
+        if (apiCache.activePaymentMethod) return apiCache.activePaymentMethod;
         try {
             const data = await fetchWithFallback('/settings/payment-method');
+            apiCache.activePaymentMethod = data.method;
             return data.method;
-        } catch (e) {
-            return 'stripe';
-        }
+        } catch (e) { return 'stripe'; }
     },
-    ////////// Fin de actualización - 24/05/2025 10:30 //////////
   
     updateLoginRedirect: async (url: string): Promise<void> => {
         if (isMockMode) return Promise.resolve();
-        await fetchWithFallback('/admin/settings', {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ key: 'after_login_url', value: url })
-        });
+        await fetchWithFallback('/admin/settings', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ key: 'after_login_url', value: url }) });
+        clearCache('loginRedirect');
     },
 
-    ////////// Método para actualizar el método de pago activo - 24/05/2025 10:30 //////////
     updateActivePaymentMethod: async (method: 'stripe' | 'hotmart'): Promise<void> => {
         if (isMockMode) return Promise.resolve();
-        await fetchWithFallback('/admin/settings', {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ key: 'active_payment_method', value: method })
-        });
+        await fetchWithFallback('/admin/settings', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ key: 'active_payment_method', value: method }) });
+        clearCache('activePaymentMethod');
     },
-    ////////// Fin de actualización - 24/05/2025 10:30 //////////
   
-    // --- ADMIN PLANS MANAGEMENT ---
     getPlans: async (): Promise<Plan[]> => {
         if (isMockMode) return Promise.resolve([]); 
-        return await fetchWithFallback('/admin/plans', { headers: getAuthHeaders() });
+        if (apiCache.plans) return apiCache.plans;
+        const plans = await fetchWithFallback('/admin/plans', { headers: getAuthHeaders() });
+        apiCache.plans = plans;
+        return plans;
     },
   
     getPublicPlans: async (): Promise<Plan[]> => {
         if (isMockMode) {
             return Promise.resolve([
-                {
-                    id: 'starter',
-                    name: 'Starter',
-                    slug: 'starter',
-                    description: 'Ideal para empezar sin riesgo.',
-                    priceMonthly: 0,
-                    currency: 'EUR',
-                    limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, maxDomains: 1, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } },
-                    uiFeatures: ['1 Proyecto / Nicho', '3 Landing Pages', 'IA Básica', 'Marca de Agua'],
-                    isActive: true,
-                    isRecommended: false
-                },
-                {
-                    id: 'pro',
-                    name: 'Pro',
-                    slug: 'pro',
-                    description: 'Para Productores y Afiliados serios.',
-                    priceMonthly: 19.99,
-                    currency: 'EUR',
-                    limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, maxDomains: 3, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } },
-                    uiFeatures: ['5 Proyectos', '20 Landing Pages', 'Bot WhatsApp', 'IA Avanzada', 'Sin Marca de Agua'],
-                    isActive: true,
-                    isRecommended: true
-                }
+                { id: 'starter', name: 'Starter', slug: 'starter', description: '...', priceMonthly: 0, currency: 'EUR', limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, maxDomains: 1, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } }, uiFeatures: ['...'], isActive: true, isRecommended: false },
+                { id: 'pro', name: 'Pro', slug: 'pro', description: '...', priceMonthly: 19.99, currency: 'EUR', limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, maxDomains: 3, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } }, uiFeatures: ['...'], isActive: true, isRecommended: true }
             ]);
         }
-        return await fetchWithFallback('/public/plans');
+        if (apiCache.publicPlans) return apiCache.publicPlans;
+        const plans = await fetchWithFallback('/public/plans');
+        apiCache.publicPlans = plans;
+        return plans;
     },
   
     savePlan: async (plan: Plan): Promise<void> => {
         if (isMockMode) return Promise.resolve();
         const method = plan.id ? 'PUT' : 'POST';
         const endpoint = plan.id ? `/admin/plans/${plan.id}` : '/admin/plans';
-        
-        await fetchWithFallback(endpoint, {
-            method,
-            headers: getAuthHeaders(),
-            body: JSON.stringify(plan)
-        });
+        await fetchWithFallback(endpoint, { method, headers: getAuthHeaders(), body: JSON.stringify(plan) });
+        clearCache('plans');
+        clearCache('publicPlans');
     },
   
     deletePlan: async (id: string): Promise<void> => {
         if (isMockMode) return Promise.resolve();
         await fetchWithFallback(`/admin/plans/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+        clearCache('plans');
+        clearCache('publicPlans');
     },
   
-    // --- CRM API ENDPOINTS ---
     getContacts: async (): Promise<CRMContact[]> => {
         if (isMockMode) return Promise.resolve([...localCrmContacts]);
-        
-        ////////// Actualización: Intercepción de Caché para getContacts - 05/06/2025 12:00 //////////
         if (apiCache.contacts) return apiCache.contacts;
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
         const contacts = await fetchWithFallback('/crm/contacts', { headers: getAuthHeaders() });
         const mapped = contacts.map((c: any) => ({
             ...c,
@@ -1162,43 +1064,19 @@ export const api = {
             createdAt: new Date(c.created_at),
             updatedAt: new Date(c.updated_at)
         }));
-
-        ////////// Actualización: Almacenar en caché - 05/06/2025 12:00 //////////
         apiCache.contacts = mapped;
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
         return mapped;
     },
   
     createContact: async (contact: Omit<CRMContact, 'id' | 'createdAt' | 'updatedAt' | 'lastContactedAt'>): Promise<CRMContact> => {
         if (isMockMode) {
-            const newContact: CRMContact = {
-                ...contact,
-                id: `mock-crm-${Date.now()}`,
-                lastContactedAt: undefined,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            };
+            const newContact: CRMContact = { ...contact, id: `mock-crm-${Date.now()}`, lastContactedAt: undefined, createdAt: new Date(), updatedAt: new Date() };
             localCrmContacts.unshift(newContact);
             return Promise.resolve(newContact);
         }
-  
-        const res = await fetchWithFallback('/crm/contacts', {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(contact)
-        });
-        
-        ////////// Actualización: Invalidad caché tras creación - 05/06/2025 12:00 //////////
+        const res = await fetchWithFallback('/crm/contacts', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(contact) });
         clearCache('contacts');
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
-
-        return { 
-            ...contact, 
-            id: res.id.toString(), 
-            createdAt: new Date(), 
-            updatedAt: new Date() 
-        };
+        return { ...contact, id: res.id.toString(), createdAt: new Date(), updatedAt: new Date() };
     },
   
     updateContact: async (contact: CRMContact): Promise<void> => {
@@ -1206,75 +1084,105 @@ export const api = {
             localCrmContacts = localCrmContacts.map(c => c.id === contact.id ? { ...contact, updatedAt: new Date() } : c);
             return Promise.resolve();
         }
-  
-        await fetchWithFallback(`/crm/contacts/${contact.id}`, {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(contact)
-        });
-
-        ////////// Actualización: Invalidad caché tras actualización - 05/06/2025 12:00 //////////
+        await fetchWithFallback(`/crm/contacts/${contact.id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(contact) });
         clearCache('contacts');
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
     },
   
-    // NEW: Delete Contact Method
     deleteContact: async (id: string): Promise<void> => {
         if (isMockMode) {
             localCrmContacts = localCrmContacts.filter(c => c.id !== id);
             return Promise.resolve();
         }
         await fetchWithFallback(`/crm/contacts/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-
-        ////////// Actualización: Invalidad caché tras eliminación - 05/06/2025 12:00 //////////
         clearCache('contacts');
-        ////////// Fin de actualización - 05/06/2025 12:00 //////////
     },
   
     getContactHistory: async (contactId: string): Promise<CRMActivity[]> => {
-        if (isMockMode) {
-            return Promise.resolve(localCrmActivities.filter(a => a.contactId === contactId));
-        }
-        
+        if (isMockMode) return Promise.resolve(localCrmActivities.filter(a => a.contactId === contactId));
+        if (apiCache.contactHistory[contactId]) return apiCache.contactHistory[contactId];
         const activities = await fetchWithFallback(`/crm/contacts/${contactId}/history`, { headers: getAuthHeaders() });
-        return activities.map((a: any) => ({
+        const mapped = activities.map((a: any) => ({
             id: a.id.toString(),
             contactId: a.contact_id.toString(),
             type: a.type,
             content: a.content,
             createdAt: new Date(a.created_at)
         }));
+        apiCache.contactHistory[contactId] = mapped;
+        return mapped;
     },
   
     addContactNote: async (contactId: string, content: string): Promise<void> => {
         if (isMockMode) {
-            localCrmActivities.unshift({
-                id: `act-${Date.now()}`,
-                contactId,
-                type: 'note',
-                content,
-                createdAt: new Date()
-            });
+            localCrmActivities.unshift({ id: `act-${Date.now()}`, contactId, type: 'note', content, createdAt: new Date() });
             return Promise.resolve();
         }
-  
-        await fetchWithFallback(`/crm/contacts/${contactId}/notes`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ content })
-        });
+        await fetchWithFallback(`/crm/contacts/${contactId}/notes`, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ content }) });
+        clearCache('contactHistory', contactId);
+    },
+
+    getHotmartData: async (): Promise<any> => {
+        if (isMockMode) return Promise.resolve(null);
+        if (apiCache.hotmartData) return apiCache.hotmartData;
+        try {
+            const data = await fetchWithFallback('/admin/hotmart/summary', { headers: getAuthHeaders() });
+            apiCache.hotmartData = data;
+            return data;
+        } catch (e) {
+            return null;
+        }
+    },
+
+    ////////// Actualización: Implementación de caché para Estadísticas CRM, News y Ajustes - 05/06/2025 19:30 //////////
+    getCRMStats: async (): Promise<any> => {
+        if (isMockMode) return { newLeads: 5, contacted: 12, closed: 3 };
+        if (apiCache.crmStats) return apiCache.crmStats;
+        
+        try {
+            const stats = await fetchWithFallback('/crm/stats', { headers: getAuthHeaders() });
+            apiCache.crmStats = stats;
+            return stats;
+        } catch (e) {
+            return null;
+        }
+    },
+
+    getNewsFeed: async (): Promise<DashboardNews[]> => {
+        if (isMockMode) return MOCK_NEWS;
+        if (apiCache.newsFeed) return apiCache.newsFeed;
+        
+        try {
+            const news = await fetchWithFallback('/system/news', { headers: getAuthHeaders() });
+            apiCache.newsFeed = news;
+            return news;
+        } catch (e) {
+            return MOCK_NEWS;
+        }
+    },
+
+    getIntegrationSettings: async (): Promise<Record<string, any>> => {
+        if (isMockMode) return { getResponseKey: 'gr_mock_key', waWebhook: 'https://wa.mock' };
+        if (apiCache.integrationSettings) return apiCache.integrationSettings;
+        
+        try {
+            const settings = await fetchWithFallback('/system/integrations', { headers: getAuthHeaders() });
+            apiCache.integrationSettings = settings;
+            return settings;
+        } catch (e) {
+            return {};
+        }
+    },
+
+    updateIntegrationSettings: async (settings: Record<string, any>): Promise<void> => {
+        if (isMockMode) return;
+        await fetchWithFallback('/system/integrations', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(settings) });
+        clearCache('integrationSettings');
     }
+    ////////// Fin de actualización //////////
   };
   
-  /**
-   * Helper to parse JSON list fields from projects (pain points, benefits, links)
-   */
   function safeParseJsonList(data: any): any[] {
       if (!data) return [];
       if (Array.isArray(data)) return data;
-      try {
-          return typeof data === 'string' ? JSON.parse(data) : data;
-      } catch (e) {
-          return [];
-      }
+      try { return typeof data === 'string' ? JSON.parse(data) : data; } catch (e) { return []; }
   }
