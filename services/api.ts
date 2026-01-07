@@ -166,7 +166,7 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.adminUserResources = {};
         apiCache.systemLogs = {};
         apiCache.contactHistory = {};
-        ////////// Corrección de error de sintaxis en clearCache - 07/06/2025 19:40 //////////
+        ////////// Corrección de error de sintaxis en clearCache - 07/06/2025 20:15 //////////
         apiCache.publicBlogArticles = {};
         apiCache.publicArticleDetails = {};
         apiCache.userUsageStats = {};
@@ -174,7 +174,7 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.siteAnalysis = {};
         apiCache.publicPages = {};
         apiCache.masterStrategies = {};
-        ////////// Fin de actualización - 07/06/2025 19:40 //////////
+        ////////// Fin de actualización - 07/06/2025 20:15 //////////
     }
 };
 ////////// Fin de actualización - 07/06/2025 10:15 //////////
@@ -192,10 +192,22 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
 
     if (!res.ok) {
         let errorMsg = res.statusText;
+        let errorBody = null;
         try {
-            const errBody = await res.json();
-            if (errBody.error) errorMsg = errBody.error;
+            errorBody = await res.json();
+            if (errorBody.error) errorMsg = errorBody.error;
         } catch(e) {}
+        
+        ////////// Mejora de logs para diagnóstico de errores 500 - 07/06/2025 20:15 //////////
+        if (res.status >= 500) {
+            console.error(`[API 500 ERROR] Endpoint: ${endpoint}`, {
+                status: res.status,
+                msg: errorMsg,
+                body: errorBody
+            });
+        }
+        ////////// Fin de actualización - 07/06/2025 20:15 //////////
+
         throw new Error(`HTTP Error ${res.status}: ${errorMsg}`);
     }
     
@@ -1338,6 +1350,19 @@ export const api = {
         return res;
     },
     ////////// Fin de actualización - 07/06/2025 19:40 //////////
+
+    ////////// Actualización: Método para sincronización individual de un lead - 07/06/2025 20:15 //////////
+    syncSingleLead: async (leadId: string): Promise<{ success: boolean; message: string }> => {
+        if (isMockMode) {
+            return Promise.resolve({ success: true, message: "Sincronización individual simulada exitosa." });
+        }
+        return await fetchWithFallback('/system/integrations/sync-single', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ leadId })
+        });
+    },
+    ////////// Fin de actualización - 07/06/2025 20:15 //////////
 
     ////////// Actualización: Métodos para persistencia de títulos SEO generados - 05/06/2025 21:15 //////////
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,

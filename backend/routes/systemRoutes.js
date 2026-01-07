@@ -155,10 +155,60 @@ router.post('/system/integrations/sync-pending', authMiddleware, async (req, res
 
         res.json({ success: true, count: successCount, message: `Se han sincronizado ${successCount} leads exitosamente.` });
     } catch (e) {
+        ////////// Actualización: Log de error detallado para diagnosticar error 500 - 07/06/2025 20:15 //////////
+        console.error("[CRITICAL SYNC ERROR 500]:", e);
+        ////////// Fin de actualización - 07/06/2025 20:15 //////////
         res.status(500).json({ error: e.message });
     }
 });
 ////////// Fin de actualización - 07/06/2025 19:40 //////////
+
+////////// Actualización: Endpoint para sincronización individual de un lead específico - 07/06/2025 20:15 //////////
+router.post('/system/integrations/sync-single', authMiddleware, async (req, res) => {
+    const { leadId } = req.body;
+    if (!leadId) return res.status(400).json({ error: "ID de lead no proporcionado." });
+
+    try {
+        const userId = req.user.id;
+        
+        // 1. Obtener API Key
+        const [intRows] = await pool.query(
+            "SELECT setting_value FROM system_settings WHERE setting_key = ?",
+            [`integrations_${userId}`]
+        );
+        
+        if (intRows.length === 0) return res.status(400).json({ error: "Configura la API Key de Systeme.io en Herramientas Pro." });
+        
+        const settings = JSON.parse(intRows[0].setting_value);
+        if (!settings.systemeIoKey) return res.status(400).json({ error: "Configura la API Key de Systeme.io en Herramientas Pro." });
+
+        // 2. Obtener datos del lead verificando pertenencia
+        const [leads] = await pool.query(
+            `SELECT l.id, l.email, l.name, l.page_id 
+             FROM leads l 
+             JOIN landing_pages lp ON l.page_id = lp.id 
+             WHERE lp.user_id = ? AND l.id = ?`,
+            [userId, leadId]
+        );
+
+        if (leads.length === 0) return res.status(404).json({ error: "Lead no encontrado o no tienes permisos." });
+        const lead = leads[0];
+
+        // 3. Sincronizar
+        try {
+            await systemeIoService.addContact(settings.systemeIoKey, lead.email, lead.name || 'Prospecto');
+            await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [leadId]);
+            res.json({ success: true, message: `Lead ${lead.email} sincronizado con éxito.` });
+        } catch (apiErr) {
+            console.error(`[Systeme.io API Error Details]:`, apiErr);
+            res.status(500).json({ error: `Error de API Systeme.io: ${apiErr.message}` });
+        }
+    } catch (e) {
+        console.error("[SINGLE SYNC ERROR 500]:", e);
+        res.status(500).json({ error: e.message });
+    }
+});
+////////// Fin de actualización - 07/06/2025 20:15 //////////
 
 /**
  * Lista los planes activos para la landing page pública o modal de upgrade.
