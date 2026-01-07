@@ -126,7 +126,7 @@ router.get('/system/integrations/systemeio/tags', authMiddleware, async (req, re
         const tags = await systemeIoService.getTags(settings.systemeIoKey);
         res.json(tags);
     } catch (e) {
-        console.error(`[Systeme.io Tags Route Error] User ${req.user.id}:`, e.message);
+        console.error(`[Systeme.io Tags Error] User ${req.user.id}:`, e.message);
         res.status(500).json({ error: e.message });
     }
 });
@@ -229,12 +229,16 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
             return res.status(500).json({ error: `Error de API Systeme.io al añadir contacto: ${apiErr.message}` });
         }
 
+        ////////// Actualización: Extracción segura del ID de contacto (directo o anidado) para compatibilidad con la respuesta de la API Systeme.io - 17/06/2025 15:45 //////////
+        const finalContactId = contactResponse?.contact?.id || contactResponse?.id;
+        ////////// Fin de actualización - 17/06/2025 15:45 //////////
+
         // 4. Asignar Etiqueta si se proporcionó ID
         let tagSuccess = true;
         let tagErrorMessage = "";
-        if (tagId && contactResponse && contactResponse.id) {
+        if (tagId && finalContactId) {
             try {
-                await systemeIoService.addTagToContact(settings.systemeIoKey, contactResponse.id, tagId);
+                await systemeIoService.addTagToContact(settings.systemeIoKey, finalContactId, tagId);
             } catch (subErr) {
                 console.warn(`[Systeme.io Tag Assignment Warn]: ${subErr.message}`);
                 tagSuccess = false;

@@ -104,9 +104,15 @@ const getTags = async (apiKey) => {
  * @param {number|string} tagId 
  */
 const addTagToContact = async (apiKey, contactId, tagId) => {
-    // Forzamos que los IDs sean números para la API de Systeme.io
+    ////////// Actualización: Refuerzo de validación y limpieza de IDs numéricos antes de envío a la API de Systeme.io para evitar errores de tipo - 17/06/2025 15:45 //////////
     const cleanContactId = Number(contactId);
     const cleanTagId = Number(tagId);
+
+    if (isNaN(cleanContactId) || isNaN(cleanTagId)) {
+        console.error(`[Systeme.io Validation Error] Invalid IDs - Contact: ${contactId}, Tag: ${tagId}`);
+        throw new Error("El ID de contacto o de etiqueta no son válidos para Systeme.io.");
+    }
+    ////////// Fin de actualización - 17/06/2025 15:45 //////////
 
     console.log(`[Systeme.io Debug] Inicia addTagToContact. Contact: ${cleanContactId}, Tag: ${cleanTagId}`);
 
