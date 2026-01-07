@@ -1,3 +1,4 @@
+
 const express = require('express');
 const pool = require('../db');
 const { generateContent } = require('../geminiService');
@@ -146,10 +147,16 @@ router.post('/system/integrations/sync-pending', authMiddleware, async (req, res
         for (const lead of pendingLeads) {
             try {
                 await systemeIoService.addContact(settings.systemeIoKey, lead.email, lead.name || 'Prospecto');
-                await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [lead.id]);
-                successCount++;
+                ////////// Actualización: Manejo de error de BD separado de API - 15/06/2025 16:30 //////////
+                try {
+                    await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [lead.id]);
+                    successCount++;
+                } catch (dbErr) {
+                    console.error(`[Manual Sync DB Error] Lead ID ${lead.id}:`, dbErr.message);
+                }
+                ////////// Fin de actualización - 15/06/2025 16:30 //////////
             } catch (e) {
-                console.error(`[Manual Sync Error] Lead ID ${lead.id}:`, e.message);
+                console.error(`[Manual Sync API Error] Lead ID ${lead.id}:`, e.message);
             }
         }
 
@@ -195,20 +202,30 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
         const lead = leads[0];
 
         // 3. Sincronizar
+        ////////// Actualización: Separación estricta de errores de API y Base de Datos para evitar reportes falsos - 15/06/2025 16:30 //////////
+        let apiSuccess = false;
         try {
             await systemeIoService.addContact(settings.systemeIoKey, lead.email, lead.name || 'Prospecto');
-            await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [leadId]);
-            res.json({ success: true, message: `Lead ${lead.email} sincronizado con éxito.` });
+            apiSuccess = true;
         } catch (apiErr) {
-            ////////// Actualización: Captura de error de API externa para reporte limpio al usuario - 07/06/2025 20:30 //////////
             console.error(`[Systeme.io API Error Details]:`, apiErr);
             let userFriendlyMessage = apiErr.message;
             if (userFriendlyMessage.includes("422")) {
                 userFriendlyMessage = "Error 422 de Systeme.io: Validación de campos fallida o contacto duplicado. Asegúrese de que la API Key sea correcta.";
             }
-            res.status(500).json({ error: `Error de API Systeme.io: ${userFriendlyMessage}` });
-            ////////// Fin de actualización - 07/06/2025 20:30 //////////
+            return res.status(500).json({ error: `Error de API Systeme.io: ${userFriendlyMessage}` });
         }
+
+        if (apiSuccess) {
+            try {
+                await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [leadId]);
+                res.json({ success: true, message: `Lead ${lead.email} sincronizado con éxito.` });
+            } catch (dbErr) {
+                console.error(`[Single Sync DB Error]:`, dbErr);
+                res.status(500).json({ error: `Error de Base de Datos Local: No se pudo marcar como sincronizado. Verifique que la columna 'synced' existe.` });
+            }
+        }
+        ////////// Fin de actualización - 15/06/2025 16:30 //////////
     } catch (e) {
         console.error("[SINGLE SYNC ERROR 500]:", e);
         res.status(500).json({ error: e.message });

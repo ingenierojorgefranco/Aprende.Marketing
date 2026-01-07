@@ -53,7 +53,7 @@ const checkMonthlyQuota = async (userId, resourceType, limit) => {
         WHERE user_id = ? 
           AND resource_type = ? 
           AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(created_at) = YEAR(CURRENT_DATE())
+          AND YEAR(CURRENT_DATE()) = YEAR(created_at)
     `, [userId, resourceType]);
 
     const used = rows[0].count;
@@ -323,7 +323,7 @@ router.post('/public/leads/submit', async (req, res) => {
             await logCRMActivity(contactId, 'lead_submission', activityPayload);
         }
 
-        ////////// Actualización: Disparador automático para Systeme.io al capturar lead - 07/06/2025 19:30 //////////
+        ////////// Actualización: Disparador automático para Systeme.io al capturar lead con manejo de errores mejorado - 15/06/2025 16:30 //////////
         try {
             const [intRows] = await pool.query(
                 "SELECT setting_value FROM system_settings WHERE setting_key = ?",
@@ -332,14 +332,24 @@ router.post('/public/leads/submit', async (req, res) => {
             if (intRows.length > 0) {
                 const settings = JSON.parse(intRows[0].setting_value);
                 if (settings.systemeIoKey) {
-                    await systemeIoService.addContact(settings.systemeIoKey, email, name || 'Prospecto');
-                    await pool.query('UPDATE leads SET synced = 1 WHERE page_id = ? AND email = ?', [pageId, email]);
+                    // Primero intentamos la comunicación con la API externa
+                    try {
+                        await systemeIoService.addContact(settings.systemeIoKey, email, name || 'Prospecto');
+                        // Si la API tiene éxito, intentamos actualizar el estado de sincronización localmente
+                        try {
+                            await pool.query('UPDATE leads SET synced = 1 WHERE page_id = ? AND email = ?', [pageId, email]);
+                        } catch (dbSyncErr) {
+                            console.error("[Systeme.io Local DB Sync Error]:", dbSyncErr.message);
+                        }
+                    } catch (apiSyncErr) {
+                        console.error("[Systeme.io External API Error]:", apiSyncErr.message);
+                    }
                 }
             }
-        } catch (sysIoErr) {
-            console.error("[Systeme.io Sync Error]", sysIoErr.message);
+        } catch (intFetchErr) {
+            console.error("[Integration Fetch Error]:", intFetchErr.message);
         }
-        ////////// Fin de actualización - 07/06/2025 19:30 //////////
+        ////////// Fin de actualización - 15/06/2025 16:30 //////////
 
         res.json({ success: true });
     } catch (e) {

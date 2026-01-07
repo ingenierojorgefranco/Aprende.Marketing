@@ -364,6 +364,10 @@ const initDb = async () => {
         await addColumnSafe(connection, 'courses', "order_index INT DEFAULT 0");
         await addColumnSafe(connection, 'courses', "is_active BOOLEAN DEFAULT TRUE");
 
+        ////////// Actualización: Asegurar existencia de columna synced en tabla leads para integración Systeme.io - 15/06/2025 16:30 //////////
+        await addColumnSafe(connection, 'leads', "synced BOOLEAN DEFAULT FALSE");
+        ////////// Fin de actualización - 15/06/2025 16:30 //////////
+
         // NEW: THANK YOU PAGE JSON COLUMN
         await addColumnSafe(connection, 'landing_pages', "thankyoupage_json JSON");
 
