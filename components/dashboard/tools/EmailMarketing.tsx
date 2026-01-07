@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { Lead } from '../../../types';
-import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send } from 'lucide-react';
+import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, ChevronRight } from 'lucide-react';
 import { api } from '../../../services/api';
 
 export const EmailMarketing: React.FC = () => {
@@ -16,9 +17,13 @@ export const EmailMarketing: React.FC = () => {
   const [syncing, setSyncing] = useState(false);
   ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
-  ////////// Actualización: Estado para seguimiento de sincronización individual - 07/06/2025 20:15 //////////
-  const [syncingId, setSyncingId] = useState<string | null>(null);
-  ////////// Fin de actualización - 07/06/2025 20:15 //////////
+  ////////// Actualización: Estado para seguimiento de sincronización individual y selección de campañas - 15/06/2025 18:45 //////////
+  const [showCampaignModal, setShowCampaignModal] = useState(false);
+  const [selectedLeadForSync, setSelectedLeadForSync] = useState<Lead | null>(null);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [loadingCampaigns, setLoadingCampaigns] = useState(false);
+  const [syncingSingle, setSyncingSingle] = useState(false);
+  ////////// Fin de actualización - 15/06/2025 18:45 //////////
 
   useEffect(() => {
     loadSettings();
@@ -92,27 +97,43 @@ export const EmailMarketing: React.FC = () => {
   };
   ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
-  ////////// Actualización: Función para sincronización individual de un lead - 07/06/2025 20:15 //////////
-  const handleSingleSync = async (leadId: string) => {
+  ////////// Actualización: Función para abrir modal de selección de campaña - 15/06/2025 18:45 //////////
+  const openCampaignSelector = async (lead: Lead) => {
     if (!systemeIoKey) {
         alert("Configura primero tu API Key de Systeme.io arriba.");
         return;
     }
-
-    setSyncingId(leadId);
+    setSelectedLeadForSync(lead);
+    setShowCampaignModal(true);
+    setLoadingCampaigns(true);
     try {
-        const res = await api.syncSingleLead(leadId);
-        console.log("[Single Sync Success]:", res);
-        // Actualizamos localmente el lead enviado
-        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, synced: true } : l));
-    } catch (e: any) {
-        console.error(`[SINGLE SYNC ERROR ID ${leadId}]:`, e);
-        alert("Error al enviar el lead: " + (e.message || "Error desconocido"));
+        const data = await api.getSystemeIoCampaigns();
+        setCampaigns(data);
+    } catch (e) {
+        console.error("Error loading campaigns", e);
     } finally {
-        setSyncingId(null);
+        setLoadingCampaigns(false);
     }
   };
-  ////////// Fin de actualización - 07/06/2025 20:15 //////////
+
+  const handleSingleSync = async (campaignId?: string) => {
+    if (!selectedLeadForSync) return;
+
+    setSyncingSingle(true);
+    try {
+        const res = await api.syncSingleLead(selectedLeadForSync.id, campaignId);
+        console.log("[Single Sync Success]:", res);
+        // Actualizamos localmente el lead enviado
+        setLeads(prev => prev.map(l => l.id === selectedLeadForSync.id ? { ...l, synced: true } : l));
+        setShowCampaignModal(false);
+    } catch (e: any) {
+        console.error(`[SINGLE SYNC ERROR ID ${selectedLeadForSync.id}]:`, e);
+        alert("Error al enviar el lead: " + (e.message || "Error desconocido"));
+    } finally {
+        setSyncingSingle(false);
+    }
+  };
+  ////////// Fin de actualización - 15/06/2025 18:45 //////////
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -231,18 +252,17 @@ export const EmailMarketing: React.FC = () => {
                     )}
                   </td>
                   <td className="p-6 text-right">
-                    {/* ////////// Actualización: Botón para sincronización individual de lead - 07/06/2025 20:15 ////////// */}
+                    {/* ////////// Actualización: Botón para abrir selector de campaña individual - 15/06/2025 18:45 ////////// */}
                     {!lead.synced && (
                         <button 
-                            onClick={() => handleSingleSync(lead.id)}
-                            disabled={syncingId === lead.id}
+                            onClick={() => openCampaignSelector(lead)}
                             className="p-2.5 bg-[#FF5A1F]/10 hover:bg-[#FF5A1F] text-[#FF5A1F] hover:text-white border border-[#FF5A1F]/30 rounded-lg transition-all"
-                            title="Enviar este lead a Systeme.io ahora"
+                            title="Seleccionar campaña y enviar a Systeme.io"
                         >
-                            {syncingId === lead.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                            <Send className="w-4 h-4" />
                         </button>
                     )}
-                    {/* ////////// Fin de actualización - 07/06/2025 20:15 ////////// */}
+                    {/* ////////// Fin de actualización - 15/06/2025 18:45 ////////// */}
                   </td>
                 </tr>
               )) : (
@@ -256,6 +276,109 @@ export const EmailMarketing: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* ////////// Actualización: Modal Premium de Selección de Campaña - 15/06/2025 18:45 ////////// */}
+      {showCampaignModal && selectedLeadForSync && (
+          <div 
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={() => !syncingSingle && setShowCampaignModal(false)}
+          >
+              <div 
+                className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col"
+                onClick={e => e.stopPropagation()}
+              >
+                  <div className="p-8 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-[#FF5A1F]/10 to-transparent">
+                      <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-[#FF5A1F]/20 rounded-2xl flex items-center justify-center text-[#FF5A1F] shadow-[0_0_20px_rgba(255,90,31,0.2)]">
+                              <Target className="w-6 h-6" />
+                          </div>
+                          <div>
+                              <h3 className="text-xl font-bold text-white">Vincular a Campaña</h3>
+                              <p className="text-xs text-gray-500 uppercase font-black tracking-widest mt-1">Systeme.io Integration</p>
+                          </div>
+                      </div>
+                      <button 
+                        onClick={() => setShowCampaignModal(false)} 
+                        disabled={syncingSingle}
+                        className="text-gray-500 hover:text-white transition p-2 hover:bg-white/5 rounded-full"
+                      >
+                          <X className="w-6 h-6" />
+                      </button>
+                  </div>
+
+                  <div className="p-8 space-y-6">
+                      <div className="p-5 bg-black/40 rounded-2xl border border-white/5 space-y-2">
+                          <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Prospecto seleccionado</p>
+                          <div className="flex items-center justify-between">
+                              <p className="text-white font-bold">{selectedLeadForSync.name}</p>
+                              <p className="text-[#FF5A1F] font-medium text-sm">{selectedLeadForSync.email}</p>
+                          </div>
+                      </div>
+
+                      <div className="space-y-4">
+                          <h4 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
+                              <List className="w-4 h-4 text-[#FF5A1F]" /> Tus Campañas Activas
+                          </h4>
+                          
+                          <div className="max-h-[300px] overflow-y-auto custom-scrollbar pr-2 space-y-2">
+                              {loadingCampaigns ? (
+                                  <div className="py-12 flex flex-col items-center gap-3 text-gray-500">
+                                      <Loader2 className="w-8 h-8 animate-spin" />
+                                      <p className="text-xs font-bold uppercase tracking-widest">Consultando Systeme.io...</p>
+                                  </div>
+                              ) : campaigns.length > 0 ? (
+                                  <>
+                                      <button 
+                                          onClick={() => handleSingleSync()}
+                                          disabled={syncingSingle}
+                                          className="w-full text-left p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all group flex items-center justify-between"
+                                      >
+                                          <div>
+                                              <p className="text-gray-200 font-bold">Enviar sólo como contacto</p>
+                                              <p className="text-[10px] text-gray-500 uppercase font-bold">Sin secuencia de correos</p>
+                                          </div>
+                                          <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-white transition-all" />
+                                      </button>
+                                      
+                                      {campaigns.map(camp => (
+                                          <button 
+                                              key={camp.id}
+                                              onClick={() => handleSingleSync(camp.id)}
+                                              disabled={syncingSingle}
+                                              className="w-full text-left p-4 rounded-xl border border-white/5 bg-black hover:bg-[#FF5A1F]/5 hover:border-[#FF5A1F]/30 transition-all group flex items-center justify-between"
+                                          >
+                                              <div>
+                                                  <p className="text-white font-bold group-hover:text-[#FF5A1F] transition-colors">{camp.name}</p>
+                                                  <p className="text-[10px] text-gray-600 uppercase font-bold">Activar secuencia automática</p>
+                                              </div>
+                                              <Send className="w-4 h-4 text-gray-700 group-hover:text-[#FF5A1F] transition-all" />
+                                          </button>
+                                      ))}
+                                  </>
+                              ) : (
+                                  <div className="py-10 text-center border border-dashed border-white/10 rounded-2xl">
+                                      <p className="text-gray-500 text-sm italic">No se encontraron campañas creadas en tu cuenta.</p>
+                                      <button 
+                                          onClick={() => handleSingleSync()}
+                                          className="mt-4 px-6 py-2 bg-white/5 text-white rounded-lg text-xs font-bold uppercase"
+                                      >
+                                          Enviar sólo contacto
+                                      </button>
+                                  </div>
+                              )}
+                          </div>
+                      </div>
+                  </div>
+
+                  <div className="p-6 bg-black/40 border-t border-white/5 flex items-center justify-center gap-4">
+                      <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                          <ShieldCheck className="w-4 h-4 text-emerald-500" /> Sincronización Segura Activada
+                      </div>
+                  </div>
+              </div>
+          </div>
+      )}
+      {/* ////////// Fin de actualización - 15/06/2025 18:45 ////////// */}
     </div>
   );
 };

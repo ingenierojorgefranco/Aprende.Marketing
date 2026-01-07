@@ -55,5 +55,81 @@ const addContact = async (apiKey, email, firstName) => {
     });
 };
 
-module.exports = { addContact };
-////////// Fin de actualización - 07/06/2025 19:30 //////////
+////////// Actualización: Funciones para obtener campañas y suscribir contactos a campañas - 15/06/2025 18:45 //////////
+/**
+ * Obtiene el listado de campañas de Systeme.io
+ * @param {string} apiKey 
+ */
+const getCampaigns = async (apiKey) => {
+    const options = {
+        hostname: 'api.systeme.io',
+        port: 443,
+        path: '/api/campaigns',
+        method: 'GET',
+        headers: {
+            'X-Api-Key': apiKey
+        }
+    };
+
+    return new Promise((resolve, reject) => {
+        const req = https.request(options, (res) => {
+            let resBody = '';
+            res.on('data', (chunk) => resBody += chunk);
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    try {
+                        const parsed = JSON.parse(resBody);
+                        resolve(parsed.items || []);
+                    } catch (e) {
+                        resolve([]);
+                    }
+                } else {
+                    reject(new Error(`Systeme.io Campaigns Error: ${res.statusCode}`));
+                }
+            });
+        });
+        req.on('error', (e) => reject(e));
+        req.end();
+    });
+};
+
+/**
+ * Suscribe un contacto a una campaña específica en Systeme.io
+ * @param {string} apiKey 
+ * @param {number} contactId 
+ * @param {number} campaignId 
+ */
+const subscribeToCampaign = async (apiKey, contactId, campaignId) => {
+    const data = JSON.stringify({ contactId });
+    const options = {
+        hostname: 'api.systeme.io',
+        port: 443,
+        path: `/api/campaigns/${campaignId}/subscriptions`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Api-Key': apiKey,
+            'Content-Length': Buffer.byteLength(data)
+        }
+    };
+
+    return new Promise((resolve, reject) => {
+        const req = https.request(options, (res) => {
+            let resBody = '';
+            res.on('data', (chunk) => resBody += chunk);
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    resolve({ success: true });
+                } else {
+                    reject(new Error(`Systeme.io Subscription Error: ${res.statusCode} - ${resBody}`));
+                }
+            });
+        });
+        req.on('error', (e) => reject(e));
+        req.write(data);
+        req.end();
+    });
+};
+
+module.exports = { addContact, getCampaigns, subscribeToCampaign };
+////////// Fin de actualización - 15/06/2025 18:45 //////////

@@ -1,3 +1,4 @@
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -1351,18 +1352,28 @@ export const api = {
     },
     ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
-    ////////// Actualización: Método para sincronización individual de un lead - 07/06/2025 20:15 //////////
-    syncSingleLead: async (leadId: string): Promise<{ success: boolean; message: string }> => {
+    ////////// Actualización: Método para sincronización individual de un lead con soporte para campaña - 15/06/2025 18:45 //////////
+    syncSingleLead: async (leadId: string, campaignId?: string): Promise<{ success: boolean; message: string }> => {
         if (isMockMode) {
             return Promise.resolve({ success: true, message: "Sincronización individual simulada exitosa." });
         }
         return await fetchWithFallback('/system/integrations/sync-single', {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ leadId })
+            body: JSON.stringify({ leadId, campaignId })
         });
     },
-    ////////// Fin de actualización - 07/06/2025 20:15 //////////
+
+    /**
+     * Obtiene las campañas del usuario desde Systeme.io
+     */
+    getSystemeIoCampaigns: async (): Promise<any[]> => {
+        if (isMockMode) return [{ id: 1, name: 'Campaña Mock A' }, { id: 2, name: 'Campaña Mock B' }];
+        return await fetchWithFallback('/system/integrations/systemeio/campaigns', {
+            headers: getAuthHeaders()
+        });
+    },
+    ////////// Fin de actualización - 15/06/2025 18:45 //////////
 
     ////////// Actualización: Métodos para persistencia de títulos SEO generados - 05/06/2025 21:15 //////////
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,

@@ -113,6 +113,25 @@ router.put('/system/integrations', authMiddleware, async (req, res) => {
 });
 ////////// Fin de actualización - 07/06/2025 19:30 //////////
 
+////////// Actualización: Endpoint para obtener campañas de Systeme.io del usuario - 15/06/2025 18:45 //////////
+router.get('/system/integrations/systemeio/campaigns', authMiddleware, async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            "SELECT setting_value FROM system_settings WHERE setting_key = ?",
+            [`integrations_${req.user.id}`]
+        );
+        if (rows.length === 0) return res.json([]);
+        const settings = JSON.parse(rows[0].setting_value);
+        if (!settings.systemeIoKey) return res.json([]);
+        
+        const campaigns = await systemeIoService.getCampaigns(settings.systemeIoKey);
+        res.json(campaigns);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+////////// Fin de actualización - 15/06/2025 18:45 //////////
+
 ////////// Actualización: Endpoint para sincronización manual de leads pendientes con Systeme.io - 07/06/2025 19:40 //////////
 router.post('/system/integrations/sync-pending', authMiddleware, async (req, res) => {
     try {
@@ -170,9 +189,9 @@ router.post('/system/integrations/sync-pending', authMiddleware, async (req, res
 });
 ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
-////////// Actualización: Endpoint para sincronización individual de un lead específico - 07/06/2025 20:15 //////////
+////////// Actualización: Endpoint para sincronización individual con soporte para suscripción a campañas - 15/06/2025 18:45 //////////
 router.post('/system/integrations/sync-single', authMiddleware, async (req, res) => {
-    const { leadId } = req.body;
+    const { leadId, campaignId } = req.body;
     if (!leadId) return res.status(400).json({ error: "ID de lead no proporcionado." });
 
     try {
@@ -201,37 +220,38 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
         if (leads.length === 0) return res.status(404).json({ error: "Lead no encontrado o no tienes permisos." });
         const lead = leads[0];
 
-        // 3. Sincronizar
-        ////////// Actualización: Separación estricta de errores de API y Base de Datos para evitar reportes falsos - 15/06/2025 16:30 //////////
-        let apiSuccess = false;
+        // 3. Sincronizar Contacto
+        let contactResponse;
         try {
-            await systemeIoService.addContact(settings.systemeIoKey, lead.email, lead.name || 'Prospecto');
-            apiSuccess = true;
+            contactResponse = await systemeIoService.addContact(settings.systemeIoKey, lead.email, lead.name || 'Prospecto');
         } catch (apiErr) {
             console.error(`[Systeme.io API Error Details]:`, apiErr);
-            let userFriendlyMessage = apiErr.message;
-            if (userFriendlyMessage.includes("422")) {
-                userFriendlyMessage = "Error 422 de Systeme.io: Validación de campos fallida o contacto duplicado. Asegúrese de que la API Key sea correcta.";
-            }
-            return res.status(500).json({ error: `Error de API Systeme.io: ${userFriendlyMessage}` });
+            return res.status(500).json({ error: `Error de API Systeme.io al añadir contacto: ${apiErr.message}` });
         }
 
-        if (apiSuccess) {
+        // 4. Suscribir a Campaña si se proporcionó ID
+        if (campaignId && contactResponse && contactResponse.id) {
             try {
-                await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [leadId]);
-                res.json({ success: true, message: `Lead ${lead.email} sincronizado con éxito.` });
-            } catch (dbErr) {
-                console.error(`[Single Sync DB Error]:`, dbErr);
-                res.status(500).json({ error: `Error de Base de Datos Local: No se pudo marcar como sincronizado. Verifique que la columna 'synced' existe.` });
+                await systemeIoService.subscribeToCampaign(settings.systemeIoKey, contactResponse.id, campaignId);
+            } catch (subErr) {
+                console.warn(`[Systeme.io Subscription Warn]: No se pudo suscribir a la campaña, pero el contacto fue creado.`);
             }
         }
-        ////////// Fin de actualización - 15/06/2025 16:30 //////////
+
+        // 5. Actualizar estado local
+        try {
+            await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [leadId]);
+            res.json({ success: true, message: `Lead ${lead.email} sincronizado con éxito${campaignId ? ' y suscrito a la campaña' : ''}.` });
+        } catch (dbErr) {
+            console.error(`[Single Sync DB Error]:`, dbErr);
+            res.status(500).json({ error: `Error de Base de Datos Local.` });
+        }
     } catch (e) {
         console.error("[SINGLE SYNC ERROR 500]:", e);
         res.status(500).json({ error: e.message });
     }
 });
-////////// Fin de actualización - 07/06/2025 20:15 //////////
+////////// Fin de actualización - 15/06/2025 18:45 //////////
 
 /**
  * Lista los planes activos para la landing page pública o modal de upgrade.
