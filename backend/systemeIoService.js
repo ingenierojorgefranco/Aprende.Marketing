@@ -96,18 +96,25 @@ const getTags = async (apiKey) => {
     });
 };
 
+////////// Actualización: Asegurar tipos numéricos y logs de depuración para asignación de etiquetas - 17/06/2025 14:30 //////////
 /**
  * Asigna una etiqueta a un contacto específico en Systeme.io
  * @param {string} apiKey 
- * @param {number} contactId 
- * @param {number} tagId 
+ * @param {number|string} contactId 
+ * @param {number|string} tagId 
  */
 const addTagToContact = async (apiKey, contactId, tagId) => {
-    const data = JSON.stringify({ contactId });
+    // Forzamos que los IDs sean números para la API de Systeme.io
+    const cleanContactId = Number(contactId);
+    const cleanTagId = Number(tagId);
+
+    console.log(`[Systeme.io Debug] Inicia addTagToContact. Contact: ${cleanContactId}, Tag: ${cleanTagId}`);
+
+    const data = JSON.stringify({ contactId: cleanContactId });
     const options = {
         hostname: 'api.systeme.io',
         port: 443,
-        path: `/api/tags/${tagId}/contacts`,
+        path: `/api/tags/${cleanTagId}/contacts`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -124,6 +131,7 @@ const addTagToContact = async (apiKey, contactId, tagId) => {
             let resBody = '';
             res.on('data', (chunk) => resBody += chunk);
             res.on('end', () => {
+                console.log(`[Systeme.io Debug] Response Status: ${res.statusCode}. Body: ${resBody}`);
                 if (res.statusCode >= 200 && res.statusCode < 300) {
                     resolve({ success: true });
                 } else {
@@ -131,11 +139,14 @@ const addTagToContact = async (apiKey, contactId, tagId) => {
                 }
             });
         });
-        req.on('error', (e) => reject(e));
+        req.on('error', (e) => {
+            console.error(`[Systeme.io Debug] Request Error:`, e.message);
+            reject(e);
+        });
         req.write(data);
         req.end();
     });
 };
+////////// Fin de actualización - 17/06/2025 14:30 //////////
 
 module.exports = { addContact, getTags, addTagToContact };
-////////// Fin de actualización - 17/06/2025 11:30 //////////

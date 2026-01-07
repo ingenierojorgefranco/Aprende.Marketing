@@ -322,7 +322,7 @@ router.post('/public/leads/submit', async (req, res) => {
             await logCRMActivity(contactId, 'lead_submission', activityPayload);
         }
 
-        ////////// Actualización: Disparador automático para Systeme.io al capturar lead con manejo de errores mejorado - 15/06/2025 16:30 //////////
+        ////////// Actualización: Limpieza de código de campañas antiguas y disparador automático Systeme.io simplificado - 17/06/2025 14:30 //////////
         try {
             const [intRows] = await pool.query(
                 "SELECT setting_value FROM system_settings WHERE setting_key = ?",
@@ -331,21 +331,10 @@ router.post('/public/leads/submit', async (req, res) => {
             if (intRows.length > 0) {
                 const settings = JSON.parse(intRows[0].setting_value);
                 if (settings.systemeIoKey) {
-                    // Primero intentamos la comunicación con la API externa
                     try {
-                        const contactRes = await systemeIoService.addContact(settings.systemeIoKey, email, name || 'Prospecto');
+                        // Sincronizar contacto únicamente. Las etiquetas/campañas se manejan manualmente o por automatización interna de Systeme.io
+                        await systemeIoService.addContact(settings.systemeIoKey, email, name || 'Prospecto');
                         
-                        ////////// Actualización: Suscripción automática a campaña Systeme.io ID 957760 - 24/05/2024 18:30 //////////
-                        if (contactRes && contactRes.id) {
-                            try {
-                                await systemeIoService.subscribeToCampaign(settings.systemeIoKey, contactRes.id, "957760");
-                            } catch (subErr) {
-                                console.error("[Systeme.io Auto-Campaign Error]:", subErr.message);
-                            }
-                        }
-                        ////////// Fin de actualización - 24/05/2024 18:30 //////////
-
-                        // Si la API tiene éxito, intentamos actualizar el estado de sincronización localmente
                         try {
                             await pool.query('UPDATE leads SET synced = 1 WHERE page_id = ? AND email = ?', [pageId, email]);
                         } catch (dbSyncErr) {
@@ -359,7 +348,7 @@ router.post('/public/leads/submit', async (req, res) => {
         } catch (intFetchErr) {
             console.error("[Integration Fetch Error]:", intFetchErr.message);
         }
-        ////////// Fin de actualización - 15/06/2025 16:30 //////////
+        ////////// Fin de actualización - 17/06/2025 14:30 //////////
 
         res.json({ success: true });
     } catch (e) {

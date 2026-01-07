@@ -189,7 +189,7 @@ router.post('/system/integrations/sync-pending', authMiddleware, async (req, res
 });
 ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
-////////// Actualización: Endpoint para sincronización individual con soporte para asignación de etiquetas (Tags) - 17/06/2025 11:30 //////////
+////////// Actualización: Mejora de la respuesta ante fallos en la asignación de etiquetas individuales - 17/06/2025 14:30 //////////
 router.post('/system/integrations/sync-single', authMiddleware, async (req, res) => {
     const { leadId, tagId } = req.body;
     if (!leadId) return res.status(400).json({ error: "ID de lead no proporcionado." });
@@ -230,18 +230,33 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
         }
 
         // 4. Asignar Etiqueta si se proporcionó ID
+        let tagSuccess = true;
+        let tagErrorMessage = "";
         if (tagId && contactResponse && contactResponse.id) {
             try {
                 await systemeIoService.addTagToContact(settings.systemeIoKey, contactResponse.id, tagId);
             } catch (subErr) {
-                console.warn(`[Systeme.io Tag Assignment Warn]: No se pudo asignar la etiqueta, pero el contacto fue creado.`);
+                console.warn(`[Systeme.io Tag Assignment Warn]: ${subErr.message}`);
+                tagSuccess = false;
+                tagErrorMessage = subErr.message;
             }
         }
 
         // 5. Actualizar estado local
         try {
             await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [leadId]);
-            res.json({ success: true, message: `Lead ${lead.email} sincronizado con éxito${tagId ? ' y etiqueta asignada' : ''}.` });
+            
+            // Construimos mensaje de éxito detallado
+            let finalMessage = `Lead ${lead.email} sincronizado con éxito.`;
+            if (tagId) {
+                if (tagSuccess) {
+                    finalMessage += " Etiqueta vinculada correctamente.";
+                } else {
+                    finalMessage += ` ¡AVISO!: El contacto se creó pero no se pudo asignar la etiqueta (${tagErrorMessage}).`;
+                }
+            }
+            
+            res.json({ success: true, message: finalMessage });
         } catch (dbErr) {
             console.error(`[Single Sync DB Error]:`, dbErr);
             res.status(500).json({ error: `Error de Base de Datos Local.` });
@@ -251,7 +266,7 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
         res.status(500).json({ error: e.message });
     }
 });
-////////// Fin de actualización - 17/06/2025 11:30 //////////
+////////// Fin de actualización - 17/06/2025 14:30 //////////
 
 /**
  * Lista los planes activos para la landing page pública o modal de upgrade.
