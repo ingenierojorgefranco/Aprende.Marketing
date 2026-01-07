@@ -84,7 +84,9 @@ const getCampaigns = async (apiKey) => {
                         resolve([]);
                     }
                 } else {
-                    reject(new Error(`Systeme.io Campaigns Error: ${res.statusCode}`));
+                    ////////// Actualización: Captura del cuerpo de respuesta en error para diagnóstico de campañas - 26/10/2023 21:10 //////////
+                    reject(new Error(`Systeme.io Campaigns Error: ${res.statusCode} - ${resBody}`));
+                    ////////// Fin de actualización - 26/10/2023 21:10 //////////
                 }
             });
         });

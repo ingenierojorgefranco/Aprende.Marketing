@@ -127,6 +127,9 @@ router.get('/system/integrations/systemeio/campaigns', authMiddleware, async (re
         const campaigns = await systemeIoService.getCampaigns(settings.systemeIoKey);
         res.json(campaigns);
     } catch (e) {
+        ////////// Actualización: Log de error detallado en consola del servidor para diagnóstico de campañas - 26/10/2023 21:15 //////////
+        console.error("[Systeme.io Campaigns Route Error]:", e);
+        ////////// Fin de actualización - 26/10/2023 21:15 //////////
         res.status(500).json({ error: e.message });
     }
 });
