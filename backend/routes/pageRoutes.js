@@ -1,4 +1,3 @@
-
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
@@ -334,7 +333,18 @@ router.post('/public/leads/submit', async (req, res) => {
                 if (settings.systemeIoKey) {
                     // Primero intentamos la comunicación con la API externa
                     try {
-                        await systemeIoService.addContact(settings.systemeIoKey, email, name || 'Prospecto');
+                        const contactRes = await systemeIoService.addContact(settings.systemeIoKey, email, name || 'Prospecto');
+                        
+                        ////////// Actualización: Suscripción automática a campaña Systeme.io ID 957760 - 24/05/2024 18:30 //////////
+                        if (contactRes && contactRes.id) {
+                            try {
+                                await systemeIoService.subscribeToCampaign(settings.systemeIoKey, contactRes.id, "957760");
+                            } catch (subErr) {
+                                console.error("[Systeme.io Auto-Campaign Error]:", subErr.message);
+                            }
+                        }
+                        ////////// Fin de actualización - 24/05/2024 18:30 //////////
+
                         // Si la API tiene éxito, intentamos actualizar el estado de sincronización localmente
                         try {
                             await pool.query('UPDATE leads SET synced = 1 WHERE page_id = ? AND email = ?', [pageId, email]);
