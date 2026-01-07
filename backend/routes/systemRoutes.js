@@ -124,17 +124,12 @@ router.get('/system/integrations/systemeio/campaigns', authMiddleware, async (re
         const settings = JSON.parse(rows[0].setting_value);
         if (!settings.systemeIoKey) return res.json([]);
         
-        ////////// Actualización: Log de seguridad para verificar longitud y formato de API Key - 15/06/2025 19:25 //////////
-        const key = settings.systemeIoKey;
-        console.log(`[Systeme.io Diagnostic] Fetching campaigns for User ${req.user.id}. Key Preview: ${key.substring(0,4)}...${key.substring(key.length - 4)}`);
-        ////////// Fin de actualización - 15/06/2025 19:25 //////////
-
         const campaigns = await systemeIoService.getCampaigns(settings.systemeIoKey);
         res.json(campaigns);
     } catch (e) {
-        ////////// Actualización: Log de error detallado en consola del servidor para diagnóstico de campañas - 15/06/2025 19:15 //////////
+        ////////// Actualización: Log de error detallado en consola del servidor para diagnóstico de campañas - 26/10/2023 21:15 //////////
         console.error("[Systeme.io Campaigns Route Error]:", e);
-        ////////// Fin de actualización - 15/06/2025 19:15 //////////
+        ////////// Fin de actualización - 26/10/2023 21:15 //////////
         res.status(500).json({ error: e.message });
     }
 });
@@ -341,9 +336,9 @@ router.get('/system/news', async (req, res) => {
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
-}); 
+});
 
-router.get('/system/news/history', async (req, date: Date) => {
+router.get('/system/news/history', async (req, res) => {
     const { month, year } = req.query;
     try {
         let query = 'SELECT * FROM novedadestips WHERE 1=1';
