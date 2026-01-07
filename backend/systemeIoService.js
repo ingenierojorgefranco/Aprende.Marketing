@@ -67,9 +67,17 @@ const getCampaigns = async (apiKey) => {
         path: '/api/campaigns',
         method: 'GET',
         headers: {
-            'X-Api-Key': apiKey
+            ////////// Actualización: Se añade Accept y User-Agent para evitar error 404 (Symfony Routing) y se normaliza a X-API-Key - 15/06/2025 19:20 //////////
+            'X-API-Key': apiKey,
+            'Accept': 'application/json',
+            'User-Agent': 'PlataformaDeVenta-App/2.9'
+            ////////// Fin de actualización - 15/06/2025 19:20 //////////
         }
     };
+
+    ////////// Actualización: Log de diagnóstico de petición saliente - 15/06/2025 19:20 //////////
+    console.log(`[Systeme.io Outgoing Request]: GET https://${options.hostname}${options.path}`);
+    ////////// Fin de actualización - 15/06/2025 19:20 //////////
 
     return new Promise((resolve, reject) => {
         const req = https.request(options, (res) => {
@@ -84,9 +92,9 @@ const getCampaigns = async (apiKey) => {
                         resolve([]);
                     }
                 } else {
-                    ////////// Actualización: Captura del cuerpo de respuesta en error para diagnóstico de campañas - 26/10/2023 21:10 //////////
+                    ////////// Actualización: Captura del cuerpo de respuesta en error para diagnóstico de campañas - 15/06/2025 19:10 //////////
                     reject(new Error(`Systeme.io Campaigns Error: ${res.statusCode} - ${resBody}`));
-                    ////////// Fin de actualización - 26/10/2023 21:10 //////////
+                    ////////// Fin de actualización - 15/06/2025 19:10 //////////
                 }
             });
         });
@@ -110,7 +118,9 @@ const subscribeToCampaign = async (apiKey, contactId, campaignId) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-Api-Key': apiKey,
+            ////////// Actualización: Normalización de cabecera a X-API-Key - 15/06/2025 19:20 //////////
+            'X-API-Key': apiKey,
+            ////////// Fin de actualización - 15/06/2025 19:20 //////////
             'Content-Length': Buffer.byteLength(data)
         }
     };
