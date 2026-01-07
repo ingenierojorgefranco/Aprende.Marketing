@@ -229,9 +229,9 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
             return res.status(500).json({ error: `Error de API Systeme.io al añadir contacto: ${apiErr.message}` });
         }
 
-        ////////// Actualización: Extracción de ID de contacto ultra-profunda (contact.contact.id) para corregir error 404 en asignación de etiquetas - 25/06/2025 11:30 //////////
-        const finalContactId = contactResponse?.contact?.contact?.id || contactResponse?.contact?.id || contactResponse?.id;
-        ////////// Fin de actualización - 25/06/2025 11:30 //////////
+        ////////// Actualización: Implementación de extracción inteligente de ID (buscando en contact.id, contact.contact.id e id directo) para máxima compatibilidad con las variaciones de la API de Systeme.io - 25/06/2025 15:50 //////////
+        const finalContactId = contactResponse?.contact?.id || contactResponse?.contact?.contact?.id || contactResponse?.id;
+        ////////// Fin de actualización - 25/06/2025 15:50 //////////
 
         // 4. Asignar Etiqueta si se proporcionó ID
         let tagSuccess = true;

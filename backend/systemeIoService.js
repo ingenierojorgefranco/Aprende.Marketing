@@ -114,6 +114,11 @@ const addTagToContact = async (apiKey, contactId, tagId) => {
     }
     ////////// Fin de actualización - 25/06/2025 11:30 //////////
 
+    ////////// Actualización: Auditoría detallada de la URL y los IDs antes del envío para depuración de errores 404 - 25/06/2025 15:50 //////////
+    console.log(`[Systeme.io AUDIT] URL Destino: https://api.systeme.io/api/tags/${cleanTagId}/contacts`);
+    console.log(`[Systeme.io AUDIT] Payload Contact ID: ${cleanContactId}`);
+    ////////// Fin de actualización - 25/06/2025 15:50 //////////
+
     console.log(`[Systeme.io Debug] Inicia addTagToContact. Contact: ${cleanContactId}, Tag: ${cleanTagId}`);
 
     const data = JSON.stringify({ contactId: cleanContactId });
