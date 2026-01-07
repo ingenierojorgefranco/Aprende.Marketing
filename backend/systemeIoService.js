@@ -61,15 +61,21 @@ const addContact = async (apiKey, email, firstName) => {
  * @param {string} apiKey 
  */
 const getCampaigns = async (apiKey) => {
+    ////////// Actualización: Añadido de cabeceras Accept/Content-Type y logs de depuración para diagnosticar error 404 - 26/02/2025 15:50 //////////
     const options = {
         hostname: 'api.systeme.io',
         port: 443,
         path: '/api/campaigns',
         method: 'GET',
         headers: {
-            'X-Api-Key': apiKey
+            'X-Api-Key': apiKey,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
         }
     };
+
+    console.log(`[Systeme.io Debug] Requesting: GET https://${options.hostname}${options.path}`);
+    ////////// Fin de actualización - 26/02/2025 15:50 //////////
 
     return new Promise((resolve, reject) => {
         const req = https.request(options, (res) => {
@@ -103,6 +109,7 @@ const getCampaigns = async (apiKey) => {
  */
 const subscribeToCampaign = async (apiKey, contactId, campaignId) => {
     const data = JSON.stringify({ contactId });
+    ////////// Actualización: Añadido de cabecera Accept y logs de depuración para diagnóstico de suscripción - 26/02/2025 15:50 //////////
     const options = {
         hostname: 'api.systeme.io',
         port: 443,
@@ -110,10 +117,14 @@ const subscribeToCampaign = async (apiKey, contactId, campaignId) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
             'X-Api-Key': apiKey,
             'Content-Length': Buffer.byteLength(data)
         }
     };
+
+    console.log(`[Systeme.io Debug] Requesting: POST https://${options.hostname}${options.path}`);
+    ////////// Fin de actualización - 26/02/2025 15:50 //////////
 
     return new Promise((resolve, reject) => {
         const req = https.request(options, (res) => {
