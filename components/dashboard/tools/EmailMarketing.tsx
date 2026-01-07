@@ -110,7 +110,7 @@ export const EmailMarketing: React.FC = () => {
                     <input
                         type="password"
                         value={systemeIoKey}
-                        onChange={(e) => setSyncing ? setSystemeIoKey(e.target.value) : null}
+                        onChange={(e) => setSystemeIoKey(e.target.value)}
                         placeholder="Introduce tu API Key de Systeme.io"
                         className="w-full bg-black border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:border-[#FF5A1F] outline-none transition"
                         disabled={loadingSettings || savingKey}
@@ -147,11 +147,9 @@ export const EmailMarketing: React.FC = () => {
               <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
                   <ExternalLink className="w-4 h-4" />
               </div>
-              {/* ////////// Corrección de error de compilación escapando caracteres > con &gt; - 07/06/2025 19:35 ////////// */}
               <p className="text-xs text-gray-400 leading-relaxed font-medium">
                 ¿No tienes tu API Key? búscala en tu panel de Systeme.io &gt; Configuración &gt; Configuración de la API pública. Al configurar esta clave, cada registro en tus Landing Pages se enviará automáticamente.
               </p>
-              {/* ////////// Fin de actualización - 07/06/2025 19:35 ////////// */}
           </div>
         </div>
       </div>

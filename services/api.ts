@@ -166,13 +166,15 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.adminUserResources = {};
         apiCache.systemLogs = {};
         apiCache.contactHistory = {};
+        ////////// Corrección de error de sintaxis en clearCache - 07/06/2025 19:40 //////////
         apiCache.publicBlogArticles = {};
         apiCache.publicArticleDetails = {};
-        userUsageStats: {},
-        userPayments: {},
+        apiCache.userUsageStats = {};
+        apiCache.userPayments = {};
         apiCache.siteAnalysis = {};
         apiCache.publicPages = {};
         apiCache.masterStrategies = {};
+        ////////// Fin de actualización - 07/06/2025 19:40 //////////
     }
 };
 ////////// Fin de actualización - 07/06/2025 10:15 //////////
