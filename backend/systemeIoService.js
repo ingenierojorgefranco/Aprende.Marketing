@@ -9,12 +9,14 @@ const https = require('https');
  * @param {string} firstName - Nombre del lead
  */
 const addContact = async (apiKey, email, firstName) => {
+    ////////// Actualización: Se cambia 'name' por 'slug' para corregir error 422 de Systeme.io (This value should not be blank) - 07/06/2025 20:30 //////////
     const data = JSON.stringify({
         email: email,
         fields: [
-            { name: 'first_name', value: firstName }
+            { slug: 'first_name', value: firstName }
         ]
     });
+    ////////// Fin de actualización - 07/06/2025 20:30 //////////
 
     const options = {
         hostname: 'api.systeme.io',

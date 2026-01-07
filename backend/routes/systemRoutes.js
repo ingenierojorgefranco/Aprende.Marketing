@@ -200,8 +200,14 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
             await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [leadId]);
             res.json({ success: true, message: `Lead ${lead.email} sincronizado con éxito.` });
         } catch (apiErr) {
+            ////////// Actualización: Captura de error de API externa para reporte limpio al usuario - 07/06/2025 20:30 //////////
             console.error(`[Systeme.io API Error Details]:`, apiErr);
-            res.status(500).json({ error: `Error de API Systeme.io: ${apiErr.message}` });
+            let userFriendlyMessage = apiErr.message;
+            if (userFriendlyMessage.includes("422")) {
+                userFriendlyMessage = "Error 422 de Systeme.io: Validación de campos fallida o contacto duplicado. Asegúrese de que la API Key sea correcta.";
+            }
+            res.status(500).json({ error: `Error de API Systeme.io: ${userFriendlyMessage}` });
+            ////////// Fin de actualización - 07/06/2025 20:30 //////////
         }
     } catch (e) {
         console.error("[SINGLE SYNC ERROR 500]:", e);
