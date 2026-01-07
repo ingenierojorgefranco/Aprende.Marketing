@@ -108,9 +108,11 @@ export const EmailMarketing: React.FC = () => {
               <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
                   <ExternalLink className="w-4 h-4" />
               </div>
+              {/* ////////// Corrección de error de compilación escapando caracteres > con &gt; - 07/06/2025 19:35 ////////// */}
               <p className="text-xs text-gray-400 leading-relaxed font-medium">
-                ¿No tienes tu API Key? búscala en tu panel de Systeme.io > Configuración > Configuración de la API pública. Al configurar esta clave, cada registro en tus Landing Pages se enviará automáticamente.
+                ¿No tienes tu API Key? búscala en tu panel de Systeme.io &gt; Configuración &gt; Configuración de la API pública. Al configurar esta clave, cada registro en tus Landing Pages se enviará automáticamente.
               </p>
+              {/* ////////// Fin de actualización - 07/06/2025 19:35 ////////// */}
           </div>
         </div>
       </div>
@@ -175,4 +177,3 @@ export const EmailMarketing: React.FC = () => {
     </div>
   );
 };
-////////// Fin de actualización - 07/06/2025 19:30 //////////
