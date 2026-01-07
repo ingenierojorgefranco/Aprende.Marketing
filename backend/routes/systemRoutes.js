@@ -341,7 +341,7 @@ router.get('/system/news', async (req, res) => {
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
-});
+}); 
 
 router.get('/system/news/history', async (req, date: Date) => {
     const { month, year } = req.query;
