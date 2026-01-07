@@ -1,4 +1,3 @@
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -912,7 +911,8 @@ export const api = {
   
     deleteUser: async (id: string): Promise<void> => {
         if (isMockMode) return Promise.resolve();
-        await fetchWithFallback(`/admin/users/${id}`, { headers: getAuthHeaders() });
+        // Fix: Added explicit method DELETE - 17/06/2025 10:30
+        await fetchWithFallback(`/admin/users/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
         clearCache('adminUserResources');
         clearCache('usersList');
     },
@@ -1012,7 +1012,8 @@ export const api = {
         }
         const method = course.id ? 'PUT' : 'POST';
         const endpoint = course.id ? `/admin/courses/${course.id}` : '/admin/courses';
-        const res = await fetchWithFallback(endpoint, { method, headers: getAuthHeaders(), body: JSON.stringify(course) });
+        // Fix: Explicit shorthand property assignment to avoid scope issues - 17/06/2025 10:30
+        const res = await fetchWithFallback(endpoint, { method: method, headers: getAuthHeaders(), body: JSON.stringify(course) });
         clearCache('courses');
         if (course.slug) clearCache('courseDetails', course.slug);
         return res;
@@ -1020,7 +1021,7 @@ export const api = {
   
     reorderCourses: async (orderedIds: string[]): Promise<void> => {
         if (isMockMode) return Promise.resolve();
-        await fetchWithFallback('/admin/courses/reorder', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ orderedIds }) });
+        await fetchWithFallback('/admin/courses/reorder', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ orderedIds }) });
         clearCache('courses');
     },
   
@@ -1135,7 +1136,8 @@ export const api = {
         if (isMockMode) return Promise.resolve();
         const method = plan.id ? 'PUT' : 'POST';
         const endpoint = plan.id ? `/admin/plans/${plan.id}` : '/admin/plans';
-        await fetchWithFallback(endpoint, { method, headers: getAuthHeaders(), body: JSON.stringify(plan) });
+        // Fix: Explicit shorthand property assignment to avoid scope issues - 17/06/2025 10:30
+        await fetchWithFallback(endpoint, { method: method, headers: getAuthHeaders(), body: JSON.stringify(plan) });
         clearCache('plans');
         clearCache('publicPlans');
     },
@@ -1278,8 +1280,9 @@ export const api = {
         if (isMockMode) return;
         const method = news.id ? 'PUT' : 'POST';
         const endpoint = news.id ? `/admin/news/${news.id}` : '/admin/news';
+        // Fix: Explicit shorthand property assignment to avoid scope issues - 17/06/2025 10:30
         await fetchWithFallback(endpoint, {
-            method,
+            method: method,
             headers: getAuthHeaders(),
             body: JSON.stringify({
                 title: news.title,
@@ -1352,28 +1355,28 @@ export const api = {
     },
     ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
-    ////////// Actualización: Método para sincronización individual de un lead con soporte para campaña - 15/06/2025 18:45 //////////
-    syncSingleLead: async (leadId: string, campaignId?: string): Promise<{ success: boolean; message: string }> => {
+    ////////// Actualización: Método para sincronización individual de un lead con soporte para etiqueta (Tag) - 17/06/2025 11:30 //////////
+    syncSingleLead: async (leadId: string, tagId?: string): Promise<{ success: boolean; message: string }> => {
         if (isMockMode) {
             return Promise.resolve({ success: true, message: "Sincronización individual simulada exitosa." });
         }
         return await fetchWithFallback('/system/integrations/sync-single', {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ leadId, campaignId })
+            body: JSON.stringify({ leadId, tagId })
         });
     },
 
     /**
-     * Obtiene las campañas del usuario desde Systeme.io
+     * Obtiene las etiquetas (Tags) del usuario desde Systeme.io
      */
-    getSystemeIoCampaigns: async (): Promise<any[]> => {
-        if (isMockMode) return [{ id: 1, name: 'Campaña Mock A' }, { id: 2, name: 'Campaña Mock B' }];
-        return await fetchWithFallback('/system/integrations/systemeio/campaigns', {
+    getSystemeIoTags: async (): Promise<any[]> => {
+        if (isMockMode) return [{ id: 1, name: 'Tag Mock A' }, { id: 2, name: 'Tag Mock B' }];
+        return await fetchWithFallback('/system/integrations/systemeio/tags', {
             headers: getAuthHeaders()
         });
     },
-    ////////// Fin de actualización - 15/06/2025 18:45 //////////
+    ////////// Fin de actualización - 17/06/2025 11:30 //////////
 
     ////////// Actualización: Métodos para persistencia de títulos SEO generados - 05/06/2025 21:15 //////////
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,

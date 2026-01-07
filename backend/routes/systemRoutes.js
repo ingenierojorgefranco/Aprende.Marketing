@@ -1,4 +1,3 @@
-
 const express = require('express');
 const pool = require('../db');
 const { generateContent } = require('../geminiService');
@@ -113,8 +112,8 @@ router.put('/system/integrations', authMiddleware, async (req, res) => {
 });
 ////////// Fin de actualización - 07/06/2025 19:30 //////////
 
-////////// Actualización: Endpoint para obtener campañas de Systeme.io del usuario - 15/06/2025 18:45 //////////
-router.get('/system/integrations/systemeio/campaigns', authMiddleware, async (req, res) => {
+////////// Actualización: Reemplazo de campañas por etiquetas (Tags) en endpoints de integración - 17/06/2025 11:30 //////////
+router.get('/system/integrations/systemeio/tags', authMiddleware, async (req, res) => {
     try {
         const [rows] = await pool.query(
             "SELECT setting_value FROM system_settings WHERE setting_key = ?",
@@ -124,16 +123,14 @@ router.get('/system/integrations/systemeio/campaigns', authMiddleware, async (re
         const settings = JSON.parse(rows[0].setting_value);
         if (!settings.systemeIoKey) return res.json([]);
         
-        const campaigns = await systemeIoService.getCampaigns(settings.systemeIoKey);
-        res.json(campaigns);
+        const tags = await systemeIoService.getTags(settings.systemeIoKey);
+        res.json(tags);
     } catch (e) {
-        ////////// Actualización: Log de error detallado en consola del servidor para diagnóstico de campañas - 26/02/2025 15:55 //////////
-        console.error(`[Systeme.io Campaigns Route Error] User ${req.user.id}:`, e.message);
-        ////////// Fin de actualización - 26/02/2025 15:55 //////////
+        console.error(`[Systeme.io Tags Route Error] User ${req.user.id}:`, e.message);
         res.status(500).json({ error: e.message });
     }
 });
-////////// Fin de actualización - 15/06/2025 18:45 //////////
+////////// Fin de actualización - 17/06/2025 11:30 //////////
 
 ////////// Actualización: Endpoint para sincronización manual de leads pendientes con Systeme.io - 07/06/2025 19:40 //////////
 router.post('/system/integrations/sync-pending', authMiddleware, async (req, res) => {
@@ -192,9 +189,9 @@ router.post('/system/integrations/sync-pending', authMiddleware, async (req, res
 });
 ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
-////////// Actualización: Endpoint para sincronización individual con soporte para suscripción a campañas - 15/06/2025 18:45 //////////
+////////// Actualización: Endpoint para sincronización individual con soporte para asignación de etiquetas (Tags) - 17/06/2025 11:30 //////////
 router.post('/system/integrations/sync-single', authMiddleware, async (req, res) => {
-    const { leadId, campaignId } = req.body;
+    const { leadId, tagId } = req.body;
     if (!leadId) return res.status(400).json({ error: "ID de lead no proporcionado." });
 
     try {
@@ -232,19 +229,19 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
             return res.status(500).json({ error: `Error de API Systeme.io al añadir contacto: ${apiErr.message}` });
         }
 
-        // 4. Suscribir a Campaña si se proporcionó ID
-        if (campaignId && contactResponse && contactResponse.id) {
+        // 4. Asignar Etiqueta si se proporcionó ID
+        if (tagId && contactResponse && contactResponse.id) {
             try {
-                await systemeIoService.subscribeToCampaign(settings.systemeIoKey, contactResponse.id, campaignId);
+                await systemeIoService.addTagToContact(settings.systemeIoKey, contactResponse.id, tagId);
             } catch (subErr) {
-                console.warn(`[Systeme.io Subscription Warn]: No se pudo suscribir a la campaña, pero el contacto fue creado.`);
+                console.warn(`[Systeme.io Tag Assignment Warn]: No se pudo asignar la etiqueta, pero el contacto fue creado.`);
             }
         }
 
         // 5. Actualizar estado local
         try {
             await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [leadId]);
-            res.json({ success: true, message: `Lead ${lead.email} sincronizado con éxito${campaignId ? ' y suscrito a la campaña' : ''}.` });
+            res.json({ success: true, message: `Lead ${lead.email} sincronizado con éxito${tagId ? ' y etiqueta asignada' : ''}.` });
         } catch (dbErr) {
             console.error(`[Single Sync DB Error]:`, dbErr);
             res.status(500).json({ error: `Error de Base de Datos Local.` });
@@ -254,7 +251,7 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
         res.status(500).json({ error: e.message });
     }
 });
-////////// Fin de actualización - 15/06/2025 18:45 //////////
+////////// Fin de actualización - 17/06/2025 11:30 //////////
 
 /**
  * Lista los planes activos para la landing page pública o modal de upgrade.

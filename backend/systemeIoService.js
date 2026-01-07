@@ -1,4 +1,3 @@
-
 ////////// Creación de servicio para integración con Systeme.io - 07/06/2025 19:30 //////////
 const https = require('https');
 
@@ -55,17 +54,16 @@ const addContact = async (apiKey, email, firstName) => {
     });
 };
 
-////////// Actualización: Funciones para obtener campañas y suscribir contactos a campañas - 15/06/2025 18:45 //////////
+////////// Actualización: Reemplazo de campañas por etiquetas (Tags) para vinculación de contactos - 17/06/2025 11:30 //////////
 /**
- * Obtiene el listado de campañas de Systeme.io
+ * Obtiene el listado de etiquetas (Tags) de Systeme.io
  * @param {string} apiKey 
  */
-const getCampaigns = async (apiKey) => {
-    ////////// Actualización: Añadido de cabeceras Accept/Content-Type y logs de depuración para diagnosticar error 404 - 26/02/2025 15:50 //////////
+const getTags = async (apiKey) => {
     const options = {
         hostname: 'api.systeme.io',
         port: 443,
-        path: '/api/campaigns',
+        path: '/api/tags',
         method: 'GET',
         headers: {
             'X-Api-Key': apiKey,
@@ -74,8 +72,7 @@ const getCampaigns = async (apiKey) => {
         }
     };
 
-    console.log(`[Systeme.io Debug] Requesting: GET https://${options.hostname}${options.path}`);
-    ////////// Fin de actualización - 26/02/2025 15:50 //////////
+    console.log(`[Systeme.io Debug] Requesting Tags: GET https://${options.hostname}${options.path}`);
 
     return new Promise((resolve, reject) => {
         const req = https.request(options, (res) => {
@@ -90,9 +87,7 @@ const getCampaigns = async (apiKey) => {
                         resolve([]);
                     }
                 } else {
-                    ////////// Actualización: Captura del cuerpo de respuesta en error para diagnóstico de campañas - 26/10/2023 21:10 //////////
-                    reject(new Error(`Systeme.io Campaigns Error: ${res.statusCode} - ${resBody}`));
-                    ////////// Fin de actualización - 26/10/2023 21:10 //////////
+                    reject(new Error(`Systeme.io Tags Error: ${res.statusCode} - ${resBody}`));
                 }
             });
         });
@@ -102,18 +97,17 @@ const getCampaigns = async (apiKey) => {
 };
 
 /**
- * Suscribe un contacto a una campaña específica en Systeme.io
+ * Asigna una etiqueta a un contacto específico en Systeme.io
  * @param {string} apiKey 
  * @param {number} contactId 
- * @param {number} campaignId 
+ * @param {number} tagId 
  */
-const subscribeToCampaign = async (apiKey, contactId, campaignId) => {
+const addTagToContact = async (apiKey, contactId, tagId) => {
     const data = JSON.stringify({ contactId });
-    ////////// Actualización: Añadido de cabecera Accept y logs de depuración para diagnóstico de suscripción - 26/02/2025 15:50 //////////
     const options = {
         hostname: 'api.systeme.io',
         port: 443,
-        path: `/api/campaigns/${campaignId}/subscriptions`,
+        path: `/api/tags/${tagId}/contacts`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -123,8 +117,7 @@ const subscribeToCampaign = async (apiKey, contactId, campaignId) => {
         }
     };
 
-    console.log(`[Systeme.io Debug] Requesting: POST https://${options.hostname}${options.path}`);
-    ////////// Fin de actualización - 26/02/2025 15:50 //////////
+    console.log(`[Systeme.io Debug] Requesting Tag Add: POST https://${options.hostname}${options.path}`);
 
     return new Promise((resolve, reject) => {
         const req = https.request(options, (res) => {
@@ -134,7 +127,7 @@ const subscribeToCampaign = async (apiKey, contactId, campaignId) => {
                 if (res.statusCode >= 200 && res.statusCode < 300) {
                     resolve({ success: true });
                 } else {
-                    reject(new Error(`Systeme.io Subscription Error: ${res.statusCode} - ${resBody}`));
+                    reject(new Error(`Systeme.io Tag Assignment Error: ${res.statusCode} - ${resBody}`));
                 }
             });
         });
@@ -144,5 +137,5 @@ const subscribeToCampaign = async (apiKey, contactId, campaignId) => {
     });
 };
 
-module.exports = { addContact, getCampaigns, subscribeToCampaign };
-////////// Fin de actualización - 15/06/2025 18:45 //////////
+module.exports = { addContact, getTags, addTagToContact };
+////////// Fin de actualización - 17/06/2025 11:30 //////////

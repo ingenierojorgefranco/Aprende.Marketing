@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Lead } from '../../../types';
 import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, ChevronRight } from 'lucide-react';
@@ -17,13 +16,13 @@ export const EmailMarketing: React.FC = () => {
   const [syncing, setSyncing] = useState(false);
   ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
-  ////////// Actualización: Estado para seguimiento de sincronización individual y selección de campañas - 15/06/2025 18:45 //////////
-  const [showCampaignModal, setShowCampaignModal] = useState(false);
+  ////////// Actualización: Estado para seguimiento de sincronización individual y selección de etiquetas (Tags) - 17/06/2025 11:30 //////////
+  const [showTagModal, setShowTagModal] = useState(false);
   const [selectedLeadForSync, setSelectedLeadForSync] = useState<Lead | null>(null);
-  const [campaigns, setCampaigns] = useState<any[]>([]);
-  const [loadingCampaigns, setLoadingCampaigns] = useState(false);
+  const [tags, setTags] = useState<any[]>([]);
+  const [loadingTags, setLoadingTags] = useState(false);
   const [syncingSingle, setSyncingSingle] = useState(false);
-  ////////// Fin de actualización - 15/06/2025 18:45 //////////
+  ////////// Fin de actualización - 17/06/2025 11:30 //////////
 
   useEffect(() => {
     loadSettings();
@@ -97,35 +96,35 @@ export const EmailMarketing: React.FC = () => {
   };
   ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
-  ////////// Actualización: Función para abrir modal de selección de campaña - 15/06/2025 18:45 //////////
-  const openCampaignSelector = async (lead: Lead) => {
+  ////////// Actualización: Función para abrir modal de selección de etiqueta (Tag) individual - 17/06/2025 11:30 //////////
+  const openTagSelector = async (lead: Lead) => {
     if (!systemeIoKey) {
         alert("Configura primero tu API Key de Systeme.io arriba.");
         return;
     }
     setSelectedLeadForSync(lead);
-    setShowCampaignModal(true);
-    setLoadingCampaigns(true);
+    setShowTagModal(true);
+    setLoadingTags(true);
     try {
-        const data = await api.getSystemeIoCampaigns();
-        setCampaigns(data);
+        const data = await api.getSystemeIoTags();
+        setTags(data);
     } catch (e) {
-        console.error("Error loading campaigns", e);
+        console.error("Error loading tags", e);
     } finally {
-        setLoadingCampaigns(false);
+        setLoadingTags(false);
     }
   };
 
-  const handleSingleSync = async (campaignId?: string) => {
+  const handleSingleSync = async (tagId?: string) => {
     if (!selectedLeadForSync) return;
 
     setSyncingSingle(true);
     try {
-        const res = await api.syncSingleLead(selectedLeadForSync.id, campaignId);
+        const res = await api.syncSingleLead(selectedLeadForSync.id, tagId);
         console.log("[Single Sync Success]:", res);
         // Actualizamos localmente el lead enviado
         setLeads(prev => prev.map(l => l.id === selectedLeadForSync.id ? { ...l, synced: true } : l));
-        setShowCampaignModal(false);
+        setShowTagModal(false);
     } catch (e: any) {
         console.error(`[SINGLE SYNC ERROR ID ${selectedLeadForSync.id}]:`, e);
         alert("Error al enviar el lead: " + (e.message || "Error desconocido"));
@@ -133,7 +132,7 @@ export const EmailMarketing: React.FC = () => {
         setSyncingSingle(false);
     }
   };
-  ////////// Fin de actualización - 15/06/2025 18:45 //////////
+  ////////// Fin de actualización - 17/06/2025 11:30 //////////
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -252,17 +251,17 @@ export const EmailMarketing: React.FC = () => {
                     )}
                   </td>
                   <td className="p-6 text-right">
-                    {/* ////////// Actualización: Botón para abrir selector de campaña individual - 15/06/2025 18:45 ////////// */}
+                    {/* ////////// Actualización: Botón para abrir selector de etiqueta (Tag) individual - 17/06/2025 11:30 ////////// */}
                     {!lead.synced && (
                         <button 
-                            onClick={() => openCampaignSelector(lead)}
+                            onClick={() => openTagSelector(lead)}
                             className="p-2.5 bg-[#FF5A1F]/10 hover:bg-[#FF5A1F] text-[#FF5A1F] hover:text-white border border-[#FF5A1F]/30 rounded-lg transition-all"
-                            title="Seleccionar campaña y enviar a Systeme.io"
+                            title="Seleccionar etiqueta y enviar a Systeme.io"
                         >
                             <Send className="w-4 h-4" />
                         </button>
                     )}
-                    {/* ////////// Fin de actualización - 15/06/2025 18:45 ////////// */}
+                    {/* ////////// Fin de actualización - 17/06/2025 11:30 ////////// */}
                   </td>
                 </tr>
               )) : (
@@ -277,11 +276,11 @@ export const EmailMarketing: React.FC = () => {
         </div>
       </div>
 
-      {/* ////////// Actualización: Modal Premium de Selección de Campaña - 15/06/2025 18:45 ////////// */}
-      {showCampaignModal && selectedLeadForSync && (
+      {/* ////////// Actualización: Modal Premium de Selección de Etiqueta (Tag) - 17/06/2025 11:30 ////////// */}
+      {showTagModal && selectedLeadForSync && (
           <div 
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
-            onClick={() => !syncingSingle && setShowCampaignModal(false)}
+            onClick={() => !syncingSingle && setShowTagModal(false)}
           >
               <div 
                 className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col"
@@ -293,12 +292,12 @@ export const EmailMarketing: React.FC = () => {
                               <Target className="w-6 h-6" />
                           </div>
                           <div>
-                              <h3 className="text-xl font-bold text-white">Vincular a Campaña</h3>
+                              <h3 className="text-xl font-bold text-white">Asignar Etiqueta (Tag)</h3>
                               <p className="text-xs text-gray-500 uppercase font-black tracking-widest mt-1">Systeme.io Integration</p>
                           </div>
                       </div>
                       <button 
-                        onClick={() => setShowCampaignModal(false)} 
+                        onClick={() => setShowTagModal(false)} 
                         disabled={syncingSingle}
                         className="text-gray-500 hover:text-white transition p-2 hover:bg-white/5 rounded-full"
                       >
@@ -317,16 +316,16 @@ export const EmailMarketing: React.FC = () => {
 
                       <div className="space-y-4">
                           <h4 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
-                              <List className="w-4 h-4 text-[#FF5A1F]" /> Tus Campañas Activas
+                              <List className="w-4 h-4 text-[#FF5A1F]" /> Tus Etiquetas Disponibles
                           </h4>
                           
                           <div className="max-h-[300px] overflow-y-auto custom-scrollbar pr-2 space-y-2">
-                              {loadingCampaigns ? (
+                              {loadingTags ? (
                                   <div className="py-12 flex flex-col items-center gap-3 text-gray-500">
                                       <Loader2 className="w-8 h-8 animate-spin" />
                                       <p className="text-xs font-bold uppercase tracking-widest">Consultando Systeme.io...</p>
                                   </div>
-                              ) : campaigns.length > 0 ? (
+                              ) : tags.length > 0 ? (
                                   <>
                                       <button 
                                           onClick={() => handleSingleSync()}
@@ -335,21 +334,21 @@ export const EmailMarketing: React.FC = () => {
                                       >
                                           <div>
                                               <p className="text-gray-200 font-bold">Enviar sólo como contacto</p>
-                                              <p className="text-[10px] text-gray-500 uppercase font-bold">Sin secuencia de correos</p>
+                                              <p className="text-[10px] text-gray-500 uppercase font-bold">Sin asignación de etiqueta</p>
                                           </div>
                                           <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-white transition-all" />
                                       </button>
                                       
-                                      {campaigns.map(camp => (
+                                      {tags.map(tag => (
                                           <button 
-                                              key={camp.id}
-                                              onClick={() => handleSingleSync(camp.id)}
+                                              key={tag.id}
+                                              onClick={() => handleSingleSync(tag.id)}
                                               disabled={syncingSingle}
                                               className="w-full text-left p-4 rounded-xl border border-white/5 bg-black hover:bg-[#FF5A1F]/5 hover:border-[#FF5A1F]/30 transition-all group flex items-center justify-between"
                                           >
                                               <div>
-                                                  <p className="text-white font-bold group-hover:text-[#FF5A1F] transition-colors">{camp.name}</p>
-                                                  <p className="text-[10px] text-gray-600 uppercase font-bold">Activar secuencia automática</p>
+                                                  <p className="text-white font-bold group-hover:text-[#FF5A1F] transition-colors">{tag.name}</p>
+                                                  <p className="text-[10px] text-gray-600 uppercase font-bold">Vincular a esta etiqueta</p>
                                               </div>
                                               <Send className="w-4 h-4 text-gray-700 group-hover:text-[#FF5A1F] transition-all" />
                                           </button>
@@ -357,7 +356,7 @@ export const EmailMarketing: React.FC = () => {
                                   </>
                               ) : (
                                   <div className="py-10 text-center border border-dashed border-white/10 rounded-2xl">
-                                      <p className="text-gray-500 text-sm italic">No se encontraron campañas creadas en tu cuenta.</p>
+                                      <p className="text-gray-500 text-sm italic">No se encontraron etiquetas creadas en tu cuenta.</p>
                                       <button 
                                           onClick={() => handleSingleSync()}
                                           className="mt-4 px-6 py-2 bg-white/5 text-white rounded-lg text-xs font-bold uppercase"
@@ -378,7 +377,7 @@ export const EmailMarketing: React.FC = () => {
               </div>
           </div>
       )}
-      {/* ////////// Fin de actualización - 15/06/2025 18:45 ////////// */}
+      {/* ////////// Fin de actualización - 17/06/2025 11:30 ////////// */}
     </div>
   );
 };
