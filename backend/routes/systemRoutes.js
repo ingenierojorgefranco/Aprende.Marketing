@@ -70,6 +70,45 @@ router.get('/settings/payment-method', async (req, res) => {
 });
 ////////// Fin de actualización - 24/05/2025 10:30 //////////
 
+////////// Actualización: Endpoints para gestionar integraciones externas (Systeme.io) - 07/06/2025 19:30 //////////
+/**
+ * Obtiene las claves de integración del usuario
+ */
+router.get('/system/integrations', authMiddleware, async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            "SELECT setting_value FROM system_settings WHERE setting_key = ?", 
+            [`integrations_${req.user.id}`]
+        );
+        if (rows.length > 0) {
+            res.json(JSON.parse(rows[0].setting_value));
+        } else {
+            res.json({});
+        }
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+/**
+ * Actualiza las claves de integración del usuario
+ */
+router.put('/system/integrations', authMiddleware, async (req, res) => {
+    const settings = req.body;
+    try {
+        const key = `integrations_${req.user.id}`;
+        const val = JSON.stringify(settings);
+        await pool.query(
+            "INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
+            [key, val, val]
+        );
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+////////// Fin de actualización - 07/06/2025 19:30 //////////
+
 /**
  * Lista los planes activos para la landing page pública o modal de upgrade.
  */

@@ -1,8 +1,13 @@
+
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
 const { logSystemActivity, DEFAULT_LIMITS } = require('./authRoutes');
+
+////////// Importación de servicio Systeme.io para sincronización - 07/06/2025 19:30 //////////
+const systemeIoService = require('../systemeIoService');
+////////// Fin de actualización - 07/06/2025 19:30 //////////
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
@@ -317,6 +322,25 @@ router.post('/public/leads/submit', async (req, res) => {
             contactId = newContact.insertId;
             await logCRMActivity(contactId, 'lead_submission', activityPayload);
         }
+
+        ////////// Actualización: Disparador automático para Systeme.io al capturar lead - 07/06/2025 19:30 //////////
+        try {
+            const [intRows] = await pool.query(
+                "SELECT setting_value FROM system_settings WHERE setting_key = ?",
+                [`integrations_${ownerId}`]
+            );
+            if (intRows.length > 0) {
+                const settings = JSON.parse(intRows[0].setting_value);
+                if (settings.systemeIoKey) {
+                    await systemeIoService.addContact(settings.systemeIoKey, email, name || 'Prospecto');
+                    await pool.query('UPDATE leads SET synced = 1 WHERE page_id = ? AND email = ?', [pageId, email]);
+                }
+            }
+        } catch (sysIoErr) {
+            console.error("[Systeme.io Sync Error]", sysIoErr.message);
+        }
+        ////////// Fin de actualización - 07/06/2025 19:30 //////////
+
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: 'Error interno al procesar lead' });

@@ -1,88 +1,178 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Lead } from '../../../types';
-import { Mail, RefreshCw, Database } from 'lucide-react';
+import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap } from 'lucide-react';
+import { api } from '../../../services/api';
 
 export const EmailMarketing: React.FC = () => {
-  const [apiKey, setApiKey] = useState('gr_x8s9d8f7s9d8f79s8d7f'); 
-  const [leads, setLeads] = useState<Lead[]>([
-    { id: '1', name: 'John Doe', email: 'john@example.com', sourcePage: 'Crypto Masterclass', date: '2024-05-10', synced: true },
-    { id: '2', name: 'Sarah Smith', email: 'sarah@test.com', sourcePage: 'Fitness 4 Moms', date: '2024-05-11', synced: true },
-    { id: '3', name: 'Mike Johnson', email: 'mike@web.com', sourcePage: 'Crypto Masterclass', date: '2024-05-12', synced: false },
-  ]);
+  ////////// Actualización: Integración de Systeme.io en la interfaz de usuario - 07/06/2025 19:30 //////////
+  const [systemeIoKey, setSystemeIoKey] = useState('');
+  const [loadingSettings, setLoadingSettings] = useState(false);
+  const [savingKey, setSavingKey] = useState(false);
+  
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loadingLeads, setLoadingLeads] = useState(true);
 
-  const syncLeads = () => {
-    const updatedLeads = leads.map(l => ({ ...l, synced: true }));
-    setLeads(updatedLeads);
-    alert("¡Leads sincronizados correctamente con GetResponse!");
+  useEffect(() => {
+    loadSettings();
+    loadLeads();
+  }, []);
+
+  const loadSettings = async () => {
+    setLoadingSettings(true);
+    try {
+      const settings = await api.getIntegrationSettings();
+      if (settings.systemeIoKey) {
+        setSystemeIoKey(settings.systemeIoKey);
+      }
+    } catch (e) {
+      console.error("Error loading settings", e);
+    } finally {
+      setLoadingSettings(false);
+    }
+  };
+
+  const loadLeads = async () => {
+    setLoadingLeads(true);
+    try {
+      const data = await api.getLeads();
+      setLeads(data);
+    } catch (e) {
+      console.error("Error loading leads", e);
+    } finally {
+      setLoadingLeads(false);
+    }
+  };
+
+  const handleSaveKey = async () => {
+    setSavingKey(true);
+    try {
+      await api.updateIntegrationSettings({ systemeIoKey });
+      alert("Configuración de Systeme.io guardada correctamente.");
+    } catch (e) {
+      alert("Error al guardar la API Key.");
+    } finally {
+      setSavingKey(false);
+    }
+  };
+
+  const syncLeads = async () => {
+    // Los leads se sincronizan en tiempo real al ser capturados. Refrescamos la lista.
+    loadLeads();
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-800">
-        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <Database className="w-5 h-5 text-primary" /> Configuración de Integración
-        </h2>
-        <div className="flex gap-4 items-end">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-400 mb-2">API Key de GetResponse</label>
-            <div className="flex items-center gap-2 bg-black rounded-lg border border-gray-700 px-3 py-2">
-              <Mail className="text-gray-500 w-5 h-5" />
-              <input
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                className="bg-transparent w-full outline-none text-white"
-              />
+    <div className="space-y-6 animate-in fade-in duration-500">
+      <div className="bg-[#111] p-8 rounded-[2.5rem] shadow-xl border border-white/5 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+          <Zap className="w-32 h-32 text-[#FF5A1F]" />
+        </div>
+        
+        <div className="flex items-center gap-4 mb-8">
+            <div className="w-12 h-12 bg-[#FF5A1F]/10 rounded-2xl flex items-center justify-center text-[#FF5A1F] border border-[#FF5A1F]/20">
+                <Database className="w-6 h-6" />
+            </div>
+            <div>
+                <h2 className="text-2xl font-black text-white">Integración Systeme.io</h2>
+                <p className="text-sm text-gray-500 font-medium">Sincroniza tus leads automáticamente con tus listas de email marketing.</p>
+            </div>
+        </div>
+
+        <div className="max-w-2xl space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">API Key de Systeme.io</label>
+            <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 relative group">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-[#FF5A1F] transition-colors" />
+                    <input
+                        type="password"
+                        value={systemeIoKey}
+                        onChange={(e) => setSystemeIoKey(e.target.value)}
+                        placeholder="Introduce tu API Key de Systeme.io"
+                        className="w-full bg-black border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:border-[#FF5A1F] outline-none transition"
+                        disabled={loadingSettings || savingKey}
+                    />
+                </div>
+                <button 
+                    onClick={handleSaveKey}
+                    disabled={savingKey || loadingSettings}
+                    className="px-10 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                    {savingKey ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                    Guardar Configuración
+                </button>
             </div>
           </div>
-          <button className="px-6 py-2.5 bg-primary text-white rounded-lg font-medium hover:bg-indigo-600 transition">
-            Guardar Key
-          </button>
+          
+          <div className="p-4 bg-blue-900/10 border border-blue-500/20 rounded-2xl flex items-start gap-4">
+              <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
+                  <ExternalLink className="w-4 h-4" />
+              </div>
+              <p className="text-xs text-gray-400 leading-relaxed font-medium">
+                ¿No tienes tu API Key? búscala en tu panel de Systeme.io > Configuración > Configuración de la API pública. Al configurar esta clave, cada registro en tus Landing Pages se enviará automáticamente.
+              </p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-gray-900 rounded-xl shadow-lg border border-gray-800 overflow-hidden">
-        <div className="p-6 border-b border-gray-800 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-white">Leads Capturados</h2>
+      <div className="bg-[#111] rounded-[2.5rem] shadow-xl border border-white/5 overflow-hidden">
+        <div className="p-8 border-b border-white/5 flex justify-between items-center bg-black/20">
+          <div>
+            <h2 className="text-xl font-black text-white uppercase tracking-tight">Leads Capturados</h2>
+            <p className="text-xs text-gray-500 font-bold mt-1 uppercase tracking-widest">Historial de registros del ecosistema</p>
+          </div>
           <button
             onClick={syncLeads}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-700 rounded-lg hover:bg-gray-800 text-gray-300 text-sm transition"
+            disabled={loadingLeads}
+            className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 text-white text-xs font-black uppercase tracking-widest transition-all"
           >
-            <RefreshCw className="w-4 h-4" /> Sincronizar Ahora
+            {loadingLeads ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            Actualizar Lista
           </button>
         </div>
-        <table className="w-full text-left">
-          <thead className="bg-gray-800 text-gray-400 text-sm">
-            <tr>
-              <th className="p-4 font-medium">Nombre</th>
-              <th className="p-4 font-medium">Email</th>
-              <th className="p-4 font-medium">Página Origen</th>
-              <th className="p-4 font-medium">Fecha</th>
-              <th className="p-4 font-medium">Estado</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-800">
-            {leads.map((lead) => (
-              <tr key={lead.id} className="hover:bg-gray-800/50">
-                <td className="p-4 text-white font-medium">{lead.name}</td>
-                <td className="p-4 text-gray-400">{lead.email}</td>
-                <td className="p-4 text-gray-400">
-                  <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs border border-blue-900/50">{lead.sourcePage}</span>
-                </td>
-                <td className="p-4 text-gray-500 text-sm">{lead.date}</td>
-                <td className="p-4">
-                  {lead.synced ? (
-                    <span className="text-green-400 text-xs font-bold bg-green-900/30 px-2 py-1 rounded border border-green-900/50">Sincronizado</span>
-                  ) : (
-                    <span className="text-orange-400 text-xs font-bold bg-orange-900/30 px-2 py-1 rounded border border-orange-900/50">Pendiente</span>
-                  )}
-                </td>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-black/40 text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">
+              <tr>
+                <th className="p-6">Nombre del Prospecto</th>
+                <th className="p-6">Correo Electrónico</th>
+                <th className="p-6">Página de Origen</th>
+                <th className="p-6 text-center">Sincronización</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {leads.length > 0 ? leads.map((lead) => (
+                <tr key={lead.id} className="hover:bg-white/[0.02] transition-colors group">
+                  <td className="p-6 text-white font-bold">{lead.name}</td>
+                  <td className="p-6 text-gray-400 font-medium">{lead.email}</td>
+                  <td className="p-6">
+                    <span className="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-[10px] font-black uppercase border border-blue-500/20">{lead.sourcePage}</span>
+                  </td>
+                  <td className="p-6 text-center">
+                    {lead.synced ? (
+                      <span className="inline-flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                        <CheckCircle className="w-3 h-3" /> Enviado a Systeme
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 text-orange-400 text-[10px] font-black uppercase bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
+                        <RefreshCw className="w-3 h-3" /> Pendiente
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={4} className="p-20 text-center text-gray-600 font-medium italic">
+                    {loadingLeads ? "Cargando prospectos..." : "Aún no has recibido ningún lead en tus Landing Pages."}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 };
+////////// Fin de actualización - 07/06/2025 19:30 //////////

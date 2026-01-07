@@ -32,7 +32,7 @@ let localComments: Comment[] = [...MOCK_COMMENTS];
 let localCrmContacts: CRMContact[] = [...MOCK_CRM_CONTACTS];
 let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
 
-////////// Actualización: Expansión de Capa de Caché para Novedades e Histórico - 07/06/2025 10:15 //////////
+////////// Actualización: Expansión de Capa de Caché para Novedades, Histórico e Integraciones - 07/06/2025 10:15 //////////
 const apiCache: {
     pages: LandingPage[] | null;
     projects: Project[] | null;
@@ -652,8 +652,18 @@ export const api = {
         if (isMockMode) return Promise.resolve([...localLeads]);
         if (apiCache.leads) return apiCache.leads;
         const leads = await fetchWithFallback('/leads', { headers: getAuthHeaders() });
-        apiCache.leads = leads;
-        return leads;
+        ////////// Mapeo correcto de leads para el frontend - 07/06/2025 19:30 //////////
+        const mapped = leads.map((l: any) => ({
+            id: String(l.id),
+            name: l.name,
+            email: l.email,
+            sourcePage: l.page_name || 'Desconocida',
+            date: new Date(l.captured_at).toLocaleDateString(),
+            synced: !!l.synced
+        }));
+        apiCache.leads = mapped;
+        return mapped;
+        ////////// Fin de actualización - 07/06/2025 19:30 //////////
     },
   
     getWeeklyAnalytics: async (): Promise<{date: string, visits: number, conversions: number}[]> => {
@@ -1292,7 +1302,9 @@ export const api = {
     ////////// Fin de actualización - 07/06/2025 10:15 //////////
 
     getIntegrationSettings: async (): Promise<Record<string, any>> => {
-        if (isMockMode) return { getResponseKey: 'gr_mock_key', waWebhook: 'https://wa.mock' };
+        ////////// Actualización: Soporte para Systeme.io en Mock - 07/06/2025 19:30 //////////
+        if (isMockMode) return { getResponseKey: 'gr_mock_key', systemeIoKey: 'sys_mock_key', waWebhook: 'https://wa.mock' };
+        ////////// Fin de actualización - 07/06/2025 19:30 //////////
         if (apiCache.integrationSettings) return apiCache.integrationSettings;
         
         try {
