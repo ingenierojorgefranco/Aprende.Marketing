@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Lead } from '../../../types';
 import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap } from 'lucide-react';
@@ -12,6 +11,10 @@ export const EmailMarketing: React.FC = () => {
   
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loadingLeads, setLoadingLeads] = useState(true);
+
+  ////////// Actualización: Estado para sincronización manual de leads pendientes - 07/06/2025 19:40 //////////
+  const [syncing, setSyncing] = useState(false);
+  ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
   useEffect(() => {
     loadSettings();
@@ -57,9 +60,29 @@ export const EmailMarketing: React.FC = () => {
   };
 
   const syncLeads = async () => {
-    // Los leads se sincronizan en tiempo real al ser capturados. Refrescamos la lista.
+    // Refrescamos la lista local
     loadLeads();
   };
+
+  ////////// Actualización: Función para disparar la sincronización manual de leads pendientes - 07/06/2025 19:40 //////////
+  const handleManualSync = async () => {
+    if (!systemeIoKey) {
+        alert("Primero debes configurar y guardar tu API Key de Systeme.io.");
+        return;
+    }
+    
+    setSyncing(true);
+    try {
+        const res = await api.syncPendingLeads();
+        alert(res.message);
+        loadLeads();
+    } catch (e: any) {
+        alert("Error durante la sincronización: " + (e.message || "Error desconocido"));
+    } finally {
+        setSyncing(false);
+    }
+  };
+  ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -87,7 +110,7 @@ export const EmailMarketing: React.FC = () => {
                     <input
                         type="password"
                         value={systemeIoKey}
-                        onChange={(e) => setSystemeIoKey(e.target.value)}
+                        onChange={(e) => setSyncing ? setSystemeIoKey(e.target.value) : null}
                         placeholder="Introduce tu API Key de Systeme.io"
                         className="w-full bg-black border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:border-[#FF5A1F] outline-none transition"
                         disabled={loadingSettings || savingKey}
@@ -103,6 +126,22 @@ export const EmailMarketing: React.FC = () => {
                 </button>
             </div>
           </div>
+
+          {/* ////////// Actualización: Botón para Sincronización Manual de Leads Pendientes - 07/06/2025 19:40 ////////// */}
+          <div className="pt-4 flex flex-col md:flex-row items-center gap-4">
+                <button 
+                    onClick={handleManualSync}
+                    disabled={syncing || loadingLeads}
+                    className="w-full md:w-auto px-8 py-4 bg-white/5 border border-white/10 hover:bg-[#FF5A1F]/10 hover:border-[#FF5A1F]/50 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                >
+                    {syncing ? <Loader2 className="w-4 h-4 animate-spin text-[#FF5A1F]" /> : <RefreshCw className="w-4 h-4 text-[#FF5A1F]" />}
+                    Sincronizar Leads Pendientes
+                </button>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                    * Envía ahora mismo los leads que fueron capturados antes de poner la API Key.
+                </p>
+          </div>
+          {/* ////////// Fin de actualización - 07/06/2025 19:40 ////////// */}
           
           <div className="p-4 bg-blue-900/10 border border-blue-500/20 rounded-2xl flex items-start gap-4">
               <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">

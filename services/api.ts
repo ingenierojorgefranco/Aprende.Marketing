@@ -1,4 +1,3 @@
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -169,8 +168,8 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.contactHistory = {};
         apiCache.publicBlogArticles = {};
         apiCache.publicArticleDetails = {};
-        apiCache.userUsageStats = {};
-        apiCache.userPayments = {};
+        userUsageStats: {},
+        userPayments: {},
         apiCache.siteAnalysis = {};
         apiCache.publicPages = {};
         apiCache.masterStrategies = {};
@@ -773,6 +772,7 @@ export const api = {
                 ////////// Actualización: Corrección de propiedad content_html para mapear a article.contentHtml - 05/06/2025 21:15 //////////
                 content_html: article.contentHtml,
                 ////////// Fin de actualización - 05/06/2025 21:15 //////////
+                // Fix: Corrected property name from featured_image to featuredImage to match Article type
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
@@ -801,6 +801,7 @@ export const api = {
                 slug: article.slug,
                 description: article.description,
                 content_html: article.contentHtml,
+                // Fix: Corrected property name from featured_image to featuredImage to match Article type
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
@@ -1321,6 +1322,20 @@ export const api = {
         await fetchWithFallback('/system/integrations', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(settings) });
         clearCache('integrationSettings');
     },
+
+    ////////// Actualización: Método para sincronización manual de leads pendientes - 07/06/2025 19:40 //////////
+    syncPendingLeads: async (): Promise<{ success: boolean; count: number; message: string }> => {
+        if (isMockMode) {
+            return Promise.resolve({ success: true, count: 2, message: "Sincronización simulada exitosa (Mock Mode)" });
+        }
+        const res = await fetchWithFallback('/system/integrations/sync-pending', {
+            method: 'POST',
+            headers: getAuthHeaders()
+        });
+        clearCache('leads');
+        return res;
+    },
+    ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
     ////////// Actualización: Métodos para persistencia de títulos SEO generados - 05/06/2025 21:15 //////////
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,

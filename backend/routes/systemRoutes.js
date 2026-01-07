@@ -1,9 +1,12 @@
-
 const express = require('express');
 const pool = require('../db');
 const { generateContent } = require('../geminiService');
 const { authMiddleware } = require('../authMiddleware');
 const stripeService = require('../stripeService');
+
+////////// Actualización: Importación de servicio Systeme.io para sincronización manual - 07/06/2025 19:40 //////////
+const systemeIoService = require('../systemeIoService');
+////////// Fin de actualización - 07/06/2025 19:40 //////////
 
 const router = express.Router();
 
@@ -108,6 +111,54 @@ router.put('/system/integrations', authMiddleware, async (req, res) => {
     }
 });
 ////////// Fin de actualización - 07/06/2025 19:30 //////////
+
+////////// Actualización: Endpoint para sincronización manual de leads pendientes con Systeme.io - 07/06/2025 19:40 //////////
+router.post('/system/integrations/sync-pending', authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // 1. Obtener API Key
+        const [intRows] = await pool.query(
+            "SELECT setting_value FROM system_settings WHERE setting_key = ?",
+            [`integrations_${userId}`]
+        );
+        
+        if (intRows.length === 0) return res.status(400).json({ error: "No tienes configurada la API Key de Systeme.io." });
+        
+        const settings = JSON.parse(intRows[0].setting_value);
+        if (!settings.systemeIoKey) return res.status(400).json({ error: "No tienes configurada la API Key de Systeme.io." });
+
+        // 2. Obtener leads pendientes (join con landing_pages para verificar owner)
+        const [pendingLeads] = await pool.query(
+            `SELECT l.id, l.email, l.name, l.page_id 
+             FROM leads l 
+             JOIN landing_pages lp ON l.page_id = lp.id 
+             WHERE lp.user_id = ? AND (l.synced = 0 OR l.synced IS NULL)`,
+            [userId]
+        );
+
+        if (pendingLeads.length === 0) {
+            return res.json({ success: true, count: 0, message: "No hay leads pendientes por sincronizar." });
+        }
+
+        // 3. Sincronizar uno a uno
+        let successCount = 0;
+        for (const lead of pendingLeads) {
+            try {
+                await systemeIoService.addContact(settings.systemeIoKey, lead.email, lead.name || 'Prospecto');
+                await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [lead.id]);
+                successCount++;
+            } catch (e) {
+                console.error(`[Manual Sync Error] Lead ID ${lead.id}:`, e.message);
+            }
+        }
+
+        res.json({ success: true, count: successCount, message: `Se han sincronizado ${successCount} leads exitosamente.` });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+////////// Fin de actualización - 07/06/2025 19:40 //////////
 
 /**
  * Lista los planes activos para la landing page pública o modal de upgrade.
