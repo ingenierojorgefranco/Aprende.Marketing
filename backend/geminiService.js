@@ -42,6 +42,7 @@ const generateContent = async (model, contents, config = {}) => {
     }
 };
 
+/* */ /* Actualización: Optimización del Motor de Extracción - Rediseño del prompt para capturar bloques específicos de Transformación, Temario, Bonos, Instructor y Garantía/FAQ con jerarquía HTML - 24/05/2024 18:00 */
 /**
  * Analiza el contenido de un sitio web para extraer estrategia
  */
@@ -60,15 +61,17 @@ const analyzeWebsiteContent = async (rawText) => {
     INSTRUCCIONES DE REDACCIÓN:
     1. TONO: Usa un lenguaje natural, persuasivo, cercano y muy fácil de comprender. Evita tecnicismos innecesarios. El texto debe ser descriptivo tanto para un usuario como para una inteligencia artificial que lo usará como contexto.
     2. FORMATO HTML ESTRUCTURAL (REGLAS ESTRICTAS): 
-       - Es OBLIGATORIO que el campo "description" contenga código HTML limpio para estructurar la information. 
-       - UTILIZA EXCLUSIVAMENTE: <p>, <ul>, <li>, <strong>, <em>.
+       - Es OBLIGATORIO que el campo "description" contenga código HTML rico y largo para estructurar la información. 
+       - UTILIZA EXCLUSIVAMENTE: <h3>, <h4>, <p>, <ul>, <li>, <strong>, <em>.
        - PROHIBIDO EL USO DE: etiquetas <span>, etiquetas <div> con estilos, o CUALQUIER atributo "style".
        - PROHIBIDO el uso de CSS en línea o atributos de tamaño de fuente (font-size).
        - NO uses etiquetas <html>, <body> ni <h1>.
-    3. ESTRUCTURA DE LA "DESCRIPTION":
-       - Empieza con una introducción detallada envuelta en etiquetas <p> acerca del producto, su propósito y su gran promesa de transformación.
-       - Luego, genera una lista de ítems estructurada con <ul> y <li> que incluya la propuesta de valor, pilares del temario, autoridad, metodología, bonos, garantía, etc.
-       - Extrae el máximo valor posible del texto.
+    3. ESTRUCTURA REQUERIDA DE LA "DESCRIPTION":
+       - TRANSFORMACIÓN: Usa un <h3> para la gran promesa y el cambio real que ofrece el producto.
+       - TEMARIO DETALLADO: Usa un <h3> seguido de una lista <ul> para los módulos o puntos clave.
+       - BONOS: Identifica y lista los regalos o extras incluidos.
+       - PERFIL DEL INSTRUCTOR: Datos sobre autoridad, experiencia y nombre del mentor en un bloque <h3>.
+       - GARANTÍA Y FAQ: Recopila preguntas frecuentes y términos de devolución en un bloque final.
 
     TEXTO EXTRAÍDO DEL SITIO:
     ${rawText.substring(0, 15000)}
@@ -76,7 +79,7 @@ const analyzeWebsiteContent = async (rawText) => {
     Responde EXCLUSIVAMENTE en formato JSON válido:
     {
       "productName": "Nombre comercial del producto",
-      "description": "Código HTML estructural aquí (SIN SPANS NI STYLES)...",
+      "description": "Código HTML estructural detallado aquí (CON H3, H4, UL, LI)...",
       "niche": "Nicho o categoría de mercado"
     }
     `;
