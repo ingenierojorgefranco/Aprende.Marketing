@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
 import { GeneratedPageContent, LandingPage, ColorPalette, StructureType, DestinationConfig, DestinationType, Project, User } from '../../../types';
-import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase, Plus, ArrowRight, ChevronRight, Search } from 'lucide-react';
+import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase, Plus, ArrowRight, ChevronRight, Info } from 'lucide-react';
 import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import { UpgradeModal } from '../UpgradeModal';
 
@@ -13,21 +13,20 @@ interface GeneratorProps {
 interface DashboardContext {
   user: User;
   pageCount: number; // Provided by Layout
-  isSimulating: boolean;
+  isSimulating: boolean; 
 }
 
 export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
-  const { user, pageCount, isSimulating } = useOutletContext() as DashboardContext;
+  const { user, pageCount, isSimulating } = useOutletContext() as DashboardContext; 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preSelectedProjectId = searchParams.get('projectId');
 
   const [loading, setLoading] = useState(false);
-  const [projectsLoading, setProjectsLoading] = useState(true);
-  const [step, setStep] = useState(1); // 1: Info, 2: Structure/Design
+  /* Actualización: Ajuste de estado inicial a 0 para forzar la selección estratégica de proyecto antes de la generación - 22/05/2024 16:15 */
+  const [step, setStep] = useState(0); // 0: Select Project, 1: Info, 2: Structure/Design
   const [userProjects, setUserProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('');
-  const [searchTerm, setSearchTerm] = useState('');
   
   // Limit Check
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -56,14 +55,11 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
     }
 
     const fetchProjects = async () => {
-        setProjectsLoading(true);
         try {
             const projects = await api.getProjects();
             setUserProjects(projects);
         } catch (e) {
             console.error("Failed to load projects", e);
-        } finally {
-            setProjectsLoading(false);
         }
     };
     fetchProjects();
@@ -74,6 +70,8 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
     if (preSelectedProjectId && userProjects.length > 0) {
       handleProjectSelect(preSelectedProjectId);
       setFormData(prev => ({ ...prev, goal: 'Registro a Webinar / Clase' }));
+      /* Actualización: Salto automático al paso 1 si el proyecto ya viene definido en la navegación - 22/05/2024 16:15 */
+      setStep(1);
     }
   }, [preSelectedProjectId, userProjects]);
 
@@ -84,19 +82,21 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
       
       if (proj) {
           let audienceInfo = proj.targetAudience || '';
+          
           if (proj.strategy_json) {
               const s = proj.strategy_json;
               if (s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0) {
                   const main = s.avatars[0];
                   audienceInfo = `${main.archetype}. Su principal dolor es: ${main.pain}. Su gran deseo: ${main.desire}`;
-              } else if (s.avatar && s.avatar.story) {
+              } 
+              else if (s.avatar && s.avatar.story) {
                   audienceInfo = s.avatar.story;
               }
           }
 
           setFormData(prev => ({
               ...prev,
-              pageName: proj.productName || proj.name,
+              pageName: proj.productName || proj.name, 
               targetAudience: audienceInfo,
               destinationType: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? 'external_url' : 'form',
               destinationUrl: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks[0].url : '',
@@ -143,7 +143,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         formData.palette,
         formData.structure,
         destinationConfig,
-        projectContext
+        projectContext 
       );
 
       const newPage: LandingPage = {
@@ -250,111 +250,13 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
       wireframe: (
         <div className="w-full h-24 bg-gray-800 rounded border border-gray-700 flex flex-col items-center justify-center gap-1 p-1 overflow-hidden opacity-70">
            <div className="w-3/4 h-2 bg-gray-600 rounded-sm mb-1"></div>
-           <div className="w-2/3 h-6 bg-gray-700 rounded-sm border border-dashed border-gray-600">
-              <div className="w-1/2 h-2 bg-primary rounded-sm mx-auto mt-2"></div>
+           <div className="w-2/3 h-6 bg-gray-700 rounded-sm border border-dashed border-gray-600 flex items-center justify-center">
+              <div className="w-1/2 h-2 bg-primary rounded-sm"></div>
            </div>
         </div>
       )
     }
   ];
-
-  /* Actualización: Implementación del Hub de Selección de Proyecto Maestro como Paso 0 obligatorio para asegurar el contexto estratégico de la IA - 25/05/2024 10:30 */
-  if (!selectedProject && !preSelectedProjectId) {
-    const filteredProjects = userProjects.filter(p => 
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      (p.productName && p.productName.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-
-    return (
-      <div className="max-w-6xl mx-auto space-y-10 animate-in fade-in duration-700">
-        <header className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black uppercase tracking-widest mb-2">
-            <Sparkles className="w-4 h-4" /> Inteligencia Artificial Estratégica
-          </div>
-          <h2 className="text-4xl md:text-6xl font-black text-white leading-tight tracking-tight">
-            Selecciona el <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500">Cerebro de tu Proyecto</span>
-          </h2>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed font-light">
-            Para que la IA genere textos que realmente vendan, necesita conocer tu estrategia, avatar y producto. Selecciona un proyecto maestro para comenzar.
-          </p>
-        </header>
-
-        <div className="bg-gray-900/50 border border-white/5 rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-            <div className="relative w-full md:w-96 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-[#FF5A1F] transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Buscar por nombre o producto..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-black border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-[#FF5A1F] outline-none transition shadow-inner"
-              />
-            </div>
-            <button 
-              onClick={() => navigate('/dashboard/projects/create')}
-              className="flex items-center gap-3 px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-black text-sm uppercase tracking-widest transition-all"
-            >
-              <Plus className="w-5 h-5 text-[#FF5A1F]" /> Crear Nuevo Cerebro
-            </button>
-          </div>
-
-          {projectsLoading ? (
-            <div className="flex flex-col items-center justify-center py-24 text-[#FF5A1F]">
-              <Loader2 className="w-12 h-12 animate-spin mb-4" />
-              <p className="font-black uppercase tracking-widest text-xs">Cargando tus Proyectos...</p>
-            </div>
-          ) : filteredProjects.length === 0 ? (
-            <div className="text-center py-20 bg-black/40 rounded-[2.5rem] border border-dashed border-white/10">
-              <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
-                <Briefcase className="w-10 h-10 text-gray-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-2">No tienes proyectos configurados</h3>
-              <p className="text-gray-400 max-w-md mx-auto mb-10">Crea tu primer proyecto para que la IA entienda a quién le vendes y cómo hacerlo de forma efectiva.</p>
-              <button 
-                onClick={() => navigate('/dashboard/projects/create')}
-                className="px-10 py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black rounded-2xl shadow-xl shadow-[#FF5A1F]/20 transition-all transform hover:-translate-y-1"
-              >
-                Configurar mi primer Proyecto
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((p) => (
-                <div 
-                  key={p.id}
-                  onClick={() => handleProjectSelect(p.id)}
-                  className="group bg-black/60 border border-white/5 rounded-[2.5rem] p-8 flex flex-col h-full cursor-pointer hover:border-[#FF5A1F]/40 transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)] relative overflow-hidden"
-                >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#FF5A1F]/20 to-transparent rounded-bl-[100%] opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 bg-[#FF5A1F]/10 rounded-2xl flex items-center justify-center text-[#FF5A1F] group-hover:bg-[#FF5A1F] group-hover:text-white transition-colors duration-500">
-                      <Briefcase className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-black text-white text-xl truncate leading-tight">{p.name}</h4>
-                      <p className="text-[#FF5A1F] text-[10px] font-black uppercase tracking-widest mt-1 truncate opacity-70 group-hover:opacity-100">{p.niche}</p>
-                    </div>
-                  </div>
-
-                  <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-1 line-clamp-3">
-                    {p.productName ? `Promocionando: ${p.productName}` : p.description}
-                  </p>
-
-                  <div className="pt-6 border-t border-white/5 flex items-center justify-between mt-auto">
-                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Estrategia Cargada</span>
-                    <ChevronRight className="w-5 h-5 text-[#FF5A1F] group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-  /* Fin de actualización - 25/05/2024 10:30 */
 
   return (
     <div className="max-w-4xl mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative">
@@ -370,9 +272,12 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         </div>
         <h2 className="text-2xl font-bold text-white">Generador de Landing Pages IA</h2>
         <div className="flex items-center justify-center gap-2 mt-4 text-sm">
-           <span className={`px-3 py-1 rounded-full ${step === 1 ? 'bg-primary text-white' : 'bg-gray-800 text-gray-500'}`}>1. Configuración</span>
-           <div className="w-8 h-px bg-gray-700"></div>
-           <span className={`px-3 py-1 rounded-full ${step === 2 ? 'bg-primary text-white' : 'bg-gray-800 text-gray-500'}`}>2. Estructura y Diseño</span>
+           {/* Actualización: Se corrige la sintaxis de comentario JSX para el paso 0 de visualización de progreso - 22/05/2024 16:15 */}
+           <span className={`px-3 py-1 rounded-full ${step === 0 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
+           <div className="w-4 h-px bg-gray-700"></div>
+           <span className={`px-3 py-1 rounded-full ${step === 1 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>1. Configuración</span>
+           <div className="w-4 h-px bg-gray-700"></div>
+           <span className={`px-3 py-1 rounded-full ${step === 2 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>2. Estructura y Diseño</span>
         </div>
       </div>
 
@@ -383,24 +288,93 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
           </div>
         )}
 
+        {/* Actualización: Corrección de sintaxis de comentario JSX en la sección del Paso 0 (Selección de Proyecto) - 22/05/2024 16:15 */}
+        {step === 0 && (
+          <div className="space-y-10 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center">
+              <div className="max-w-2xl mx-auto">
+                  <h2 className="text-4xl font-black mb-6 leading-tight">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500">
+                        Selecciona tu Proyecto
+                    </span>
+                  </h2>
+                  <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                    Para generar una pagina que verdaderamente venda, nuestra inteligencia artificial necesita conocer tu estrategia, avatar y producto. Selecciona un proyecto para crear tu pagina.
+                  </p>
+              </div>
+
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+                  {userProjects.length > 0 ? (
+                      userProjects.map((project) => (
+                          <button 
+                            key={project.id}
+                            onClick={() => {
+                                handleProjectSelect(project.id);
+                                setStep(1);
+                            }}
+                            className="p-6 bg-black/40 border border-gray-800 rounded-3xl hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex items-center justify-between"
+                          >
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-gray-800 rounded-2xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                    <Briefcase className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h4 className="text-white font-bold text-lg group-hover:text-[#FF5A1F] transition-colors">{project.name}</h4>
+                                    <p className="text-xs text-gray-500 uppercase tracking-widest font-black mt-1">{project.niche}</p>
+                                </div>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-[#FF5A1F] transition-all" />
+                          </button>
+                      ))
+                  ) : (
+                      <div className="md:col-span-2 py-10 bg-black/20 border border-dashed border-gray-800 rounded-3xl text-center">
+                          <p className="text-gray-500 mb-4">Aún no tienes proyectos creados.</p>
+                          <button 
+                            onClick={() => navigate('/dashboard/projects/create')}
+                            className="px-6 py-2 bg-[#FF5A1F]/10 text-[#FF5A1F] border border-[#FF5A1F]/20 rounded-xl font-bold hover:bg-[#FF5A1F] hover:text-white transition-all"
+                          >
+                            Crear mi primer proyecto
+                          </button>
+                      </div>
+                  )}
+                  
+                  {userProjects.length > 0 && (
+                      <button 
+                        onClick={() => navigate('/dashboard/projects/create')}
+                        className="md:col-span-2 p-6 bg-transparent border-2 border-dashed border-gray-800 rounded-3xl text-gray-500 hover:text-white hover:border-gray-600 transition-all font-bold flex items-center justify-center gap-3"
+                      >
+                        <Plus className="w-5 h-5" /> Crear un nuevo proyecto
+                      </button>
+                  )}
+              </div>
+
+              <div className="p-6 bg-blue-900/10 border border-blue-500/20 rounded-2xl flex items-start gap-4 max-w-2xl text-left">
+                  <Info className="w-5 h-5 text-blue-400 shrink-0 mt-1" />
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    Al seleccionar un proyecto, la IA cargará automáticamente el avatar, los dolores y beneficios clave que definiste anteriormente. Esto garantiza que tu página esté 100% alineada con tu estrategia de ventas.
+                  </p>
+              </div>
+          </div>
+        )}
+
         {step === 1 && (
           <div className="space-y-6 text-gray-200 animate-in fade-in slide-in-from-right-4 duration-300">
             
+            {/* PROJECT SELECTOR STRATEGY */}
             <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700 border-dashed">
                 <label className="block text-sm font-bold text-white mb-2 flex items-center gap-2">
                     <Briefcase className="w-4 h-4 text-primary" /> Proyecto Seleccionado
                 </label>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                      <Briefcase className="w-5 h-5" />
+                <div className="flex items-center justify-between bg-black border border-[#FF5A1F]/30 rounded-xl px-4 py-3">
+                    <div className="flex items-center gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                        <span className="text-white font-bold">{userProjects.find(p => p.id === selectedProject)?.name || 'Proyecto'}</span>
                     </div>
-                    <div>
-                      <p className="text-white font-bold text-sm">{userProjects.find(p => p.id === selectedProject)?.name || "Cargando..."}</p>
-                      <button onClick={() => setSelectedProject('')} className="text-[10px] text-gray-500 hover:text-red-400 uppercase font-black tracking-widest mt-0.5">Cambiar Proyecto</button>
-                    </div>
-                  </div>
-                  <div className="bg-green-900/20 text-green-400 text-[10px] font-black px-3 py-1 rounded-full border border-green-500/20 uppercase tracking-widest">Contexto Activado</div>
+                    <button 
+                        onClick={() => setStep(0)}
+                        className="text-xs text-gray-500 hover:text-white underline transition"
+                    >
+                        Cambiar Proyecto
+                    </button>
                 </div>
             </div>
 
@@ -438,6 +412,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
               />
             </div>
 
+            {/* Destination Configuration */}
             <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-800">
                 <h3 className="font-bold text-white mb-4 flex items-center gap-2">
                     <Target className="w-5 h-5 text-primary" /> Configuración del Llamado a la Acción (CTA)
@@ -465,6 +440,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                     </button>
                 </div>
 
+                {/* Dynamic Inputs based on Destination */}
                 {formData.destinationType === 'whatsapp' && (
                     <div className="grid md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
                         <div>
@@ -500,6 +476,20 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                             value={formData.destinationUrl}
                             onChange={(e) => setFormData({...formData, destinationUrl: e.target.value})}
                         />
+                        {userProjects.find(p => p.id === selectedProject)?.affiliateLinks && (
+                            <div className="mt-2 text-xs">
+                                <span className="text-gray-400 mr-2">Sugerencias del proyecto:</span>
+                                {userProjects.find(p => p.id === selectedProject)?.affiliateLinks.map((link, i) => (
+                                    <button 
+                                        key={i} 
+                                        onClick={() => setFormData({...formData, destinationUrl: link.url})}
+                                        className="text-blue-400 hover:underline mr-3"
+                                    >
+                                        {link.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -522,6 +512,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         {step === 2 && (
           <div className="space-y-8 text-gray-200 animate-in fade-in slide-in-from-right-4 duration-300">
              
+             {/* Structure Selection */}
              <div>
                 <label className="block text-lg font-bold text-white mb-4 flex items-center gap-2">
                    <LayoutTemplate className="w-5 h-5 text-primary" /> Selecciona la Estructura
@@ -547,6 +538,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                 </div>
              </div>
 
+             {/* Palette Selection */}
              <div>
                 <label className="block text-lg font-bold text-white mb-4 flex items-center gap-2">
                    <Palette className="w-5 h-5 text-primary" /> Selecciona los Colores
@@ -595,3 +587,9 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
     </div>
   );
 };
+
+const CheckCircle2 = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+);

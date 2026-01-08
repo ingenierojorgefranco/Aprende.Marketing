@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers } from 'lucide-react';
 ////////// Fin de actualización - 05/06/2025 10:00 //////////
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
@@ -38,20 +37,25 @@ export const DashboardLayout = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  /* */ /* Actualización: Reestructuración de lógica de menú activo para soportar Email Marketing como menú principal - 30/06/2025 17:00 */
+  /* */ /* Actualización: Reestructuración de lógica de menú activo para unificar Proyectos, Páginas, Contenidos y Email bajo el concepto de 'Sistema' - 22/05/2024 18:35 */
   const getActiveMenuId = (pathname: string) => {
     if (pathname === '/dashboard') return 'dashboard';
     if (pathname.startsWith('/dashboard/admin')) return 'admin';
     if (pathname.startsWith('/dashboard/training')) return 'training';
+    if (
+        pathname.startsWith('/dashboard/projects') || 
+        pathname.startsWith('/dashboard/pages') || 
+        pathname.startsWith('/dashboard/generator') || 
+        pathname.startsWith('/dashboard/editor') || 
+        pathname.startsWith('/dashboard/articles') || 
+        pathname.startsWith('/dashboard/content-creator') || 
+        pathname.startsWith('/dashboard/email')
+    ) return 'sistema';
     if (pathname.startsWith('/dashboard/crm')) return 'crm';
-    if (pathname.startsWith('/dashboard/projects')) return 'projects';
-    if (pathname.startsWith('/dashboard/pages') || pathname.startsWith('/dashboard/generator') || pathname.startsWith('/dashboard/editor')) return 'mid-landing';
-    if (pathname.startsWith('/dashboard/articles') || pathname.startsWith('/dashboard/content-creator')) return 'content-gen';
-    if (pathname.startsWith('/dashboard/email')) return 'email';
     if (pathname.startsWith('/dashboard/whatsapp') || pathname.startsWith('/dashboard/copy-pro')) return 'tools';
     return null;
   };
-  /* Fin de actualización - 30/06/2025 17:00 */
+  /* Fin de actualización - 22/05/2024 18:35 */
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
@@ -128,7 +132,7 @@ export const DashboardLayout = ({
       return { ...user, planLimits: plan.limitsConfig };
   }, [user, simulatedPlanSlug, availablePlans]);
 
-  /* */ /* Actualización: Cambio de nombre a 'Contenidos Automáticos' y reubicación de 'Email Marketing' como menú principal - 30/06/2025 17:00 */
+  /* */ /* Actualización: Unificación de todas las herramientas principales en el menú 'Tu Sistema' y limpieza de sub-items de creación - 22/05/2024 18:35 */
   const menuStructure: MenuItem[] = [
     { id: 'dashboard', label: 'Panel Principal', icon: LayoutDashboard, path: '/dashboard' },
     { id: 'admin', label: 'Administración', icon: Shield, adminOnly: true, subItems: [
@@ -144,30 +148,21 @@ export const DashboardLayout = ({
       ]
     },
     { id: 'training', label: 'Entrenamiento', icon: GraduationCap, subItems: courseItems },
+    { id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
+        { label: 'Mis Proyectos', path: '/dashboard/projects', icon: Briefcase },
+        { label: 'Páginas de Venta', path: '/dashboard/pages', icon: FileText },
+        { label: 'Contenidos Automáticos', path: '/dashboard/articles', icon: BookOpen },
+        { label: 'Email Marketing', path: '/dashboard/email', icon: Mail }
+      ]
+    },
     { id: 'crm', label: 'CRM Clientes', icon: Users, path: '/dashboard/crm' },
-    { id: 'projects', label: 'Mis Proyectos', icon: Briefcase, subItems: [
-        { label: 'Ver Proyectos', path: '/dashboard/projects', icon: List },
-        { label: 'Crear Proyecto', path: '/dashboard/projects/create', icon: Plus }
-      ]
-    },
-    { id: 'mid-landing', label: 'Mis Páginas', icon: FileText, subItems: [
-        { label: 'Ver Páginas', path: '/dashboard/pages', icon: FileText },
-        { label: 'Nueva Página', path: '/dashboard/generator', icon: PlusCircle }
-      ]
-    },
-    { id: 'content-gen', label: 'Contenidos Automáticos', icon: BookOpen, subItems: [
-        { label: 'Artículos SEO', path: '/dashboard/articles', icon: List },
-        { label: 'Redactar Nuevo', path: '/dashboard/content-creator', icon: PlusCircle }
-      ]
-    },
-    { id: 'email', label: 'Email Marketing', icon: Mail, path: '/dashboard/email' },
     { id: 'tools', label: 'Herramientas Pro', icon: Wrench, subItems: [
         { label: 'WhatsApp CRM', path: '/dashboard/whatsapp', icon: MessageSquare },
         { label: 'CopySell AI', path: '/dashboard/copy-pro', icon: PenTool }
       ]
     }
   ];
-  /* Fin de actualización - 30/06/2025 17:00 */
+  /* Fin de actualización - 22/05/2024 18:35 */
 
   const NavItemRender: React.FC<{ item: MenuItem }> = ({ item }) => {
     if (item.adminOnly && user.role !== 'admin') return null;
