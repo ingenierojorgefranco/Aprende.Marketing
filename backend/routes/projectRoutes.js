@@ -35,7 +35,7 @@ const checkMonthlyQuota = async (userId, resourceType, limit) => {
         WHERE user_id = ? 
           AND resource_type = ? 
           AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(created_at) = YEAR(CURRENT_DATE())
+          AND YEAR(CURRENT_DATE()) = YEAR(created_at)
     `, [userId, resourceType]);
 
     const used = rows[0].count;
@@ -61,6 +61,7 @@ router.use(authMiddleware);
 //  ANALIZADOR INTELIGENTE
 // ======================================================
 
+/* */ /* Actualización: Mejora del Scraper y manejo de error 403: Se refuerzan cabeceras de navegación (Referer, Cache-Control) para simular un navegador real y se captura el bloqueo anti-bot para retornar error 422 amigable en lugar de 500 - 15/06/2024 21:15 */
 router.post('/analyze-site', async (req, res) => {
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: 'URL no proporcionada' });
@@ -73,7 +74,10 @@ router.post('/analyze-site', async (req, res) => {
                     headers: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-                        'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8'
+                        'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
+                        'Referer': 'https://www.google.com/',
+                        'Cache-Control': 'no-cache',
+                        'Upgrade-Insecure-Requests': '1'
                     },
                     timeout: 10000
                 };
@@ -102,7 +106,7 @@ router.post('/analyze-site', async (req, res) => {
         let cleanText = html
             .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
             .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "")
-            .replace(/<[^>]+>/g, ' ')
+            .replace(/<[^+]+>/g, ' ')
             .replace(/\s+/g, ' ')
             .trim();
 
@@ -116,6 +120,14 @@ router.post('/analyze-site', async (req, res) => {
 
     } catch (error) {
         console.error("[Analyze Site Error]", error);
+        
+        // Manejo elegante de bloqueo anti-bot (403) para no devolver error 500
+        if (error.message.includes('código 403')) {
+            return res.status(422).json({ 
+                error: 'Este sitio web tiene protecciones anti-bot activas (Error 403). Por favor, ingresa los datos de tu producto manualmente en el formulario.' 
+            });
+        }
+
         res.status(500).json({ error: error.message || 'Error analizando el sitio web. Verifica que la URL sea pública y accesible.' });
     }
 });
