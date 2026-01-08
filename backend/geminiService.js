@@ -42,7 +42,7 @@ const generateContent = async (model, contents, config = {}) => {
     }
 };
 
-/* */ /* Actualización: Optimización del Motor de Extracción - Rediseño del prompt para capturar bloques específicos de Transformación, Temario, Bonos, Instructor y Garantía/FAQ con jerarquía HTML - 24/05/2024 18:00 */
+/* */ /* Actualización: Enriquecimiento del prompt de análisis para extraer Transformación, Temario, Bonos, Instructor y FAQ con estructura HTML - 24/05/2024 19:15 */
 /**
  * Analiza el contenido de un sitio web para extraer estrategia
  */
@@ -56,22 +56,25 @@ const analyzeWebsiteContent = async (rawText) => {
 
     const prompt = `
     Actúa como un experto en Marketing Digital y Copywriting Senior. 
-    Tu objetivo es realizar un análisis exhaustivo y profesional de una página de ventas para extraer su ADN estratégico.
+    Tu objetivo es realizar un análisis exhaustivo y profesional de una página de ventas para extraer su ADN estratégico y construir una descripción maestra completa.
     
     INSTRUCCIONES DE REDACCIÓN:
     1. TONO: Usa un lenguaje natural, persuasivo, cercano y muy fácil de comprender. Evita tecnicismos innecesarios. El texto debe ser descriptivo tanto para un usuario como para una inteligencia artificial que lo usará como contexto.
     2. FORMATO HTML ESTRUCTURAL (REGLAS ESTRICTAS): 
-       - Es OBLIGATORIO que el campo "description" contenga código HTML rico y largo para estructurar la información. 
-       - UTILIZA EXCLUSIVAMENTE: <h3>, <h4>, <p>, <ul>, <li>, <strong>, <em>.
+       - Es OBLIGATORIO que el campo "description" contenga código HTML limpio para estructurar la información. 
+       - UTILIZA EXCLUSIVAMENTE: <h3>, <p>, <ul>, <li>, <strong>, <em>.
        - PROHIBIDO EL USO DE: etiquetas <span>, etiquetas <div> con estilos, o CUALQUIER atributo "style".
        - PROHIBIDO el uso de CSS en línea o atributos de tamaño de fuente (font-size).
        - NO uses etiquetas <html>, <body> ni <h1>.
-    3. ESTRUCTURA REQUERIDA DE LA "DESCRIPTION":
-       - TRANSFORMACIÓN: Usa un <h3> para la gran promesa y el cambio real que ofrece el producto.
-       - TEMARIO DETALLADO: Usa un <h3> seguido de una lista <ul> para los módulos o puntos clave.
-       - BONOS: Identifica y lista los regalos o extras incluidos.
-       - PERFIL DEL INSTRUCTOR: Datos sobre autoridad, experiencia y nombre del mentor en un bloque <h3>.
-       - GARANTÍA Y FAQ: Recopila preguntas frecuentes y términos de devolución en un bloque final.
+    3. ESTRUCTURA REQUERIDA DE LA "DESCRIPTION" (Extrae y expande cada punto si la información existe):
+       - INTRODUCCIÓN DE TRANSFORMACIÓN: Un párrafo enfocado en el cambio real, propósito y la promesa de transformación que ofrece el producto.
+       - PROPUESTA DE VALOR ÚNICA: Qué hace diferente a este producto.
+       - PILARES DEL TEMARIO: Lista detallada de los módulos o lecciones principales.
+       - METODOLOGÍA Y FORMATO: Detalles sobre si es online, HD, acceso de por vida, etc.
+       - AUTORIDAD Y MENTORÍA: Información detallada sobre el instructor o profesor, su nombre y experiencia.
+       - BONOS DE ALTO VALOR: Identifica y lista todos los regalos o extras incluidos.
+       - GARANTÍA Y CONFIANZA: Términos de satisfacción, devoluciones y certificaciones.
+       - PREGUNTAS FRECUENTES (FAQ): Recopila las dudas comunes respondidas en el sitio.
 
     TEXTO EXTRAÍDO DEL SITIO:
     ${rawText.substring(0, 15000)}
@@ -79,7 +82,7 @@ const analyzeWebsiteContent = async (rawText) => {
     Responde EXCLUSIVAMENTE en formato JSON válido:
     {
       "productName": "Nombre comercial del producto",
-      "description": "Código HTML estructural detallado aquí (CON H3, H4, UL, LI)...",
+      "description": "Código HTML estructural detallado aquí (CON H3, P, UL, LI)...",
       "niche": "Nicho o categoría de mercado"
     }
     `;
@@ -134,7 +137,7 @@ const generateFullStrategy = async (projectData) => {
     2. Razón Emocional (emotional_reason): Cuál es el verdadero "para qué" profundo del deseo (ej: no es solo ganar dinero, es dejar de sentirse inferior ante su familia).
     3. Mecanismo Único (unique_mechanism): Inventa o identifica un concepto exclusivo para este producto que explique por qué funciona diferente a los demás (ej: El Sistema CEJAS-PRO 360).
     4. Matriz de Objeciones: Define razones por las que NO comprarían, incluyendo una descripción corta para chat y un "detail" más largo para FAQ.
-    5. Reglas 'Avoid': Identifica 4 palabras o frases cliché que la IA DEBE EVITAR para sonar profesional y diferente a la competencia.
+    5. Reglas 'Avoid': Identifica 4 palabras o frases cliché que la IA DEBE EVITAR para sonar profesional and diferente a la competencia.
 
     REGLAS TÉCNICAS:
     - Devuelve EXCLUSIVAMENTE el JSON válido. Sin markdown.
@@ -230,6 +233,5 @@ const generateFullStrategy = async (projectData) => {
         throw error;
     }
 };
-/* Fin de actualización - 15/06/2024 19:20 */
 
 module.exports = { generateContent, analyzeWebsiteContent, generateFullStrategy };

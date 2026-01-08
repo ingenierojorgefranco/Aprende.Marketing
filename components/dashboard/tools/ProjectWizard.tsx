@@ -118,7 +118,7 @@ export const ProjectWizard: React.FC = () => {
     const [loadingStatus, setLoadingStatus] = useState('');
     const [analyzing, setAnalyzing] = useState(false);
     
-    /* */ /* Actualización: Confirmación de Análisis - Adición de estado para controlar la ventana modal de advertencia antes de ejecutar la IA - 24/05/2024 18:00 */
+    /* */ /* Actualización: Implementación de modal de confirmación previo al análisis de sitio por IA - 24/05/2024 19:15 */
     const [showAnalyzeConfirm, setShowAnalyzeConfirm] = useState(false);
     
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -282,8 +282,8 @@ export const ProjectWizard: React.FC = () => {
                     <p className="text-gray-500 text-xs mt-10 max-w-xs leading-relaxed italic">"Estamos analizando tu nicho, redactando secuencias de email y configurando tu embudo psicológico de ventas."</p>
                 </div>
             )}
-            
-            {/* */ /* Actualización: Modal de Confirmación de Análisis - Interfaz de usuario para advertir al usuario antes de consumir el crédito de IA - 24/05/2024 18:00 */ }
+
+            {/* Modal de Confirmación de Análisis */}
             {showAnalyzeConfirm && (
                 <div className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowAnalyzeConfirm(false)}>
                     <div className="bg-gray-900 border border-gray-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 p-8 text-center space-y-6" onClick={e => e.stopPropagation()}>
@@ -291,7 +291,9 @@ export const ProjectWizard: React.FC = () => {
                             <AlertTriangle className="w-8 h-8" />
                         </div>
                         <h3 className="text-2xl font-black text-white tracking-tight">¿Confirmar Análisis?</h3>
-                        <p className="text-gray-400 leading-relaxed">¿Estás seguro de analizar este sitio? Antes de continuar, verifica que la URL sea accesible y sea la página correcta. <br/><br/> <span className="text-blue-300 font-bold">Nota: Solo podrás realizar un análisis automático cada 60 minutos por seguridad del servidor.</span></p>
+                        <p className="text-gray-400 leading-relaxed">
+                            ¿Estás seguro de analizar este sitio? Antes de continuar, verifica que la página sea accesible y sea la página que desea analizar, ya que solo podrá verificarlo 1 vez cada hora.
+                        </p>
                         <div className="flex flex-col gap-3 pt-4">
                             <button onClick={handleAnalyzeSite} className="w-full py-4 bg-primary hover:bg-indigo-600 text-white font-black rounded-xl transition-all shadow-lg shadow-primary/20">Sí, analizar sitio ahora</button>
                             <button onClick={() => setShowAnalyzeConfirm(false)} className="w-full py-4 bg-gray-800 hover:bg-gray-700 text-gray-400 font-bold rounded-xl transition-all">Cancelar</button>
@@ -299,7 +301,6 @@ export const ProjectWizard: React.FC = () => {
                     </div>
                 </div>
             )}
-            {/* Fin de actualización - 24/05/2024 18:00 */}
 
             <button onClick={() => navigate('/dashboard/projects')} className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
                 <ArrowLeft className="w-4 h-4" /> Volver a Proyectos
@@ -333,7 +334,6 @@ export const ProjectWizard: React.FC = () => {
                                 </label>
                                 <div className="flex flex-col md:flex-row gap-3">
                                     <input type="text" value={salesPageUrl} onChange={e => setSalesPageUrl(e.target.value)} className="flex-1 bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-600" placeholder="Pega la URL de tu página de ventas (ej: Hotmart)..." />
-                                    {/* */ /* Actualización: Se intercepta la llamada directa a handleAnalyzeSite para mostrar el modal de confirmación - 24/05/2024 18:00 */ }
                                     <button onClick={() => setShowAnalyzeConfirm(true)} disabled={analyzing || !salesPageUrl} className="bg-primary hover:bg-indigo-600 disabled:bg-gray-800 disabled:text-gray-500 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
                                         {analyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
                                         {analyzing ? 'Analizando...' : 'Analizar Sitio'}

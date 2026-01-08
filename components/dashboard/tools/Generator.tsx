@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
 import { GeneratedPageContent, LandingPage, ColorPalette, StructureType, DestinationConfig, DestinationType, Project, User } from '../../../types';
-import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase } from 'lucide-react';
+import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase, Plus, ArrowRight, ChevronRight, Search } from 'lucide-react';
 import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import { UpgradeModal } from '../UpgradeModal';
 
@@ -13,19 +13,21 @@ interface GeneratorProps {
 interface DashboardContext {
   user: User;
   pageCount: number; // Provided by Layout
-  isSimulating: boolean; // Actualización 23/05/2024 16:30 - Se añade isSimulating al contexto
+  isSimulating: boolean;
 }
 
 export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
-  const { user, pageCount, isSimulating } = useOutletContext() as DashboardContext; // Actualización 23/05/2024 16:30 - Se extrae isSimulating
+  const { user, pageCount, isSimulating } = useOutletContext() as DashboardContext;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preSelectedProjectId = searchParams.get('projectId');
 
   const [loading, setLoading] = useState(false);
+  const [projectsLoading, setProjectsLoading] = useState(true);
   const [step, setStep] = useState(1); // 1: Info, 2: Structure/Design
   const [userProjects, setUserProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Limit Check
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -45,8 +47,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
 
   // Load projects & check limits
   useEffect(() => {
-    // Check Limits
-    // Actualización 23/05/2024 16:30 - Se añade validación de administrador real para permitir acceso ilimitado
     const isRealAdmin = user.role === 'admin' && !isSimulating;
     if (user.planLimits && !isRealAdmin) {
         const max = user.planLimits.maxLandings;
@@ -56,21 +56,23 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
     }
 
     const fetchProjects = async () => {
+        setProjectsLoading(true);
         try {
             const projects = await api.getProjects();
             setUserProjects(projects);
         } catch (e) {
             console.error("Failed to load projects", e);
+        } finally {
+            setProjectsLoading(false);
         }
     };
     fetchProjects();
-  }, [user, pageCount, isSimulating]); // Actualización 23/05/2024 16:30 - Se añade isSimulating a dependencias
+  }, [user, pageCount, isSimulating]);
 
   // Sync pre-selected project from URL
   useEffect(() => {
     if (preSelectedProjectId && userProjects.length > 0) {
       handleProjectSelect(preSelectedProjectId);
-      // Forzar el objetivo solicitado por el sistema de estrategia
       setFormData(prev => ({ ...prev, goal: 'Registro a Webinar / Clase' }));
     }
   }, [preSelectedProjectId, userProjects]);
@@ -81,31 +83,21 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
       const proj = userProjects.find(p => p.id === projectId);
       
       if (proj) {
-          // Lógica avanzada para detectar la mejor descripción de audiencia
           let audienceInfo = proj.targetAudience || '';
-          
-          // Si el proyecto tiene una estrategia generada, extraemos datos más ricos
           if (proj.strategy_json) {
               const s = proj.strategy_json;
-              
-              // Caso 1: Estructura de Estrategia Maestra (Proyecto Nuevo)
               if (s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0) {
                   const main = s.avatars[0];
-                  // Combinamos el perfil con su dolor y deseo para que la IA tenga contexto máximo
                   audienceInfo = `${main.archetype}. Su principal dolor es: ${main.pain}. Su gran deseo: ${main.desire}`;
-              } 
-              // Caso 2: Estructura Legada (Simple)
-              else if (s.avatar && s.avatar.story) {
+              } else if (s.avatar && s.avatar.story) {
                   audienceInfo = s.avatar.story;
               }
           }
 
-          // Auto-fill form data based on project strategy
           setFormData(prev => ({
               ...prev,
-              pageName: proj.productName || proj.name, // Usar el nombre del producto si existe
+              pageName: proj.productName || proj.name,
               targetAudience: audienceInfo,
-              // Pre-select destination if links exist
               destinationType: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? 'external_url' : 'form',
               destinationUrl: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks[0].url : '',
           }));
@@ -125,7 +117,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
     setLoading(true);
     setError('');
 
-    // Use pageName as the niche/context since the explicit input was removed
     const finalNiche = formData.pageName; 
 
     if (!finalNiche) {
@@ -134,7 +125,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         return;
     }
 
-    // Construct Destination Config
     const destinationConfig: DestinationConfig = {
         type: formData.destinationType,
         url: formData.destinationUrl,
@@ -142,7 +132,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         whatsappMessage: formData.whatsappMessage
     };
 
-    // Find full project object if selected
     const projectContext = userProjects.find(p => p.id === selectedProject);
 
     try {
@@ -154,7 +143,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         formData.palette,
         formData.structure,
         destinationConfig,
-        projectContext // PASS THE PROJECT CONTEXT HERE
+        projectContext
       );
 
       const newPage: LandingPage = {
@@ -168,7 +157,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         createdAt: new Date(),
         visits: 0,
         conversions: 0,
-        projectId: selectedProject || undefined // NEW: Link to project
+        projectId: selectedProject || undefined 
       };
 
       onPageGenerated(newPage);
@@ -186,7 +175,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
       return;
     }
 
-    // Validation for destination fields
     if (formData.destinationType === 'whatsapp' && !formData.whatsappPhone) {
         setError('Por favor ingresa el número de WhatsApp.');
         return;
@@ -262,13 +250,111 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
       wireframe: (
         <div className="w-full h-24 bg-gray-800 rounded border border-gray-700 flex flex-col items-center justify-center gap-1 p-1 overflow-hidden opacity-70">
            <div className="w-3/4 h-2 bg-gray-600 rounded-sm mb-1"></div>
-           <div className="w-2/3 h-6 bg-gray-700 rounded-sm border border-dashed border-gray-600 flex items-center justify-center">
-              <div className="w-1/2 h-2 bg-primary rounded-sm"></div>
+           <div className="w-2/3 h-6 bg-gray-700 rounded-sm border border-dashed border-gray-600">
+              <div className="w-1/2 h-2 bg-primary rounded-sm mx-auto mt-2"></div>
            </div>
         </div>
       )
     }
   ];
+
+  /* Actualización: Implementación del Hub de Selección de Proyecto Maestro como Paso 0 obligatorio para asegurar el contexto estratégico de la IA - 25/05/2024 10:30 */
+  if (!selectedProject && !preSelectedProjectId) {
+    const filteredProjects = userProjects.filter(p => 
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (p.productName && p.productName.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+
+    return (
+      <div className="max-w-6xl mx-auto space-y-10 animate-in fade-in duration-700">
+        <header className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] text-xs font-black uppercase tracking-widest mb-2">
+            <Sparkles className="w-4 h-4" /> Inteligencia Artificial Estratégica
+          </div>
+          <h2 className="text-4xl md:text-6xl font-black text-white leading-tight tracking-tight">
+            Selecciona el <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500">Cerebro de tu Proyecto</span>
+          </h2>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed font-light">
+            Para que la IA genere textos que realmente vendan, necesita conocer tu estrategia, avatar y producto. Selecciona un proyecto maestro para comenzar.
+          </p>
+        </header>
+
+        <div className="bg-gray-900/50 border border-white/5 rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+            <div className="relative w-full md:w-96 group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-[#FF5A1F] transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Buscar por nombre o producto..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-black border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-[#FF5A1F] outline-none transition shadow-inner"
+              />
+            </div>
+            <button 
+              onClick={() => navigate('/dashboard/projects/create')}
+              className="flex items-center gap-3 px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-black text-sm uppercase tracking-widest transition-all"
+            >
+              <Plus className="w-5 h-5 text-[#FF5A1F]" /> Crear Nuevo Cerebro
+            </button>
+          </div>
+
+          {projectsLoading ? (
+            <div className="flex flex-col items-center justify-center py-24 text-[#FF5A1F]">
+              <Loader2 className="w-12 h-12 animate-spin mb-4" />
+              <p className="font-black uppercase tracking-widest text-xs">Cargando tus Proyectos...</p>
+            </div>
+          ) : filteredProjects.length === 0 ? (
+            <div className="text-center py-20 bg-black/40 rounded-[2.5rem] border border-dashed border-white/10">
+              <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <Briefcase className="w-10 h-10 text-gray-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">No tienes proyectos configurados</h3>
+              <p className="text-gray-400 max-w-md mx-auto mb-10">Crea tu primer proyecto para que la IA entienda a quién le vendes y cómo hacerlo de forma efectiva.</p>
+              <button 
+                onClick={() => navigate('/dashboard/projects/create')}
+                className="px-10 py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black rounded-2xl shadow-xl shadow-[#FF5A1F]/20 transition-all transform hover:-translate-y-1"
+              >
+                Configurar mi primer Proyecto
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProjects.map((p) => (
+                <div 
+                  key={p.id}
+                  onClick={() => handleProjectSelect(p.id)}
+                  className="group bg-black/60 border border-white/5 rounded-[2.5rem] p-8 flex flex-col h-full cursor-pointer hover:border-[#FF5A1F]/40 transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)] relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#FF5A1F]/20 to-transparent rounded-bl-[100%] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-14 h-14 bg-[#FF5A1F]/10 rounded-2xl flex items-center justify-center text-[#FF5A1F] group-hover:bg-[#FF5A1F] group-hover:text-white transition-colors duration-500">
+                      <Briefcase className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-black text-white text-xl truncate leading-tight">{p.name}</h4>
+                      <p className="text-[#FF5A1F] text-[10px] font-black uppercase tracking-widest mt-1 truncate opacity-70 group-hover:opacity-100">{p.niche}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-1 line-clamp-3">
+                    {p.productName ? `Promocionando: ${p.productName}` : p.description}
+                  </p>
+
+                  <div className="pt-6 border-t border-white/5 flex items-center justify-between mt-auto">
+                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Estrategia Cargada</span>
+                    <ChevronRight className="w-5 h-5 text-[#FF5A1F] group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+  /* Fin de actualización - 25/05/2024 10:30 */
 
   return (
     <div className="max-w-4xl mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative">
@@ -300,24 +386,22 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         {step === 1 && (
           <div className="space-y-6 text-gray-200 animate-in fade-in slide-in-from-right-4 duration-300">
             
-            {/* PROJECT SELECTOR STRATEGY */}
             <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700 border-dashed">
                 <label className="block text-sm font-bold text-white mb-2 flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-primary" /> Cargar Estrategia de un Proyecto (Opcional)
+                    <Briefcase className="w-4 h-4 text-primary" /> Proyecto Seleccionado
                 </label>
-                <select 
-                    value={selectedProject}
-                    onChange={(e) => handleProjectSelect(e.target.value)}
-                    className="w-full bg-black border border-gray-600 rounded-lg px-3 py-2 text-white outline-none focus:border-primary"
-                >
-                    <option value="">-- Seleccionar Proyecto Existente --</option>
-                    {userProjects.map(p => (
-                        <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                </select>
-                <p className="text-xs text-gray-400 mt-2">
-                    Si seleccionas un proyecto, usaremos su nicho, audiencia, tono de marca y enlaces para generar el contenido automáticamente.
-                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                      <Briefcase className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-white font-bold text-sm">{userProjects.find(p => p.id === selectedProject)?.name || "Cargando..."}</p>
+                      <button onClick={() => setSelectedProject('')} className="text-[10px] text-gray-500 hover:text-red-400 uppercase font-black tracking-widest mt-0.5">Cambiar Proyecto</button>
+                    </div>
+                  </div>
+                  <div className="bg-green-900/20 text-green-400 text-[10px] font-black px-3 py-1 rounded-full border border-green-500/20 uppercase tracking-widest">Contexto Activado</div>
+                </div>
             </div>
 
             <div>
@@ -354,7 +438,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
               />
             </div>
 
-            {/* Destination Configuration */}
             <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-800">
                 <h3 className="font-bold text-white mb-4 flex items-center gap-2">
                     <Target className="w-5 h-5 text-primary" /> Configuración del Llamado a la Acción (CTA)
@@ -382,7 +465,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                     </button>
                 </div>
 
-                {/* Dynamic Inputs based on Destination */}
                 {formData.destinationType === 'whatsapp' && (
                     <div className="grid md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
                         <div>
@@ -418,20 +500,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                             value={formData.destinationUrl}
                             onChange={(e) => setFormData({...formData, destinationUrl: e.target.value})}
                         />
-                        {userProjects.find(p => p.id === selectedProject)?.affiliateLinks && (
-                            <div className="mt-2 text-xs">
-                                <span className="text-gray-400 mr-2">Sugerencias del proyecto:</span>
-                                {userProjects.find(p => p.id === selectedProject)?.affiliateLinks.map((link, i) => (
-                                    <button 
-                                        key={i} 
-                                        onClick={() => setFormData({...formData, destinationUrl: link.url})}
-                                        className="text-blue-400 hover:underline mr-3"
-                                    >
-                                        {link.label}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
                     </div>
                 )}
 
@@ -454,7 +522,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         {step === 2 && (
           <div className="space-y-8 text-gray-200 animate-in fade-in slide-in-from-right-4 duration-300">
              
-             {/* Structure Selection */}
              <div>
                 <label className="block text-lg font-bold text-white mb-4 flex items-center gap-2">
                    <LayoutTemplate className="w-5 h-5 text-primary" /> Selecciona la Estructura
@@ -480,7 +547,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                 </div>
              </div>
 
-             {/* Palette Selection */}
              <div>
                 <label className="block text-lg font-bold text-white mb-4 flex items-center gap-2">
                    <Palette className="w-5 h-5 text-primary" /> Selecciona los Colores
