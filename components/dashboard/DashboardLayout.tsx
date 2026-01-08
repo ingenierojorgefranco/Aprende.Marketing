@@ -37,7 +37,7 @@ export const DashboardLayout = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  /* */ /* Actualización: Reestructuración de lógica de menú activo para unificar Proyectos, Páginas, Contenidos y Email bajo el concepto de 'Sistema' - 22/05/2024 18:35 */
+  /* */ /* Actualización: Mejora de la persistencia del highlight en el menú lateral. Se asocian las rutas de generador, editor y creador de contenido directamente al módulo 'Tu Sistema' para mejorar la orientación del usuario. 22/05/2024 19:15 */
   const getActiveMenuId = (pathname: string) => {
     if (pathname === '/dashboard') return 'dashboard';
     if (pathname.startsWith('/dashboard/admin')) return 'admin';
@@ -55,7 +55,7 @@ export const DashboardLayout = ({
     if (pathname.startsWith('/dashboard/whatsapp') || pathname.startsWith('/dashboard/copy-pro')) return 'tools';
     return null;
   };
-  /* Fin de actualización - 22/05/2024 18:35 */
+  /* Fin de actualización - 22/05/2024 19:15 */
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);

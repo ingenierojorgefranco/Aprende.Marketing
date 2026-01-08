@@ -288,21 +288,21 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
           </div>
         )}
 
-        {/* Actualización: Corrección de sintaxis de comentario JSX en la sección del Paso 0 (Selección de Proyecto) - 22/05/2024 16:15 */}
+        {/* */ /* Actualización: Rediseño visual del Paso 0 para el Generador de Páginas. Se implementan tarjetas horizontales con enfoque en 'Arquitectura Web', resaltando el Objetivo de Conversión y el Nicho con badges tecnológicos. 22/05/2024 19:15 */ }
         {step === 0 && (
           <div className="space-y-10 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center">
               <div className="max-w-2xl mx-auto">
                   <h2 className="text-4xl font-black mb-6 leading-tight">
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500">
-                        Selecciona tu Proyecto
+                        Selecciona la Arquitectura del Proyecto
                     </span>
                   </h2>
                   <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                    Para generar una pagina que verdaderamente venda, nuestra inteligencia artificial necesita conocer tu estrategia, avatar y producto. Selecciona un proyecto para crear tu pagina.
+                    Para generar una página con arquitectura ganadora, la IA necesita conocer el objetivo de conversión de tu proyecto. Elige un proyecto para empezar la construcción.
                   </p>
               </div>
 
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+              <div className="w-full grid grid-cols-1 gap-6 max-w-4xl mx-auto">
                   {userProjects.length > 0 ? (
                       userProjects.map((project) => (
                           <button 
@@ -311,18 +311,34 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                                 handleProjectSelect(project.id);
                                 setStep(1);
                             }}
-                            className="p-6 bg-black/40 border border-gray-800 rounded-3xl hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex items-center justify-between"
+                            className="p-8 bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden"
                           >
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-gray-800 rounded-2xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
-                                    <Briefcase className="w-6 h-6" />
+                            <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
+                                <LayoutTemplate className="w-32 h-32 text-[#FF5A1F]" />
+                            </div>
+                            
+                            <div className="flex items-center gap-6 flex-1">
+                                <div className="p-4 bg-gray-800 rounded-3xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors shadow-lg">
+                                    <Briefcase className="w-8 h-8" />
                                 </div>
                                 <div>
-                                    <h4 className="text-white font-bold text-lg group-hover:text-[#FF5A1F] transition-colors">{project.name}</h4>
-                                    <p className="text-xs text-gray-500 uppercase tracking-widest font-black mt-1">{project.niche}</p>
+                                    <h4 className="text-white font-bold text-2xl group-hover:text-[#FF5A1F] transition-colors leading-tight">{project.name}</h4>
+                                    <div className="flex flex-wrap gap-2 mt-4">
+                                        <span className="px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                                           <Target className="w-3.5 h-3.5" /> {project.mainGoal || "Conversión"}
+                                        </span>
+                                        <span className="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                                           {project.niche}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                            <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-[#FF5A1F] transition-all" />
+                            <div className="flex items-center gap-4">
+                                <span className="hidden lg:block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Seleccionar Arquitectura</span>
+                                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F] group-hover:text-white transition-all shadow-xl">
+                                    <ChevronRight className="w-8 h-8 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </div>
                           </button>
                       ))
                   ) : (
@@ -340,7 +356,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                   {userProjects.length > 0 && (
                       <button 
                         onClick={() => navigate('/dashboard/projects/create')}
-                        className="md:col-span-2 p-6 bg-transparent border-2 border-dashed border-gray-800 rounded-3xl text-gray-500 hover:text-white hover:border-gray-600 transition-all font-bold flex items-center justify-center gap-3"
+                        className="p-6 bg-transparent border-2 border-dashed border-gray-800 rounded-[2.5rem] text-gray-500 hover:text-white hover:border-gray-600 transition-all font-bold flex items-center justify-center gap-3"
                       >
                         <Plus className="w-5 h-5" /> Crear un nuevo proyecto
                       </button>

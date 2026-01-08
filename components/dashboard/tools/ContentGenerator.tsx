@@ -3,7 +3,7 @@ import { generateArticleTitles, generateArticleOutline, generateFullArticle, Art
 import { api } from '../../../services/api';
 import { Article, Project, LandingPage, User } from '../../../types';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus } from 'lucide-react';
+import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, FileText } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 // Importing Sub-Components from relative sibling folder
@@ -323,40 +323,48 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       />
 
       <div className={showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}>
-          {/* */ /* Implementación de cuadrícula de proyectos con estética Premium Dark para el Paso 0 - 24/05/2024 18:50 */ }
+          {/* */ /* Actualización: Rediseño visual del Paso 0 para el Generador de Contenidos. Se implementa una cuadrícula de tarjetas con enfoque en 'Estrategia Editorial', resaltando la Autoridad de Nicho del proyecto y utilizando el color púrpura (#A855F7) como identidad visual. 22/05/2024 19:15 */ }
           {step === 0 && (
               <div className="space-y-10 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center">
                   <div className="max-w-2xl mx-auto">
                       <h2 className="text-4xl font-black mb-6 leading-tight">
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
-                            Selecciona tu Proyecto
+                            Selecciona tu Estrategia Editorial
                         </span>
                       </h2>
                       <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                        Para generar contenido que conecte con tu audiencia, selecciona el proyecto donde publicaremos este artículo.
+                        Para generar contenidos que posicionen, la IA analizará la autoridad de nicho de tu proyecto. Elige un proyecto para empezar la redacción estratégica.
                       </p>
                   </div>
 
-                  <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                  <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                       {userProjects.length > 0 ? (
                           userProjects.map((project) => (
                               <button 
                                 key={project.id}
                                 onClick={() => handleProjectSelect(project.id)}
-                                className="p-8 bg-[#0B0B0B] border border-white/5 rounded-[2rem] hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden"
+                                className="p-8 bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full"
                               >
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="p-3 bg-gray-800 rounded-2xl group-hover:bg-purple-500/10 group-hover:text-purple-400 transition-colors">
+                                <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
+                                    <FileText className="w-24 h-24 text-purple-400" />
+                                </div>
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="p-3 bg-gray-800 rounded-2xl group-hover:bg-purple-500/10 group-hover:text-purple-400 transition-colors shadow-md">
                                         <Briefcase className="w-6 h-6" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h4 className="text-white font-bold text-lg group-hover:text-purple-400 transition-colors truncate">{project.name}</h4>
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black mt-1">{project.niche}</p>
+                                        <h4 className="text-white font-bold text-lg group-hover:text-purple-400 transition-colors truncate leading-tight">{project.name}</h4>
+                                        <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-md text-[9px] font-black uppercase tracking-widest mt-2 inline-block">
+                                           Autoridad en {project.niche}
+                                        </span>
                                     </div>
                                 </div>
-                                <p className="text-sm text-gray-400 line-clamp-2 mb-6 flex-1">{project.description}</p>
-                                <div className="flex items-center justify-end">
+                                <p className="text-sm text-gray-500 line-clamp-2 mb-8 flex-1 leading-relaxed">{project.description}</p>
+                                <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Sparkles className="w-4 h-4 text-amber-500" />
+                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Ver Sugerencias</span>
+                                    </div>
                                     <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-purple-400 transition-all group-hover:translate-x-1" />
                                 </div>
                               </button>
