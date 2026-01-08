@@ -1,3 +1,4 @@
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -1342,13 +1343,14 @@ export const api = {
     },
 
     ////////// Actualización: Método para sincronización manual de leads pendientes - 07/06/2025 19:40 //////////
-    syncPendingLeads: async (): Promise<{ success: boolean; count: number; message: string }> => {
+    syncPendingLeads: async (tagId?: string): Promise<{ success: boolean; count: number; message: string }> => {
         if (isMockMode) {
             return Promise.resolve({ success: true, count: 2, message: "Sincronización simulada exitosa (Mock Mode)" });
         }
         const res = await fetchWithFallback('/system/integrations/sync-pending', {
             method: 'POST',
-            headers: getAuthHeaders()
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ tagId })
         });
         clearCache('leads');
         return res;
@@ -1374,6 +1376,19 @@ export const api = {
         if (isMockMode) return [{ id: 1, name: 'Tag Mock A' }, { id: 2, name: 'Tag Mock B' }];
         return await fetchWithFallback('/system/integrations/systemeio/tags', {
             headers: getAuthHeaders()
+        });
+    },
+
+    /* Actualización: Adición de método createSystemeIoTag para permitir la creación de etiquetas directamente desde la interfaz - 30/06/2025 15:30 */
+    /**
+     * Crea una nueva etiqueta en Systeme.io
+     */
+    createSystemeIoTag: async (name: string): Promise<any> => {
+        if (isMockMode) return { id: Date.now(), name };
+        return await fetchWithFallback('/system/integrations/systemeio/tags', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ name })
         });
     },
     ////////// Fin de actualización - 17/06/2025 11:30 //////////

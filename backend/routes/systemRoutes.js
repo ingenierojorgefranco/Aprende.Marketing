@@ -1,3 +1,4 @@
+
 const express = require('express');
 const pool = require('../db');
 const { generateContent } = require('../geminiService');
@@ -155,10 +156,12 @@ router.post('/system/integrations/systemeio/tags', authMiddleware, async (req, r
 });
 ////////// Fin de actualización - 27/06/2025 12:30 //////////
 
+/* Actualización: El endpoint de sincronización masiva ahora acepta un tagId opcional para vincular a todos los leads seleccionados a esa etiqueta específica durante el envío - 30/06/2025 15:30 */
 ////////// Actualización: Endpoint para sincronización manual de leads pendientes con Systeme.io - 07/06/2025 19:40 //////////
 router.post('/system/integrations/sync-pending', authMiddleware, async (req, res) => {
     try {
         const userId = req.user.id;
+        const { tagId } = req.body;
         
         // 1. Obtener API Key
         const [intRows] = await pool.query(
@@ -188,7 +191,18 @@ router.post('/system/integrations/sync-pending', authMiddleware, async (req, res
         let successCount = 0;
         for (const lead of pendingLeads) {
             try {
-                await systemeIoService.addContact(settings.systemeIoKey, lead.email, lead.name || 'Prospecto');
+                const contactResponse = await systemeIoService.addContact(settings.systemeIoKey, lead.email, lead.name || 'Prospecto');
+                
+                // Si hay tagId, asignamos etiqueta individualmente
+                const contactId = contactResponse?.contact?.id || contactResponse?.contact?.contact?.id || contactResponse?.id;
+                if (tagId && contactId) {
+                    try {
+                        await systemeIoService.addTagToContact(settings.systemeIoKey, contactId, tagId);
+                    } catch (tagErr) {
+                        console.warn(`[Mass Sync Tag Assignment Warn] Lead ID ${lead.id}:`, tagErr.message);
+                    }
+                }
+
                 ////////// Actualización: Manejo de error de BD separado de API - 15/06/2025 16:30 //////////
                 try {
                     await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [lead.id]);
