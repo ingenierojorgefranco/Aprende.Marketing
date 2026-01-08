@@ -366,6 +366,7 @@ export interface AffiliateLink {
   url: string;
 }
 
+/* */ /* Actualización: Enriquecimiento de la interfaz StrategyJSON con campos de manifestación diaria y razón emocional para mejorar el copywriting de la IA - 15/06/2024 18:50 */
 // NEW: Strategy JSON Structure (Legacy/Simple AI Gen)
 export interface StrategyJSON {
   avatar: {
@@ -375,11 +376,15 @@ export interface StrategyJSON {
     story: string;
     frustrations: string[];
     desires: string[];
+    daily_manifestation: string; // Nuevo: Cómo se ve el dolor en el día a día
+    emotional_reason: string;    // Nuevo: El por qué emocional de su deseo
   };
   psychology: {
     emotionalTriggers: string[];
     objections: string[];
     falseBeliefs: string[];
+    unique_mechanism?: string;   // Nuevo: Mecanismo único de la oferta
+    avoid?: string[];            // Nuevo: Palabras o conceptos a evitar
   };
   funnel: {
     leadMagnetIdea: string;
@@ -393,6 +398,7 @@ export interface StrategyJSON {
     adCopies: Array<{ platform: string; headline: string; body: string }>;
   };
 }
+/* Fin de actualización - 15/06/2024 18:50 */
 
 export interface Project {
   id: string;

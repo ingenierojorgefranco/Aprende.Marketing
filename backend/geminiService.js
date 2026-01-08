@@ -96,6 +96,7 @@ const analyzeWebsiteContent = async (rawText) => {
     }
 };
 
+/* */ /* Actualización: Mejora del prompt maestro para generateFullStrategy, solicitando campos de profundidad psicológica: manifestación diaria, razón emocional, mecanismo único, lista de términos prohibidos y matriz de objeciones multinivel - 15/06/2024 19:20 */
 /**
  * Genera el Informe Estratégico Maestro completo (JSON 100% funcional)
  */
@@ -114,29 +115,28 @@ const generateFullStrategy = async (projectData) => {
 
     const prompt = `
     Actúa como un Director de Marketing y Estratega Senior de Lanzamientos Digitales.
-    Tu tarea es generar un "Informe Estratégico Maestro" extremadamente detallado en formato JSON puro.
+    Tu tarea es generar un "Informe Estratégico Maestro" extremadamente detallado en formato JSON puro para vender el producto "${productName}".
     
     CONTEXTO DEL NEGOCIO:
     - Nombre del Proyecto: "${name}"
     - Nicho de Mercado: "${niche}"
-    - Producto a vender: "${productName}"
     - Tono de Comunicación: "${brandTone}" (OBLIGATORIO: Redacta todos los textos en este estilo).
     - Descripción: "${description}"
     - Precio de Venta: $${fullPrice} USD
-    - Comisión por Venta: $${netCommission.toFixed(2)} USD (Tasa: ${Math.round(commissionRate * 100)}%)
+    - Comisión por Venta: $${netCommission.toFixed(2)} USD
     - Regalo de Bienvenida (Lead Magnet): "${leadMagnetType}"
-    ${salesPageUrl ? `- URL de referencia: ${salesPageUrl}` : ''}
 
-    REGLAS TÉCNICAS Y DE COPYWRITING CRÍTICAS:
-    1. Respuesta: Devuelve EXCLUSIVAMENTE el JSON válido. Sin markdown.
-    2. Comillas: ESCAPA comillas dobles DENTRO de los textos.
-    3. Idioma: Español Neutro de alta conversión.
-    4. Puntos de Dolor (Pains): DEBES generar EXACTAMENTE 6 puntos de dolor redactados en SEGUNDA PERSONA ("Tú..."). El copy debe ser descriptivo, emocional y profundo (ej: "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo").
-    5. Coherencia Total (Pains): Los 6 dolores en la sección "psychology" DEBEN SER IDÉNTICOS a los que coloques en "modules.web.landingPageTabs.pain.items".
-    6. Coherencia Total (Benefits): Genera EXACTAMENTE 6 soluciones en "psychology.solutions" y EXACTAMENTE 7 beneficios en "modules.web.landingPageTabs.benefits.items". 
-       IMPORTANTE: El campo 'title' de cada uno de los 6 beneficios en "modules.web.landingPageTabs.benefits.items" DEBE SER UNA COPIA IDÉNTICA de la solución correspondiente en "psychology.solutions".
-       Para cada beneficio, genera también un campo 'desc' con una descripción persuasiva de máximo 15 palabras que complemente al título.
-    7. Proyección: El campo 'projection' debe ser un array de 12 números (USD) representando los ingresos netos esperados por mes (mes 1 a 12), es normal esperar que los primeros 3 meses no se generen ingresos, pero luego se espera que haya un incremento progresivo. En el mes 12 el objetivo es superar los $1000 USD.
+    REGLAS DE COPYWRITING AVANZADO (DIAMANTES DE CONVERSIÓN):
+    1. Manifestación Diaria (daily_manifestation): Describe CÓMO se ve el dolor del avatar en su rutina diaria (ej: el estrés de ver el buzón lleno de facturas sin pagar).
+    2. Razón Emocional (emotional_reason): Cuál es el verdadero "para qué" profundo del deseo (ej: no es solo ganar dinero, es dejar de sentirse inferior ante su familia).
+    3. Mecanismo Único (unique_mechanism): Inventa o identifica un concepto exclusivo para este producto que explique por qué funciona diferente a los demás (ej: El Sistema CEJAS-PRO 360).
+    4. Matriz de Objeciones: Define razones por las que NO comprarían, incluyendo una descripción corta para chat y un "detail" más largo para FAQ.
+    5. Reglas 'Avoid': Identifica 4 palabras o frases cliché que la IA DEBE EVITAR para sonar profesional y diferente a la competencia.
+
+    REGLAS TÉCNICAS:
+    - Devuelve EXCLUSIVAMENTE el JSON válido. Sin markdown.
+    - Puntos de Dolor: Exactamente 6 profundos y emocionales.
+    - Proyección: 12 números creciendo progresivamente hasta superar los $1000 en el mes 12.
 
     ESTRUCTURA JSON REQUERIDA (OBLIGATORIA):
     {
@@ -145,87 +145,64 @@ const generateFullStrategy = async (projectData) => {
         "niche": "${niche}",
         "price": ${fullPrice},
         "commissionRate": ${commissionRate},
-        "projection": [12 numbers starting small and growing],
+        "projection": [12 numbers],
         "insights": {
-            "overview": { 
-                "title": "Estrategia para vender en automático", 
-                "items": [
-                    { "label": "Producto", "value": "${productName}", "icon": "BookOpen", "color": "text-pink-400", "border": "border-pink-500/20" },
-                    { "label": "Nicho", "value": "${niche}", "icon": "Sparkles", "color": "text-purple-400", "border": "border-purple-500/20" },
-                    { "label": "Estrategia", "value": "Embudo con ${leadMagnetType}", "icon": "MessageCircle", "color": "text-green-400", "border": "border-green-500/20" },
-                    { "label": "Objetivo", "value": "Venta Directa de Alto Impacto", "icon": "Target", "color": "text-blue-400", "border": "border-blue-500/20" }
-                ] 
-            },
-            "niche": { "title": "Análisis de Nicho", "description": "..." },
-            "product": { "title": "Rentabilidad", "description": "Tu ganancia de $${netCommission.toFixed(2)} permite un margen de inversión de hasta..." },
-            "objective": { "title": "Método de Cierre", "description": "..." }
+            "overview": { "title": "...", "items": [{ "label": "...", "value": "...", "icon": "...", "color": "...", "border": "..." }] },
+            "niche": { "title": "...", "description": "..." },
+            "product": { "title": "...", "description": "..." },
+            "objective": { "title": "...", "description": "..." }
         }
       },
       "avatars": [
           {
             "id": 1,
-            "name": "Avatar Principal",
-            "archetype": "Perfil de compra masiva",
-            "age": "25-45 años",
+            "name": "...",
+            "archetype": "...",
+            "age": "...",
             "quote": "...",
-            "interests": "...",
-            "behavior": "Instagram y WhatsApp",
-            "desire": "...",
             "pain": "...",
+            "daily_manifestation": "Desripción vívida del dolor en el día a día...",
+            "desire": "...",
+            "emotional_reason": "El para qué profundo y emocional...",
             "objection": "...",
             "motivations": { "dinero": 85, "tiempo": 70, "estatus": 50, "seguridad": 90 }
-          },
-          { "id": 2, "name": "Avatar Secundario (Escéptico)", "archetype": "...", "age": "...", "quote": "...", "interests": "...", "behavior": "...", "desire": "...", "pain": "...", "objection": "...", "motivations": { "dinero": 95, "tiempo": 60, "estatus": 70, "seguridad": 80 } },
-          { "id": 3, "name": "Avatar Terciario (Aspiracional)", "archetype": "...", "age": "...", "quote": "...", "interests": "...", "behavior": "...", "desire": "...", "pain": "...", "objection": "...", "motivations": { "dinero": 70, "tiempo": 100, "estatus": 50, "seguridad": 90 } }
+          }
       ],
       "psychology": {
-        "pains": ["Dolor 1 (Tú...)", "Dolor 2 (Tú...)", "Dolor 3 (Tú...)", "Dolor 4 (Tú...)", "Dolor 5 (Tú...)", "Dolor 6 (Tú...)", "Dolor 7 (Tú...)"],
-        "solutions": ["Solución 1", "Solución 2", "Solución 3", "Solución 4", "Solución 5", "Solución 6", "Solución 7"],
-        "awarenessStages": { 
-            "stage1_pain": "...", 
-            "stage2_solution": "...", 
-            "stage3_barrier": "..." 
-        },
+        "pains": ["..."],
+        "solutions": ["..."],
+        "powerWords": ["..."],
+        "unique_mechanism": "Nombre y breve descripción del método único...",
+        "avoid": ["palabra1", "palabra2", "frase3"],
+        "awarenessStages": { "stage1_pain": "...", "stage2_solution": "...", "stage3_barrier": "..." },
         "buyingPsychology": { 
-           "notBuyingReasons": [ { "title": "...", "description": "..." } ],
+           "notBuyingReasons": [ { "title": "...", "description": "...", "detail": "Explicación detallada para FAQ..." } ],
            "buyingReasons": [ { "title": "...", "description": "..." } ],
            "strategistConclusion": "..."
         },
         "conversionStrategy": {
-           "mainFocus": [ { "label": "Eje Central", "description": "..." } ],
-           "prioritizedChannels": [ { "label": "Landing Page", "type": "LP" }, { "label": "WhatsApp CRM", "type": "WA" } ],
-           "communicationStyle": [ { "label": "Tono", "description": "${brandTone}" } ],
+           "mainFocus": [ { "label": "...", "description": "..." } ],
+           "prioritizedChannels": [ { "label": "...", "type": "..." } ],
+           "communicationStyle": [ { "label": "...", "description": "..." } ],
            "tacticalNote": "..."
-        },
-        "idle": "..."
+        }
       },
       "modules": {
         "web": {
             "landingPageTabs": {
-                "hero": { "label": "1. Encabezado", "title": "Promesa de Valor", "type": "hero", "h1": "...", "h2": "...", "strategyText": "..." },
-                "pain": { "label": "2. Dolores", "title": "Identificación del Problema", "type": "pain", "items": ["Dolor 1 (Tú...)", "Dolor 2 (Tú...)", "Dolor 3 (Tú...)", "Dolor 4 (Tú...)", "Dolor 5 (Tú...)", "Dolor 6 (Tú...)", "Dolor 7 (Tú...)"], "strategyText": "..." },
-                "benefits": { "label": "3. Beneficios", "title": "Oferta Irresistible", "type": "benefits", "items": [{ "title": "Solución 1", "desc": "..." }, { "title": "Solución 2", "desc": "..." }, { "title": "Solución 3", "desc": "..." }, { "title": "Solución 4", "desc": "..." }, { "title": "Solución 5", "desc": "..." }, { "title": "Solución 6", "desc": "..." }, { "title": "Solución 7", "desc": "..." }], "strategyText": "..." }
+                "hero": { "label": "1. Encabezado", "title": "Promesa", "type": "hero", "h1": "...", "h2": "...", "strategyText": "..." },
+                "pain": { "label": "2. Dolores", "title": "Problema", "type": "pain", "items": ["..."], "strategyText": "..." },
+                "benefits": { "label": "3. Beneficios", "title": "Oferta", "type": "benefits", "items": [{ "title": "...", "desc": "..." }], "strategyText": "..." }
             },
             "thankYouPageTabs": {
-                "header": { "label": "1. Confirmación", "title": "Mensaje de Éxito", "type": "header", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." },
-                "action": { "label": "2. Siguiente Paso", "title": "Redirección", "type": "action", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." },
-                "magnet": { "label": "3. Regalo", "title": "Lead Magnet", "type": "magnet", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." }
+                "header": { "label": "1. Éxito", "title": "...", "type": "header", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." }
             }
         },
-        "content": [ 
-            { "id": 1, "title": "...", "keyword": "...", "difficulty": 25, "strategy": "..." }
-        ],
+        "content": [ { "id": 1, "title": "...", "keyword": "...", "difficulty": 25, "strategy": "..." } ],
         "emails": {
-           "nurture": [ 
-                { "day": "Día 0", "subject": "...", "objective": "...", "type": "Bienvenida", "bodyPreview": "..." }
-           ],
-           "evergreen": [ 
-                { "day": "Día 8", "subject": "...", "objective": "...", "type": "Autoridad", "bodyPreview": "..." } 
-           ]
+           "nurture": [ { "day": "Día 0", "subject": "...", "objective": "...", "type": "...", "bodyPreview": "..." } ]
         },
-        "whatsapp": [ 
-            { "id": 1, "title": "Cierre por WhatsApp", "objective": "...", "messages": [ { "role": "agent", "text": "..." } ] } 
-        ]
+        "whatsapp": [ { "id": 1, "title": "...", "objective": "...", "messages": [ { "role": "agent", "text": "..." } ] } ]
       }
     }
     `;
@@ -250,5 +227,6 @@ const generateFullStrategy = async (projectData) => {
         throw error;
     }
 };
+/* Fin de actualización - 15/06/2024 19:20 */
 
 module.exports = { generateContent, analyzeWebsiteContent, generateFullStrategy };

@@ -38,6 +38,7 @@ export const DashboardLayout = ({
   const location = useLocation();
   const navigate = useNavigate();
 
+  /* */ /* Actualización: Reestructuración de lógica de menú activo para soportar Email Marketing como menú principal - 30/06/2025 17:00 */
   const getActiveMenuId = (pathname: string) => {
     if (pathname === '/dashboard') return 'dashboard';
     if (pathname.startsWith('/dashboard/admin')) return 'admin';
@@ -46,9 +47,11 @@ export const DashboardLayout = ({
     if (pathname.startsWith('/dashboard/projects')) return 'projects';
     if (pathname.startsWith('/dashboard/pages') || pathname.startsWith('/dashboard/generator') || pathname.startsWith('/dashboard/editor')) return 'mid-landing';
     if (pathname.startsWith('/dashboard/articles') || pathname.startsWith('/dashboard/content-creator')) return 'content-gen';
-    if (pathname.startsWith('/dashboard/email') || pathname.startsWith('/dashboard/whatsapp') || pathname.startsWith('/dashboard/copy-pro')) return 'tools';
+    if (pathname.startsWith('/dashboard/email')) return 'email';
+    if (pathname.startsWith('/dashboard/whatsapp') || pathname.startsWith('/dashboard/copy-pro')) return 'tools';
     return null;
   };
+  /* Fin de actualización - 30/06/2025 17:00 */
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
@@ -125,6 +128,7 @@ export const DashboardLayout = ({
       return { ...user, planLimits: plan.limitsConfig };
   }, [user, simulatedPlanSlug, availablePlans]);
 
+  /* */ /* Actualización: Cambio de nombre a 'Contenidos Automáticos' y reubicación de 'Email Marketing' como menú principal - 30/06/2025 17:00 */
   const menuStructure: MenuItem[] = [
     { id: 'dashboard', label: 'Panel Principal', icon: LayoutDashboard, path: '/dashboard' },
     { id: 'admin', label: 'Administración', icon: Shield, adminOnly: true, subItems: [
@@ -151,18 +155,19 @@ export const DashboardLayout = ({
         { label: 'Nueva Página', path: '/dashboard/generator', icon: PlusCircle }
       ]
     },
-    { id: 'content-gen', label: 'Contenidos IA', icon: BookOpen, subItems: [
+    { id: 'content-gen', label: 'Contenidos Automáticos', icon: BookOpen, subItems: [
         { label: 'Artículos SEO', path: '/dashboard/articles', icon: List },
         { label: 'Redactar Nuevo', path: '/dashboard/content-creator', icon: PlusCircle }
       ]
     },
+    { id: 'email', label: 'Email Marketing', icon: Mail, path: '/dashboard/email' },
     { id: 'tools', label: 'Herramientas Pro', icon: Wrench, subItems: [
-        { label: 'Email Marketing', path: '/dashboard/email', icon: Mail },
         { label: 'WhatsApp CRM', path: '/dashboard/whatsapp', icon: MessageSquare },
         { label: 'CopySell AI', path: '/dashboard/copy-pro', icon: PenTool }
       ]
     }
   ];
+  /* Fin de actualización - 30/06/2025 17:00 */
 
   const NavItemRender: React.FC<{ item: MenuItem }> = ({ item }) => {
     if (item.adminOnly && user.role !== 'admin') return null;

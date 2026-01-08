@@ -1,5 +1,7 @@
+
 import { BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
 
+/* */ /* Actualización: Enriquecimiento de la interfaz ProjectMasterStrategy con campos de profundidad psicológica: manifestación diaria, razón emocional, mecanismo único y reglas de estilo negativas - 15/06/2024 19:00 */
 // --- INTERFAZ MAESTRA ---
 export interface ProjectMasterStrategy {
     meta: {
@@ -25,7 +27,9 @@ export interface ProjectMasterStrategy {
         age: string;
         quote: string;
         pain: string;
+        daily_manifestation: string; // Nuevo: Manifestación diaria del dolor
         desire: string;
+        emotional_reason: string;    // Nuevo: El para qué emocional del deseo
         objection: string;
         interests: string; 
         behavior: string;  
@@ -35,13 +39,15 @@ export interface ProjectMasterStrategy {
         pains: string[];
         solutions: string[];
         powerWords: string[];
+        unique_mechanism: string;     // Nuevo: Concepto del mecanismo único
+        avoid: string[];              // Nuevo: Palabras o conceptos a evitar
         awarenessStages: {
             stage1_pain: string;
             stage2_solution: string;
             stage3_barrier: string;
         };
         buyingPsychology: {
-            notBuyingReasons: Array<{ title: string; description: string }>;
+            notBuyingReasons: Array<{ title: string; description: string; detail?: string }>;
             buyingReasons: Array<{ title: string; description: string }>;
             strategistConclusion: string;
         };
@@ -81,6 +87,7 @@ export interface ProjectMasterStrategy {
         whatsapp: Array<any>;
     };
 }
+/* Fin de actualización - 15/06/2024 19:00 */
 
 // --- PLANTILLA POR DEFECTO ---
 export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
@@ -105,6 +112,8 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
         pains: [],
         solutions: [],
         powerWords: [],
+        unique_mechanism: "",
+        avoid: [],
         awarenessStages: {
             stage1_pain: "",
             stage2_solution: "",
@@ -140,6 +149,7 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
     }
 };
 
+/* */ /* Actualización: Enriquecimiento de MOCK_MASTER_STRATEGY con datos reales de profundidad psicológica (Manifestación diaria, Mecanismo único, etc.) - 15/06/2024 19:10 */
 // --- DATOS MOCK CENTRALIZADOS (ACTUALIZADOS CON BENEFICIOS SINCRONIZADOS Y DESCRIPCIONES) ---
 export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
     meta: {
@@ -186,7 +196,9 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             interests: "Estética, belleza y autoempleo",
             behavior: "Consume contenido en Instagram y WhatsApp",
             pain: "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
+            daily_manifestation: "Se siente frustrada al final del mes cuando ve que sus ahorros no crecen a pesar de trabajar sin descanso.",
             desire: "Generar ingresos propios ofreciendo servicios de alto valor",
+            emotional_reason: "Sentirse libre financieramente para no tener que dar explicaciones de sus gastos y tener estabilidad.",
             objection: "Desconfía de promesas vacías en cursos online",
             motivations: { dinero: 90, tiempo: 80, estatus: 70, seguridad: 60 }
         },
@@ -199,7 +211,9 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             interests: "Marketing estético, técnicas avanzadas",
             behavior: "Facebook Groups, WhatsApp",
             pain: "Techo de cristal en ingresos",
+            daily_manifestation: "Siente envidia sana al ver a colegas en redes sociales viajando gracias a sus servicios premium.",
             desire: "Rentabilidad y Escalar",
+            emotional_reason: "Ser reconocida como la mejor experta en su zona y elevar su estatus social.",
             objection: "No tengo tiempo para estudiar",
             motivations: { dinero: 95, tiempo: 60, estatus: 70, seguridad: 80 }
         },
@@ -212,7 +226,9 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             interests: "Belleza, emprendimiento desde casa",
             behavior: "Instagram, TikTok",
             pain: "Dependencia económica",
+            daily_manifestation: "Le duele tener que pedir dinero a su pareja para gastos personales básicos del hogar.",
             desire: "Seguridad y Flexibilidad",
+            emotional_reason: "Recuperar su identidad profesional más allá de ser solo mamá.",
             objection: "Miedo a la inversión inicial",
             motivations: { dinero: 70, tiempo: 100, estatus: 50, seguridad: 90 }
         }
@@ -237,6 +253,8 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real."
         ],
         powerWords: ["Ingresos Propios", "Alto Valor", "Confianza Real", "Autoempleo", "Garantizado", "Estética Profesional"],
+        unique_mechanism: "Método Brows360: Una técnica patentada que fusiona visajismo digital con pigmentación orgánica para resultados que duran el doble.",
+        avoid: ["Gana dinero fácil", "Sin esfuerzo", "Fórmula mágica", "Hazte rico"],
         awarenessStages: {
             stage1_pain: "Frustración por trabajar jornadas agotadoras sin estabilidad económica real.",
             stage2_solution: "Sabe que el Microblading Hiperrealista es la técnica mejor pagada y más demandada.",
@@ -244,9 +262,9 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
         },
         buyingPsychology: {
             notBuyingReasons: [
-                { title: "Duda de la factibilidad", description: "Teme que su falta de experiencia previa sea un impedimento real para aprender una técnica tan compleja." },
-                { title: "Falta de claridad", description: "No visualiza cómo pasará de su situación actual a generar ingresos reales de forma segura." },
-                { title: "Riesgo percibido", description: "Siente que puede perder la inversión en el curso si no logra dominar la pluma manual (tébori)." }
+                { title: "Duda de la factibilidad", description: "Teme que su falta de experiencia previa sea un impedimento real para aprender una técnica tan compleja.", detail: "Cree que necesita ser dibujante profesional para tener éxito." },
+                { title: "Falta de claridad", description: "No visualiza cómo pasará de su situación actual a generar ingresos reales de forma segura.", detail: "Le preocupa no saber cómo montar el estudio físico." },
+                { title: "Riesgo percibido", description: "Siente que puede perder la inversión en el curso si no logra dominar la pluma manual (tébori).", detail: "Teme arruinar la cara de alguien y enfrentar problemas legales." }
             ],
             buyingReasons: [
                 { title: "Siente Seguridad", description: "Percibe que el acompañamiento paso a paso minimiza cualquier riesgo de error técnico." },
@@ -314,7 +332,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     type: 'benefits',
                     items: [
                         { title: "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo.", desc: "Maximiza tu tiempo generando servicios de alto impacto económico." },
-                        { title: "Certificación profesional y acompañamiento que eliminan todo temor a cometer errores técnicos.", desc: "Seguridad absoluta respaldada por expertos en micropigmentación." },
+                        { title: "Certificación profesional and acompañamiento que eliminan todo temor a cometer errores técnicos.", desc: "Seguridad absoluta respaldada por expertos en micropigmentación." },
                         { title: "Metodología 100% práctica basada en resultados reales, con soporte paso a paso.", desc: "No más teoría vacía; aprende haciendo con modelos reales." },
                         { title: "Estrategia probada de captación de clientes en Instagram para llenar tu agenda con seguridad.", desc: "Tu agenda llena desde la primera semana gracias a nuestro método de marketing." },
                         { title: "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable.", desc: "Te enseñamos a escalar tu talento y construir un negocio sólido." },
@@ -411,3 +429,4 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
         ]
     }
 };
+/* Fin de actualización - 15/06/2024 19:10 */
