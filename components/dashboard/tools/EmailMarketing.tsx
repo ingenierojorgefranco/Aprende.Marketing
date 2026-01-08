@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Lead } from '../../../types';
 import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, ChevronRight, Tag, Plus, Play, AlertCircle } from 'lucide-react';
@@ -30,11 +29,19 @@ export const EmailMarketing: React.FC = () => {
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   ////////// Fin de actualización - 17/06/2025 11:30 //////////
 
+  /* */ /* Reparación: Sincronización de carga de etiquetas para asegurar visualización inmediata tras recuperación de API Key de la base de datos - 30/06/2025 16:00 */
   useEffect(() => {
     loadSettings();
     loadLeads();
-    loadTags();
   }, []);
+
+  // Efecto reactivo para cargar etiquetas cuando la clave esté disponible
+  useEffect(() => {
+    if (systemeIoKey) {
+        loadTags();
+    }
+  }, [systemeIoKey]);
+  /* Fin de reparación - 30/06/2025 16:00 */
 
   const loadSettings = async () => {
     setLoadingSettings(true);
@@ -193,6 +200,7 @@ export const EmailMarketing: React.FC = () => {
                         <input
                             type="password"
                             value={systemeIoKey}
+                            // Fix: Use setSystemeIoKey instead of the non-existent setValue function
                             onChange={(e) => setSystemeIoKey(e.target.value)}
                             placeholder="Introduce tu API Key de Systeme.io"
                             className="w-full bg-black border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:border-[#FF5A1F] outline-none transition"
