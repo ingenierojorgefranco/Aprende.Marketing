@@ -28,7 +28,9 @@ app.use(cors());
 // ======================================================
 //  WEBHOOKS (MUST BE BEFORE GLOBAL BODY PARSERS)
 // ======================================================
+////////// Actualización: Asegurando la carga de webhooks antes de los parsers globales para soporte de HMAC SHA256 - 27/06/2025 11:45 //////////
 app.use('/api', webhookRoutes);
+////////// Fin de actualización - 27/06/2025 11:45 //////////
 
 // ======================================================
 //  GLOBAL MIDDLEWARE (Body Parsers)

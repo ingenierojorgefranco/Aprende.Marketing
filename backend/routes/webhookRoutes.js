@@ -1,6 +1,10 @@
 const express = require('express');
 const stripeService = require('../stripeService');
 const hotmartService = require('../hotmartService');
+////////// Actualización: Importación de servicio Systeme.io para validación de Webhooks - 27/06/2025 11:45 //////////
+const systemeIoService = require('../systemeIoService');
+const pool = require('../db');
+////////// Fin de actualización - 27/06/2025 11:45 //////////
 
 const router = express.Router();
 
@@ -54,6 +58,52 @@ router.post('/hotmart/webhook', express.json({ limit: '10mb' }), async (req, res
     }
 });
 ////////// Fin de actualización - 25/05/2025 11:30 //////////
+
+////////// Actualización: Endpoint para recibir Webhooks de Systeme.io con validación HMAC SHA256 - 27/06/2025 11:45 //////////
+/**
+ * Webhook de Systeme.io
+ * Recibe notificaciones de creación de contactos o asignación de etiquetas.
+ */
+router.post('/systemeio/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    const signature = req.headers['x-webhook-signature'];
+    const webhookSecret = process.env.SYSTEMEIO_WEBHOOK_SECRET;
+    const rawBody = req.body.toString();
+
+    // 1. Validar firma por seguridad (Opcional si no hay secreto, pero recomendado)
+    if (webhookSecret && !systemeIoService.verifyWebhookSignature(rawBody, signature, webhookSecret)) {
+        console.warn("[Systeme.io Webhook] Firma inválida recibida.");
+        return res.status(401).json({ error: "Invalid signature" });
+    }
+
+    try {
+        const payload = JSON.parse(rawBody);
+        const contact = payload.contact || payload;
+        const email = contact.email;
+
+        console.log(`[Systeme.io Webhook] Notificación recibida para email: ${email}`);
+
+        // 2. Sincronizar estado en el CRM local si el contacto ya existe
+        if (email) {
+            await pool.query(
+                `UPDATE crm_contacts SET status = 'contacted', updated_at = NOW() 
+                 WHERE email = ? AND status = 'new'`,
+                [email]
+            );
+            
+            // También marcamos como sincronizado en la tabla de leads
+            await pool.query(
+                `UPDATE leads SET synced = 1 WHERE email = ?`,
+                [email]
+            );
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error(`[Systeme.io Webhook Error]: ${err.message}`);
+        res.status(500).json({ error: "Internal processing error" });
+    }
+});
+////////// Fin de actualización - 27/06/2025 11:45 //////////
 
 ////////// Se añade manejador GET para verificación visual del webhook en navegador - 25/05/2025 20:45 //////////
 router.get('/hotmart/webhook', (req, res) => {

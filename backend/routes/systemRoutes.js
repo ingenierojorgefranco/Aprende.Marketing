@@ -132,6 +132,29 @@ router.get('/system/integrations/systemeio/tags', authMiddleware, async (req, re
 });
 ////////// Fin de actualización - 17/06/2025 11:30 //////////
 
+////////// Actualización: Endpoint para crear etiquetas en Systeme.io - 27/06/2025 12:30 //////////
+router.post('/system/integrations/systemeio/tags', authMiddleware, async (req, res) => {
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ error: "Nombre de etiqueta no proporcionado." });
+
+    try {
+        const [rows] = await pool.query(
+            "SELECT setting_value FROM system_settings WHERE setting_key = ?",
+            [`integrations_${req.user.id}`]
+        );
+        if (rows.length === 0) return res.status(400).json({ error: "Configuración de integración no encontrada." });
+        
+        const settings = JSON.parse(rows[0].setting_value);
+        if (!settings.systemeIoKey) return res.status(400).json({ error: "API Key de Systeme.io no configurada." });
+
+        const newTag = await systemeIoService.createTag(settings.systemeIoKey, name);
+        res.json(newTag);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+////////// Fin de actualización - 27/06/2025 12:30 //////////
+
 ////////// Actualización: Endpoint para sincronización manual de leads pendientes con Systeme.io - 07/06/2025 19:40 //////////
 router.post('/system/integrations/sync-pending', authMiddleware, async (req, res) => {
     try {

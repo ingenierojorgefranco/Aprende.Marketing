@@ -1,5 +1,30 @@
-////////// Creación de servicio para integración con Systeme.io - 07/06/2025 19:30 //////////
+////////// Actualización: Implementación de verificación de firma HMAC SHA256 para Webhooks - 27/06/2025 11:45 //////////
 const https = require('https');
+const crypto = require('crypto');
+
+/**
+ * Verifica la autenticidad de la firma enviada por Systeme.io
+ * @param {string} rawBody - El cuerpo crudo de la petición (string)
+ * @param {string} signature - La firma recibida en el header X-Webhook-Signature
+ * @param {string} secret - El secreto de webhook configurado en Systeme.io
+ */
+const verifyWebhookSignature = (rawBody, signature, secret) => {
+    if (!signature || !secret) return false;
+    
+    const hmac = crypto.createHmac('sha256', secret);
+    const expectedSignature = hmac.update(rawBody).digest('hex');
+    
+    // Comparación segura contra ataques de tiempo
+    try {
+        return crypto.timingSafeEqual(
+            Buffer.from(signature, 'utf8'),
+            Buffer.from(expectedSignature, 'utf8')
+        );
+    } catch (e) {
+        return false;
+    }
+};
+////////// Fin de actualización - 27/06/2025 11:45 //////////
 
 /**
  * Registra un nuevo contacto en Systeme.io
@@ -96,7 +121,90 @@ const getTags = async (apiKey) => {
     });
 };
 
-////////// Actualización: Asegurar tipos numéricos y logs de depuración para asignación de etiquetas - 17/06/2025 14:30 //////////
+////////// Actualización: Nuevas funciones para búsqueda de contactos y creación de etiquetas alineadas con la documentación PHP - 27/06/2025 12:30 //////////
+
+/**
+ * Busca un contacto por su dirección de email
+ * @param {string} apiKey 
+ * @param {string} email 
+ */
+const getContactByEmail = async (apiKey, email) => {
+    const options = {
+        hostname: 'api.systeme.io',
+        port: 443,
+        path: `/api/contacts?email=${encodeURIComponent(email)}`,
+        method: 'GET',
+        headers: {
+            'X-Api-Key': apiKey,
+            'Accept': 'application/json'
+        }
+    };
+
+    return new Promise((resolve, reject) => {
+        const req = https.request(options, (res) => {
+            let resBody = '';
+            res.on('data', (chunk) => resBody += chunk);
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    try {
+                        const parsed = JSON.parse(resBody);
+                        // Systeme.io devuelve una lista filtrada
+                        resolve(parsed.items && parsed.items.length > 0 ? parsed.items[0] : null);
+                    } catch (e) {
+                        resolve(null);
+                    }
+                } else {
+                    reject(new Error(`Systeme.io Search Error: ${res.statusCode} - ${resBody}`));
+                }
+            });
+        });
+        req.on('error', (e) => reject(e));
+        req.end();
+    });
+};
+
+/**
+ * Crea una nueva etiqueta (Tag) en Systeme.io
+ * @param {string} apiKey 
+ * @param {string} tagName 
+ */
+const createTag = async (apiKey, tagName) => {
+    const data = JSON.stringify({ name: tagName });
+    const options = {
+        hostname: 'api.systeme.io',
+        port: 443,
+        path: '/api/tags',
+        method: 'POST',
+        headers: {
+            'X-Api-Key': apiKey,
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(data)
+        }
+    };
+
+    return new Promise((resolve, reject) => {
+        const req = https.request(options, (res) => {
+            let resBody = '';
+            res.on('data', (chunk) => resBody += chunk);
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    try {
+                        resolve(JSON.parse(resBody));
+                    } catch (e) {
+                        reject(new Error("Invalid response from Systeme.io when creating tag"));
+                    }
+                } else {
+                    reject(new Error(`Systeme.io Create Tag Error: ${res.statusCode} - ${resBody}`));
+                }
+            });
+        });
+        req.on('error', (e) => reject(e));
+        req.write(data);
+        req.end();
+    });
+};
+
+////////// Actualización: Corrección de endpoint para asignación de etiquetas según documentación técnica (POST contacts/{id}/tags) - 27/06/2025 12:30 //////////
 /**
  * Asigna una etiqueta a un contacto específico en Systeme.io
  * @param {string} apiKey 
@@ -104,28 +212,21 @@ const getTags = async (apiKey) => {
  * @param {number|string} tagId 
  */
 const addTagToContact = async (apiKey, contactId, tagId) => {
-    ////////// Actualización: Validación estricta de IDs numéricos mayores a cero para evitar peticiones 404 a la API de etiquetas - 25/06/2025 11:30 //////////
     const cleanContactId = Number(contactId);
     const cleanTagId = Number(tagId);
 
     if (isNaN(cleanContactId) || cleanContactId <= 0 || isNaN(cleanTagId) || cleanTagId <= 0) {
-        console.error(`[Systeme.io Validation Error] IDs inválidos o insuficientes - Contact: ${contactId}, Tag: ${tagId}`);
-        throw new Error("El ID de contacto o de etiqueta no son válidos o son inexistentes para la operación en Systeme.io.");
+        console.error(`[Systeme.io Validation Error] IDs inválidos - Contact: ${contactId}, Tag: ${tagId}`);
+        throw new Error("El ID de contacto o de etiqueta no son válidos para la operación.");
     }
-    ////////// Fin de actualización - 25/06/2025 11:30 //////////
 
-    ////////// Actualización: Auditoría detallada de la URL y los IDs antes del envío para depuración de errores 404 - 25/06/2025 15:50 //////////
-    console.log(`[Systeme.io AUDIT] URL Destino: https://api.systeme.io/api/tags/${cleanTagId}/contacts`);
-    console.log(`[Systeme.io AUDIT] Payload Contact ID: ${cleanContactId}`);
-    ////////// Fin de actualización - 25/06/2025 15:50 //////////
+    console.log(`[Systeme.io Debug] Inicia vinculación corregida. Contact: ${cleanContactId}, Tag: ${cleanTagId}`);
 
-    console.log(`[Systeme.io Debug] Inicia addTagToContact. Contact: ${cleanContactId}, Tag: ${cleanTagId}`);
-
-    const data = JSON.stringify({ contactId: cleanContactId });
+    const data = JSON.stringify({ tagId: cleanTagId });
     const options = {
         hostname: 'api.systeme.io',
         port: 443,
-        path: `/api/tags/${cleanTagId}/contacts`,
+        path: `/api/contacts/${cleanContactId}/tags`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -134,8 +235,6 @@ const addTagToContact = async (apiKey, contactId, tagId) => {
             'Content-Length': Buffer.byteLength(data)
         }
     };
-
-    console.log(`[Systeme.io Debug] Requesting Tag Add: POST https://${options.hostname}${options.path}`);
 
     return new Promise((resolve, reject) => {
         const req = https.request(options, (res) => {
@@ -150,14 +249,18 @@ const addTagToContact = async (apiKey, contactId, tagId) => {
                 }
             });
         });
-        req.on('error', (e) => {
-            console.error(`[Systeme.io Debug] Request Error:`, e.message);
-            reject(e);
-        });
+        req.on('error', (e) => reject(e));
         req.write(data);
         req.end();
     });
 };
-////////// Fin de actualización - 17/06/2025 14:30 //////////
+////////// Fin de actualización - 27/06/2025 12:30 //////////
 
-module.exports = { addContact, getTags, addTagToContact };
+module.exports = { 
+    addContact, 
+    getTags, 
+    addTagToContact, 
+    verifyWebhookSignature,
+    getContactByEmail,
+    createTag
+};
