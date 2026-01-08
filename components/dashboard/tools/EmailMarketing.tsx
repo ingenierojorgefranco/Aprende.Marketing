@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Lead } from '../../../types';
 import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play } from 'lucide-react';
@@ -358,12 +359,13 @@ export const EmailMarketing: React.FC = () => {
                                 </button>
                             </div>
                         </div>
+                        {/* */ /* Actualización: Corrección de caracteres '>' por '&gt;' para evitar errores de compilación TS1382 - 24/05/2024 18:00 */ }
                         <div className="p-4 bg-blue-900/10 border border-blue-500/20 rounded-2xl flex items-start gap-4">
                             <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 shrink-0">
                                 <ExternalLink className="w-4 h-4" />
                             </div>
                             <p className="text-xs text-gray-400 leading-relaxed font-medium">
-                                Puedes encontrar tu clave en Systeme.io > Configuración > Configuración de la API pública.
+                                Puedes encontrar tu clave en Systeme.io &gt; Configuración &gt; Configuración de la API pública.
                             </p>
                         </div>
                     </div>
@@ -512,7 +514,8 @@ export const EmailMarketing: React.FC = () => {
                                       <h4 className="text-white font-black text-sm uppercase tracking-widest">Siguiente Paso: Automatización</h4>
                                   </div>
                                   <div className="p-6 space-y-4">
-                                      <p className="text-gray-300 text-xs leading-relaxed">Recuerda ir a <span className="text-white font-bold">Systeme.io > Reglas de Automatización</span> para configurar que al añadir esta etiqueta, el contacto se inscriba a tu campaña de email.</p>
+                                      {/* */ /* Actualización: Corrección de caracteres '>' por '&gt;' para evitar errores de compilación TS1382 - 24/05/2024 18:00 */ }
+                                      <p className="text-gray-300 text-xs leading-relaxed">Recuerda ir a <span className="text-white font-bold">Systeme.io &gt; Reglas de Automatización</span> para configurar que al añadir esta etiqueta, el contacto se inscriba a tu campaña de email.</p>
                                       <button onClick={() => setShowTagModal(false)} className="w-full py-4 bg-white text-black font-black text-sm uppercase tracking-widest rounded-xl hover:bg-gray-200 transition-all shadow-xl">Entendido</button>
                                   </div>
                               </div>
