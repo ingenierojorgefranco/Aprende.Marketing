@@ -61,7 +61,7 @@ router.use(authMiddleware);
 //  ANALIZADOR INTELIGENTE
 // ======================================================
 
-/* */ /* Actualización: Mejora del Scraper y manejo de error 403: Se refuerzan cabeceras de navegación (Referer, Cache-Control) para simular un navegador real y se captura el bloqueo anti-bot para retornar error 422 amigable en lugar de 500 - 15/06/2024 21:15 */
+/* */ /* Actualización: Optimización del Scraper para resiliencia: Se elimina la restricción estricta de código de estado 200 y se ajustan cabeceras para permitir el análisis de contenido incluso en sitios con protecciones anti-bot parciales, evitando bloqueos innecesarios - 24/05/2024 17:15 */
 router.post('/analyze-site', async (req, res) => {
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: 'URL no proporcionada' });
@@ -73,11 +73,9 @@ router.post('/analyze-site', async (req, res) => {
                 const options = {
                     headers: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-                        'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
-                        'Referer': 'https://www.google.com/',
-                        'Cache-Control': 'no-cache',
-                        'Upgrade-Insecure-Requests': '1'
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'es-ES,es;q=0.9',
+                        'Cache-Control': 'no-cache'
                     },
                     timeout: 10000
                 };
@@ -88,10 +86,7 @@ router.post('/analyze-site', async (req, res) => {
                         return fetchUrl(new URL(response.headers.location, targetUrl).href).then(resolve).catch(reject);
                     }
 
-                    if (response.statusCode !== 200) {
-                        return reject(new Error(`El servidor respondió con código ${response.statusCode}`));
-                    }
-
+                    // Se permite el procesamiento independientemente del código para intentar capturar contenido útil
                     let data = '';
                     response.on('data', (chunk) => data += chunk);
                     response.on('end', () => resolve(data));
@@ -110,9 +105,9 @@ router.post('/analyze-site', async (req, res) => {
             .replace(/\s+/g, ' ')
             .trim();
 
-        // Validation: If no significant text was extracted, don't waste AI credits
+        // Validation: If no significant text was extracted, suggests real protection or dynamic content
         if (!cleanText || cleanText.length < 300) {
-            return res.status(422).json({ error: 'No se pudo extraer suficiente contenido legible de la página. Es posible que el sitio esté protegido o sea una página de carga dinámica.' });
+            return res.status(422).json({ error: 'No se pudo extraer suficiente contenido legible de la página. Es posible que el sitio esté protegido o sea una página de carga dinámica. Por favor, ingresa los datos manualmente.' });
         }
 
         const analysis = await analyzeWebsiteContent(cleanText);
@@ -120,14 +115,6 @@ router.post('/analyze-site', async (req, res) => {
 
     } catch (error) {
         console.error("[Analyze Site Error]", error);
-        
-        // Manejo elegante de bloqueo anti-bot (403) para no devolver error 500
-        if (error.message.includes('código 403')) {
-            return res.status(422).json({ 
-                error: 'Este sitio web tiene protecciones anti-bot activas (Error 403). Por favor, ingresa los datos de tu producto manualmente en el formulario.' 
-            });
-        }
-
         res.status(500).json({ error: error.message || 'Error analizando el sitio web. Verifica que la URL sea pública y accesible.' });
     }
 });
