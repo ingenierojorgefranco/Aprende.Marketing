@@ -19,7 +19,9 @@ import {
   Target,
   ShoppingCart as CartIcon,
   List as ListIcon,
-  XCircle
+  XCircle,
+  Maximize,
+  Minimize
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -32,160 +34,113 @@ import {
   Legend 
 } from 'recharts';
 import { User } from '../../../types';
+import { MOCK_HOTMART_HISTORY, BASE_TOTAL_INCOME, BASE_AVAILABLE, BASE_PENDING } from '../../../services/hotmartMockData';
 
-////////// Actualización de Panel Hotmart: Aleatoriedad de ingresos, Cartera $33k y Evolución Dinámica - 01/06/2025 19:45 //////////
+/* Actualización: Sincronización final con array físico hardcodeado, aplicación de multiplicador $47 para ventas y cancelaciones, corrección de visualización dinámica (hoy - 30 días) y cálculo dinámico de cartera por cobrar - 11/06/2024 17:20 */
 
-/**
- * Función para generar los datos de ventas solicitados:
- * Rango: 01 dic 2025 - 03 jun 2026
- * Punto de anclaje: 05 ene 2026 = $42.807
- * Rango diario: $47 - $650 (Alta Variabilidad)
- * Precio producto: $47
- * Cancelaciones: 0-2 por semana (restan $47 c/u)
- */
-const generateHotmartData = () => {
-  const startDate = new Date(2025, 11, 1); // 1 Dic 2025
-  const anchorDate = new Date(2026, 0, 5);  // 5 Ene 2026
-  const endDate = new Date(2026, 5, 3);    // 3 Jun 2026
-  const anchorTotal = 42807;
-  const productPrice = 47;
-  
-  const data: any[] = [];
-  
-  // Función para obtener ingreso diario base con alta variabilidad ($47 - $650)
-  const getDailyBase = (date: Date) => {
-    // Usamos una combinación de la fecha y funciones trigonométricas para romper patrones visuales
-    const seed = date.getTime();
-    const chaos = Math.abs(Math.sin(seed) * Math.cos(seed * 0.5));
-    const randomValue = Math.floor(chaos * (650 - 47 + 1)) + 47;
-    // Aseguramos que sea múltiplo de 47 aproximadamente o un valor "sucio" realista
-    return randomValue;
-  };
+/* Actualización: Implementación de contadores acumulados dinámicos que suman el historial físico de ventas hasta la fecha actual, sumándolos a los valores base de facturación y cartera - 12/06/2024 10:45 */
 
-  const getCancellations = (date: Date) => {
-    const dayOfWeek = date.getDay(); 
-    const seed = date.getDate() + date.getMonth() * 31;
-    if ((dayOfWeek === 3 && seed % 2 === 0) || (dayOfWeek === 6 && seed % 3 === 0)) {
-        return 1;
-    }
-    return 0;
-  };
+/* Actualización: Ajuste de la lógica de acumulados para filtrar datos estrictamente desde el 1 de diciembre de 2025 hasta hoy, sumándolos a los valores base para corregir el total de facturación y disponible. 15/06/2024 19:00 */
 
-  let tempDate = new Date(startDate);
-  const dailyValues: any[] = [];
-  
-  while (tempDate <= endDate) {
-    const baseIncome = getDailyBase(tempDate);
-    const cancelCount = getCancellations(tempDate);
-    const cancelAmount = cancelCount * productPrice;
-    const netDaily = baseIncome - cancelAmount;
-    const transactions = Math.round(baseIncome / productPrice);
+/* Actualización: Ajuste de la primera tarjeta de métricas para mostrar la facturación de los últimos 30 días, manteniendo la facturación acumulada total en la sección de evolución derecha. 15/06/2024 20:15 */
 
-    dailyValues.push({
-      date: new Date(tempDate),
-      baseIncome,
-      cancelCount,
-      cancelAmount,
-      netDaily,
-      transactions
-    });
-    tempDate.setDate(tempDate.getDate() + 1);
-  }
-
-  const anchorIndex = dailyValues.findIndex(v => v.date.getTime() === anchorDate.getTime());
-  
-  // Cálculo de acumulados respetando el punto de anclaje de $42.807 al 5 de Enero
-  dailyValues[anchorIndex].accumulated = anchorTotal;
-
-  for (let i = anchorIndex - 1; i >= 0; i--) {
-    dailyValues[i].accumulated = dailyValues[i+1].accumulated - dailyValues[i+1].netDaily;
-  }
-
-  for (let i = anchorIndex + 1; i < dailyValues.length; i++) {
-    dailyValues[i].accumulated = dailyValues[i-1].accumulated + dailyValues[i].netDaily;
-  }
-
-  return dailyValues.map(v => ({
-    date: v.date,
-    dateStr: v.date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
-    fullDateStr: v.date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }),
-    ventas: v.netDaily,
-    transacciones: v.transactions,
-    cancelaciones: v.cancelAmount,
-    totalAccumulated: v.accumulated
-  }));
-};
-
-const fullHistoryData = generateHotmartData();
-
-// Filtro de 30 días para visualización (06 Dic - 05 Ene)
-const getChartData = () => {
-    const anchorDate = new Date(2026, 0, 5);
-    const thirtyDaysAgo = new Date(anchorDate);
-    thirtyDaysAgo.setDate(anchorDate.getDate() - 30);
-    return fullHistoryData.filter(d => d.date >= thirtyDaysAgo && d.date <= anchorDate);
-};
-
-const chartDisplayData = getChartData();
-
-// Cálculo de métricas de los últimos 30 días para las tarjetas superiores
-const periodMetrics = chartDisplayData.reduce((acc, curr) => ({
-    gross: acc.gross + (curr.ventas + curr.cancelaciones),
-    transactions: acc.transactions + curr.transacciones,
-    cancellations: acc.cancellations + curr.cancelaciones
-}), { gross: 0, transactions: 0, cancellations: 0 });
-
-////////// Lógica de Cartera: Disponible $33.398 y Por cobrar (Suma últimos 15 días) - 01/06/2025 19:45 //////////
-const getWalletMetrics = () => {
-    const anchorDate = new Date(2026, 0, 5);
-    const fifteenDaysAgo = new Date(anchorDate);
-    fifteenDaysAgo.setDate(anchorDate.getDate() - 15);
-    
-    const last15DaysSum = fullHistoryData
-        .filter(d => d.date >= fifteenDaysAgo && d.date <= anchorDate)
-        .reduce((sum, curr) => sum + curr.ventas, 0);
-
-    const available = 33398;
-    const pending = last15DaysSum;
-    
-    return {
-        available,
-        pending,
-        total: available + pending
-    };
-};
-
-const wallet = getWalletMetrics();
-////////// Fin de actualización - 01/06/2025 19:45 //////////
+const PRODUCT_PRICE = 47;
 
 export const AdminHotmartPanel: React.FC = () => {
   const { user } = useOutletContext() as { user: User };
   const [showChart, setShowChart] = useState(true);
-  // Se mantiene el estado aunque la tabla esté oculta visualmente
-  const [showTable, setShowTable] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
-  // Valor de facturación actual dinámico según el último día de la gráfica (05 de Enero)
-  const currentAccumulated = chartDisplayData[chartDisplayData.length - 1].totalAccumulated;
+  // Procesamiento de datos centralizado
+  const processedData = useMemo(() => {
+    return MOCK_HOTMART_HISTORY.map(record => {
+      const grossIncome = record.transactions * PRODUCT_PRICE;
+      const cancelAmount = record.cancellations * PRODUCT_PRICE;
+      const netIncome = grossIncome - cancelAmount;
+
+      return {
+        date: record.date,
+        dateStr: record.date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+        fullDateStr: record.date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }),
+        ventas: netIncome,
+        transacciones: record.transactions,
+        cancelaciones: cancelAmount
+      };
+    });
+  }, []);
+
+  // Cálculo de acumulados históricos (Desde Diciembre 2025 -> Hoy)
+  const accumulatedStats = useMemo(() => {
+    const today = new Date();
+    const startDate = new Date(2025, 11, 1); // 1 de Diciembre de 2025
+    today.setHours(23, 59, 59, 999);
+    
+    return processedData
+        .filter(d => d.date >= startDate && d.date <= today)
+        .reduce((acc, curr) => ({
+            income: acc.income + curr.ventas,
+            transactions: acc.transactions + curr.transacciones,
+            cancellations: acc.cancellations + curr.cancelaciones
+        }), { income: 0, transactions: 0, cancellations: 0 });
+  }, [processedData]);
+
+  // Cálculo de métricas de los ÚLTIMOS 30 DÍAS
+  const last30DaysStats = useMemo(() => {
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    today.setHours(23, 59, 59, 999);
+    
+    return processedData
+        .filter(d => d.date >= thirtyDaysAgo && d.date <= today)
+        .reduce((acc, curr) => ({
+            income: acc.income + curr.ventas,
+            transactions: acc.transactions + curr.transacciones,
+            cancellations: acc.cancellations + curr.cancelaciones
+        }), { income: 0, transactions: 0, cancellations: 0 });
+  }, [processedData]);
+
+  // Filtrado dinámico para la gráfica (Hoy - 30 días)
+  const chartDisplayData = useMemo(() => {
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    today.setHours(23, 59, 59, 999);
+    return processedData.filter(d => d.date >= thirtyDaysAgo && d.date <= today);
+  }, [processedData]);
+
+  // Métricas de Cartera dinámicas basadas en acumulados desde Diciembre 2025
+  const wallet = useMemo(() => {
+    return {
+        available: BASE_AVAILABLE + (accumulatedStats.income * 0.9),
+        pending: BASE_PENDING + (accumulatedStats.income * 0.1),
+        total: BASE_TOTAL_INCOME + accumulatedStats.income
+    };
+  }, [accumulatedStats]);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-[#333] p-4 md:p-8 animate-in fade-in duration-500 font-sans">
+    <div className={`text-[#333] transition-all duration-300 ${isFullScreen ? 'fixed inset-0 z-[9999] overflow-auto bg-[#F8F9FA]' : 'min-h-screen bg-[#F8F9FA]'} p-4 md:p-8 animate-in fade-in duration-500 font-sans`}>
       
-      {/* Header Bienvenida */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl font-normal text-[#212529]">
           Hola, <span className="font-bold">Jorge Alberto Franco</span>, te damos la bienvenida 👋
         </h1>
-        <button className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500">
-          <Eye className="w-6 h-6" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setIsFullScreen(!isFullScreen)}
+            className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500"
+            title={isFullScreen ? "Salir de pantalla completa" : "Pantalla completa"}
+          >
+            {isFullScreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
+          </button>
+          <button className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500">
+            <Eye className="w-6 h-6" />
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        
-        {/* Main Content Column */}
         <div className="flex-1 space-y-8">
-          
-          {/* Gestión de Ventas Header */}
           <div className="flex items-center justify-between border-l-4 border-orange-500 pl-4 py-1">
             <h2 className="text-xl font-bold text-[#444] uppercase tracking-wide">Gestión de ventas</h2>
             <button className="text-[#3b82f6] font-bold text-sm flex items-center gap-1 hover:underline">
@@ -193,7 +148,6 @@ export const AdminHotmartPanel: React.FC = () => {
             </button>
           </div>
 
-          {/* Filtros */}
           <div className="flex flex-wrap gap-4 mt-6">
             <div className="relative group">
               <select className="bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm pr-10 appearance-none shadow-sm outline-none focus:ring-2 focus:ring-orange-500/20">
@@ -215,29 +169,27 @@ export const AdminHotmartPanel: React.FC = () => {
             </div>
           </div>
 
-          {/* Metric Cards (Sumatorias de los últimos 30 días) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between text-gray-500 text-xs font-bold uppercase">
-                <span className="flex items-center gap-1">Facturación bruta <Info className="w-3.5 h-3.5" /></span>
+                <span className="flex items-center gap-1">Facturación (30 días) <Info className="w-3.5 h-3.5" /></span>
               </div>
-              <p className="text-2xl font-bold text-[#333]">{periodMetrics.gross.toLocaleString('es-ES', { minimumFractionDigits: 2 })} US$</p>
+              <p className="text-2xl font-bold text-[#333]">{(last30DaysStats.income).toLocaleString('es-ES', { minimumFractionDigits: 2 })} US$</p>
             </div>
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between text-gray-500 text-xs font-bold uppercase">
-                <span className="flex items-center gap-1">Transacciones <Info className="w-3.5 h-3.5" /></span>
+                <span className="flex items-center gap-1">Transacciones (30 días) <Info className="w-3.5 h-3.5" /></span>
               </div>
-              <p className="text-2xl font-bold text-[#333]">{periodMetrics.transactions}</p>
+              <p className="text-2xl font-bold text-[#333]">{last30DaysStats.transactions}</p>
             </div>
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between text-gray-500 text-xs font-bold uppercase">
-                <span className="flex items-center gap-1">Cancelaciones <Info className="w-3.5 h-3.5" /></span>
+                <span className="flex items-center gap-1">Cancelaciones (30 días) <Info className="w-3.5 h-3.5" /></span>
               </div>
-              <p className="text-2xl font-bold text-[#333]">{periodMetrics.cancellations.toLocaleString('es-ES', { minimumFractionDigits: 2 })} US$</p>
+              <p className="text-2xl font-bold text-[#333]">{last30DaysStats.cancellations.toLocaleString('es-ES', { minimumFractionDigits: 2 })} US$</p>
             </div>
           </div>
 
-          {/* Gráfico Section (Multilínea: Bruto, Transacciones, Cancelaciones) */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-8">
             <div className="p-6 flex items-center justify-between border-b border-gray-50">
               <h3 className="text-lg font-bold text-[#444] flex items-center gap-2">
@@ -313,15 +265,6 @@ export const AdminHotmartPanel: React.FC = () => {
             )}
           </div>
 
-          {/* ////////// Sección Oculta: Detalle de Ventas Diarias (Histórico Completo) - 01/06/2025 19:45 ////////// */}
-          {false && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-8">
-              {/* Contenido de la tabla removido visualmente según instrucción */}
-            </div>
-          )}
-          {/* ////////// Fin de actualización - 01/06/2025 19:45 ////////// */}
-
-          {/* Mi Cartera Section (Actualizada con montos $33k) */}
           <div className="mt-12 space-y-6 pb-20">
             <div className="flex items-center justify-between border-l-4 border-orange-500 pl-4 py-1">
               <h2 className="text-xl font-bold text-[#444] uppercase tracking-wide">Mi cartera</h2>
@@ -341,31 +284,24 @@ export const AdminHotmartPanel: React.FC = () => {
               <div className="flex-1 w-full md:w-auto">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-gray-500 font-bold">Disponible</span>
-                  {/* ////////// Actualización de monto disponible a $33.398 - 01/06/2025 19:45 ////////// */}
                   <span className="text-2xl font-bold text-[#333]">{wallet.available.toLocaleString('es-ES', { minimumFractionDigits: 2 })} US$</span>
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between items-center text-xs text-green-600 font-bold">
                     <span>por cobrar</span>
-                    {/* ////////// Actualización de monto por cobrar (últimos 15 días) - 01/06/2025 19:45 ////////// */}
                     <span>{wallet.pending.toLocaleString('es-ES', { minimumFractionDigits: 2 })} US$</span>
                   </div>
                   <div className="flex justify-between items-center text-xs text-gray-500">
                     <span>total</span>
-                    {/* ////////// Actualización de monto total de cartera - 01/06/2025 19:45 ////////// */}
                     <span>{wallet.total.toLocaleString('es-ES', { minimumFractionDigits: 2 })} US$</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
 
-        {/* Sidebar Column */}
         <div className="w-full lg:w-80 shrink-0 space-y-6">
-          
-          {/* Mi Evolución Card (Dinámica) */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-bold text-[#444]">Mi evolución</h3>
@@ -385,18 +321,15 @@ export const AdminHotmartPanel: React.FC = () => {
                 <div className="absolute -inset-2 bg-blue-400/20 blur-xl rounded-full -z-10"></div>
               </div>
 
-              {/* ////////// Facturación Actual dinámica (se suma según pasan los días) - 01/06/2025 19:45 ////////// */}
-              <p className="text-2xl font-bold text-orange-500 mb-1">{currentAccumulated.toLocaleString('es-ES')} US$</p>
+              <p className="text-2xl font-bold text-orange-500 mb-1">{wallet.total.toLocaleString('es-ES')} US$</p>
               <p className="text-xs text-gray-400 font-bold mb-8 uppercase tracking-widest">Facturación Actual</p>
-              {/* ////////// Fin de actualización - 01/06/2025 19:45 ////////// */}
 
               <div className="w-full space-y-3 mb-8">
                 <div className="flex items-center gap-2 text-[10px] font-bold text-orange-500 uppercase tracking-widest justify-center">
                   <CheckCircle className="w-3.5 h-3.5" /> Lo estás logrando!
                 </div>
                 <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                  {/* Progreso basado en meta de 50k */}
-                  <div className="bg-orange-500 h-full transition-all duration-1000" style={{ width: `${Math.min(100, (currentAccumulated / 50000) * 100)}%` }} />
+                  <div className="bg-orange-500 h-full transition-all duration-1000" style={{ width: `${Math.min(100, (wallet.total / 50000) * 100)}%` }} />
                 </div>
                 <p className="text-[10px] text-gray-400 font-bold uppercase text-center leading-relaxed">
                   Factura US$ 50 mil y desbloquea Spaceship
@@ -409,7 +342,6 @@ export const AdminHotmartPanel: React.FC = () => {
             </div>
           </div>
 
-          {/* Social/One Card */}
           <div className="bg-[#052131] rounded-2xl p-6 text-white overflow-hidden relative group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
               <Target className="w-20 h-20" />
@@ -422,11 +354,8 @@ export const AdminHotmartPanel: React.FC = () => {
               <p className="text-xs text-orange-400 font-bold leading-relaxed">Forma parte del cambio y apoya una causa social</p>
             </div>
           </div>
-
         </div>
-
       </div>
     </div>
   );
 };
-////////// Fin de actualización - 01/06/2025 19:45 //////////

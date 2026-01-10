@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../../../services/geminiService';
 import { api } from '../../../services/api';
 import { Article, Project, LandingPage, User } from '../../../types';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, FileText } from 'lucide-react';
+import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 // Importing Sub-Components from relative sibling folder
@@ -24,9 +25,12 @@ interface DashboardContext {
 }
 
 export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) => {
-  /* */ /* Se establece el paso inicial en 0 para forzar la selección de proyecto como puerta de entrada estratégica - 24/05/2024 18:46 */
+  /* */ /* Actualización: Implementación de Header global y barra de progreso unificada (0. Proyecto, 1. Configuración, 2. Selección, 3. Esquema, 4. Redacción) para igualar el flujo de GeneratorLanding - 20/06/2024 10:15 */
   const [step, setStep] = useState(0); 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [loadingStatus, setLoadingStatus] = useState('');
+  
   const { id: editArticleId } = useParams() as { id: string };
   const navigate = useNavigate();
   const { user, articleCount, isSimulating } = useOutletContext() as DashboardContext;
@@ -156,7 +160,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     setStep(1);
   };
 
-  /* */ /* Lógica para procesar la selección de una recomendación de IA y saltar directamente al esquema del artículo - 24/05/2024 18:48 */
   const handleSelectRecommendation = async (rec: any) => {
       setTopic(rec.title);
       setKeyword(rec.keyword);
@@ -315,229 +318,263 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   }
 
   return (
-    <div className="h-full flex flex-col relative">
+    <div className="max-w-5xl mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative">
       <UpgradeModal 
           isOpen={showUpgradeModal} 
           onClose={() => navigate('/dashboard/articles')} 
           reason={`Has alcanzado el límite de ${user.planLimits?.maxArticles} artículos de tu plan ${user.planLimits?.planName}.`}
       />
 
-      <div className={showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}>
-          {/* */ /* Actualización: Rediseño visual del Paso 0 para el Generador de Contenidos. Se implementa una cuadrícula de tarjetas con enfoque en 'Estrategia Editorial', resaltando la Autoridad de Nicho del proyecto y utilizando el color púrpura (#A855F7) como identidad visual. 22/05/2024 19:15 */ }
-          {step === 0 && (
-              <div className="space-y-10 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center">
-                  <div className="max-w-2xl mx-auto">
-                      <h2 className="text-4xl font-black mb-6 leading-tight">
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
-                            Selecciona tu Estrategia Editorial
-                        </span>
-                      </h2>
-                      <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                        Para generar contenidos que posicionen, la IA analizará la autoridad de nicho de tu proyecto. Elige un proyecto para empezar la redacción estratégica.
-                      </p>
-                  </div>
+      {/* */ /* Header Premium y Barra de Progreso unificada para el Generador de Contenidos - 20/06/2024 10:15 */ }
+      <div className={`bg-purple-600/10 p-8 text-center border-b border-purple-500/10 ${showUpgradeModal || loadingStatus ? 'opacity-30 pointer-events-none' : ''}`}>
+        <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
+          <BookOpen className="w-8 h-8 text-purple-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-white">Generador de Contenidos Automáticos</h2>
+        <div className="flex items-center justify-center gap-2 mt-4 text-sm">
+           <span className={`px-3 py-1 rounded-full ${step === 0 ? 'bg-purple-600 text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
+           <div className="w-4 h-px bg-gray-700"></div>
+           <span className={`px-3 py-1 rounded-full ${(step === 1 || step === 2) ? 'bg-purple-600 text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>1. Configuración</span>
+           <div className="w-4 h-px bg-gray-700"></div>
+           <span className={`px-3 py-1 rounded-full ${step === 3 ? 'bg-purple-600 text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>2. Selección</span>
+           <div className="w-4 h-px bg-gray-700"></div>
+           <span className={`px-3 py-1 rounded-full ${step === 4 ? 'bg-purple-600 text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>3. Esquema</span>
+           <div className="w-4 h-px bg-gray-700"></div>
+           <span className={`px-3 py-1 rounded-full ${step === 5 ? 'bg-purple-600 text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>4. Redacción</span>
+        </div>
+      </div>
 
-                  <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                      {userProjects.length > 0 ? (
-                          userProjects.map((project) => (
-                              <button 
-                                key={project.id}
-                                onClick={() => handleProjectSelect(project.id)}
-                                className="p-8 bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full"
-                              >
-                                <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
-                                    <FileText className="w-24 h-24 text-purple-400" />
-                                </div>
-                                <div className="flex items-center gap-4 mb-6">
-                                    <div className="p-3 bg-gray-800 rounded-2xl group-hover:bg-purple-500/10 group-hover:text-purple-400 transition-colors shadow-md">
-                                        <Briefcase className="w-6 h-6" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h4 className="text-white font-bold text-lg group-hover:text-purple-400 transition-colors truncate leading-tight">{project.name}</h4>
-                                        <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-md text-[9px] font-black uppercase tracking-widest mt-2 inline-block">
-                                           Autoridad en {project.niche}
-                                        </span>
-                                    </div>
-                                </div>
-                                <p className="text-sm text-gray-500 line-clamp-2 mb-8 flex-1 leading-relaxed">{project.description}</p>
-                                <div className="pt-6 border-t border-white/5 flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <Sparkles className="w-4 h-4 text-amber-500" />
-                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Ver Sugerencias</span>
-                                    </div>
-                                    <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-purple-400 transition-all group-hover:translate-x-1" />
-                                </div>
-                              </button>
-                          ))
-                      ) : (
-                          <div className="md:col-span-3 py-20 bg-black/20 border border-dashed border-gray-800 rounded-[2rem] text-center">
-                              <p className="text-gray-500 mb-6">Aún no tienes proyectos creados para gestionar contenidos.</p>
-                              <button 
-                                onClick={() => navigate('/dashboard/projects/create')}
-                                className="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-900/20"
-                              >
-                                Crear mi primer proyecto
-                              </button>
-                          </div>
-                      )}
-                  </div>
+      <div className={`p-8 flex-1 ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
+        {error && (
+          <div className="bg-red-900/30 border border-red-800 text-red-400 p-4 rounded-lg mb-6 text-sm">
+            {error}
+          </div>
+        )}
 
-                  <div className="p-6 bg-purple-900/10 border border-purple-500/20 rounded-2xl flex items-start gap-4 max-w-2xl text-left">
-                      <Info className="w-5 h-5 text-purple-400 shrink-0 mt-1" />
-                      <p className="text-sm text-gray-400 leading-relaxed">
-                        Al seleccionar un proyecto, la IA podrá leer tu <b>Estrategia Maestra</b> para sugerirte temas de alta demanda y redactar con el tono exacto de tu marca.
-                      </p>
+        {/* */ /* Actualización: Rediseño premium del selector de proyectos con hover animado y bloque de importancia estratégica - 20/06/2024 10:15 */ }
+        {step === 0 && (
+          <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center">
+              <div className="max-w-2xl mx-auto">
+                  <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+                        Selecciona tu Proyecto
+                    </span>
+                  </h2>
+                  <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                    Para generar contenido que conecte con tu audiencia, nuestra inteligencia artificial necesita conocer tu estrategia y avatar. Selecciona un proyecto para comenzar.
+                  </p>
+              </div>
+
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                  {userProjects.length > 0 ? (
+                      userProjects.map((project) => (
+                          <button 
+                            key={project.id}
+                            onClick={() => handleProjectSelect(project.id)}
+                            className="p-8 bg-[#0B0B0B] border border-white/5 rounded-[2rem] hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full"
+                          >
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="p-3 bg-gray-800 rounded-2xl group-hover:bg-purple-500/10 group-hover:text-purple-400 transition-colors">
+                                    <Briefcase className="w-6 h-6" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="text-white font-bold text-lg group-hover:text-purple-400 transition-colors truncate">{project.name}</h4>
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black mt-1">{project.niche}</p>
+                                </div>
+                            </div>
+                            <p className="text-sm text-gray-400 line-clamp-2 mb-6 flex-1">{project.description}</p>
+                            <div className="flex items-center justify-end">
+                                <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-purple-400 transition-all group-hover:translate-x-1" />
+                            </div>
+                          </button>
+                      ))
+                  ) : (
+                      <div className="md:col-span-3 py-20 bg-black/20 border border-dashed border-gray-800 rounded-[2rem] text-center">
+                          <p className="text-gray-500 mb-6">Aún no tienes proyectos creados para gestionar contenidos.</p>
+                          <button 
+                            onClick={() => navigate('/dashboard/projects/create')}
+                            className="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-900/20"
+                          >
+                            Crear mi primer proyecto
+                          </button>
+                      </div>
+                  )}
+                  
+                  {userProjects.length > 0 && (
+                      <button 
+                        onClick={() => navigate('/dashboard/projects/create')}
+                        className="p-8 bg-transparent border-2 border-dashed border-gray-800 rounded-[2rem] text-gray-500 hover:text-white hover:border-gray-600 transition-all font-bold flex flex-col items-center justify-center gap-4 h-full group"
+                      >
+                        <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center group-hover:bg-gray-700 transition-colors">
+                            <Plus className="w-6 h-6 text-gray-400 group-hover:text-white" />
+                        </div>
+                        <span className="text-sm uppercase tracking-widest">Crear un nuevo proyecto</span>
+                      </button>
+                  )}
+              </div>
+
+              <div className="p-8 bg-purple-900/10 border border-purple-500/20 rounded-[2.5rem] flex items-start gap-6 max-w-2xl text-left shadow-xl">
+                  <div className="p-3 bg-purple-500/20 rounded-2xl">
+                    <Info className="w-6 h-6 text-purple-400 shrink-0" />
+                  </div>
+                  <div>
+                    <h5 className="text-white font-bold mb-1 text-lg">Importancia Estratégica</h5>
+                    <p className="text-sm text-gray-400 leading-relaxed font-medium">
+                        Al seleccionar un proyecto, la IA podrá leer tu <b>Estrategia Maestra</b> para sugerirte temas de alta demanda y redactar con el tono exacto de tu marca. Esto garantiza que tus artículos estén 100% alineados con tus objetivos de venta.
+                    </p>
                   </div>
               </div>
-          )}
+          </div>
+        )}
 
-          {step === 1 && (
-            <Step1Inputs 
-              userProjects={userProjects}
-              selectedProject={selectedProject}
-              onSelectProject={handleProjectSelect}
-              userPages={userPages}
-              selectedPageId={selectedPageId}
-              onSelectPage={setSelectedPageId}
-              topic={topic}
-              setTopic={setTopic}
-              objective={objective}
-              setObjective={setObjective}
-              keyword={keyword}
-              setKeyword={setKeyword}
-              onGenerate={() => setStep(2)}
-              onSelectRecommendation={handleSelectRecommendation}
-              loading={loading}
-              onBack={() => setStep(0)}
-            />
-          )}
-
-          {step === 2 && (
-             <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-                <button onClick={() => setStep(1)} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm font-bold">
-                    <ChevronRight className="w-4 h-4 rotate-180" /> Volver al selector
-                </button>
-                <div className="bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl space-y-8">
-                    <div className="flex items-center gap-4 border-b border-white/5 pb-6">
-                        <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400">
-                            <BookOpen className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <h3 className="text-xl font-bold text-white uppercase tracking-tight">Contenido Personalizado</h3>
-                            <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Configura manualmente tu artículo</p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-6">
-                        <div>
-                            <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Tema o Título Tentativo</label>
-                            <input
-                                type="text"
-                                value={topic}
-                                onChange={(e) => setTopic(e.target.value)}
-                                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
-                                placeholder="Ej: Tendencias de Microblading 2024"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Objetivo del Artículo</label>
-                            <select
-                                value={objective}
-                                onChange={(e) => setObjective(e.target.value)}
-                                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
-                            >
-                                <option value="" disabled>-- Selecciona un objetivo --</option>
-                                <option value="Atraer Tráfico (SEO Informativo)">Atraer Tráfico (SEO Informativo)</option>
-                                <option value="Venta Directa (Copy Persuasivo)">Venta Directa (Copy Persuasivo)</option>
-                                <option value="Captación de Leads (Lead Magnet)">Captación de Leads (Lead Magnet)</option>
-                                <option value="Romper Objeciones (FAQ)">Romper Objeciones (FAQ)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Palabra Clave Objetivo (SEO)</label>
-                            <input
-                                type="text"
-                                value={keyword}
-                                onChange={(e) => setKeyword(e.target.value)}
-                                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
-                                placeholder="Ej: curso de microblading online"
-                            />
-                        </div>
-
-                        <button
-                            onClick={handleGenerateTitles}
-                            disabled={loading}
-                            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest"
-                        >
-                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                            Generar Ideas de Títulos
-                        </button>
-                    </div>
-                </div>
-             </div>
-          )}
-
-          {step === 3 && (
-            <Step2Titles 
-              titleIdeas={titleIdeas}
-              onSelectTitle={handleSelectTitle}
-              onBack={() => setStep(2)}
-              loading={loading}
-            />
-          )}
-
-          {step === 4 && (
-            <Step3Outline 
-              outline={outline}
-              setOutline={setOutline}
-              ctaLink={ctaLink}
-              setCtaLink={setCtaLink}
-              onGenerate={handleGenerateArticle}
-              onBack={() => setStep(3)}
-              loading={loading}
-            />
-          )}
-
-          {step === 5 && (
-            <Step4Editor 
-              articleContent={articleContent}
-              setArticleContent={setArticleContent}
-              selectedTitle={selectedTitle}
-              articleTitle={articleTitle}
-              setArticleTitle={setArticleTitle}
-              slug={slug}
-              setSlug={setSlug}
-              selectedPageId={selectedPageId}
-              setSelectedPageId={setSelectedPageId}
-              userPages={userPages}
-              status={status}
-              setStatus={setStatus}
-              publishDate={publishDate}
-              setPublishDate={setPublishDate}
-              featuredImage={featuredImage}
-              setFeaturedImage={setFeaturedImage}
-              keyword={keyword}
-              setKeyword={setKeyword}
-              seoScore={seoScore}
-              setSeoScore={setSeoScore}
-              metaDescription={metaDescription}
-              setMetaDescription={setMetaDescription}
-              onSave={handleSaveArticle}
-              saving={saveStatus === 'saving'}
-              onBack={() => editArticleId ? navigate('/dashboard/articles') : setStep(4)}
-              isEditing={!!editArticleId}
-            />
-          )}
-
-          <SaveLogModal 
-            isOpen={isLogModalOpen}
-            saveStatus={saveStatus}
-            saveLogs={saveLogs}
-            onClose={() => setIsLogModalOpen(false)}
-            onRetry={handleSaveArticle}
+        {step === 1 && (
+          <Step1Inputs 
+            userProjects={userProjects}
+            selectedProject={selectedProject}
+            onSelectProject={handleProjectSelect}
+            userPages={userPages}
+            selectedPageId={selectedPageId}
+            onSelectPage={setSelectedPageId}
+            topic={topic}
+            setTopic={setTopic}
+            objective={objective}
+            setObjective={setObjective}
+            keyword={keyword}
+            setKeyword={setKeyword}
+            onGenerate={() => setStep(2)}
+            onSelectRecommendation={handleSelectRecommendation}
+            loading={loading}
+            onBack={() => setStep(0)}
           />
+        )}
+
+        {step === 2 && (
+           <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+              <button onClick={() => setStep(1)} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm font-bold">
+                  <ChevronRight className="w-4 h-4 rotate-180" /> Volver al selector
+              </button>
+              <div className="bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl space-y-8">
+                  <div className="flex items-center gap-4 border-b border-white/5 pb-6">
+                      <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400">
+                          <BookOpen className="w-6 h-6" />
+                      </div>
+                      <div>
+                          <h3 className="text-xl font-bold text-white uppercase tracking-tight">Contenido Personalizado</h3>
+                          <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Configura manualmente tu artículo</p>
+                      </div>
+                  </div>
+
+                  <div className="space-y-6">
+                      <div>
+                          <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Tema o Título Tentativo</label>
+                          <input
+                              type="text"
+                              value={topic}
+                              onChange={(e) => setTopic(e.target.value)}
+                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
+                              placeholder="Ej: Tendencias de Microblading 2024"
+                          />
+                      </div>
+
+                      <div>
+                          <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Objetivo del Artículo</label>
+                          <select
+                              value={objective}
+                              onChange={(e) => setObjective(e.target.value)}
+                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
+                          >
+                              <option value="" disabled>-- Selecciona un objetivo --</option>
+                              <option value="Atraer Tráfico (SEO Informativo)">Atraer Tráfico (SEO Informativo)</option>
+                              <option value="Venta Directa (Copy Persuasivo)">Venta Directa (Copy Persuasivo)</option>
+                              <option value="Captación de Leads (Lead Magnet)">Captación de Leads (Lead Magnet)</option>
+                              <option value="Romper Objeciones (FAQ)">Romper Objeciones (FAQ)</option>
+                          </select>
+                      </div>
+
+                      <div>
+                          <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Palabra Clave Objetivo (SEO)</label>
+                          <input
+                              type="text"
+                              value={keyword}
+                              onChange={(e) => setKeyword(e.target.value)}
+                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
+                              placeholder="Ej: curso de microblading online"
+                          />
+                      </div>
+
+                      <button
+                          onClick={handleGenerateTitles}
+                          disabled={loading}
+                          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest"
+                      >
+                          {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                          Generar Ideas de Títulos
+                      </button>
+                  </div>
+              </div>
+           </div>
+        )}
+
+        {step === 3 && (
+          <Step2Titles 
+            titleIdeas={titleIdeas}
+            onSelectTitle={handleSelectTitle}
+            onBack={() => setStep(2)}
+            loading={loading}
+          />
+        )}
+
+        {step === 4 && (
+          <Step3Outline 
+            outline={outline}
+            setOutline={setOutline}
+            ctaLink={ctaLink}
+            setCtaLink={setCtaLink}
+            onGenerate={handleGenerateArticle}
+            onBack={() => setStep(3)}
+            loading={loading}
+          />
+        )}
+
+        {step === 5 && (
+          <Step4Editor 
+            articleContent={articleContent}
+            setArticleContent={setArticleContent}
+            selectedTitle={selectedTitle}
+            articleTitle={articleTitle}
+            setArticleTitle={setArticleTitle}
+            slug={slug}
+            setSlug={setSlug}
+            selectedPageId={selectedPageId}
+            setSelectedPageId={setSelectedPageId}
+            userPages={userPages}
+            status={status}
+            setStatus={setStatus}
+            publishDate={publishDate}
+            setPublishDate={setPublishDate}
+            featuredImage={featuredImage}
+            setFeaturedImage={setFeaturedImage}
+            keyword={keyword}
+            setKeyword={setKeyword}
+            seoScore={seoScore}
+            setSeoScore={setSeoScore}
+            metaDescription={metaDescription}
+            setMetaDescription={setMetaDescription}
+            onSave={handleSaveArticle}
+            saving={saveStatus === 'saving'}
+            onBack={() => editArticleId ? navigate('/dashboard/articles') : setStep(4)}
+            isEditing={!!editArticleId}
+          />
+        )}
+
+        <SaveLogModal 
+          isOpen={isLogModalOpen}
+          saveStatus={saveStatus}
+          saveLogs={saveLogs}
+          onClose={() => setIsLogModalOpen(false)}
+          onRetry={handleSaveArticle}
+        />
       </div>
     </div>
   );

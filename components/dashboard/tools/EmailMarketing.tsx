@@ -1,12 +1,39 @@
-
 import React, { useState, useEffect } from 'react';
 import { Lead } from '../../../types';
-import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play } from 'lucide-react';
+import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye } from 'lucide-react';
 import { api } from '../../../services/api';
+/* */ /* Actualización: Importación de useNavigate para manejar redirección - 24/06/2024 15:15 */
+import { useNavigate } from 'react-router-dom';
+/* Fin de actualización - 24/06/2024 15:15 */
+
+/* */ /* Actualización: Implementación de datos Mock para visualización de secuencias por proyecto - 30/10/2023 10:00 */
+const MOCK_SEQUENCES = [
+  {
+    id: 'seq-1',
+    projectName: 'Certificación Expert Microblading',
+    status: 'activa',
+    days: 7,
+    lastUpdate: 'Hace 2 días',
+    activeLeads: 45
+  },
+  {
+    id: 'seq-2',
+    projectName: 'Ebook Fitness 30 Días',
+    status: 'borrador',
+    days: 7,
+    lastUpdate: 'Hoy, 09:15 AM',
+    activeLeads: 0
+  }
+];
+/* Fin de actualización - 30/10/2023 10:00 */
 
 export const EmailMarketing: React.FC = () => {
   /* */ /* Actualización: Implementación de Header premium y sistema de pestañas (Secuencia, Leads, Configuración) para organizar las herramientas de Email Marketing - 01/01/2026 16:00 */
   
+  /* */ /* Actualización: Inicialización de navigate - 24/06/2024 15:15 */
+  const navigate = useNavigate();
+  /* Fin de actualización - 24/06/2024 15:15 */
+
   const [activeTab, setActiveTab] = useState<'sequence' | 'leads' | 'config'>('sequence');
   const [systemeIoKey, setSystemeIoKey] = useState('');
   const [loadingSettings, setLoadingSettings] = useState(false);
@@ -168,6 +195,20 @@ export const EmailMarketing: React.FC = () => {
                   <p className="text-gray-400 text-lg max-w-2xl font-medium leading-relaxed">
                       Sincroniza tus prospectos con Systeme.io y activa secuencias de correos persuasivos diseñados para cerrar ventas mientras duermes.
                   </p>
+                  
+                  {/* */ /* Actualización: Vinculación del botón crear secuencia con la nueva ruta - 24/06/2024 15:15 */ }
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
+                      <button 
+                        onClick={() => navigate('/dashboard/email/create')}
+                        className="px-8 py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" /> Crear Nueva Secuencia
+                      </button>
+                      <button className="px-8 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black text-sm uppercase tracking-widest rounded-xl transition-all flex items-center gap-2">
+                        <PlayCircle className="w-4 h-4" /> ¿Cómo funciona?
+                      </button>
+                  </div>
+                  {/* Fin de actualización - 24/06/2024 15:15 */}
               </div>
               <div className="shrink-0 flex flex-col gap-3 w-full md:w-auto">
                   <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/5 shadow-inner text-center">
@@ -209,28 +250,97 @@ export const EmailMarketing: React.FC = () => {
         {/* PESTAÑA: SECUENCIAS */}
         {activeTab === 'sequence' && (
             <div className="space-y-8 animate-in slide-in-from-left-4">
-                <div className="bg-[#111] p-10 rounded-[2.5rem] border border-white/5 text-center space-y-6">
-                    <div className="w-20 h-20 bg-[#FF5A1F]/10 rounded-3xl flex items-center justify-center text-[#FF5A1F] mx-auto border border-[#FF5A1F]/20">
-                        <Clock className="w-10 h-10" />
-                    </div>
-                    <div className="max-w-xl mx-auto">
-                        <h3 className="text-2xl font-black text-white uppercase tracking-tight">Secuencias Inteligentes de 7 Días</h3>
-                        <p className="text-gray-400 font-medium mt-2 leading-relaxed">Aquí podrás gestionar las secuencias automáticas generadas para tus proyectos. Pronto podrás editarlas y enviarlas directamente a tu plataforma de email marketing.</p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto pt-4">
-                        {[1, 2, 3, 4, 5, 6, 7].map(day => (
-                            <div key={day} className="bg-black/40 p-6 rounded-2xl border border-white/5 flex flex-col items-center text-center group hover:border-[#FF5A1F]/30 transition-all opacity-40">
-                                <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-[10px] font-black text-gray-500 mb-4 group-hover:bg-[#FF5A1F]/20 group-hover:text-[#FF5A1F]">DÍA {day}</div>
-                                <div className="w-full h-2 bg-gray-800 rounded-full mb-2"></div>
-                                <div className="w-2/3 h-2 bg-gray-800 rounded-full"></div>
+                {/* */ /* Actualización: Rediseño de lista de secuencias utilizando tarjetas de proyecto y estados dinámicos - 30/10/2023 10:20 */ }
+                {MOCK_SEQUENCES.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {MOCK_SEQUENCES.map(seq => (
+                            <div key={seq.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 p-8 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col shadow-2xl relative overflow-hidden">
+                                <div className="flex justify-between items-start mb-6">
+                                    <div className="flex-1">
+                                        <h3 className="text-2xl font-black text-white group-hover:text-[#FF5A1F] transition-colors leading-tight mb-2">
+                                            {seq.projectName}
+                                        </h3>
+                                        <div className="flex items-center gap-3">
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${seq.status === 'activa' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
+                                                {seq.status}
+                                            </span>
+                                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{seq.lastUpdate}</span>
+                                        </div>
+                                    </div>
+                                    <div className="bg-white/5 p-3 rounded-2xl border border-white/10 group-hover:bg-[#FF5A1F] group-hover:text-white transition-all shadow-lg">
+                                        <Mail className="w-6 h-6" />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6 flex-1">
+                                    {/* Timeline Visual de 7 días */}
+                                    <div className="bg-black/40 p-6 rounded-3xl border border-white/5">
+                                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Progreso de la Estrategia (7 Días)</p>
+                                        <div className="flex justify-between items-center gap-2">
+                                            {[1, 2, 3, 4, 5, 6, 7].map(day => (
+                                                <div key={day} className="flex-1 flex flex-col items-center gap-2">
+                                                    <div className={`w-full h-1.5 rounded-full transition-all duration-500 ${seq.status === 'activa' ? 'bg-[#FF5A1F]' : 'bg-gray-800'}`}></div>
+                                                    <span className="text-[8px] font-black text-gray-600">D{day}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Métrica de Leads activos en la secuencia */}
+                                    <div className="flex items-center gap-3 text-sm text-gray-400 font-medium">
+                                        <Users className="w-4 h-4 text-[#FF5A1F]" />
+                                        <span>{seq.activeLeads} prospectos recibiendo correos actualmente</span>
+                                    </div>
+                                </div>
+
+                                {/* Acciones de la Tarjeta */}
+                                <div className="grid grid-cols-2 gap-3 mt-10">
+                                    <button className="py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg">
+                                        <Edit3 className="w-4 h-4" /> Editar
+                                    </button>
+                                    <button className="py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg">
+                                        <Eye className="w-4 h-4" /> Guiones
+                                    </button>
+                                    <button className="col-span-2 py-4 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 hover:bg-[#FF5A1F] text-[#FF5A1F] hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg">
+                                        <Settings className="w-4 h-4" /> Configurar Envío Automático
+                                    </button>
+                                </div>
                             </div>
                         ))}
-                        <div className="bg-[#FF5A1F]/5 p-6 rounded-2xl border border-dashed border-[#FF5A1F]/30 flex flex-col items-center justify-center text-[#FF5A1F] opacity-60">
-                            <Plus className="w-8 h-8 mb-2" />
-                            <p className="text-[10px] font-black uppercase tracking-widest">Nueva Secuencia</p>
-                        </div>
+                        {/* Tarjeta de añadir nueva */}
+                        <button 
+                            onClick={() => navigate('/dashboard/email/create')}
+                            className="bg-black/20 border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px]"
+                        >
+                            <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all">
+                                <Plus className="w-10 h-10" />
+                            </div>
+                            <div className="text-center">
+                                <h4 className="text-xl font-bold text-gray-500 group-hover:text-white transition-colors">Crear Nueva Secuencia</h4>
+                                <p className="text-xs text-gray-600 mt-2 font-medium">Vincula un nuevo proyecto para automatizar ventas</p>
+                            </div>
+                        </button>
                     </div>
-                </div>
+                ) : (
+                    <div className="bg-[#111] p-20 rounded-[3rem] border border-white/5 text-center space-y-8 animate-in zoom-in-95 duration-700">
+                        <div className="w-24 h-24 bg-[#FF5A1F]/10 rounded-[2rem] flex items-center justify-center text-[#FF5A1F] mx-auto border border-[#FF5A1F]/20 shadow-lg shadow-[#FF5A1F]/10">
+                            <Mail className="w-12 h-12" />
+                        </div>
+                        <div className="max-w-xl mx-auto">
+                            <h3 className="text-3xl font-black text-white uppercase tracking-tight">Tu Ecosistema de Email está en blanco</h3>
+                            <p className="text-gray-400 font-medium text-lg mt-4 leading-relaxed">
+                                Aún no has configurado ninguna secuencia de cierre. La IA puede redactar 7 días de correos persuasivos basados en tu proyecto para ayudarte a vender en automático.
+                            </p>
+                        </div>
+                        <button 
+                            onClick={() => navigate('/dashboard/email/create')}
+                            className="px-12 py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg uppercase tracking-widest rounded-2xl transition-all shadow-2xl shadow-[#FF5A1F]/20 transform hover:scale-105 active:scale-95"
+                        >
+                            Crear mi primera secuencia
+                        </button>
+                    </div>
+                )}
+                {/* Fin de actualización - 30/10/2023 10:20 */}
             </div>
         )}
 

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Project, LandingPage } from '../../../../types';
 import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2 } from 'lucide-react';
@@ -26,7 +27,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
   userPages, selectedPageId, onSelectPage,
   onGenerate, onSelectRecommendation, onBack
 }) => {
-  /* */ /* Extracción de recomendaciones desde la Estrategia Maestra del proyecto seleccionado - 24/05/2024 18:52 */
+  /* */ /* Actualización: Ajuste de márgenes y eliminación de títulos redundantes para integración con el nuevo header global - 20/06/2024 10:15 */
   const activeProject = userProjects.find(p => p.id === selectedProject);
   const recommendations = activeProject?.strategy_json?.modules?.content || [];
 
@@ -43,8 +44,8 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
           </div>
       </div>
 
-      <div className="text-center mb-10">
-        <h2 className="text-4xl font-black text-white mb-3 tracking-tight uppercase">¿Qué vas a escribir hoy?</h2>
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-black text-white mb-3 tracking-tight uppercase">¿Qué vas a escribir hoy?</h2>
         <p className="text-gray-400 text-lg">Elige una recomendación estratégica o crea tu propio contenido personalizado.</p>
       </div>
 

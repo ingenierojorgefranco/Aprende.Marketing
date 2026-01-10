@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Routes,
@@ -46,6 +45,9 @@ import { Editor } from "./components/dashboard/editor/Editor";
 import { Generator } from "./components/dashboard/tools/Generator";
 import { WhatsAppCRM } from "./components/dashboard/tools/WhatsAppCRM";
 import { EmailMarketing } from "./components/dashboard/tools/EmailMarketing";
+/* */ /* Actualización: Importación del nuevo asistente de secuencias de email - 24/06/2024 15:15 */
+import { EmailSequenceWizard } from "./components/dashboard/tools/EmailSequenceWizard";
+/* Fin de actualización - 24/06/2024 15:15 */
 import { ContentGenerator } from "./components/dashboard/tools/ContentGenerator";
 import { ArticlesList } from "./components/dashboard/tools/ArticlesList";
 import { ProjectWizard } from "./components/dashboard/tools/ProjectWizard";
@@ -182,6 +184,7 @@ const App: React.FC = () => {
           console.error("Error resolviendo dominio dinámico:", e);
         }
       }
+      setDomainSlug(null); // Force system for local dev unless real domain detected
       setDomainLoading(false);
     };
     resolveDomain();
@@ -361,6 +364,9 @@ const App: React.FC = () => {
           {/* HERRAMIENTAS ADICIONALES */}
           <Route path="whatsapp" element={<WhatsAppCRM />} />
           <Route path="email" element={<EmailMarketing />} />
+          {/* */ /* Actualización: Registro de la ruta para el asistente de secuencias - 24/06/2024 15:15 */ }
+          <Route path="email/create" element={<EmailSequenceWizard />} />
+          {/* Fin de actualización - 24/06/2024 15:15 */}
           {/* ////////// Actualización de ruta CopySell Pro para usar el nuevo componente - 18/06/2024 10:40 ////////// */}
           <Route path="copy-pro" element={<CopySellPro />} />
           {/* ////////// Fin de actualización - 18/06/2024 10:40 ////////// */}

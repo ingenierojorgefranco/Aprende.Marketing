@@ -37,25 +37,58 @@ export const DashboardLayout = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  /* */ /* Actualización: Mejora de la persistencia del highlight en el menú lateral. Se asocian las rutas de generador, editor y creador de contenido directamente al módulo 'Tu Sistema' para mejorar la orientación del usuario. 22/05/2024 19:15 */
+  /* */ /* Actualización: Mejora de la lógica de detección de categoría activa y resaltado de sub-ítems para incluir rutas de asistentes (generator, content-creator) y editores, asegurando persistencia visual en el menú lateral - 22/05/2024 11:30 */
   const getActiveMenuId = (pathname: string) => {
     if (pathname === '/dashboard') return 'dashboard';
+    
+    // Categoría: Administración
     if (pathname.startsWith('/dashboard/admin')) return 'admin';
+    
+    // Categoría: Entrenamiento
     if (pathname.startsWith('/dashboard/training')) return 'training';
-    if (
-        pathname.startsWith('/dashboard/projects') || 
-        pathname.startsWith('/dashboard/pages') || 
-        pathname.startsWith('/dashboard/generator') || 
-        pathname.startsWith('/dashboard/editor') || 
-        pathname.startsWith('/dashboard/articles') || 
-        pathname.startsWith('/dashboard/content-creator') || 
-        pathname.startsWith('/dashboard/email')
-    ) return 'sistema';
+    
+    // Categoría: Tu Sistema (Unifica flujos de creación y gestión)
+    const sistemaPrefixes = [
+        '/dashboard/projects',
+        '/dashboard/pages',
+        '/dashboard/generator',
+        '/dashboard/editor',
+        '/dashboard/articles',
+        '/dashboard/content-creator',
+        '/dashboard/email'
+    ];
+    if (sistemaPrefixes.some(prefix => pathname.startsWith(prefix))) return 'sistema';
+    
+    // Categoría: CRM
     if (pathname.startsWith('/dashboard/crm')) return 'crm';
-    if (pathname.startsWith('/dashboard/whatsapp') || pathname.startsWith('/dashboard/copy-pro')) return 'tools';
+    
+    // Categoría: Herramientas Pro
+    const toolsPrefixes = [
+        '/dashboard/whatsapp',
+        '/dashboard/copy-pro'
+    ];
+    if (toolsPrefixes.some(prefix => pathname.startsWith(prefix))) return 'tools';
+    
     return null;
   };
-  /* Fin de actualización - 22/05/2024 19:15 */
+
+  // Función auxiliar para determinar si un sub-ítem específico debe estar activo basándose en rutas relacionadas
+  const isSubItemActive = (subPath: string, currentPath: string) => {
+    if (currentPath === subPath) return true;
+    
+    // Lógica para Mis Proyectos
+    if (subPath === '/dashboard/projects' && currentPath.startsWith('/dashboard/projects/')) return true;
+    
+    // Lógica para Páginas de Venta (incluye generador y editor)
+    if (subPath === '/dashboard/pages' && (currentPath.startsWith('/dashboard/generator') || currentPath.startsWith('/dashboard/editor'))) return true;
+    
+    // Lógica para Contenidos Automáticos (incluye creador de contenido)
+    if (subPath === '/dashboard/articles' && currentPath.startsWith('/dashboard/content-creator')) return true;
+
+    // Default: Empieza por el path
+    return currentPath.startsWith(subPath);
+  };
+  /* Fin de actualización - 22/05/2024 11:30 */
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
@@ -194,7 +227,7 @@ export const DashboardLayout = ({
               {item.subItems?.map((sub, idx) => (
                 <Link key={idx} to={sub.path} onClick={() => setMobileMenuOpen(false)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-base transition-colors ${
-                    location.pathname === sub.path ? 'text-[#FF5A1F] bg-[#FF5A1F]/10 font-bold' : 'text-[#B0B0B0] hover:text-white hover:bg-white/5'
+                    isSubItemActive(sub.path, location.pathname) ? 'text-[#FF5A1F] bg-[#FF5A1F]/10 font-bold' : 'text-[#B0B0B0] hover:text-white hover:bg-white/5'
                   }`}
                 >
                   {sub.icon && <sub.icon className="w-4 h-4" />}
