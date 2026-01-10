@@ -1,4 +1,3 @@
-
 import { BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
 
 /* */ /* Actualización: Enriquecimiento de la interfaz ProjectMasterStrategy con campos de profundidad psicológica: manifestación diaria, razón emocional, mecanismo único y reglas de estilo negativas - 15/06/2024 19:00 */
@@ -400,10 +399,58 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 {
                     id: 1,
                     day: "Día 0",
-                    subject: "Lo prometido: Tu guía para generar ingresos en estética 💄",
+                    subject: "Aquí tienes tu acceso: Guía de Inicio Rápido en Microblading 🎁",
                     type: "Entrega de Valor",
-                    objective: "Establecer reciprocidad y cumplir la promesa inmediata.",
-                    bodyPreview: "Hola [Nombre], aquí tienes el plan que estabas esperando para empezar tu camino hacia el autoempleo de alto valor..."
+                    objective: "Establecer reciprocidad y cumplir la promesa inmediata entregando el Lead Magnet.",
+                    bodyPreview: "Hola [Nombre], tal como te prometí, aquí tienes el acceso directo a la guía que te enseñará a dar tus primeros pasos..."
+                },
+                {
+                    id: 2,
+                    day: "Día 1",
+                    subject: "¿Cansada de trabajar 10h y no ver frutos reales? 😫",
+                    type: "Agitación del Dolor",
+                    objective: "Conectar emocionalmente con el cansancio sistémico del avatar y posicionar el alto valor como salida.",
+                    bodyPreview: "Hola [Nombre], entiendo perfectamente esa sensación de darlo todo y que la cuenta bancaria no se mueva. El problema no es tu esfuerzo, es el vehículo..."
+                },
+                {
+                    id: 3,
+                    day: "Día 2",
+                    subject: "Cómo Maria pasó de 0 a $2,000/mes con cejas 📈",
+                    type: "Prueba Social",
+                    objective: "Demostrar factibilidad mediante un caso de éxito real que genere deseo y credibilidad.",
+                    bodyPreview: "Hola [Nombre], hoy quiero contarte la historia de una de mis alumnas que, como tú, tenía miedo de empezar pero decidió confiar en el proceso..."
+                },
+                {
+                    id: 4,
+                    day: "Día 3",
+                    subject: "La verdad sobre el Microblading (y por qué otros métodos fallan) 💎",
+                    type: "Mecanismo Único",
+                    objective: "Explicar la diferenciación del Método Brows360 para justificar la inversión premium.",
+                    bodyPreview: "Hola [Nombre], ¿sabes por qué muchas esteticistas no logran resultados naturales? La clave está en el visajismo avanzado que te enseñaré..."
+                },
+                {
+                    id: 5,
+                    day: "Día 4",
+                    subject: "¡INSCRIPCIONES ABIERTAS! Domina la Certificación Pro 🚀",
+                    type: "Lanzamiento / Oferta",
+                    objective: "Presentar oficialmente el programa completo con todos los beneficios y el llamado a la acción.",
+                    bodyPreview: "Hola [Nombre], llegó el momento. Las puertas de la Certificación Expert Microblading están abiertas para quienes buscan el siguiente nivel..."
+                },
+                {
+                    id: 6,
+                    day: "Día 5",
+                    subject: "Tus 3 Bonos Exclusivos expiran en pocas horas... ⏳",
+                    type: "Escasez / Valor",
+                    objective: "Añadir presión positiva mediante la pérdida de bonos adicionales por tiempo limitado.",
+                    bodyPreview: "Hola [Nombre], no quiero que te quedes fuera de los bonos de acción rápida: el kit de pigmentos y la asesoría personalizada están esperándote..."
+                },
+                {
+                    id: 7,
+                    day: "Día 6",
+                    subject: "ÚLTIMA LLAMADA: Tu futuro profesional empieza aquí o termina hoy",
+                    type: "Cierre / Urgencia",
+                    objective: "Llamada final a la acción antes del cierre de inscripciones o fin de la oferta especial.",
+                    bodyPreview: "Hola [Nombre], esta es mi última invitación. Mañana el precio subirá y esta oportunidad de transformación no volverá a estar disponible..."
                 }
             ],
             evergreen: [
