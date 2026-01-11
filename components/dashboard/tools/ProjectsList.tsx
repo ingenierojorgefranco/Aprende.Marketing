@@ -165,33 +165,35 @@ export const ProjectsList: React.FC = () => {
                     </button>
                 </div>
             ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {projects.map((project) => (
+                        /* Actualización: Rediseño Premium Dark con bordes redondeados [2.5rem], fondo #111 y efectos de iluminación suaves al pasar el ratón para una experiencia de usuario más sofisticada */
+                        /* 22/05/2024 18:45 */
                         <div 
                             key={project.id}
                             onClick={() => navigate(`/dashboard/projects/edit/${project.id}`)}
-                            className="bg-gray-900 rounded-2xl border border-gray-800 hover:border-blue-500/50 transition duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-xl"
+                            className="bg-[#111] rounded-[2.5rem] border border-white/5 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl"
                         >
-                            {/* Accent Line */}
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-80"></div>
+                            {/* Accent Line - Unificado con Email Marketing */}
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600 opacity-80"></div>
                             
-                            <div className="p-6 flex-1 flex flex-col">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="bg-blue-900/20 text-blue-300 text-[10px] px-2.5 py-1 rounded-full border border-blue-800/30 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                            <div className="p-8 flex-1 flex flex-col">
+                                <div className="flex justify-between items-start mb-6">
+                                    <div className="bg-[#FF5A1F]/10 text-[#FF5A1F] text-[10px] px-3 py-1.5 rounded-full border border-[#FF5A1F]/20 font-black uppercase tracking-widest flex items-center gap-1.5">
                                         <Target className="w-3 h-3" />
                                         {project.mainGoal || "General"}
                                     </div>
-                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/projects/edit/${project.id}`); }}
-                                            className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition"
+                                            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
                                             title="Editar"
                                         >
                                             <Edit2 className="w-4 h-4" />
                                         </button>
                                         <button 
                                             onClick={(e) => handleDelete(project.id, e)}
-                                            className="p-2 hover:bg-red-900/20 rounded-lg text-gray-400 hover:text-red-400 transition"
+                                            className="p-2.5 bg-red-900/20 hover:bg-red-500 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
                                             title="Eliminar"
                                         >
                                             <Trash2 className="w-4 h-4" />
@@ -199,35 +201,37 @@ export const ProjectsList: React.FC = () => {
                                     </div>
                                 </div>
                                 
-                                <h3 className="text-xl font-bold text-white mb-2 line-clamp-1 group-hover:text-blue-400 transition">{project.name}</h3>
-                                <p className="text-sm text-gray-400 mb-6 line-clamp-2 min-h-[40px]">
+                                <h3 className="text-2xl font-black text-white mb-3 line-clamp-1 group-hover:text-[#FF5A1F] transition-colors duration-300">{project.name}</h3>
+                                <p className="text-lg font-medium text-gray-400 mb-8 line-clamp-2 min-h-[56px] leading-relaxed">
                                     {project.description || "Sin descripción definida."}
                                 </p>
 
-                                <div className="mt-auto space-y-3 pt-4 border-t border-gray-800">
+                                <div className="mt-auto space-y-4 pt-6 border-t border-white/5">
                                     <button 
                                         onClick={(e) => handleViewStrategy(e, project)}
                                         disabled={generatingId === project.id}
-                                        className={`w-full py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition bg-purple-900/30 text-purple-300 hover:bg-purple-900/50 border border-purple-800/50 hover:shadow-lg hover:shadow-purple-900/20`}
+                                        className="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest bg-[#FF5A1F] hover:bg-[#D94A1E] text-white transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
                                     >
                                         {generatingId === project.id ? (
-                                            <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generando...</>
+                                            <><Loader2 className="w-4 h-4 animate-spin" /> Generando...</>
                                         ) : (
-                                            <><Zap className="w-3.5 h-3.5" /> Abrir Centro de Comando</>
+                                            <><Zap className="w-4 h-4 fill-current" /> Abrir Centro de Mando</>
                                         )}
                                     </button>
 
-                                    <div className="flex items-center gap-3 text-xs text-gray-400 pt-2">
-                                        <div className="w-6 h-6 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0">
-                                            <LinkIcon className="w-3 h-3 text-gray-500" /> 
+                                    <div className="flex items-center justify-between pt-2">
+                                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                            <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                                <LinkIcon className="w-3.5 h-3.5" /> 
+                                            </div>
+                                            <span>{project.affiliateLinks?.length || 0} Enlaces</span>
                                         </div>
-                                        <span>{project.affiliateLinks?.length || 0} Enlaces</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-xs text-gray-400">
-                                        <div className="w-6 h-6 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0">
-                                            <Calendar className="w-3 h-3 text-gray-500" /> 
+                                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                            <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5">
+                                                <Calendar className="w-3.5 h-3.5" /> 
+                                            </div>
+                                            <span>{new Date(project.createdAt).toLocaleDateString()}</span>
                                         </div>
-                                        <span>{new Date(project.createdAt).toLocaleDateString()}</span>
                                     </div>
                                 </div>
                             </div>

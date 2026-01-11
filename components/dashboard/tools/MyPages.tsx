@@ -200,7 +200,7 @@ export const MyPages: React.FC = () => {
                     </button>
                 </div>
             ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {pages.map((page) => {
                         // ACTUALIZADO: El subdominio ya contiene el ID antepuesto por el backend.
                         // Limpiamos el subdominio para obtener el slug exacto para el enlace.
@@ -208,72 +208,77 @@ export const MyPages: React.FC = () => {
                         const publicUrl = `/admin/lp/${baseSlug}`;
 
                         return (
-                            <div key={page.id} className="bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-800 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            /* Actualización: Rediseño Premium Dark con bordes redondeados [2.5rem], fondo #111 y efectos de iluminación suaves al pasar el ratón para una experiencia de usuario más sofisticada */
+                            /* 22/05/2024 19:15 */
+                            <div key={page.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl">
+                                {/* Accent Line - Unificado con Email Marketing */}
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600 opacity-80"></div>
 
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="flex-1 min-w-0 pr-3">
-                                        <Link to={`/dashboard/editor/${page.id}`}>
-                                            <h3 className="font-bold text-lg text-white truncate group-hover:text-primary transition-colors hover:underline">{page.name}</h3>
-                                        </Link>
-                                        <div className="flex items-center gap-2 mt-2">
-                                            <Briefcase className="w-4 h-4 text-gray-400" />
-                                            <Link 
-                                                to={page.projectId ? `/dashboard/projects/${page.projectId}/strategy` : "/dashboard/projects"}
-                                                className="text-base md:text-lg text-gray-400 truncate hover:text-primary transition-colors hover:underline"
-                                            >
-                                                {page.projectName || 'Sin Proyecto'}
+                                <div className="p-8 flex-1 flex flex-col">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="flex-1 min-w-0 pr-3">
+                                            <Link to={`/dashboard/editor/${page.id}`}>
+                                                <h3 className="text-2xl font-black text-white truncate group-hover:text-[#FF5A1F] transition-colors duration-300">{page.name}</h3>
                                             </Link>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <Briefcase className="w-4 h-4 text-gray-500" />
+                                                <Link 
+                                                    to={page.projectId ? `/dashboard/projects/${page.projectId}/strategy` : "/dashboard/projects"}
+                                                    className="text-base font-medium text-gray-400 truncate hover:text-[#FF5A1F] transition-colors"
+                                                >
+                                                    {page.projectName || 'Sin Proyecto'}
+                                                </Link>
+                                            </div>
                                         </div>
+                                        <span className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${page.isPublished ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>
+                                            {page.isPublished ? "Publicada" : "Borrador"}
+                                        </span>
                                     </div>
-                                    <span className={`flex-shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide border shadow-sm ${page.isPublished ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>
-                                        {page.isPublished ? "Publicada" : "Borrador"}
-                                    </span>
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-2 mb-6 bg-black/40 p-3 rounded-xl border border-white/5 overflow-hidden">
-                                    <div className="text-center p-1">
-                                        <p className="text-lg font-bold text-white">{page.visits}</p>
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider">Visitas</p>
-                                    </div>
-                                    <Link 
-                                        to={`/dashboard/crm?pageId=${page.id}&pageName=${encodeURIComponent(page.name)}`}
-                                        className="text-center p-1 border-l border-white/10 hover:bg-primary/10 transition-all cursor-pointer group/stat"
-                                    >
-                                        <p className="text-lg font-bold text-white group-hover:text-primary transition-colors">{page.conversions}</p>
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider group-hover:text-primary transition-colors">Leads</p>
-                                    </Link>
-                                </div>
-
-                                <div className="flex flex-col gap-2.5 mt-auto">
-                                    <button onClick={() => navigate(`/dashboard/editor/${page.id}`)} className="w-full py-2.5 bg-white/5 border border-white/10 rounded-lg text-gray-300 font-medium hover:bg-white/10 hover:text-white flex items-center justify-center gap-2 transition group-hover:border-primary/30">
-                                        <PenTool className="w-4 h-4" /> Editar Diseño
-                                    </button>
                                     
-                                    <button 
-                                        onClick={() => openDomainModal(page)}
-                                        className={`w-full py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition border ${
-                                            page.customDomain 
-                                            ? "bg-green-900/20 text-green-400 border-green-900/50 hover:bg-green-900/30" 
-                                            : "bg-transparent text-gray-400 border-gray-700 hover:text-white hover:border-gray-500"
-                                        }`}
-                                    >
-                                        {page.customDomain ? <CheckCircle className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
-                                        {page.customDomain ? "Ver Dominio" : "Añadir Dominio"}
-                                    </button>
+                                    <div className="grid grid-cols-2 gap-2 mb-8 bg-black/40 p-4 rounded-2xl border border-white/5 overflow-hidden">
+                                        <div className="text-center p-1">
+                                            <p className="text-xl font-black text-white">{page.visits}</p>
+                                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Visitas</p>
+                                        </div>
+                                        <Link 
+                                            to={`/dashboard/crm?pageId=${page.id}&pageName=${encodeURIComponent(page.name)}`}
+                                            className="text-center p-1 border-l border-white/10 hover:bg-[#FF5A1F]/10 transition-all cursor-pointer group/stat"
+                                        >
+                                            <p className="text-xl font-black text-white group-hover:text-[#FF5A1F] transition-colors">{page.conversions}</p>
+                                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest group-hover:text-[#FF5A1F] transition-colors">Leads</p>
+                                        </Link>
+                                    </div>
 
-                                    <div className="flex gap-2">
-                                        <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="flex-1 py-2.5 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white flex items-center justify-center gap-2 transition text-xs font-medium">
-                                            <LayoutTemplate className="w-3.5 h-3.5" /> Ver Online
-                                        </a>
-                                        <button onClick={() => handleTogglePublish(page)} className={`flex-1 py-2.5 border rounded-lg flex items-center justify-center gap-2 transition text-xs font-medium ${page.isPublished ? "border-orange-900/30 text-orange-500/80 hover:bg-orange-900/10 hover:text-orange-400" : "border-green-900/30 text-green-500/80 hover:bg-green-900/10 hover:text-green-400"}`}>
-                                            <Globe className="w-3.5 h-3.5" /> {page.isPublished ? "Pausar" : "Publicar"}
+                                    <div className="mt-auto space-y-3 pt-6 border-t border-white/5">
+                                        <button onClick={() => navigate(`/dashboard/editor/${page.id}`)} className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-gray-300 font-black text-xs uppercase tracking-widest hover:bg-white/10 hover:text-white flex items-center justify-center gap-2 transition group-hover:border-[#FF5A1F]/30 shadow-lg">
+                                            <PenTool className="w-4 h-4" /> Editar Diseño
+                                        </button>
+                                        
+                                        <button 
+                                            onClick={() => openDomainModal(page)}
+                                            className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition border ${
+                                                page.customDomain 
+                                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20" 
+                                                : "bg-transparent text-gray-500 border-white/5 hover:text-white hover:border-white/20"
+                                            }`}
+                                        >
+                                            {page.customDomain ? <CheckCircle className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
+                                            {page.customDomain ? "Ver Dominio" : "Añadir Dominio"}
+                                        </button>
+
+                                        <div className="flex gap-2">
+                                            <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 border border-white/5 bg-white/5 rounded-xl text-gray-500 hover:bg-white/10 hover:text-white flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest">
+                                                <LayoutTemplate className="w-3.5 h-3.5" /> Ver Online
+                                            </a>
+                                            <button onClick={() => handleTogglePublish(page)} className={`flex-1 py-3 border rounded-xl flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest ${page.isPublished ? "border-orange-500/20 text-orange-500/80 hover:bg-orange-500/10" : "border-emerald-500/20 text-emerald-500/80 hover:bg-emerald-500/10"}`}>
+                                                <Globe className="w-3.5 h-3.5" /> {page.isPublished ? "Pausar" : "Publicar"}
+                                            </button>
+                                        </div>
+
+                                        <button onClick={() => setPageToDelete(page)} className="w-full py-3 text-red-500/40 hover:text-red-400 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition hover:bg-red-500/5 rounded-xl">
+                                            <Trash2 className="w-3.5 h-3.5" /> Eliminar Página
                                         </button>
                                     </div>
-
-                                    <button onClick={() => setPageToDelete(page)} className="w-full py-2 text-red-500/60 hover:text-red-400 flex items-center justify-center gap-1.5 transition text-xs hover:bg-red-900/10 rounded-lg">
-                                        <Trash2 className="w-3.5 h-3.5" /> Eliminar Página
-                                    </button>
                                 </div>
                             </div>
                         );
@@ -293,7 +298,7 @@ export const MyPages: React.FC = () => {
                 <div 
                     ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
                     onClick={() => setShowVideoModal(false)}
-                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300"
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
                 >
                     <div 
                         ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////

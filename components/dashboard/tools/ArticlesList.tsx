@@ -166,9 +166,9 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       </div>
 
       {/* CONTENT GRID */}
-      {/* */ /* Actualización: Rediseño de la cuadrícula a 2 columnas e inclusión de Empty Card con efecto hover - 26/10/2023 10:00 */ }
+      {/* */ /* Actualización: Rediseño Premium Dark con cuadrícula de 3 columnas (LG), bordes redondeados [2.5rem], fondo #111 y línea de acento naranja superior para una estética coherente y profesional - 22/05/2024 19:45 */ }
       {localArticles.length === 0 ? (
-        <div className="text-center py-20 bg-gray-900 rounded-2xl border border-dashed border-gray-700 flex flex-col items-center justify-center">
+        <div className="text-center py-20 bg-gray-900 rounded-[2.5rem] border border-dashed border-gray-700 flex flex-col items-center justify-center">
           <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-gray-700">
             <BookOpen className="w-10 h-10 text-gray-600" />
           </div>
@@ -182,25 +182,26 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
           </button>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {localArticles.map((article) => {
              const basePageSlug = article.pageSubdomain ? article.pageSubdomain.split(".")[0] : article.pageId;
              const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${article.slug}` : '#';
              const landingUrl = basePageSlug ? `/admin/lp/${basePageSlug}` : '#';
 
              return (
-                <div key={article.id} className="bg-gray-900 rounded-2xl border border-gray-800 hover:border-purple-500/50 transition duration-300 group flex flex-col h-full overflow-hidden shadow-xl relative">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition"></div>
+                <div key={article.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col h-full overflow-hidden shadow-2xl relative cursor-pointer">
+                {/* Accent Line - Unificado con el diseño global */}
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600 opacity-80"></div>
 
                 {article.featuredImage ? (
                     <div className="h-48 w-full bg-gray-800 relative overflow-hidden">
                         <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition duration-700 group-hover:scale-105" />
                         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
                         <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                             <div className={`text-[10px] font-bold px-2 py-1 rounded backdrop-blur-md uppercase tracking-wider border ${
-                                article.seoScore >= 80 ? 'bg-green-500/20 text-green-300 border-green-500/30' :
-                                article.seoScore >= 50 ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' :
-                                'bg-red-500/20 text-red-300 border-red-500/30'
+                             <div className={`text-[10px] font-black px-3 py-1 rounded-full backdrop-blur-md uppercase tracking-widest border ${
+                                article.seoScore >= 80 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                article.seoScore >= 50 ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
+                                'bg-red-500/10 text-red-400 border-red-500/20'
                             }`}>
                                 SEO: {article.seoScore}
                             </div>
@@ -213,62 +214,66 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                     </div>
                 )}
                 
-                <div className="p-6 flex-1 flex flex-col">
-                    <div className="flex justify-between items-start mb-3">
-                        <div className="bg-gray-800/80 text-gray-400 text-[10px] px-2 py-1 rounded flex items-center gap-1 w-fit border border-gray-700">
+                <div className="p-8 flex-1 flex flex-col">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="bg-white/5 text-gray-500 text-[10px] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
                             <Calendar className="w-3 h-3" />
                             {new Date(article.publishedAt || article.createdAt).toLocaleDateString()}
                         </div>
                         {article.status === 'scheduled' && (
-                            <span className="text-[10px] text-orange-400 bg-orange-900/20 px-2 py-1 rounded border border-orange-900/30 font-bold flex items-center gap-1">
+                            <span className="text-[10px] text-orange-400 bg-orange-900/20 px-2 py-1 rounded border border-orange-900/30 font-black uppercase tracking-widest flex items-center gap-1">
                                 <Clock className="w-3 h-3" /> Prog.
                             </span>
                         )}
                         {article.status === 'published' && (
-                            <span className="text-[10px] text-green-400 bg-green-900/20 px-2 py-1 rounded border border-green-900/30 font-bold flex items-center gap-1">
+                            <span className="text-[10px] text-emerald-400 bg-emerald-900/20 px-2 py-1 rounded border border-emerald-900/30 font-black uppercase tracking-widest flex items-center gap-1">
                                 <Globe className="w-3 h-3" /> Publicado
                             </span>
                         )}
                         {article.status === 'draft' && (
-                            <span className="text-[10px] text-gray-400 bg-gray-800 px-2 py-1 rounded border border-gray-700 font-bold">
+                            <span className="text-[10px] text-gray-400 bg-gray-800 px-2 py-1 rounded border border-gray-700 font-black uppercase tracking-widest">
                                 Borrador
                             </span>
                         )}
                     </div>
                     
-                    <h3 className="text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-purple-400 transition leading-tight">
+                    <h3 className="text-xl font-black text-white mb-3 line-clamp-2 group-hover:text-[#FF5A1F] transition-colors duration-300 leading-tight">
                     {article.title}
                     </h3>
-                    <p className="text-gray-500 text-sm line-clamp-3 mb-6 flex-1 leading-relaxed">
+                    <p className="text-gray-400 text-base font-medium line-clamp-3 mb-8 flex-1 leading-relaxed">
                     {article.metaDescription || article.description}
                     </p>
                     
-                    <div className="space-y-3 mt-auto pt-4 border-t border-gray-800/50">
+                    <div className="space-y-4 mt-auto pt-6 border-t border-white/5">
                         {article.pageId ? (
-                            <div className="flex items-center gap-2 text-xs text-gray-400">
-                                <Globe className="w-3 h-3 text-purple-500" />
-                                <span className="opacity-70">En:</span>
+                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                    <Globe className="w-3.5 h-3.5" />
+                                </div>
                                 <a 
                                     href={landingUrl}
                                     target="_blank"
                                     rel="noopener noreferrer" 
-                                    className="text-gray-300 hover:text-purple-400 hover:underline font-medium truncate max-w-[150px] transition"
+                                    className="hover:text-[#FF5A1F] transition-colors truncate max-w-[150px]"
                                 >
                                     {article.pageName || "Landing Page"}
                                 </a>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-2 text-xs text-gray-600">
-                                <Globe className="w-3 h-3" /> Sin vincular
+                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-600">
+                                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5">
+                                    <Globe className="w-3.5 h-3.5" />
+                                </div>
+                                <span>Sin vincular</span>
                             </div>
                         )}
                     </div>
                 </div>
                 
-                <div className="p-4 bg-black/40 border-t border-gray-800 flex items-center gap-3">
+                <div className="p-6 bg-black/20 border-t border-white/5 flex items-center gap-3">
                     <button 
                         onClick={() => navigate(`/dashboard/articles/edit/${article.id}`)}
-                        className="flex-1 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-lg py-2.5 text-xs font-bold transition flex items-center justify-center gap-2 border border-white/5 hover:border-white/20"
+                        className="flex-1 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-xl py-3 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-white/5"
                     >
                         <Edit2 className="w-3.5 h-3.5" /> Editar
                     </button>
@@ -278,7 +283,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                             href={articleUrl} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="p-2.5 bg-purple-900/20 hover:bg-purple-600 text-purple-400 hover:text-white rounded-lg transition border border-purple-900/30 hover:border-purple-500"
+                            className="p-3 bg-[#FF5A1F]/10 hover:bg-[#FF5A1F] text-[#FF5A1F] hover:text-white rounded-xl transition border border-[#FF5A1F]/20 shadow-lg"
                             title="Ver artículo online"
                         >
                             <ExternalLink className="w-4 h-4" />
@@ -287,7 +292,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
 
                     <button 
                         onClick={() => handleDelete(article.id)}
-                        className="p-2.5 text-gray-500 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition"
+                        className="p-3 text-red-500/40 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition"
                         title="Eliminar artículo"
                     >
                         <Trash2 className="w-4 h-4" />
@@ -299,14 +304,14 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
           {/* Empty Card for creation trigger */}
           <button 
               onClick={handleCreate}
-              className="bg-black/20 border-2 border-dashed border-white/5 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 group hover:border-purple-500/30 hover:bg-purple-500/5 transition-all duration-500 min-h-[400px]"
+              className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
           >
-              <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-gray-600 group-hover:bg-purple-500/10 group-hover:text-purple-400 transition-all">
-                  <Plus className="w-8 h-8" />
+              <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
+                  <Plus className="w-10 h-10" />
               </div>
               <div className="text-center">
-                  <h4 className="text-xl font-bold text-gray-500 group-hover:text-white transition-colors">Redactar Nuevo Artículo</h4>
-                  <p className="text-xs text-gray-600 mt-2 font-medium">Usa la IA para generar contenido SEO de alta calidad</p>
+                  <h4 className="text-xl font-black text-gray-500 group-hover:text-white transition-colors uppercase tracking-tight">Redactar Nuevo Artículo</h4>
+                  <p className="text-xs text-gray-600 mt-2 font-bold uppercase tracking-widest opacity-60">IA optimizada para posicionamiento Google</p>
               </div>
           </button>
         </div>
@@ -335,7 +340,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   </div>
                   <div className="p-6 bg-gray-900">
                       <p className="text-gray-300 text-sm leading-relaxed">
-                          Aprende a generar artículos profesionales optimizados para Google. Descubre cómo atraer tráfico orgánico calificado hacia tus ofertas de Hotmart sin gastar en publicidad.
+                          Aprende a generar artículos profesionales optimizados para Google. Descubre cómo atraer tráfico orgánico calificado hacia tus ofertas de Hotmart que venden las 24 horas.
                       </p>
                   </div>
               </div>
