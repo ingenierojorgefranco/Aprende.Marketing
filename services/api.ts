@@ -1,5 +1,5 @@
 
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews } from "../types";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
 
@@ -71,6 +71,7 @@ const apiCache: {
     siteAnalysis: Record<string, any | null>;
     publicPages: Record<string, LandingPage | null>;
     masterStrategies: Record<string, ProjectMasterStrategy | null>;
+    emailSequences: EmailSequence[] | null;
 } = {
     pages: null,
     projects: null,
@@ -108,7 +109,8 @@ const apiCache: {
     userPayments: {},
     siteAnalysis: {},
     publicPages: {},
-    masterStrategies: {}
+    masterStrategies: {},
+    emailSequences: null
 };
 
 const clearCache = (key?: keyof typeof apiCache, id?: string) => {
@@ -175,6 +177,7 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.siteAnalysis = {};
         apiCache.publicPages = {};
         apiCache.masterStrategies = {};
+        apiCache.emailSequences = null;
         ////////// Fin de actualización - 07/06/2025 20:15 //////////
     }
 };
@@ -1393,7 +1396,43 @@ export const api = {
     },
     ////////// Fin de actualización - 17/06/2025 11:30 //////////
 
-    ////////// Actualización: Métodos para persistencia de títulos SEO generados - 05/06/2025 21:15 //////////
+    /* */ /* Actualización: Métodos de Email Marketing para persistencia real de secuencias y mensajes - 24/06/2024 16:20 */
+    getEmailSequences: async (): Promise<EmailSequence[]> => {
+        if (isMockMode) return Promise.resolve([]); // Fallback to mock logic if needed
+        if (apiCache.emailSequences) return apiCache.emailSequences;
+        const data = await fetchWithFallback('/email/sequences', { headers: getAuthHeaders() });
+        apiCache.emailSequences = data;
+        return data;
+    },
+
+    createEmailSequence: async (projectId: string, name?: string): Promise<{ id: string; isNew: boolean }> => {
+        if (isMockMode) return Promise.resolve({ id: 'mock-seq', isNew: true });
+        const res = await fetchWithFallback('/email/sequences', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ projectId, name })
+        });
+        clearCache('emailSequences');
+        return res;
+    },
+
+    getSequenceMessages: async (sequenceId: string): Promise<EmailMessage[]> => {
+        if (isMockMode) return Promise.resolve([]);
+        return await fetchWithFallback(`/email/sequences/${sequenceId}/messages`, { headers: getAuthHeaders() });
+    },
+
+    updateEmailMessage: async (messageId: string, data: Partial<EmailMessage>): Promise<void> => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback(`/email/messages/${messageId}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(data)
+        });
+        clearCache('emailSequences');
+    },
+    /* Fin de actualización - 24/06/2024 16:20 */
+
+    ////////// Actualización: Métodos para persistencia de tìtulos SEO generados - 05/06/2025 21:15 //////////
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,
     setLastGeneratedTitles: (titles: any[]) => { apiCache.lastGeneratedTitles = titles; }
     ////////// Fin de actualización - 05/06/2025 21:15 //////////

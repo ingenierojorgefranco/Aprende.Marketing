@@ -42,6 +42,128 @@ router.post('/stripe/create-checkout-session', authMiddleware, async (req, res) 
     }
 });
 
+/* */ /* Actualización: Endpoints para gestión de Email Sequences y Messages con persistencia real - 24/06/2024 16:20 */
+
+// Obtener secuencias del usuario
+router.get('/email/sequences', authMiddleware, async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            `SELECT es.*, p.name as project_name 
+             FROM email_sequences es 
+             JOIN projects p ON es.project_id = p.id 
+             WHERE es.user_id = ? ORDER BY es.created_at DESC`,
+            [req.user.id]
+        );
+
+        const sequencesWithDays = await Promise.all(rows.map(async (seq) => {
+            const [msgRows] = await pool.query(
+                `SELECT day_index FROM email_messages WHERE sequence_id = ? AND is_generated = 1`,
+                [seq.id]
+            );
+            return {
+                ...seq,
+                projectName: seq.project_name,
+                tagName: seq.tag_name || 'Sin etiqueta',
+                generatedDays: msgRows.map(m => m.day_index)
+            };
+        }));
+
+        res.json(sequencesWithDays);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Crear o recuperar secuencia para un proyecto
+router.post('/email/sequences', authMiddleware, async (req, res) => {
+    const { projectId, name } = req.body;
+    if (!projectId) return res.status(400).json({ error: "Falta ID de proyecto" });
+
+    try {
+        // Verificar si ya existe
+        const [existing] = await pool.query(
+            'SELECT id FROM email_sequences WHERE user_id = ? AND project_id = ? LIMIT 1',
+            [req.user.id, projectId]
+        );
+
+        if (existing.length > 0) {
+            return res.json({ id: existing[0].id, isNew: false });
+        }
+
+        // Crear nueva
+        const [result] = await pool.query(
+            'INSERT INTO email_sequences (user_id, project_id, name, status) VALUES (?, ?, ?, "borrador")',
+            [req.user.id, projectId, name || 'Secuencia Nueva']
+        );
+        const sequenceId = result.insertId;
+
+        // Inicializar 7 correos con pilares estratégicos
+        const pillars = [
+            { type: 'Entrega de Valor', subject: 'Tu regalo está aquí 🎁' },
+            { type: 'Agitación del Dolor', subject: '¿Te sientes estancado? 😫' },
+            { type: 'Prueba Social', subject: 'Mira estos resultados 📈' },
+            { type: 'Mecanismo Único', subject: 'El secreto de la técnica 💎' },
+            { type: 'Lanzamiento', subject: 'Inscripciones abiertas 🚀' },
+            { type: 'Escasez', subject: 'Quedan pocas plazas ⏳' },
+            { type: 'Cierre', subject: 'Última oportunidad' }
+        ];
+
+        for (let i = 0; i < pillars.length; i++) {
+            const p = pillars[i];
+            await pool.query(
+                `INSERT INTO email_messages (sequence_id, day_index, pilar_type, subject, purpose, content_html, is_generated) 
+                 VALUES (?, ?, ?, ?, ?, "", 0)`,
+                [sequenceId, i, p.type, p.subject, `Objetivo del Día ${i}: ${p.type}`]
+            );
+        }
+
+        res.json({ id: sequenceId, isNew: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Obtener mensajes de una secuencia
+router.get('/email/sequences/:id/messages', authMiddleware, async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            'SELECT * FROM email_messages WHERE sequence_id = ? ORDER BY day_index ASC',
+            [req.params.id]
+        );
+        res.json(rows.map(m => ({
+            ...m,
+            id: String(m.id),
+            dayIndex: m.day_index,
+            pilarType: m.pilar_type,
+            contentHtml: m.content_html,
+            isGenerated: !!m.is_generated
+        })));
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Actualizar mensaje individual
+router.put('/email/messages/:id', authMiddleware, async (req, res) => {
+    const { subject, pilar_type, purpose, content_html, is_generated } = req.body;
+    try {
+        await pool.query(
+            `UPDATE email_messages SET 
+                subject = COALESCE(?, subject),
+                pilar_type = COALESCE(?, pilar_type),
+                purpose = COALESCE(?, purpose),
+                content_html = COALESCE(?, content_html),
+                is_generated = COALESCE(?, is_generated)
+             WHERE id = ?`,
+            [subject, pilar_type, purpose, content_html, is_generated, req.params.id]
+        );
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+/* Fin de actualización - 24/06/2024 16:20 */
+
 // ======================================================
 //  CONFIGURACIONES Y PLANES PÚBLICOS
 // ======================================================
@@ -266,9 +388,9 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
             return res.status(500).json({ error: `Error de API Systeme.io al añadir contacto: ${apiErr.message}` });
         }
 
-        ////////// Actualización: Implementación de extracción inteligente de ID (buscando en contact.id, contact.contact.id e id directo) para máxima compatibilidad con las variaciones de la API de Systeme.io - 25/06/2025 15:50 //////////
+        ////////// Actualización: Implementación de extracción inteligente de ID (buscando en contact.id, contact.contact.id e id directo) para máxima compatibilidad con las variaciones de la API de Systeme.io - 25/05/2025 15:50 //////////
         const finalContactId = contactResponse?.contact?.id || contactResponse?.contact?.contact?.id || contactResponse?.id;
-        ////////// Fin de actualización - 25/06/2025 15:50 //////////
+        ////////// Fin de actualización - 25/05/2025 15:50 //////////
 
         // 4. Asignar Etiqueta si se proporcionó ID
         let tagSuccess = true;

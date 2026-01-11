@@ -1,34 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
-import { Lead } from '../../../types';
+import { Lead, EmailSequence } from '../../../types';
 import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye } from 'lucide-react';
 import { api } from '../../../services/api';
 /* */ /* Actualización: Importación de useNavigate para manejar redirección - 24/06/2024 15:15 */
 import { useNavigate } from 'react-router-dom';
 /* Fin de actualización - 24/06/2024 15:15 */
 
-/* */ /* Actualización: Implementación de datos Mock para visualización de secuencias por proyecto - 30/10/2023 10:00 */
-const MOCK_SEQUENCES = [
-  {
-    id: 'seq-1',
-    projectName: 'Certificación Expert Microblading',
-    status: 'activa',
-    days: 7,
-    lastUpdate: 'Hace 2 días',
-    activeLeads: 45
-  },
-  {
-    id: 'seq-2',
-    projectName: 'Ebook Fitness 30 Días',
-    status: 'borrador',
-    days: 7,
-    lastUpdate: 'Hoy, 09:15 AM',
-    activeLeads: 0
-  }
-];
-/* Fin de actualización - 30/10/2023 10:00 */
-
 export const EmailMarketing: React.FC = () => {
-  /* */ /* Actualización: Implementación de Header premium y sistema de pestañas (Secuencia, Leads, Configuración) para organizar las herramientas de Email Marketing - 01/01/2026 16:00 */
+  /* */ /* Actualización: Header premium y sistema de navegación por pestañas - 01/01/2026 16:00 */
   
   /* */ /* Actualización: Inicialización de navigate - 24/06/2024 15:15 */
   const navigate = useNavigate();
@@ -43,6 +23,10 @@ export const EmailMarketing: React.FC = () => {
   const [loadingLeads, setLoadingLeads] = useState(true);
   const [syncing, setSyncing] = useState(false);
 
+  /* */ /* Actualización: Estado para secuencias reales - 24/06/2024 16:20 */
+  const [sequences, setSequences] = useState<EmailSequence[]>([]);
+  const [loadingSequences, setLoadingSequences] = useState(true);
+
   const [showTagModal, setShowTagModal] = useState(false);
   const [selectedLeadForSync, setSelectedLeadForSync] = useState<Lead | null>(null);
   const [tags, setTags] = useState<any[]>([]);
@@ -56,6 +40,7 @@ export const EmailMarketing: React.FC = () => {
   useEffect(() => {
     loadSettings();
     loadLeads();
+    loadSequences();
   }, []);
 
   useEffect(() => {
@@ -87,6 +72,19 @@ export const EmailMarketing: React.FC = () => {
       console.error("Error loading leads", e);
     } finally {
       setLoadingLeads(false);
+    }
+  };
+
+  /* */ /* Actualización: Función para cargar secuencias reales desde la API - 24/06/2024 16:20 */
+  const loadSequences = async () => {
+    setLoadingSequences(true);
+    try {
+      const data = await api.getEmailSequences();
+      setSequences(data);
+    } catch (e) {
+      console.error("Error cargando secuencias", e);
+    } finally {
+      setLoadingSequences(false);
     }
   };
 
@@ -182,6 +180,7 @@ export const EmailMarketing: React.FC = () => {
     <div className="space-y-10 animate-in fade-in duration-500 pb-20">
       
       {/* HEADER DE SECCIÓN */}
+      {/* */ /* Actualización: Reorganización del Header: Barra de límites a la izquierda con estilo premium (fondo traslúcido, borde definido y sombra interna), y botones de acción movidos a la derecha bajo el contador - 25/05/2024 18:15 */ }
       <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-white/5 shadow-2xl">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF5A1F]/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
           <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
@@ -196,28 +195,41 @@ export const EmailMarketing: React.FC = () => {
                       Sincroniza tus prospectos con Systeme.io y activa secuencias de correos persuasivos diseñados para cerrar ventas mientras duermes.
                   </p>
                   
-                  {/* */ /* Actualización: Vinculación del botón crear secuencia con la nueva ruta - 24/06/2024 15:15 */ }
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
-                      <button 
-                        onClick={() => navigate('/dashboard/email/create')}
-                        className="px-8 py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center gap-2"
-                      >
-                        <Plus className="w-4 h-4" /> Crear Nueva Secuencia
-                      </button>
-                      <button className="px-8 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black text-sm uppercase tracking-widest rounded-xl transition-all flex items-center gap-2">
-                        <PlayCircle className="w-4 h-4" /> ¿Cómo funciona?
-                      </button>
+                  {/* Barra de Límite de Secuencias Premium */}
+                  <div className="pt-4 max-w-md mx-auto md:mx-0">
+                      <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-inner">
+                          <div className="flex justify-between items-center mb-3 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
+                              <span>Secuencias Creadas</span>
+                              <span className="text-white">{sequences.length} / 5</span>
+                          </div>
+                          <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
+                              <div className="h-full bg-[#FF5A1F] rounded-full shadow-[0_0_15px_rgba(255,90,31,0.6)] transition-all duration-[1500ms] ease-out" style={{ width: `${(sequences.length / 5) * 100}%` }}></div>
+                          </div>
+                      </div>
                   </div>
-                  {/* Fin de actualización - 24/06/2024 15:15 */}
               </div>
-              <div className="shrink-0 flex flex-col gap-3 w-full md:w-auto">
+
+              <div className="shrink-0 flex flex-col gap-4 w-full md:w-auto min-w-[280px]">
                   <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/5 shadow-inner text-center">
                       <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Prospectos Totales</p>
                       <p className="text-3xl font-black text-white">{leads.length}</p>
                   </div>
+
+                  <div className="flex flex-col gap-3">
+                      <button 
+                        onClick={() => navigate('/dashboard/email/create')}
+                        className="w-full px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
+                      >
+                        <Plus className="w-4 h-4" /> Crear Nueva Secuencia
+                      </button>
+                      <button className="w-full px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-3">
+                        <PlayCircle className="w-4 h-4" /> ¿Cómo funciona?
+                      </button>
+                  </div>
               </div>
           </div>
       </div>
+      {/* Fin de actualización - 25/05/2024 18:15 */}
 
       {/* NAVEGACIÓN POR PESTAÑAS */}
       <div className="flex flex-wrap gap-4 border-b border-white/5 pb-2">
@@ -250,21 +262,28 @@ export const EmailMarketing: React.FC = () => {
         {/* PESTAÑA: SECUENCIAS */}
         {activeTab === 'sequence' && (
             <div className="space-y-8 animate-in slide-in-from-left-4">
-                {/* */ /* Actualización: Rediseño de lista de secuencias utilizando tarjetas de proyecto y estados dinámicos - 30/10/2023 10:20 */ }
-                {MOCK_SEQUENCES.length > 0 ? (
+                {/* */ /* Actualización: Rediseño de lista de secuencias y metadatos (Creado Hace [X], Etiqueta Configurada) - 25/05/2024 18:15 */ }
+                {loadingSequences ? (
+                    <div className="flex justify-center p-20 text-[#FF5A1F]"><Loader2 className="w-12 h-12 animate-spin" /></div>
+                ) : sequences.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {MOCK_SEQUENCES.map(seq => (
+                        {sequences.map(seq => (
                             <div key={seq.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 p-8 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col shadow-2xl relative overflow-hidden">
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="flex-1">
                                         <h3 className="text-2xl font-black text-white group-hover:text-[#FF5A1F] transition-colors leading-tight mb-2">
                                             {seq.projectName}
                                         </h3>
-                                        <div className="flex items-center gap-3">
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${seq.status === 'activa' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
-                                                {seq.status}
-                                            </span>
-                                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{seq.lastUpdate}</span>
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-center gap-3">
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${seq.status === 'activa' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
+                                                    {seq.status}
+                                                </span>
+                                                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Creado {new Date(seq.createdAt).toLocaleDateString()}</span>
+                                            </div>
+                                            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2">
+                                                <Tag className="w-3 h-3 text-[#FF5A1F]" /> Etiqueta: <span className="text-white">{seq.tagName}</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="bg-white/5 p-3 rounded-2xl border border-white/10 group-hover:bg-[#FF5A1F] group-hover:text-white transition-all shadow-lg">
@@ -273,35 +292,34 @@ export const EmailMarketing: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-6 flex-1">
-                                    {/* Timeline Visual de 7 días */}
+                                    {/* */ /* Actualización: Barra de progreso con etiquetas 'Día X' legibles, soporte de envoltura para texto y navegación dinámica por día - 25/05/2024 18:15 */ }
                                     <div className="bg-black/40 p-6 rounded-3xl border border-white/5">
                                         <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Progreso de la Estrategia (7 Días)</p>
-                                        <div className="flex justify-between items-center gap-2">
-                                            {[1, 2, 3, 4, 5, 6, 7].map(day => (
-                                                <div key={day} className="flex-1 flex flex-col items-center gap-2">
-                                                    <div className={`w-full h-1.5 rounded-full transition-all duration-500 ${seq.status === 'activa' ? 'bg-[#FF5A1F]' : 'bg-gray-800'}`}></div>
-                                                    <span className="text-[8px] font-black text-gray-600">D{day}</span>
+                                        <div className="flex flex-wrap md:flex-nowrap justify-between items-center gap-2">
+                                            {[0, 1, 2, 3, 4, 5, 6].map(day => (
+                                                <div 
+                                                    key={day} 
+                                                    onClick={() => navigate(`/dashboard/email/create?projectId=${seq.projectId}&day=${day}`)}
+                                                    className={`flex-1 h-10 rounded-lg transition-all duration-500 flex items-center justify-center cursor-pointer hover:opacity-80 active:scale-95 min-w-[60px] ${seq.generatedDays.includes(day) ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-gray-800'}`}
+                                                >
+                                                    <span className="text-[10px] font-black text-white px-1 text-center leading-tight">Día {day + 1}</span>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
-
-                                    {/* Métrica de Leads activos en la secuencia */}
-                                    <div className="flex items-center gap-3 text-sm text-gray-400 font-medium">
-                                        <Users className="w-4 h-4 text-[#FF5A1F]" />
-                                        <span>{seq.activeLeads} prospectos recibiendo correos actualmente</span>
-                                    </div>
+                                    {/* Fin de actualización - 25/05/2024 18:15 */}
                                 </div>
 
                                 {/* Acciones de la Tarjeta */}
-                                <div className="grid grid-cols-2 gap-3 mt-10">
-                                    <button className="py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg">
-                                        <Edit3 className="w-4 h-4" /> Editar
+                                <div className="flex flex-col gap-3 mt-10">
+                                    <button 
+                                        onClick={() => navigate(`/dashboard/email/create?projectId=${seq.projectId}`)}
+                                        className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg"
+                                    >
+                                        <Edit3 className="w-5 h-5" /> Ver / Editar Correos Electronicos
                                     </button>
-                                    <button className="py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg">
-                                        <Eye className="w-4 h-4" /> Guiones
-                                    </button>
-                                    <button className="col-span-2 py-4 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 hover:bg-[#FF5A1F] text-[#FF5A1F] hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg">
+                                    
+                                    <button className="w-full py-4 bg-sky-500 hover:bg-sky-400 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg">
                                         <Settings className="w-4 h-4" /> Configurar Envío Automático
                                     </button>
                                 </div>
@@ -340,7 +358,6 @@ export const EmailMarketing: React.FC = () => {
                         </button>
                     </div>
                 )}
-                {/* Fin de actualización - 30/10/2023 10:20 */}
             </div>
         )}
 

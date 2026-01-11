@@ -227,6 +227,35 @@ const initDb = async () => {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
         ////////// Fin de actualización - 07/06/2025 10:00 //////////
 
+        /* */ /* Actualización: Creación de tablas email_sequences y email_messages para persistencia de secuencias - 24/06/2024 16:20 */
+        await connection.query(`CREATE TABLE IF NOT EXISTS email_sequences (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id ${userIdType} NOT NULL,
+            project_id INT NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            status VARCHAR(50) DEFAULT 'borrador',
+            tag_name VARCHAR(255),
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        await connection.query(`CREATE TABLE IF NOT EXISTS email_messages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            sequence_id INT NOT NULL,
+            day_index INT NOT NULL,
+            subject VARCHAR(255),
+            pilar_type VARCHAR(100),
+            purpose TEXT,
+            content_html LONGTEXT,
+            is_generated BOOLEAN DEFAULT FALSE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (sequence_id) REFERENCES email_sequences(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+        /* Fin de actualización - 24/06/2024 16:20 */
+
         // Tablas existentes del sistema (Projects, Pages, etc.)
         const tables = [
             {

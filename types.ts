@@ -9,6 +9,31 @@ export interface DashboardNews {
 }
 ////////// Fin de actualización - 24/05/2024 16:45 /////////
 
+/* */ /* Actualización: Definición de interfaces para el sistema de Email Marketing con persistencia - 24/06/2024 16:20 */
+export interface EmailSequence {
+  id: string;
+  userId: string;
+  projectId: string;
+  projectName: string;
+  name: string;
+  status: 'activa' | 'borrador';
+  tagName: string;
+  createdAt: Date;
+  generatedDays: number[];
+}
+
+export interface EmailMessage {
+  id: string;
+  sequenceId: string;
+  dayIndex: number;
+  subject: string;
+  pilarType: string;
+  purpose: string;
+  contentHtml: string;
+  isGenerated: boolean;
+}
+/* Fin de actualización - 24/06/2024 16:20 */
+
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
   LOGIN = 'LOGIN',
