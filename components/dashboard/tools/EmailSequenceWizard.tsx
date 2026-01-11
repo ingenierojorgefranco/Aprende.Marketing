@@ -135,7 +135,9 @@ export const EmailSequenceWizard: React.FC = () => {
         const message = newEmails[index];
         setShowSaveIndicator(true);
         try {
-            await api.updateEmailMessage(message.id, { [field]: value });
+            /* */ /* Actualización: Corrección de nombres de campos (contentHtml -> content_html, isGenerated -> is_generated) para asegurar la persistencia en el backend - 24/06/2024 16:50 */
+            const apiField = field === 'contentHtml' ? 'content_html' : (field === 'isGenerated' ? 'is_generated' : field);
+            await api.updateEmailMessage(message.id, { [apiField]: value } as any);
             setTimeout(() => setShowSaveIndicator(false), 2000);
         } catch (e) {
             console.error("Error guardando cambio en mensaje", e);
@@ -150,10 +152,10 @@ export const EmailSequenceWizard: React.FC = () => {
         const newEmails = [...editableEmails];
         if (otherIdx !== -1) {
             newEmails[otherIdx].pilarType = currentType;
-            await api.updateEmailMessage(newEmails[otherIdx].id, { pilarType: currentType });
+            await api.updateEmailMessage(newEmails[otherIdx].id, { pilarType: currentType } as any);
         }
         newEmails[activeEmailIdx].pilarType = newType;
-        await api.updateEmailMessage(newEmails[activeEmailIdx].id, { pilarType: newType });
+        await api.updateEmailMessage(newEmails[activeEmailIdx].id, { pilarType: newType } as any);
         
         setEditableEmails(newEmails);
         setIsTypeLocked(true);
@@ -184,11 +186,11 @@ export const EmailSequenceWizard: React.FC = () => {
             newEmails[activeEmailIdx].isGenerated = true;
             newEmails[activeEmailIdx].contentHtml = generatedBody;
             
-            // Persistir en BD
+            /* */ /* Actualización: Sincronización de llaves de API (content_html, is_generated) para persistencia correcta tras generación - 24/06/2024 16:50 */
             await api.updateEmailMessage(newEmails[activeEmailIdx].id, { 
-                contentHtml: generatedBody, 
-                isGenerated: true 
-            });
+                content_html: generatedBody, 
+                is_generated: true 
+            } as any);
             
             setEditableEmails(newEmails);
             setShowSaveIndicator(true);
@@ -244,14 +246,25 @@ export const EmailSequenceWizard: React.FC = () => {
             )}
 
             <div className="bg-[#FF5A1F]/10 p-8 text-center border-b border-[#FF5A1F]/10 shrink-0 relative">
+                {/* */ /* Actualización: Lógica dinámica para el botón Volver según el contexto de la URL - 25/06/2024 10:15 */ }
                 {step > 0 && selectedProject && (
                     <button 
-                        onClick={() => { setStep(0); setStrategy(null); setSelectedProject(null); }}
+                        onClick={() => { 
+                            if (urlProjectId) {
+                                navigate('/dashboard/email');
+                            } else {
+                                setStep(0); 
+                                setStrategy(null); 
+                                setSelectedProject(null); 
+                            }
+                        }}
                         className="absolute left-8 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-800 text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/5 group"
                     >
-                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Cambiar Proyecto
+                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
+                        {urlProjectId ? 'Ver otra Secuencia' : 'Cambiar Proyecto'}
                     </button>
                 )}
+                {/* Fin de actualización - 25/06/2024 10:15 */}
                 
                 <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
                     <Mail className="w-8 h-8 text-[#FF5A1F]" />
@@ -317,7 +330,7 @@ export const EmailSequenceWizard: React.FC = () => {
                                     <p className="text-gray-500 mb-6">Aún no tienes proyectos creados con estrategia.</p>
                                     <button 
                                         onClick={() => navigate('/dashboard/projects/create')}
-                                        className="px-8 py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20"
+                                        className="px-8 py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20"
                                     >
                                         Crear mi primer proyecto
                                     </button>
@@ -342,7 +355,8 @@ export const EmailSequenceWizard: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="space-y-4 flex-1 overflow-y-auto max-h-[700px] custom-scrollbar pr-2">
+                                {/* */ /* Actualización: Eliminación de scroll interno en la lista de secuencia para visualización completa de tabs - 25/06/2024 11:30 */ }
+                                <div className="space-y-4 flex-1 pr-2">
                                     {editableEmails.map((email, idx) => (
                                         <div 
                                             key={idx}
@@ -385,15 +399,10 @@ export const EmailSequenceWizard: React.FC = () => {
                                         editableEmails[activeEmailIdx].isGenerated ? (
                                             <div className="flex-1 flex flex-col space-y-8 animate-in slide-in-from-bottom-4 duration-500">
                                                 <div className="flex justify-between items-center bg-gray-800/30 p-4 rounded-2xl border border-white/5">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
-                                                            <CheckCircle2 className="w-5 h-5" />
-                                                        </div>
-                                                        <span className="text-white font-bold uppercase tracking-widest text-[10px]">Correo Redactado por IA</span>
-                                                    </div>
+                                                    {/* */ /* Actualización: Eliminación de etiqueta verde y reposicionamiento del enlace de edición en blanco - 25/06/2024 11:30 */ }
                                                     <button 
                                                         onClick={() => handleUpdateEmail(activeEmailIdx, 'isGenerated', false)}
-                                                        className="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-white transition-colors"
+                                                        className="text-[10px] font-black text-white uppercase tracking-widest hover:underline transition-all"
                                                     >
                                                         Modificar estrategia del mensaje
                                                     </button>
