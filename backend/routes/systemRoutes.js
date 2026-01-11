@@ -123,6 +123,19 @@ router.post('/email/sequences', authMiddleware, async (req, res) => {
     }
 });
 
+/* */ /* Actualización: Endpoint para eliminación de secuencias (incluye mensajes por FK) - 11/12/2024 15:40 */
+router.delete('/email/sequences/:id', authMiddleware, async (req, res) => {
+    try {
+        const [check] = await pool.query('SELECT id FROM email_sequences WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
+        if (check.length === 0) return res.status(403).json({ error: 'No autorizado o no encontrado' });
+
+        await pool.query('DELETE FROM email_sequences WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Obtener mensajes de una secuencia
 router.get('/email/sequences/:id/messages', authMiddleware, async (req, res) => {
     try {

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Lead, EmailSequence } from '../../../types';
-import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye } from 'lucide-react';
+import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye, Trash2 } from 'lucide-react';
 import { api } from '../../../services/api';
 /* */ /* Actualización: Importación de useNavigate para manejar redirección - 24/06/2024 15:15 */
 import { useNavigate } from 'react-router-dom';
@@ -85,6 +85,19 @@ export const EmailMarketing: React.FC = () => {
       console.error("Error cargando secuencias", e);
     } finally {
       setLoadingSequences(false);
+    }
+  };
+
+  /* */ /* Actualización: Implementación de eliminación física de secuencia con confirmación - 11/12/2024 15:45 */
+  const handleDeleteSequence = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm("¿Estás seguro de eliminar esta secuencia de correos? Se borrarán todos los borradores asociados.")) return;
+    
+    try {
+        await api.deleteEmailSequence(id);
+        setSequences(prev => prev.filter(s => s.id !== id));
+    } catch (error) {
+        alert("Error al eliminar la secuencia.");
     }
   };
 
@@ -279,26 +292,38 @@ export const EmailMarketing: React.FC = () => {
                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${seq.status === 'activa' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
                                                     {seq.status}
                                                 </span>
-                                                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Creado {new Date(seq.createdAt).toLocaleDateString()}</span>
+                                                {/* */ /* Actualización: Fix de Fecha (Invalid Date) usando mapeo createdAt - 11/12/2024 15:50 */ }
+                                                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Creado {seq.createdAt.toLocaleDateString()}</span>
                                             </div>
                                             <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2">
                                                 <Tag className="w-3 h-3 text-[#FF5A1F]" /> Etiqueta: <span className="text-white">{seq.tagName}</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="bg-white/5 p-3 rounded-2xl border border-white/10 group-hover:bg-[#FF5A1F] group-hover:text-white transition-all shadow-lg">
-                                        <Mail className="w-6 h-6" />
+                                    {/* */ /* Actualización: Inclusión de botón de eliminar (papelera) en esquina superior derecha de la tarjeta - 11/12/2024 15:55 */ }
+                                    <div className="flex gap-2">
+                                        <button 
+                                            onClick={(e) => handleDeleteSequence(seq.id, e)}
+                                            className="p-3 rounded-2xl bg-red-900/20 text-red-500 border border-red-900/30 hover:bg-red-500 hover:text-white transition-all shadow-lg"
+                                            title="Eliminar Secuencia"
+                                        >
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
+                                        <div className="bg-white/5 p-3 rounded-2xl border border-white/10 group-hover:bg-[#FF5A1F] group-hover:text-white transition-all shadow-lg">
+                                            <Mail className="w-6 h-6" />
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div className="space-y-6 flex-1">
-                                    {/* */ /* Actualización: Barra de progreso con etiquetas 'Día X' legibles, soporte de envoltura para texto y navegación dinámica por día - 25/05/2024 18:15 */ }
+                                    {/* */ /* Actualización: Barra de progreso con etiquetas 'Día X' legibles, soporte de envoltura para texto y navegación dinámica por día corregida para incluir projectId - 25/05/2024 18:15 */ }
                                     <div className="bg-black/40 p-6 rounded-3xl border border-white/5">
                                         <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Progreso de la Estrategia (7 Días)</p>
                                         <div className="flex flex-wrap md:flex-nowrap justify-between items-center gap-2">
                                             {[0, 1, 2, 3, 4, 5, 6].map(day => (
                                                 <div 
                                                     key={day} 
+                                                    /* */ /* Actualización: Navegación dinámica corregida para incluir projectId correcto y posicionarse en el día seleccionado - 11/12/2024 16:00 */
                                                     onClick={() => navigate(`/dashboard/email/create?projectId=${seq.projectId}&day=${day}`)}
                                                     className={`flex-1 h-10 rounded-lg transition-all duration-500 flex items-center justify-center cursor-pointer hover:opacity-80 active:scale-95 min-w-[60px] ${seq.generatedDays.includes(day) ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-gray-800'}`}
                                                 >
@@ -313,6 +338,7 @@ export const EmailMarketing: React.FC = () => {
                                 {/* Acciones de la Tarjeta */}
                                 <div className="flex flex-col gap-3 mt-10">
                                     <button 
+                                        /* */ /* Actualización: Fix de URL para evitar parámetros undefined asegurando uso de projectId mapeado - 11/12/2024 16:05 */
                                         onClick={() => navigate(`/dashboard/email/create?projectId=${seq.projectId}`)}
                                         className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg"
                                     >
@@ -514,7 +540,7 @@ export const EmailMarketing: React.FC = () => {
                     </div>
                     <div className="space-y-6 flex-1">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Nueva Etiqueta</label>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Nueva Etiqueta</label>
                             <div className="flex gap-2">
                                 <input 
                                     type="text"
@@ -533,7 +559,7 @@ export const EmailMarketing: React.FC = () => {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Listado Actual</label>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Listado Actual</label>
                             <div className="max-h-[120px] overflow-y-auto custom-scrollbar pr-2 flex flex-wrap gap-2">
                                 {loadingTags ? (
                                     <div className="w-full flex items-center gap-2 text-gray-600 italic text-xs py-2">

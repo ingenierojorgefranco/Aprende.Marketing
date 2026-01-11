@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 /* */ /* Actualización: Importación de useSearchParams para soporte de Deep Linking - 25/05/2024 18:15 */
 import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
@@ -75,7 +74,7 @@ export const EmailSequenceWizard: React.FC = () => {
                     setNextPlan(sortedPlans[currentIndex + 1]);
                 }
             } catch (e) {
-                console.error("Error cargando datos iniciales", e);
+                console.error("Error cargando dador iniciales", e);
             } finally {
                 setLoading(false);
             }
@@ -380,180 +379,190 @@ export const EmailSequenceWizard: React.FC = () => {
                                         </div>
                                     )}
 
+                                    {/* */ /* Actualización: Sincronización de ID mock y validación de existencia de mensajes para evitar error 'isGenerated' de undefined - 20/05/2024 10:15 */ }
                                     {/* VISOR CONDICIONAL */}
-                                    {editableEmails[activeEmailIdx].isGenerated ? (
-                                        <div className="flex-1 flex flex-col space-y-8 animate-in slide-in-from-bottom-4 duration-500">
-                                            <div className="flex justify-between items-center bg-gray-800/30 p-4 rounded-2xl border border-white/5">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
-                                                        <CheckCircle2 className="w-5 h-5" />
+                                    {editableEmails.length > 0 && editableEmails[activeEmailIdx] ? (
+                                        editableEmails[activeEmailIdx].isGenerated ? (
+                                            <div className="flex-1 flex flex-col space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+                                                <div className="flex justify-between items-center bg-gray-800/30 p-4 rounded-2xl border border-white/5">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
+                                                            <CheckCircle2 className="w-5 h-5" />
+                                                        </div>
+                                                        <span className="text-white font-bold uppercase tracking-widest text-[10px]">Correo Redactado por IA</span>
                                                     </div>
-                                                    <span className="text-white font-bold uppercase tracking-widest text-[10px]">Correo Redactado por IA</span>
-                                                </div>
-                                                <button 
-                                                    onClick={() => handleUpdateEmail(activeEmailIdx, 'isGenerated', false)}
-                                                    className="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-white transition-colors"
-                                                >
-                                                    Modificar estrategia del mensaje
-                                                </button>
-                                            </div>
-
-                                            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-200 overflow-hidden flex flex-col flex-1">
-                                                <div className="h-10 bg-white border-b border-gray-200 flex items-center px-6 justify-between shrink-0">
-                                                    <div className="flex gap-1.5">
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
-                                                    </div>
-                                                    <div className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">Editor de Correo Persuasivo</div>
-                                                    <div className="w-10"></div>
+                                                    <button 
+                                                        onClick={() => handleUpdateEmail(activeEmailIdx, 'isGenerated', false)}
+                                                        className="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-white transition-colors"
+                                                    >
+                                                        Modificar estrategia del mensaje
+                                                    </button>
                                                 </div>
 
-                                                <div className="p-8 md:p-10 space-y-6 flex-1 flex flex-col">
-                                                    {/* Campos de Cabecera */}
-                                                    <div className="space-y-3 text-sm border-b border-gray-100 pb-6">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px]">De:</span>
-                                                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                                                                <div className="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-[10px] font-bold">{user.name.charAt(0)}</div>
-                                                                <span className="text-black font-bold">{user.name} &lt;{user.email}&gt;</span>
-                                                            </div>
+                                                <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-200 overflow-hidden flex flex-col flex-1">
+                                                    <div className="h-10 bg-white border-b border-gray-200 flex items-center px-6 justify-between shrink-0">
+                                                        <div className="flex gap-1.5">
+                                                            <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                                                            <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                                                            <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
                                                         </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px]">Para:</span>
-                                                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                                                                <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-bold">L</div>
-                                                                <span className="text-black font-bold">{strategy.avatars[0].name} (Avatar Estratégico)</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex items-start gap-2">
-                                                            <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px] mt-2">Asunto:</span>
-                                                            <textarea 
-                                                                value={editableEmails[activeEmailIdx].subject}
-                                                                onChange={(e) => handleUpdateEmail(activeEmailIdx, 'subject', e.target.value)}
-                                                                className="flex-1 bg-white border-none focus:ring-0 text-black font-black text-xl md:text-2xl leading-tight resize-none h-auto p-0"
-                                                                rows={2}
-                                                            />
-                                                        </div>
+                                                        <div className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">Editor de Correo Persuasivo</div>
+                                                        <div className="w-10"></div>
                                                     </div>
 
-                                                    {/* Cuerpo del Correo Editable con fondo gris clarito y paddings */}
-                                                    <div className="flex-1 pt-4">
-                                                        <div 
-                                                            contentEditable
-                                                            onBlur={(e) => handleUpdateEmail(activeEmailIdx, 'contentHtml', e.currentTarget.innerHTML)}
-                                                            dangerouslySetInnerHTML={{ __html: editableEmails[activeEmailIdx].contentHtml }}
-                                                            className="w-full h-full min-h-[400px] bg-gray-50 border border-gray-100 rounded-2xl p-10 focus:ring-0 text-black text-xl leading-[1.8] font-serif outline-none overflow-y-auto custom-scrollbar"
-                                                            style={{ whiteSpace: 'pre-wrap' }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex justify-center pt-4">
-                                                <button 
-                                                    onClick={handleCopyEmail}
-                                                    className="px-12 py-5 rounded-[1.5rem] bg-sky-500 hover:bg-sky-400 text-white font-black text-sm uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-lg shadow-sky-900/20 transform hover:scale-105 active:scale-95"
-                                                >
-                                                    <Copy className="w-5 h-5" /> Copiar Mensaje del Día {activeEmailIdx + 1}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        /* CONFIGURACIÓN ESTRATÉGICA (SI NO SE HA GENERADO) */
-                                        <div className="relative z-10 space-y-12 animate-in fade-in duration-500">
-                                            <div className="flex items-center justify-between">
-                                                <span className="bg-yellow-900/20 text-yellow-400 border border-yellow-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
-                                                    Configurando: {editableEmails[activeEmailIdx].pilarType || 'Nutrición'}
-                                                </span>
-                                                <span className="text-white text-lg font-black uppercase tracking-widest">Correo del Día {activeEmailIdx + 1}</span>
-                                            </div>
-
-                                            {/* FORMULARIO DE INSTRUCCIONES */}
-                                            <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl group/form relative overflow-hidden">
-                                                <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/50"></div>
-                                                
-                                                <div className="flex items-center gap-4 mb-10">
-                                                    <div className="p-3 bg-yellow-500/10 rounded-2xl text-yellow-400">
-                                                        <Lightbulb className="w-8 h-8" />
-                                                    </div>
-                                                    <div>
-                                                        <h4 className="text-2xl font-black text-white tracking-tight">Estrategia de Correo Electrónico: Día No {activeEmailIdx + 1}</h4>
-                                                        <p className="text-sm text-white font-bold uppercase tracking-widest mt-4 leading-relaxed">Nuestra inteligencia Artificial generará tu correo electrónico teniendo en cuenta la siguiente información.</p>
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-y-10">
-                                                    {/* Campo Asunto */}
-                                                    <div className="space-y-3">
-                                                        <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
-                                                            <Edit3 className="w-5 h-5 text-[#FF5A1F]" /> Asunto Sugerido
-                                                        </label>
-                                                        <div className="relative">
-                                                            <textarea 
-                                                                rows={2}
-                                                                value={editableEmails[activeEmailIdx].subject}
-                                                                onChange={(e) => handleUpdateEmail(activeEmailIdx, 'subject', e.target.value)}
-                                                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-xl outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/10 transition-all shadow-inner resize-none leading-relaxed"
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Tipo de Correo con Swap Logic */}
-                                                    <div className="space-y-3">
-                                                        <div className="flex justify-between items-center">
-                                                            <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
-                                                                <Settings2 className="w-5 h-5 text-[#FF5A1F]" /> Pilar Estratégico (Tipo)
-                                                            </label>
-                                                            <button 
-                                                                onClick={() => setIsTypeLocked(!isTypeLocked)}
-                                                                className="text-xs font-black text-[#FF5A1F] uppercase tracking-widest hover:underline px-3 py-1 bg-[#FF5A1F]/10 rounded-lg border border-[#FF5A1F]/20 transition-all"
-                                                            >
-                                                                {isTypeLocked ? 'Cambiar' : 'Cancelar'}
-                                                            </button>
-                                                        </div>
-                                                        <div className="relative">
-                                                            <select 
-                                                                disabled={isTypeLocked}
-                                                                value={editableEmails[activeEmailIdx].pilarType}
-                                                                onChange={(e) => handleTypeSwap(e.target.value)}
-                                                                className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none transition-all shadow-inner appearance-none cursor-pointer ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-yellow-500/50 ring-2 ring-yellow-500/10'}`}
-                                                            >
-                                                                {emailTypes.map(t => (
-                                                                    <option key={t} value={t}>{t}</option>
-                                                                ))}
-                                                            </select>
-                                                            {!isTypeLocked && (
-                                                                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
-                                                                    <ChevronDown className="w-6 h-6 text-yellow-500" />
+                                                    <div className="p-8 md:p-10 space-y-6 flex-1 flex flex-col">
+                                                        {/* Campos de Cabecera */}
+                                                        <div className="space-y-3 text-sm border-b border-gray-100 pb-6">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px]">De:</span>
+                                                                <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                                                    <div className="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-[10px] font-bold">{user.name.charAt(0)}</div>
+                                                                    <span className="text-black font-bold">{user.name} &lt;{user.email}&gt;</span>
                                                                 </div>
-                                                            )}
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px]">Para:</span>
+                                                                <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                                                    <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-bold">L</div>
+                                                                    <span className="text-black font-bold">{strategy.avatars[0].name} (Avatar Estratégico)</span>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-start gap-2">
+                                                                <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px] mt-2">Asunto:</span>
+                                                                <textarea 
+                                                                    value={editableEmails[activeEmailIdx].subject}
+                                                                    onChange={(e) => handleUpdateEmail(activeEmailIdx, 'subject', e.target.value)}
+                                                                    className="flex-1 bg-white border-none focus:ring-0 text-black font-black text-xl md:text-2xl leading-tight resize-none h-auto p-0"
+                                                                    rows={2}
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Cuerpo del Correo Editable con fondo gris clarito y paddings */}
+                                                        <div className="flex-1 pt-4">
+                                                            <div 
+                                                                contentEditable
+                                                                onBlur={(e) => handleUpdateEmail(activeEmailIdx, 'contentHtml', e.currentTarget.innerHTML)}
+                                                                dangerouslySetInnerHTML={{ __html: editableEmails[activeEmailIdx].contentHtml }}
+                                                                className="w-full h-full min-h-[400px] bg-gray-50 border border-gray-100 rounded-2xl p-10 focus:ring-0 text-black text-xl leading-[1.8] font-serif outline-none overflow-y-auto custom-scrollbar"
+                                                                style={{ whiteSpace: 'pre-wrap' }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex justify-center pt-4">
+                                                    <button 
+                                                        onClick={handleCopyEmail}
+                                                        className="px-12 py-5 rounded-[1.5rem] bg-sky-500 hover:bg-sky-400 text-white font-black text-sm uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-lg shadow-sky-900/20 transform hover:scale-105 active:scale-95"
+                                                    >
+                                                        <Copy className="w-5 h-5" /> Copiar Mensaje del Día {activeEmailIdx + 1}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            /* CONFIGURACIÓN ESTRATÉGICA (SI NO SE HA GENERADO) */
+                                            <div className="relative z-10 space-y-12 animate-in fade-in duration-500">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="bg-yellow-900/20 text-yellow-400 border border-yellow-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
+                                                        Configurando: {editableEmails[activeEmailIdx].pilarType || 'Nutrición'}
+                                                    </span>
+                                                    <span className="text-white text-lg font-black uppercase tracking-widest">Correo del Día {activeEmailIdx + 1}</span>
+                                                </div>
+
+                                                {/* FORMULARIO DE INSTRUCCIONES */}
+                                                <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl group/form relative overflow-hidden">
+                                                    <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/50"></div>
+                                                    
+                                                    <div className="flex items-center gap-4 mb-10">
+                                                        <div className="p-3 bg-yellow-500/10 rounded-2xl text-yellow-400">
+                                                            <Lightbulb className="w-8 h-8" />
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="text-2xl font-black text-white tracking-tight">Estrategia de Correo Electrónico: Día No {activeEmailIdx + 1}</h4>
+                                                            <p className="text-sm text-white font-bold uppercase tracking-widest mt-4 leading-relaxed">Nuestra inteligencia Artificial generará tu correo electrónico teniendo en cuenta la siguiente información.</p>
                                                         </div>
                                                     </div>
 
-                                                    {/* Campo Propósito */}
-                                                    <div className="space-y-3">
-                                                        <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
-                                                            <Zap className="w-5 h-5 text-[#FF5A1F]" /> Propósito Estratégico del Día
-                                                        </label>
-                                                        <textarea 
-                                                            rows={6}
-                                                            value={editableEmails[activeEmailIdx].purpose}
-                                                            onChange={(e) => handleUpdateEmail(activeEmailIdx, 'purpose', e.target.value)}
-                                                            className="w-full bg-black/60 border border-white/10 rounded-[2rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/10 transition-all shadow-inner resize-none"
-                                                        />
+                                                    <div className="space-y-10">
+                                                        {/* Campo Asunto */}
+                                                        <div className="space-y-3">
+                                                            <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                                                <Edit3 className="w-5 h-5 text-[#FF5A1F]" /> Asunto Sugerido
+                                                            </label>
+                                                            <div className="relative">
+                                                                <textarea 
+                                                                    rows={2}
+                                                                    value={editableEmails[activeEmailIdx].subject}
+                                                                    onChange={(e) => handleUpdateEmail(activeEmailIdx, 'subject', e.target.value)}
+                                                                    className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-xl outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/10 transition-all shadow-inner resize-none leading-relaxed"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Tipo de Correo con Swap Logic */}
+                                                        <div className="space-y-3">
+                                                            <div className="flex justify-between items-center">
+                                                                <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                                                    <Settings2 className="w-5 h-5 text-[#FF5A1F]" /> Pilar Estratégico (Tipo)
+                                                                </label>
+                                                                <button 
+                                                                    onClick={() => setIsTypeLocked(!isTypeLocked)}
+                                                                    className="text-xs font-black text-[#FF5A1F] uppercase tracking-widest hover:underline px-3 py-1 bg-[#FF5A1F]/10 rounded-lg border border-[#FF5A1F]/20 transition-all"
+                                                                >
+                                                                    {isTypeLocked ? 'Cambiar' : 'Cancelar'}
+                                                                </button>
+                                                            </div>
+                                                            <div className="relative">
+                                                                <select 
+                                                                    disabled={isTypeLocked}
+                                                                    value={editableEmails[activeEmailIdx].pilarType}
+                                                                    onChange={(e) => handleTypeSwap(e.target.value)}
+                                                                    className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none transition-all shadow-inner appearance-none cursor-pointer ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-yellow-500/50 ring-2 ring-yellow-500/10'}`}
+                                                                >
+                                                                    {emailTypes.map(t => (
+                                                                        <option key={t} value={t}>{t}</option>
+                                                                    ))}
+                                                                </select>
+                                                                {!isTypeLocked && (
+                                                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                                        <ChevronDown className="w-6 h-6 text-yellow-500" />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Campo Propósito */}
+                                                        <div className="space-y-3">
+                                                            <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                                                <Zap className="w-5 h-5 text-[#FF5A1F]" /> Propósito Estratégico del Día
+                                                            </label>
+                                                            <textarea 
+                                                                rows={6}
+                                                                value={editableEmails[activeEmailIdx].purpose}
+                                                                onChange={(e) => handleUpdateEmail(activeEmailIdx, 'purpose', e.target.value)}
+                                                                className="w-full bg-black/60 border border-white/10 rounded-[2rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/10 transition-all shadow-inner resize-none"
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <div className="pb-6">
-                                                <button 
-                                                    onClick={handleGenerateSingleEmail}
-                                                    className="w-full py-6 rounded-[2rem] bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#D94A1E] hover:to-orange-600 text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95"
-                                                >
-                                                    <Wand2 className="w-7 h-7 fill-current" /> Generar Correo el Día No {activeEmailIdx + 1}
-                                                </button>
+                                                <div className="pb-6">
+                                                    <button 
+                                                        onClick={handleGenerateSingleEmail}
+                                                        className="w-full py-6 rounded-[2cm] bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#D94A1E] hover:to-orange-600 text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95"
+                                                    >
+                                                        <Wand2 className="w-7 h-7 fill-current" /> Generar Correo el Día No {activeEmailIdx + 1}
+                                                    </button>
+                                                </div>
                                             </div>
+                                        )
+                                    ) : (
+                                        <div className="flex-1 flex flex-col items-center justify-center text-gray-600 space-y-4">
+                                            <div className="w-20 h-20 bg-white/5 rounded-[2rem] flex items-center justify-center">
+                                                <Loader2 className="w-10 h-10 animate-spin text-[#FF5A1F]" />
+                                            </div>
+                                            <p className="font-black uppercase tracking-[0.3em] text-[10px]">Cargando contenido del mensaje...</p>
                                         </div>
                                     )}
                                 </div>

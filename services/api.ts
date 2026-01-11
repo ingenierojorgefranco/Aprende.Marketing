@@ -1,6 +1,5 @@
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage } from "../types";
-import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS } from "./mockData";
+import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
 
 // --- HELPER PARA OBTENER BASE URL ---
@@ -27,6 +26,7 @@ let localPages: LandingPage[] = [...MOCK_PAGES];
 let localArticles: Article[] = [...MOCK_ARTICLES];
 let localProjects: Project[] = [...MOCK_PROJECTS];
 let localLeads: Lead[] = [...MOCK_LEADS];
+/* */ /* Actualización: Corrección de error de compilación por redeclaración de localCourses - 21/05/2024 11:20 */
 let localCourses: Course[] = [...MOCK_COURSES];
 let localComments: Comment[] = [...MOCK_COMMENTS];
 let localCrmContacts: CRMContact[] = [...MOCK_CRM_CONTACTS];
@@ -670,7 +670,7 @@ export const api = {
         if (apiCache.leads) return apiCache.leads;
         const leads = await fetchWithFallback('/leads', { headers: getAuthHeaders() });
         ////////// Mapeo correcto de leads para el frontend - 07/06/2025 19:30 //////////
-        const mapped = leads.map((l: any) => ({
+        const mapped = leads.map((l) => ({
             id: String(l.id),
             name: l.name,
             email: l.email,
@@ -722,7 +722,7 @@ export const api = {
         if (apiCache.articles) return apiCache.articles;
 
         const articles = await fetchWithFallback('/articles', { headers: getAuthHeaders() });
-        const mapped = articles.map((a: any) => ({
+        const mapped = articles.map((a) => ({
             id: a.id.toString(),
             pageId: a.page_id ? a.page_id.toString() : undefined,
             pageSubdomain: a.page_subdomain,
@@ -848,7 +848,7 @@ export const api = {
         if (isMockMode) return Promise.resolve(localArticles.filter(a => a.pageId === pageId));
         if (apiCache.publicBlogArticles[pageId]) return apiCache.publicBlogArticles[pageId];
         const articles = await fetchWithFallback(`/public/pages/${pageId}/blog`);
-        const mapped = articles.map((a: any) => ({
+        const mapped = articles.map((a) => ({
             id: a.id.toString(),
             title: a.title,
             slug: a.slug,
@@ -906,14 +906,14 @@ export const api = {
         return users;
     },
   
-    updateUser: async (id: string, data: { role: string, planLimits: PlanLimits, isActive: boolean }): Promise<void> => {
+    updateUser: async (id: string, data: { role: string, planLimits: PlanLimits, isActive: boolean }) => {
         if (isMockMode) return Promise.resolve();
         await fetchWithFallback(`/admin/users/${id}`, { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(data) });
         clearCache('adminUserResources');
         clearCache('usersList');
     },
   
-    deleteUser: async (id: string): Promise<void> => {
+    deleteUser: async (id: string) => {
         if (isMockMode) return Promise.resolve();
         // Fix: Added explicit method DELETE - 17/06/2025 10:30
         await fetchWithFallback(`/admin/users/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
@@ -1103,13 +1103,13 @@ export const api = {
         } catch (e) { return 'stripe'; }
     },
   
-    updateLoginRedirect: async (url: string): Promise<void> => {
+    updateLoginRedirect: async (url: string) => {
         if (isMockMode) return Promise.resolve();
         await fetchWithFallback('/admin/settings', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ key: 'after_login_url', value: url }) });
         clearCache('loginRedirect');
     },
 
-    updateActivePaymentMethod: async (method: 'stripe' | 'hotmart'): Promise<void> => {
+    updateActivePaymentMethod: async (method: 'stripe' | 'hotmart') => {
         if (isMockMode) return Promise.resolve();
         await fetchWithFallback('/admin/settings', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ key: 'active_payment_method', value: method }) });
         clearCache('activePaymentMethod');
@@ -1136,7 +1136,7 @@ export const api = {
         return plans;
     },
   
-    savePlan: async (plan: Plan): Promise<void> => {
+    savePlan: async (plan: Plan) => {
         if (isMockMode) return Promise.resolve();
         const method = plan.id ? 'PUT' : 'POST';
         const endpoint = plan.id ? `/admin/plans/${plan.id}` : '/admin/plans';
@@ -1146,7 +1146,7 @@ export const api = {
         clearCache('publicPlans');
     },
   
-    deletePlan: async (id: string): Promise<void> => {
+    deletePlan: async (id: string) => {
         if (isMockMode) return Promise.resolve();
         await fetchWithFallback(`/admin/plans/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
         clearCache('plans');
@@ -1157,7 +1157,7 @@ export const api = {
         if (isMockMode) return Promise.resolve([...localCrmContacts]);
         if (apiCache.contacts) return apiCache.contacts;
         const contacts = await fetchWithFallback('/crm/contacts', { headers: getAuthHeaders() });
-        const mapped = contacts.map((c: any) => ({
+        const mapped = contacts.map((c) => ({
             ...c,
             id: c.id.toString(),
             pageId: c.page_id ? c.page_id.toString() : undefined,
@@ -1181,7 +1181,7 @@ export const api = {
         return { ...contact, id: res.id.toString(), createdAt: new Date(), updatedAt: new Date() };
     },
   
-    updateContact: async (contact: CRMContact): Promise<void> => {
+    updateContact: async (contact: CRMContact) => {
         if (isMockMode) {
             localCrmContacts = localCrmContacts.map(c => c.id === contact.id ? { ...contact, updatedAt: new Date() } : c);
             return Promise.resolve();
@@ -1190,7 +1190,7 @@ export const api = {
         clearCache('contacts');
     },
   
-    deleteContact: async (id: string): Promise<void> => {
+    deleteContact: async (id: string) => {
         if (isMockMode) {
             localCrmContacts = localCrmContacts.filter(c => c.id !== id);
             return Promise.resolve();
@@ -1203,9 +1203,9 @@ export const api = {
         if (isMockMode) return Promise.resolve(localCrmActivities.filter(a => a.contactId === contactId));
         if (apiCache.contactHistory[contactId]) return apiCache.contactHistory[contactId];
         const activities = await fetchWithFallback(`/crm/contacts/${contactId}/history`, { headers: getAuthHeaders() });
-        const mapped = activities.map((a: any) => ({
+        const mapped = activities.map((a) => ({
             id: a.id.toString(),
-            contactId: a.contact_id.toString(),
+            contact_id: a.contact_id.toString(),
             type: a.type,
             content: a.content,
             createdAt: new Date(a.created_at)
@@ -1214,7 +1214,7 @@ export const api = {
         return mapped;
     },
   
-    addContactNote: async (contactId: string, content: string): Promise<void> => {
+    addContactNote: async (contactId: string, content: string) => {
         if (isMockMode) {
             localCrmActivities.unshift({ id: `act-${Date.now()}`, contactId, type: 'note', content, createdAt: new Date() });
             return Promise.resolve();
@@ -1269,7 +1269,7 @@ export const api = {
         if (isMockMode) return MOCK_NEWS;
         if (apiCache.adminNews) return apiCache.adminNews;
         const news = await fetchWithFallback('/admin/news', { headers: getAuthHeaders() });
-        const mapped = news.map((n: any) => ({
+        const mapped = news.map((n) => ({
             id: n.id.toString(),
             title: n.title,
             content: n.content,
@@ -1280,7 +1280,7 @@ export const api = {
         return mapped;
     },
 
-    saveNews: async (news: Partial<DashboardNews>): Promise<void> => {
+    saveNews: async (news: Partial<DashboardNews>) => {
         if (isMockMode) return;
         const method = news.id ? 'PUT' : 'POST';
         const endpoint = news.id ? `/admin/news/${news.id}` : '/admin/news';
@@ -1299,7 +1299,7 @@ export const api = {
         clearCache('newsHistory');
     },
 
-    deleteNews: async (id: string): Promise<void> => {
+    deleteNews: async (id: string) => {
         if (isMockMode) return;
         await fetchWithFallback(`/admin/news/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
         clearCache('adminNews');
@@ -1339,7 +1339,7 @@ export const api = {
         }
     },
 
-    updateIntegrationSettings: async (settings: Record<string, any>): Promise<void> => {
+    updateIntegrationSettings: async (settings: Record<string, any>) => {
         if (isMockMode) return;
         await fetchWithFallback('/system/integrations', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify(settings) });
         clearCache('integrationSettings');
@@ -1398,15 +1398,27 @@ export const api = {
 
     /* */ /* Actualización: Métodos de Email Marketing para persistencia real de secuencias y mensajes - 24/06/2024 16:20 */
     getEmailSequences: async (): Promise<EmailSequence[]> => {
-        if (isMockMode) return Promise.resolve([]); // Fallback to mock logic if needed
+        /* Actualización: Soporte para modo Offline/Mock en secuencias de Email Marketing - 13/03/2024 11:50 */
+        if (isMockMode) return Promise.resolve([...MOCK_EMAIL_SEQUENCES]);
         if (apiCache.emailSequences) return apiCache.emailSequences;
         const data = await fetchWithFallback('/email/sequences', { headers: getAuthHeaders() });
-        apiCache.emailSequences = data;
-        return data;
+        /* */ /* Actualización: Corrección de mapeo de ID, Project ID y Fecha (Invalid Date) para asegurar compatibilidad total con el frontend - 11/12/2024 15:30 */
+        const mapped = data.map((seq: any) => ({
+            ...seq,
+            id: String(seq.id),
+            projectId: String(seq.project_id),
+            projectName: seq.project_name,
+            tagName: seq.tag_name || 'Sin etiqueta',
+            createdAt: new Date(seq.created_at),
+            generatedDays: seq.generatedDays || []
+        }));
+        apiCache.emailSequences = mapped;
+        return mapped;
     },
 
     createEmailSequence: async (projectId: string, name?: string): Promise<{ id: string; isNew: boolean }> => {
-        if (isMockMode) return Promise.resolve({ id: 'mock-seq', isNew: true });
+        /* */ /* Actualización: Sincronización de ID mock y validación de existencia de mensajes para evitar error 'isGenerated' de undefined - 20/05/2024 10:15 */
+        if (isMockMode) return Promise.resolve({ id: 'mock-seq-1', isNew: true });
         const res = await fetchWithFallback('/email/sequences', {
             method: 'POST',
             headers: getAuthHeaders(),
@@ -1416,12 +1428,20 @@ export const api = {
         return res;
     },
 
+    /* */ /* Actualización: Implementación del método de borrado de secuencia - 11/12/2024 15:35 */
+    deleteEmailSequence: async (id: string) => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback(`/email/sequences/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+        clearCache('emailSequences');
+    },
+
     getSequenceMessages: async (sequenceId: string): Promise<EmailMessage[]> => {
-        if (isMockMode) return Promise.resolve([]);
+        /* Actualización: Soporte para modo Offline/Mock en mensajes de secuencias de Email - 13/03/2024 11:50 */
+        if (isMockMode) return Promise.resolve(MOCK_EMAIL_MESSAGES.filter(m => m.sequenceId === sequenceId));
         return await fetchWithFallback(`/email/sequences/${sequenceId}/messages`, { headers: getAuthHeaders() });
     },
 
-    updateEmailMessage: async (messageId: string, data: Partial<EmailMessage>): Promise<void> => {
+    updateEmailMessage: async (messageId: string, data: Partial<EmailMessage>) => {
         if (isMockMode) return Promise.resolve();
         await fetchWithFallback(`/email/messages/${messageId}`, {
             method: 'PUT',
