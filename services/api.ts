@@ -669,8 +669,8 @@ export const api = {
         if (isMockMode) return Promise.resolve([...localLeads]);
         if (apiCache.leads) return apiCache.leads;
         const leads = await fetchWithFallback('/leads', { headers: getAuthHeaders() });
-        ////////// Mapeo correcto de leads para el frontend - 07/06/2025 19:30 //////////
-        const mapped = leads.map((l) => ({
+        ////////// Actualización: Mapeo correcto de leads con tipos explícitos para corregir error TS7006 - 24/06/2024 20:30 //////////
+        const mapped = leads.map((l: any) => ({
             id: String(l.id),
             name: l.name,
             email: l.email,
@@ -722,7 +722,8 @@ export const api = {
         if (apiCache.articles) return apiCache.articles;
 
         const articles = await fetchWithFallback('/articles', { headers: getAuthHeaders() });
-        const mapped = articles.map((a) => ({
+        ////////// Actualización: Mapeo de artículos con tipo explícito para corregir error TS7006 - 24/06/2024 20:30 //////////
+        const mapped = articles.map((a: any) => ({
             id: a.id.toString(),
             pageId: a.page_id ? a.page_id.toString() : undefined,
             pageSubdomain: a.page_subdomain,
@@ -848,7 +849,8 @@ export const api = {
         if (isMockMode) return Promise.resolve(localArticles.filter(a => a.pageId === pageId));
         if (apiCache.publicBlogArticles[pageId]) return apiCache.publicBlogArticles[pageId];
         const articles = await fetchWithFallback(`/public/pages/${pageId}/blog`);
-        const mapped = articles.map((a) => ({
+        ////////// Actualización: Mapeo de artículos públicos con tipo explícito para corregir error TS7006 - 24/06/2024 20:30 //////////
+        const mapped = articles.map((a: any) => ({
             id: a.id.toString(),
             title: a.title,
             slug: a.slug,
@@ -1157,7 +1159,8 @@ export const api = {
         if (isMockMode) return Promise.resolve([...localCrmContacts]);
         if (apiCache.contacts) return apiCache.contacts;
         const contacts = await fetchWithFallback('/crm/contacts', { headers: getAuthHeaders() });
-        const mapped = contacts.map((c) => ({
+        ////////// Actualización: Mapeo de contactos con tipo explícito para corregir error TS7006 - 24/06/2024 20:30 //////////
+        const mapped = contacts.map((c: any) => ({
             ...c,
             id: c.id.toString(),
             pageId: c.page_id ? c.page_id.toString() : undefined,
@@ -1203,7 +1206,8 @@ export const api = {
         if (isMockMode) return Promise.resolve(localCrmActivities.filter(a => a.contactId === contactId));
         if (apiCache.contactHistory[contactId]) return apiCache.contactHistory[contactId];
         const activities = await fetchWithFallback(`/crm/contacts/${contactId}/history`, { headers: getAuthHeaders() });
-        const mapped = activities.map((a) => ({
+        ////////// Actualización: Mapeo de historial con tipo explícito para corregir error TS7006 - 24/06/2024 20:30 //////////
+        const mapped = activities.map((a: any) => ({
             id: a.id.toString(),
             contact_id: a.contact_id.toString(),
             type: a.type,
@@ -1269,7 +1273,8 @@ export const api = {
         if (isMockMode) return MOCK_NEWS;
         if (apiCache.adminNews) return apiCache.adminNews;
         const news = await fetchWithFallback('/admin/news', { headers: getAuthHeaders() });
-        const mapped = news.map((n) => ({
+        ////////// Actualización: Mapeo de noticias admin con tipo explícito para corregir error TS7006 - 24/06/2024 20:30 //////////
+        const mapped = news.map((n: any) => ({
             id: n.id.toString(),
             title: n.title,
             content: n.content,
