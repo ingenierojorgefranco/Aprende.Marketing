@@ -179,12 +179,15 @@ const App: React.FC = () => {
             const data = await res.json();
             // Asumimos que el backend retorna el objeto de la página y usamos su subdomain/slug
             setDomainSlug(data.subdomain);
+            setDomainLoading(false);
+            return;
           }
         } catch (e) {
           console.error("Error resolviendo dominio dinámico:", e);
         }
       }
-      setDomainSlug(null); // Force system for local dev unless real domain detected
+      /* */ /* Actualización: Corrección de resolución de dominios personalizados: Se evita sobreescribir con null el slug detectado en base de datos. Solo se fuerza null si es un dominio del sistema o la detección falla. 27/05/2025 15:55 */
+      setDomainSlug(null);
       setDomainLoading(false);
     };
     resolveDomain();

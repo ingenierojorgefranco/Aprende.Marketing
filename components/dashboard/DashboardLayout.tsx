@@ -180,6 +180,8 @@ export const DashboardLayout = ({
           { label: 'Logs del Sistema', path: '/dashboard/admin/logs', icon: Activity }
       ]
     },
+    /* */ /* Actualización: Reubicación del botón CRM Clientes por encima de Entrenamiento - 27/05/2025 16:30 */
+    { id: 'crm', label: 'CRM Clientes', icon: Users, path: '/dashboard/crm' },
     { id: 'training', label: 'Entrenamiento', icon: GraduationCap, subItems: courseItems },
     { id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
         { label: 'Mis Proyectos', path: '/dashboard/projects', icon: Briefcase },
@@ -188,7 +190,6 @@ export const DashboardLayout = ({
         { label: 'Email Marketing', path: '/dashboard/email', icon: Mail }
       ]
     },
-    { id: 'crm', label: 'CRM Clientes', icon: Users, path: '/dashboard/crm' },
     { id: 'tools', label: 'Herramientas Pro', icon: Wrench, subItems: [
         { label: 'WhatsApp CRM', path: '/dashboard/whatsapp', icon: MessageSquare },
         { label: 'CopySell AI', path: '/dashboard/copy-pro', icon: PenTool }

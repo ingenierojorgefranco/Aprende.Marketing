@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Article, User } from '../../../types';
-import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { UpgradeModal } from '../UpgradeModal';
@@ -166,6 +166,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       </div>
 
       {/* CONTENT GRID */}
+      {/* */ /* Actualización: Rediseño de la cuadrícula a 2 columnas e inclusión de Empty Card con efecto hover - 26/10/2023 10:00 */ }
       {localArticles.length === 0 ? (
         <div className="text-center py-20 bg-gray-900 rounded-2xl border border-dashed border-gray-700 flex flex-col items-center justify-center">
           <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-gray-700">
@@ -181,7 +182,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
           </button>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-8">
           {localArticles.map((article) => {
              const basePageSlug = article.pageSubdomain ? article.pageSubdomain.split(".")[0] : article.pageId;
              const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${article.slug}` : '#';
@@ -295,6 +296,19 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                 </div>
              );
           })}
+          {/* Empty Card for creation trigger */}
+          <button 
+              onClick={handleCreate}
+              className="bg-black/20 border-2 border-dashed border-white/5 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 group hover:border-purple-500/30 hover:bg-purple-500/5 transition-all duration-500 min-h-[400px]"
+          >
+              <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-gray-600 group-hover:bg-purple-500/10 group-hover:text-purple-400 transition-all">
+                  <Plus className="w-8 h-8" />
+              </div>
+              <div className="text-center">
+                  <h4 className="text-xl font-bold text-gray-500 group-hover:text-white transition-colors">Redactar Nuevo Artículo</h4>
+                  <p className="text-xs text-gray-600 mt-2 font-medium">Usa la IA para generar contenido SEO de alta calidad</p>
+              </div>
+          </button>
         </div>
       )}
 
