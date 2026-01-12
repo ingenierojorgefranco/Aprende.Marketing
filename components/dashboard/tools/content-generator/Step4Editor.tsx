@@ -1,8 +1,9 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { ArticleTitleIdea } from '../../../../services/geminiService';
 import { LandingPage } from '../../../../types';
-import { FileText, Save, Copy, Download, RefreshCw, Globe, BarChart, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Undo, Redo, Type, Palette, Eraser, Heading2, Heading3, Check, X, Calendar, Search, ArrowLeft, ExternalLink } from 'lucide-react';
+/* */ /* Actualización: Importación del icono Upload de lucide-react para el botón de subida local - 28/05/2025 11:30 */
+import { FileText, Save, Copy, Download, RefreshCw, Globe, BarChart, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Undo, Redo, Type, Palette, Eraser, Heading2, Heading3, Check, X, Calendar, Search, ArrowLeft, ExternalLink, Upload, Loader2 } from 'lucide-react';
+import { api } from '../../../../services/api';
 
 interface Step4EditorProps {
   articleContent: string;
@@ -49,12 +50,17 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
   metaDescription, setMetaDescription,
   onSave, saving, isEditing, onBack
 }) => {
+  /* */ /* Actualización: Ajuste de ancho de barra lateral de lg:w-80 a lg:w-[420px], incremento de legibilidad en tipografía (text-sm/bold), mayor espaciado entre bloques (space-y-8) y optimización visual del checklist SEO para mejorar la experiencia de redacción - 07/06/2025 21:15 */
   const editorRef = useRef<HTMLDivElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
+  /* */ /* Actualización: Referencia para el input de archivo oculto - 28/05/2025 11:30 */
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [wordCount, setWordCount] = useState(0);
   const [showSourceCode, setShowSourceCode] = useState(false);
   const [activeFormats, setActiveFormats] = useState<string[]>([]);
   const [seoChecklist, setSeoChecklist] = useState<SeoCheckItem[]>([]);
+  /* */ /* Actualización: Estado para controlar el proceso de subida de imagen - 28/05/2025 11:30 */
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Initialize Editor Content
   useEffect(() => {
@@ -266,6 +272,23 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
     document.body.removeChild(fileDownload);
   };
 
+  /* */ /* Actualización: Manejador para el proceso de subida de archivos binarios y actualización de la previsualización - 28/05/2025 11:30 */
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+        const result = await api.uploadImage(file);
+        setFeaturedImage(result.url);
+    } catch (err) {
+        alert("Error al subir la imagen. Verifica el formato y tamaño.");
+    } finally {
+        setUploadingImage(false);
+    }
+  };
+  /* Fin de actualización - 28/05/2025 11:30 */
+
   // SEO Score Color
   const validSeoScore = isNaN(seoScore) ? 0 : seoScore;
   const scoreColor = validSeoScore > 80 ? 'text-green-500' : validSeoScore > 50 ? 'text-yellow-500' : 'text-red-500';
@@ -399,21 +422,21 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
         </div>
 
         {/* SIDEBAR SETTINGS */}
-        <div className="w-full lg:w-80 space-y-4 overflow-y-auto pr-2 pb-10">
-            <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 shadow-lg">
-            <h3 className="text-white font-bold mb-4 flex items-center gap-2 text-sm">
-                <Globe className="w-4 h-4 text-blue-400" /> Configuración
+        <div className="w-full lg:w-[420px] space-y-8 overflow-y-auto pr-2 pb-10">
+            <div className="bg-gray-900 rounded-xl border border-gray-800 p-6 shadow-lg">
+            <h3 className="text-white font-bold mb-6 flex items-center gap-3 text-base">
+                <Globe className="w-5 h-5 text-blue-400" /> Configuración
             </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
                 
                 {/* 1. SAVE BUTTON */}
                 <button 
                     onClick={onSave} 
                     disabled={saving} 
-                    className={`w-full flex justify-center items-center gap-2 px-4 py-3 rounded-lg transition text-sm font-bold text-white shadow-md ${saving ? 'bg-gray-400' : isEditing ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+                    className={`w-full flex justify-center items-center gap-3 px-5 py-4 rounded-xl transition text-base font-bold text-white shadow-md ${saving ? 'bg-gray-400' : isEditing ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
                 >
-                {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 
+                {saving ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} 
                 {saving ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Publicar Artículo'}
                 </button>
 
@@ -423,35 +446,35 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                         href={viewUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full flex justify-center items-center gap-2 px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-800 text-gray-400 hover:text-white transition text-sm font-medium"
+                        className="w-full flex justify-center items-center gap-3 px-5 py-3 rounded-xl border border-gray-600 hover:bg-gray-800 text-gray-400 hover:text-white transition text-sm font-bold"
                     >
-                        <ExternalLink className="w-4 h-4" /> Ver Artículo Online
+                        <ExternalLink className="w-5 h-5" /> Ver Artículo Online
                     </a>
                 )}
 
                 {/* 3. Publication Date */}
                 <div>
-                    <label className="text-xs text-gray-400 block mb-1">Fecha de Publicación</label>
+                    <label className="text-sm font-bold text-gray-400 block mb-2">Fecha de Publicación</label>
                     <div className="relative group cursor-pointer" onClick={() => dateInputRef.current?.showPicker()}>
-                        <Calendar className="absolute top-1.5 left-2 w-4 h-4 text-gray-500 group-hover:text-blue-400 pointer-events-none" />
+                        <Calendar className="absolute top-2.5 left-3 w-5 h-5 text-gray-500 group-hover:text-blue-400 pointer-events-none" />
                         <input
                         ref={dateInputRef}
                         type="date"
                         value={publishDate}
                         onChange={(e) => setPublishDate(e.target.value)}
-                        className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 pl-8 text-xs text-white outline-none focus:border-blue-500 cursor-pointer"
+                        className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2.5 pl-10 text-sm text-white outline-none focus:border-blue-500 cursor-pointer"
                         />
                     </div>
                 </div>
 
                 {/* 4. Status & Page Link */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="text-xs text-gray-400 block mb-1">Estado</label>
+                    <label className="text-sm font-bold text-gray-400 block mb-2">Estado</label>
                     <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as any)}
-                    className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500"
+                    className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500 appearance-none cursor-pointer"
                     >
                     <option value="published">Publicado</option>
                     <option value="draft">Borrador</option>
@@ -459,11 +482,11 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                     </select>
                 </div>
                 <div>
-                    <label className="text-xs text-gray-400 block mb-1">Vincular a Page</label>
+                    <label className="text-sm font-bold text-gray-400 block mb-2">Vincular a Page</label>
                     <select
                         value={selectedPageId}
                         onChange={(e) => setSelectedPageId(e.target.value)}
-                        className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500"
+                        className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500 appearance-none cursor-pointer"
                     >
                         <option value="">-- Ninguna --</option>
                         {userPages.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -473,60 +496,86 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
 
                 {/* 5. Title Input */}
                 <div>
-                <div className="flex justify-between mb-1">
-                    <label className="text-xs text-gray-400">Título Artículo (H1)</label>
-                    <span className="text-[10px] text-gray-500">{articleTitle.length}/70</span>
+                <div className="flex justify-between mb-2">
+                    <label className="text-sm font-bold text-gray-400">Título Artículo (H1)</label>
+                    <span className="text-xs text-gray-500">{articleTitle.length}/70</span>
                 </div>
                 <input 
                     type="text" 
                     value={articleTitle} 
                     onChange={(e) => setArticleTitle(e.target.value)} 
-                    className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500"
+                    className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 font-medium"
                 />
                 </div>
 
                 {/* 6. Slug Input */}
                 <div>
-                <label className="text-xs text-gray-400 block mb-1">Slug (URL amigable)</label>
+                <label className="text-sm font-bold text-gray-400 block mb-2">Slug (URL amigable)</label>
                 <input 
                     type="text" 
                     value={slug} 
                     onChange={(e) => setSlug(e.target.value)}
                     onBlur={handleSlugBlur}
                     placeholder="mi-titulo-genial"
-                    className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-gray-300 outline-none focus:border-blue-500"
+                    className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-300 outline-none focus:border-blue-500 font-mono"
                 />
                 </div>
 
+                {/* */ /* Actualización: Sustitución del input de texto de imagen por un selector de archivo local con previsualización inmediata - 28/05/2025 11:30 */ }
                 {/* 7. Featured Image */}
                 <div>
-                <label className="text-xs text-gray-400 block mb-1">Imagen Destacada (URL)</label>
-                <div className="flex gap-1">
-                    <input
-                    type="text"
-                    value={featuredImage}
-                    onChange={(e) => setFeaturedImage(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-xs text-white outline-none focus:border-blue-500"
-                    />
-                    {featuredImage && <img src={featuredImage} className="w-8 h-8 rounded object-cover border border-gray-700" alt="Preview" />}
+                    <label className="text-sm font-bold text-gray-400 block mb-2">Imagen Destacada</label>
+                    <div className="flex gap-4">
+                        <div className="flex-1 space-y-3">
+                            <input
+                                type="text"
+                                value={featuredImage}
+                                onChange={(e) => setFeaturedImage(e.target.value)}
+                                placeholder="URL o sube una imagen..."
+                                className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500"
+                            />
+                            
+                            <input 
+                                type="file" 
+                                ref={fileInputRef} 
+                                onChange={handleImageUpload} 
+                                className="hidden" 
+                                accept="image/*" 
+                            />
+                            
+                            <button 
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={uploadingImage}
+                                className="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-black uppercase tracking-widest transition flex items-center justify-center gap-2 border border-gray-700 shadow-lg disabled:opacity-50"
+                            >
+                                {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                                {uploadingImage ? 'Subiendo...' : 'Seleccionar Imagen Local'}
+                            </button>
+                        </div>
+                        {featuredImage && (
+                            <div className="shrink-0">
+                                <img src={featuredImage} className="w-20 h-20 rounded-2xl object-cover border-2 border-gray-700 bg-black shadow-xl" alt="Preview" />
+                            </div>
+                        )}
+                    </div>
                 </div>
-                </div>
+                {/* Fin de actualización - 28/05/2025 11:30 */}
 
                 {/* Meta Description Input */}
                 <div>
-                    <div className="flex justify-between items-center mb-1">
-                        <label className="text-xs text-gray-400">Meta Descripción</label>
-                        <span className={`text-[10px] ${(metaDescription || '').length > 155 ? 'text-red-400 font-bold' : 'text-gray-500'}`}>
+                    <div className="flex justify-between items-center mb-2">
+                        <label className="text-sm font-bold text-gray-400">Meta Descripción</label>
+                        <span className={`text-xs ${(metaDescription || '').length > 155 ? 'text-red-400 font-bold' : 'text-gray-500'}`}>
                             {(metaDescription || '').length}/155
                         </span>
                     </div>
                     <textarea
                         value={metaDescription || ''}
                         onChange={(e) => setMetaDescription(e.target.value)}
-                        rows={3}
-                        className={`w-full bg-black border rounded px-2 py-1.5 text-xs text-white outline-none resize-none ${(metaDescription || '').length > 155 ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-blue-500'}`}
-                        placeholder="Resumen atractivo para Google..."
+                        rows={4}
+                        className={`w-full bg-black border rounded-xl px-4 py-3 text-sm text-white outline-none resize-none leading-relaxed ${(metaDescription || '').length > 155 ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-blue-500'}`}
+                        placeholder="Escribe un resumen atractivo para Google que invite a hacer clic..."
                     />
                 </div>
 
@@ -534,48 +583,48 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
             </div>
 
             {/* SEO Score Checklist */}
-            <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="text-white font-bold flex items-center gap-2 text-sm">
-                    <BarChart className="w-4 h-4 text-green-400" /> SEO Score
+            <div className="bg-gray-900 rounded-xl border border-gray-800 p-6 shadow-lg">
+            <div className="flex justify-between items-center mb-6">
+                <h3 className="text-white font-bold flex items-center gap-3 text-base">
+                    <BarChart className="w-5 h-5 text-green-400" /> SEO Score
                 </h3>
-                <span className={`text-xl font-bold ${scoreColor}`}>{validSeoScore}/100</span>
+                <span className={`text-2xl font-black ${scoreColor}`}>{validSeoScore}/100</span>
             </div>
 
             {/* Keyword Input Moved Here */}
-            <div className="mb-4">
-                    <label className="text-xs text-gray-400 block mb-1">Palabra Clave (SEO)</label>
+            <div className="mb-6">
+                    <label className="text-sm font-bold text-gray-400 block mb-2">Palabra Clave (SEO)</label>
                     <div className="relative">
                         <input
                             type="text"
                             value={keyword}
                             onChange={(e) => setKeyword && setKeyword(e.target.value)}
-                            className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 pl-7 text-xs text-white outline-none focus:border-green-500"
+                            className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2.5 pl-10 text-sm text-white outline-none focus:border-green-500 font-bold"
                             placeholder="ej: marketing digital"
                         />
-                        <Search className="absolute top-2 left-2 w-3 h-3 text-gray-500" />
+                        <Search className="absolute top-2.5 left-3 w-5 h-5 text-gray-500" />
                     </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4">
                 {seoChecklist.map((check, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs">
+                    <div key={idx} className="flex items-center gap-3 text-sm">
                         {check.passed ? (
-                            <div className="bg-green-900/50 p-0.5 rounded-full border border-green-500/50">
-                                <Check className="w-3 h-3 text-green-400" />
+                            <div className="bg-green-900/50 p-1 rounded-full border border-green-500/50 shrink-0">
+                                <Check className="w-4 h-4 text-green-400" />
                             </div>
                         ) : (
-                            <div className="bg-gray-800 p-0.5 rounded-full border border-gray-600">
-                                <X className="w-3 h-3 text-gray-500" />
+                            <div className="bg-gray-800 p-1 rounded-full border border-gray-600 shrink-0">
+                                <X className="w-4 h-4 text-gray-500" />
                             </div>
                         )}
-                        <span className={check.passed ? 'text-gray-300' : 'text-gray-500'}>{check.label}</span>
+                        <span className={check.passed ? 'text-gray-300 font-medium' : 'text-gray-500'}>{check.label}</span>
                     </div>
                 ))}
             </div>
             
-            <div className="mt-4 pt-4 border-t border-gray-800 flex justify-between text-xs text-gray-400">
-                <span>Palabras: <b className="text-white">{wordCount}</b></span>
+            <div className="mt-8 pt-6 border-t border-gray-800 flex justify-between text-sm font-bold text-gray-400">
+                <span>Total Palabras: <b className="text-white font-mono">{wordCount}</b></span>
             </div>
             </div>
         </div>

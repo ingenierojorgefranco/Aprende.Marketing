@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+/* */ /* Actualización: Inclusión de fs para gestión de directorios de subida - 28/05/2025 11:30 */
+const fs = require('fs');
 
 const initDb = require('./initDb');
 
@@ -39,6 +41,14 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+/* */ /* Actualización: Creación y configuración del directorio de subidas (uploads) para almacenamiento persistente de imágenes - 28/05/2025 11:30 */
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+app.use('/uploads', express.static(uploadDir));
+/* Fin de actualización - 28/05/2025 11:30 */
 
 // ======================================================
 //  REDIRECCIÓN WWW → DOMINIO RAÍZ (GENÉRICO)

@@ -1,15 +1,28 @@
-
 const express = require('express');
 const pool = require('../db');
 const { generateContent } = require('../geminiService');
 const { authMiddleware } = require('../authMiddleware');
 const stripeService = require('../stripeService');
+/* */ /* Actualización: Importación de multer y path para gestión de archivos multipart/form-data - 28/05/2025 11:30 */
+const multer = require('multer');
+const path = require('path');
 
 ////////// Actualización: Importación de servicio Systeme.io para sincronización manual - 07/06/2025 19:40 //////////
 const systemeIoService = require('../systemeIoService');
 ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
 const router = express.Router();
+
+/* */ /* Actualización: Configuración de almacenamiento Multer para asignar nombres únicos y gestionar extensiones - 28/05/2025 11:30 */
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage });
+/* Fin de actualización - 28/05/2025 11:30 */
 
 // ======================================================
 //  LEGACY COMPATIBILITY
@@ -21,6 +34,19 @@ const router = express.Router();
 router.post('/login', (req, res) => {
     res.redirect(307, '/api/auth/login');
 });
+
+// ======================================================
+//  IMAGE UPLOAD
+// ======================================================
+
+/* */ /* Actualización: Creación del endpoint /upload para gestionar la subida de imágenes de los artículos - 28/05/2025 11:30 */
+router.post('/upload', authMiddleware, upload.single('image'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No se subió ningún archivo' });
+    // Construir URL pública basada en el host actual
+    const url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    res.json({ url });
+});
+/* Fin de actualización - 28/05/2025 11:30 */
 
 // ======================================================
 //  STRIPE CHECKOUT

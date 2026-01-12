@@ -219,7 +219,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     }
   };
 
-  /* */ /* Actualización: Implementación de generación directa de estructura desde el flujo manual, omitiendo el paso de selección de títulos - 06/03/2025 20:45 */
+  /* */ /* Actualización: Implementación de simulación de flujo para entorno local/mock. Se cargan datos de prueba (Esquema y Contenido) automáticamente si api.isUsingMockData() es true - 06/03/2025 22:20 */
   const handleManualGenerateOutline = async () => {
     if (!topic || !objective) return alert("Por favor completa el tema y el objetivo.");
     setLoading(true);
@@ -234,6 +234,24 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     setMetaTitle(topic);
     setMetaDescription(objective);
     setSlug(generateCleanSlug(topic));
+
+    // LÓGICA MODO MOCK/LOCAL
+    if (api.isUsingMockData()) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        const mockOutline = [
+            `H1: ${topic}`,
+            "H2: Introducción Estratégica",
+            "H2: Análisis del Mercado Actual",
+            "H3: Comportamiento del Consumidor",
+            "H3: Tendencias 2025",
+            "H2: Implementación Paso a Paso",
+            "H2: Conclusión y Resultados Esperados"
+        ];
+        setOutline(mockOutline);
+        setStep(4);
+        setLoading(false);
+        return;
+    }
 
     try {
       const generatedOutline = await generateArticleOutline(topic, objective);
@@ -277,6 +295,35 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const handleGenerateArticle = async () => {
     if (!selectedTitle) return;
     setLoading(true);
+
+    // LÓGICA MODO MOCK/LOCAL PARA GENERACIÓN DE CONTENIDO
+    if (api.isUsingMockData()) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const mockContent = `
+            <p>Este es un artículo de demostración generado automáticamente en modo local. El tema central es <strong>${articleTitle}</strong>.</p>
+            <h2>Introducción Estratégica</h2>
+            <p>La implementación de un sistema de contenidos optimizado es fundamental para cualquier estrategia de marketing digital que busque resultados a largo plazo.</p>
+            <h2>Análisis del Mercado Actual</h2>
+            <p>Actualmente, el consumidor busca valor inmediato y soluciones prácticas a sus problemas cotidianos.</p>
+            <h3>Comportamiento del Consumidor</h3>
+            <p>La atención es el activo más valioso. Los primeros párrafos deben capturar el interés de inmediato.</p>
+            <h3>Tendencias 2025</h3>
+            <p>La personalización masiva mediante IA será el estándar para la creación de contenido relevante.</p>
+            <h2>Implementación Paso a Paso</h2>
+            <p>Sigue los procesos definidos en la estructura para asegurar que el mensaje llegue a la audiencia correcta.</p>
+            <div style="text-align: center; margin: 40px 0;">
+                <a href="${ctaLink || '#'}" style="background-color: #FF5A1F; color: white; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; box-shadow: 0 10px 20px -5px rgba(255,90,31,0.4);">ADQUIRIR EL MÉTODO COMPLETO</a>
+            </div>
+            <h2>Conclusión</h2>
+            <p>No esperes a que el mercado cambie, sé tú quien lo lidere aplicando estas estrategias hoy mismo.</p>
+        `;
+        setArticleContent(mockContent);
+        setMetaDescription(`Descubre los secretos de ${articleTitle} y cómo aplicarlos en tu negocio para maximizar resultados este año.`);
+        setStep(5);
+        setLoading(false);
+        return;
+    }
+
     const projectContext = userProjects.find(p => p.id === selectedProject);
 
     try {
@@ -359,7 +406,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   }
 
   return (
-    <div className="max-w-5xl mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative">
+    /* */ /* Actualización: Expansión dinámica del ancho del contenedor en la fase de Redacción (Step 5) para optimizar el espacio de trabajo del editor y la barra lateral de SEO - 07/06/2025 21:00 */
+    <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step === 5 ? 'max-w-[98%] xl:max-w-[1600px]' : 'max-w-5xl'}`}>
       <UpgradeModal 
           isOpen={showUpgradeModal} 
           onClose={() => navigate('/dashboard/articles')} 
