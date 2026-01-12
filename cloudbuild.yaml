@@ -16,7 +16,6 @@ steps:
   # 3) Deploy a Cloud Run en europe-west1 (OJO: región cambiada)
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: gcloud
-    /* */ /* Actualización: Se añade el parámetro --timeout para prevenir errores de despliegue por arranque lento y se mantiene la configuración de Cloud SQL - 15/06/2024 10:45 */
     args:
       - "run"
       - "deploy"
@@ -28,8 +27,6 @@ steps:
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
-      - "--timeout"
-      - "600"
       - "--add-cloudsql-instances"
       - "gen-lang-client-0436624801:europe-southwest1:plataformadeventacom-sql"
 
