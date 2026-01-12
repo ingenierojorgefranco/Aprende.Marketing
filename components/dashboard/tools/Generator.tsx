@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
@@ -271,14 +270,14 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
         <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
           <Sparkles className="w-8 h-8 text-primary" />
         </div>
-        <h2 className="text-2xl font-bold text-white">Generador de Landing Pages IA</h2>
+        <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Landing Pages IA</h2>
         <div className="flex items-center justify-center gap-2 mt-4 text-sm">
            {/* Actualización: Paso 0 de visualización de progreso */}
-           <span className={`px-3 py-1 rounded-full ${step === 0 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
+           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 0 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
            <div className="w-4 h-px bg-gray-700"></div>
-           <span className={`px-3 py-1 rounded-full ${step === 1 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>1. Configuración</span>
+           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 1 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>1. Configuración</span>
            <div className="w-4 h-px bg-gray-700"></div>
-           <span className={`px-3 py-1 rounded-full ${step === 2 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>2. Estructura y Diseño</span>
+           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 2 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>2. Estructura y Diseño</span>
         </div>
       </div>
 
@@ -289,11 +288,11 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
           </div>
         )}
 
-        {/* */ /* Actualización: Rediseño completo del Paso 0 para unificar la estética con el creador de contenidos - 18/06/2024 11:30 */ }
+        {/* */ /* Actualización: Rediseño completo del Paso 0 para unificar la estética con el asistente de email, aplicando radios de [3rem], paddings p-10, línea de acento superior y botón de selección - 06/03/2025 11:30 */ }
         {step === 0 && (
           <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center">
               <div className="max-w-2xl mx-auto">
-                  <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight">
+                  <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500">
                         Selecciona tu Proyecto
                     </span>
@@ -303,40 +302,47 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                   </p>
               </div>
 
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
                   {userProjects.length > 0 ? (
                       userProjects.map((project) => (
-                          <button 
+                          <div 
                             key={project.id}
-                            onClick={() => {
-                                handleProjectSelect(project.id);
-                                setStep(1);
-                            }}
-                            className="p-8 bg-[#0B0B0B] border border-white/5 rounded-[2rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full"
+                            className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full"
                           >
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="p-3 bg-gray-800 rounded-2xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
-                                    <Briefcase className="w-6 h-6" />
+                            <div className="flex items-center gap-5 mb-8">
+                                <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors shadow-inner">
+                                    <Briefcase className="w-8 h-8" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="text-white font-bold text-lg group-hover:text-[#FF5A1F] transition-colors truncate">{project.name}</h4>
-                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black mt-1">{project.niche}</p>
+                                    <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors truncate">{project.name}</h4>
+                                    <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
                                 </div>
                             </div>
-                            {/* */ /* Actualización: Sincronización de visualización de descripción corta para priorizar el activo generado por IA en strategy_json - 25/06/2024 11:50 */ }
-                            <p className="text-sm text-gray-400 line-clamp-2 mb-6 flex-1">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '').substring(0, 120) + "..." : "Sin descripción.")}</p>
-                            <div className="flex items-center justify-end">
-                                <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-[#FF5A1F] transition-all group-hover:translate-x-1" />
+                            <div className="flex-1 mb-10">
+                                <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
+                                {/* Eliminación de truncamiento en descripción de proyecto para mostrar texto completo - 06/03/2025 15:30 */ }
+                                <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                    {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}
+                                </p>
                             </div>
-                          </button>
+                            <button 
+                                onClick={() => {
+                                    handleProjectSelect(project.id);
+                                    setStep(1);
+                                }}
+                                className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95"
+                            >
+                                Seleccionar <ChevronRight className="w-5 h-5" />
+                            </button>
+                          </div>
                       ))
                   ) : (
-                      <div className="md:col-span-3 py-20 bg-black/20 border border-dashed border-gray-800 rounded-[2rem] text-center">
-                          <p className="text-gray-500 mb-6">Aún no tienes proyectos creados para gestionar contenidos.</p>
+                      <div className="md:col-span-2 py-20 bg-black/20 border border-dashed border-gray-800 rounded-[3rem] text-center w-full">
+                          <p className="text-gray-500 mb-6 font-medium">Aún no tienes proyectos creados con estrategia.</p>
                           <button 
                             onClick={() => navigate('/dashboard/projects/create')}
-                            className="px-8 py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl font-bold transition-all shadow-lg shadow-[#FF5A1F]/20"
+                            className="px-8 py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20"
                           >
                             Crear mi primer proyecto
                           </button>
@@ -346,26 +352,17 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                   {userProjects.length > 0 && (
                       <button 
                         onClick={() => navigate('/dashboard/projects/create')}
-                        className="p-8 bg-transparent border-2 border-dashed border-gray-800 rounded-[2rem] text-gray-500 hover:text-white hover:border-gray-600 transition-all font-bold flex flex-col items-center justify-center gap-4 h-full group"
+                        className="p-10 bg-transparent border-2 border-dashed border-gray-800 rounded-[3rem] hover:border-gray-600 hover:text-white transition-all text-gray-500 group flex flex-col items-center justify-center gap-6 shadow-2xl min-h-[400px]"
                       >
-                        <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center group-hover:bg-gray-700 transition-colors">
-                            <Plus className="w-6 h-6 text-gray-400 group-hover:text-white" />
+                        <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center shadow-lg group-hover:bg-gray-700 transition-colors">
+                            <Plus className="w-8 h-8 text-gray-400 group-hover:text-white" />
                         </div>
-                        <span className="text-sm uppercase tracking-widest">Crear un nuevo proyecto</span>
+                        <div className="text-center">
+                            <h4 className="text-xl font-black uppercase tracking-widest">Crear un nuevo proyecto</h4>
+                            <p className="text-xs font-bold uppercase tracking-widest mt-2 opacity-60">Define un nuevo nicho o producto</p>
+                        </div>
                       </button>
                   )}
-              </div>
-
-              <div className="p-8 bg-blue-900/10 border border-blue-500/20 rounded-[2rem] flex items-start gap-6 max-w-2xl text-left shadow-xl">
-                  <div className="p-3 bg-blue-500/20 rounded-2xl">
-                    <Info className="w-6 h-6 text-blue-400 shrink-0" />
-                  </div>
-                  <div>
-                    <h5 className="text-white font-bold mb-1 text-lg">Importancia Estratégica</h5>
-                    <p className="text-sm text-gray-400 leading-relaxed font-medium">
-                        Al seleccionar un proyecto, la IA cargará automáticamente el avatar, los dolores y beneficios clave que definiste anteriormente. Esto garantiza que tu página esté 100% alineada con tu estrategia de ventas.
-                    </p>
-                  </div>
               </div>
           </div>
         )}

@@ -186,7 +186,7 @@ export const EmailSequenceWizard: React.FC = () => {
             newEmails[activeEmailIdx].isGenerated = true;
             newEmails[activeEmailIdx].contentHtml = generatedBody;
             
-            /* */ /* Actualización: Sincronización de llaves de API (content_html, is_generated) para persistencia correcta tras generación - 24/06/2024 16:50 */
+            /* */ /* Actualización: Sincronización de llaves de API (content_html, is_generated) para profesionalizar la persistencia tras generación - 24/06/2024 16:50 */
             await api.updateEmailMessage(newEmails[activeEmailIdx].id, { 
                 content_html: generatedBody, 
                 is_generated: true 
@@ -298,34 +298,49 @@ export const EmailSequenceWizard: React.FC = () => {
 
                         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
                             {projects.length > 0 ? (
-                                projects.map((project) => (
-                                    <div 
-                                        key={project.id}
-                                        className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full"
-                                    >
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                        <div className="flex items-center gap-5 mb-8">
-                                            <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors shadow-inner">
-                                                <Briefcase className="w-8 h-8" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors truncate">{project.name}</h4>
-                                                <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex-1 mb-10">
-                                            <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
-                                            {/* */ /* Actualización: Visualización de shortDescription en el selector de proyectos del asistente de email - 24/05/2024 16:20 */ }
-                                            <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '').substring(0, 150) + "..." : "Sin descripción.")}</p>
-                                        </div>
-                                        <button 
-                                            onClick={() => handleProjectSelect(project)}
-                                            className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95"
+                                <>
+                                    {projects.map((project) => (
+                                        <div 
+                                            key={project.id}
+                                            className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full"
                                         >
-                                            Seleccionar <ChevronRight className="w-5 h-5" />
-                                        </button>
-                                    </div>
-                                ))
+                                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                            <div className="flex items-center gap-5 mb-8">
+                                                <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors shadow-inner">
+                                                    <Briefcase className="w-8 h-8" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors truncate">{project.name}</h4>
+                                                    <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex-1 mb-10">
+                                                <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
+                                                {/* Eliminación de truncamiento en descripción de proyecto para mostrar texto completo - 06/03/2025 15:30 */ }
+                                                <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p>
+                                            </div>
+                                            <button 
+                                                onClick={() => handleProjectSelect(project)}
+                                                className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95"
+                                            >
+                                                Seleccionar <ChevronRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {/* */ /* Actualización: Incorporación de la tarjeta "Crear un nuevo proyecto" para unificar la experiencia con otros generadores - 27/05/2024 20:30 */ }
+                                    <button 
+                                        onClick={() => navigate('/dashboard/projects/create')}
+                                        className="p-10 bg-transparent border-2 border-dashed border-gray-800 rounded-[3rem] hover:border-gray-600 hover:text-white transition-all text-gray-500 group flex flex-col items-center justify-center gap-6 shadow-2xl min-h-[400px]"
+                                    >
+                                        <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center shadow-lg group-hover:bg-gray-700 transition-colors">
+                                            <Plus className="w-8 h-8 text-gray-400 group-hover:text-white" />
+                                        </div>
+                                        <div className="text-center">
+                                            <h4 className="text-xl font-black uppercase tracking-widest">Crear un nuevo proyecto</h4>
+                                            <p className="text-xs font-bold uppercase tracking-widest mt-2 opacity-60">Define un nuevo nicho o producto</p>
+                                        </div>
+                                    </button>
+                                </>
                             ) : (
                                 <div className="md:col-span-3 py-20 bg-black/20 border border-dashed border-gray-800 rounded-[2rem] text-center">
                                     <p className="text-gray-500 mb-6">Aún no tienes proyectos creados con estrategia.</p>

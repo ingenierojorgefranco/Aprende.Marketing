@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
@@ -175,7 +174,7 @@ export const ProjectsList: React.FC = () => {
                             onClick={() => navigate(`/dashboard/projects/edit/${project.id}`)}
                             className="bg-[#111] rounded-[2.5rem] border border-white/5 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl"
                         >
-                            {/* Accent Line - Unificado con Email Marketing */}
+                            {/* Accent Line - Unificado con el diseño global */}
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600 opacity-80"></div>
                             
                             <div className="p-8 flex-1 flex flex-col">
@@ -203,9 +202,10 @@ export const ProjectsList: React.FC = () => {
                                 </div>
                                 
                                 <h3 className="text-2xl font-black text-white mb-3 line-clamp-1 group-hover:text-[#FF5A1F] transition-colors duration-300">{project.name}</h3>
-                                <p className="text-lg font-medium text-gray-400 mb-8 line-clamp-2 min-h-[56px] leading-relaxed">
+                                {/* Eliminación de truncamiento en descripción de proyecto para mostrar texto completo - 06/03/2025 15:30 */ }
+                                <p className="text-lg font-medium text-gray-400 mb-8 min-h-[56px] leading-relaxed">
                                     {/* */ /* Actualización: Sincronización de visualización de descripción corta para priorizar el activo generado por IA en strategy_json y evitar HTML crudo - 25/06/2024 11:50 */ }
-                                    {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '').substring(0, 180) + "..." : "Sin descripción definida.")}
+                                    {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción definida.")}
                                 </p>
 
                                 <div className="mt-auto space-y-4 pt-6 border-t border-white/5">

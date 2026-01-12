@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
-import { ArrowLeft, GripVertical, Trash2, Link as LinkIcon, RefreshCw, Type } from 'lucide-react';
+import { LandingPage } from '../../../../types';
+import { ArrowLeft, GripVertical, Trash2, Link as LinkIcon, RefreshCw, Type, Globe } from 'lucide-react';
 
 interface Step3OutlineProps {
   outline: string[];
@@ -10,10 +10,14 @@ interface Step3OutlineProps {
   onGenerate: () => void;
   onBack: () => void;
   loading: boolean;
+  userPages: LandingPage[];
+  selectedPageId: string;
+  onSelectPage: (id: string) => void;
 }
 
 export const Step3Outline: React.FC<Step3OutlineProps> = ({
-  outline, setOutline, ctaLink, setCtaLink, onGenerate, onBack, loading
+  outline, setOutline, ctaLink, setCtaLink, onGenerate, onBack, loading,
+  userPages, selectedPageId, onSelectPage
 }) => {
   const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -189,10 +193,29 @@ export const Step3Outline: React.FC<Step3OutlineProps> = ({
             </button>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-gray-800">
-            <label className="block text-sm font-medium text-gray-300 mb-2">Enlace de Llamado a la Acción (CTA)</label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
+          {/* */ /* Actualización: Integración de selector de Landing Page en la fase de estructura para centralizar la vinculación de activos - 06/03/2025 21:30 */}
+          <div className="mt-12 pt-8 border-t border-gray-800 grid md:grid-cols-2 gap-8">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-emerald-500" /> Vincular a Landing Page
+              </label>
+              <select
+                value={selectedPageId}
+                onChange={(e) => onSelectPage(e.target.value)}
+                className="w-full bg-black border border-gray-700 rounded-lg py-2.5 px-4 text-white text-sm focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
+              >
+                {userPages.length !== 1 && <option value="">-- Seleccionar una página --</option>}
+                {userPages.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                <LinkIcon className="w-4 h-4 text-blue-500" /> Enlace de Llamado a la Acción (CTA)
+              </label>
+              <div className="relative">
                 <LinkIcon className="absolute top-3 left-3 w-4 h-4 text-gray-500" />
                 <input
                   type="text"
@@ -203,8 +226,8 @@ export const Step3Outline: React.FC<Step3OutlineProps> = ({
                 />
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">La IA insertará este enlace de forma natural en el contenido.</p>
           </div>
+          <p className="text-xs text-gray-500 mt-4 text-center italic">La IA insertará el enlace y vinculará el contenido a la página seleccionada para tu blog automático.</p>
         </div>
 
         <div className="p-6 bg-gray-800/30 border-t border-gray-800 flex justify-end">
