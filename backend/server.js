@@ -115,12 +115,13 @@ app.get('*', (req, res) => {
 // ======================================================
 //  SERVER STARTUP
 // ======================================================
+/* */ /* Actualización: Se independiza el arranque del servidor Express de la inicialización de la base de datos para abrir el puerto inmediatamente y evitar el error de timeout en Cloud Run - 15/06/2024 10:45 */
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
+});
+
 initDb().then(() => {
     console.log('✅ Base de datos inicializada correctamente.');
 }).catch(err => {
     console.error("⚠️ Error inicializando base de datos:", err.message);
-}).finally(() => {
-    app.listen(PORT, () => {
-      console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
-    });
 });
