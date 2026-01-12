@@ -359,6 +359,10 @@ const initDb = async () => {
         await addColumnSafe(connection, 'projects', "commission_rate DECIMAL(5,4) DEFAULT 0");
         await addColumnSafe(connection, 'projects', "lead_magnet_type VARCHAR(100)");
         await addColumnSafe(connection, 'projects', "sales_page_url VARCHAR(500)");
+        
+        /* */ /* Actualización: Eliminación de la creación de la columna redundante short_description en la tabla projects, centralizando su almacenamiento dentro de strategy_json - 25/06/2024 11:30 */
+        // await addColumnSafe(connection, 'projects', "short_description VARCHAR(255)");
+        /* Fin de actualización - 25/06/2024 11:30 */
 
         await addColumnSafe(connection, 'articles', "slug VARCHAR(255)");
         await addColumnSafe(connection, 'articles', "featured_image VARCHAR(500)");

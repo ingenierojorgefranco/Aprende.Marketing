@@ -137,7 +137,7 @@ const generateFullStrategy = async (projectData) => {
     2. Razón Emocional (emotional_reason): Cuál es el verdadero "para qué" profundo del deseo (ej: no es solo ganar dinero, es dejar de sentirse inferior ante su familia).
     3. Mecanismo Único (unique_mechanism): Inventa o identifica un concepto exclusivo para este producto que explique por qué funciona diferente a los demás (ej: El Sistema CEJAS-PRO 360).
     4. Matriz de Objeciones: Define razones por las que NO comprarían, incluyendo una descripción corta para chat y un "detail" más largo para FAQ.
-    5. Reglas 'Avoid': Identifica 4 palabras o frases cliché que la IA DEBE EVITAR para sonar profesional and diferente a la competencia.
+    5. Regrules 'Avoid': Identifica 4 palabras o frases cliché que la IA DEBE EVITAR para sonar profesional and diferente a la competencia.
 
     REGLAS TÉCNICAS:
     - Devuelve EXCLUSIVAMENTE el JSON válido. Sin markdown.
@@ -148,6 +148,7 @@ const generateFullStrategy = async (projectData) => {
     {
       "meta": {
         "projectName": "${productName}",
+        "shortDescription": "*/ Actualización: Genera un resumen de máximo 180 caracteres sin HTML ni markdown, altamente persuasivo para ser mostrado en una tarjeta de interfaz - 24/06/2024 16:20",
         "niche": "${niche}",
         "price": ${fullPrice},
         "commissionRate": ${commissionRate},

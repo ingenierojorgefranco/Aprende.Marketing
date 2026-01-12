@@ -1,3 +1,4 @@
+
 const express = require('express');
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
@@ -35,7 +36,7 @@ const checkMonthlyQuota = async (userId, resourceType, limit) => {
         WHERE user_id = ? 
           AND resource_type = ? 
           AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(created_at) = YEAR(CURRENT_DATE())
+          AND YEAR(CURRENT_DATE()) = YEAR(created_at)
     `, [userId, resourceType]);
 
     const used = rows[0].count;
@@ -101,7 +102,7 @@ router.post('/analyze-site', async (req, res) => {
         // Basic clean text (strip tags, scripts, styles)
         let cleanText = html
             .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
-            .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "")
+            .replace(/<style\b[^30]*>([\s\S]*?)<\/style>/gim, "")
             .replace(/<[^>]+>/g, ' ')
             .replace(/\s+/g, ' ')
             .trim();
@@ -178,6 +179,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+/* */ /* Actualización: Eliminación del campo short_description de la consulta INSERT, centralizando la descripción en el JSON de estrategia - 25/06/2024 11:30 */
 router.post('/', async (req, res) => {
   const {
     name, niche, description, targetAudience, brandTone,
@@ -230,6 +232,7 @@ router.post('/', async (req, res) => {
   }
 });
 
+/* */ /* Actualización: Eliminación del campo short_description de la consulta UPDATE para simplificar la persistencia de datos - 25/06/2024 11:30 */
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const {
@@ -297,6 +300,7 @@ router.delete('/:id', async (req, res) => {
 //  GENERACIÓN DE ESTRATEGIA CON IA
 // ======================================================
 
+/* */ /* Actualización: Ajuste del endpoint de generación estratégica para eliminar la actualización de la columna física redundante short_description - 25/06/2024 11:30 */
 router.post('/:id/generate-strategy', async (req, res) => {
     const { id } = req.params;
     try {
@@ -324,7 +328,10 @@ router.post('/:id/generate-strategy', async (req, res) => {
             salesPageUrl: project.sales_page_url
         });
 
-        await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), id]);
+        await pool.query(
+            'UPDATE projects SET strategy_json = ? WHERE id = ?', 
+            [JSON.stringify(strategyJson), id]
+        );
         res.json(strategyJson);
     } catch (e) {
         console.error("[Project Strategy Error]", e);

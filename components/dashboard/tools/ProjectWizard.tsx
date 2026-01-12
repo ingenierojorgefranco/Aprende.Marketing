@@ -118,7 +118,7 @@ export const ProjectWizard: React.FC = () => {
     const [loadingStatus, setLoadingStatus] = useState('');
     const [analyzing, setAnalyzing] = useState(false);
     
-    /* */ /* Actualización: Implementación de modal de confirmación previo al análisis de sitio por IA - 24/05/2024 19:15 */
+    /* */ /* Actualización: Confirmación de flujo de guardado sin campo shortDescription independiente, delegando su creación a la IA dentro de la estrategia - 25/06/2024 11:50 */
     const [showAnalyzeConfirm, setShowAnalyzeConfirm] = useState(false);
     
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);

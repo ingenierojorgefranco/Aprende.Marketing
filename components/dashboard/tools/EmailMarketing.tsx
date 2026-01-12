@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 /* Fin de actualización - 24/06/2024 15:15 */
 
 export const EmailMarketing: React.FC = () => {
-  /* */ /* Actualización: Header premium y sistema de navegación por pestañas - 01/01/2026 16:00 */
+  /* */ /* Actualización: Revisión de consistencia en el acceso a datos del proyecto para la gestión de secuencias - 25/06/2024 11:50 */
   
   /* */ /* Actualización: Inicialización de navigate - 24/06/2024 15:15 */
   const navigate = useNavigate();
@@ -193,7 +193,7 @@ export const EmailMarketing: React.FC = () => {
     <div className="space-y-10 animate-in fade-in duration-500 pb-20">
       
       {/* HEADER DE SECCIÓN */}
-      {/* */ /* Actualización: Reorganización del Header: Barra de límites a la izquierda con estilo premium (fondo traslúcido, borde definido y sombra interna), y botones de acción movidos a la derecha bajo el contador - 25/05/2024 18:15 */ }
+      {/* */ /* Actualización: Reorganización del Header: Barra de límites a la izquierda con estilo premium, y botones de acción movidos a la derecha bajo el contador - 25/05/2024 18:15 */ }
       <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-white/5 shadow-2xl">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF5A1F]/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
           <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
@@ -242,7 +242,6 @@ export const EmailMarketing: React.FC = () => {
               </div>
           </div>
       </div>
-      {/* Fin de actualización - 25/05/2024 18:15 */}
 
       {/* NAVEGACIÓN POR PESTAÑAS */}
       <div className="flex flex-wrap gap-4 border-b border-white/5 pb-2">
@@ -275,7 +274,6 @@ export const EmailMarketing: React.FC = () => {
         {/* PESTAÑA: SECUENCIAS */}
         {activeTab === 'sequence' && (
             <div className="space-y-8 animate-in slide-in-from-left-4">
-                {/* */ /* Actualización: Rediseño de lista de secuencias y metadatos (Creado Hace [X], Etiqueta Configurada) - 25/05/2024 18:15 */ }
                 {loadingSequences ? (
                     <div className="flex justify-center p-20 text-[#FF5A1F]"><Loader2 className="w-12 h-12 animate-spin" /></div>
                 ) : sequences.length > 0 ? (
@@ -292,7 +290,6 @@ export const EmailMarketing: React.FC = () => {
                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${seq.status === 'activa' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
                                                     {seq.status}
                                                 </span>
-                                                {/* */ /* Actualización: Fix de Fecha (Invalid Date) usando mapeo createdAt - 11/12/2024 15:50 */ }
                                                 <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Creado {seq.createdAt.toLocaleDateString()}</span>
                                             </div>
                                             <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2">
@@ -300,7 +297,6 @@ export const EmailMarketing: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    {/* */ /* Actualización: Inclusión de botón de eliminar (papelera) en esquina superior derecha de la tarjeta - 11/12/2024 15:55 */ }
                                     <div className="flex gap-2">
                                         <button 
                                             onClick={(e) => handleDeleteSequence(seq.id, e)}
@@ -316,14 +312,12 @@ export const EmailMarketing: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-6 flex-1">
-                                    {/* */ /* Actualización: Barra de progreso con etiquetas 'Día X' legibles, soporte de envoltura para texto y navegación dinámica por día corregida para incluir projectId - 25/05/2024 18:15 */ }
                                     <div className="bg-black/40 p-6 rounded-3xl border border-white/5">
                                         <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Progreso de la Estrategia (7 Días)</p>
                                         <div className="flex flex-wrap md:flex-nowrap justify-between items-center gap-2">
                                             {[0, 1, 2, 3, 4, 5, 6].map(day => (
                                                 <div 
                                                     key={day} 
-                                                    /* */ /* Actualización: Navegación dinámica corregida para incluir projectId correcto y posicionarse en el día seleccionado - 11/12/2024 16:00 */
                                                     onClick={() => navigate(`/dashboard/email/create?projectId=${seq.projectId}&day=${day}`)}
                                                     className={`flex-1 h-10 rounded-lg transition-all duration-500 flex items-center justify-center cursor-pointer hover:opacity-80 active:scale-95 min-w-[60px] ${seq.generatedDays.includes(day) ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-gray-800'}`}
                                                 >
@@ -332,13 +326,11 @@ export const EmailMarketing: React.FC = () => {
                                             ))}
                                         </div>
                                     </div>
-                                    {/* Fin de actualización - 25/05/2024 18:15 */}
                                 </div>
 
                                 {/* Acciones de la Tarjeta */}
                                 <div className="flex flex-col gap-3 mt-10">
                                     <button 
-                                        /* */ /* Actualización: Fix de URL para evitar parámetros undefined asegurando uso de projectId mapeado - 11/12/2024 16:05 */
                                         onClick={() => navigate(`/dashboard/email/create?projectId=${seq.projectId}`)}
                                         className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg"
                                     >
@@ -512,7 +504,6 @@ export const EmailMarketing: React.FC = () => {
                                 </button>
                             </div>
                         </div>
-                        {/* */ /* Actualización: Corrección de caracteres '>' por '&gt;' para evitar errores de compilación TS1382 - 24/05/2024 18:00 */ }
                         <div className="p-4 bg-blue-900/10 border border-blue-500/20 rounded-2xl flex items-start gap-4">
                             <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 shrink-0">
                                 <ExternalLink className="w-4 h-4" />
@@ -667,7 +658,6 @@ export const EmailMarketing: React.FC = () => {
                                       <h4 className="text-white font-black text-sm uppercase tracking-widest">Siguiente Paso: Automatización</h4>
                                   </div>
                                   <div className="p-6 space-y-4">
-                                      {/* */ /* Actualización: Corrección de caracteres '>' por '&gt;' para evitar errores de compilación TS1382 - 24/05/2024 18:00 */ }
                                       <p className="text-gray-300 text-xs leading-relaxed">Recuerda ir a <span className="text-white font-bold">Systeme.io &gt; Reglas de Automatización</span> para configurar que al añadir esta etiqueta, el contacto se inscriba a tu campaña de email.</p>
                                       <button onClick={() => setShowTagModal(false)} className="w-full py-4 bg-white text-black font-black text-sm uppercase tracking-widest rounded-xl hover:bg-gray-200 transition-all shadow-xl">Entendido</button>
                                   </div>

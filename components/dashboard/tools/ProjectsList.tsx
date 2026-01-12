@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { Project, User } from '../../../types';
@@ -203,7 +204,8 @@ export const ProjectsList: React.FC = () => {
                                 
                                 <h3 className="text-2xl font-black text-white mb-3 line-clamp-1 group-hover:text-[#FF5A1F] transition-colors duration-300">{project.name}</h3>
                                 <p className="text-lg font-medium text-gray-400 mb-8 line-clamp-2 min-h-[56px] leading-relaxed">
-                                    {project.description || "Sin descripción definida."}
+                                    {/* */ /* Actualización: Sincronización de visualización de descripción corta para priorizar el activo generado por IA en strategy_json y evitar HTML crudo - 25/06/2024 11:50 */ }
+                                    {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '').substring(0, 180) + "..." : "Sin descripción definida.")}
                                 </p>
 
                                 <div className="mt-auto space-y-4 pt-6 border-t border-white/5">
@@ -249,7 +251,7 @@ export const ProjectsList: React.FC = () => {
             />
 
             {showVideoModal && (
-                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300">
                     <div className="relative w-full max-w-4xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
                         <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
                             <h3 className="font-bold text-white flex items-center gap-2">

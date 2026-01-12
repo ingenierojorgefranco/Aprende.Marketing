@@ -315,7 +315,8 @@ export const EmailSequenceWizard: React.FC = () => {
                                         </div>
                                         <div className="flex-1 mb-10">
                                             <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
-                                            <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.description}</p>
+                                            {/* */ /* Actualización: Visualización de shortDescription en el selector de proyectos del asistente de email - 24/05/2024 16:20 */ }
+                                            <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '').substring(0, 150) + "..." : "Sin descripción.")}</p>
                                         </div>
                                         <button 
                                             onClick={() => handleProjectSelect(project)}

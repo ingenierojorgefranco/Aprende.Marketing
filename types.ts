@@ -402,7 +402,7 @@ export interface StrategyJSON {
     frustrations: string[];
     desires: string[];
     daily_manifestation: string; // Nuevo: Cómo se ve el dolor en el día a día
-    emotional_reason: string;    // Nuevo: El por qué emocional de su deseo
+    emotional_reason: string;    // Nuevo: El para qué emocional de su deseo
   };
   psychology: {
     emotionalTriggers: string[];
@@ -425,11 +425,13 @@ export interface StrategyJSON {
 }
 /* Fin de actualización - 15/06/2024 18:50 */
 
+/* */ /* Actualización: Ajuste de la interfaz Project para centralizar shortDescription dentro de la estrategia (strategy_json), eliminando su uso como columna independiente - 25/06/2024 11:30 */
 export interface Project {
   id: string;
   name: string; // e.g. "Curso de Uñas Pro"
   niche: string; // e.g. "Belleza / Manicure"
   description: string; // Internal description
+  shortDescription?: string; // */ Sigue presente para el frontend, pero poblado desde el JSON - 25/06/2024 11:30
   targetAudience: string; // "Mujeres de 25-40 años que quieren emprender"
   brandTone: string; // "Amigable, Profesional, Urgente"
   productName: string; // "Masterclass Uñas Premium"
@@ -451,6 +453,7 @@ export interface Project {
   
   createdAt: Date;
 }
+/* Fin de actualización - 25/06/2024 11:30 */
 
 // --- COURSE SYSTEM TYPES (LMS) ---
 

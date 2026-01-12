@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../../../services/geminiService';
 import { api } from '../../../services/api';
@@ -383,7 +382,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                                     <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black mt-1">{project.niche}</p>
                                 </div>
                             </div>
-                            <p className="text-sm text-gray-400 line-clamp-2 mb-6 flex-1">{project.description}</p>
+                            {/* */ /* Actualización: Visualización de shortDescription en el selector de proyectos del generador de contenidos - 24/05/2024 16:20 */ }
+                            <p className="text-sm text-gray-400 line-clamp-2 mb-6 flex-1">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '').substring(0, 120) + "..." : "Sin descripción.")}</p>
                             <div className="flex items-center justify-end">
                                 <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-purple-400 transition-all group-hover:translate-x-1" />
                             </div>

@@ -1,3 +1,4 @@
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -498,6 +499,7 @@ export const api = {
     ////////// Fin de actualización - 05/06/2025 21:15 //////////
   },
 
+  /* */ /* Actualización: Mapeo de shortDescription directamente desde el JSON de estrategia para centralizar activos generados por IA y eliminar dependencia de columna física redundante - 25/06/2024 11:30 */
   getProjects: async (): Promise<Project[]> => {
       if (isMockMode) return Promise.resolve([...localProjects]);
       if (apiCache.projects) return apiCache.projects;
@@ -506,23 +508,29 @@ export const api = {
           method: 'GET',
           headers: { ...getAuthHeaders() }
       });
-      const mapped = projects.map((p: any) => ({
-          ...p,
-          id: String(p.id),
-          painPoints: safeParseJsonList(p.pain_points),
-          keyBenefits: safeParseJsonList(p.key_benefits),
-          affiliateLinks: safeParseJsonList(p.affiliate_links),
-          strategy_json: safeJsonParse(p.strategy_json, 'proj.strategyJson'), 
-          targetAudience: p.target_audience || p.targetAudience,
-          brandTone: p.brand_tone || p.brandTone,
-          productName: p.product_name || p.productName,
-          mainGoal: p.main_goal || p.mainGoal,
-          salesPageUrl: p.sales_page_url || p.salesPageUrl,
-          fullPrice: p.full_price ? parseFloat(p.full_price) : (p.fullPrice || 0),
-          commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
-          leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
-          createdAt: new Date(p.created_at || p.createdAt)
-      }));
+      const mapped = projects.map((p: any) => {
+          const strategyObj = safeJsonParse(p.strategy_json, 'proj.strategyJson');
+          return {
+              ...p,
+              id: String(p.id),
+              painPoints: safeParseJsonList(p.pain_points),
+              keyBenefits: safeParseJsonList(p.key_benefits),
+              affiliateLinks: safeParseJsonList(p.affiliate_links),
+              strategy_json: strategyObj, 
+              targetAudience: p.target_audience || p.targetAudience,
+              brandTone: p.brand_tone || p.brandTone,
+              productName: p.product_name || p.productName,
+              /* Actualización: Extracción de shortDescription desde strategy_json - 25/06/2024 11:30 */
+              /* */ /* Corrección técnica: Uso de short_description (snake_case) como fallback para asegurar la lectura correcta de la columna de base de datos MySQL antes de la migración completa al JSON - 05/03/2025 15:15 */
+              shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
+              mainGoal: p.main_goal || p.mainGoal,
+              salesPageUrl: p.sales_page_url || p.salesPageUrl,
+              fullPrice: p.full_price ? parseFloat(p.full_price) : (p.fullPrice || 0),
+              commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
+              leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
+              createdAt: new Date(p.created_at || p.createdAt)
+          };
+      });
       apiCache.projects = mapped;
       return mapped;
   },
@@ -538,16 +546,20 @@ export const api = {
               method: 'GET',
               headers: getAuthHeaders()
           });
+          const strategyObj = safeJsonParse(p.strategy_json, 'proj.strategyJson');
           const mappedProject = {
               ...p,
               id: String(p.id),
               painPoints: safeParseJsonList(p.pain_points),
               keyBenefits: safeParseJsonList(p.key_benefits),
               affiliateLinks: safeParseJsonList(p.affiliate_links),
-              strategy_json: safeJsonParse(p.strategy_json, 'proj.strategyJson'),
+              strategy_json: strategyObj,
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
+              /* Actualización: Extracción de shortDescription desde strategy_json - 25/06/2024 11:30 */
+              /* */ /* Corrección técnica: Uso de short_description (snake_case) como fallback para asegurar la lectura correcta de la columna de base de datos MySQL antes de la migración completa al JSON - 05/03/2025 15:15 */
+              shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
               mainGoal: p.main_goal || p.mainGoal,
               salesPageUrl: p.sales_page_url || p.salesPageUrl,
               fullPrice: p.full_price ? parseFloat(p.full_price) : (p.fullPrice || 0),
@@ -561,6 +573,7 @@ export const api = {
           return null;
       }
   },
+  /* Fin de actualización - 25/06/2024 11:30 */
 
   getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy | null> => {
       if (isMockMode) return Promise.resolve(MOCK_MASTER_STRATEGY);
@@ -824,7 +837,9 @@ export const api = {
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
+                // Fix: meta_title -> metaTitle to match Article type
                 meta_title: article.metaTitle,
+                // Fix: meta_description -> metaDescription to match Article type
                 meta_description: article.metaDescription,
                 status: article.status,
                 published_at: article.publishedAt
@@ -1143,7 +1158,7 @@ export const api = {
         const method = plan.id ? 'PUT' : 'POST';
         const endpoint = plan.id ? `/admin/plans/${plan.id}` : '/admin/plans';
         // Fix: Explicit shorthand property assignment to avoid scope issues - 17/06/2025 10:30
-        await fetchWithFallback(endpoint, { method: method, headers: getAuthHeaders(), body: JSON.stringify(plan) });
+        const res = await fetchWithFallback(endpoint, { method: method, headers: getAuthHeaders(), body: JSON.stringify(plan) });
         clearCache('plans');
         clearCache('publicPlans');
     },
@@ -1173,7 +1188,7 @@ export const api = {
         return mapped;
     },
   
-    createContact: async (contact: Omit<CRMContact, 'id' | 'createdAt' | 'updatedAt' | 'lastContactedAt'>): Promise<CRMContact> => {
+  createContact: async (contact: Omit<CRMContact, 'id' | 'createdAt' | 'updatedAt' | 'lastContactedAt'>): Promise<CRMContact> => {
         if (isMockMode) {
             const newContact: CRMContact = { ...contact, id: `mock-crm-${Date.now()}`, lastContactedAt: undefined, createdAt: new Date(), updatedAt: new Date() };
             localCrmContacts.unshift(newContact);

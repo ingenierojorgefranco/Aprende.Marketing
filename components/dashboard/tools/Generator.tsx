@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
@@ -266,7 +267,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
           reason={`Has alcanzado el límite de ${user.planLimits?.maxLandings} páginas de tu plan ${user.planLimits?.planName}.`}
       />
 
-      <div className={`bg-primary/10 p-8 text-center border-b border-primary/10 ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
+      <div className={`bg-primary/10 p-8 text-center border-b border-primary/10 ${showUpgradeModal || loading ? 'opacity-30 pointer-events-none' : ''}`}>
         <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
           <Sparkles className="w-8 h-8 text-primary" />
         </div>
@@ -323,7 +324,8 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated }) => {
                                     <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black mt-1">{project.niche}</p>
                                 </div>
                             </div>
-                            <p className="text-sm text-gray-400 line-clamp-2 mb-6 flex-1">{project.description}</p>
+                            {/* */ /* Actualización: Sincronización de visualización de descripción corta para priorizar el activo generado por IA en strategy_json - 25/06/2024 11:50 */ }
+                            <p className="text-sm text-gray-400 line-clamp-2 mb-6 flex-1">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '').substring(0, 120) + "..." : "Sin descripción.")}</p>
                             <div className="flex items-center justify-end">
                                 <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-[#FF5A1F] transition-all group-hover:translate-x-1" />
                             </div>
