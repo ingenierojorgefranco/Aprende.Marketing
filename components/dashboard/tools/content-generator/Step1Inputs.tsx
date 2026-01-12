@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Project, LandingPage } from '../../../../types';
-import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight } from 'lucide-react';
+import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, Loader2, AlertTriangle } from 'lucide-react';
 
 interface Step1InputsProps {
   userProjects: Project[];
@@ -24,14 +24,114 @@ interface Step1InputsProps {
 export const Step1Inputs: React.FC<Step1InputsProps> = ({
   userProjects, selectedProject,
   userPages, selectedPageId, onSelectPage,
-  onGenerate, onSelectRecommendation, onBack
+  onGenerate, onSelectRecommendation, onBack, loading
 }) => {
-  /* */ /* Actualización: Implementación de flujo de selección (IA vs Manual) y rediseño de tarjetas de recomendación con jerarquía visual mejorada para títulos, descripciones en blanco y público objetivo - 06/03/2025 18:30 */
+  /* */ /* Actualización: Implementación de sub-estados para gestionar la fase de vinculación a Landing Page antes de proceder con el método de creación elegido - 06/03/2025 19:45 */
   const [selectionMode, setSelectionMode] = useState<'choice' | 'ia'>('choice');
+  const [selectionStage, setSelectionStage] = useState<'method' | 'landing'>('method');
+  const [methodChoice, setMethodChoice] = useState<'ia' | 'manual' | null>(null);
+  
+  const [confirmingRec, setConfirmingRec] = useState<any>(null);
+  const [isPreparing, setIsPreparing] = useState(false);
+  
   const activeProject = userProjects.find(p => p.id === selectedProject);
   const recommendations = activeProject?.strategy_json?.modules?.content || [];
 
+  const handleConfirmGeneration = () => {
+    if (confirmingRec) {
+      setIsPreparing(true);
+      onSelectRecommendation(confirmingRec);
+      setConfirmingRec(null);
+    }
+  };
+
+  /* */ /* Actualización: Lógica de selección de página para avanzar según el método de creación previamente elegido - 06/03/2025 19:45 */
+  const handlePageSelect = (pageId: string) => {
+    onSelectPage(pageId);
+    if (methodChoice === 'ia') {
+      setSelectionMode('ia');
+      setSelectionStage('method');
+    } else {
+      onGenerate();
+    }
+  };
+
+  if (isPreparing || loading) {
+    return (
+      <div className="max-w-4xl mx-auto py-20 flex flex-col items-center justify-center space-y-6 animate-in fade-in duration-500">
+        <div className="relative">
+          <div className="absolute -inset-4 bg-purple-500/20 rounded-full blur-xl animate-pulse"></div>
+          <Loader2 className="w-16 h-16 text-purple-500 animate-spin relative z-10" />
+        </div>
+        <div className="text-center space-y-2">
+          <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">generando estructura del articulo</h3>
+          <p className="text-gray-500 font-bold text-xs uppercase tracking-widest">Nuestra IA está organizando los puntos clave...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (selectionMode === 'choice') {
+    if (selectionStage === 'landing') {
+        return (
+            <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-right-4 duration-500 pb-12">
+                <div className="flex items-center justify-between">
+                    <button onClick={() => setSelectionStage('method')} className="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-bold transition">
+                        <ArrowLeft className="w-4 h-4" /> Volver a elegir método
+                    </button>
+                    <div className="flex items-center gap-3 bg-[#111] px-4 py-2 rounded-xl border border-white/5">
+                        <Briefcase className="w-4 h-4 text-[#FF5A1F]" />
+                        <span className="text-xs font-bold text-white uppercase tracking-widest">Proyecto: {activeProject?.name}</span>
+                    </div>
+                </div>
+
+                <div className="text-center space-y-4">
+                    <h2 className="text-4xl font-black text-white tracking-tight uppercase italic">¿En qué página deseas asignar este artículo?</h2>
+                    <p className="text-gray-400 text-lg leading-relaxed max-w-3xl mx-auto font-medium">
+                        Vincular tu contenido a una landing page es un paso estratégico vital. Esto permite que el sistema publique el artículo automáticamente en el blog de tu sitio web, aumentando la autoridad de tu dominio y mejorando significativamente tu posicionamiento en buscadores (SEO).
+                    </p>
+                </div>
+
+                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    {userPages.filter(p => p.projectId === selectedProject || !p.projectId).length > 0 ? (
+                        userPages.filter(p => p.projectId === selectedProject || !p.projectId).map((page) => (
+                            <div 
+                                key={page.id}
+                                className={`p-10 bg-[#0B0B0B] border rounded-[3rem] transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden ${selectedPageId === page.id ? 'border-[#FF5A1F] bg-[#FF5A1F]/5' : 'border-white/5 hover:border-white/20'}`}
+                            >
+                                <div className="flex items-center gap-5 mb-8">
+                                    <div className={`p-4 rounded-2xl transition-colors ${selectedPageId === page.id ? 'bg-[#FF5A1F] text-white' : 'bg-gray-800 text-gray-500 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F]'}`}>
+                                        <Globe className="w-8 h-8" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-white font-black text-2xl truncate">{page.name}</h4>
+                                        <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{page.subdomain}</p>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => handlePageSelect(page.id)}
+                                    className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95"
+                                >
+                                    Seleccionar y Continuar <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="md:col-span-2 py-20 bg-black/20 border border-dashed border-gray-800 rounded-[3rem] text-center">
+                            <p className="text-gray-500 mb-6">No tienes páginas creadas para este proyecto.</p>
+                            <button 
+                                onClick={() => handlePageSelect('')}
+                                className="px-8 py-3 bg-white/5 text-gray-300 font-bold rounded-xl border border-white/10"
+                            >
+                                Continuar sin vincular
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     return (
       <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
         <div className="flex items-center justify-between">
@@ -40,7 +140,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
           </button>
           <div className="flex items-center gap-3 bg-[#111] px-4 py-2 rounded-xl border border-white/5">
               <Briefcase className="w-4 h-4 text-purple-400" />
-              <span className="text-xs font-bold text-white uppercase tracking-widest">{activeProject?.name}</span>
+              <span className="text-xs font-bold text-white uppercase tracking-widest">Proyecto: {activeProject?.name}</span>
           </div>
         </div>
 
@@ -52,7 +152,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
         <div className="grid md:grid-cols-2 gap-8">
           {/* OPCIÓN A: RECOMENDACIONES IA */}
           <button 
-            onClick={() => setSelectionMode('ia')}
+            onClick={() => { setMethodChoice('ia'); setSelectionStage('landing'); }}
             className="group bg-[#0B0B0B] border border-white/10 rounded-[3rem] p-10 flex flex-col items-center text-center hover:border-purple-500/50 hover:bg-purple-500/5 transition-all duration-500 shadow-2xl relative overflow-hidden h-[400px] justify-center"
           >
             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -61,16 +161,16 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
             <div className="w-20 h-20 bg-purple-500/10 rounded-[2rem] flex items-center justify-center text-purple-400 mb-8 border border-purple-500/20 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all duration-500">
               <Sparkles className="w-10 h-10" />
             </div>
-            <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter">Estrategia de IA</h3>
-            <p className="text-gray-400 text-lg leading-relaxed">Usa las recomendaciones generadas por el sistema basadas en tu nicho y avatar.</p>
-            <div className="mt-8 flex items-center gap-2 text-purple-400 font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">
-              Ver sugerencias <ChevronRight className="w-4 h-4" />
+            <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter">CREACION AUTOMATICA</h3>
+            <p className="text-gray-400 text-lg leading-relaxed">Nuestra inteligencia artificial creará tu contenido con base en tu nicho y publico objetivo de tu proyecto.</p>
+            <div className="mt-8 flex items-center gap-2 text-white font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">
+              Clic para Seleccionar <ChevronRight className="w-4 h-4" />
             </div>
           </button>
 
           {/* OPCIÓN B: MANUAL */}
           <button 
-            onClick={onGenerate}
+            onClick={() => { setMethodChoice('manual'); setSelectionStage('landing'); }}
             className="group bg-[#0B0B0B] border border-white/10 rounded-[3rem] p-10 flex flex-col items-center text-center hover:border-blue-500/50 hover:bg-blue-500/5 transition-all duration-500 shadow-2xl relative overflow-hidden h-[400px] justify-center"
           >
             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -81,7 +181,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
             </div>
             <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter">Creación Manual</h3>
             <p className="text-gray-400 text-lg leading-relaxed">Define tu propio tema, palabra clave y objetivo desde cero sin restricciones.</p>
-            <div className="mt-8 flex items-center gap-2 text-blue-400 font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">
+            <div className="mt-8 flex items-center gap-2 text-white font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">
               Configurar ahora <ChevronRight className="w-4 h-4" />
             </div>
           </button>
@@ -91,15 +191,43 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 pb-12">
+    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 pb-12 relative">
       
+      {confirmingRec && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col p-8 text-center space-y-6">
+            <div className="w-16 h-16 bg-purple-500/20 text-purple-500 rounded-2xl flex items-center justify-center mx-auto border border-purple-500/30">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-white uppercase tracking-tight">estas seguro de generar este articulo?</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">Vas a consumir créditos al momento de crearlo. La IA redactará una estructura profesional basada en esta sugerencia.</p>
+            </div>
+            <div className="flex flex-col gap-3 pt-4">
+              <button 
+                onClick={handleConfirmGeneration}
+                className="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white font-black rounded-xl transition-all shadow-lg shadow-purple-900/20 uppercase text-xs tracking-widest"
+              >
+                Sí, Generar Ahora
+              </button>
+              <button 
+                onClick={() => setConfirmingRec(null)}
+                className="w-full py-4 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-xl transition-all text-xs uppercase tracking-widest"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
           <button onClick={() => setSelectionMode('choice')} className="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-bold transition">
             <ArrowLeft className="w-4 h-4" /> Volver a opciones
           </button>
           <div className="flex items-center gap-3 bg-[#111] px-4 py-2 rounded-xl border border-white/5">
               <Briefcase className="w-4 h-4 text-purple-400" />
-              <span className="text-xs font-bold text-white uppercase tracking-widest">{activeProject?.name}</span>
+              <span className="text-xs font-bold text-white uppercase tracking-widest">Proyecto: {activeProject?.name}</span>
           </div>
       </div>
 
@@ -112,7 +240,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
           {recommendations.length > 0 ? recommendations.map((rec: any, idx: number) => (
               <button 
                 key={idx}
-                onClick={() => onSelectRecommendation(rec)}
+                onClick={() => setConfirmingRec(rec)}
                 className="w-full text-left p-10 bg-[#0B0B0B] border border-white/10 rounded-[3rem] hover:border-purple-500/50 hover:bg-purple-500/5 transition-all group flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden"
               >
                 <div className="absolute top-0 left-0 w-2 h-full bg-purple-500 opacity-20 group-hover:opacity-100 transition-opacity"></div>
@@ -131,13 +259,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
 
                     <div className="flex flex-wrap gap-4 items-center">
                         <span className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 bg-white/5 px-4 py-2 rounded-xl border border-white/5 shadow-inner">
-                            <Search className="w-4 h-4 text-purple-400" /> <span className="text-gray-500 mr-1">Keyword:</span> <span className="text-white">{rec.keyword}</span>
-                        </span>
-                        <span className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 bg-white/5 px-4 py-2 rounded-xl border border-white/5 shadow-inner">
-                            <Users className="w-4 h-4 text-blue-400" /> <span className="text-gray-500 mr-1">Público:</span> <span className="text-white truncate max-w-[200px]">{activeProject?.targetAudience}</span>
-                        </span>
-                        <span className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 bg-white/5 px-4 py-2 rounded-xl border border-white/5 shadow-inner">
-                            <Target className="w-4 h-4 text-emerald-400" /> <span className="text-gray-500 mr-1">Dificultad:</span> <span className="text-white">{rec.difficulty}%</span>
+                            <Search className="w-4 h-4 text-purple-400" /> <span className="text-gray-500 mr-1">Palabra clave:</span> <span className="text-white">{rec.keyword}</span>
                         </span>
                     </div>
                 </div>
@@ -152,33 +274,6 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
                   <button onClick={() => setSelectionMode('choice')} className="mt-6 text-purple-400 font-bold hover:underline">Volver a opciones</button>
               </div>
           )}
-      </div>
-
-      {/* FOOTER SETTINGS (Publicar en Page) */}
-      <div className="max-w-xl mx-auto pt-10">
-          <div className="bg-[#111] p-6 rounded-3xl border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
-              <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-400">
-                      <Globe className="w-5 h-5" />
-                  </div>
-                  <div>
-                      <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Publicar en</p>
-                      <p className="text-white font-bold text-sm truncate max-w-[200px]">
-                          {userPages.find(p => p.id === selectedPageId)?.name || 'Selecciona una Landing'}
-                      </p>
-                  </div>
-              </div>
-              <select
-                value={selectedPageId}
-                onChange={(e) => onSelectPage(e.target.value)}
-                className="bg-black border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs font-bold uppercase tracking-widest focus:border-green-500 outline-none cursor-pointer"
-              >
-                <option value="">-- Sin vincular --</option>
-                {userPages.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-          </div>
       </div>
 
     </div>

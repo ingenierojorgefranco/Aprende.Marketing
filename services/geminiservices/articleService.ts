@@ -1,4 +1,3 @@
-
 // Refactorización: Creación de servicio para artículos SEO - 22/05/2024 14:30
 import { callGeminiBackend, Type } from "./base";
 import { Project } from "../../types";
@@ -47,11 +46,17 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
 };
 
 export const generateArticleOutline = async (title: string, objective: string): Promise<string[]> => {
+    /* */ /* Actualización: Ajuste del prompt para forzar la generación de una estructura SEO robusta con entre 5 y 7 encabezados H2 y al menos 3 encabezados H3 para maximizar el impacto y autoridad del contenido - 24/05/2024 20:30 */
     const prompt = `Actúa como un arquitecto de contenido SEO experto.
     Crea una estructura (outline) OBLIGATORIA para un artículo de blog titulado: "${title}".
     Objetivo: "${objective}".
     
-    DEBES SEGUIR ESTRICTAMENTE ESTA ESTRUCTURA:
+    REGLAS ESTRUCTURALES ESTRICTAS:
+    1. Genera obligatoriamente entre 5 y 7 encabezados H2 que actúen como pilares del contenido.
+    2. Genera un mínimo de 3 encabezados H3 distribuidos estratégicamente dentro de los H2 más extensos para desglosar subtemas.
+    3. La estructura debe ser jerárquica y lógica para facilitar la lectura.
+
+    FORMATO DE RESPUESTA:
     1. H1: [Título Principal]
     2. H2: [Título de Atención]
     3. H3: [Subtítulos]

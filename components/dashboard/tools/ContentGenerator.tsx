@@ -3,7 +3,7 @@ import { generateArticleTitles, generateArticleOutline, generateFullArticle, Art
 import { api } from '../../../services/api';
 import { Article, Project, LandingPage, User } from '../../../types';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers } from 'lucide-react';
+import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 // Importing Sub-Components from relative sibling folder
@@ -40,6 +40,9 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [topic, setTopic] = useState('');
   const [objective, setObjective] = useState('');
   const [keyword, setKeyword] = useState('');
+
+  /* */ /* Actualización: Se añade estado showManualConfirm para gestionar la validación de créditos antes de disparar la IA en el flujo personalizado - 24/05/2024 20:45 */
+  const [showManualConfirm, setShowManualConfirm] = useState(false);
 
   const [userProjects, setUserProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('');
@@ -219,9 +222,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     }
   };
 
-  /* */ /* Actualización: Implementación de simulación de flujo para entorno local/mock. Se cargan datos de prueba (Esquema y Contenido) automáticamente si api.isUsingMockData() es true - 06/03/2025 22:20 */
-  const handleManualGenerateOutline = async () => {
+  /* */ /* Actualización: Se separa la lógica de generación manual en una función de ejecución tras confirmación, solicitando aprobación mediante modal antes de consumir créditos - 24/05/2024 20:45 */
+  const handleManualGenerateOutline = () => {
     if (!topic || !objective) return alert("Por favor completa el tema y el objetivo.");
+    setShowManualConfirm(true);
+  };
+
+  const executeManualGenerateOutline = async () => {
+    setShowManualConfirm(false);
     setLoading(true);
     
     // Preparar metadatos iniciales basados en el título manual
@@ -242,10 +250,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
             `H1: ${topic}`,
             "H2: Introducción Estratégica",
             "H2: Análisis del Mercado Actual",
-            "H3: Comportamiento del Consumidor",
-            "H3: Tendencias 2025",
+            "H3: Comportamiento del Consumidor Moderno",
+            "H3: Tendencias Tecnológicas 2025",
+            "H2: Pilares de una Estrategia de Éxito",
+            "H3: Optimización de Procesos Internos",
             "H2: Implementación Paso a Paso",
-            "H2: Conclusión y Resultados Esperados"
+            "H3: Herramientas de Control y Seguimiento",
+            "H2: Casos de Estudio y Resultados Reales",
+            "H2: Conclusión y Próximos Pasos"
         ];
         setOutline(mockOutline);
         setStep(4);
@@ -536,7 +548,36 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
         {step === 2 && (
            <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-              <button onClick={() => setStep(1)} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm font-bold">
+              {/* */ /* Actualización: Se añade modal de confirmación de créditos para el flujo manual, replicando el comportamiento de seguridad de las recomendaciones de IA - 06/03/2025 19:45 */ }
+              {showManualConfirm && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col p-8 text-center space-y-6">
+                        <div className="w-16 h-16 bg-blue-500/20 text-blue-500 rounded-2xl flex items-center justify-center mx-auto border border-blue-500/30">
+                            <AlertTriangle className="w-8 h-8" />
+                        </div>
+                        <div className="space-y-2">
+                            <h3 className="text-xl font-bold text-white uppercase tracking-tight">¿Estás seguro de generar esta estructura?</h3>
+                            <p className="text-gray-400 text-sm leading-relaxed">Vas a consumir créditos al momento de crearlo. La IA redactará una estructura profesional basada en tu tema y objetivos manuales.</p>
+                        </div>
+                        <div className="flex flex-col gap-3 pt-4">
+                            <button 
+                                onClick={executeManualGenerateOutline}
+                                className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl transition-all shadow-lg shadow-blue-900/20 uppercase text-xs tracking-widest"
+                            >
+                                Sí, Generar Ahora
+                            </button>
+                            <button 
+                                onClick={() => setShowManualConfirm(false)}
+                                className="w-full py-4 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-xl transition-all text-xs uppercase tracking-widest"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+              )}
+
+              <button onClick={() => setStep(1)} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm font-bold transition">
                   <ChevronRight className="w-4 h-4 rotate-180" /> Volver al selector
               </button>
               <div className="bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl space-y-8">
@@ -551,15 +592,15 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                   </div>
 
                   <div className="space-y-6">
-                      {/* */ /* Actualización: Remoción del selector de Landing Page del flujo manual para transferirlo a la fase de estructura unificada - 06/03/2025 21:30 */}
                       <div>
                           <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Tema o Título Tentativo</label>
+                          {/* */ /* Actualización: Se implementa placeholder dinámico que prioriza una de las recomendaciones del proyecto activo como ejemplo de prueba - 06/03/2025 19:45 */ }
                           <input
                               type="text"
                               value={topic}
                               onChange={(e) => setTopic(e.target.value)}
                               className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
-                              placeholder="Ej: Tendencias de Microblading 2024"
+                              placeholder={userProjects.find(p => p.id === selectedProject)?.strategy_json?.modules?.content?.[0]?.title || "Ej: Cómo escalar tu negocio de belleza con estrategias de Inteligencia Artificial"}
                           />
                       </div>
 
