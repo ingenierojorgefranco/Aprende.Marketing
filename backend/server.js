@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-const fs = require('fs');
 
 const initDb = require('./initDb');
 
@@ -21,14 +20,7 @@ const systemRoutes = require('./routes/systemRoutes');
 const app = express();
 const PORT = process.env.PORT || 8080;
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v30_cloudrun_writable_fix'; 
-
-// ======================================================
-//  HEALTH CHECK (PARA GOOGLE CLOUD LOAD BALANCER)
-// ======================================================
-app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'ok', version: SERVER_VERSION });
-});
+const SERVER_VERSION = 'v29_clean_modular'; 
 
 app.enable('trust proxy');
 app.use(cors());
@@ -36,10 +28,12 @@ app.use(cors());
 // ======================================================
 //  WEBHOOKS (MUST BE BEFORE GLOBAL BODY PARSERS)
 // ======================================================
+////////// Actualización: Asegurando la carga de webhooks antes de los parsers globales para soporte de HMAC SHA256 - 27/06/2025 11:45 //////////
 app.use('/api', webhookRoutes);
+////////// Fin de actualización - 27/06/2025 11:45 //////////
 
 // ======================================================
-//  GLOBAL MIDDLEWARE
+//  GLOBAL MIDDLEWARE (Body Parsers)
 // ======================================================
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -47,45 +41,42 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 // ======================================================
-//  CONFIGURACIÓN DE SUBIDAS (UPLOADS) EN /tmp
-//  IMPORTANTE: Cloud Run solo permite escritura en /tmp
-// ======================================================
-const uploadDir = '/tmp/uploads'; 
-try {
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-        console.log(`✅ Directorio de subidas creado en: ${uploadDir}`);
-    }
-} catch (err) {
-    console.error(`⚠️ Error crítico creando directorio en /tmp: ${err.message}`);
-}
-app.use('/uploads', express.static(uploadDir));
-
-// ======================================================
-//  MULTI-TENANT & REDIRECCIONES
+//  REDIRECCIÓN WWW → DOMINIO RAÍZ (GENÉRICO)
 // ======================================================
 app.use((req, res, next) => {
   const host = req.hostname || req.headers.host || '';
   if (host.startsWith('www.')) {
-    const newHost = host.slice(4);
-    return res.redirect(301, `https://${newHost}${req.originalUrl || ''}`);
+    const newHost = host.slice(4); // Removemos 'www.'
+    const targetUrl = `https://${newHost}${req.originalUrl || ''}`;
+    return res.redirect(301, targetUrl);
   }
   next();
 });
 
+// ======================================================
+//  MULTI-TENANT: DETECTAR SUBDOMINIO
+// ======================================================
 app.use((req, res, next) => {
   const host = req.hostname || req.headers.host || '';
   let tenant = null;
-  if (host !== BASE_DOMAIN && host !== `www.${BASE_DOMAIN}` && host.endsWith(`.${BASE_DOMAIN}`)) {
+
+  try {
+    if (host === BASE_DOMAIN || host === `www.${BASE_DOMAIN}`) {
+      tenant = null;
+    } else if (host.endsWith(`.${BASE_DOMAIN}`)) {
       const sub = host.replace(`.${BASE_DOMAIN}`, '');
       tenant = sub.split('.')[0];
+    }
+  } catch (e) {
+    tenant = null;
   }
+
   req.tenantSubdomain = tenant;
   next();
 });
 
 // ======================================================
-//  ROUTES
+//  ROUTES MOUNTING (MODULAR INFRASTRUCTURE)
 // ======================================================
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -97,32 +88,29 @@ app.use('/api', crmRoutes);
 app.use('/api', systemRoutes);
 
 // ======================================================
-//  STATIC FILES (FRONTEND)
+//  STATIC FILES & SPA FALLBACK
 // ======================================================
 const frontendDistPath = path.join(__dirname, '..', 'dist');
 app.use(express.static(frontendDistPath));
 
 app.get('*', (req, res) => {
+  // If it's an API request that wasn't caught, return 404
   if (req.path.startsWith('/api')) {
-      return res.status(404).json({ error: 'API Endpoint Not Found' });
+      return res.status(404).json({ error: 'API Endpoint Not Found', version: SERVER_VERSION });
   }
+  // Otherwise serve index.html for React Router
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
 // ======================================================
 //  SERVER STARTUP
 // ======================================================
-const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
-    
-    // Inicialización asíncrona de la DB para no bloquear el puerto
-    initDb().then(() => {
-        console.log('✅ Base de datos lista.');
-    }).catch(err => {
-        console.error("⚠️ Error DB:", err.message);
+initDb().then(() => {
+    console.log('✅ Base de datos inicializada correctamente.');
+}).catch(err => {
+    console.error("⚠️ Error inicializando base de datos:", err.message);
+}).finally(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
     });
 });
-
-// Optimizaciones de conexión para Cloud Run
-server.keepAliveTimeout = 65000;
-server.headersTimeout = 66000;

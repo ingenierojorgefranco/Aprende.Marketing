@@ -1,9 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArticleTitleIdea } from '../../../../services/geminiService';
 import { LandingPage } from '../../../../types';
-/* */ /* Actualización: Importación del icono Upload de lucide-react para el botón de subida local - 28/05/2025 11:30 */
-import { FileText, Save, Copy, Download, RefreshCw, Globe, BarChart, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Undo, Redo, Type, Palette, Eraser, Heading2, Heading3, Check, X, Calendar, Search, ArrowLeft, ExternalLink, Upload, Loader2 } from 'lucide-react';
-import { api } from '../../../../services/api';
+import { FileText, Save, Copy, Download, RefreshCw, Globe, BarChart, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Undo, Redo, Type, Palette, Eraser, Heading2, Heading3, Check, X, Calendar, Search, ArrowLeft, ExternalLink } from 'lucide-react';
 
 interface Step4EditorProps {
   articleContent: string;
@@ -53,14 +51,10 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
   /* */ /* Actualización: Ajuste de ancho de barra lateral de lg:w-80 a lg:w-[420px], incremento de legibilidad en tipografía (text-sm/bold), mayor espaciado entre bloques (space-y-8) y optimización visual del checklist SEO para mejorar la experiencia de redacción - 07/06/2025 21:15 */
   const editorRef = useRef<HTMLDivElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
-  /* */ /* Actualización: Referencia para el input de archivo oculto - 28/05/2025 11:30 */
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [wordCount, setWordCount] = useState(0);
   const [showSourceCode, setShowSourceCode] = useState(false);
   const [activeFormats, setActiveFormats] = useState<string[]>([]);
   const [seoChecklist, setSeoChecklist] = useState<SeoCheckItem[]>([]);
-  /* */ /* Actualización: Estado para controlar el proceso de subida de imagen - 28/05/2025 11:30 */
-  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Initialize Editor Content
   useEffect(() => {
@@ -271,23 +265,6 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
     fileDownload.click();
     document.body.removeChild(fileDownload);
   };
-
-  /* */ /* Actualización: Manejador para el proceso de subida de archivos binarios y actualización de la previsualización - 28/05/2025 11:30 */
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingImage(true);
-    try {
-        const result = await api.uploadImage(file);
-        setFeaturedImage(result.url);
-    } catch (err) {
-        alert("Error al subir la imagen. Verifica el formato y tamaño.");
-    } finally {
-        setUploadingImage(false);
-    }
-  };
-  /* Fin de actualización - 28/05/2025 11:30 */
 
   // SEO Score Color
   const validSeoScore = isNaN(seoScore) ? 0 : seoScore;
@@ -521,46 +498,20 @@ export const Step4Editor: React.FC<Step4EditorProps> = ({
                 />
                 </div>
 
-                {/* */ /* Actualización: Sustitución del input de texto de imagen por un selector de archivo local con previsualización inmediata - 28/05/2025 11:30 */ }
                 {/* 7. Featured Image */}
                 <div>
-                    <label className="text-sm font-bold text-gray-400 block mb-2">Imagen Destacada</label>
-                    <div className="flex gap-4">
-                        <div className="flex-1 space-y-3">
-                            <input
-                                type="text"
-                                value={featuredImage}
-                                onChange={(e) => setFeaturedImage(e.target.value)}
-                                placeholder="URL o sube una imagen..."
-                                className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500"
-                            />
-                            
-                            <input 
-                                type="file" 
-                                ref={fileInputRef} 
-                                onChange={handleImageUpload} 
-                                className="hidden" 
-                                accept="image/*" 
-                            />
-                            
-                            <button 
-                                type="button"
-                                onClick={() => fileInputRef.current?.click()}
-                                disabled={uploadingImage}
-                                className="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-black uppercase tracking-widest transition flex items-center justify-center gap-2 border border-gray-700 shadow-lg disabled:opacity-50"
-                            >
-                                {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                                {uploadingImage ? 'Subiendo...' : 'Seleccionar Imagen Local'}
-                            </button>
-                        </div>
-                        {featuredImage && (
-                            <div className="shrink-0">
-                                <img src={featuredImage} className="w-20 h-20 rounded-2xl object-cover border-2 border-gray-700 bg-black shadow-xl" alt="Preview" />
-                            </div>
-                        )}
-                    </div>
+                <label className="text-sm font-bold text-gray-400 block mb-2">Imagen Destacada (URL)</label>
+                <div className="flex gap-3">
+                    <input
+                    type="text"
+                    value={featuredImage}
+                    onChange={(e) => setFeaturedImage(e.target.value)}
+                    placeholder="https://..."
+                    className="w-full bg-black border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500"
+                    />
+                    {featuredImage && <img src={featuredImage} className="w-10 h-10 rounded-lg object-cover border border-gray-700 bg-black" alt="Preview" />}
                 </div>
-                {/* Fin de actualización - 28/05/2025 11:30 */}
+                </div>
 
                 {/* Meta Description Input */}
                 <div>

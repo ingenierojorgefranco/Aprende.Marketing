@@ -1,3 +1,4 @@
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -351,25 +352,6 @@ export const api = {
           body: JSON.stringify({ planSlug })
       });
   },
-
-  /* */ /* Actualización: Implementación de subida de imágenes a disco mediante FormData para soporte de imágenes locales en artículos - 28/05/2025 11:30 */
-  uploadImage: async (file: File): Promise<{ url: string }> => {
-      if (isMockMode) {
-          return Promise.resolve({ url: URL.createObjectURL(file) });
-      }
-      const formData = new FormData();
-      formData.append('image', file);
-      const res = await fetch(`${API_URL}/upload`, {
-          method: 'POST',
-          headers: {
-              'Authorization': `Bearer ${localStorage.getItem('plataformadeventacom_token')}`
-          },
-          body: formData
-      });
-      if (!res.ok) throw new Error("Error subiendo imagen");
-      return await res.json();
-  },
-  /* Fin de actualización - 28/05/2025 11:30 */
 
   submitLead: async (data: { pageId: string; name: string; email: string; phone?: string }): Promise<void> => {
       if (isMockMode) {
