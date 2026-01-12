@@ -22,7 +22,7 @@ const systemRoutes = require('./routes/systemRoutes');
 const app = express();
 const PORT = process.env.PORT || 8080;
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'aprende.marketing';
-const SERVER_VERSION = 'v29_clean_modular'; 
+const SERVER_VERSION = 'v29_hotfix_cloudrun'; 
 
 app.enable('trust proxy');
 app.use(cors());
@@ -113,14 +113,26 @@ app.get('*', (req, res) => {
 });
 
 // ======================================================
-//  SERVER STARTUP
+//  SERVER STARTUP (OPTIMIZED FOR CLOUD RUN)
 // ======================================================
-initDb().then(() => {
-    console.log('✅ Base de datos inicializada correctamente.');
-}).catch(err => {
-    console.error("⚠️ Error inicializando base de datos:", err.message);
-}).finally(() => {
-    app.listen(PORT, () => {
-      console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
+/**
+ * Priorizamos app.listen() para que Cloud Run detecte el puerto abierto de inmediato.
+ * La base de datos se inicializa de forma asíncrona en segundo plano.
+ */
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
+    
+    // Inicialización asíncrona de la DB
+    initDb().then(() => {
+        console.log('✅ Base de datos inicializada correctamente.');
+    }).catch(err => {
+        console.error("⚠️ Error inicializando base de datos:", err.message);
     });
 });
+
+/**
+ * Ajustes de Timeout para Google Cloud Load Balancer.
+ * Ayuda a prevenir errores 502/504 en conexiones de larga duración.
+ */
+server.keepAliveTimeout = 65000; // Un poco más que el timeout del LB (60s)
+server.headersTimeout = 66000;
