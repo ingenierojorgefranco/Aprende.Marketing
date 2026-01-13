@@ -548,7 +548,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
         {step === 2 && (
            <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-              {/* */ /* Actualización: Se añade modal de confirmación de créditos para el flujo manual, replicando el comportamiento de seguridad de las recomendaciones de IA - 06/03/2025 19:45 */ }
+              {/* */ /* Actualización: Se añade modal de confirmación de créditos para el flujo manual, replicando el comportamiento de seguridad de las recomendaciones de IA - 24/05/2024 20:45 */ }
               {showManualConfirm && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col p-8 text-center space-y-6">
@@ -577,7 +577,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                 </div>
               )}
 
-              <button onClick={() => setStep(1)} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm font-bold transition">
+              <button onClick={() => setStep(1)} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm font-bold">
                   <ChevronRight className="w-4 h-4 rotate-180" /> Volver al selector
               </button>
               <div className="bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl space-y-8">
@@ -594,7 +594,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                   <div className="space-y-6">
                       <div>
                           <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Tema o Título Tentativo</label>
-                          {/* */ /* Actualización: Se implementa placeholder dinámico que prioriza una de las recomendaciones del proyecto activo como ejemplo de prueba - 06/03/2025 19:45 */ }
+                          {/* */ /* Actualización: Se implementa placeholder dinámico que prioriza una de las recomendaciones del proyecto activo como ejemplo de prueba - 24/05/2024 20:45 */ }
                           <input
                               type="text"
                               value={topic}
