@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, ClipboardList, Sparkles } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 interface ProjectStrategy_HeaderProps {
     projectName: string;
@@ -16,50 +16,6 @@ export const ProjectStrategy_Header: React.FC<ProjectStrategy_HeaderProps> = ({ 
                     <button id="psd-topbar-back-btn" onClick={onBack} className="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-medium transition group">
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver a Proyectos
                     </button>
-                </div>
-            </div>
-
-            {/* --- HERO HEADER: COMMAND CENTER AESTHETIC --- */}
-            <div id="psd-hero-container" className="relative bg-[#020202] border-b border-white/5 py-32 overflow-hidden">
-                
-                {/* Visual Background Layers */}
-                <div className="absolute inset-0 pointer-events-none">
-                    {/* Technical Grid */}
-                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:45px_45px] opacity-[0.08]"></div>
-                    
-                    {/* Radial Deep Glow */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#1e1e2e_0%,transparent_70%)] opacity-40"></div>
-                    
-                    {/* Focal Light Effect */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-indigo-500/5 blur-[120px] rounded-full"></div>
-                </div>
-
-                <div id="psd-hero-content" className="relative z-10 max-w-[1400px] mx-auto px-6 text-center space-y-10">
-                    
-                    {/* 1. STRATEGIC BADGE */}
-                    <div id="psd-hero-badge-wrapper" className="flex justify-center">
-                        <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 to-blue-500/10 border border-indigo-500/20 shadow-[0_0_20px_rgba(99,102,241,0.1)] group">
-                            <div className="relative">
-                                <ClipboardList className="w-5 h-5 text-indigo-400" />
-                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-indigo-400 rounded-full animate-pulse shadow-[0_0_8px_#818cf8]"></div>
-                            </div>
-                            <span className="text-indigo-300 font-black text-sm uppercase tracking-[0.25em]">
-                                Resumen del Sistema Estratégico
-                            </span>
-                        </div>
-                    </div>
-                    
-                    {/* 2. PROJECT TITLE */}
-                    <div className="space-y-4">
-                        <h1 id="psd-hero-title" className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-tight tracking-tighter drop-shadow-2xl">
-                            {projectName}
-                        </h1>
-                    </div>
-                    
-                    {/* 3. EXECUTIVE SUMMARY NARRATIVE */}
-                    <p id="psd-hero-subtitle" className="text-gray-400 font-light max-w-4xl mx-auto leading-[1.9] text-[1.4rem] md:text-[1.6rem] border-l-4 border-indigo-500/30 pl-8 py-2 text-left mt-10">
-                        Hemos diseñado un sistema de ventas completo para este producto, pensado para atraer personas interesadas, guiarlas paso a paso y convertirlas en clientas. Para lograrlo, utilizamos inteligencia artificial que analiza el mercado y tu oferta, automatizando gran parte del proceso estratégico y ahorrándote tiempo en tareas complejas.
-                    </p>
                 </div>
             </div>
         </div>

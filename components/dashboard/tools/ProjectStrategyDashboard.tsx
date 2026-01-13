@@ -3,10 +3,12 @@ import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { 
     Users, Target, MessageCircle, FileText,
     MonitorPlay, ShoppingCart, CheckCircle2,
-    BookOpen, Sparkles, Globe, Clapperboard, X, Loader2, Wand2, Rocket, AlertTriangle, RefreshCw
+    BookOpen, Sparkles, Globe, Clapperboard, X, Loader2, Wand2, Rocket, AlertTriangle, RefreshCw,
+    Clock, Award
 } from 'lucide-react';
 
 import { ProjectStrategy_Header } from './ProjectStrategy/ProjectStrategy_Header';
+import { ProjectStrategy_Sidebar } from './ProjectStrategy/ProjectStrategy_Sidebar';
 
 ////////// Actualización: Carga Dinámica (Lazy Load) de Bloques Pesados de Estrategia - 05/06/2025 21:30 //////////
 const ProjectStrategy_Summary = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Summary').then(m => ({ default: m.ProjectStrategy_Summary })));
@@ -50,6 +52,9 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [globalDomainCount, setGlobalDomainCount] = useState(0); 
     
+    // */ Actualización: Estado para navegación modular - 24/05/2024 20:20
+    const [activeSection, setActiveSection] = useState('summary');
+
     // Dynamic Plan Logic
     const [nextPlan, setNextPlan] = useState<Plan | null>(null);
 
@@ -80,10 +85,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
     // --- LOAD STRATEGY, PAGES & PLANS DATA ---
     const loadData = async () => {
         if (!id) return;
-        console.debug(`[StrategyDashboard Debug] Iniciando carga de datos para ID: ${id}`);
         setLoading(true);
         try {
-            // Fetch Strategy, Project Details, Pages and Plans in parallel
             const [strategy, projectDetails, pages, plansData] = await Promise.all([
                 api.getProjectStrategy(id).catch(e => { console.error("Strategy load fail", e); return null; }),
                 api.getProjectById(id).catch(e => { console.error("Project details load fail", e); return null; }),
@@ -91,14 +94,10 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 api.getPublicPlans().catch(e => { console.error("Plans load fail", e); return []; })
             ]);
 
-            console.debug(`[StrategyDashboard Debug] Objeto strategy obtenido:`, strategy);
-
-            // Set project description for summary section
             if (projectDetails) {
                 setProjectDescription(projectDetails.description || '');
             }
 
-            // Validación extrema de estructura JSON
             const isStrategyValid = strategy && 
                                    strategy.meta && 
                                    strategy.meta.insights && 
@@ -107,8 +106,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                    strategy.modules;
 
             if (isStrategyValid) {
-                console.debug(`[StrategyDashboard Debug] Estructura válida de estrategia detectada.`);
-                // Map icons from strings to components if coming from JSON
                 if (strategy.meta.insights.overview?.items) {
                     strategy.meta.insights.overview.items = strategy.meta.insights.overview.items.map((item: any) => ({
                         ...item,
@@ -117,19 +114,15 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 }
                 setStrategyData(strategy);
             } else {
-                console.warn(`[StrategyDashboard Debug] Estructura de estrategia INVÁLIDA o incompleta detectada.`);
                 setStrategyData(null);
             }
 
-            // Logic: Find all pages linked to this project
             const projectPages = Array.isArray(pages) ? pages.filter(p => String(p.projectId) === String(id) || (strategy && p.name === strategy.meta?.projectName)) : [];
             setLinkedPages(projectPages);
 
-            // Calcular conteo global de dominios
             const domains = Array.isArray(pages) ? pages.filter(p => !!p.customDomain).length : 0;
             setGlobalDomainCount(domains);
 
-            // Logic: Determine Next Plan
             const currentPlanName = user.planLimits?.planName || 'starter';
             const sortedPlans = Array.isArray(plansData) ? [...plansData].sort((a, b) => a.priceMonthly - b.priceMonthly) : [];
             const currentIndex = sortedPlans.findIndex(p => p.slug === currentPlanName);
@@ -176,7 +169,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
         const currentMonthIdx = today.getMonth(); 
         const currentYear = today.getFullYear();
 
-        // Datos dinámicos de la base de datos
         const baseData = strategyData.meta.projection;
 
         return baseData.map((income, i) => {
@@ -233,7 +225,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
         );
     }
 
-    // Pantalla de error/regeneración elegante
     if (!strategyData || !strategyData.meta) {
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6 animate-in fade-in">
@@ -333,168 +324,178 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 onBack={() => navigate('/dashboard/projects')} 
             />
 
-            <div id="psd-main-content" className="max-w-[1400px] mx-auto p-6 space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-500 mt-8">
-
-                {/* ////////// Actualización: Integración de Suspense para carga bajo demanda de bloques pesados - 05/06/2025 21:30 ////////// */}
-                <Suspense fallback={<div className="h-64 flex items-center justify-center text-gray-500 italic">Preparando bloque estratégico...</div>}>
-                    <ProjectStrategy_Summary 
-                        strategyData={strategyData} 
-                        description={projectDescription}
-                        activeHeaderItem={activeHeaderItem} 
-                        setActiveHeaderItem={setActiveHeaderItem}
-                        handleTooltipHover={handleTooltipHover}
-                        handleTooltipLeave={handleTooltipLeave}
-                    />
-                </Suspense>
-
-                <Suspense fallback={null}>
-                    <ProjectStrategy_BusinessGrowth 
-                        chartData={chartData} 
-                        onOpenVideo={() => setShowVideoModal(true)} 
-                        commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)}
-                    />
-                </Suspense>
-
-                <Suspense fallback={null}>
-                    <ProjectStrategy_Blueprint 
-                        handleTooltipHover={handleTooltipHover} 
-                        handleTooltipLeave={handleTooltipLeave} 
-                        onOpenVideo={() => setShowVideoModal(true)} 
-                    />
-                </Suspense>
-
-                <Suspense fallback={null}>
-                    {strategyData.avatars && (
-                        <ProjectStrategy_AvatarDiagnosis 
-                            avatars={strategyData.avatars} 
-                            psychology={strategyData.psychology} 
-                            benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items}
-                        />
-                    )}
-                </Suspense>
-
-                {/* --- BLOQUE DE TRANSICIÓN: RESUMEN DEL SISTEMA (DISEÑO IDÉNTICO AL HEADER) --- */}
-                <div id="psd-deployment-transition-block" className="relative bg-[#020202] border-y border-white/5 py-20 overflow-hidden mx-[-2rem] md:mx-[-4rem]">
-                    {/* Visual Background Layers (Mirroring Header) */}
-                    <div className="absolute inset-0 pointer-events-none">
-                        {/* Technical Grid */}
-                        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:45px_45px] opacity-[0.08]"></div>
-                        
-                        {/* Radial Deep Glow */}
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#1e1e2e_0%,transparent_70%)] opacity-40"></div>
-                        
-                        {/* Focal Light Effect */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-indigo-500/5 blur-[120px] rounded-full"></div>
-                    </div>
-
-                    <div className="relative z-10 max-w-[1400px] mx-auto px-6 text-center space-y-10">
-                        {/* 1. STRATEGIC BADGE */}
-                        <div className="flex justify-center">
-                            <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 to-blue-500/10 border border-indigo-500/20 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
-                                <span className="text-indigo-300 font-black text-sm uppercase tracking-[0.25em]">
-                                    Estrategia de Ventas Aplicada a tu Producto Digital
-                                </span>
-                            </div>
-                        </div>
-                        
-                        {/* 2. PROJECT TITLE & VERSION */}
-                        <div className="space-y-4">
-                            <h2 className="text-5xl md:text-7xl lg:text-7xl font-black text-white leading-tight tracking-tighter drop-shadow-2xl">
-                                {strategyData.meta?.projectName}
-                            </h2>
-                            <div className="flex items-center justify-center gap-2 text-indigo-400/60">
-                                <span className="text-xs font-bold uppercase tracking-[0.3em]">Estrategia Perfecta para Vender tu Producto Digital</span>
-                            </div>
-                        </div>
-                        
-                        {/* 3. EXECUTIVE SUMMARY NARRATIVE */}
-                        <p className="text-gray-400 font-light max-w-4xl mx-auto leading-[1.9] text-[1.4rem] md:text-[1.6rem] border-t border-white/5 pt-10">
-                            Nuestra inteligencia artificial ha analizado profundamente tu producto elegido y el mercado actual para diseñar un ecosistema de ventas automatizado. Hará todo el trabajo difícil por ti de forma automática.
-                        </p>
+            {/* --- BLOQUE DE BIENVENIDA AL CURSO --- */}
+            <div className="max-w-[1500px] mx-auto px-6 mt-12 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="flex flex-wrap gap-4 mb-6">
+                    <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#FF5A1F] text-white text-sm font-black uppercase tracking-wider shadow-lg shadow-[#FF5A1F]/20">
+                        <Sparkles className="w-4 h-4" /> Resumen del Sistema Estratégico
                     </div>
                 </div>
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight tracking-tighter">
+                    Bienvenido a Aprende.Marketing!!!
+                </h2>
+                <p className="text-gray-400 text-[1.3rem] leading-[2.5rem] font-light max-w-5xl pl-8 ml-12 pt-6 border-l-4 border-[#FF5A1F]/30">
+                    Hemos diseñado un sistema de ventas completo para este producto, pensado para atraer personas interesadas, guiarlas paso a paso y convertirlas en clientas. Para lograrlo, utilizamos inteligencia artificial que analiza el mercado y tu oferta, automatizando gran parte del proceso estratégico y ahorrándote tiempo en tareas complejas.
+                </p>
+                <hr className="mt-12 border-gray-800" />
+            </div>
 
-                <Suspense fallback={null}>
-                    <ProjectStrategy_WebSystem 
-                        projectId={id}
-                        lpTabsData={strategyData.modules.web.landingPageTabs}
-                        tyTabsData={strategyData.modules.web.thankYouPageTabs}
-                        selectedLpTab={selectedLpTab}
-                        setSelectedLpTab={setSelectedLpTab}
-                        selectedTyTab={selectedTyTab}
-                        setSelectedTyTab={setSelectedTyTab}
-                        handleTooltipHover={handleTooltipHover}
-                        handleTooltipLeave={handleTooltipLeave}
-                        linkedPages={linkedPages}
-                        onEditPage={(pageId) => navigate(`/dashboard/editor/${pageId}`)}
-                        pageCount={pageCount}
-                        domainCount={globalDomainCount}
-                        planLimits={user.planLimits}
-                        onUpgrade={() => setShowUpgradeModal(true)}
-                        nextPlan={nextPlan}
+            {/* */ /* Actualización: Reestructuración del grid al estilo Academia con sidebar sticky top-6 - 24/05/2024 21:15 */ }
+            <div id="psd-modular-container" className="max-w-[1500px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-8 relative">
+                
+                <div className="lg:col-span-4">
+                    <ProjectStrategy_Sidebar 
+                        activeSection={activeSection}
+                        onSectionChange={(id) => {
+                            setActiveSection(id);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
                     />
-                </Suspense>
+                </div>
 
-                <Suspense fallback={null}>
-                    {strategyData.modules?.content && (
-                        <ProjectStrategy_Content 
-                            contentData={strategyData.modules.content}
-                            activeArticle={activeArticle}
-                            setActiveArticle={setActiveArticle}
-                            selectedArticles={selectedArticles}
-                            toggleArticleSelection={toggleArticleSelection}
-                            handleTooltipHover={handleTooltipHover}
-                            handleTooltipLeave={handleTooltipLeave}
-                            articleCount={articleCount}
-                            planLimits={user.planLimits}
-                            onUpgrade={() => setShowUpgradeModal(true)}
-                            nextPlan={nextPlan}
-                        />
-                    )}
-                </Suspense>
+                <div id="psd-content-viewer" className="lg:col-span-8 min-w-0">
+                    <Suspense fallback={
+                        <div className="h-96 flex flex-col items-center justify-center text-gray-500 gap-4 animate-pulse">
+                            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                            <p className="font-bold uppercase tracking-widest text-xs italic">Cargando Módulo Estratégico...</p>
+                        </div>
+                    }>
+                        {activeSection === 'summary' && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                <ProjectStrategy_Summary 
+                                    strategyData={strategyData} 
+                                    description={projectDescription}
+                                    activeHeaderItem={activeHeaderItem} 
+                                    setActiveHeaderItem={setActiveHeaderItem}
+                                    handleTooltipHover={handleTooltipHover}
+                                    handleTooltipLeave={handleTooltipLeave}
+                                />
+                            </div>
+                        )}
 
-                <Suspense fallback={null}>
-                    {strategyData.modules?.emails?.nurture && (
-                        <ProjectStrategy_Email 
-                            emailData={strategyData.modules.emails.nurture}
-                            avatars={strategyData.avatars}
-                            activeEmail={activeEmail}
-                            setActiveEmail={setActiveEmail}
-                            features={user.planLimits?.features}
-                            onUpgrade={() => setShowUpgradeModal(true)}
-                            planLimits={user.planLimits}
-                            nextPlan={nextPlan}
-                        />
-                    )}
-                </Suspense>
+                        {activeSection === 'growth' && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                <ProjectStrategy_BusinessGrowth 
+                                    chartData={chartData} 
+                                    onOpenVideo={() => setShowVideoModal(true)} 
+                                    commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)}
+                                />
+                            </div>
+                        )}
 
-                <Suspense fallback={null}>
-                    {strategyData.modules?.emails?.evergreen && (
-                        <ProjectStrategy_Evergreen 
-                            evergreenData={strategyData.modules.emails.evergreen}
-                            avatars={strategyData.avatars}
-                            activeEvergreenEmail={activeEvergreenEmail}
-                            setActiveEvergreenEmail={setActiveEvergreenEmail}
-                            features={user.planLimits?.features}
-                            onUpgrade={() => setShowUpgradeModal(true)}
-                            planLimits={user.planLimits}
-                            nextPlan={nextPlan}
-                        />
-                    )}
-                </Suspense>
+                        {activeSection === 'blueprint' && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                <ProjectStrategy_Blueprint 
+                                    handleTooltipHover={handleTooltipHover} 
+                                    handleTooltipLeave={handleTooltipLeave} 
+                                    onOpenVideo={() => setShowVideoModal(true)} 
+                                />
+                            </div>
+                        )}
 
-                <Suspense fallback={null}>
-                    {strategyData.modules?.whatsapp && (
-                        <ProjectStrategy_WhatsApp 
-                            whatsappData={strategyData.modules.whatsapp}
-                            activeWaScript={activeWaScript}
-                            setActiveWaScript={setActiveWaScript}
-                            onUpgrade={() => setShowUpgradeModal(true)}
-                        />
-                    )}
-                </Suspense>
-                {/* ////////// Fin de actualización - 05/06/2025 21:30 ////////// */}
+                        {activeSection === 'avatar' && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                {strategyData.avatars && (
+                                    <ProjectStrategy_AvatarDiagnosis 
+                                        avatars={strategyData.avatars} 
+                                        psychology={strategyData.psychology} 
+                                        benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items}
+                                    />
+                                )}
+                            </div>
+                        )}
 
+                        {activeSection === 'web' && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                <ProjectStrategy_WebSystem 
+                                    projectId={id}
+                                    lpTabsData={strategyData.modules.web.landingPageTabs}
+                                    tyTabsData={strategyData.modules.web.thankYouPageTabs}
+                                    selectedLpTab={selectedLpTab}
+                                    setSelectedLpTab={setSelectedLpTab}
+                                    selectedTyTab={selectedTyTab}
+                                    setSelectedTyTab={setSelectedTyTab}
+                                    handleTooltipHover={handleTooltipHover}
+                                    handleTooltipLeave={handleTooltipLeave}
+                                    linkedPages={linkedPages}
+                                    onEditPage={(pageId) => navigate(`/dashboard/editor/${pageId}`)}
+                                    pageCount={pageCount}
+                                    domainCount={globalDomainCount}
+                                    planLimits={user.planLimits}
+                                    onUpgrade={() => setShowUpgradeModal(true)}
+                                    nextPlan={nextPlan}
+                                />
+                            </div>
+                        )}
+
+                        {activeSection === 'content' && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                {strategyData.modules?.content && (
+                                    <ProjectStrategy_Content 
+                                        contentData={strategyData.modules.content}
+                                        activeArticle={activeArticle}
+                                        setActiveArticle={setActiveArticle}
+                                        selectedArticles={selectedArticles}
+                                        toggleArticleSelection={toggleArticleSelection}
+                                        handleTooltipHover={handleTooltipHover}
+                                        handleTooltipLeave={handleTooltipLeave}
+                                        articleCount={articleCount}
+                                        planLimits={user.planLimits}
+                                        onUpgrade={() => setShowUpgradeModal(true)}
+                                        nextPlan={nextPlan}
+                                    />
+                                )}
+                            </div>
+                        )}
+
+                        {activeSection === 'email' && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                {strategyData.modules?.emails?.nurture && (
+                                    <ProjectStrategy_Email 
+                                        emailData={strategyData.modules.emails.nurture}
+                                        avatars={strategyData.avatars}
+                                        activeEmail={activeEmail}
+                                        setActiveEmail={setActiveEmail}
+                                        features={user.planLimits?.features}
+                                        onUpgrade={() => setShowUpgradeModal(true)}
+                                        planLimits={user.planLimits}
+                                        nextPlan={nextPlan}
+                                    />
+                                )}
+                            </div>
+                        )}
+
+                        {activeSection === 'evergreen' && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                {strategyData.modules?.emails?.evergreen && (
+                                    <ProjectStrategy_Evergreen 
+                                        evergreenData={strategyData.modules.emails.evergreen}
+                                        avatars={strategyData.avatars}
+                                        activeEvergreenEmail={activeEvergreenEmail}
+                                        setActiveEvergreenEmail={setActiveEvergreenEmail}
+                                        features={user.planLimits?.features}
+                                        onUpgrade={() => setShowUpgradeModal(true)}
+                                        planLimits={user.planLimits}
+                                        nextPlan={nextPlan}
+                                    />
+                                )}
+                            </div>
+                        )}
+
+                        {activeSection === 'whatsapp' && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                {strategyData.modules?.whatsapp && (
+                                    <ProjectStrategy_WhatsApp 
+                                        whatsappData={strategyData.modules.whatsapp}
+                                        activeWaScript={activeWaScript}
+                                        setActiveWaScript={setActiveWaScript}
+                                        onUpgrade={() => setShowUpgradeModal(true)}
+                                    />
+                                )}
+                            </div>
+                        )}
+                    </Suspense>
+                </div>
             </div>
         </div>
     );
