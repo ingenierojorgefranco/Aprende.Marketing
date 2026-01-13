@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Project, LandingPage } from '../../../../types';
-import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, Loader2, AlertTriangle, ExternalLink, X } from 'lucide-react';
+import { Project, LandingPage, User } from '../../../../types';
+import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, Loader2, AlertTriangle, ExternalLink, X, Zap } from 'lucide-react';
 
 interface Step1InputsProps {
   userProjects: Project[];
@@ -19,16 +19,20 @@ interface Step1InputsProps {
   onSelectRecommendation: (rec: any) => void;
   loading: boolean;
   onBack: () => void;
+  user: User;
+  articleCount: number;
+  setShowUpgradeModal: (show: boolean) => void;
+  isSimulating: boolean;
 }
 
 export const Step1Inputs: React.FC<Step1InputsProps> = ({
   userProjects, selectedProject,
   userPages, selectedPageId, onSelectPage,
-  onGenerate, onSelectRecommendation, onBack, loading
+  onGenerate, onSelectRecommendation, onBack, loading,
+  user, articleCount, setShowUpgradeModal, isSimulating
 }) => {
   /* */ /* Actualización: Implementación del Selector de Página Estratégico interceptando el flujo de creación para forzar la vinculación de activos antes de proceder con la IA - 25/05/2024 10:00 */
   const [selectionMode, setSelectionMode] = useState<'choice' | 'ia'>('choice');
-  const [confirmingRec, setConfirmingRec] = useState<any>(null);
   const [isPreparing, setIsPreparing] = useState(false);
   
   /* */ /* Estados para el control de la ventana modal de selección de página estratégica - 25/05/2024 10:05 */
@@ -56,14 +60,6 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
     setPendingAction(null);
   };
   /* Fin de actualización - 25/05/2024 10:10 */
-
-  const handleConfirmGeneration = () => {
-    if (confirmingRec) {
-      setIsPreparing(true);
-      onSelectRecommendation(confirmingRec);
-      setConfirmingRec(null);
-    }
-  };
 
   if (isPreparing || loading) {
     return (
@@ -113,7 +109,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
             </div>
             <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter">CREACION AUTOMATICA</h3>
             <p className="text-gray-400 text-lg leading-relaxed">Nuestra inteligencia artificial creará tu contenido con base en tu nicho y publico objetivo de tu proyecto.</p>
-            <div className="mt-8 flex items-center gap-2 text-white font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">
+            <div className="mt-8 flex items-center gap-2 text-white font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-10 transition-all">
               Clic para Seleccionar <ChevronRight className="w-4 h-4" />
             </div>
           </button>
@@ -149,9 +145,12 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600"></div>
               
               <div className="p-8 md:p-10 border-b border-white/5 flex justify-between items-start">
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tight italic leading-tight">¿A cuál de tus páginas deseas asignar el artículo?</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed font-medium">
+                {/* */ /* Actualización: Mejora visual del encabezado del selector de página aplicando gradiente de marca al título y optimizando el contraste del texto descriptivo para mayor legibilidad - 11/03/2025 11:30 */ }
+                <div className="space-y-4">
+                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic leading-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500 flex items-center gap-3">
+                    <Globe className="w-6 h-6 text-[#FF5A1F]" /> ¿A cuál de tus páginas deseas asignar el artículo?
+                  </h3>
+                  <p className="text-gray-200 text-sm md:text-base leading-relaxed font-medium mt-4">
                     Selecciona a continuación la página estratégica a la cual te gustaría vincular este nuevo contenido. Al asignar el artículo, este se publicará automáticamente en el blog de dicha página, potenciando su autoridad y atrayendo tráfico orgánico cualificado.
                   </p>
                 </div>
@@ -209,34 +208,6 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 pb-12 relative">
       
-      {confirmingRec && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col p-8 text-center space-y-6">
-            <div className="w-16 h-16 bg-purple-500/20 text-purple-500 rounded-2xl flex items-center justify-center mx-auto border border-purple-500/30">
-              <AlertTriangle className="w-8 h-8" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-xl font-bold text-white uppercase tracking-tight">estas seguro de generar este articulo?</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Vas a consumir créditos al momento de crearlo. La IA redactará una estructura profesional basada en esta sugerencia.</p>
-            </div>
-            <div className="flex flex-col gap-3 pt-4">
-              <button 
-                onClick={handleConfirmGeneration}
-                className="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white font-black rounded-xl transition-all shadow-lg shadow-purple-900/20 uppercase text-xs tracking-widest"
-              >
-                Sí, Generar Ahora
-              </button>
-              <button 
-                onClick={() => setConfirmingRec(null)}
-                className="w-full py-4 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-xl transition-all text-xs uppercase tracking-widest"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="flex items-center justify-between">
           <button onClick={() => setSelectionMode('choice')} className="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-bold transition">
             <ArrowLeft className="w-4 h-4" /> Volver a opciones
@@ -256,7 +227,8 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
           {recommendations.length > 0 ? recommendations.map((rec: any, idx: number) => (
               <button 
                 key={idx}
-                onClick={() => setConfirmingRec(rec)}
+                /* */ /* Actualización: Redirección directa al formulario de revisión (Step 2) al hacer clic en una sugerencia, eliminando el modal de confirmación inmediata - 11/03/2025 16:30 */
+                onClick={() => onSelectRecommendation(rec)}
                 className="w-full text-left p-10 bg-[#0B0B0B] border border-white/10 rounded-[3rem] hover:border-purple-500/50 hover:bg-purple-500/5 transition-all group flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden"
               >
                 <div className="absolute top-0 left-0 w-2 h-full bg-purple-500 opacity-20 group-hover:opacity-100 transition-opacity"></div>

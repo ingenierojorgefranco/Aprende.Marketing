@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { Project, User } from '../../../types';
@@ -10,6 +10,7 @@ interface DashboardContext {
   isSimulating: boolean;
 }
 
+// Fix: Use React namespace by importing it
 export const ProjectsList: React.FC = () => {
     const navigate = useNavigate();
     const { user, isSimulating } = useOutletContext() as DashboardContext;
@@ -39,6 +40,7 @@ export const ProjectsList: React.FC = () => {
         }
     };
 
+    // Fix: Use React.MouseEvent namespace
     const handleDelete = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
         if (confirm("¿Estás seguro de eliminar este proyecto y toda su estrategia?")) {
@@ -47,6 +49,7 @@ export const ProjectsList: React.FC = () => {
         }
     };
 
+    // Fix: Use React.MouseEvent namespace
     const handleViewStrategy = async (e: React.MouseEvent, project: Project) => {
         e.stopPropagation();
         navigate(`/dashboard/projects/${project.id}/strategy`);

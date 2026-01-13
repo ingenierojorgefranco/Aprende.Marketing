@@ -3,7 +3,7 @@ import { generateArticleTitles, generateArticleOutline, generateFullArticle, Art
 import { api } from '../../../services/api';
 import { Article, Project, LandingPage, User } from '../../../types';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle } from 'lucide-react';
+import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 // Importing Sub-Components from relative sibling folder
@@ -40,6 +40,12 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [topic, setTopic] = useState('');
   const [objective, setObjective] = useState('');
   const [keyword, setKeyword] = useState('');
+
+  /* */ /* Actualización: Adición de estado para rastrear si el flujo proviene de una sugerencia automática de IA o es manual, permitiendo personalizar los títulos del formulario de validación - 11/03/2025 16:30 */
+  const [isAiGeneratedFlow, setIsAiGeneratedFlow] = useState(false);
+
+  /* */ /* Actualización: Incorporación de selector de redirección estratégica (Landing, Hotlink o Externa) para centralizar el destino del tráfico del artículo - 11/03/2025 15:55 */
+  const [redirectType, setRedirectType] = useState<'landing' | 'hotlink' | 'external'>('landing');
 
   /* */ /* Actualización: Se añade estado showManualConfirm para gestionar la validación de créditos antes de disparar la IA en el flujo personalizado - 24/05/2024 20:45 */
   const [showManualConfirm, setShowManualConfirm] = useState(false);
@@ -172,36 +178,13 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     setStep(1);
   };
 
+  /* */ /* Actualización: Modificación de la función para redirigir sugerencias automáticas de IA al formulario de revisión (Step 2) en lugar de proceder con la generación inmediata - 11/03/2025 16:30 */
   const handleSelectRecommendation = async (rec: any) => {
       setTopic(rec.title);
       setKeyword(rec.keyword);
       setObjective(rec.strategy);
-      
-      const idea: ArticleTitleIdea = {
-          title: rec.title,
-          description: rec.strategy
-      };
-      
-      setSelectedTitle(idea);
-      setArticleTitle(idea.title);
-      setMetaTitle(idea.title);
-      setMetaDescription(idea.description || '');
-      setSlug(generateCleanSlug(idea.title));
-
-      setLoading(true);
-      try {
-          const generatedOutline = await generateArticleOutline(idea.title, rec.strategy);
-          if (Array.isArray(generatedOutline)) {
-              setOutline(generatedOutline);
-          } else {
-              setOutline(["H2: Introducción", "H2: Contenido Principal", "H2: Conclusión"]);
-          }
-          setStep(4); 
-      } catch (e) {
-          alert("Error generando esquema.");
-      } finally {
-          setLoading(false);
-      }
+      setIsAiGeneratedFlow(true);
+      setStep(2); 
   };
 
   const handleGenerateTitles = async () => {
@@ -408,6 +391,16 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     }
   };
 
+  /* */ /* Actualización: Helper para sincronizar la URL de la landing page seleccionada con el enlace de CTA del artículo - 11/03/2025 15:55 */
+  const handlePageRedirectSelect = (pageId: string) => {
+    setSelectedPageId(pageId);
+    const page = userPages.find(p => p.id === pageId);
+    if (page) {
+        const url = page.customDomain ? `https://${page.customDomain}` : `https://${page.subdomain}`;
+        setCtaLink(url);
+    }
+  };
+
   if (loading && editArticleId) {
       return (
           <div className="flex items-center justify-center h-full">
@@ -416,6 +409,16 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
           </div>
       );
   }
+
+  /* */ /* Actualización: Lógica de cálculo de límites y color de barra para concordancia visual con ArticlesList - 10/03/2025 12:00 */
+  const isRealAdmin = user.role === 'admin' && !isSimulating;
+  const maxArticles = user.planLimits?.maxArticles || 2;
+  const usagePercent = Math.min(100, (articleCount / maxArticles) * 100);
+  const isAtLimit = !isRealAdmin && articleCount >= maxArticles;
+
+  let progressColor = "bg-green-500";
+  if (usagePercent > 50) progressColor = "bg-yellow-500";
+  if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
   return (
     /* */ /* Actualización: Expansión dinámica del ancho del contenedor en la fase de Redacción (Step 5) para optimizar el espacio de trabajo del editor y la barra lateral de SEO - 07/06/2025 21:00 */
@@ -539,39 +542,79 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
             setObjective={setObjective}
             keyword={keyword}
             setKeyword={setKeyword}
-            onGenerate={() => setStep(2)}
+            onGenerate={() => { setIsAiGeneratedFlow(false); setStep(2); }}
             onSelectRecommendation={handleSelectRecommendation}
             loading={loading}
             onBack={() => setStep(0)}
+            user={user}
+            articleCount={articleCount}
+            setShowUpgradeModal={setShowUpgradeModal}
+            isSimulating={isSimulating}
           />
         )}
 
         {step === 2 && (
            <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-              {/* */ /* Actualización: Se añade modal de confirmación de créditos para el flujo manual, replicando el comportamiento de seguridad de las recomendaciones de IA - 24/05/2024 20:45 */ }
+              {/* */ /* Actualización: Mejora visual del modal de confirmación manual, visualización de créditos disponibles y bloqueo por límite de artículos para optimizar la experiencia de usuario - 10/03/2025 12:00 */}
               {showManualConfirm && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col p-8 text-center space-y-6">
-                        <div className="w-16 h-16 bg-blue-500/20 text-blue-500 rounded-2xl flex items-center justify-center mx-auto border border-blue-500/30">
-                            <AlertTriangle className="w-8 h-8" />
+                    <div className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col p-10 text-center space-y-8">
+                        <div className="w-20 h-20 bg-blue-500/20 text-blue-500 rounded-3xl flex items-center justify-center mx-auto border border-blue-500/30">
+                            <AlertTriangle className="w-10 h-10" />
                         </div>
-                        <div className="space-y-2">
-                            <h3 className="text-xl font-bold text-white uppercase tracking-tight">¿Estás seguro de generar esta estructura?</h3>
-                            <p className="text-gray-400 text-sm leading-relaxed">Vas a consumir créditos al momento de crearlo. La IA redactará una estructura profesional basada en tu tema y objetivos manuales.</p>
+                        <div className="space-y-4">
+                            <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¿Estás seguro de generar esta estructura?</h3>
+                            <p className="text-white text-lg leading-relaxed font-medium">Vas a consumir créditos al momento de crearlo. La IA redactará una estructura profesional basada en tu tema y objetivos manuales.</p>
+                            
+                            {/* Bloque Informativo de Créditos con Barra de Progreso Premium */}
+                            <div className="mt-8 p-6 bg-black/40 border border-white/10 rounded-[2rem] shadow-inner text-left">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span>
+                                    <span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
+                                </div>
+                                <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner p-0.5">
+                                    <div className={`h-full transition-all duration-1000 ease-out rounded-full ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                </div>
+                                <p className="text-gray-500 text-[10px] font-bold mt-4 uppercase tracking-widest text-center">
+                                    {isRealAdmin ? 'Infinitos disponibles' : `Tienes ${maxArticles - articleCount} de ${maxArticles} artículos disponibles`}
+                                </p>
+                            </div>
                         </div>
                         <div className="flex flex-col gap-3 pt-4">
-                            <button 
-                                onClick={executeManualGenerateOutline}
-                                className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl transition-all shadow-lg shadow-blue-900/20 uppercase text-xs tracking-widest"
-                            >
-                                Sí, Generar Ahora
-                            </button>
-                            <button 
-                                onClick={() => setShowManualConfirm(false)}
-                                className="w-full py-4 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-xl transition-all text-xs uppercase tracking-widest"
-                            >
-                                Cancelar
-                            </button>
+                            {!isAtLimit ? (
+                                <>
+                                    <button 
+                                        onClick={executeManualGenerateOutline}
+                                        className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest transform active:scale-95"
+                                    >
+                                        Sí, Generar Ahora
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowManualConfirm(false)}
+                                        className="w-full py-5 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-2xl transition-all text-xs uppercase tracking-widest"
+                                    >
+                                        Cancelar
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-2xl mb-2">
+                                         <p className="text-red-400 text-sm font-bold">Has llegado al límite de tu plan actual.</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => { setShowManualConfirm(false); setShowUpgradeModal(true); }}
+                                        className="w-full py-5 bg-gradient-to-r from-[#FF5A1F] to-orange-600 hover:from-[#D94A1E] hover:to-orange-700 text-white font-black rounded-2xl transition-all shadow-lg uppercase text-sm tracking-widest flex items-center justify-center gap-3 transform active:scale-95"
+                                    >
+                                        <Zap className="w-5 h-5 fill-current" /> Actualizar Plan
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowManualConfirm(false)}
+                                        className="w-full py-5 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-2xl transition-all text-xs uppercase tracking-widest"
+                                    >
+                                        Cancelar
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -586,14 +629,15 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                           <BookOpen className="w-6 h-6" />
                       </div>
                       <div>
-                          <h3 className="text-xl font-bold text-white uppercase tracking-tight">Contenido Personalizado</h3>
-                          <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Configura manualmente tu artículo</p>
+                          {/* */ /* Actualización: Título dinámico basado en el origen del flujo de creación - 11/03/2025 16:30 */ }
+                          <h3 className="text-xl font-bold text-white uppercase tracking-tight">{isAiGeneratedFlow ? 'Creación Automática' : 'Contenido Personalizado'}</h3>
+                          <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">{isAiGeneratedFlow ? 'Valida la sugerencia de la IA antes de generar' : 'Configura manualmente tu artículo'}</p>
                       </div>
                   </div>
 
                   <div className="space-y-6">
                       <div>
-                          <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Tema o Título Tentativo</label>
+                          <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Titulo de tu Artículo de Blog</label>
                           {/* */ /* Actualización: Se implementa placeholder dinámico que prioriza una de las recomendaciones del proyecto activo como ejemplo de prueba - 24/05/2024 20:45 */ }
                           <input
                               type="text"
@@ -605,18 +649,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                       </div>
 
                       <div>
-                          <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Objetivo del Artículo</label>
-                          <select
+                          <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Selecciona el Objetivo del Articulo</label>
+                          {/* */ /* Actualización: Transformación del selector de objetivo en un área de texto (textarea) para permitir descripciones detalladas o instrucciones personalizadas de la IA - 11/03/2025 16:45 */ }
+                          <textarea
                               value={objective}
                               onChange={(e) => setObjective(e.target.value)}
-                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
-                          >
-                              <option value="" disabled>-- Selecciona un objetivo --</option>
-                              <option value="Atraer Tráfico (SEO Informativo)">Atraer Tráfico (SEO Informativo)</option>
-                              <option value="Venta Directa (Copy Persuasivo)">Venta Directa (Copy Persuasivo)</option>
-                              <option value="Captación de Leads (Lead Magnet)">Captación de Leads (Lead Magnet)</option>
-                              <option value="Romper Objeciones (FAQ)">Romper Objeciones (FAQ)</option>
-                          </select>
+                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition resize-none h-32"
+                              placeholder="Describe qué pretendes lograr con este artículo (ej: Atraer tráfico, vender un curso, etc.)"
+                          />
                       </div>
 
                       <div>
@@ -628,6 +668,66 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                               className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
                               placeholder="Ej: curso de microblading online"
                           />
+                      </div>
+
+                      {/* */ /* Actualización: Incorporación de selector de redirección estratégica (Landing, Hotlink o Externa) para centralizar el destino del tráfico del artículo - 11/03/2025 15:55 */ }
+                      <div>
+                          <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">¿Dónde dirigir a tus visitantes?</label>
+                          <div className="space-y-4">
+                              <select
+                                  value={redirectType}
+                                  onChange={(e) => setRedirectType(e.target.value as any)}
+                                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
+                              >
+                                  <option value="landing">A tu Landing Page</option>
+                                  <option value="hotlink">A un Hotlink del Proyecto</option>
+                                  <option value="external">A una página externa</option>
+                              </select>
+                              
+                              {redirectType === 'landing' && (
+                                  <div className="animate-in fade-in slide-in-from-top-2">
+                                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-1 mb-2 italic">Para que las personas se registren a su clase</p>
+                                      <select
+                                          value={selectedPageId}
+                                          onChange={(e) => handlePageRedirectSelect(e.target.value)}
+                                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
+                                      >
+                                          <option value="" disabled>-- Selecciona una Landing Page --</option>
+                                          {userPages.map(p => (
+                                              <option key={p.id} value={p.id}>{p.name}</option>
+                                          ))}
+                                      </select>
+                                  </div>
+                              )}
+
+                              {redirectType === 'hotlink' && (
+                                  <div className="animate-in fade-in slide-in-from-top-2">
+                                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-1 mb-2 italic">Selecciona un enlace de afiliado guardado en el proyecto</p>
+                                      <select
+                                          onChange={(e) => setCtaLink(e.target.value)}
+                                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
+                                      >
+                                          <option value="" disabled selected>-- Selecciona un Hotlink --</option>
+                                          {userProjects.find(p => p.id === selectedProject)?.affiliateLinks?.map((link, i) => (
+                                              <option key={i} value={link.url}>{link.label}</option>
+                                          ))}
+                                      </select>
+                                  </div>
+                              )}
+
+                              {redirectType === 'external' && (
+                                  <div className="animate-in fade-in slide-in-from-top-2">
+                                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-1 mb-2 italic">Ingresa la URL personalizada para el botón de acción</p>
+                                      <input
+                                          type="text"
+                                          value={ctaLink}
+                                          onChange={(e) => setCtaLink(e.target.value)}
+                                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
+                                          placeholder="https://ejemplo.com/tu-enlace"
+                                      />
+                                  </div>
+                              )}
+                          </div>
                       </div>
 
                       <button
