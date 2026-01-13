@@ -20,13 +20,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     emailData, avatars, activeEmail, setActiveEmail, onUpgrade, features, planLimits, nextPlan
 }) => {
     const navigate = useNavigate();
-    
-    const isUnlocked = features?.emailStrategy || false;
-    const currentPlanName = planLimits?.planName || 'Starter';
-    const nextPlanName = nextPlan?.name || 'Superior';
-
-    // Porcentaje visual (100% si está desbloqueado, 0% si no)
-    const usagePercent = isUnlocked ? 100 : 0;
 
     return (
         <div id="psd-email-section" className="pt-8">
@@ -48,71 +41,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         Preparamos el terreno psicológico para presentar tu oferta justo en el momento en que el usuario está más predispuesto a tomar la decisión de compra.
                     </p>
                 </div>
-                
-                {/* DYNAMIC LIMITS BANNER */}
-                {!isUnlocked ? (
-                    <div id="psd-email-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-2xl flex flex-col gap-8 mb-12 shadow-lg shadow-purple-900/10 backdrop-blur-md">
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20 flex-shrink-0">
-                                    <Lock className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h4 className="text-purple-300 font-bold text-xl mb-1">
-                                        Funcionalidad Bloqueada
-                                    </h4>
-                                    <p className="text-gray-300 text-lg leading-relaxed">
-                                        Actualmente tienes activo el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>. Actualiza a <span className="text-white font-bold uppercase">{nextPlanName}</span> para desbloquear la redacción de emails.
-                                    </p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={onUpgrade}
-                                className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
-                            >
-                                Desbloquear Emails 🚀
-                            </button>
-                        </div>
-
-                        {/* Progress Bar for Locked View */}
-                        <div className="bg-black/40 p-6 rounded-xl border border-white/5 shadow-inner">
-                            <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-400 font-bold uppercase tracking-widest">Secuencias Disponibles</span>
-                                <span className="text-white font-bold">0 / 1</span>
-                            </div>
-                            <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                <div className={`h-full transition-all duration-1000 ease-out bg-gray-700`} style={{ width: `0%` }}></div>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div id="psd-email-included-banner" className="bg-green-900/20 border border-green-500/30 p-8 rounded-2xl flex flex-col gap-6 mb-12 shadow-lg shadow-green-900/10 backdrop-blur-md">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20 flex-shrink-0">
-                                <Check className="w-6 h-6" />
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-green-300 font-bold text-xl mb-1">
-                                    Funcionalidad Incluida
-                                </p>
-                                <p className="text-gray-300 text-lg leading-relaxed">
-                                    Tu plan actual "<span className="text-white font-bold">{currentPlanName.toUpperCase()}</span>" ya incluye la generación de esta secuencia profesional de 7 días.
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Progress Bar */}
-                        <div className="bg-black/30 p-6 rounded-xl border border-white/5 shadow-inner">
-                            <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-400 font-bold uppercase tracking-widest">Secuencias Disponibles</span>
-                                <span className="text-white font-bold">1 / 1</span>
-                            </div>
-                            <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                <div className={`h-full transition-all duration-1000 ease-out bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]`} style={{ width: `100%` }}></div>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
 
             <div id="psd-email-grid" className="grid lg:grid-cols-2 gap-8">
@@ -202,11 +130,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
                         <div className="mt-8 pt-8 border-t border-gray-800">
                             <button 
-                                onClick={isUnlocked ? () => navigate('/dashboard/email') : onUpgrade} 
-                                className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg hover:scale-[1.02] ${isUnlocked ? 'bg-yellow-600 hover:bg-yellow-500 text-black shadow-yellow-900/20' : 'bg-gray-800 text-gray-400 cursor-not-allowed border border-gray-700'}`}
+                                onClick={() => navigate('/dashboard/email')} 
+                                className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg hover:scale-[1.02] bg-yellow-600 hover:bg-yellow-500 text-black shadow-yellow-900/20"
                             >
-                                {isUnlocked ? <Wand2 className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
-                                {isUnlocked ? 'Redactar Secuencia con IA' : 'Desbloquear Funcionalidad'}
+                                <Wand2 className="w-6 h-6" /> Redactar Secuencia con IA
                             </button>
                         </div>
                     </div>

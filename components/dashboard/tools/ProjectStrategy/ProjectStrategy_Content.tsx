@@ -25,24 +25,6 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 }) => {
     const navigate = useNavigate();
 
-    // Lógica de Límites
-    const maxArticles = planLimits?.maxArticles || 2;
-    const isLimitReached = articleCount >= maxArticles;
-    const currentPlanName = planLimits?.planName || 'Starter';
-    const nextPlanName = nextPlan?.name || 'Superior';
-
-    // Porcentajes de Uso
-    const usagePercent = Math.min(100, (articleCount / maxArticles) * 100);
-
-    // Colores de Progreso
-    const getProgressColor = (percent: number) => {
-        if (percent > 85) return "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]";
-        if (percent > 50) return "bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]";
-        return "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]";
-    };
-
-    const progressColor = getProgressColor(usagePercent);
-
     return (
         <div id="psd-content-section" className="space-y-16">
             {/* --- ENCABEZADO ESTRATÉGICO DE CLASE MUNDIAL --- */}
@@ -63,71 +45,6 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         Como tu estratega, he diseñado este plan de contenidos SEO para posicionarte como la única autoridad lógica en tu nicho y atraer tráfico gratuito de alta calidad.
                     </p>
                 </div>
-                
-                {/* DYNAMIC LIMITS BANNER */}
-                {!isLimitReached ? (
-                    <div id="psd-content-included-banner" className="bg-green-900/20 border border-green-500/30 p-8 rounded-2xl flex flex-col gap-6 mt-8 shadow-lg shadow-green-900/10 backdrop-blur-md animate-in fade-in slide-in-from-top-2">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-green-500 text-white rounded-lg shadow-lg shadow-green-500/20 flex-shrink-0">
-                                <Check className="w-6 h-6" />
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-green-300 font-bold text-xl mb-1">
-                                    Funcionalidad Incluida
-                                </p>
-                                <p className="text-gray-300 text-lg leading-relaxed">
-                                    Tu plan actual "<span className="text-white font-bold">{currentPlanName.toUpperCase()}</span>" te permite generar hasta {maxArticles} artículos optimizados para buscadores.
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Progress Bar */}
-                        <div className="bg-black/30 p-6 rounded-xl border border-white/5 shadow-inner">
-                            <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-400 font-bold uppercase tracking-widest">Artículos Generados</span>
-                                <span className="text-white font-bold">{articleCount} / {maxArticles}</span>
-                            </div>
-                            <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                <div className={`h-full transition-all duration-1000 ease-out ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div id="psd-content-upsell-banner" className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-2xl flex flex-col gap-8 mt-8 shadow-lg shadow-purple-900/10 backdrop-blur-md animate-in fade-in slide-in-from-top-2">
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-purple-500 text-white rounded-lg shadow-lg shadow-purple-500/20 flex-shrink-0">
-                                    <Lock className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h4 className="text-purple-300 font-bold text-xl mb-1 flex items-center gap-2">
-                                        Límite Alcanzado
-                                    </h4>
-                                    <p className="text-gray-300 text-lg leading-relaxed">
-                                        Actualmente tienes activo el plan <span className="text-white font-bold uppercase">{currentPlanName}</span>. Actualiza a <span className="text-white font-bold uppercase">{nextPlanName}</span> para eliminar límites de redacción.
-                                    </p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={onUpgrade}
-                                className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl font-bold text-lg shadow-lg transform hover:scale-105 transition-all whitespace-nowrap"
-                            >
-                                Actualizar a {nextPlanName} 🚀
-                            </button>
-                        </div>
-
-                        {/* Progress Bar for Limit View */}
-                        <div className="bg-black/40 p-6 rounded-xl border border-white/5 shadow-inner">
-                            <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-400 font-bold uppercase tracking-widest">Capacidad del Plan</span>
-                                <span className="text-white font-bold">{articleCount} / {maxArticles}</span>
-                            </div>
-                            <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                <div className={`h-full transition-all duration-1000 ease-out bg-red-500`} style={{ width: `100%` }}></div>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
 
             <div id="psd-content-grid" className="grid lg:grid-cols-2 gap-8">
@@ -167,17 +84,6 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 );
                             })}
                         </div>
-
-                        {selectedArticles.length >= maxArticles && (
-                            <div id="psd-content-limit-msg" className="mt-4 p-4 bg-purple-900/30 border border-purple-500/30 rounded-xl text-center animate-in fade-in">
-                                <p className="text-purple-300 font-medium text-sm">
-                                    Has alcanzado tu límite de selección.
-                                    <button onClick={onUpgrade} className="block w-full mt-2 text-white font-bold underline hover:text-purple-200 transition">
-                                        ¿Deseas redactar artículos ilimitados?
-                                    </button>
-                                </p>
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -229,11 +135,10 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                         <div className="mt-8 pt-8 border-t border-gray-800">
                             <button 
-                                onClick={() => isLimitReached ? onUpgrade() : navigate('/dashboard/content-creator')} 
-                                className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg ${isLimitReached ? 'bg-gray-800 text-gray-400 cursor-not-allowed border border-gray-700' : 'bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:scale-[1.02]'}`}
+                                onClick={() => navigate('/dashboard/content-creator')} 
+                                className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:scale-[1.02]"
                             >
-                                {isLimitReached ? <Lock className="w-6 h-6" /> : <PenTool className="w-6 h-6" />}
-                                {isLimitReached ? 'Límite Alcanzado' : 'Redactar con IA'}
+                                <PenTool className="w-6 h-6" /> Redactar con IA
                             </button>
                         </div>
                     </div>

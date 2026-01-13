@@ -21,7 +21,7 @@ interface ProjectStrategy_SidebarProps {
 export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = ({ activeSection, onSectionChange }) => {
     const menuItems: { module: string; items: SidebarItem[] }[] = [
         {
-            module: "FUNDAMENTOS",
+            module: "Analisis de tu Estrategia",
             items: [
                 { id: 'summary', label: 'Resumen Estratégico', icon: LayoutDashboard, module: "FUNDAMENTOS", description: "Visión general del sistema" },
                 { id: 'growth', label: 'Proyección de Ingresos', icon: TrendingUp, module: "FUNDAMENTOS", description: "Escalabilidad año 1" },
@@ -30,7 +30,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             ]
         },
         {
-            module: "SISTEMA DE VENTAS",
+            module: "¿Qué creará nuestro sistema por ti?",
             items: [
                 { id: 'web', label: 'Sistema Web (LP/TY)', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
                 { id: 'content', label: 'Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },

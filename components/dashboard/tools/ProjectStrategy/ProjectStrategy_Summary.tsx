@@ -130,7 +130,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                                     </div>
                                     
                                     <div className="flex-1">
-                                        <p className="text-white font-bold text-base md:text-lg leading-relaxed">
+                                        <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light">
                                             {card.value}
                                         </p>
                                     </div>

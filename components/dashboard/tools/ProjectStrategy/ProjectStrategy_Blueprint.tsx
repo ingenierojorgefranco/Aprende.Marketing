@@ -90,7 +90,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["Poner demasiados campos en el formulario.", "Usar imágenes que no guardan relación con la oferta.", "No optimizar para dispositivos móviles."],
             benefits: ["Captación de clientes incluso mientras duermes.", "Filtrado automático de curiosos vs interesados.", "Construcción de una base de datos propia y valiosa."],
-            checklist: ["Verificar que el formulario conecte con el CRM.", "Optimizar el peso de las imágenes para carga rápida.", "Realizar una prueba de registro desde un teléfono Android e iPhone."]
+            checklist: ["Verificar que el formulario konekte con el CRM.", "Optimizar el peso de las imágenes para carga rápida.", "Realizar una prueba de registro desde un teléfono Android e iPhone."]
         }
     },
     { 
@@ -182,7 +182,7 @@ const ACQUISITION_STEPS = [
                 },
                 {
                     title: "Liderazgo y Autoridad",
-                    content: "En el grupo tú eres el guía. Aportar valor constante sin pedir nada a cambio te posiciona como el experto de referencia. Cuando abras las inscripciones, no tendrás que vender; simplemente te pedirán el enlace."
+                    content: "En el grupo tú eres el guía. Aportar valor constante sin pedir nada a cambio te posiciones como el experto de referencia. Cuando abras las inscripciones, no tendrás que vender; simplemente te pedirán el enlace."
                 }
             ],
             metricsExplanation: "El grupo debe estar vivo. Si la gente se sale en masa, tu contenido es irrelevante o estás siendo muy agresivo con las ventas.",
@@ -341,7 +341,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["Esconder el precio hasta el final del todo.", "No incluir una sección de preguntas frecuentes.", "No mostrar testimonios de alumnos reales."],
             benefits: ["Automatización total del proceso de cierre de ventas.", "Escalabilidad ilimitada de tu negocio digital.", "Estandarización de tu mensaje de ventas perfecto."],
-            checklist: ["Incluir una sección de 'Bonos de Acción Rápida'.", "Mostrar sellos de garantía de 7 o 15 días claramente.", "Verificar que el botón de pago funcione en todas las divisas."]
+            checklist: ["Incluir un sección de 'Bonos de Acción Rápida'.", "Mostrar sellos de garantía de 7 o 15 días claramente.", "Verificar que el botón de pago funcione en todas las divisas."]
         }
     },
     { 
@@ -413,7 +413,7 @@ const ACQUISITION_STEPS = [
             article: [
                 {
                     title: "La Barrera Final",
-                    content: "El checkout es el momento de mayor tensión psicológica. El usuario está a punto de desprenderse de su dinero. Por eso, el diseño debe ser minimalista, sin distracciones, y lleno de insignias de seguridad que calmen el instinto de protección del lead."
+                    content: "El checkout es el momento de mayor tensión psicológica. El usuario está a punto de desprenderse de su dinero. Por eso, el diseño debe ser profesional, intuitivo y seguro."
                 },
                 {
                     title: "Ventas Adicionales (Order Bumps)",
@@ -579,7 +579,6 @@ const TacticalModal: React.FC<TacticalModalProps> = ({ step, onClose }) => {
         </div>
     );
 };
-////////// Fin de actualización - 01/01/2026 12:45 //////////
 
 interface FlowCardProps {
     icon: any;
@@ -587,16 +586,14 @@ interface FlowCardProps {
     subtitle: string;
     description: React.ReactNode;
     step: number;
-    ////////// Actualización: Soporte para apertura de detalles educativos - 01/01/2026 12:45 //////////
     onOpenMasterclass: (stepData: any) => void;
     stepData: any;
-    ////////// Fin de actualización - 01/01/2026 12:45 //////////
 }
 
 const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, description, step, onOpenMasterclass, stepData }) => {
-    const isLastInRow = step % 3 === 0;
+    const isLastInRow = step % 2 === 0;
     const isLastItem = step === 9;
-    const isEndOfRowDesktop = (step === 3 || step === 6);
+    const isEndOfRowDesktop = step % 2 === 0;
 
     return (
         <div id={`psd-flow-card-${step}-container`} className="group relative flex flex-col h-full">
@@ -622,7 +619,6 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
                     {description}
                 </div>
 
-                {/* ////////// Actualización: Botón "Más Detalles" - 01/01/2026 12:45 ////////// */}
                 <button 
                     id={`psd-flow-card-${step}-tactical-btn`}
                     onClick={(e) => { e.stopPropagation(); onOpenMasterclass(stepData); }}
@@ -630,7 +626,6 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
                 >
                     <Sparkles className="w-4 h-4" /> Más Detalles
                 </button>
-                {/* ////////// Fin de actualización - 01/01/2026 12:45 ////////// */}
             </div>
 
             {!isLastItem && (
@@ -641,7 +636,7 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
                         </div>
                     )}
                     {isEndOfRowDesktop && (
-                        <div id={`psd-flow-card-${step}-arrow-snake`} className="hidden lg:block absolute top-full right-1/2 w-[calc(200%+6rem)] h-32 pointer-events-none z-0">
+                        <div id={`psd-flow-card-${step}-arrow-snake`} className="hidden lg:block absolute top-full right-1/2 w-[calc(100%+4rem)] h-32 pointer-events-none z-0">
                            <div className="absolute right-[-1px] top-0 h-16 w-0.5 bg-gradient-to-b from-emerald-500/30 to-emerald-500/10 animate-pulse"></div>
                            <div className="absolute right-0 top-16 left-0 h-0.5 bg-gradient-to-r from-emerald-500/10 via-emerald-500/30 to-emerald-500/10"></div>
                            <div className="absolute left-[-1px] top-16 h-16 w-0.5 bg-gradient-to-b from-emerald-500/10 to-emerald-500/30 animate-pulse"></div>
@@ -666,9 +661,7 @@ interface ProjectStrategy_BlueprintProps {
 }
 
 export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps> = ({ onOpenVideo }) => {
-    ////////// Actualización: Estado para manejar el modal educativo - 01/01/2026 12:45 //////////
     const [selectedMasterclass, setSelectedMasterclass] = useState<any | null>(null);
-    ////////// Fin de actualización - 01/01/2026 12:45 //////////
 
     return (
         <div id="psd-blueprint-container" className="space-y-12">
@@ -689,8 +682,7 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                 </div>
             </div>
             
-            {/* ////////// Actualización: Expansión a ancho completo (Breakout) - 25/05/2025 22:50 ////////// */}
-            <div id="psd-blueprint-grid-wrapper" className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] border-y border-gray-800 relative overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)] bg-[#050505]">
+            <div id="psd-blueprint-grid-wrapper" className="w-full border border-gray-800 rounded-[3.5rem] relative overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)] bg-[#050505]">
                 {/* Enhanced Animated Grid Background */}
                 <div className="absolute inset-0 z-0">
                      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20"></div>
@@ -702,7 +694,7 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                         El recorrido completo de tu cliente (de principio a fin)
                     </h4>
                     
-                    <div id="psd-blueprint-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-16 gap-y-[12rem]">
+                    <div id="psd-blueprint-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-16 gap-y-[12rem]">
                         {ACQUISITION_STEPS.map((step, index) => (
                             <FlowCard 
                                 key={index} 
@@ -711,10 +703,8 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                                 subtitle={step.subtitle} 
                                 description={step.description}
                                 step={index + 1}
-                                ////////// Actualización: Inyección de datos para modal educativo - 01/01/2026 12:45 //////////
                                 onOpenMasterclass={setSelectedMasterclass}
                                 stepData={step}
-                                ////////// Fin de actualización - 01/01/2026 12:45 //////////
                             />
                         ))}
                     </div>
@@ -741,16 +731,13 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                 {/* Animated Scan Line */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent animate-scan-line pointer-events-none"></div>
             </div>
-            {/* ////////// Fin de actualización - 25/05/2025 22:50 ////////// */}
 
-            {/* ////////// Actualización: Renderizado condicional del Modal de Detalles Educativos - 01/01/2026 12:45 ////////// */}
             {selectedMasterclass && (
                 <TacticalModal 
                     step={selectedMasterclass} 
                     onClose={() => setSelectedMasterclass(null)} 
                 />
             )}
-            {/* ////////// Fin de actualización - 01/01/2026 12:45 ////////// */}
         </div>
     );
 };

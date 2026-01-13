@@ -99,16 +99,15 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                             <div>
                                 <h5 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
                                     Retorno de Inversión Estimado (Año 1)
-                                    <div className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-black uppercase tracking-widest border border-emerald-500/30">ROI Optimizando</div>
                                 </h5>
-                                <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light mt-1">Cálculo basado en una tasa de cierre promedio del 3% en WhatsApp.</p>
+                                <p className="text-gray-300 text-sm leading-[1.8] font-light mt-1">Cálculo basado en una tasa de cierre promedio del 3% en WhatsApp.</p>
                             </div>
                             
                             <div className="flex gap-4">
                                 <div className="bg-black/40 border border-emerald-500/30 p-6 rounded-[2rem] flex items-center gap-6 shadow-2xl">
                                     <div className="p-4 bg-emerald-500/20 rounded-2xl text-emerald-400 shadow-lg shadow-emerald-500/10"><DollarSign className="w-8 h-8"/></div>
                                     <div>
-                                        <p className="text-xs text-gray-500 font-black uppercase tracking-[0.2em] mb-1">Meta Mes 12</p>
+                                        <p className="text-xs text-gray-500 font-black uppercase tracking-[0.2em] mb-1">Meta de ingresos en 12 meses</p>
                                         <p className="text-white font-black text-3xl md:text-4xl tracking-tighter leading-none">$1.440 USD/MES</p>
                                     </div>
                                 </div>
@@ -155,7 +154,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                     </div>
 
                     {/* --- INDICADORES DE ETAPA EN LA GRÁFICA (REDESISEÑADOS) --- */}
-                    <div className="relative z-10 px-20 mb-24 mt-[10rem]">
+                    <div className="relative z-10 px-0 mb-24 mt-[14rem]">
                         <div className="flex w-full h-10 rounded-full overflow-hidden bg-gray-800/50 p-1">
                             <div className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] rounded-l-full flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '16.6%' }}>
                                 Etapa 1
@@ -172,7 +171,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                     {/* --- ROADMAP DE EJECUCIÓN (PASO A PASO) --- */}
                     <div className="relative z-10 pt-16 border-t border-white/5 mb-16 px-4">
                         <h4 className="text-2xl font-black text-white mb-10 text-center uppercase tracking-widest opacity-80">Cómo se generan los ingresos (paso a paso)</h4>
-                        <div className="grid md:grid-cols-3 gap-10">
+                        <div className="flex flex-col gap-10">
                             {[
                                 {
                                     title: "Etapa 1 – Preparación (Meses 1–2)",
@@ -211,24 +210,26 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     objective: "Objetivo: ingresos más predecibles"
                                 }
                             ].map((phase, i) => (
-                                <div key={i} className="bg-black/30 border border-gray-800/50 rounded-[2.5rem] p-10 relative overflow-hidden group/phase hover:border-gray-700 transition-all shadow-2xl">
-                                    <div className="flex justify-between items-start mb-8">
+                                <div key={i} className="bg-black/30 border border-gray-800/50 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden group/phase hover:border-gray-700 transition-all shadow-2xl">
+                                    <div className="flex flex-col md:flex-row md:items-center gap-6 mb-10 border-b border-white/5 pb-8">
                                         <div className={`p-4 rounded-2xl ${phase.bg} ${phase.color} shadow-lg`}>
                                             <phase.icon className="w-8 h-8" />
                                         </div>
+                                        <h5 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">{phase.title}</h5>
+                                        <div className={`md:ml-auto px-6 py-2 rounded-full border border-white/10 font-black text-xs uppercase tracking-wider h-fit ${phase.color}`}>
+                                            {phase.objective}
+                                        </div>
                                     </div>
-                                    <h5 className="text-xl md:text-2xl font-black text-white mb-8 tracking-tight leading-tight min-h-[3.5rem]">{phase.title}</h5>
-                                    <ul className="space-y-4 mb-8">
+                                    <ul className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         {phase.items.map((item, idx) => (
-                                            <li key={idx} className="flex items-start gap-3 text-gray-300 text-base leading-relaxed">
-                                                <Check className={`w-5 h-5 mt-1 shrink-0 ${phase.color}`} />
-                                                {item}
+                                            <li key={idx} className="bg-white/5 border border-white/5 p-6 rounded-2xl flex items-start gap-4 hover:border-gray-700 transition-all duration-300 group/point">
+                                                <div className={`p-1.5 rounded-full ${phase.bg} ${phase.color} shrink-0 mt-0.5 group-hover/point:scale-110 transition-transform`}>
+                                                    <Check className="w-4 h-4" />
+                                                </div>
+                                                <span className="text-gray-300 text-lg leading-snug font-medium">{item}</span>
                                             </li>
                                         ))}
                                     </ul>
-                                    <div className={`pt-6 border-t border-white/5 font-black text-sm uppercase tracking-wider ${phase.color}`}>
-                                        {phase.objective}
-                                    </div>
                                 </div>
                             ))}
                         </div>
