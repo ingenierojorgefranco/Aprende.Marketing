@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageCircle, Sparkles, Check, MessageSquare, Brain } from 'lucide-react';
+import { MessageCircle, Sparkles, Check, MessageSquare, Brain, PlayCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const ChatSimulator: React.FC<{ messages: any[] }> = ({ messages }) => (
@@ -53,13 +53,41 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
     return (
         <div id="psd-whatsapp-section" className="pt-8">
-            <div id="psd-whatsapp-header-container" className="w-[80%] mx-auto py-6">
-                <h3 id="psd-whatsapp-title" className="text-3xl font-bold text-white mb-6 flex items-center gap-2">
-                    <MessageCircle className="w-8 h-8 text-green-500" /> Mensajes de WhatsApp listos para vender
+            <div id="psd-whatsapp-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
+                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-green-500/5">
+                    <MessageCircle className="w-5 h-5" /> Resumen estratégico de tu Proyecto
+                </div>
+                <h3 id="psd-whatsapp-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
+                    Guiones de <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">Cierre por WhatsApp</span>
                 </h3>
-                <p id="desc-whatsapp" className="text-gray-300 text-[1.3rem] leading-[1.8] font-light mb-8">
-                    El cierre de ventas moderno ocurre en conversaciones privadas. Hemos preparado guiones psicológicos probados para que no tengas que improvisar. Desde el saludo inicial hasta el manejo de objeciones de precio, estos mensajes están diseñados para convertir dudas en transacciones.
-                </p>
+                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
+                    <p className="border-l-4 border-green-500 pl-8 py-2">
+                        El cierre de ventas moderno ocurre en conversaciones privadas. Hemos preparado guiones psicológicos probados para que no tengas que improvisar.
+                    </p>
+                    <p className="border-l-4 border-emerald-500 pl-8 py-2">
+                        Desde el saludo inicial hasta el manejo de objeciones de precio, estos mensajes están diseñados para convertir dudas en transacciones.
+                    </p>
+                </div>
+            </div>
+
+            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
+            <div id="psd-whatsapp-video-block" className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
+                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
+                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
+                        <iframe 
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
+                            title="Estrategia de Cierre por WhatsApp" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
+                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
+                            <PlayCircle className="w-5 h-5 text-indigo-400" />
+                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo de Cierre</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="psd-whatsapp-grid" className="grid lg:grid-cols-2 gap-8">

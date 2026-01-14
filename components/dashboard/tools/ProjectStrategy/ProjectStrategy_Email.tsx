@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Sparkles, Check, Info, Wand2, Lock } from 'lucide-react';
+import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan } from '../../../../types';
 
@@ -33,13 +33,33 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     Secuencia de Nutrición <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-400">(7 Días)</span>
                 </h3>
                 
-                <div className="grid md:grid-cols-2 gap-10 text-gray-300 text-[1.4rem] leading-[1.8] font-light">
-                    <p className="border-l-4 border-yellow-500/30 pl-8 py-2">
+                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
+                    <p className="border-l-4 border-yellow-500 pl-8 py-2">
                         La bandeja de entrada es un espacio sagrado. Hemos diseñado esta secuencia para educar a tu lead y derribar sus objeciones internas de forma progresiva.
                     </p>
-                    <p className="border-l-4 border-blue-500/30 pl-8 py-2">
+                    <p className="border-l-4 border-blue-500 pl-8 py-2">
                         Preparamos el terreno psicológico para presentar tu oferta justo en el momento en que el usuario está más predispuesto a tomar la decisión de compra.
                     </p>
+                </div>
+            </div>
+
+            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
+            <div id="psd-email-video-block" className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
+                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
+                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
+                        <iframe 
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
+                            title="Estrategia de Email Marketing" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
+                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
+                            <PlayCircle className="w-5 h-5 text-indigo-400" />
+                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo de Email</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 

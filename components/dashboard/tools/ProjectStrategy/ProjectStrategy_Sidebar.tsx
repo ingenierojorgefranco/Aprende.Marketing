@@ -2,7 +2,7 @@ import React from 'react';
 import { 
     LayoutDashboard, TrendingUp, Map, UserSearch, 
     Globe, FileText, Mail, Calendar, MessageCircle,
-    ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown
+    ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -27,11 +27,13 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                 { id: 'growth', label: 'Proyección de Ingresos', icon: TrendingUp, module: "FUNDAMENTOS", description: "Escalabilidad año 1" },
                 { id: 'blueprint', label: 'Mapa de Ruta', icon: Map, module: "FUNDAMENTOS", description: "Flujo del cliente" },
                 { id: 'avatar', label: 'Diagnóstico de Avatar', icon: UserSearch, module: "FUNDAMENTOS", description: "Perfil psicológico" },
+                { id: 'psychology', label: 'Miedos y Soluciones', icon: Brain, module: "FUNDAMENTOS", description: "Ingeniería de persuasión" },
             ]
         },
         {
             module: "¿Qué creará nuestro sistema por ti?",
             items: [
+                { id: 'ecosystem', label: 'Centro de Mando', icon: Activity, module: "SISTEMA DE VENTAS", description: "Estado de tus activos" },
                 { id: 'web', label: 'Sistema Web (LP/TY)', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
                 { id: 'content', label: 'Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
                 { id: 'email', label: 'Secuencia 7 Días', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },

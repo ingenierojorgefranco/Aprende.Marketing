@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, Layout, Mail, MessageSquare, FileText, MousePointer2, Sparkles, Zap, ShieldAlert, XCircle } from 'lucide-react';
+import { Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, Layout, Mail, MessageSquare, FileText, MousePointer2, Sparkles, Zap, ShieldAlert, XCircle, PlayCircle } from 'lucide-react';
 
 interface ProjectStrategy_PsychologyProps {
     psychology: {
@@ -16,46 +15,6 @@ interface ProjectStrategy_PsychologyProps {
 }
 
 export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProps> = ({ psychology, benefitsItems }) => {
-    
-    // Mapeo extendido con el "Cómo" para cada canal
-    const applicationChannels = [
-        { 
-            label: "Headline de la landing", 
-            how: "Impacto inmediato capturando el deseo del avatar.", 
-            icon: MousePointer2, 
-            color: "text-blue-400", 
-            bg: "bg-blue-500/10" 
-        },
-        { 
-            label: "Bullets principales", 
-            how: "Transformación tangible que rompe la inercia.", 
-            icon: Layout, 
-            color: "text-indigo-400", 
-            bg: "bg-indigo-500/10" 
-        },
-        { 
-            label: "Emails de objeciones", 
-            how: "Lógica y autoridad para eliminar el miedo al riesgo.", 
-            icon: Mail, 
-            color: "text-purple-400", 
-            bg: "bg-purple-500/10" 
-        },
-        { 
-            label: "Mensajes de WhatsApp", 
-            how: "Cierre persuasivo en el canal más íntimo.", 
-            icon: MessageSquare, 
-            color: "text-green-400", 
-            bg: "bg-green-500/10" 
-        },
-        { 
-            label: "Artículos de blog", 
-            how: "Posicionamiento SEO educando al mercado.", 
-            icon: FileText, 
-            color: "text-orange-400", 
-            bg: "bg-orange-500/10" 
-        }
-    ];
-
     return (
         <div id="psd-psychology-section" className="space-y-16">
             
@@ -76,6 +35,26 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                     <p className="border-l-4 border-rose-500/30 pl-8 py-2">
                         Hemos analizado los miedos, inseguridades y objeciones más comunes de tu audiencia para convertirlos en argumentos de venta irrefutables. El objetivo es reducir la fricción mental y que la compra se sienta como el paso más natural y seguro del mundo.
                     </p>
+                </div>
+            </div>
+
+            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
+            <div id="psd-psychology-video-block" className="max-w-[70em] mx-auto px-4 md:px-0">
+                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
+                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
+                        <iframe 
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/dQw4w9XcQ?rel=0&modestbranding=1" 
+                            title="Ingeniería de Persuasión" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
+                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
+                            <PlayCircle className="w-5 h-5 text-indigo-400" />
+                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo de Persuasión</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -202,98 +181,40 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
             )}
             {/* Fin de actualización - 15/06/2024 19:55 */}
 
-            {/* --- MATRIZ DE DESPLIEGUE: CENTRO DE MANDO --- */}
-            <div id="psd-tactical-matrix" className="max-w-[85em] mx-auto pt-20">
-                <div className="bg-black/60 rounded-[4rem] p-10 md:p-20 border border-white/5 relative overflow-hidden shadow-2xl">
-                    
-                    {/* Background decoration & Grid */}
-                    <div className="absolute inset-0 z-0">
-                         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:40px_40px] opacity-10"></div>
-                         <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
-                            <Brain className="w-96 h-96 text-indigo-400" />
-                         </div>
-                    </div>
-
-                    <div className="relative z-10 flex flex-col items-center text-center mb-16">
-                        <div className="p-4 bg-indigo-500/20 rounded-[2rem] mb-8 shadow-xl shadow-indigo-500/10">
-                            <Zap className="w-12 h-12 text-indigo-400 fill-current" />
-                        </div>
-                        <h4 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-8">
-                            Distribución de Inteligencia en tu Ecosistema
-                        </h4>
-                        
-                        <div className="max-w-[70em] text-gray-300 text-[1.4rem] leading-[1.8] font-light border-l-4 border-indigo-500/30 pl-8 py-2 text-left italic">
-                            <p>
-                                Nuestra IA no genera textos genéricos; <span className="text-white font-bold">inyecta los dolores y soluciones</span> detectados anteriormente en cada punto de contacto de tu embudo. El resultado es un sistema que "lee la mente" del comprador y derriba sus barreras antes de que siquiera pueda verbalizarlas.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
-                        {applicationChannels.map((channel, i) => (
-                            <div 
-                                key={i} 
-                                className="bg-gray-900/80 backdrop-blur-md border border-gray-800 p-8 rounded-[2.5rem] flex flex-col items-start gap-6 group hover:border-indigo-500/40 transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)]"
-                            >
-                                <div className={`p-4 rounded-2xl ${channel.bg} ${channel.color} group-hover:scale-110 transition-transform shadow-lg`}>
-                                    <channel.icon className="w-8 h-8" />
-                                </div>
-                                <div className="space-y-2">
-                                    <span className="text-sm font-black uppercase tracking-[0.2em] text-gray-400 group-hover:text-white transition-colors">
-                                        {channel.label}
-                                    </span>
-                                    <p className="text-gray-300 text-lg leading-relaxed font-light">
-                                        {channel.how}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                        
-                        {/* Summary / Call to Action inside the grid for visual balance */}
-                        <div className="lg:col-span-1 flex flex-col justify-center p-8 bg-gradient-to-br from-indigo-900/20 to-rose-900/10 rounded-[2.5rem] border border-white/5 shadow-inner">
-                            <div className="flex items-center gap-3 text-indigo-400 font-black uppercase tracking-widest text-xs mb-4">
-                                <Sparkles className="w-5 h-5" /> Alineación Total
-                            </div>
-                            <p className="text-white text-xl font-bold leading-snug">
-                                Cada palabra del sistema está alineada para convertir.
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* */ /* Actualización: Matriz de objeciones detallada para FAQ y Cierre de Ventas - 15/06/2024 20:05 */ }
-                    {psychology.buyingPsychology?.notBuyingReasons && (
-                        <div className="mt-20 pt-16 border-t border-white/5 relative z-10">
-                            <h5 className="text-2xl font-black text-white mb-10 flex items-center gap-3">
-                                <ShieldAlert className="w-6 h-6 text-orange-500" /> Matriz de Objeciones Detallada
-                            </h5>
-                            <div className="grid md:grid-cols-2 gap-8">
-                                {psychology.buyingPsychology.notBuyingReasons.map((reason, idx) => (
-                                    <div key={idx} className="bg-gray-900/80 border border-gray-800 p-8 rounded-[2.5rem] hover:border-orange-500/30 transition-all">
-                                        <h6 className="text-orange-400 font-bold text-xl mb-4">{reason.title}</h6>
-                                        <div className="space-y-6">
-                                            <div>
-                                                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Respuesta Corta (Chat)</p>
-                                                <p className="text-gray-300 text-base leading-relaxed">{reason.description}</p>
-                                            </div>
-                                            {reason.detail && (
-                                                <div className="pt-4 border-t border-white/5">
-                                                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Explicación Detallada (FAQ)</p>
-                                                    <p className="text-gray-400 text-sm leading-relaxed italic">"{reason.detail}"</p>
-                                                </div>
-                                            )}
+            {/* */ /* Actualización: Matriz de objeciones detallada para FAQ y Cierre de Ventas - 15/06/2024 20:05 */ }
+            {psychology.buyingPsychology?.notBuyingReasons && (
+                <div className="max-w-[85em] mx-auto pt-20">
+                    <div className="bg-black/60 rounded-[4rem] p-10 md:p-20 border border-white/5 relative overflow-hidden shadow-2xl">
+                        <h5 className="text-2xl font-black text-white mb-10 flex items-center gap-3">
+                            <ShieldAlert className="w-6 h-6 text-orange-500" /> Matriz de Objeciones Detallada
+                        </h5>
+                        <div className="grid md:grid-cols-2 gap-8">
+                            {psychology.buyingPsychology.notBuyingReasons.map((reason, idx) => (
+                                <div key={idx} className="bg-gray-900/80 border border-gray-800 p-8 rounded-[2.5rem] hover:border-orange-500/30 transition-all">
+                                    <h6 className="text-orange-400 font-bold text-xl mb-4">{reason.title}</h6>
+                                    <div className="space-y-6">
+                                        <div>
+                                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Respuesta Corta (Chat)</p>
+                                            <p className="text-gray-300 text-base leading-relaxed">{reason.description}</p>
                                         </div>
+                                        {reason.detail && (
+                                            <div className="pt-4 border-t border-white/5">
+                                                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Explicación Detallada (FAQ)</p>
+                                                <p className="text-gray-400 text-sm leading-relaxed italic">"{reason.detail}"</p>
+                                            </div>
+                                        )}
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            ))}
                         </div>
-                    )}
-                    {/* Fin de actualización - 15/06/2024 20:05 */}
-
-                    <div className="mt-20 pt-10 border-t border-white/5 flex items-center justify-center gap-4 text-gray-500 text-sm font-medium tracking-wide relative z-10">
-                        <Check className="w-5 h-5 text-emerald-500" />
-                        Sincronización semántica de alta precisión activada.
                     </div>
                 </div>
+            )}
+            {/* Fin de actualización - 15/06/2024 20:05 */}
+
+            <div className="mt-20 pt-10 border-t border-white/5 flex items-center justify-center gap-4 text-gray-500 text-sm font-medium tracking-wide relative z-10">
+                <Check className="w-5 h-5 text-emerald-500" />
+                Sincronización semántica de alta precisión activada.
             </div>
         </div>
     );

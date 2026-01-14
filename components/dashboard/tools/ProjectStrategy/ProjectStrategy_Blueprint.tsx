@@ -53,7 +53,7 @@ const ACQUISITION_STEPS = [
         description: (
             <div className="space-y-4">
                 <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué crea el sistema:</p>
+                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué hace el sistema:</p>
                     <ul className="list-disc list-inside space-y-1 text-gray-300 text-base">
                         <li>Título principal</li>
                         <li>Dolores y beneficios</li>
@@ -672,13 +672,33 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                 <h3 id="psd-blueprint-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
                     ¿Cómo funcionará tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">estrategia de ventas?</span>
                 </h3>
-                <div className="grid md:grid-cols-2 gap-10 text-gray-300 text-[1.4rem] leading-[1.8] font-light">
-                    <p className="border-l-4 border-emerald-500/30 pl-8 py-2">
+                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
+                    <p className="border-l-4 border-emerald-500 pl-8 py-2">
                         No vendemos al azar ni dependemos de la suerte. Tu sistema está diseñado para acompañar al cliente paso a paso, desde que descubre el problema hasta que toma la decisión de compra con confianza.
                     </p>
-                    <p className="border-l-4 border-teal-500/30 pl-8 py-2">
+                    <p className="border-l-4 border-teal-500 pl-8 py-2">
                         A continuación, puedes ver el recorrido completo que seguirá cada persona interesada en tu producto. Todas estas piezas son creadas automáticamente por el sistema.
                     </p>
+                </div>
+            </div>
+
+            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
+            <div id="psd-blueprint-video-block" className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
+                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
+                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
+                        <iframe 
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
+                            title="Explicación del Mapa de Ruta" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
+                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
+                            <PlayCircle className="w-5 h-5 text-indigo-400" />
+                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo de Estrategia</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             

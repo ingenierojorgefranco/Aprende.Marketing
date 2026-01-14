@@ -1,7 +1,5 @@
-
 import React from 'react';
-import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, X, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight, Users, Clock, Coffee, Heart } from 'lucide-react';
-import { ProjectStrategy_Psychology } from './ProjectStrategy_Psychology';
+import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, X, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight, Users, Clock, Coffee, Heart, PlayCircle } from 'lucide-react';
 
 interface ProjectStrategy_AvatarDiagnosisProps {
     avatars: any[];
@@ -91,13 +89,33 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     Descubriendo el ADN de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500">comprador ideal</span>
                 </h3>
                 
-                <div className="grid md:grid-cols-2 gap-10 text-gray-300 text-[1.4rem] leading-[1.8] font-light">
-                    <p className="border-l-4 border-pink-500/30 pl-8 py-2">
+                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
+                    <p className="border-l-4 border-pink-500 pl-8 py-2">
                         El 90% de los embudos fracasan porque el mensaje es demasiado genérico. Aquí tienes los 3 perfiles psicológicos exactos de las personas que realmente comprarán tu producto.
                     </p>
-                    <p className="border-l-4 border-purple-500/30 pl-8 py-2">
+                    <p className="border-l-4 border-purple-500 pl-8 py-2">
                         Entender qué les duele y qué sueñan nos permite crear una conexión emocional y racional tan fuerte que sentirán que la única solución lógica es comprar tu oferta.
                     </p>
+                </div>
+            </div>
+
+            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
+            <div id="psd-avatar-video-block" className="max-w-[70em] mx-auto px-4 md:px-0">
+                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
+                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
+                        <iframe 
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
+                            title="Análisis del Avatar Ideal" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
+                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
+                            <PlayCircle className="w-5 h-5 text-indigo-400" />
+                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo de Avatar</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -212,7 +230,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                                 <div className="bg-black/40 p-4 rounded-2xl border border-white/5 mt-4 flex gap-3">
                                                     <Heart className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
                                                     <p className="text-gray-400 text-base italic leading-relaxed">
-                                                        <span className="font-bold text-emerald-200 uppercase text-[10px] tracking-widest block mb-1">Para Qué Emocional</span>
+                                                        <span className="font-bold text-rose-200 uppercase text-[10px] tracking-widest block mb-1">Para Qué Emocional</span>
                                                         "{avatar.emotional_reason}"
                                                     </p>
                                                 </div>
@@ -233,10 +251,6 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                         </div>
                     );
                 })}
-            </div>
-
-            <div className="max-w-[70em] mx-auto py-12">
-                <ProjectStrategy_Psychology psychology={psychology} benefitsItems={benefitsItems} />
             </div>
         </div>
     );

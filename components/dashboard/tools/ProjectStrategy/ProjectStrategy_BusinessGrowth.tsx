@@ -61,29 +61,40 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
             
             <div id="psd-business-header" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/5">
-                    <TrendingUp className="w-5 h-5" /> ¿Cuánto voy a ganar con esto?
+                    <TrendingUp className="w-5 h-5" /> Proyección de Ingresos a 1 Año
                 </div>
                 <h3 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 leading-tight tracking-tight max-w-4xl">
-                    Tu camino de ingresos con este sistema
+                    ¿Cuánto podrías ganar con nuestra estrategia?
                 </h3>
                 
-                <div className="grid md:grid-cols-2 gap-10 text-gray-300 text-[1.4rem] leading-[1.8] font-light">
-                    <p className="border-l-4 border-emerald-500/30 pl-8 py-2">
-                        Este sistema no promete resultados inmediatos ni dinero fácil. Está diseñado para ayudarte a construir un flujo de ingresos progresivo utilizando contenido, automatización y una estrategia de venta probada.
+                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
+                    <p className="border-l-4 border-emerald-500 pl-8 py-2">
+                        Este sistema está diseñado para ayudarte a construir un negocio de ingresos progresivos utilizando contenido inteligente y automatización masiva. No es una fórmula de dinero fácil ni resultados inmediatos.
                     </p>
                     <div className="space-y-8">
-                        <p className="border-l-4 border-teal-500/30 pl-8 py-2">
-                            Los resultados dependen del trabajo constante, la aplicación del método y el tiempo que le dediques al proyecto.
+                        <p className="border-l-4 border-teal-500 pl-8 py-2">
+                            Recuerda que los resultados son tu responsabilidad y dependen enteramente de tu trabajo constante, la correcta aplicación del método y el tiempo que le dediques al proyecto.
                         </p>
-                        <button 
-                            id="psd-business-video-btn-header"
-                            onClick={onOpenVideo}
-                            className="w-full md:w-auto px-10 py-6 rounded-[2rem] bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-[1.05] active:scale-95 group"
-                        >
-                            <PlayCircle className="w-8 h-8 fill-white text-emerald-600 group-hover:scale-110 transition-transform" />
-                            ¿Qué quiere decir esto?
-                            <ArrowUpRight className="w-5 h-5 opacity-50" />
-                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
+            <div id="psd-growth-video-block" className="max-w-[70em] mx-auto px-4 md:px-0">
+                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
+                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
+                        <iframe 
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
+                            title="Explicación de la Proyección de Ingresos" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
+                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
+                            <PlayCircle className="w-5 h-5 text-indigo-400" />
+                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo de Proyección</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -94,7 +105,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                         <TrendingUp className="w-[30rem] h-[30rem] text-emerald-500" />
                     </div>
                     
-                    <div className="relative z-10 h-[450px] w-full mb-8">
+                    <div className="relative z-10 h-[450px] w-full mb-12">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
                             <div>
                                 <h5 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
@@ -115,7 +126,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                         </div>
 
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
+                            <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
                                 <defs>
                                     <linearGradient id="colorIncomeMain" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
@@ -128,7 +139,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     tick={{ fill: '#6b7280', fontSize: 13, fontWeight: 'bold' }} 
                                     axisLine={false}
                                     tickLine={false}
-                                    dy={20}
+                                    dy={10}
                                 />
                                 <YAxis 
                                     tickFormatter={(value) => `$${value}`}
@@ -151,42 +162,43 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
-                    </div>
 
-                    {/* --- INDICADORES DE ETAPA EN LA GRÁFICA (REDESISEÑADOS) --- */}
-                    <div className="relative z-10 px-0 mb-24 mt-[14rem]">
-                        <div className="flex w-full h-10 rounded-full overflow-hidden bg-gray-800/50 p-1">
-                            <div className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] rounded-l-full flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '16.6%' }}>
-                                Etapa 1
-                            </div>
-                            <div className="h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)] flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '25%' }}>
-                                Etapa 2
-                            </div>
-                            <div className="h-full bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.5)] rounded-r-full flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '58.4%' }}>
-                                Etapa 3
+                        {/* --- INDICADORES DE ETAPA EN LA GRÁFICA --- */}
+                        <div className="relative z-10 mt-0" style={{ paddingLeft: '56px', paddingRight: '7px', paddingTop: '15px' }}>
+                            <div className="flex w-full h-10 rounded-full overflow-hidden bg-gray-800/50 p-1">
+                                <div className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] rounded-l-full flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '16.6%' }}>
+                                    Etapa 1
+                                </div>
+                                <div className="h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)] flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '25%' }}>
+                                    Etapa 2
+                                </div>
+                                <div className="h-full bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.5)] rounded-r-full flex items-center justify-center text-[11px] font-black text-white uppercase tracking-[0.2em]" style={{ width: '58.4%' }}>
+                                    Etapa 3
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     {/* --- ROADMAP DE EJECUCIÓN (PASO A PASO) --- */}
-                    <div className="relative z-10 pt-16 border-t border-white/5 mb-16 px-4">
+                    <div className="relative z-10 pt-20 border-t border-white/5 mb-16 px-4 mt-80">
                         <h4 className="text-2xl font-black text-white mb-10 text-center uppercase tracking-widest opacity-80">Cómo se generan los ingresos (paso a paso)</h4>
                         <div className="flex flex-col gap-10">
                             {[
                                 {
-                                    title: "Etapa 1 – Preparación (Meses 1–2)",
+                                    title: "Etapa 1 - Preparación",
+                                    subtitle: "(Meses 1 - 2)",
                                     icon: Clock,
                                     color: "text-blue-400",
                                     bg: "bg-blue-500/10",
                                     items: [
-                                        "El sistema crea tu landing, mensajes y contenidos",
-                                        "Publicas los primeros activos",
-                                        "Empiezas a captar leads"
+                                        "El sistema crea de forma automática las páginas de ventas, guiones persuasivos, secuencias de correos y los artículos de blog optimizados para Google.",
+                                        "Publicas tus contenidos en redes sociales como YouTube, Instagram, Facebook y Tik Tok para atraer a tus primeros visitantes.",
+                                        "Los leads empiezan a llegar a tu ecosistema, consumen tu regalo de bienvenida y se unen a tu comunidad de WhatsApp."
                                     ],
-                                    objective: "Objetivo: poner la maquinaria en marcha"
+                                    objective: "Objetivo: Crear un activo digital rentable"
                                 },
                                 {
-                                    title: "Etapa 2 – Tracción inicial (Meses 3–5)",
+                                    title: "Etapa 2 – Primeras Ventas",
                                     icon: TrendingUp,
                                     color: "text-emerald-400",
                                     bg: "bg-emerald-500/10",
@@ -195,7 +207,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                         "WhatsApp empieza a recibir conversaciones reales",
                                         "Se cierran las primeras ventas"
                                     ],
-                                    objective: "Objetivo: validar que el sistema funciona"
+                                    objective: "Objetivo: validar que tu estrategia digital funciona y genera resultados"
                                 },
                                 {
                                     title: "Etapa 3 – Crecimiento acumulativo (Meses 6–12)",
@@ -215,7 +227,10 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                         <div className={`p-4 rounded-2xl ${phase.bg} ${phase.color} shadow-lg`}>
                                             <phase.icon className="w-8 h-8" />
                                         </div>
-                                        <h5 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">{phase.title}</h5>
+                                        <div>
+                                            <h5 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">{phase.title}</h5>
+                                            {phase.subtitle && <p className="text-gray-500 text-lg font-medium mt-1">{phase.subtitle}</p>}
+                                        </div>
                                         <div className={`md:ml-auto px-6 py-2 rounded-full border border-white/10 font-black text-xs uppercase tracking-wider h-fit ${phase.color}`}>
                                             {phase.objective}
                                         </div>
@@ -237,15 +252,15 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
 
                     {/* --- PROYECCIÓN DE INGRESOS (UNIFICADA DENTRO DE LA TARJETA) --- */}
                     <div className="relative z-10 pt-16 border-t border-white/5 mb-16">
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            {/* Panel Izquierdo: Configuración */}
-                            <div className="space-y-8">
+                        <div className="flex flex-col items-center gap-16 max-w-4xl mx-auto">
+                            {/* Panel: Configuración Centrado */}
+                            <div className="space-y-8 w-full flex flex-col items-center text-center">
                                 <div>
                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black uppercase tracking-widest mb-4">
                                         Supuesto base
                                     </div>
                                     <h4 className="text-4xl font-black text-white leading-tight">Proyección de ingresos <br/> (estimación orientativa)</h4>
-                                    <div className="space-y-3 mt-8">
+                                    <div className="space-y-3 mt-8 flex flex-col items-center">
                                         <div className="flex items-center gap-3 text-gray-300 text-lg font-light">
                                             <Check className="w-5 h-5 text-emerald-500" /> Precio del curso: $200 USD
                                         </div>
@@ -258,21 +273,21 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-black/40 border border-gray-800 p-5 rounded-2xl">
+                                <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+                                    <div className="bg-black/40 border border-emerald-500/30 rounded-2xl text-center p-5">
                                         <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mb-2">Ganancia Neta / Venta</p>
                                         <p className="text-emerald-400 font-black text-3xl">$120.00</p>
                                     </div>
-                                    <div className="bg-black/40 border border-gray-700 p-5 rounded-2xl">
+                                    <div className="bg-black/40 border border-gray-700 rounded-2xl text-center p-5">
                                         <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mb-2">Tasa de Cierre WA</p>
                                         <p className="text-white font-black text-3xl">3%</p>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Panel Derecho: Tabla de Escala */}
-                            <div className="bg-gray-800/40 rounded-[2.5rem] border border-gray-700 p-8 shadow-inner">
-                                <h5 className="text-white font-bold mb-6 flex items-center gap-2">
+                            {/* Panel: Tabla de Escala Centrado */}
+                            <div className="bg-gray-800/40 rounded-[2.5rem] border border-gray-700 p-8 shadow-inner w-full max-w-2xl">
+                                <h5 className="text-white font-bold mb-6 flex items-center justify-center gap-2">
                                     <ArrowUpRight className="w-5 h-5 text-emerald-400" /> Ejemplo práctico de Escala
                                 </h5>
                                 
@@ -283,7 +298,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                         { leads: 200, sales: "6", income: "720" }
                                     ].map((row, i) => (
                                         <div key={i} className="flex items-center justify-between p-5 rounded-2xl bg-black/20 border border-transparent hover:border-emerald-500/30 hover:bg-black/40 transition-all group">
-                                            <div>
+                                            <div className="text-left">
                                                 <p className="text-xs text-gray-500 font-black uppercase tracking-widest mb-1">Atrayendo</p>
                                                 <p className="text-white font-black text-xl flex items-center gap-2">
                                                     <Users className="w-5 h-5 text-blue-400" /> {row.leads} Leads
@@ -301,11 +316,11 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     ))}
                                 </div>
 
-                                <div className="mt-8 flex items-center gap-4 p-5 bg-black/60 border-l-4 border-amber-500/30 rounded-r-2xl shadow-xl">
+                                <div className="mt-8 flex items-center gap-4 p-5 bg-black/60 border-l-4 border-amber-500/30 rounded-r-2xl shadow-xl text-left">
                                     <div className="p-2 bg-amber-500/20 rounded-full shrink-0">
                                         <AlertTriangle className="w-6 h-6 text-amber-500" />
                                     </div>
-                                    <p className="text-sm text-gray-200 leading-relaxed font-medium">
+                                    <p className="text-[1.4rem] text-gray-200 leading-relaxed font-medium">
                                         Estos números son proyecciones, no garantías. <span className="text-amber-400">Sirven para entender el potencial del sistema</span> cuando se aplica correctamente.
                                     </p>
                                 </div>

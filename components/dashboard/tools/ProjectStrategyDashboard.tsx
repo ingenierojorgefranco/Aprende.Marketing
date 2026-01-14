@@ -13,6 +13,7 @@ import { ProjectStrategy_Sidebar } from './ProjectStrategy/ProjectStrategy_Sideb
 ////////// Actualización: Carga Dinámica (Lazy Load) de Bloques Pesados de Estrategia - 05/06/2025 21:30 //////////
 const ProjectStrategy_Summary = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Summary').then(m => ({ default: m.ProjectStrategy_Summary })));
 const ProjectStrategy_AvatarDiagnosis = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_AvatarDiagnosis').then(m => ({ default: m.ProjectStrategy_AvatarDiagnosis })));
+const ProjectStrategy_Psychology = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Psychology').then(m => ({ default: m.ProjectStrategy_Psychology })));
 const ProjectStrategy_BusinessGrowth = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_BusinessGrowth').then(m => ({ default: m.ProjectStrategy_BusinessGrowth })));
 const ProjectStrategy_Blueprint = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Blueprint').then(m => ({ default: m.ProjectStrategy_Blueprint })));
 const ProjectStrategy_WebSystem = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_WebSystem').then(m => ({ default: m.ProjectStrategy_WebSystem })));
@@ -20,12 +21,13 @@ const ProjectStrategy_Content = React.lazy(() => import('./ProjectStrategy/Proje
 const ProjectStrategy_Email = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Email').then(m => ({ default: m.ProjectStrategy_Email })));
 const ProjectStrategy_Evergreen = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Evergreen').then(m => ({ default: m.ProjectStrategy_Evergreen })));
 const ProjectStrategy_WhatsApp = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_WhatsApp').then(m => ({ default: m.ProjectStrategy_WhatsApp })));
+const ProjectStrategy_Ecosystem = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Ecosystem').then(m => ({ default: m.ProjectStrategy_Ecosystem })));
 ////////// Fin de actualización - 05/06/2025 21:30 //////////
 
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
 import { ProjectMasterStrategy } from '../../../services/strategySchema';
-import { LandingPage, User, Plan } from '../../../types';
+import { LandingPage, User, Plan, EmailSequence, Article } from '../../../types';
 
 // --- ICONS MAPPING FOR DYNAMIC DATA ---
 const iconMap: any = {
@@ -50,6 +52,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
+    const [linkedSequences, setLinkedSequences] = useState<EmailSequence[]>([]);
+    const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
     const [globalDomainCount, setGlobalDomainCount] = useState(0); 
     
     // */ Actualización: Estado para navegación modular - 24/05/2024 20:20
@@ -87,11 +91,13 @@ export const ProjectStrategyDashboard: React.FC = () => {
         if (!id) return;
         setLoading(true);
         try {
-            const [strategy, projectDetails, pages, plansData] = await Promise.all([
+            const [strategy, projectDetails, pages, plansData, sequences, articles] = await Promise.all([
                 api.getProjectStrategy(id).catch(e => { console.error("Strategy load fail", e); return null; }),
                 api.getProjectById(id).catch(e => { console.error("Project details load fail", e); return null; }),
                 api.getPages().catch(e => { console.error("Pages load fail", e); return []; }),
-                api.getPublicPlans().catch(e => { console.error("Plans load fail", e); return []; })
+                api.getPublicPlans().catch(e => { console.error("Plans load fail", e); return []; }),
+                api.getEmailSequences().catch(e => { console.error("Sequences load fail", e); return []; }),
+                api.getArticles().catch(e => { console.error("Articles load fail", e); return []; })
             ]);
 
             if (projectDetails) {
@@ -119,6 +125,12 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
             const projectPages = Array.isArray(pages) ? pages.filter(p => String(p.projectId) === String(id) || (strategy && p.name === strategy.meta?.projectName)) : [];
             setLinkedPages(projectPages);
+
+            const projectSeqs = Array.isArray(sequences) ? sequences.filter(s => String(s.projectId) === String(id)) : [];
+            setLinkedSequences(projectSeqs);
+
+            const projectArts = Array.isArray(articles) ? articles.filter(a => projectPages.some(p => String(p.id) === String(a.pageId))) : [];
+            setLinkedArticles(projectArts);
 
             const domains = Array.isArray(pages) ? pages.filter(p => !!p.customDomain).length : 0;
             setGlobalDomainCount(domains);
@@ -324,22 +336,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 onBack={() => navigate('/dashboard/projects')} 
             />
 
-            {/* --- BLOQUE DE BIENVENIDA AL CURSO --- */}
-            <div className="max-w-[1500px] mx-auto px-6 mt-12 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <div className="flex flex-wrap gap-4 mb-6">
-                    <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#FF5A1F] text-white text-sm font-black uppercase tracking-wider shadow-lg shadow-[#FF5A1F]/20">
-                        <Sparkles className="w-4 h-4" /> Resumen del Sistema Estratégico
-                    </div>
-                </div>
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight tracking-tighter">
-                    Bienvenido a Aprende.Marketing!!!
-                </h2>
-                <p className="text-gray-400 text-[1.3rem] leading-[2.5rem] font-light max-w-5xl pl-8 ml-12 pt-6 border-l-4 border-[#FF5A1F]/30">
-                    Hemos diseñado un sistema de ventas completo para este producto, pensado para atraer personas interesadas, guiarlas paso a paso y convertirlas en clientas. Para lograrlo, utilizamos inteligencia artificial que analiza el mercado y tu oferta, automatizando gran parte del proceso estratégico y ahorrándote tiempo en tareas complejas.
-                </p>
-                <hr className="mt-12 border-gray-800" />
-            </div>
-
             {/* */ /* Actualización: Reestructuración del grid al estilo Academia con sidebar sticky top-6 - 24/05/2024 21:15 */ }
             <div id="psd-modular-container" className="max-w-[1500px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-8 relative">
                 
@@ -402,6 +398,29 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                         benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items}
                                     />
                                 )}
+                            </div>
+                        )}
+
+                        {activeSection === 'psychology' && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                {strategyData.psychology && (
+                                    <ProjectStrategy_Psychology 
+                                        psychology={strategyData.psychology} 
+                                        benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items}
+                                    />
+                                )}
+                            </div>
+                        )}
+
+                        {activeSection === 'ecosystem' && (
+                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                <ProjectStrategy_Ecosystem 
+                                    projectId={id}
+                                    linkedPages={linkedPages}
+                                    linkedSequences={linkedSequences}
+                                    linkedArticles={linkedArticles}
+                                    onNavigate={setActiveSection}
+                                />
                             </div>
                         )}
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Rocket, FileText, DollarSign, Zap, ShieldCheck, BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
+import { Rocket, FileText, DollarSign, Zap, ShieldCheck, BookOpen, Sparkles, Users, MessageCircle, Target, PlayCircle } from 'lucide-react';
 
 interface ProjectStrategy_SummaryProps {
     strategyData: any;
@@ -96,22 +96,52 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
 
     return (
         <div className="space-y-16">
-            {/* BLOQUE: RESUMEN ESTRATÉGICO DE TU PROYECTO */}
-            <div className="max-w-[70em] mx-auto bg-gradient-to-br from-indigo-900/10 via-purple-900/5 to-black p-8 md:p-12 rounded-[2.5rem] border border-white/5 relative overflow-hidden shadow-2xl">
+            {/* BLOQUE: CABECERA ESTRATÉGICA A DOS COLUMNAS */}
+            <div id="psd-summary-header" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
+                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/5">
+                    <Zap className="w-5 h-5 fill-current" /> Resumen estratégico de tu Proyecto
+                </div>
+                <h3 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 leading-tight tracking-tight max-w-4xl">
+                    {strategyData.meta?.projectName}
+                </h3>
+                
+                <div className="grid md:grid-cols-2 gap-10 text-white text-[1.3rem] leading-[2.5rem] font-light">
+                    <p className="border-l-4 border-indigo-500 pl-8 py-2">
+                        Hemos diseñado un sistema de ventas completo para este producto, pensado para atraer personas interesadas, guiarlas paso a paso y convertirlas en clientas.
+                    </p>
+                    <p className="border-l-4 border-purple-500 pl-8 py-2">
+                        Para lograrlo, utilizamos inteligencia artificial que analiza el mercado y tu oferta, automatizando gran parte del proceso estratégico y ahorrándote tiempo en tareas complejas.
+                    </p>
+                </div>
+            </div>
+
+            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
+            <div id="psd-summary-video-block" className="max-w-[70em] mx-auto px-4 md:px-0">
+                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
+                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
+                        <iframe 
+                            className="w-full h-full"
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
+                            title="Explicación Estratégica del Sistema" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
+                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
+                            <PlayCircle className="w-5 h-5 text-indigo-400" />
+                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo del Análisis</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* BLOQUE: TARJETAS DE DATOS */}
+            <div className="max-w-[70em] mx-auto bg-gray-900/40 backdrop-blur-sm p-8 md:p-12 rounded-[2.5rem] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
                     <Rocket className="w-64 h-64 text-indigo-400" />
                 </div>
 
                 <div className="relative z-10">
-                    <h3 className="text-2xl md:text-3xl font-black text-white mb-4 flex items-center gap-4">
-                        <span className="text-indigo-400 p-2 bg-indigo-500/10 rounded-lg">⚡</span> 
-                        Resumen estratégico de tu Proyecto
-                    </h3>
-                    
-                    <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light mb-10 border-l-4 border-indigo-500/30 pl-8 py-2">
-                        Nuestra inteligencia artificial ha analizado profundamente tu producto elegido y el mercado actual para diseñar un ecosistema de ventas automatizado. Hará todo el trabajo difícil por ti de forma automática.
-                    </p>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Renderizado de las 10 tarjetas unificadas */}
                         {orderedCards.map((card, i) => (
@@ -139,17 +169,11 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                         ))}
                     </div>
                     
-                    {/* Nota de pie del bloque */}
-                    <div className="mt-10 flex items-center justify-center gap-3 text-gray-300 text-[1.4rem] leading-[1.8] font-light border-l-4 border-amber-500/30 pl-8 py-2 mb-12 text-left">
-                        <ShieldCheck className="w-4 h-4 text-amber-500/60" />
-                        Esta configuración es la base para el cálculo de tu rentabilidad en el año 1.
-                    </div>
-
                     {/* SECCIÓN: ANÁLISIS DEL PROYECTO */}
                     {description && (
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 pt-10">
                             <h4 className="text-xl md:text-2xl font-black text-white mb-8 flex items-center gap-3">
-                                <FileText className="w-6 h-6 text-indigo-400" /> Análisis del Producto Digital que vas a promocionar
+                                <FileText className="w-6 h-6 text-indigo-400" /> Análisis del Producto Digital que vas a promocionar (En base a tu página de ventas)
                             </h4>
                             <div className="relative border-l-4 border-indigo-500/30 pl-8 py-2">
                                 <div className="relative z-10">
