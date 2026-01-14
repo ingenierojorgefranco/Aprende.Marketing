@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 // FIX: Added missing XCircle to lucide-react imports
 import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, PlayCircle, MousePointer2, Zap, ArrowDown, XCircle } from 'lucide-react';
@@ -35,10 +34,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     // FIX: Added missing state showPagesModal to control the multiple pages modal visibility
     const [showPagesModal, setShowPagesModal] = useState(false);
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
-    
-    ////////// Actualización: Estado para detectar si se ha generado una página recientemente - 14/06/2024 10:30 //////////
-    const [lastGeneratedPage, setLastGeneratedPage] = useState<LandingPage | null>(null);
-    ////////// Fin de actualización - 14/06/2024 10:30 //////////
 
     // Default to first tabs if null
     React.useEffect(() => {
@@ -55,10 +50,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const handlePageGenerated = async (page: LandingPage) => {
         try {
             const savedPage = await api.createPage(page);
-            ////////// Actualización: Cerrar modal y establecer estado de éxito en lugar de redirigir - 14/06/2024 10:30 //////////
-            setLastGeneratedPage(savedPage);
             setShowGeneratorModal(false);
-            ////////// Fin de actualización - 14/06/2024 10:30 //////////
+            navigate(`/dashboard/editor/${savedPage.id}`);
         } catch (e: any) {
             alert(`Error guardando la página: ${e.message}`);
         }
@@ -381,51 +374,17 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
                 </div>
 
-                {/* BOTÓN DE ACCIÓN FINAL O BLOQUE DE ÉXITO */}
+                {/* BOTÓN DE ACCIÓN FINAL */}
                 <div className="max-w-4xl mx-auto w-full pt-10">
-                    {!lastGeneratedPage ? (
-                        <>
-                            <button 
-                                onClick={() => setShowGeneratorModal(true)}
-                                className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-[0_20px_50px_rgba(255,90,31,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-[1.02] active:scale-95 group"
-                            >
-                                <PenTool className="w-8 h-8 group-hover:rotate-12 transition-transform" /> 
-                                Generar mis Páginas ahora con IA
-                                <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-                            </button>
-                            <p className="text-center text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] mt-8">Arquitectura semántica garantizada para Hotmart®</p>
-                        </>
-                    ) : (
-                        <div className="w-full bg-emerald-900/10 border border-emerald-500/20 rounded-[2.5rem] p-10 text-center animate-in zoom-in-95 duration-500 shadow-2xl relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-8 opacity-5">
-                                <CheckCircle2 className="w-32 h-32 text-emerald-500" />
-                            </div>
-                            
-                            <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-emerald-500/30">
-                                <CheckCircle2 className="w-10 h-10" />
-                            </div>
-                            
-                            <h4 className="text-3xl font-black text-white mb-2">¡Página Generada!</h4>
-                            <p className="text-gray-300 text-lg mb-10">Tu página de captura y de gracias ha sido generada correctamente.</p>
-                            
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <a 
-                                    href={`/admin/lp/${lastGeneratedPage.subdomain.split('.')[0]}`} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="flex-1 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2"
-                                >
-                                    <Eye className="w-5 h-5" /> Ver Página
-                                </a>
-                                <button 
-                                    onClick={() => onEditPage(lastGeneratedPage.id)}
-                                    className="flex-1 py-4 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all flex items-center justify-center gap-2"
-                                >
-                                    <PenTool className="w-5 h-5" /> Editar Página
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                    <button 
+                        onClick={() => setShowGeneratorModal(true)}
+                        className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-[0_20px_50px_rgba(255,90,31,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-[1.02] active:scale-95 group"
+                    >
+                        <PenTool className="w-8 h-8 group-hover:rotate-12 transition-transform" /> 
+                        Generar mis Páginas ahora con IA
+                        <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                    </button>
+                    <p className="text-center text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] mt-8">Arquitectura semántica garantizada para Hotmart®</p>
                 </div>
             </div>
             
