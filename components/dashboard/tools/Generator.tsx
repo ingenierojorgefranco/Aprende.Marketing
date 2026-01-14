@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
 import { GeneratedPageContent, LandingPage, ColorPalette, StructureType, DestinationConfig, DestinationType, Project, User } from '../../../types';
-import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase, Plus, ArrowRight, ChevronRight, Info, AlertTriangle, X, CheckCircle, Eye, Edit } from 'lucide-react';
+import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase, Plus, ArrowRight, ChevronRight, Info, AlertTriangle, X } from 'lucide-react';
 import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import { UpgradeModal } from '../UpgradeModal';
 
@@ -25,17 +25,11 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
   const preSelectedProjectId = embeddedProjectId || searchParams.get('projectId');
 
   const [loading, setLoading] = useState(false);
+  /* Actualización: Ajuste de estado inicial a 0 para forzar la selección estratégica de proyecto antes de la generación - 22/05/2024 16:15 */
   const [step, setStep] = useState(0); // 0: Select Project, 1: Info, 2: Structure/Design
   const [userProjects, setUserProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('');
   
-  // Estados para simulación de construcción "GeneratorLanding"
-  const [isBuilding, setIsBuilding] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [statusMessage, setStatusMessage] = useState('Analizando el ADN del proyecto...');
-  const [isComplete, setIsComplete] = useState(false);
-  const [generatedPage, setGeneratedPage] = useState<LandingPage | null>(null);
-
   // Limit Check
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
@@ -78,6 +72,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
     if (preSelectedProjectId && userProjects.length > 0) {
       handleProjectSelect(preSelectedProjectId);
       setFormData(prev => ({ ...prev, goal: 'Registro a Webinar / Clase' }));
+      /* Actualización: Salto automático al paso 1 si el proyecto ya viene definido en la navegación - 22/05/2024 16:15 */
       setStep(1);
     }
   }, [preSelectedProjectId, userProjects]);
@@ -167,36 +162,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         projectId: selectedProject || undefined 
       };
 
-      // Si se abre como modal (onClose existe), mostramos la simulación de construcción
-      if (onClose) {
-          setIsBuilding(true);
-          const messages = [
-              "Analizando el ADN del proyecto...",
-              "Estructurando headlines persuasivos...",
-              "Inyectando gatillos mentales de conversión...",
-              "Optimización para dispositivos móviles...",
-              "Configurando el ecosistema de ventas..."
-          ];
-          
-          let currentProgress = 0;
-          const interval = setInterval(() => {
-              currentProgress += Math.floor(Math.random() * 5) + 2;
-              if (currentProgress >= 100) {
-                  currentProgress = 100;
-                  clearInterval(interval);
-                  setIsComplete(true);
-                  setStatusMessage('¡Página de captura configurada correctamente!');
-              } else {
-                  const msgIdx = Math.floor((currentProgress / 100) * messages.length);
-                  setStatusMessage(messages[msgIdx]);
-              }
-              setProgress(currentProgress);
-          }, 150);
-
-          setGeneratedPage(newPage);
-      } else {
-          onPageGenerated(newPage);
-      }
+      onPageGenerated(newPage);
     } catch (err) {
       console.error(err);
       setError("Error al generar la página. Por favor intenta de nuevo.");
@@ -294,94 +260,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
     }
   ];
 
-  // Interfaz de Construcción (GeneratorLanding Style)
-  if (isBuilding) {
-      return (
-          <div className="fixed inset-0 bg-[#0B0B0B] z-[250] flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
-              <div className="w-full max-w-2xl space-y-12">
-                  {!isComplete ? (
-                      <>
-                          <div className="space-y-4">
-                              <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter italic">
-                                  Construyendo tu Sistema de Ventas
-                              </h2>
-                              <p className="text-[#B0B0B0] text-lg font-medium animate-pulse">
-                                  {statusMessage}
-                              </p>
-                          </div>
-
-                          <div className="relative pt-1">
-                              <div className="flex mb-4 items-center justify-between">
-                                  <div>
-                                      <span className="text-[10px] font-black inline-block py-1 px-2 uppercase rounded-full text-[#FF5A1F] bg-[#FF5A1F]/10 border border-[#FF5A1F]/20">
-                                          Progreso de la IA
-                                      </span>
-                                  </div>
-                                  <div className="text-right">
-                                      <span className="text-sm font-black inline-block text-white">
-                                          {progress}%
-                                      </span>
-                                  </div>
-                              </div>
-                              <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-gray-800 p-0.5 border border-white/5">
-                                  <div 
-                                      style={{ width: `${progress}%` }} 
-                                      className="shadow-[0_0_15px_#FF5A1F] flex flex-col text-center whitespace-nowrap text-white justify-center bg-[#FF5A1F] rounded-full transition-all duration-300 ease-out"
-                                  ></div>
-                              </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 opacity-50">
-                              {['Copywriting', 'Estructura', 'Diseño', 'SEO'].map((stepName, i) => (
-                                  <div key={i} className="bg-[#161616] p-4 rounded-2xl border border-white/5 flex flex-col items-center gap-2">
-                                      <div className={`w-2 h-2 rounded-full ${progress > (i+1)*20 ? 'bg-emerald-500' : 'bg-gray-700'}`}></div>
-                                      <span className="text-[10px] font-black uppercase text-gray-500">{stepName}</span>
-                                  </div>
-                              ))}
-                          </div>
-                      </>
-                  ) : (
-                      <div className="animate-in zoom-in-95 duration-700 space-y-10">
-                          <div className="w-24 h-24 bg-emerald-500/10 rounded-[2.5rem] flex items-center justify-center mx-auto border border-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.2)]">
-                              <CheckCircle className="w-12 h-12 text-emerald-500" />
-                          </div>
-                          <div className="space-y-4">
-                              <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
-                                  ¡Construcción Finalizada!
-                              </h2>
-                              <p className="text-gray-400 text-xl font-medium max-w-md mx-auto leading-relaxed">
-                                  Tu página de captura ha sido configurada correctamente y está lista para recibir tráfico.
-                              </p>
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-                              <button 
-                                  onClick={() => {
-                                      if (generatedPage) {
-                                          const baseSlug = generatedPage.subdomain ? generatedPage.subdomain.split(".")[0] : generatedPage.id;
-                                          window.open(`/admin/lp/${baseSlug}`, '_blank');
-                                      }
-                                  }}
-                                  className="px-10 py-5 bg-transparent border border-white/10 hover:bg-white/5 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all flex items-center justify-center gap-3"
-                              >
-                                  <Eye className="w-5 h-5" /> Ver página
-                              </button>
-                              <button 
-                                  onClick={() => {
-                                      if (generatedPage) onPageGenerated(generatedPage);
-                                  }}
-                                  className="px-12 py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95"
-                              >
-                                  <Edit className="w-5 h-5" /> Editar página
-                              </button>
-                          </div>
-                      </div>
-                  )}
-              </div>
-          </div>
-      );
-  }
-
   return (
     <div className={`max-w-5xl mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative ${onClose ? 'max-h-[90vh]' : ''}`}>
       <UpgradeModal 
@@ -401,6 +279,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         </div>
         <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Landing Pages IA</h2>
         <div className="flex items-center justify-center gap-2 mt-4 text-sm">
+           {/* Actualización: Paso 0 de visualización de progreso */}
            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 0 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
            <div className="w-4 h-px bg-gray-700"></div>
            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 1 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>1. Configuración</span>
@@ -416,6 +295,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
           </div>
         )}
 
+        {/* */ /* Actualización: Rediseño completo del Paso 0 para unificar la estética con el asistente de email, aplicando radios de [3rem], paddings p-10, línea de acento superior y botón de selección - 06/03/2025 11:30 */ }
         {step === 0 && (
           <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center">
               <div className="max-w-2xl mx-auto">
@@ -448,6 +328,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                             </div>
                             <div className="flex-1 mb-10">
                                 <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
+                                {/* Eliminación de truncamiento en descripción de proyecto para mostrar texto completo - 06/03/2025 15:30 */ }
                                 <p className="text-gray-400 text-lg leading-relaxed font-medium">
                                     {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}
                                 </p>
@@ -496,6 +377,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         {step === 1 && (
           <div className="space-y-6 text-gray-200 animate-in fade-in slide-in-from-right-4 duration-300">
             
+            {/* PROJECT SELECTOR STRATEGY */}
             <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700 border-dashed">
                 <label className="block text-sm font-bold text-white mb-2 flex items-center gap-2">
                     <Briefcase className="w-4 h-4 text-primary" /> Proyecto Seleccionado
@@ -550,6 +432,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
               />
             </div>
 
+            {/* Destination Configuration */}
             <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-800">
                 <h3 className="font-bold text-white mb-4 flex items-center gap-2">
                     <Target className="w-5 h-5 text-primary" /> Configuración del Llamado a la Acción (CTA)
@@ -577,6 +460,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                     </button>
                 </div>
 
+                {/* Dynamic Inputs based on Destination */}
                 {formData.destinationType === 'whatsapp' && (
                     <div className="grid md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
                         <div>
@@ -648,6 +532,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         {step === 2 && (
           <div className="space-y-8 text-gray-200 animate-in fade-in slide-in-from-right-4 duration-300">
              
+             {/* Structure Selection */}
              <div>
                 <label className="block text-lg font-bold text-white mb-4 flex items-center gap-2">
                    <LayoutTemplate className="w-5 h-5 text-primary" /> Selecciona la Estructura
@@ -673,6 +558,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                 </div>
              </div>
 
+             {/* Palette Selection */}
              <div>
                 <label className="block text-lg font-bold text-white mb-4 flex items-center gap-2">
                    <Palette className="w-5 h-5 text-primary" /> Selecciona los Colores
