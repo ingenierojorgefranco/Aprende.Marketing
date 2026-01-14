@@ -126,19 +126,17 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         "Finalizando arquitectura SEO..."
     ];
 
-    // Simulación de progreso más robusta para asegurar el 100%
+    // Lógica de simulación de progreso paralelo
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
-        currentProgress += 1;
-        if (currentProgress >= 95) {
-            clearInterval(progressInterval);
-            return;
+        if (currentProgress < 95) {
+            currentProgress += 1;
+            setProgress(currentProgress);
+            
+            const msgIdx = Math.min(Math.floor((currentProgress / 100) * messages.length), messages.length - 1);
+            setLoadingMessage(messages[msgIdx]);
         }
-        setProgress(currentProgress);
-        
-        const msgIdx = Math.min(Math.floor((currentProgress / 100) * messages.length), messages.length - 1);
-        setLoadingMessage(messages[msgIdx]);
-    }, 60);
+    }, 100);
 
     const destinationConfig: DestinationConfig = {
         type: formData.destinationType,
@@ -153,8 +151,8 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
       let content: GeneratedPageContent;
 
       if (api.isUsingMockData()) {
+          // Local/Mock
           await new Promise(resolve => setTimeout(resolve, 3000));
-          
           content = {
               palette: formData.palette,
               structure: formData.structure,
@@ -233,6 +231,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
               redirectUrl: "https://aprende.marketing"
           };
       } else {
+          // Producción: Gemini Real
           content = await generateLandingPageContent(
             formData.pageName,
             formData.goal,
@@ -259,17 +258,20 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         projectId: selectedProject || undefined 
       };
 
-      // Forzar el fin del progreso
+      // Al terminar la API, completamos el progreso
       clearInterval(progressInterval);
       setProgress(100);
       setLoadingMessage("¡Arquitectura finalizada!");
       
-      await new Promise(r => setTimeout(r, 800));
+      // Pequeño delay para que se vea el 100%
+      await new Promise(r => setTimeout(r, 600));
+      
       setGeneratedPageResult(newPage);
       setGenerationStatus('success');
 
     } catch (err) {
       console.error(err);
+      clearInterval(progressInterval);
       setError("Error al generar la página. Por favor intenta de nuevo.");
       setGenerationStatus('idle');
     } finally {
@@ -510,6 +512,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
 
                 <button 
                     onClick={() => {
+                        setGenerationStatus('idle');
                         if(onClose) onClose();
                         else navigate('/dashboard/pages');
                     }}
