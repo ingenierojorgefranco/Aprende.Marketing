@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
     Activity, Globe, Mail, FileText, MessageSquare, 
     Zap, Sparkles, ChevronRight, CheckCircle2, 
     // Added missing ArrowRight and Wand2 icons
-    AlertCircle, Rocket, Brain, MousePointer2, ExternalLink, ArrowRight, Wand2
+    AlertCircle, Rocket, Brain, MousePointer2, ExternalLink, ArrowRight, Wand2, X
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, EmailSequence, Article } from '../../../../types';
+import { Generator } from '../Generator';
+import { api } from '../../../../services/api';
 
 interface ProjectStrategy_EcosystemProps {
     projectId: string;
@@ -24,6 +26,17 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
     onNavigate
 }) => {
     const navigate = useNavigate();
+    const [showGeneratorModal, setShowGeneratorModal] = useState(false);
+
+    const handlePageGenerated = async (page: LandingPage) => {
+        try {
+            const savedPage = await api.createPage(page);
+            setShowGeneratorModal(false);
+            navigate(`/dashboard/editor/${savedPage.id}`);
+        } catch (e: any) {
+            alert(`Error guardando la página: ${e.message}`);
+        }
+    };
 
     const assets = [
         {
@@ -108,7 +121,7 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
             {/* BOTÓN MAESTRO AUTOPILOT */}
             <div className="max-w-[70em] mx-auto">
                 <button 
-                    onClick={() => onNavigate('web')}
+                    onClick={() => setShowGeneratorModal(true)}
                     className="w-full group bg-gradient-to-r from-[#FF5A1F] to-orange-600 p-1 rounded-[2.5rem] shadow-2xl transition-all hover:scale-[1.01] active:scale-95"
                 >
                     <div className="bg-[#0B0B0B] rounded-[2.4rem] p-8 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative">
@@ -176,7 +189,7 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
                                         </button>
                                     ) : (
                                         <button 
-                                            onClick={() => asset.id === 'web' ? navigate(asset.path + `?projectId=${projectId}`) : navigate(asset.path)}
+                                            onClick={() => asset.id === 'web' ? setShowGeneratorModal(true) : navigate(asset.path)}
                                             className="flex-1 py-4 bg-[#FF5A1F] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#D94A1E] transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-2"
                                         >
                                             <Wand2 className="w-4 h-4" /> Generar con IA
@@ -202,7 +215,7 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
                                 <Brain className="w-6 h-6 text-purple-400" /> Distribución de Inteligencia
                             </h5>
                             <p className="text-gray-400 text-lg font-light leading-relaxed">
-                                Tu ecosistema no es una colección de textos aislados. Es una red conectada donde la IA ha inyectado los dolores, miedos y deseos de tu avatar en cada punto de contacto. Al completar todos los activos, creas una experiencia de venta fluida que derriba objeciones en piloto automático.
+                                Tu ecosistema no es una colección de textos aislados. Es una red conectada donde la IA ha inyectado los dolores, miedos y deseos de tu avatar in cada punto de contacto. Al completar todos los activos, creas una experiencia de venta fluida que derriba objeciones en piloto automático.
                             </p>
                         </div>
                         <div className="md:col-span-4 flex flex-col gap-3">
@@ -215,6 +228,25 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
                     </div>
                 </div>
             </div>
+
+            {/* GENERATOR MODAL OVERLAY */}
+            {showGeneratorModal && (
+                <div 
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300"
+                    onClick={() => setShowGeneratorModal(false)}
+                >
+                    <div 
+                        className="w-full max-w-[1200px] h-[95vh] overflow-hidden rounded-[3rem] shadow-2xl relative border border-white/10"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <Generator 
+                            onPageGenerated={handlePageGenerated} 
+                            embeddedProjectId={projectId} 
+                            onClose={() => setShowGeneratorModal(false)}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* FOOTER INFORMATIVO */}
             <div className="max-w-[70em] mx-auto text-center opacity-30 pt-10 border-t border-white/5">

@@ -1,14 +1,16 @@
+
 import React, { useState } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, PlayCircle } from 'lucide-react';
+// FIX: Added missing XCircle to lucide-react imports
+import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, PlayCircle, MousePointer2, Zap, ArrowDown, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
+import { Generator } from '../Generator';
+import { api } from '../../../../services/api';
 
 interface ProjectStrategy_WebSystemProps {
     projectId: string;
-    // Nuevas props para datos dinámicos
     lpTabsData?: any;
     tyTabsData?: any;
-    
     selectedLpTab: string | null;
     setSelectedLpTab: (tab: string | null) => void;
     selectedTyTab: string | null;
@@ -30,8 +32,13 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     pageCount = 0, domainCount = 0, planLimits, onUpgrade, nextPlan
 }) => {
     const navigate = useNavigate();
+    // FIX: Added missing state showPagesModal to control the multiple pages modal visibility
     const [showPagesModal, setShowPagesModal] = useState(false);
-    const [modalMode, setModalMode] = useState<'lp' | 'ty'>('lp');
+    const [showGeneratorModal, setShowGeneratorModal] = useState(false);
+    
+    ////////// Actualización: Estado para detectar si se ha generado una página recientemente - 14/06/2024 10:30 //////////
+    const [lastGeneratedPage, setLastGeneratedPage] = useState<LandingPage | null>(null);
+    ////////// Fin de actualización - 14/06/2024 10:30 //////////
 
     // Default to first tabs if null
     React.useEffect(() => {
@@ -45,296 +52,412 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         }
     }, [lpTabsData, tyTabsData]);
 
-    const renderLpPreview = (tabKey: string) => {
+    const handlePageGenerated = async (page: LandingPage) => {
+        try {
+            const savedPage = await api.createPage(page);
+            ////////// Actualización: Cerrar modal y establecer estado de éxito en lugar de redirigir - 14/06/2024 10:30 //////////
+            setLastGeneratedPage(savedPage);
+            setShowGeneratorModal(false);
+            ////////// Fin de actualización - 14/06/2024 10:30 //////////
+        } catch (e: any) {
+            alert(`Error guardando la página: ${e.message}`);
+        }
+    };
+
+    const renderBrowserMockup = (content: React.ReactNode, isDark = false) => (
+        <div className={`w-full ${isDark ? 'bg-[#0b0b0b]' : 'bg-white'} rounded-2xl shadow-2xl overflow-hidden border ${isDark ? 'border-gray-800' : 'border-gray-200'} flex flex-col group/mockup transition-all duration-500 hover:shadow-primary/10`}>
+            {/* Browser Bar */}
+            <div className={`h-10 ${isDark ? 'bg-gray-900 border-b border-gray-800' : 'bg-gray-100 border-b border-gray-200'} flex items-center px-4 gap-4 shrink-0`}>
+                <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-400/80"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-400/80"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-400/80"></div>
+                </div>
+                <div className={`flex-1 max-w-md h-6 ${isDark ? 'bg-black/40' : 'bg-white'} rounded-md border ${isDark ? 'border-white/5' : 'border-gray-200'} flex items-center px-3 gap-2`}>
+                    <Lock className="w-2.5 h-2.5 text-gray-500" />
+                    <div className="h-1.5 w-full bg-gray-500/20 rounded-full"></div>
+                </div>
+            </div>
+            {/* Viewport content with simulated scroll */}
+            <div className="flex-1 overflow-hidden relative min-h-[350px]">
+                <div className="p-8 h-full overflow-y-auto custom-scrollbar">
+                    {content}
+                </div>
+                {/* Scroll track indicator */}
+                <div className="absolute right-1 top-2 bottom-2 w-1 bg-gray-500/10 rounded-full opacity-0 group-hover/mockup:opacity-100 transition-opacity"></div>
+            </div>
+        </div>
+    );
+
+    const renderLpContent = (tabKey: string) => {
         if (!lpTabsData) return null;
         const data = lpTabsData[tabKey];
         if (!data) return null;
 
         return (
-            <div className="w-full bg-white rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 border border-gray-200 pointer-events-auto select-text relative z-10">
-                <div className="h-6 bg-gray-100 border-b border-gray-200 flex items-center px-3 gap-1.5 pointer-events-none">
-                    <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                    <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
-                    <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                </div>
-                <div className="p-8 text-left">
-                    {data.type === 'hero' && (
-                        <div className="space-y-4">
-                            <div className="h-4 w-32 bg-primary/10 rounded-full animate-pulse"></div>
-                            <h4 className="text-gray-900 font-black text-2xl leading-tight select-text">{data.h1}</h4>
-                            <p className="text-gray-600 text-base leading-relaxed select-text">{data.h2}</p>
-                            <div className="h-12 w-48 bg-primary rounded-lg shadow-lg"></div>
+            <div className="space-y-6 animate-in fade-in duration-500">
+                {data.type === 'hero' && (
+                    <div className="space-y-6">
+                        <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-lg text-[10px] font-black uppercase tracking-widest border border-primary/20">Lead Magnet Activo</div>
+                        <h4 className="text-gray-900 font-black text-3xl leading-tight">{data.h1}</h4>
+                        <p className="text-gray-600 text-lg leading-relaxed">{data.h2}</p>
+                        <div className="h-14 w-full bg-primary rounded-xl shadow-lg flex items-center justify-center text-white font-bold text-lg">RESERVAR MI CUPO</div>
+                    </div>
+                )}
+                {data.type === 'pain' && (
+                    <div className="space-y-4">
+                        <h4 className="text-gray-900 font-black text-2xl mb-6">¿Te sientes identificada?</h4>
+                        <div className="space-y-3">
+                            {data.items?.map((item: string, i: number) => (
+                                <div key={i} className="flex gap-4 items-start p-4 bg-red-50 rounded-2xl border border-red-100">
+                                    {/* FIX: XCircle is now correctly imported */}
+                                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
+                                    <p className="text-gray-800 text-base leading-snug font-medium">{item}</p>
+                                </div>
+                            ))}
                         </div>
-                    )}
-                    {data.type === 'pain' && (
+                    </div>
+                )}
+                {data.type === 'benefits' && (
+                    <div className="space-y-4">
+                        <h4 className="text-gray-900 font-black text-2xl mb-6">Tu transformación incluye:</h4>
                         <div className="space-y-4">
-                            <h4 className="text-gray-900 font-black text-xl mb-4 pointer-events-none">¿Te sientes identificada?</h4>
-                            <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar pointer-events-auto select-text">
-                                {data.items?.map((item: string, i: number) => (
-                                    <div key={i} className="flex gap-3 items-start p-3 bg-red-50 rounded-lg border border-red-100 transition-colors hover:bg-red-100/50">
-                                        <X className="w-4 h-4 text-red-500 mt-0.5 shrink-0 pointer-events-none" />
-                                        <p className="text-gray-800 text-sm leading-tight font-medium select-text cursor-text">{item}</p>
+                            {data.items?.map((item: any, i: number) => (
+                                <div key={i} className="flex gap-4 items-center p-4 bg-emerald-50 rounded-[1.5rem] border border-emerald-100">
+                                    <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
+                                    <div>
+                                        <p className="text-gray-900 font-bold text-base leading-tight">{item.title}</p>
+                                        {item.desc && <p className="text-gray-600 text-xs mt-1">{item.desc}</p>}
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            ))}
                         </div>
-                    )}
-                    {data.type === 'benefits' && (
-                        <div className="space-y-4">
-                            <h4 className="text-gray-900 font-black text-xl mb-4 pointer-events-none">Tu transformación incluye:</h4>
-                            <div className="grid grid-cols-1 gap-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar pointer-events-auto select-text">
-                                {data.items?.map((item: any, i: number) => (
-                                    <div key={i} className="flex gap-3 items-center p-3 bg-green-50 rounded-xl border border-green-100 transition-colors hover:bg-green-100/50">
-                                        <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 pointer-events-none" />
-                                        <div>
-                                            <p className="text-gray-900 font-bold text-sm select-text leading-tight">{item.title}</p>
-                                            {item.desc && <p className="text-gray-600 text-[11px] select-text mt-1">{item.desc}</p>}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         );
     };
 
-    const renderTyPreview = (tabKey: string) => {
+    const renderTyContent = (tabKey: string) => {
         if (!tyTabsData) return null;
         const data = tyTabsData[tabKey];
         if (!data) return null;
 
         return (
-            <div className="w-full bg-[#0f1115] rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500 border border-gray-800 pointer-events-auto select-text relative z-10">
-                <div className="h-5 bg-gray-900 border-b border-gray-800 flex items-center px-3 gap-1 pointer-events-none">
-                    <div className="w-1.5 h-1.5 rounded-full bg-gray-700"></div>
-                    <div className="w-1.5 h-1.5 rounded-full bg-gray-700"></div>
-                </div>
-                <div className="p-10 text-center flex flex-col items-center">
-                    {data.type === 'header' && (
-                        <>
-                            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-6 border border-green-500/30 pointer-events-none">
-                                <Check className="w-8 h-8 text-green-400" />
-                            </div>
-                            <h4 className="text-white font-black text-xl mb-3 leading-tight select-text">{data.content?.h1}</h4>
-                            <p className="text-gray-400 text-sm select-text">{data.content?.h2}</p>
-                        </>
-                    )}
-                    {data.type === 'action' && (
-                        <>
-                            <div className="w-full h-2 bg-gray-800 rounded-full mb-8 overflow-hidden pointer-events-none">
-                                <div className="w-[80%] h-full bg-yellow-500"></div>
-                            </div>
-                            <h4 className="text-white font-black text-xl mb-4 select-text">{data.content?.h1}</h4>
-                            <div className="w-full py-4 bg-green-600 rounded-xl flex items-center justify-center gap-2 text-white font-bold shadow-lg shadow-green-900/50 mb-4 pointer-events-none">
-                                <MessageCircle className="w-5 h-5" /> UNIRME AL GRUPO
-                            </div>
-                            <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest select-text">{data.content?.h2}</p>
-                        </>
-                    )}
-                    {data.type === 'magnet' && (
-                        <>
-                            <div className="w-24 h-32 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-lg shadow-2xl mb-6 flex flex-col items-center justify-center p-3 text-white border-l-4 border-white/20 transform -rotate-3 pointer-events-none">
-                                <BookOpen className="w-8 h-8 mb-2 opacity-50" />
-                                <div className="h-1 w-10 bg-white/30 rounded mb-1"></div>
-                                <div className="h-1 w-8 bg-white/30 rounded"></div>
-                            </div>
-                            <h4 className="text-white font-black text-lg mb-2 select-text">{data.content?.h1}</h4>
-                            <p className="text-gray-400 text-xs leading-relaxed select-text">{data.content?.h2}</p>
-                        </>
-                    )}
-                </div>
+            <div className="space-y-6 animate-in fade-in duration-500">
+                {data.type === 'header' && (
+                    <div className="text-center flex flex-col items-center">
+                        <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-8 border border-emerald-500/30">
+                            <Check className="w-10 h-10 text-emerald-400" />
+                        </div>
+                        <h4 className="text-white font-black text-3xl mb-4 leading-tight">{data.content?.h1}</h4>
+                        <p className="text-gray-400 text-lg">{data.content?.h2}</p>
+                    </div>
+                )}
+                {data.type === 'action' && (
+                    <div className="text-center">
+                        <div className="w-full h-2.5 bg-gray-800 rounded-full mb-10 overflow-hidden shadow-inner">
+                            <div className="w-[85%] h-full bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.4)] animate-pulse"></div>
+                        </div>
+                        <h4 className="text-white font-black text-2xl mb-6">{data.content?.h1}</h4>
+                        <button className="w-full py-5 bg-[#25D366] rounded-2xl flex items-center justify-center gap-3 text-white font-black text-xl shadow-xl shadow-green-900/40 hover:scale-[1.02] transition-transform">
+                            <MessageCircle className="w-7 h-7" /> UNIRME AL GRUPO VIP
+                        </button>
+                        <p className="text-gray-500 text-xs mt-4 uppercase font-bold tracking-[0.2em]">{data.content?.h2}</p>
+                    </div>
+                )}
+                {data.type === 'magnet' && (
+                    <div className="flex flex-col items-center text-center">
+                        <div className="w-32 h-44 bg-gradient-to-br from-indigo-600 to-purple-800 rounded-xl shadow-2xl mb-8 flex flex-col items-center justify-center p-4 text-white border-l-8 border-white/10 transform -rotate-2 relative">
+                            <div className="absolute top-0 right-0 p-2 opacity-20"><Sparkles className="w-10 h-10" /></div>
+                            <BookOpen className="w-12 h-12 mb-4" />
+                            <div className="h-1.5 w-16 bg-white/30 rounded-full mb-2"></div>
+                            <div className="h-1.5 w-12 bg-white/20 rounded-full"></div>
+                        </div>
+                        <h4 className="text-white font-black text-2xl mb-4">{data.content?.h1}</h4>
+                        <p className="text-gray-400 text-base leading-relaxed">{data.content?.h2}</p>
+                    </div>
+                )}
             </div>
         );
     };
 
     return (
         <div id="psd-web-section" className="space-y-24">
+            {/* HEADER ESTRATÉGICO */}
             <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/5">
-                    <Monitor className="w-5 h-5" /> Crea tu Página de Ventas Automatizada
+                    <Monitor className="w-5 h-5" /> Web Blueprint de Alta Conversión
                 </div>
-                <h3 id="psd-web-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
-                    Tu ecosistema de páginas <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">creado automáticamente</span>
+                <h3 id="psd-web-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl italic">
+                    Plano Maestro de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Sistema de Captación</span>
                 </h3>
                 
                 <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
                     <p className="border-l-4 border-blue-500 pl-8 py-2">
-                        Olvídate del diseño y el copy. Nuestra IA utiliza principios de neuro-marketing para redactar cada palabra de tu web.
+                        No diseñamos sitios web, construimos embudos psicológicos. Este es el esquema de cómo tu cliente transitará de ser un extraño a ser un lead cualificado.
                     </p>
                     <p className="border-l-4 border-cyan-500 pl-8 py-2">
-                        Aseguramos que tu producto se sienta como la única solución lógica, transformando la navegación en una experiencia de venta fluida.
+                        Cada bloque visual ha sido redactado por la IA para eliminar objeciones y potenciar el deseo de transformación inmediata de tu avatar.
                     </p>
                 </div>
             </div>
 
-            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
-            <div id="psd-web-video-block" className="max-w-[70em] mx-auto px-4 md:px-0">
-                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
-                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
-                        <iframe 
-                            className="w-full h-full"
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
-                            title="Explicación del Sistema Web" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
-                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
-                            <PlayCircle className="w-5 h-5 text-indigo-400" />
-                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo del Sistema Web</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="flex flex-col gap-24 max-w-[80em] mx-auto pb-20">
-                {/* 1. LANDING PAGE BLOCK */}
-                <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                    <div className="max-w-3xl space-y-6">
-                        <h4 className="text-3xl md:text-4xl font-black text-white flex items-center gap-4">
-                            <span className="p-3 bg-blue-500/10 rounded-2xl text-blue-400 border border-blue-500/20">
-                                <Layout className="w-8 h-8" />
-                            </span>
-                            Landing Page: Tu puerta de entrada
-                        </h4>
-                        <p className="text-gray-300 text-xl leading-relaxed font-light border-l-4 border-blue-500/40 pl-6">
-                            Es la puerta de entrada de tus prospectos. Aquí es donde la Inteligencia Artificial aplica gatillos de curiosidad y urgencia para captar el email o contacto de tu audiencia de forma persuasiva.
-                        </p>
-                    </div>
-
-                    <div className="bg-gray-900/50 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 md:p-12 flex flex-col h-full hover:border-blue-500/30 transition-all duration-500 shadow-2xl group">
-                        <div className="flex-1 space-y-10">
-                            {/* Selector de Tabs (Bloques) Dinámicos */}
-                            <div className="flex flex-wrap gap-2">
-                                {lpTabsData && Object.keys(lpTabsData).map(tabKey => (
-                                    <button 
-                                        key={tabKey}
-                                        onClick={() => setSelectedLpTab(tabKey)}
-                                        className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border ${selectedLpTab === tabKey ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-900/40' : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700'}`}
-                                    >
-                                        {lpTabsData[tabKey].label}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Visual Preview */}
-                            <div className="relative group/preview">
-                                <div className="absolute -inset-4 bg-blue-500/5 blur-3xl opacity-0 group-hover/preview:opacity-100 transition-opacity pointer-events-none z-0"></div>
-                                <div className="max-w-4xl mx-auto">
-                                    {renderLpPreview(selectedLpTab || '')}
+            {/* BLUEPRINT GRID */}
+            <div className="flex flex-col gap-16 max-w-[85em] mx-auto pb-20">
+                
+                <div className="grid grid-cols-1 xl:grid-cols-11 gap-8 items-stretch relative">
+                    
+                    {/* PILAR 1: LANDING PAGE */}
+                    <div className="xl:col-span-5 space-y-8 flex flex-col h-full">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-400 border border-blue-500/20">
+                                    <Globe className="w-6 h-6" />
                                 </div>
-                                
-                                {/* Strategy Tooltip */}
-                                <div className="mt-8 p-6 bg-green-900/20 border border-green-500/20 rounded-[1.5rem] relative overflow-hidden animate-in fade-in slide-in-from-top-2 max-w-4xl mx-auto">
-                                    <div className="absolute top-0 right-0 p-3 opacity-10 pointer-events-none"><Lightbulb className="w-10 h-10 text-blue-400" /></div>
-                                    <div className="flex gap-4 items-start relative z-10">
-                                        <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 shrink-0 pointer-events-none"><Info className="w-5 h-5" /></div>
-                                        <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light italic select-text">
-                                            {lpTabsData && selectedLpTab ? lpTabsData[selectedLpTab].strategyText : 'Análisis estratégico en curso...'}
-                                        </p>
+                                <div>
+                                    <h4 className="text-2xl font-black text-white">Página de Captura</h4>
+                                    <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">El Imán de Prospectos</p>
+                                </div>
+                            </div>
+                            {/* FIX: Added button to open showPagesModal when pages are linked, enabling access to the modal logic */}
+                            {linkedPages.length > 0 && (
+                                <button 
+                                    onClick={() => setShowPagesModal(true)}
+                                    className="p-2.5 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white rounded-xl border border-blue-500/20 transition-all flex items-center gap-2 text-xs font-bold"
+                                >
+                                    <Layout className="w-4 h-4" /> Ver {linkedPages.length} {linkedPages.length === 1 ? 'Página' : 'Páginas'}
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full hover:border-blue-500/30 transition-all duration-500 shadow-2xl relative">
+                            <div className="absolute -top-3 -right-3 px-4 py-1 bg-blue-600 text-white text-[10px] font-black rounded-full shadow-lg z-10 uppercase tracking-widest italic">Misión: Filtrar</div>
+                            
+                            <div className="flex-1 space-y-8">
+                                {/* Browser Mockup LP */}
+                                <div className="space-y-6">
+                                    <div className="flex flex-wrap gap-2">
+                                        {lpTabsData && Object.keys(lpTabsData).map(tabKey => (
+                                            <button 
+                                                key={tabKey}
+                                                onClick={() => setSelectedLpTab(tabKey)}
+                                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${selectedLpTab === tabKey ? 'bg-blue-600 text-white border-blue-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700 hover:text-white'}`}
+                                            >
+                                                {lpTabsData[tabKey].label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {renderBrowserMockup(renderLpContent(selectedLpTab || ''))}
+                                </div>
+
+                                {/* ADN de la Página */}
+                                <div className="pt-8 border-t border-white/5">
+                                    <h5 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                                        <Zap className="w-4 h-4 text-blue-400" /> ADN de Conversión
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {[
+                                            "Headline Hipnótico de Curiosidad",
+                                            "Bloque de Dolores Agudos",
+                                            "Mecanismo Único de Solución",
+                                            "Prueba Social de Alumnos",
+                                            "Botón de Acción Directa",
+                                            "Optimización de Carga < 2s"
+                                        ].map((feat, i) => (
+                                            <div key={i} className="flex items-center gap-3 text-sm text-gray-300 font-medium">
+                                                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                                {feat}
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="mt-12 pt-8 border-t border-white/5 max-w-4xl mx-auto w-full">
-                            <button 
-                                onClick={() => navigate(`/dashboard/generator?projectId=${projectId}`)}
-                                className="w-full py-5 rounded-[1.5rem] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-lg shadow-2xl shadow-blue-900/40 flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95"
-                            >
-                                <PenTool className="w-6 h-6" /> Crear mi Web ahora con IA
-                            </button>
+                        {/* Inteligencia de Conversión LP */}
+                        <div className="bg-blue-900/10 border border-blue-500/20 rounded-[2rem] p-8 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none group-hover:scale-110 transition-transform"><Lightbulb className="w-12 h-12 text-blue-400" /></div>
+                            <div className="flex gap-5 items-start">
+                                <div className="p-3 bg-blue-500/20 rounded-2xl text-blue-400 shrink-0 shadow-lg"><Info className="w-6 h-6" /></div>
+                                <div>
+                                    <h5 className="text-white font-black text-lg mb-2">Estrategia de Captura</h5>
+                                    <p className="text-gray-400 text-base leading-relaxed italic">
+                                        {lpTabsData && selectedLpTab ? lpTabsData[selectedLpTab].strategyText : 'Analizando inteligencia de mercado...'}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* 2. THANK YOU PAGE BLOCK */}
-                <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                    <div className="max-w-3xl space-y-6">
-                        <h4 className="text-3xl md:text-4xl font-black text-white flex items-center gap-4">
-                            <span className="p-3 bg-green-500/10 rounded-2xl text-green-400 border border-green-500/20">
-                                <CheckCircle2 className="w-8 h-8" />
-                            </span>
-                            Página de Gracias: El puente de confianza
-                        </h4>
-                        <p className="text-gray-300 text-xl leading-relaxed font-light border-l-4 border-green-500/40 pl-6">
-                            Es el paso crítico de transición. Aquí el lead ya mostró interés y es el momento ideal para moverlo hacia tu comunidad (WhatsApp) o entregarle el Lead Magnet (regalo), asegurando que el prospecto no se enfríe.
-                        </p>
+                    {/* CONECTOR FLOW (1 Col) */}
+                    <div className="xl:col-span-1 flex flex-col items-center justify-center gap-4 py-8">
+                        <div className="hidden xl:flex flex-col items-center gap-4">
+                            <div className="h-24 w-px bg-gradient-to-b from-blue-500 to-emerald-500"></div>
+                            <div className="w-14 h-14 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.4)] animate-pulse">
+                                <ArrowRight className="w-8 h-8" />
+                            </div>
+                            <div className="h-24 w-px bg-gradient-to-b from-emerald-500 to-emerald-700"></div>
+                        </div>
+                        <div className="xl:hidden flex flex-col items-center gap-4">
+                            <div className="w-14 h-14 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-lg">
+                                <ArrowDown className="w-8 h-8" />
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="bg-gray-900/50 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 md:p-12 flex flex-col h-full hover:border-green-500/30 transition-all duration-500 shadow-2xl group">
-                        <div className="flex-1 space-y-10">
-                            {/* Selector de Tabs Dinámicos */}
-                            <div className="flex flex-wrap gap-2">
-                                {tyTabsData && Object.keys(tyTabsData).map(tabKey => (
-                                    <button 
-                                        key={tabKey}
-                                        onClick={() => setSelectedTyTab(tabKey)}
-                                        className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all border ${selectedTyTab === tabKey ? 'bg-green-600 text-white border-green-400 shadow-lg shadow-blue-900/40' : 'bg-gray-800 text-gray-400 border-gray-700 hover:text-white hover:bg-gray-700'}`}
-                                    >
-                                        {tyTabsData[tabKey].label}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Visual Preview */}
-                            <div className="relative group/preview">
-                                <div className="absolute -inset-4 bg-green-500/5 blur-3xl opacity-0 group-hover/preview:opacity-100 transition-opacity pointer-events-none z-0"></div>
-                                <div className="max-w-4xl mx-auto">
-                                    {renderTyPreview(selectedTyTab || '')}
+                    {/* PILAR 2: THANK YOU PAGE */}
+                    <div className="xl:col-span-5 space-y-8 flex flex-col h-full">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400 border border-emerald-500/20">
+                                    <CheckCircle2 className="w-6 h-6" />
                                 </div>
-                                
-                                {/* Strategy Tooltip */}
-                                <div className="mt-8 p-6 bg-green-900/20 border border-green-500/20 rounded-[1.5rem] relative overflow-hidden animate-in fade-in slide-in-from-top-2 max-w-4xl mx-auto">
-                                    <div className="absolute top-0 right-0 p-3 opacity-10 pointer-events-none"><Gift className="w-10 h-10 text-green-400" /></div>
-                                    <div className="flex gap-4 items-start relative z-10">
-                                        <div className="p-2 bg-green-500/20 rounded-lg text-green-400 shrink-0 pointer-events-none"><Info className="w-5 h-5" /></div>
-                                        <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light italic select-text">
-                                            {tyTabsData && selectedTyTab ? tyTabsData[selectedTyTab].strategyText : 'Analizando estrategia de compromiso...'}
-                                        </p>
+                                <div>
+                                    <h4 className="text-2xl font-black text-white">Página de Gracias</h4>
+                                    <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">El Cierre Inicial</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full hover:border-emerald-500/30 transition-all duration-500 shadow-2xl relative">
+                            <div className="absolute -top-3 -right-3 px-4 py-1 bg-emerald-600 text-white text-[10px] font-black rounded-full shadow-lg z-10 uppercase tracking-widest italic">Misión: Mover</div>
+                            
+                            <div className="flex-1 space-y-8">
+                                {/* Browser Mockup TY */}
+                                <div className="space-y-6">
+                                    <div className="flex flex-wrap gap-2">
+                                        {tyTabsData && Object.keys(tyTabsData).map(tabKey => (
+                                            <button 
+                                                key={tabKey}
+                                                onClick={() => setSelectedTyTab(tabKey)}
+                                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${selectedTyTab === tabKey ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700 hover:text-white'}`}
+                                            >
+                                                {tyTabsData[tabKey].label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {renderBrowserMockup(renderTyContent(selectedTyTab || ''), true)}
+                                </div>
+
+                                {/* ADN de la Página */}
+                                <div className="pt-8 border-t border-white/5">
+                                    <h5 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                                        <Gift className="w-4 h-4 text-emerald-400" /> Ingeniería de Compromiso
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {[
+                                            "Mensaje de Autoridad y Bienvenida",
+                                            "Llamado a la Acción para WhatsApp",
+                                            "Entrega Inmediata de Lead Magnet",
+                                            "Barra de Progreso Psicológica",
+                                            "Instrucciones de Revisión de Email",
+                                            "Gatillo de Reciprocidad Directo"
+                                        ].map((feat, i) => (
+                                            <div key={i} className="flex items-center gap-3 text-sm text-gray-300 font-medium">
+                                                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                                {feat}
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="mt-12 pt-8 border-t border-white/5 max-w-4xl mx-auto w-full">
-                            <button 
-                                onClick={() => navigate('/dashboard/pages')}
-                                className="w-full py-5 rounded-[1.5rem] bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-black text-lg transition-all hover:scale-[1.02] flex items-center justify-center gap-3"
-                            >
-                                <Monitor className="w-6 h-6 text-green-500" /> Gestionar mi Ecosistema
-                            </button>
+                        {/* Inteligencia de Conversión TY */}
+                        <div className="bg-emerald-900/10 border border-emerald-500/20 rounded-[2rem] p-8 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none group-hover:scale-110 transition-transform"><Sparkles className="w-12 h-12 text-emerald-400" /></div>
+                            <div className="flex gap-5 items-start">
+                                <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400 shrink-0 shadow-lg"><Info className="w-6 h-6" /></div>
+                                <div>
+                                    <h5 className="text-white font-black text-lg mb-2">Estrategia de Retención</h5>
+                                    <p className="text-gray-400 text-base leading-relaxed italic">
+                                        {tyTabsData && selectedTyTab ? tyTabsData[selectedTyTab].strategyText : 'Calculando ruta de conversión...'}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                </div>
+
+                {/* BOTÓN DE ACCIÓN FINAL O BLOQUE DE ÉXITO */}
+                <div className="max-w-4xl mx-auto w-full pt-10">
+                    {!lastGeneratedPage ? (
+                        <>
+                            <button 
+                                onClick={() => setShowGeneratorModal(true)}
+                                className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-[0_20px_50px_rgba(255,90,31,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-[1.02] active:scale-95 group"
+                            >
+                                <PenTool className="w-8 h-8 group-hover:rotate-12 transition-transform" /> 
+                                Generar mis Páginas ahora con IA
+                                <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                            </button>
+                            <p className="text-center text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] mt-8">Arquitectura semántica garantizada para Hotmart®</p>
+                        </>
+                    ) : (
+                        <div className="w-full bg-emerald-900/10 border border-emerald-500/20 rounded-[2.5rem] p-10 text-center animate-in zoom-in-95 duration-500 shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-8 opacity-5">
+                                <CheckCircle2 className="w-32 h-32 text-emerald-500" />
+                            </div>
+                            
+                            <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-emerald-500/30">
+                                <CheckCircle2 className="w-10 h-10" />
+                            </div>
+                            
+                            <h4 className="text-3xl font-black text-white mb-2">¡Página Generada!</h4>
+                            <p className="text-gray-300 text-lg mb-10">Tu página de captura y de gracias ha sido generada correctamente.</p>
+                            
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <a 
+                                    href={`/admin/lp/${lastGeneratedPage.subdomain.split('.')[0]}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="flex-1 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2"
+                                >
+                                    <Eye className="w-5 h-5" /> Ver Página
+                                </a>
+                                <button 
+                                    onClick={() => onEditPage(lastGeneratedPage.id)}
+                                    className="flex-1 py-4 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <PenTool className="w-5 h-5" /> Editar Página
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
             
-            {/* --- MULTIPLE PAGES MODAL --- */}
+            {/* --- MULTIPLE PAGES MODAL (Para edición rápida) --- */}
+            {/* FIX: showPagesModal is now correctly defined via useState */}
             {showPagesModal && (
                 <div 
                     onClick={() => setShowPagesModal(false)}
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in"
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-gray-900 border border-gray-700 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95"
+                        className="bg-gray-900 border border-gray-700 rounded-[3rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95"
                     >
-                        <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-850">
-                            <h3 className="font-black text-white text-xl flex items-center gap-3">
-                                <Layout className="w-6 h-6 text-blue-500" /> 
-                                {modalMode === 'ty' ? 'Páginas de Gracias' : 'Landing Pages del Proyecto'}
-                            </h3>
+                        <div className="p-8 border-b border-gray-800 flex justify-between items-center bg-gray-850 shrink-0">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-blue-500/20 rounded-2xl text-blue-400">
+                                    <Layout className="w-6 h-6" />
+                                </div>
+                                <h3 className="font-black text-white text-2xl uppercase tracking-tight italic">
+                                    Mis Páginas
+                                </h3>
+                            </div>
                             <button onClick={() => setShowPagesModal(false)} className="text-gray-400 hover:text-white transition p-2 bg-gray-800 rounded-full"><X className="w-5 h-5"/></button>
                         </div>
-                        <div className="p-6 space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar">
+                        <div className="p-8 space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar">
                             {linkedPages.map(page => (
-                                <div key={page.id} className="bg-black/40 border border-gray-800 rounded-[1.5rem] p-5 flex items-center justify-between hover:border-blue-500/40 transition group">
+                                <div key={page.id} className="bg-black/40 border border-gray-800 rounded-[1.5rem] p-6 flex items-center justify-between hover:border-blue-500/40 transition group">
                                     <div className="flex flex-col gap-1">
-                                        <h4 className="font-black text-white text-lg group-hover:text-blue-400 transition">{page.name}</h4>
+                                        <h4 className="font-black text-white text-xl group-hover:text-blue-400 transition">{page.name}</h4>
                                         <div className="flex gap-2">
-                                            <span className={`text-[10px] uppercase font-black px-2 py-0.5 rounded-full border ${page.isPublished ? 'bg-green-900/30 text-green-400 border-green-900/50' : 'bg-orange-900/30 text-orange-400 border-orange-900/50'}`}>
+                                            <span className={`text-[10px] uppercase font-black px-3 py-1 rounded-full border ${page.isPublished ? 'bg-green-900/30 text-emerald-400 border-emerald-500/30' : 'bg-orange-900/30 text-orange-400 border-orange-500/30'}`}>
                                                 {page.isPublished ? 'Publicada' : 'Borrador'}
                                             </span>
                                         </div>
@@ -345,20 +468,39 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                                 onEditPage(page.id);
                                                 setShowPagesModal(false);
                                             }}
-                                            className="p-3 bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white rounded-xl transition border border-blue-500/20"
+                                            className="p-4 bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white rounded-2xl transition border border-blue-500/20 shadow-lg"
                                             title="Editar Diseño"
                                         >
-                                            <PenTool className="w-5 h-5" />
+                                            <PenTool className="w-6 h-6" />
                                         </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                        <div className="p-6 bg-gray-800/50 border-t border-gray-800 flex justify-end">
-                            <button onClick={() => setShowPagesModal(false)} className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-bold transition">
-                                Cerrar
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex justify-end">
+                            <button onClick={() => setShowPagesModal(false)} className="px-8 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-black uppercase text-xs tracking-widest transition shadow-lg">
+                                Cerrar Ventana
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* GENERATOR MODAL OVERLAY */}
+            {showGeneratorModal && (
+                <div 
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300"
+                    onClick={() => setShowGeneratorModal(false)}
+                >
+                    <div 
+                        className="w-full max-w-[1200px] h-[95vh] overflow-hidden rounded-[3rem] shadow-2xl relative border border-white/10"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <Generator 
+                            onPageGenerated={handlePageGenerated} 
+                            embeddedProjectId={projectId} 
+                            onClose={() => setShowGeneratorModal(false)}
+                        />
                     </div>
                 </div>
             )}
