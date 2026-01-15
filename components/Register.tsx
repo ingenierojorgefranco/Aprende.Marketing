@@ -14,7 +14,7 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [launchReady] = useState(0); // Default status for waitlist
+  const [launchReady] = useState(1); // 1 significa que debe ir a la lista de espera
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -44,8 +44,8 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
       };
       onLogin(mappedUser);
 
-      // Launch logical redirection
-      if (mappedUser.launchReady === 0 && mappedUser.role !== 'admin') {
+      // Lógica de lanzamiento: si es 1 y no es admin, va a la lista de espera
+      if (mappedUser.launchReady === 1 && mappedUser.role !== 'admin') {
           navigate('/waiting-list');
           return;
       }

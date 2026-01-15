@@ -4,6 +4,7 @@ import { ArrowLeft, Lock, Loader2, AlertCircle, Database, WifiOff } from 'lucide
 import { User } from '../types';
 import { login as authLogin } from '../services/auth';
 import { api } from '../services/api';
+import { navigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
 interface LoginProps {
@@ -21,7 +22,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const isProduction = typeof window !== "undefined" && 
     (window.location.hostname.includes("aprende.marketing") || 
-     window.location.hostname.includes("bajardepeso.online"));
+     (window.location.hostname.includes("bajardepeso.online")));
 
   const [logs, setLogs] = useState<string[]>([]);
   const navigate = useNavigate();
@@ -42,8 +43,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           const mockUser = await api.login(email, password);
           onLogin(mockUser);
           
-          // Launch logic check for mock user
-          if (mockUser.launchReady === 0 && mockUser.role !== 'admin') {
+          // Lógica de lanzamiento: si es 1 y no es admin, va a la lista de espera
+          if (mockUser.launchReady === 1 && mockUser.role !== 'admin') {
               navigate('/waiting-list');
           } else {
               navigate('/dashboard'); 
@@ -69,8 +70,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       };
       onLogin(mappedUser);
 
-      // Launch logical protection
-      if (mappedUser.launchReady === 0 && mappedUser.role !== 'admin') {
+      // Protección de lanzamiento: si launchReady es 1 y no es admin, bloqueamos el acceso al dashboard
+      if (mappedUser.launchReady === 1 && mappedUser.role !== 'admin') {
           navigate('/waiting-list');
           return;
       }
