@@ -46,6 +46,7 @@ const apiCache: {
     plans: Plan[] | null;
     publicPlans: Plan[] | null;
     loginRedirect: string | null;
+    systemMode: string | null;
     activePaymentMethod: ('stripe' | 'hotmart') | null;
     hotmartData: any | null;
     usersList: User[] | null;
@@ -85,6 +86,7 @@ const apiCache: {
     plans: null,
     publicPlans: null,
     loginRedirect: null,
+    systemMode: null,
     activePaymentMethod: null,
     hotmartData: null,
     usersList: null,
@@ -151,6 +153,7 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.plans = null;
         apiCache.publicPlans = null;
         apiCache.loginRedirect = null;
+        apiCache.systemMode = null;
         apiCache.activePaymentMethod = null;
         apiCache.hotmartData = null;
         apiCache.usersList = null;
@@ -1109,6 +1112,24 @@ export const api = {
             return data.url;
         } catch (e) { return "/dashboard"; }
     },
+
+    ////////// Actualización: Método para obtener system_mode - 28/05/2024 16:30 //////////
+    getSystemMode: async (): Promise<string> => {
+        if (isMockMode) return 'production';
+        if (apiCache.systemMode) return apiCache.systemMode;
+        try {
+            const data = await fetchWithFallback('/system/mode');
+            apiCache.systemMode = data.mode;
+            return data.mode;
+        } catch (e) { return 'production'; }
+    },
+
+    updateSystemMode: async (mode: 'production' | 'launch') => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback('/admin/settings', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ key: 'system_mode', value: mode }) });
+        clearCache('systemMode');
+    },
+    ////////// Fin de actualización - 28/05/2024 16:30 //////////
 
     getActivePaymentMethod: async (): Promise<'stripe' | 'hotmart'> => {
         if (isMockMode) return 'stripe';

@@ -10,13 +10,15 @@ import {
 } from "react-router-dom";
 
 import { PublicHome } from "./components/PublicHome";
+import { LaunchPage } from "./components/LaunchPage";
 import { Login } from "./components/Login";
 import { Register } from "./components/Register";
 import { PublicLandingView } from "./components/PublicLandingView";
+////////// Importación de nuevas páginas legales y contacto - 27/05/2025 01:15 //////////
 import { ContactPage } from "./components/ContactPage";
 import { TermsPage } from "./components/TermsPage";
 import { PrivacyPage } from "./components/PrivacyPage";
-import { LaunchPage } from "./components/LaunchPage";
+////////// Fin de importación - 27/05/2025 01:15 //////////
 
 // Dashboard Core
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
@@ -28,8 +30,12 @@ import { AdminCourses } from "./components/dashboard/admin/AdminCourses";
 import { AdminComments } from "./components/dashboard/admin/AdminComments";
 import { AdminPlans } from "./components/dashboard/admin/AdminPlans"; 
 import { AdminLogs } from "./components/dashboard/admin/AdminLogs";
+////////// Importación del Panel Hotmart - 01/06/2025 12:00 //////////
 import { AdminHotmartPanel } from "./components/dashboard/admin/AdminHotmartPanel";
+////////// Fin de actualización - 01/06/2025 12:00 //////////
+////////// Importación del Panel de Novedades - 07/06/2025 10:00 //////////
 import { AdminNews } from "./components/dashboard/admin/AdminNews";
+////////// Fin de actualización - 07/06/2025 10:00 //////////
 
 // Dashboard Training
 import { TrainingViewer } from "./components/dashboard/training/TrainingViewer";
@@ -41,14 +47,18 @@ import { Editor } from "./components/dashboard/editor/Editor";
 import { Generator } from "./components/dashboard/tools/Generator";
 import { WhatsAppCRM } from "./components/dashboard/tools/WhatsAppCRM";
 import { EmailMarketing } from "./components/dashboard/tools/EmailMarketing";
+/* */ /* Actualización: Importación del nuevo asistente de secuencias de email - 24/06/2024 15:15 */
 import { EmailSequenceWizard } from "./components/dashboard/tools/EmailSequenceWizard";
+/* Fin de actualización - 24/06/2024 15:15 */
 import { ContentGenerator } from "./components/dashboard/tools/ContentGenerator";
 import { ArticlesList } from "./components/dashboard/tools/ArticlesList";
 import { ProjectWizard } from "./components/dashboard/tools/ProjectWizard";
 import { ProjectsList } from "./components/dashboard/tools/ProjectsList";
 import { MyPages } from "./components/dashboard/tools/MyPages";
 import { ProjectStrategyDashboard } from "./components/dashboard/tools/ProjectStrategyDashboard";
+////////// Importación de CopySell Pro - 18/06/2024 10:35 //////////
 import { CopySellPro } from "./components/dashboard/tools/CopySellPro";
+////////// Fin de actualización - 18/06/2024 10:35 //////////
 
 // Dashboard CRM
 import { CRM_Layout } from "./components/dashboard/crm/CRM_Layout";
@@ -56,12 +66,13 @@ import { CRM_Layout } from "./components/dashboard/crm/CRM_Layout";
 import { User, LandingPage } from "./types";
 import {
   Loader2,
+  PenTool,
   AlertTriangle,
 } from "lucide-react";
 import { api } from "./services/api";
 import { getCurrentUser, logout } from "./services/auth";
 
-// --- WRAPPER PARA EDITOR ---
+// --- WRAPPER PARA EDITOR (Carga de datos por ID desde API) ---
 const EditorRouteWrapper = () => {
   const { id } = useParams() as { id: string };
   const navigate = useNavigate();
@@ -121,14 +132,27 @@ const EditorRouteWrapper = () => {
   );
 };
 
+// Componente 404
 const NotFoundPage = () => {
   const location = useLocation();
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6 text-center">
       <AlertTriangle className="w-16 h-16 text-yellow-500 mb-4" />
       <h1 className="text-3xl font-bold mb-2">404 - Ruta no encontrada</h1>
-      <p className="text-gray-400 mb-6 max-w-md">Lo sentimos, la dirección que buscas no existe.</p>
-      <button onClick={() => window.location.href = '/'} className="px-8 py-3 bg-primary rounded-xl font-bold hover:bg-indigo-600 transition shadow-lg shadow-primary/20">Volver al Inicio</button>
+      <p className="text-gray-400 mb-6 max-w-md">
+        Lo sentimos, la dirección que buscas no existe o ha sido movida.
+      </p>
+
+      <div className="bg-gray-900 p-4 rounded-lg font-mono text-xs text-gray-300 border border-gray-800 mb-8 max-w-lg break-all">
+        <p><span className="text-blue-400">Path:</span> {location.pathname}</p>
+      </div>
+
+      <button
+        onClick={() => window.location.href = '/'}
+        className="px-8 py-3 bg-primary rounded-xl font-bold hover:bg-indigo-600 transition shadow-lg shadow-primary/20"
+      >
+        Volver al Inicio
+      </button>
     </div>
   );
 };
@@ -139,10 +163,14 @@ const App: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [domainSlug, setDomainSlug] = useState<string | null>(null);
   const [domainLoading, setDomainLoading] = useState(true);
+  ////////// Estado para systemMode - 28/05/2024 16:30 //////////
+  const [systemMode, setSystemMode] = useState<string>('production');
+  ////////// Fin de actualización - 28/05/2024 16:30 //////////
 
   const navigate = useNavigate();
   const location = useLocation();
 
+  // --- DETECCIÓN DINÁMICA DE DOMINIO PERSONALIZADO ---
   useEffect(() => {
     const resolveDomain = async () => {
       const hostname = typeof window !== "undefined" ? window.location.hostname : "";
@@ -154,6 +182,7 @@ const App: React.FC = () => {
           const res = await fetch(`/api/public/pages/by-domain?domain=${hostname}`);
           if (res.ok) {
             const data = await res.json();
+            // Asumimos que el backend retorna el objeto de la página y usamos su subdomain/slug
             setDomainSlug(data.subdomain);
             setDomainLoading(false);
             return;
@@ -162,12 +191,14 @@ const App: React.FC = () => {
           console.error("Error resolviendo dominio dinámico:", e);
         }
       }
+      /* */ /* Actualización: Corrección de resolución de dominios personalizados: Se evita sobreescribir con null el slug detectado en base de datos. Solo se fuerza null si es un dominio del sistema o la detección falla. 27/05/2025 15:55 */
       setDomainSlug(null);
       setDomainLoading(false);
     };
     resolveDomain();
   }, []);
 
+  // Restaurar sesión
   useEffect(() => {
     const restoreSession = async () => {
       const token = localStorage.getItem("plataformadeventacom_token");
@@ -183,8 +214,7 @@ const App: React.FC = () => {
               planLimits: (authUser as any).planLimits,
               avatarUrl: (authUser as any).avatarUrl,
               birthDate: (authUser as any).birthDate,
-              createdAt: (authUser as any).createdAt,
-              launchReady: (authUser as any).launchReady
+              createdAt: (authUser as any).createdAt
             });
           }
         } catch (error) {
@@ -196,6 +226,19 @@ const App: React.FC = () => {
     restoreSession();
   }, []);
 
+  ////////// Obtener System Mode - 28/05/2024 16:30 //////////
+  useEffect(() => {
+    const fetchMode = async () => {
+        try {
+            const mode = await api.getSystemMode();
+            setSystemMode(mode);
+        } catch (e) {}
+    };
+    fetchMode();
+  }, [location.pathname]);
+  ////////// Fin de actualización - 28/05/2024 16:30 //////////
+
+  // Check Modo Offline
   useEffect(() => {
       if (user && location.pathname.startsWith("/dashboard")) {
           setIsOffline(api.isUsingMockData());
@@ -214,12 +257,21 @@ const App: React.FC = () => {
   };
 
   const handlePageGenerated = async (savedPage: LandingPage) => {
+    // La página ya ha sido guardada en la base de datos por el componente Generator para habilitar la edición en nueva pestaña.
+    // Solo redirigimos si el usuario decide editarla en la pestaña actual (opcional), pero el componente Generator ya ofrece el link target="_blank".
     navigate(`/dashboard/editor/${savedPage.id}`);
   };
 
   const handleArticleSave = async (articleData: any) => {
-    if (articleData.id) await api.updateArticle(articleData.id, articleData);
-    else await api.saveArticle(articleData);
+    try {
+      if (articleData.id) {
+          await api.updateArticle(articleData.id, articleData);
+      } else {
+          await api.saveArticle(articleData);
+      }
+    } catch (e) {
+      throw e; 
+    }
   };
 
   if (authLoading || domainLoading) {
@@ -233,11 +285,12 @@ const App: React.FC = () => {
   const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
     if (!user) return <Navigate to="/login" replace />;
     
-    // Protección global de lanzamiento: Si launchReady es 1 y no es admin, redirigir a lista de espera
-    if (user.role !== 'admin' && user.launchReady === 1 && location.pathname.startsWith('/dashboard')) {
-        return <Navigate to="/waiting-list" replace />;
+    ////////// Redirección forzada por Modo Lanzamiento - 28/05/2024 16:30 //////////
+    if (systemMode === 'launch' && user.role !== 'admin') {
+        return <Navigate to="/lanzamiento" replace />;
     }
-    
+    ////////// Fin de actualización - 28/05/2024 16:30 //////////
+
     return <>{children}</>;
   };
 
@@ -249,9 +302,11 @@ const App: React.FC = () => {
   return (
     <>
       <Routes>
+        {/* RUTAS PÚBLICAS */}
         <Route path="/admin/lp/:slug/*" element={<PublicLandingView />} />
         <Route path="/lp/:slug/*" element={<PublicLandingView />} />
 
+        {/* DOMINIOS PERSONALIZADOS DINÁMICOS */}
         {domainSlug && (
             <>
               <Route path="/blog/*" element={<PublicLandingView forcedSlug={domainSlug} />} />
@@ -265,19 +320,24 @@ const App: React.FC = () => {
             domainSlug ? (
               <PublicLandingView forcedSlug={domainSlug} />
             ) : (
-              <PublicHome user={user} onLogout={handleLogout} />
+                ////////// Lógica de Home Dinámico por Modo - 28/05/2024 16:30 //////////
+                systemMode === 'launch' ? (user?.role === 'admin' ? <PublicHome user={user} onLogout={handleLogout} /> : <LaunchPage />) : <PublicHome user={user} onLogout={handleLogout} />
+                ////////// Fin de actualización - 28/05/2024 16:30 //////////
             )
           }
         />
 
-        <Route path="/login" element={user && user.launchReady !== 1 ? <Navigate to="/dashboard" /> : user && user.launchReady === 1 && user.role !== 'admin' ? <Navigate to="/waiting-list" /> : <Login onLogin={handleLoginSubmit} />} />
-        <Route path="/register" element={user && user.launchReady !== 1 ? <Navigate to="/dashboard" /> : user && user.launchReady === 1 && user.role !== 'admin' ? <Navigate to="/waiting-list" /> : <Register onLogin={handleLoginSubmit} />} />
+        <Route path="/lanzamiento" element={<LaunchPage />} />
+        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login onLogin={handleLoginSubmit} />} />
+        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register onLogin={handleLoginSubmit} />} />
 
+        {/* ////////// Nuevas rutas legales y de contacto - 27/05/2025 01:15 ////////// */}
         <Route path="/contacto" element={<ContactPage />} />
         <Route path="/terminos" element={<TermsPage />} />
         <Route path="/privacidad" element={<PrivacyPage />} />
-        <Route path="/waiting-list" element={<LaunchPage />} />
+        {/* ////////// Fin de nuevas rutas - 27/05/2025 01:15 ////////// */}
 
+        {/* RUTAS DEL DASHBOARD (PROTEGIDAS) */}
         <Route
           path="/dashboard"
           element={
@@ -292,29 +352,51 @@ const App: React.FC = () => {
           }
         >
           <Route index element={<DashboardHome />} />
+
+          {/* ADMIN */}
           <Route path="admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
           <Route path="admin/courses" element={<AdminRoute><AdminCourses /></AdminRoute>} />
           <Route path="admin/comments" element={<AdminRoute><AdminComments /></AdminRoute>} />
           <Route path="admin/plans" element={<AdminRoute><AdminPlans /></AdminRoute>} />
           <Route path="admin/logs" element={<AdminRoute><AdminLogs /></AdminRoute>} />
+          {/* ////////// Ruta del Panel Hotmart - 01/06/2025 12:00 ////////// */}
           <Route path="admin/hotmart" element={<AdminRoute><AdminHotmartPanel /></AdminRoute>} />
+          {/* ////////// Fin de actualización - 01/06/2025 12:00 ////////// */}
+          {/* ////////// Ruta del Panel de Novedades - 07/06/2025 10:00 ////////// */}
           <Route path="admin/news" element={<AdminRoute><AdminNews /></AdminRoute>} />
+          {/* ////////// Fin de actualización - 07/06/2025 10:00 ////////// */}
+
+          {/* ACADEMIA */}
           <Route path="training/:moduleId" element={<TrainingViewer />} />
+
+          {/* CRM */}
           <Route path="crm" element={<CRM_Layout />} />
+
+          {/* PROYECTOS */}
           <Route path="projects" element={<ProjectsList />} />
           <Route path="projects/create" element={<ProjectWizard />} />
           <Route path="projects/edit/:id" element={<ProjectWizard />} />
           <Route path="projects/:id/strategy" element={<ProjectStrategyDashboard />} />
+
+          {/* PÁGINAS */}
           <Route path="pages" element={<MyPages />} />
           <Route path="generator" element={<Generator onPageGenerated={handlePageGenerated} />} />
           <Route path="editor/:id" element={<EditorRouteWrapper />} />
+
+          {/* CONTENIDO SEO */}
           <Route path="articles" element={<ArticlesList onCreateNew={() => navigate("/dashboard/content-creator")} />} />
           <Route path="content-creator" element={<ContentGenerator onSave={handleArticleSave} />} />
           <Route path="articles/edit/:id" element={<ContentGenerator onSave={handleArticleSave} />} />
+
+          {/* HERRAMIENTAS ADICIONALES */}
           <Route path="whatsapp" element={<WhatsAppCRM />} />
           <Route path="email" element={<EmailMarketing />} />
+          {/* */ /* Actualización: Registro de la ruta para el asistente de secuencias - 24/06/2024 15:15 */ }
           <Route path="email/create" element={<EmailSequenceWizard />} />
+          {/* Fin de actualización - 24/06/2024 15:15 */}
+          {/* ////////// Actualización de ruta CopySell Pro para usar el nuevo componente - 18/06/2024 10:40 ////////// */}
           <Route path="copy-pro" element={<CopySellPro />} />
+          {/* ////////// Fin de actualización - 18/06/2024 10:40 ////////// */}
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

@@ -1,5 +1,4 @@
 
-
 ////////// Actualización: Definición de tipos para el Feed de Noticias del Dashboard - 24/05/2024 16:45 //////////
 export interface DashboardNews {
     id: string;
@@ -102,7 +101,6 @@ export interface User {
   birthDate?: string; // New
   createdAt?: Date;   // New
   customRedirectUrl?: string; // New: User specific redirect
-  launchReady?: number; // New: status for waitlist logic
 }
 
 // NEW: System Log Type

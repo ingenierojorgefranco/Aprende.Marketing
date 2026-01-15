@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, UserPlus, Loader2, AlertCircle, Mail, Lock, User as UserIcon } from 'lucide-react';
 import { User } from '../types';
 import { register } from '../services/auth';
@@ -14,11 +14,29 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [launchReady] = useState(1); // 1 significa que debe ir a la lista de espera
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   const navigate = useNavigate();
+
+  ////////// Actualización: Verificación de System Mode al cargar - 28/05/2024 16:30 //////////
+  useEffect(() => {
+    const checkMode = async () => {
+        try {
+            const systemMode = await api.getSystemMode();
+            if (systemMode === 'launch') {
+                const user = await api.getCurrentUser();
+                if (!user || user.role !== 'admin') {
+                    navigate('/lanzamiento');
+                }
+            }
+        } catch (e) {
+            console.error("Error checking system mode");
+        }
+    };
+    checkMode();
+  }, [navigate]);
+  ////////// Fin de actualización - 28/05/2024 16:30 //////////
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +44,17 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
     setError(null);
 
     try {
-      const { user } = await register({ name, email, password, launchReady } as any);
+      const { user } = await register({ name, email, password });
+
+      ////////// Lógica de bloqueo por Modo Lanzamiento tras autenticación - 28/05/2024 16:30 //////////
+      const systemMode = await api.getSystemMode();
+      if (systemMode === 'launch' && user.role !== 'admin') {
+          setError("El registro está limitado temporalmente debido al modo lanzamiento.");
+          setLoading(false);
+          return;
+      }
+      ////////// Fin de actualización - 28/05/2024 16:30 //////////
+
       const mappedUser: User = {
         id: user.id.toString(),
         name: user.name,
@@ -39,17 +67,9 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
             maxDomains: 1,
             features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false }
         },
-        customRedirectUrl: (user as any).customRedirectUrl,
-        launchReady: (user as any).launchReady ?? launchReady
+        customRedirectUrl: (user as any).customRedirectUrl
       };
       onLogin(mappedUser);
-
-      // Lógica de lanzamiento: si es 1 y no es admin, va a la lista de espera
-      if (mappedUser.launchReady === 1 && mappedUser.role !== 'admin') {
-          navigate('/waiting-list');
-          return;
-      }
-
       if (mappedUser.customRedirectUrl && mappedUser.customRedirectUrl.trim() !== '') {
           navigate(mappedUser.customRedirectUrl);
       } else {
@@ -83,7 +103,6 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <input type="hidden" name="launchReady" value={launchReady} />
           <div>
             <label className="block text-[10px] font-bold text-[#B0B0B0] uppercase mb-1.5">Nombre Completo</label>
             <div className="relative">

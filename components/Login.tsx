@@ -1,10 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Lock, Loader2, AlertCircle, Database, WifiOff } from 'lucide-react';
 import { User } from '../types';
 import { login as authLogin } from '../services/auth';
 import { api } from '../services/api';
-import { navigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
 interface LoginProps {
@@ -22,10 +21,30 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const isProduction = typeof window !== "undefined" && 
     (window.location.hostname.includes("aprende.marketing") || 
-     (window.location.hostname.includes("bajardepeso.online")));
+     window.location.hostname.includes("bajardepeso.online"));
 
   const [logs, setLogs] = useState<string[]>([]);
   const navigate = useNavigate();
+
+  ////////// Actualización: Verificación de System Mode al cargar - 28/05/2024 16:30 //////////
+  useEffect(() => {
+    const checkMode = async () => {
+        try {
+            const systemMode = await api.getSystemMode();
+            if (systemMode === 'launch') {
+                // Verificamos si ya hay un admin logueado (sesión persistente)
+                const user = await api.getCurrentUser();
+                if (!user || user.role !== 'admin') {
+                    navigate('/lanzamiento');
+                }
+            }
+        } catch (e) {
+            console.error("Error checking system mode");
+        }
+    };
+    checkMode();
+  }, [navigate]);
+  ////////// Fin de actualización - 28/05/2024 16:30 //////////
 
   const addLog = (msg: string) =>
     setLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
@@ -42,13 +61,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       try {
           const mockUser = await api.login(email, password);
           onLogin(mockUser);
-          
-          // Lógica de lanzamiento: si es 1 y no es admin, va a la lista de espera
-          if (mockUser.launchReady === 1 && mockUser.role !== 'admin') {
-              navigate('/waiting-list');
-          } else {
-              navigate('/dashboard'); 
-          }
+          navigate('/dashboard'); 
       } catch (err: any) {
           setError(err.message || 'Error de credenciales offline.');
       }
@@ -59,23 +72,25 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     try {
       api.disableMockMode();
       const { user } = await authLogin({ email, password });
+      
+      ////////// Lógica de bloqueo por Modo Lanzamiento tras autenticación - 28/05/2024 16:30 //////////
+      const systemMode = await api.getSystemMode();
+      if (systemMode === 'launch' && user.role !== 'admin') {
+          setError("Plataforma en modo lanzamiento. Solo acceso administrativo.");
+          setLoading(false);
+          return;
+      }
+      ////////// Fin de actualización - 28/05/2024 16:30 //////////
+
       const mappedUser: User = {
         id: user.id.toString(),
         name: user.name,
         email: user.email,
         role: user.role as any, 
         planLimits: (user as any).planLimits,
-        customRedirectUrl: (user as any).customRedirectUrl,
-        launchReady: (user as any).launchReady
+        customRedirectUrl: (user as any).customRedirectUrl
       };
       onLogin(mappedUser);
-
-      // Protección de lanzamiento: si launchReady es 1 y no es admin, bloqueamos el acceso al dashboard
-      if (mappedUser.launchReady === 1 && mappedUser.role !== 'admin') {
-          navigate('/waiting-list');
-          return;
-      }
-
       if (mappedUser.customRedirectUrl && mappedUser.customRedirectUrl.trim() !== '') {
           navigate(mappedUser.customRedirectUrl);
       } else {
