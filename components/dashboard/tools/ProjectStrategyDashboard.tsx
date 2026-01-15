@@ -25,6 +25,7 @@ const ProjectStrategy_Ecosystem = React.lazy(() => import('./ProjectStrategy/Pro
 ////////// Fin de actualización - 05/06/2025 21:30 //////////
 
 import { UpgradeModal } from '../UpgradeModal';
+import { Generator } from './Generator';
 import { api } from '../../../services/api';
 import { ProjectMasterStrategy } from '../../../services/strategySchema';
 import { LandingPage, User, Plan, EmailSequence, Article } from '../../../types';
@@ -77,6 +78,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     // MODAL STATE
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [showVideoModal, setShowVideoModal] = useState(false);
+    const [showGeneratorModal, setShowGeneratorModal] = useState(false);
 
     // FLOATING TOOLTIP STATE
     const [tooltipState, setTooltipState] = useState<{ visible: boolean; x: number; y: number; content: string[] }>({
@@ -168,6 +170,17 @@ export const ProjectStrategyDashboard: React.FC = () => {
             alert(`Error generando estrategia: ${e.message}`);
         } finally {
             setGenerating(false);
+        }
+    };
+
+    const handlePageGenerated = async (page: LandingPage) => {
+        try {
+            const savedPage = await api.createPage(page);
+            setLinkedPages(prev => [savedPage, ...prev]);
+            setShowGeneratorModal(false);
+            navigate(`/dashboard/editor/${savedPage.id}`);
+        } catch (e: any) {
+            alert(`Error guardando la página: ${e.message}`);
         }
     };
 
@@ -420,6 +433,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                     linkedSequences={linkedSequences}
                                     linkedArticles={linkedArticles}
                                     onNavigate={setActiveSection}
+                                    onOpenGenerator={() => setShowGeneratorModal(true)}
                                 />
                             </div>
                         )}
@@ -442,6 +456,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                     domainCount={globalDomainCount}
                                     planLimits={user.planLimits}
                                     onUpgrade={() => setShowUpgradeModal(true)}
+                                    onOpenGenerator={() => setShowGeneratorModal(true)}
                                     nextPlan={nextPlan}
                                 />
                             </div>
@@ -516,6 +531,25 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     </Suspense>
                 </div>
             </div>
+
+            {/* GENERATOR MODAL OVERLAY */}
+            {showGeneratorModal && (
+                <div 
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300"
+                    onClick={() => setShowGeneratorModal(false)}
+                >
+                    <div 
+                        className="w-full max-w-[1200px] h-[95vh] overflow-hidden rounded-[3rem] shadow-2xl relative border border-white/10"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <Generator 
+                            onPageGenerated={handlePageGenerated} 
+                            embeddedProjectId={id} 
+                            onClose={() => setShowGeneratorModal(false)}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
