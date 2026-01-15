@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, PlayCircle, MousePointer2, Zap, ArrowDown, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
+import { Generator } from '../Generator';
 import { api } from '../../../../services/api';
 
 interface ProjectStrategy_WebSystemProps {
@@ -21,18 +22,19 @@ interface ProjectStrategy_WebSystemProps {
     domainCount?: number;
     planLimits?: PlanLimits;
     onUpgrade?: () => void;
-    onOpenGenerator: () => void;
     nextPlan?: Plan | null;
+    onRefresh: () => Promise<void>;
 }
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
     projectId, lpTabsData, tyTabsData,
     selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, linkedPages, onEditPage,
-    pageCount = 0, domainCount = 0, planLimits, onUpgrade, onOpenGenerator, nextPlan
+    pageCount = 0, domainCount = 0, planLimits, onUpgrade, nextPlan, onRefresh
 }) => {
     const navigate = useNavigate();
     // FIX: Added missing state showPagesModal to control the multiple pages modal visibility
     const [showPagesModal, setShowPagesModal] = useState(false);
+    const [showGeneratorModal, setShowGeneratorModal] = useState(false);
 
     // Default to first tabs if null
     React.useEffect(() => {
@@ -45,6 +47,17 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             if (firstKey) setSelectedTyTab(firstKey);
         }
     }, [lpTabsData, tyTabsData]);
+
+    const handlePageGenerated = async (page: LandingPage) => {
+        try {
+            const savedPage = await api.createPage(page);
+            await onRefresh();
+            setShowGeneratorModal(false);
+            navigate(`/dashboard/editor/${savedPage.id}`);
+        } catch (e: any) {
+            alert(`Error guardando la página: ${e.message}`);
+        }
+    };
 
     const renderBrowserMockup = (content: React.ReactNode, isDark = false) => (
         <div className={`w-full ${isDark ? 'bg-[#0b0b0b]' : 'bg-white'} rounded-2xl shadow-2xl overflow-hidden border ${isDark ? 'border-gray-800' : 'border-gray-200'} flex flex-col group/mockup transition-all duration-500 hover:shadow-primary/10`}>
@@ -398,8 +411,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         ) : (
                             <>
                                 <button 
-                                    onClick={onOpenGenerator}
-                                    className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-[0_20px_50px_rgba(255,90,31,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-[1.02] active:scale-95 group"
+                                    onClick={() => setShowGeneratorModal(true)}
+                                    className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-[0_20px_50px_rgba(255,90,31,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-102 active:scale-95 group"
                                 >
                                     <PenTool className="w-8 h-8 group-hover:rotate-12 transition-transform" /> 
                                     Generar mis Páginas ahora con IA
@@ -413,6 +426,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             </div>
             
             {/* --- MULTIPLE PAGES MODAL (Para edición rápida) --- */}
+            {/* FIX: showPagesModal is now correctly defined via useState */}
             {showPagesModal && (
                 <div 
                     onClick={() => setShowPagesModal(false)}
@@ -464,6 +478,25 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 Cerrar Ventana
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* GENERATOR MODAL OVERLAY */}
+            {showGeneratorModal && (
+                <div 
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300"
+                    onClick={() => setShowGeneratorModal(false)}
+                >
+                    <div 
+                        className="w-full max-w-[1200px] h-[95vh] overflow-hidden rounded-[3rem] shadow-2xl relative border border-white/10"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <Generator 
+                            onPageGenerated={handlePageGenerated} 
+                            embeddedProjectId={projectId} 
+                            onClose={() => setShowGeneratorModal(false)}
+                        />
                     </div>
                 </div>
             )}

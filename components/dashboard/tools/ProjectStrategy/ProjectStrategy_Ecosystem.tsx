@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, EmailSequence, Article } from '../../../../types';
+import { Generator } from '../Generator';
 import { api } from '../../../../services/api';
 
 interface ProjectStrategy_EcosystemProps {
@@ -15,7 +16,7 @@ interface ProjectStrategy_EcosystemProps {
     linkedSequences: EmailSequence[];
     linkedArticles: Article[];
     onNavigate: (section: string) => void;
-    onOpenGenerator: () => void;
+    onRefresh: () => Promise<void>;
 }
 
 export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps> = ({
@@ -24,9 +25,21 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
     linkedSequences,
     linkedArticles,
     onNavigate,
-    onOpenGenerator
+    onRefresh
 }) => {
     const navigate = useNavigate();
+    const [showGeneratorModal, setShowGeneratorModal] = useState(false);
+
+    const handlePageGenerated = async (page: LandingPage) => {
+        try {
+            const savedPage = await api.createPage(page);
+            await onRefresh();
+            setShowGeneratorModal(false);
+            navigate(`/dashboard/editor/${savedPage.id}`);
+        } catch (e: any) {
+            alert(`Error guardando la página: ${e.message}`);
+        }
+    };
 
     const assets = [
         {
@@ -112,7 +125,7 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
                 {/* BOTÓN MAESTRO AUTOPILOT */}
                 <div className="max-w-[70em] mx-auto">
                     <button 
-                        onClick={onOpenGenerator}
+                        onClick={() => setShowGeneratorModal(true)}
                         className="w-full group bg-gradient-to-r from-[#FF5A1F] to-orange-600 p-1 rounded-[2.5rem] shadow-2xl transition-all hover:scale-[1.01] active:scale-95"
                     >
                         <div className="bg-[#0B0B0B] rounded-[2.4rem] p-8 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative">
@@ -180,7 +193,7 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
                                             </button>
                                         ) : (
                                             <button 
-                                                onClick={() => asset.id === 'web' ? onOpenGenerator() : navigate(asset.path)}
+                                                onClick={() => asset.id === 'web' ? setShowGeneratorModal(true) : navigate(asset.path)}
                                                 className="flex-1 py-4 bg-[#FF5A1F] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#D94A1E] transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-2"
                                             >
                                                 <Wand2 className="w-4 h-4" /> Generar con IA
@@ -220,6 +233,25 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
                     </div>
                 </div>
             </div>
+
+            {/* GENERATOR MODAL OVERLAY */}
+            {showGeneratorModal && (
+                <div 
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300"
+                    onClick={() => setShowGeneratorModal(false)}
+                >
+                    <div 
+                        className="w-full max-w-[1200px] h-[95vh] overflow-hidden rounded-[3rem] shadow-2xl relative border border-white/10"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <Generator 
+                            onPageGenerated={handlePageGenerated} 
+                            embeddedProjectId={projectId} 
+                            onClose={() => setShowGeneratorModal(false)}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* FOOTER INFORMATIVO */}
             <div className="max-w-[70em] mx-auto text-center opacity-30 pt-10 border-t border-white/5">
