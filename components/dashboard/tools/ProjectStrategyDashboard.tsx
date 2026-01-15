@@ -420,7 +420,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                     linkedSequences={linkedSequences}
                                     linkedArticles={linkedArticles}
                                     onNavigate={setActiveSection}
-                                    onRefresh={loadData}
                                 />
                             </div>
                         )}
@@ -444,7 +443,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                     planLimits={user.planLimits}
                                     onUpgrade={() => setShowUpgradeModal(true)}
                                     nextPlan={nextPlan}
-                                    onRefresh={loadData}
                                 />
                             </div>
                         )}

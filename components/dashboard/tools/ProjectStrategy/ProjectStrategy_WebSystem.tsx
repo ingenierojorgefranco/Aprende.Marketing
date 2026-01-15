@@ -23,13 +23,12 @@ interface ProjectStrategy_WebSystemProps {
     planLimits?: PlanLimits;
     onUpgrade?: () => void;
     nextPlan?: Plan | null;
-    onRefresh: () => Promise<void>;
 }
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
     projectId, lpTabsData, tyTabsData,
     selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, linkedPages, onEditPage,
-    pageCount = 0, domainCount = 0, planLimits, onUpgrade, nextPlan, onRefresh
+    pageCount = 0, domainCount = 0, planLimits, onUpgrade, nextPlan
 }) => {
     const navigate = useNavigate();
     // FIX: Added missing state showPagesModal to control the multiple pages modal visibility
@@ -51,7 +50,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const handlePageGenerated = async (page: LandingPage) => {
         try {
             const savedPage = await api.createPage(page);
-            await onRefresh();
             setShowGeneratorModal(false);
             navigate(`/dashboard/editor/${savedPage.id}`);
         } catch (e: any) {
@@ -412,7 +410,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <>
                                 <button 
                                     onClick={() => setShowGeneratorModal(true)}
-                                    className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-[0_20px_50px_rgba(255,90,31,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-102 active:scale-95 group"
+                                    className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-[0_20px_50px_rgba(255,90,31,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-[1.02] active:scale-95 group"
                                 >
                                     <PenTool className="w-8 h-8 group-hover:rotate-12 transition-transform" /> 
                                     Generar mis Páginas ahora con IA

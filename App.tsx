@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Routes,
@@ -239,13 +240,10 @@ const App: React.FC = () => {
     navigate("/");
   };
 
-  const handlePageGenerated = async (page: LandingPage) => {
-    try {
-      const savedPage = await api.createPage(page);
-      navigate(`/dashboard/editor/${savedPage.id}`);
-    } catch (e: any) {
-      alert(`Error guardando la página: ${e.message}`);
-    }
+  const handlePageGenerated = async (savedPage: LandingPage) => {
+    // La página ya ha sido guardada en la base de datos por el componente Generator para habilitar la edición en nueva pestaña.
+    // Solo redirigimos si el usuario decide editarla en la pestaña actual (opcional), pero el componente Generator ya ofrece el link target="_blank".
+    navigate(`/dashboard/editor/${savedPage.id}`);
   };
 
   const handleArticleSave = async (articleData: any) => {

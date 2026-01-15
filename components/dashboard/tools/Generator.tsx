@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
@@ -29,12 +30,12 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
   const [userProjects, setUserProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('');
   
-  // --- NUEVOS ESTADOS DE GENERACIÓN ---
+  // --- ESTADOS DE GENERACIÓN ---
   const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
   const [progress, setProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [generatedPageResult, setGeneratedPageResult] = useState<LandingPage | null>(null);
-  // -------------------------------------
+  // -----------------------------
 
   // Limit Check
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -126,17 +127,19 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         "Finalizando arquitectura SEO..."
     ];
 
-    // Lógica de simulación de progreso paralelo
+    // Lógica de simulación de progreso lineal de 7 segundos (70ms * 100)
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
-        if (currentProgress < 95) {
+        if (currentProgress < 100) {
             currentProgress += 1;
             setProgress(currentProgress);
             
             const msgIdx = Math.min(Math.floor((currentProgress / 100) * messages.length), messages.length - 1);
             setLoadingMessage(messages[msgIdx]);
+        } else {
+            clearInterval(progressInterval);
         }
-    }, 100);
+    }, 70);
 
     const destinationConfig: DestinationConfig = {
         type: formData.destinationType,
@@ -152,7 +155,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
 
       if (api.isUsingMockData()) {
           // Local/Mock
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          await new Promise(resolve => setTimeout(resolve, 2000));
           content = {
               palette: formData.palette,
               structure: formData.structure,
@@ -249,7 +252,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         name: formData.pageName,
         niche: formData.pageName,
         goal: formData.goal,
-        isPublished: false,
+        isPublished: true, // Se genera PUBLICADA directamente
         subdomain: `${formData.pageName.toLowerCase().replace(/\s+/g, '-')}.generatorlanding.com`,
         content: content,
         createdAt: new Date(),
@@ -258,15 +261,15 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         projectId: selectedProject || undefined 
       };
 
-      // Al terminar la API, completamos el progreso
-      clearInterval(progressInterval);
-      setProgress(100);
-      setLoadingMessage("¡Arquitectura finalizada!");
+      // Guardado automático en el servidor antes de mostrar el éxito para obtener el ID real
+      const savedPage = await api.createPage(newPage);
+
+      // Esperamos a que la barra de progreso llegue al 100%
+      while (currentProgress < 100) {
+          await new Promise(r => setTimeout(r, 50));
+      }
       
-      // Pequeño delay para que se vea el 100%
-      await new Promise(r => setTimeout(r, 600));
-      
-      setGeneratedPageResult(newPage);
+      setGeneratedPageResult(savedPage);
       setGenerationStatus('success');
 
     } catch (err) {
@@ -502,12 +505,14 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                     >
                         <ExternalLink className="w-5 h-5" /> Ver Página
                     </a>
-                    <button 
-                        onClick={() => onPageGenerated(generatedPageResult)}
+                    <a 
+                        href={window.location.hash ? `#/dashboard/editor/${generatedPageResult.id}` : `/dashboard/editor/${generatedPageResult.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
                     >
                         <PenTool className="w-5 h-5" /> Editar Página
-                    </button>
+                    </a>
                 </div>
 
                 <button 

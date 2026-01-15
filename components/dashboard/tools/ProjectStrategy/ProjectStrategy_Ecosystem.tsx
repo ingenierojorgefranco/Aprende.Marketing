@@ -16,7 +16,6 @@ interface ProjectStrategy_EcosystemProps {
     linkedSequences: EmailSequence[];
     linkedArticles: Article[];
     onNavigate: (section: string) => void;
-    onRefresh: () => Promise<void>;
 }
 
 export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps> = ({
@@ -24,8 +23,7 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
     linkedPages,
     linkedSequences,
     linkedArticles,
-    onNavigate,
-    onRefresh
+    onNavigate
 }) => {
     const navigate = useNavigate();
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
@@ -33,7 +31,6 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
     const handlePageGenerated = async (page: LandingPage) => {
         try {
             const savedPage = await api.createPage(page);
-            await onRefresh();
             setShowGeneratorModal(false);
             navigate(`/dashboard/editor/${savedPage.id}`);
         } catch (e: any) {
