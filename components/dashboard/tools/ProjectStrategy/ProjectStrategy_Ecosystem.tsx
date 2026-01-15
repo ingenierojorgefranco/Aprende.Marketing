@@ -16,7 +16,6 @@ interface ProjectStrategy_EcosystemProps {
     linkedSequences: EmailSequence[];
     linkedArticles: Article[];
     onNavigate: (section: string) => void;
-    onPageGenerated?: (page: LandingPage, closeCallback: () => void) => Promise<void>;
 }
 
 export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps> = ({
@@ -24,23 +23,18 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
     linkedPages,
     linkedSequences,
     linkedArticles,
-    onNavigate,
-    onPageGenerated
+    onNavigate
 }) => {
     const navigate = useNavigate();
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
 
-    const handlePageGeneratedInternal = async (page: LandingPage) => {
-        if (onPageGenerated) {
-            await onPageGenerated(page, () => setShowGeneratorModal(false));
-        } else {
-            try {
-                const savedPage = await api.createPage(page);
-                setShowGeneratorModal(false);
-                navigate(`/dashboard/editor/${savedPage.id}`);
-            } catch (e: any) {
-                alert(`Error guardando la página: ${e.message}`);
-            }
+    const handlePageGenerated = async (page: LandingPage) => {
+        try {
+            const savedPage = await api.createPage(page);
+            setShowGeneratorModal(false);
+            navigate(`/dashboard/editor/${savedPage.id}`);
+        } catch (e: any) {
+            alert(`Error guardando la página: ${e.message}`);
         }
     };
 
@@ -248,7 +242,7 @@ export const ProjectStrategy_Ecosystem: React.FC<ProjectStrategy_EcosystemProps>
                         onClick={(e) => e.stopPropagation()}
                     >
                         <Generator 
-                            onPageGenerated={handlePageGeneratedInternal} 
+                            onPageGenerated={handlePageGenerated} 
                             embeddedProjectId={projectId} 
                             onClose={() => setShowGeneratorModal(false)}
                         />

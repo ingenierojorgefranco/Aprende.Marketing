@@ -23,13 +23,12 @@ interface ProjectStrategy_WebSystemProps {
     planLimits?: PlanLimits;
     onUpgrade?: () => void;
     nextPlan?: Plan | null;
-    onPageGenerated?: (page: LandingPage, closeCallback: () => void) => Promise<void>;
 }
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
     projectId, lpTabsData, tyTabsData,
     selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, linkedPages, onEditPage,
-    pageCount = 0, domainCount = 0, planLimits, onUpgrade, nextPlan, onPageGenerated
+    pageCount = 0, domainCount = 0, planLimits, onUpgrade, nextPlan
 }) => {
     const navigate = useNavigate();
     // FIX: Added missing state showPagesModal to control the multiple pages modal visibility
@@ -48,17 +47,13 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         }
     }, [lpTabsData, tyTabsData]);
 
-    const handlePageGeneratedInternal = async (page: LandingPage) => {
-        if (onPageGenerated) {
-            await onPageGenerated(page, () => setShowGeneratorModal(false));
-        } else {
-            try {
-                const savedPage = await api.createPage(page);
-                setShowGeneratorModal(false);
-                navigate(`/dashboard/editor/${savedPage.id}`);
-            } catch (e: any) {
-                alert(`Error guardando la página: ${e.message}`);
-            }
+    const handlePageGenerated = async (page: LandingPage) => {
+        try {
+            const savedPage = await api.createPage(page);
+            setShowGeneratorModal(false);
+            navigate(`/dashboard/editor/${savedPage.id}`);
+        } catch (e: any) {
+            alert(`Error guardando la página: ${e.message}`);
         }
     };
 
@@ -496,7 +491,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         onClick={(e) => e.stopPropagation()}
                     >
                         <Generator 
-                            onPageGenerated={handlePageGeneratedInternal} 
+                            onPageGenerated={handlePageGenerated} 
                             embeddedProjectId={projectId} 
                             onClose={() => setShowGeneratorModal(false)}
                         />

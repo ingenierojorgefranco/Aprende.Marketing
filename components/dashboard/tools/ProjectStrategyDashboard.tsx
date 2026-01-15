@@ -171,20 +171,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
         }
     };
 
-    ////////// Actualización: Función para manejar la generación de páginas con actualización de estado inmediata - 24/05/2024 20:30 //////////
-    const handlePageGenerated = async (page: LandingPage, closeCallback?: () => void) => {
-        try {
-            const savedPage = await api.createPage(page);
-            // Actualizar estado local inmediatamente para que la UI cambie de "Generar" a "Gestión"
-            setLinkedPages(prev => [savedPage, ...prev]);
-            if (closeCallback) closeCallback();
-            navigate(`/dashboard/editor/${savedPage.id}`);
-        } catch (e: any) {
-            alert(`Error guardando la página: ${e.message}`);
-        }
-    };
-    ////////// Fin de actualización - 24/05/2024 20:30 //////////
-
     // --- CHART DATA GENERATION LOGIC ---
     const chartData = useMemo(() => {
         if (!strategyData || !strategyData.meta || !strategyData.meta.projection) return [];
@@ -434,7 +420,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                     linkedSequences={linkedSequences}
                                     linkedArticles={linkedArticles}
                                     onNavigate={setActiveSection}
-                                    onPageGenerated={handlePageGenerated}
                                 />
                             </div>
                         )}
@@ -458,7 +443,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                     planLimits={user.planLimits}
                                     onUpgrade={() => setShowUpgradeModal(true)}
                                     nextPlan={nextPlan}
-                                    onPageGenerated={handlePageGenerated}
                                 />
                             </div>
                         )}
