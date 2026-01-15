@@ -50,15 +50,23 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const handlePageGenerated = async (page: LandingPage) => {
         try {
             await api.createPage(page);
-            setShowGeneratorModal(false);
-            
-            // Lógica de redirección forzada y recarga para reflejar cambios inmediatamente al estilo GeneratorLanding
-            const projectUrl = `/dashboard/projects/${projectId}/strategy?section=web#web-system-anchor`;
-            window.location.replace(window.location.origin + projectUrl);
-            window.location.reload();
+            handleCloseAndReload();
         } catch (e: any) {
             alert(`Error guardando la página: ${e.message}`);
         }
+    };
+
+    // */ Actualización: Función maestra de cierre y recarga forzada al estilo GeneratorLanding - 24/05/2024 20:45
+    const handleCloseAndReload = () => {
+        setShowGeneratorModal(false);
+        // Construimos la URL de retorno con la sección activa y el ancla para scroll automático
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('section', 'web');
+        currentUrl.hash = 'web-system-anchor';
+        
+        // Forzamos la recarga total del navegador para refrescar los datos del servidor
+        window.location.replace(currentUrl.toString());
+        window.location.reload();
     };
 
     const renderBrowserMockup = (content: React.ReactNode, isDark = false) => (
@@ -488,7 +496,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             {showGeneratorModal && (
                 <div 
                     className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300"
-                    onClick={() => setShowGeneratorModal(false)}
+                    onClick={handleCloseAndReload}
                 >
                     <div 
                         className="w-full max-w-[1200px] h-[95vh] overflow-hidden rounded-[3rem] shadow-2xl relative border border-white/10"
@@ -497,7 +505,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         <Generator 
                             onPageGenerated={handlePageGenerated} 
                             embeddedProjectId={projectId} 
-                            onClose={() => setShowGeneratorModal(false)}
+                            onClose={handleCloseAndReload}
                         />
                     </div>
                 </div>

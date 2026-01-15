@@ -61,6 +61,19 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const activeSection = searchParams.get('section') || 'summary';
     const setActiveSection = (id: string) => setSearchParams({ section: id });
 
+    // */ Actualización: Efecto de scroll automático para anclas específicas tras recarga - 24/05/2024 20:35
+    useEffect(() => {
+        if (window.location.hash === '#web-system-anchor') {
+            const timer = setTimeout(() => {
+                const element = document.getElementById('web-system-anchor');
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 800); // Pequeño delay para permitir que el contenido lazy se posicione
+            return () => clearTimeout(timer);
+        }
+    }, [activeSection]);
+
     // Dynamic Plan Logic
     const [nextPlan, setNextPlan] = useState<Plan | null>(null);
 
