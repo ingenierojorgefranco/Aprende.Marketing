@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, UserPlus, Loader2, AlertCircle, Mail, Lock, User as UserIcon } from 'lucide-react';
 import { User } from '../types';
@@ -13,6 +14,7 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [launchReady] = useState(0); // Default status for waitlist
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -24,7 +26,7 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
     setError(null);
 
     try {
-      const { user } = await register({ name, email, password });
+      const { user } = await register({ name, email, password, launchReady } as any);
       const mappedUser: User = {
         id: user.id.toString(),
         name: user.name,
@@ -37,9 +39,17 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
             maxDomains: 1,
             features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false }
         },
-        customRedirectUrl: (user as any).customRedirectUrl
+        customRedirectUrl: (user as any).customRedirectUrl,
+        launchReady: (user as any).launchReady ?? launchReady
       };
       onLogin(mappedUser);
+
+      // Launch logical redirection
+      if (mappedUser.launchReady === 0 && mappedUser.role !== 'admin') {
+          navigate('/waiting-list');
+          return;
+      }
+
       if (mappedUser.customRedirectUrl && mappedUser.customRedirectUrl.trim() !== '') {
           navigate(mappedUser.customRedirectUrl);
       } else {
@@ -73,6 +83,7 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          <input type="hidden" name="launchReady" value={launchReady} />
           <div>
             <label className="block text-[10px] font-bold text-[#B0B0B0] uppercase mb-1.5">Nombre Completo</label>
             <div className="relative">

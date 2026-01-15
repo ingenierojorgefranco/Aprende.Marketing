@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, Lock, Loader2, AlertCircle, Database, WifiOff } from 'lucide-react';
 import { User } from '../types';
@@ -40,7 +41,13 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       try {
           const mockUser = await api.login(email, password);
           onLogin(mockUser);
-          navigate('/dashboard'); 
+          
+          // Launch logic check for mock user
+          if (mockUser.launchReady === 0 && mockUser.role !== 'admin') {
+              navigate('/waiting-list');
+          } else {
+              navigate('/dashboard'); 
+          }
       } catch (err: any) {
           setError(err.message || 'Error de credenciales offline.');
       }
@@ -57,9 +64,17 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         email: user.email,
         role: user.role as any, 
         planLimits: (user as any).planLimits,
-        customRedirectUrl: (user as any).customRedirectUrl
+        customRedirectUrl: (user as any).customRedirectUrl,
+        launchReady: (user as any).launchReady
       };
       onLogin(mappedUser);
+
+      // Launch logical protection
+      if (mappedUser.launchReady === 0 && mappedUser.role !== 'admin') {
+          navigate('/waiting-list');
+          return;
+      }
+
       if (mappedUser.customRedirectUrl && mappedUser.customRedirectUrl.trim() !== '') {
           navigate(mappedUser.customRedirectUrl);
       } else {

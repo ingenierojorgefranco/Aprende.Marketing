@@ -18,6 +18,7 @@ import { ContactPage } from "./components/ContactPage";
 import { TermsPage } from "./components/TermsPage";
 import { PrivacyPage } from "./components/PrivacyPage";
 ////////// Fin de importación - 27/05/2025 01:15 //////////
+import { LaunchPage } from "./components/LaunchPage";
 
 // Dashboard Core
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
@@ -210,7 +211,8 @@ const App: React.FC = () => {
               planLimits: (authUser as any).planLimits,
               avatarUrl: (authUser as any).avatarUrl,
               birthDate: (authUser as any).birthDate,
-              createdAt: (authUser as any).createdAt
+              createdAt: (authUser as any).createdAt,
+              launchReady: (authUser as any).launchReady
             });
           }
         } catch (error) {
@@ -310,6 +312,8 @@ const App: React.FC = () => {
         <Route path="/terminos" element={<TermsPage />} />
         <Route path="/privacidad" element={<PrivacyPage />} />
         {/* ////////// Fin de nuevas rutas - 27/05/2025 01:15 ////////// */}
+
+        <Route path="/waiting-list" element={<LaunchPage />} />
 
         {/* RUTAS DEL DASHBOARD (PROTEGIDAS) */}
         <Route
