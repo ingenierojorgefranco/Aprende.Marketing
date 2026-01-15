@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
-import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
+import { useNavigate, useParams, useOutletContext, useSearchParams } from 'react-router-dom';
 import { 
     Users, Target, MessageCircle, FileText,
     MonitorPlay, ShoppingCart, CheckCircle2,
@@ -56,8 +56,10 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
     const [globalDomainCount, setGlobalDomainCount] = useState(0); 
     
-    // */ Actualización: Estado para navegación modular - 24/05/2024 20:20
-    const [activeSection, setActiveSection] = useState('summary');
+    // */ Actualización: Sincronización de la sección activa con el parámetro de URL ?section= - 24/05/2024 20:20
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeSection = searchParams.get('section') || 'summary';
+    const setActiveSection = (id: string) => setSearchParams({ section: id });
 
     // Dynamic Plan Logic
     const [nextPlan, setNextPlan] = useState<Plan | null>(null);
@@ -85,21 +87,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
         y: 0,
         content: []
     });
-
-    // Sincronización con el ancla de la URL al montar el componente
-    useEffect(() => {
-        const hash = window.location.hash;
-        if (hash === '#psd-web-section') {
-            setActiveSection('web');
-            // Damos un pequeño respiro para que el componente se renderice antes de hacer scroll
-            setTimeout(() => {
-                const element = document.getElementById('psd-web-section');
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
-                }
-            }, 500);
-        }
-    }, []);
 
     // --- LOAD STRATEGY, PAGES & PLANS DATA ---
     const loadData = async () => {

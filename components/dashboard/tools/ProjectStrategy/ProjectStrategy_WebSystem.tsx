@@ -34,9 +34,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     // FIX: Added missing state showPagesModal to control the multiple pages modal visibility
     const [showPagesModal, setShowPagesModal] = useState(false);
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
-    
-    // Estado para transformar el fondo en tiempo real mientras la modal sigue abierta
-    const [pageGeneratedInModal, setPageGeneratedInModal] = useState(false);
 
     // Default to first tabs if null
     React.useEffect(() => {
@@ -50,22 +47,17 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         }
     }, [lpTabsData, tyTabsData]);
 
-    const handlePageGenerated = (page: LandingPage) => {
-        // Activamos el estado de éxito para que el fondo se transforme inmediatamente
-        setPageGeneratedInModal(true);
-        
-        // Cierre automático tras un breve retardo para que el usuario aprecie el estado de éxito
-        setTimeout(() => {
-            handleCloseGeneratorModal();
-        }, 1500);
-    };
-
-    const handleCloseGeneratorModal = () => {
-        setShowGeneratorModal(false);
-        // Si se generó una página, forzamos recarga con ancla para posicionar al usuario
-        if (pageGeneratedInModal) {
-            window.location.hash = 'psd-web-section';
+    const handlePageGenerated = async (page: LandingPage) => {
+        try {
+            await api.createPage(page);
+            setShowGeneratorModal(false);
+            
+            // Lógica de redirección forzada y recarga para reflejar cambios inmediatamente al estilo GeneratorLanding
+            const projectUrl = `/dashboard/projects/${projectId}/strategy?section=web#web-system-anchor`;
+            window.location.replace(window.location.origin + projectUrl);
             window.location.reload();
+        } catch (e: any) {
+            alert(`Error guardando la página: ${e.message}`);
         }
     };
 
@@ -189,7 +181,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     return (
         <>
-            <div id="psd-web-section" className="space-y-24">
+            <div id="web-system-anchor" className="space-y-24">
                 {/* HEADER ESTRATÉGICO */}
                 <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                     <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/5">
@@ -389,7 +381,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
                     {/* BOTÓN DE ACCIÓN O BLOQUE DE ÉXITO FINAL */}
                     <div className="max-w-4xl mx-auto w-full pt-10">
-                        {(linkedPages.length > 0 || pageGeneratedInModal) ? (
+                        {linkedPages.length > 0 ? (
                             <div className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[3rem] p-10 md:p-12 shadow-[0_20px_50px_rgba(16,185,129,0.1)] flex flex-col items-center text-center animate-in zoom-in-95 duration-700 relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-green-400 opacity-50"></div>
                                 <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-8 animate-bounce">
@@ -402,28 +394,20 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     Tu nuevo activo digital está optimizado para convertir visitas en leads de alta calidad de forma automática.
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
-                                    {linkedPages.length > 0 ? (
-                                        <>
-                                            <a 
-                                                href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
-                                            >
-                                                <ExternalLink className="w-5 h-5" /> Ver Página
-                                            </a>
-                                            <button 
-                                                onClick={() => onEditPage(linkedPages[0].id)}
-                                                className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
-                                            >
-                                                <PenTool className="w-5 h-5" /> Editar Diseño
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <div className="flex items-center gap-2 text-emerald-400 font-bold italic">
-                                            Procesando vinculación estratégica... recarga para ver los accesos.
-                                        </div>
-                                    )}
+                                    <a 
+                                        href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
+                                    >
+                                        <ExternalLink className="w-5 h-5" /> Ver Página
+                                    </a>
+                                    <button 
+                                        onClick={() => onEditPage(linkedPages[0].id)}
+                                        className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
+                                    >
+                                        <PenTool className="w-5 h-5" /> Editar Diseño
+                                    </button>
                                 </div>
                             </div>
                         ) : (
@@ -504,7 +488,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             {showGeneratorModal && (
                 <div 
                     className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300"
-                    onClick={handleCloseGeneratorModal}
+                    onClick={() => setShowGeneratorModal(false)}
                 >
                     <div 
                         className="w-full max-w-[1200px] h-[95vh] overflow-hidden rounded-[3rem] shadow-2xl relative border border-white/10"
@@ -513,7 +497,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         <Generator 
                             onPageGenerated={handlePageGenerated} 
                             embeddedProjectId={projectId} 
-                            onClose={handleCloseGeneratorModal}
+                            onClose={() => setShowGeneratorModal(false)}
                         />
                     </div>
                 </div>
