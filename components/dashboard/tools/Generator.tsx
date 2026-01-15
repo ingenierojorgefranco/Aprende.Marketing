@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
@@ -271,6 +270,9 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
       
       setGeneratedPageResult(savedPage);
       setGenerationStatus('success');
+
+      // Notificar al componente padre que la página ha sido generada exitosamente
+      onPageGenerated(savedPage);
 
     } catch (err) {
       console.error(err);

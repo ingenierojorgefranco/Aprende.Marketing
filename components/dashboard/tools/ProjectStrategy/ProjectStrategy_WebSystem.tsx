@@ -50,14 +50,14 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         }
     }, [lpTabsData, tyTabsData]);
 
-    const handlePageGenerated = async (page: LandingPage) => {
-        try {
-            await api.createPage(page);
-            // Activamos el estado de éxito para que el fondo se transforme inmediatamente
-            setPageGeneratedInModal(true);
-        } catch (e: any) {
-            alert(`Error guardando la página: ${e.message}`);
-        }
+    const handlePageGenerated = (page: LandingPage) => {
+        // Activamos el estado de éxito para que el fondo se transforme inmediatamente
+        setPageGeneratedInModal(true);
+        
+        // Cierre automático tras un breve retardo para que el usuario aprecie el estado de éxito
+        setTimeout(() => {
+            handleCloseGeneratorModal();
+        }, 1500);
     };
 
     const handleCloseGeneratorModal = () => {
