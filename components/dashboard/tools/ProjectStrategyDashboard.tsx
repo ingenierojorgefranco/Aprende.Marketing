@@ -86,6 +86,21 @@ export const ProjectStrategyDashboard: React.FC = () => {
         content: []
     });
 
+    // Sincronización con el ancla de la URL al montar el componente
+    useEffect(() => {
+        const hash = window.location.hash;
+        if (hash === '#psd-web-section') {
+            setActiveSection('web');
+            // Damos un pequeño respiro para que el componente se renderice antes de hacer scroll
+            setTimeout(() => {
+                const element = document.getElementById('psd-web-section');
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 500);
+        }
+    }, []);
+
     // --- LOAD STRATEGY, PAGES & PLANS DATA ---
     const loadData = async () => {
         if (!id) return;
