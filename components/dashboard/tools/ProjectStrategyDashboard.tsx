@@ -243,7 +243,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 <div className="w-24 h-24 bg-blue-900/20 rounded-full flex items-center justify-center mb-8 border border-blue-500/20 shadow-2xl shadow-blue-500/10">
                     <Rocket className="w-12 h-12 text-blue-500" />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-black mb-4 text-center">Datos incompletos o corruptos</h2>
+                <h2 className="text-3xl md:text-4xl font-black mb-4 text-center">Datos incompletos or corruptos</h2>
                 <p className="text-gray-400 text-lg max-w-xl text-center mb-10 leading-relaxed font-light">
                     No hemos podido cargar la estrategia de este proyecto correctamente. Esto puede deberse a un error en la generación previa o datos truncados por la IA. 
                     <br/><br/>
@@ -337,7 +337,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
             />
 
             {/* */ /* Actualización: Reestructuración del grid al estilo Academia con sidebar sticky top-6 - 24/05/2024 21:15 */ }
-            <div id="psd-modular-container" className="max-w-[1500px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-8 relative">
+            <div id="psd-modular-container" className="max-w-full mx-auto py-6 px-0 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-8 relative">
                 
                 <div className="lg:col-span-4">
                     <ProjectStrategy_Sidebar 

@@ -375,17 +375,50 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
                     </div>
 
-                    {/* BOTÓN DE ACCIÓN FINAL */}
+                    {/* BOTÓN DE ACCIÓN O BLOQUE DE ÉXITO FINAL */}
                     <div className="max-w-4xl mx-auto w-full pt-10">
-                        <button 
-                            onClick={() => setShowGeneratorModal(true)}
-                            className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-[0_20px_50px_rgba(255,90,31,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-[1.02] active:scale-95 group"
-                        >
-                            <PenTool className="w-8 h-8 group-hover:rotate-12 transition-transform" /> 
-                            Generar mis Páginas ahora con IA
-                            <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-                        </button>
-                        <p className="text-center text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] mt-8">Arquitectura semántica garantizada para Hotmart®</p>
+                        {linkedPages.length > 0 ? (
+                            <div className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[3rem] p-10 md:p-12 shadow-[0_20px_50px_rgba(16,185,129,0.1)] flex flex-col items-center text-center animate-in zoom-in-95 duration-700 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-green-400 opacity-50"></div>
+                                <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-8 animate-bounce">
+                                    <CheckCircle2 className="w-12 h-12 text-white" />
+                                </div>
+                                <h3 className="text-3xl md:text-4xl font-black text-white leading-tight mb-4">
+                                    ¡Tu Página de Captura ha sido generada correctamente!
+                                </h3>
+                                <p className="text-gray-400 text-lg font-medium leading-relaxed max-w-2xl mb-10">
+                                    Tu nuevo activo digital está optimizado para convertir visitas en leads de alta calidad de forma automática.
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+                                    <a 
+                                        href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
+                                    >
+                                        <ExternalLink className="w-5 h-5" /> Ver Página
+                                    </a>
+                                    <button 
+                                        onClick={() => onEditPage(linkedPages[0].id)}
+                                        className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
+                                    >
+                                        <PenTool className="w-5 h-5" /> Editar Diseño
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <button 
+                                    onClick={() => setShowGeneratorModal(true)}
+                                    className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-[0_20px_50px_rgba(255,90,31,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-[1.02] active:scale-95 group"
+                                >
+                                    <PenTool className="w-8 h-8 group-hover:rotate-12 transition-transform" /> 
+                                    Generar mis Páginas ahora con IA
+                                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                                </button>
+                                <p className="text-center text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] mt-8">Arquitectura semántica garantizada para Hotmart®</p>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
