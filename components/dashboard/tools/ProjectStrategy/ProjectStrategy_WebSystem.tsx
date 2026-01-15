@@ -189,7 +189,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     return (
         <>
-            <div id="web-system-anchor" className="space-y-24">
+            <div className="space-y-24">
                 {/* HEADER ESTRATÉGICO */}
                 <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                     <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/5">
@@ -390,7 +390,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     {/* BOTÓN DE ACCIÓN O BLOQUE DE ÉXITO FINAL */}
                     <div className="max-w-4xl mx-auto w-full pt-10">
                         {linkedPages.length > 0 ? (
-                            <div className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[3rem] p-10 md:p-12 shadow-[0_20px_50px_rgba(16,185,129,0.1)] flex flex-col items-center text-center animate-in zoom-in-95 duration-700 relative overflow-hidden">
+                            <div id="web-system-anchor" className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[3rem] p-10 md:p-12 shadow-[0_20px_50px_rgba(16,185,129,0.1)] flex flex-col items-center text-center animate-in zoom-in-95 duration-700 relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-green-400 opacity-50"></div>
                                 <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-8 animate-bounce">
                                     <CheckCircle2 className="w-12 h-12 text-white" />
