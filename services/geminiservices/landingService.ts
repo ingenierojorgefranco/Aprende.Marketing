@@ -31,7 +31,14 @@ export const generateLandingPageContent = async (
       const pDesc = String(projectContext.description || "");
       const pStrategy = projectContext.strategy_json ? JSON.parse(JSON.stringify(projectContext.strategy_json)) : null;
 
-      // 1. Extraer Dolores (Pains) - Prioriza campo directo, sino busca en strategy_json - 01/01/2026 13:05
+      // 1. Extraer Títulos definidos en la estrategia (Web Blueprint) - 12/03/2025 10:00
+      const pH1 = pStrategy?.modules?.web?.landingPageTabs?.hero?.h1;
+      const pH2 = pStrategy?.modules?.web?.landingPageTabs?.hero?.h2;
+      const mandatoryHeadlines = (pH1 && pH2) 
+          ? `- Título Principal OBLIGATORIO (h1): "${pH1}"\n      - Subtítulo OBLIGATORIO (h2): "${pH2}"`
+          : "";
+
+      // 2. Extraer Dolores (Pains) - Prioriza campo directo, sino busca en strategy_json - 01/01/2026 13:05
       let extractedPains = Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : [];
       if (extractedPains.length === 0 && pStrategy?.psychology?.pains) {
           extractedPains = pStrategy.psychology.pains;
@@ -41,7 +48,7 @@ export const generateLandingPageContent = async (
           ? `- Dolores del Cliente (USA ESTOS 6 PUNTOS EXACTAMENTE): ${extractedPains.slice(0, 6).join(", ")}` 
           : "";
 
-      // 2. Extraer Beneficios - Prioriza campo directo, sino busca en strategy_json (títulos de items) - 01/01/2026 13:05
+      // 3. Extraer Beneficios - Prioriza campo directo, sino busca en strategy_json (títulos de items) - 01/01/2026 13:05
       let extractedBenefits = Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : [];
       if (extractedBenefits.length === 0 && pStrategy?.modules?.web?.landingPageTabs?.benefits?.items) {
           extractedBenefits = pStrategy.modules.web.landingPageTabs.benefits.items.map((b: any) => b.title);
@@ -55,18 +62,20 @@ export const generateLandingPageContent = async (
       CONTEXTO ESTRATÉGICO DEL PROYECTO (ORDEN DE PRIORIDAD MÁXIMA):
       - Nombre del Producto: "${pName}"
       - Tono de Voz de Marca: "${pTone}" (Usa este tono en TODO el copy).
+      ${mandatoryHeadlines}
       ${painsText}
       ${benefitsText}
       - Descripción del Proyecto: ${pDesc}.
       
-      REGLA OBLIGATORIA: Si te he proporcionado los Dolores y Beneficios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
+      REGLA OBLIGATORIA: Si te he proporcionado los Títulos (h1, h2), Dolores y Beneficios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
       `;
 
       console.log("[DEBUG LANDING] Integración de Estrategia del Proyecto (Datos Limpios):", {
           pName,
           pTone,
           painsTextFound: painsText.length > 0,
-          benefitsTextFound: benefitsText.length > 0
+          benefitsTextFound: benefitsText.length > 0,
+          headlinesFound: !!(pH1 && pH2)
       });
   }
 
@@ -160,6 +169,12 @@ export const generateLandingPageContent = async (
 
         if (projectContext) {
             const pStrategy = projectContext.strategy_json ? JSON.parse(JSON.stringify(projectContext.strategy_json)) : null;
+
+            // SOBRESCRITURA DE SEGURIDAD: Forzar Títulos (Headline/Subheadline) desde la Estrategia Maestra
+            const pH1 = pStrategy?.modules?.web?.landingPageTabs?.hero?.h1;
+            const pH2 = pStrategy?.modules?.web?.landingPageTabs?.hero?.h2;
+            if (pH1) content.hero.headline = pH1;
+            if (pH2) content.hero.subheadline = pH2;
 
             let rawBenefits = Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : [];
             if (rawBenefits.length === 0 && pStrategy?.modules?.web?.landingPageTabs?.benefits?.items) {
