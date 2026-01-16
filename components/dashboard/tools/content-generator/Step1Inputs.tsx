@@ -66,7 +66,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
     
     if (pendingAction === 'ia') {
       if (isPreFilled) {
-        // Actualización: Redirección fluida directa al formulario de revisión cuando los datos ya existen
+        // Actualización: Redirección fluida directa al formulario de revisión cuando los datos ya existen sin perder el estado original
         onSelectRecommendation({
             title: topic,
             strategy: objective,

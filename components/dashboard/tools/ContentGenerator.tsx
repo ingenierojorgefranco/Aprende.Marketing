@@ -183,16 +183,34 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   };
 
   const handleProjectSelect = (projectId: string) => {
-    setSelectedProject(projectId);
-    const proj = userProjects.find(p => p.id === projectId);
-    if (proj) {
-      setTopic(proj.niche || '');
-      setObjective(proj.mainGoal ? `Atraer clientes interesados en ${proj.mainGoal}` : '');
-      if (proj.affiliateLinks && proj.affiliateLinks.length > 0) {
-        setCtaLink(proj.affiliateLinks[0].url);
+      setSelectedProject(projectId);
+      const proj = userProjects.find(p => p.id === projectId);
+      
+      if (proj && !preFilledData) {
+          let audienceInfo = proj.targetAudience || '';
+          
+          if (proj.strategy_json) {
+              const s = proj.strategy_json;
+              if (s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0) {
+                  const main = s.avatars[0];
+                  audienceInfo = `${main.archetype}. Su principal dolor es: ${main.pain}. Su gran deseo: ${main.desire}`;
+              } 
+              else if (s.avatar && s.avatar.story) {
+                  audienceInfo = s.avatar.story;
+              }
+          }
+
+          setTopic(proj.niche || '');
+          setObjective(proj.mainGoal ? `Atraer clientes interesados en ${proj.mainGoal}` : '');
+          setFormData(prev => ({
+              ...prev,
+              pageName: proj.productName || proj.name, 
+              targetAudience: audienceInfo,
+              destinationType: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? 'external_url' : 'form',
+              destinationUrl: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks[0].url : '',
+          }));
       }
-    }
-    setStep(1);
+      setStep(1);
   };
 
   const handleSelectRecommendation = async (rec: any) => {
@@ -400,6 +418,13 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         setCtaLink(url);
     }
   };
+
+  const [formData, setFormData] = useState({
+    pageName: '',
+    targetAudience: '',
+    destinationType: 'landing' as 'landing' | 'hotlink' | 'external',
+    destinationUrl: ''
+  });
 
   const isRealAdmin = user.role === 'admin' && !isSimulating;
   const maxArticles = user.planLimits?.maxArticles || 2;
@@ -695,29 +720,44 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                       <div>
                           <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">¿Dónde dirigir a tus visitantes?</label>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <button 
+                              <div 
                                 onClick={() => setRedirectType('landing')}
-                                className={`p-4 rounded-2xl border transition-all flex flex-col items-center text-center gap-2 ${redirectType === 'landing' ? 'bg-blue-600/20 border-blue-500 text-white' : 'bg-black border-white/5 text-gray-500 hover:border-white/10'}`}
+                                className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'landing' ? 'bg-blue-600/10 border-blue-500 shadow-lg shadow-blue-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
                               >
-                                <Globe className={`w-6 h-6 ${redirectType === 'landing' ? 'text-blue-400' : ''}`} />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Landing Page</span>
-                              </button>
+                                <div className={`p-4 rounded-2xl transition-colors ${redirectType === 'landing' ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-500'}`}>
+                                    <Globe className="w-8 h-8" />
+                                </div>
+                                <div>
+                                    <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'landing' ? 'text-white' : 'text-gray-400'}`}>Landing Page</h4>
+                                    <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Envía el tráfico a una de tus páginas internas creadas.</p>
+                                </div>
+                              </div>
                               
-                              <button 
+                              <div 
                                 onClick={() => setRedirectType('hotlink')}
-                                className={`p-4 rounded-2xl border transition-all flex flex-col items-center text-center gap-2 ${redirectType === 'hotlink' ? 'bg-[#FF5A1F]/20 border-[#FF5A1F] text-white' : 'bg-black border-white/5 text-gray-500 hover:border-white/10'}`}
+                                className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'hotlink' ? 'bg-[#FF5A1F]/10 border-[#FF5A1F] shadow-lg shadow-orange-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
                               >
-                                <LinkIcon className={`w-6 h-6 ${redirectType === 'hotlink' ? 'text-[#FF5A1F]' : ''}`} />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Hotlink Proyecto</span>
-                              </button>
+                                <div className={`p-4 rounded-2xl transition-colors ${redirectType === 'hotlink' ? 'bg-[#FF5A1F] text-white' : 'bg-white/5 text-gray-500'}`}>
+                                    <LinkIcon className="w-8 h-8" />
+                                </div>
+                                <div>
+                                    <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'hotlink' ? 'text-white' : 'text-gray-400'}`}>Hotlink Proyecto</h4>
+                                    <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Usa directamente tus enlaces de afiliado de Hotmart.</p>
+                                </div>
+                              </div>
 
-                              <button 
+                              <div 
                                 onClick={() => setRedirectType('external')}
-                                className={`p-4 rounded-2xl border transition-all flex flex-col items-center text-center gap-2 ${redirectType === 'external' ? 'bg-purple-600/20 border-purple-500 text-white' : 'bg-black border-white/5 text-gray-500 hover:border-white/10'}`}
+                                className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'external' ? 'bg-purple-600/10 border-purple-500 shadow-lg shadow-purple-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
                               >
-                                <ExternalLink className={`w-6 h-6 ${redirectType === 'external' ? 'text-purple-400' : ''}`} />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Externo</span>
-                              </button>
+                                <div className={`p-4 rounded-2xl transition-colors ${redirectType === 'external' ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-500'}`}>
+                                    <ExternalLink className="w-8 h-8" />
+                                </div>
+                                <div>
+                                    <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'external' ? 'text-white' : 'text-gray-400'}`}>Link Externo</h4>
+                                    <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Cualquier otra página web externa que desees promocionar.</p>
+                                </div>
+                              </div>
                           </div>
                           
                           <div className="mt-4">
