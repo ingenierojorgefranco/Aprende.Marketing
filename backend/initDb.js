@@ -432,6 +432,13 @@ const initDb = async () => {
         `);
         ////////// Fin de actualización - 24/05/2025 10:30 //////////
 
+        ////////// Inicialización de modo del sistema (Producción por defecto) - 08/06/2025 //////////
+        await connection.query(`
+            INSERT IGNORE INTO system_settings (setting_key, setting_value) 
+            VALUES ('system_mode', 'production')
+        `);
+        ////////// Fin de actualización //////////
+
         // --- SEED PLANS ---
         const [existingPlans] = await connection.query("SELECT id FROM plans LIMIT 1");
         if (existingPlans.length === 0) {

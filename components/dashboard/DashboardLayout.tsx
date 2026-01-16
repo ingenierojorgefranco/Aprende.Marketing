@@ -1,13 +1,15 @@
+
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket } from 'lucide-react';
 ////////// Fin de actualización - 05/06/2025 10:00 //////////
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
 import { UpgradeModal } from './UpgradeModal';
 import { SubscriptionSuccessModal } from './SubscriptionSuccessModal';
 import { getCurrentUser } from '../../services/auth';
+import { WaitlistView } from './WaitlistView';
 
 // Lazy Load User Profile Modal
 const UserProfileModal = React.lazy(() => import('./UserProfileModal'));
@@ -36,6 +38,9 @@ export const DashboardLayout = ({
 }: DashboardLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [systemMode, setSystemMode] = useState<'production' | 'launch'>('production');
+  const [loadingMode, setLoadingMode] = useState(true);
 
   /* */ /* Actualización: Mejora de la lógica de detección de categoría activa y resaltado de sub-ítems para incluir rutas de asistentes (generator, content-creator) y editores, asegurando persistencia visual en el menú lateral - 22/05/2024 11:30 */
   const getActiveMenuId = (pathname: string) => {
@@ -127,7 +132,15 @@ export const DashboardLayout = ({
   useEffect(() => {
       const loadData = async () => {
           try {
-              const list = await api.getCoursesList();
+              const [mode, list, summary] = await Promise.all([
+                  api.getSystemMode(),
+                  api.getCoursesList(),
+                  api.getAnalyticsSummary()
+              ]);
+              
+              setSystemMode(mode);
+              setLoadingMode(false);
+
               const items = list.map((c: any) => ({
                   label: c.title,
                   path: `/dashboard/training/${c.slug}`,
@@ -135,7 +148,6 @@ export const DashboardLayout = ({
               }));
               setCourseItems(items);
 
-              const summary = await api.getAnalyticsSummary();
               setProjectCount(summary.totalProjects || 0);
               setPageCount(summary.totalPages || 0);
               setArticleCount(summary.totalArticles || 0);
@@ -146,6 +158,7 @@ export const DashboardLayout = ({
               }
           } catch (e) {
               console.error("Error loading dashboard data", e);
+              setLoadingMode(false);
           }
       };
       loadData();
@@ -166,36 +179,45 @@ export const DashboardLayout = ({
   }, [user, simulatedPlanSlug, availablePlans]);
 
   /* */ /* Actualización: Unificación de todas las herramientas principales en el menú 'Tu Sistema' y limpieza de sub-items de creación - 22/05/2024 18:35 */
-  const menuStructure: MenuItem[] = [
-    { id: 'dashboard', label: 'Panel Principal', icon: LayoutDashboard, path: '/dashboard' },
-    { id: 'admin', label: 'Administración', icon: Shield, adminOnly: true, subItems: [
-          { label: 'Usuarios', path: '/dashboard/admin', icon: Users },
-          { label: 'Panel Hotmart', path: '/dashboard/admin/hotmart', icon: ShoppingCart },
-          { label: 'Planes y Precios', path: '/dashboard/admin/plans', icon: CreditCard },
-          { label: 'Gestionar Cursos', path: '/dashboard/admin/courses', icon: Video },
-          { label: 'Gestionar Comentarios', path: '/dashboard/admin/comments', icon: MessageSquare },
-          ////////// Actualización: Opción de gestionar novedades para administradores - 07/06/2025 10:00 //////////
-          { label: 'Gestionar Novedades', path: '/dashboard/admin/news', icon: Newspaper },
-          ////////// Fin de actualización - 07/06/2025 10:00 //////////
-          { label: 'Logs del Sistema', path: '/dashboard/admin/logs', icon: Activity }
-      ]
-    },
-    /* */ /* Actualización: Reubicación del botón CRM Clientes por encima de Entrenamiento - 27/05/2025 16:30 */
-    { id: 'crm', label: 'CRM Clientes', icon: Users, path: '/dashboard/crm' },
-    { id: 'training', label: 'Entrenamiento', icon: GraduationCap, subItems: courseItems },
-    { id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
-        { label: 'Mis Proyectos', path: '/dashboard/projects', icon: Briefcase },
-        { label: 'Páginas de Venta', path: '/dashboard/pages', icon: FileText },
-        { label: 'Contenidos Automáticos', path: '/dashboard/articles', icon: BookOpen },
-        { label: 'Email Marketing', path: '/dashboard/email', icon: Mail }
-      ]
-    },
-    { id: 'tools', label: 'Herramientas Pro', icon: Wrench, subItems: [
-        { label: 'WhatsApp CRM', path: '/dashboard/whatsapp', icon: MessageSquare },
-        { label: 'CopySell AI', path: '/dashboard/copy-pro', icon: PenTool }
-      ]
+  const menuStructure: MenuItem[] = useMemo(() => {
+    // Si estamos en modo lanzamiento y no es admin, menú ultra simplificado
+    if (systemMode === 'launch' && user.role !== 'admin') {
+        return [
+            { id: 'waitlist', label: 'Lista de Espera', icon: Rocket, path: '/dashboard' }
+        ];
     }
-  ];
+
+    return [
+        { id: 'dashboard', label: 'Panel Principal', icon: LayoutDashboard, path: '/dashboard' },
+        { id: 'admin', label: 'Administración', icon: Shield, adminOnly: true, subItems: [
+              { label: 'Usuarios', path: '/dashboard/admin', icon: Users },
+              { label: 'Panel Hotmart', path: '/dashboard/admin/hotmart', icon: ShoppingCart },
+              { label: 'Planes y Precios', path: '/dashboard/admin/plans', icon: CreditCard },
+              { label: 'Gestionar Cursos', path: '/dashboard/admin/courses', icon: Video },
+              { label: 'Gestionar Comentarios', path: '/dashboard/admin/comments', icon: MessageSquare },
+              ////////// Actualización: Opción de gestionar novedades para administradores - 07/06/2025 10:00 //////////
+              { label: 'Gestionar Novedades', path: '/dashboard/admin/news', icon: Newspaper },
+              ////////// Fin de actualización - 07/06/2025 10:00 //////////
+              { label: 'Logs del Sistema', path: '/dashboard/admin/logs', icon: Activity }
+          ]
+        },
+        /* */ /* Actualización: Reubicación del botón CRM Clientes por encima de Entrenamiento - 27/05/2025 16:30 */
+        { id: 'crm', label: 'CRM Clientes', icon: Users, path: '/dashboard/crm' },
+        { id: 'training', label: 'Entrenamiento', icon: GraduationCap, subItems: courseItems },
+        { id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
+            { label: 'Mis Proyectos', path: '/dashboard/projects', icon: Briefcase },
+            { label: 'Páginas de Venta', path: '/dashboard/pages', icon: FileText },
+            { label: 'Contenidos Automáticos', path: '/dashboard/articles', icon: BookOpen },
+            { label: 'Email Marketing', path: '/dashboard/email', icon: Mail }
+          ]
+        },
+        { id: 'tools', label: 'Herramientas Pro', icon: Wrench, subItems: [
+            { label: 'WhatsApp CRM', path: '/dashboard/whatsapp', icon: MessageSquare },
+            { label: 'CopySell AI', path: '/dashboard/copy-pro', icon: PenTool }
+          ]
+        }
+      ];
+  }, [systemMode, user.role, courseItems]);
   /* Fin de actualización - 22/05/2024 18:35 */
 
   const NavItemRender: React.FC<{ item: MenuItem }> = ({ item }) => {
@@ -203,7 +225,7 @@ export const DashboardLayout = ({
     const hasSubItems = !!item.subItems && item.subItems.length > 0; 
     const isExpanded = expandedMenu === item.id;
     const activeId = getActiveMenuId(location.pathname);
-    const isActive = activeId === item.id;
+    const isActive = activeId === item.id || (item.id === 'waitlist' && location.pathname === '/dashboard');
 
     return (
       <div className="mb-2">
@@ -261,6 +283,17 @@ export const DashboardLayout = ({
   };
   ////////// Fin de actualización - 05/06/2025 10:00 //////////
 
+  if (loadingMode) {
+      return (
+          <div className="h-screen bg-black flex items-center justify-center">
+              <Loader2 className="w-10 h-10 text-[#FF5A1F] animate-spin" />
+          </div>
+      );
+  }
+
+  // Lógica de visualización Modo Lanzamiento
+  const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin';
+
   return (
     <div className="h-screen overflow-hidden bg-black text-[#FFFFFF] flex font-sans">
       <aside className={`fixed md:relative top-0 left-0 h-full w-[25rem] bg-[#0B0B0B] border-r border-white/5 shadow-2xl z-40 transition-transform duration-300 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
@@ -290,7 +323,7 @@ export const DashboardLayout = ({
             </div>
         )}
 
-        {currentPlan !== 'max' && (
+        {!isLaunchRestricted && currentPlan !== 'max' && (
             <div className="border-t border-white/5 bg-[#0B0B0B] p-6">
                 <div className="p-8 rounded-[2rem] border border-[#FF5A1F]/30 bg-[#FF5A1F]/10 backdrop-blur-md relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
@@ -362,16 +395,18 @@ export const DashboardLayout = ({
 
         <div className="flex-1 overflow-auto bg-black p-4 sm:p-8 relative">
             <div className="max-w-[1600px] mx-auto">
-                {/* ////////// Actualización: Se añade setShowProfileModal al contexto para habilitar la gestión desde componentes hijos - 27/05/2025 12:30 ////////// */}
-                <Outlet context={{ 
-                    user: effectiveUser, 
-                    projectCount, 
-                    pageCount, 
-                    articleCount, 
-                    isSimulating: !!simulatedPlanSlug && user.role === 'admin',
-                    setShowProfileModal 
-                }} />
-                {/* ////////// Fin de actualización - 27/05/2025 12:30 ////////// */}
+                {isLaunchRestricted ? (
+                    <WaitlistView />
+                ) : (
+                    <Outlet context={{ 
+                        user: effectiveUser, 
+                        projectCount, 
+                        pageCount, 
+                        articleCount, 
+                        isSimulating: !!simulatedPlanSlug && user.role === 'admin',
+                        setShowProfileModal 
+                    }} />
+                )}
             </div>
         </div>
       </main>
@@ -408,7 +443,7 @@ export const DashboardLayout = ({
                                 <CheckCircle className="w-10 h-10" />
                             </div>
                             <h2 className="text-2xl font-black text-white tracking-tight">¡Ticket Enviado!</h2>
-                            <p className="text-[#B0B0B0] leading-relaxed">Tu solicitud ha sido recibida. Un experto de soporte te contactará vía email en menos de 24 horas.</p>
+                            <p className="text-[#B0B0B0] leading-relaxed">Tu solicitud ha sido recibida. Un experto de soporte te contactará vía email en menos de 24 horas hábiles.</p>
                         </div>
                     ) : (
                         <form onSubmit={handleHelpSubmit} className="space-y-6">

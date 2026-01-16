@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import { User, PlanLimits, Plan, UserUsageStats } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X } from 'lucide-react';
+import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout } from 'lucide-react';
 
 ////////// Actualización: Implementación de Lazy Load para el componente de auditoría - 05/06/2025 21:30 //////////
 const UserContentModal = React.lazy(() => import('./UserContentModal'));
@@ -39,6 +40,11 @@ export const AdminPanel: React.FC = () => {
     ////////// Estado para el método de pago activo - 24/05/2025 10:30 //////////
     const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'hotmart'>('stripe');
     ////////// Fin de actualización - 24/05/2025 10:30 //////////
+    
+    ////////// Estado para el modo del sistema - 08/06/2025 //////////
+    const [systemMode, setSystemMode] = useState<'production' | 'launch'>('production');
+    ////////// Fin de actualización //////////
+    
     const [loadingSettings, setLoadingSettings] = useState(false);
 
     useEffect(() => {
@@ -48,20 +54,24 @@ export const AdminPanel: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [usersData, plansData, settingsData, pMethodData] = await Promise.all([
+            const [usersData, plansData, settingsData, pMethodData, modeData] = await Promise.all([
                 api.getUsers(),
                 api.getPlans(),
                 api.getLoginRedirect().catch(() => '/dashboard'),
                 ////////// Se consulta el método de pago activo del sistema - 24/05/2025 10:30 //////////
-                api.getActivePaymentMethod().catch(() => 'stripe')
-                ////////// Fin de actualización - 24/05/2025 10:30 //////////
+                api.getActivePaymentMethod().catch(() => 'stripe'),
+                ////////// Se consulta el modo del sistema - 08/06/2025 //////////
+                api.getSystemMode().catch(() => 'production')
+                ////////// Fin de actualización //////////
             ]);
             setUsers(usersData);
             setPlans(plansData);
             setRedirectUrl(settingsData || '/dashboard');
             ////////// Se asigna el método recuperado del sistema - 24/05/2025 10:30 //////////
             setPaymentMethod(pMethodData as any);
-            ////////// Fin de actualización - 24/05/2025 10:30 //////////
+            ////////// Se asigna el modo recuperado - 08/06/2025 //////////
+            setSystemMode(modeData as any);
+            ////////// Fin de actualización //////////
         } catch (error) {
             console.error("Error loading admin data:", error);
         } finally {
@@ -75,6 +85,8 @@ export const AdminPanel: React.FC = () => {
             await api.updateLoginRedirect(redirectUrl);
             ////////// Se guarda la configuración del método de pago activo - 24/05/2025 10:30 //////////
             await api.updateActivePaymentMethod(paymentMethod);
+            ////////// Se guarda la configuración del modo del sistema - 08/06/2025 //////////
+            await api.updateSystemMode(systemMode);
             ////////// Fin de actualización - 24/05/2025 10:30 //////////
             alert("Configuración actualizada.");
         } catch (e) {
@@ -190,8 +202,8 @@ export const AdminPanel: React.FC = () => {
             blogGenerator: 'Generador de Blog',
             emailMarketing: 'Email Marketing',
             removeBranding: 'Quitar Branding',
-            emailStrategy: 'Estrategia 7 Días',
-            evergreenStrategy: 'Estrategia 30 Días'
+            emailStrategy: 'Secuencia 7 días',
+            evergreenStrategy: 'Secuencia 30 días'
         };
         return labels[key] || key.replace(/([A-Z])/g, ' $1').trim();
     };
@@ -276,6 +288,35 @@ export const AdminPanel: React.FC = () => {
                         <p className="text-xs text-gray-500 mt-3 italic">* El método seleccionado se aplicará a todos los usuarios que intenten comprar un plan.</p>
                     </div>
                     {/* ////////// Fin de actualización - 24/05/2025 10:30 ////////// */}
+
+                    {/* ////////// Nueva Sección: Estado del Sistema (Modo Lanzamiento) ////////// */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-2">Estado del Sistema</label>
+                        <div className="grid grid-cols-2 gap-4">
+                            <button 
+                                onClick={() => setSystemMode('production')}
+                                className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${systemMode === 'production' ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
+                            >
+                                <Layout className={`w-6 h-6 ${systemMode === 'production' ? 'text-emerald-500' : ''}`} />
+                                <div className="text-left">
+                                    <p className="font-bold text-sm">En Producción</p>
+                                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Modo Normal</p>
+                                </div>
+                            </button>
+                            <button 
+                                onClick={() => setSystemMode('launch')}
+                                className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${systemMode === 'launch' ? 'bg-blue-500/20 border-blue-500 text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
+                            >
+                                <Rocket className={`w-6 h-6 ${systemMode === 'launch' ? 'text-blue-500' : ''}`} />
+                                <div className="text-left">
+                                    <p className="font-bold text-sm">En Lanzamiento</p>
+                                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Modo Lista de Espera</p>
+                                </div>
+                            </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-3 italic">* El Modo Lanzamiento restringe el acceso de usuarios normales a una lista de espera.</p>
+                    </div>
+                    {/* ////////// Fin de actualización ////////// */}
 
                     <button 
                         onClick={handleSaveSettings}

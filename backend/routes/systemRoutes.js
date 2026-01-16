@@ -209,6 +209,19 @@ router.get('/settings/payment-method', async (req, res) => {
 });
 ////////// Fin de actualización - 24/05/2025 10:30 //////////
 
+/**
+ * Obtiene el modo del sistema (Producción o Lanzamiento)
+ */
+router.get('/system/mode', async (req, res) => {
+    try {
+        const [rows] = await pool.query("SELECT setting_value FROM system_settings WHERE setting_key = 'system_mode'");
+        const mode = rows.length > 0 ? rows[0].setting_value : 'production';
+        res.json({ mode });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 ////////// Actualización: Endpoints para gestionar integraciones externas (Systeme.io) - 07/06/2025 19:30 //////////
 /**
  * Obtiene las claves de integración del usuario

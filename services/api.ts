@@ -47,6 +47,7 @@ const apiCache: {
     publicPlans: Plan[] | null;
     loginRedirect: string | null;
     activePaymentMethod: ('stripe' | 'hotmart') | null;
+    systemMode: ('production' | 'launch') | null;
     hotmartData: any | null;
     usersList: User[] | null;
     currentUser: User | null;
@@ -86,6 +87,7 @@ const apiCache: {
     publicPlans: null,
     loginRedirect: null,
     activePaymentMethod: null,
+    systemMode: null,
     hotmartData: null,
     usersList: null,
     currentUser: null,
@@ -152,6 +154,7 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.publicPlans = null;
         apiCache.loginRedirect = null;
         apiCache.activePaymentMethod = null;
+        apiCache.systemMode = null;
         apiCache.hotmartData = null;
         apiCache.usersList = null;
         apiCache.currentUser = null;
@@ -1119,6 +1122,16 @@ export const api = {
             return data.method;
         } catch (e) { return 'stripe'; }
     },
+
+    getSystemMode: async (): Promise<'production' | 'launch'> => {
+        if (isMockMode) return 'production';
+        if (apiCache.systemMode) return apiCache.systemMode;
+        try {
+            const data = await fetchWithFallback('/system/mode');
+            apiCache.systemMode = data.mode;
+            return data.mode;
+        } catch (e) { return 'production'; }
+    },
   
     updateLoginRedirect: async (url: string) => {
         if (isMockMode) return Promise.resolve();
@@ -1130,6 +1143,12 @@ export const api = {
         if (isMockMode) return Promise.resolve();
         await fetchWithFallback('/admin/settings', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ key: 'active_payment_method', value: method }) });
         clearCache('activePaymentMethod');
+    },
+
+    updateSystemMode: async (mode: 'production' | 'launch') => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback('/admin/settings', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ key: 'system_mode', value: mode }) });
+        clearCache('systemMode');
     },
   
     getPlans: async (): Promise<Plan[]> => {
