@@ -1,7 +1,9 @@
-import React from 'react';
-import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { PlanLimits, Plan } from '../../../../types';
+import React, { useState, useEffect } from 'react';
+import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { PlanLimits, Plan, LandingPage } from '../../../../types';
+import { ContentGenerator } from '../ContentGenerator';
+import { api } from '../../../../services/api';
 
 interface ProjectStrategy_ContentProps {
     contentData: any[];
@@ -24,6 +26,27 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     articleCount = 0, planLimits, nextPlan
 }) => {
     const navigate = useNavigate();
+    const { id: projectId } = useParams() as { id: string };
+    const [showGeneratorModal, setShowGeneratorModal] = useState(false);
+    const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
+
+    useEffect(() => {
+        if (projectId) {
+            api.getPages().then(pages => {
+                const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
+                setLinkedPages(projectPages);
+            }).catch(console.error);
+        }
+    }, [projectId]);
+
+    const handleSelectOne = (idx: number) => {
+        // Deseleccionar todos los demás para cumplir con la selección 1 por 1
+        selectedArticles.filter(i => i !== idx).forEach(i => toggleArticleSelection(i));
+        // Seleccionar el actual si no lo está
+        if (!selectedArticles.includes(idx)) {
+            toggleArticleSelection(idx);
+        }
+    };
 
     return (
         <div id="psd-content-section" className="space-y-16">
@@ -77,7 +100,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             </div>
                             <div>
                                 <h4 className="text-xl font-bold text-white">Estrategias Sugeridas</h4>
-                                <p className="text-sm text-gray-400">Selecciona las que desees redactar.</p>
+                                <p className="text-sm text-gray-400">Selecciona la que desees redactar.</p>
                             </div>
                         </div>
                         
@@ -89,7 +112,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     <div 
                                         key={art.id} 
                                         id={`psd-content-item-${idx}`}
-                                        onClick={() => toggleArticleSelection(idx)}
+                                        onClick={() => handleSelectOne(idx)}
                                         onMouseEnter={() => setActiveArticle(idx)}
                                         className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isSelected ? 'bg-blue-600 border-blue-500 text-white' : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
                                     >
@@ -132,30 +155,21 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 </p>
                             </div>
                             
-                            <div className="flex gap-4">
+                            <div>
                                 <div 
-                                    className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 flex-1 text-center group cursor-help relative"
+                                    className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative"
                                     onMouseEnter={(e) => handleTooltipHover(e, ["Este artículo aparecerá en Google cuando tu cliente busque exactamente esta frase."])}
                                     onMouseLeave={handleTooltipLeave}
                                 >
                                     <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1"><Search className="w-3 h-3"/> Keyword SEO</p>
                                     <p className="text-purple-300 font-bold text-lg leading-tight break-words">{contentData[activeArticle].keyword}</p>
                                 </div>
-
-                                <div 
-                                    className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 flex-1 text-center cursor-help"
-                                    onMouseEnter={(e) => handleTooltipHover(e, ["Un número bajo indica que puedes posicionarte rápidamente en la primera página."])}
-                                    onMouseLeave={handleTooltipLeave}
-                                >
-                                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">Dificultad</p>
-                                    <p className="text-white font-bold text-3xl">{contentData[activeArticle].difficulty}<span className="text-sm text-gray-600">/100</span></p>
-                                </div>
                             </div>
                         </div>
 
                         <div className="mt-8 pt-8 border-t border-gray-800">
                             <button 
-                                onClick={() => navigate('/dashboard/content-creator')} 
+                                onClick={() => setShowGeneratorModal(true)} 
                                 className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:scale-[1.02]"
                             >
                                 <PenTool className="w-6 h-6" /> Redactar con IA
@@ -164,6 +178,28 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     </div>
                 </div>
             </div>
+
+            {/* MODAL GENERADOR DE CONTENIDOS */}
+            {showGeneratorModal && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300" onClick={() => setShowGeneratorModal(false)}>
+                    <div className="w-full max-w-[1200px] h-[95vh] overflow-y-auto rounded-[3rem] shadow-2xl relative border border-white/10 custom-scrollbar" onClick={e => e.stopPropagation()}>
+                        <ContentGenerator 
+                            preFilledData={{
+                                topic: contentData[activeArticle].title,
+                                objective: contentData[activeArticle].strategy,
+                                keyword: contentData[activeArticle].keyword,
+                                pageId: linkedPages[0]?.id || ''
+                            }}
+                            onClose={() => setShowGeneratorModal(false)}
+                            onSave={async (article) => {
+                                await api.saveArticle(article);
+                                setShowGeneratorModal(false);
+                                navigate('/dashboard/articles');
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -34,17 +34,17 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             module: "¿Qué creará nuestro sistema por ti?",
             items: [
                 { id: 'ecosystem', label: 'Centro de Mando', icon: Activity, module: "SISTEMA DE VENTAS", description: "Estado de tus activos" },
-                { id: 'web', label: 'Sistema Web (LP/TY)', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
-                { id: 'content', label: 'Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
-                { id: 'email', label: 'Secuencia 7 Días', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
-                { id: 'evergreen', label: 'Nutrición 30 Días', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
+                { id: 'web', label: 'Genera tu Página de Captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
+                { id: 'content', label: 'Generar Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
+                { id: 'email', label: 'Email Marketing: Secuencia de Conversión', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
+                { id: 'evergreen', label: 'Email Marketing: Secuencia de Nutrición', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
                 { id: 'whatsapp', label: 'Cierre por WhatsApp', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
             ]
         }
     ];
 
     return (
-        <aside className="w-full bg-[#0b0b0b] border border-gray-800 rounded-2xl overflow-hidden flex flex-col max-h-[calc(100vh-100px)] sticky top-6 shadow-2xl transition-all duration-300">
+        <aside className="w-full bg-[#0b0b0b] border border-gray-800 rounded-2xl flex flex-col sticky top-6 shadow-2xl transition-all duration-300 max-h-[calc(100vh-40px)] overflow-y-auto custom-scrollbar">
             {/* --- HEADER ESTILO ACADEMIA --- */}
             <div className="p-5 border-b border-gray-800 bg-gray-900 sticky top-0 z-10">
                 <h3 className="text-white font-bold text-lg flex items-center gap-3">
@@ -53,7 +53,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             </div>
 
             {/* --- LISTADO DE SECCIONES (LECCIONES) --- */}
-            <div className="overflow-y-auto custom-scrollbar">
+            <div className="custom-scrollbar">
                 {menuItems.map((group, gIdx) => (
                     <div key={gIdx} className="border-b border-gray-800 last:border-0">
                         {/* Cabecera de Módulo (Estilo Botón LMS) */}

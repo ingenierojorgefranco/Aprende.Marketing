@@ -3,7 +3,7 @@ import { generateArticleTitles, generateArticleOutline, generateFullArticle, Art
 import { api } from '../../../services/api';
 import { Article, Project, LandingPage, User } from '../../../types';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick } from 'lucide-react';
+import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick, X, CheckCircle } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 // Importing Sub-Components from relative sibling folder
@@ -15,6 +15,13 @@ import { SaveLogModal } from './content-generator/SaveLogModal';
 
 interface ContentGeneratorProps {
     onSave?: (article: any) => Promise<void>;
+    preFilledData?: {
+        topic: string;
+        objective: string;
+        keyword: string;
+        pageId: string;
+    };
+    onClose?: () => void;
 }
 
 interface DashboardContext {
@@ -23,8 +30,7 @@ interface DashboardContext {
   isSimulating: boolean;
 }
 
-export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) => {
-  /* */ /* Actualización: Implementación de Header global y barra de progreso unificada (0. Proyecto, 1. Configuración, 2. Selección, 3. Esquema, 4. Redacción) para igualar el flujo de GeneratorLanding - 20/06/2024 10:15 */
+export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preFilledData, onClose }) => {
   const [step, setStep] = useState(0); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -41,13 +47,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [objective, setObjective] = useState('');
   const [keyword, setKeyword] = useState('');
 
-  /* */ /* Actualización: Adición de estado para rastrear si el flujo proviene de una sugerencia automática de IA o es manual, permitiendo personalizar los títulos del formulario de validación - 11/03/2025 16:30 */
   const [isAiGeneratedFlow, setIsAiGeneratedFlow] = useState(false);
-
-  /* */ /* Actualización: Incorporación de selector de redirección estratégica (Landing, Hotlink o Externa) para centralizar el destino del tráfico del artículo - 11/03/2025 15:55 */
   const [redirectType, setRedirectType] = useState<'landing' | 'hotlink' | 'external'>('landing');
-
-  /* */ /* Actualización: Se añade estado showManualConfirm para gestionar la validación de créditos antes de disparar la IA en el flujo personalizado - 24/05/2024 20:45 */
   const [showManualConfirm, setShowManualConfirm] = useState(false);
 
   const [userProjects, setUserProjects] = useState<Project[]>([]);
@@ -67,7 +68,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const [metaDescription, setMetaDescription] = useState('');
   const [featuredImage, setFeaturedImage] = useState('');
   const [status, setStatus] = useState<'published' | 'draft' | 'scheduled'>('published');
-  // Add publishDate state to sync with Step4Editor
   const [publishDate, setPublishDate] = useState(new Date().toISOString().split('T')[0]);
   
   const [seoScore, setSeoScore] = useState(0);
@@ -98,7 +98,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
         const landingPages = pages || [];
         setUserPages(landingPages);
 
-        /* */ /* Actualización: Lógica de pre-selección de landing page para usuarios con un solo activo - 06/03/2025 19:15 */
         if (landingPages.length === 1 && !selectedPageId) {
             setSelectedPageId(landingPages[0].id);
         }
@@ -109,6 +108,18 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     fetchContext();
   }, []);
 
+  // Pre-fill effect for Modal usage
+  useEffect(() => {
+    if (preFilledData) {
+        setTopic(preFilledData.topic);
+        setObjective(preFilledData.objective);
+        setKeyword(preFilledData.keyword);
+        setSelectedPageId(preFilledData.pageId);
+        setIsAiGeneratedFlow(true);
+        setStep(2); // Jump to automatic creation step
+    }
+  }, [preFilledData]);
+
   useEffect(() => {
     if (editArticleId) {
         const loadArticle = async () => {
@@ -117,10 +128,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                 const article = await api.getArticleById(editArticleId);
                 if (article) {
                     setArticleContent(article.contentHtml);
-                    
                     setSelectedTitle({ title: article.title, description: article.description });
                     setArticleTitle(article.title);
-                    
                     setSlug(article.slug);
                     setMetaTitle(article.metaTitle || article.title);
                     setMetaDescription(article.metaDescription || article.description || '');
@@ -129,11 +138,9 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                     setStatus(article.status);
                     setSelectedPageId(article.pageId || '');
                     setSeoScore(article.seoScore);
-                    // Sync publishDate when loading article
                     if (article.publishedAt) {
                         setPublishDate(new Date(article.publishedAt).toISOString().split('T')[0]);
                     }
-                    
                     setStep(5);
                 }
             } catch (e) {
@@ -178,7 +185,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     setStep(1);
   };
 
-  /* */ /* Actualización: Modificación de la función para redirigir sugerencias automáticas de IA al formulario de revisión (Step 2) en lugar de proceder con la generación inmediata - 11/03/2025 16:30 */
   const handleSelectRecommendation = async (rec: any) => {
       setTopic(rec.title);
       setKeyword(rec.keyword);
@@ -205,7 +211,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     }
   };
 
-  /* */ /* Actualización: Se separa la lógica de generación manual en una función de ejecución tras confirmación, solicitando aprobación mediante modal antes de consumir créditos - 24/05/2024 20:45 */
   const handleManualGenerateOutline = () => {
     if (!topic || !objective) return alert("Por favor completa el tema y el objetivo.");
     setShowManualConfirm(true);
@@ -215,7 +220,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     setShowManualConfirm(false);
     setLoading(true);
     
-    // Preparar metadatos iniciales basados en el título manual
     const idea: ArticleTitleIdea = {
       title: topic,
       description: objective
@@ -226,7 +230,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     setMetaDescription(objective);
     setSlug(generateCleanSlug(topic));
 
-    // LÓGICA MODO MOCK/LOCAL
     if (api.isUsingMockData()) {
         await new Promise(resolve => setTimeout(resolve, 1500));
         const mockOutline = [
@@ -252,7 +255,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       const generatedOutline = await generateArticleOutline(topic, objective);
       if (Array.isArray(generatedOutline)) {
         setOutline(generatedOutline);
-        setStep(4); // Saltar directamente al paso de Esquema
+        setStep(4);
       } else {
         alert("Error generando la estructura.");
       }
@@ -266,7 +269,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   const handleSelectTitle = async (idea: ArticleTitleIdea) => {
     setSelectedTitle(idea);
     setArticleTitle(idea.title);
-    
     setMetaTitle(idea.title);
     setMetaDescription(idea.description || '');
     setSlug(generateCleanSlug(idea.title));
@@ -291,7 +293,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     if (!selectedTitle) return;
     setLoading(true);
 
-    // LÓGICA MODO MOCK/LOCAL PARA GENERACIÓN DE CONTENIDO
     if (api.isUsingMockData()) {
         await new Promise(resolve => setTimeout(resolve, 2000));
         const mockContent = `
@@ -323,14 +324,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
     try {
       const result = await generateFullArticle(selectedTitle.title, outline, objective, ctaLink || '#', keyword, projectContext);
-      
       setArticleContent(result.html || "<p>Error en la generación.</p>");
-      if (result.metaDescription) {
-          setMetaDescription(result.metaDescription);
-      } else {
-          setMetaDescription('');
-      }
-      
+      setMetaDescription(result.metaDescription || '');
       setStep(5);
     } catch (e) {
       alert("Error escribiendo artículo.");
@@ -360,7 +355,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       metaTitle: metaTitle,
       metaDescription: metaDescription,
       status: status,
-      // Use publishDate from state
       publishedAt: new Date(publishDate)
     };
 
@@ -377,21 +371,17 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
       setTimeout(() => {
         if (saveStatus !== 'error') {
             setIsLogModalOpen(false);
-            navigate('/dashboard/articles');
+            if (onClose) onClose();
+            else navigate('/dashboard/articles');
         }
       }, 1500);
     } catch (e: any) {
       addLog("❌ ERROR CRÍTICO");
       addLog(`Mensaje: ${e.message}`);
-      if (e.response) {
-         addLog(`Status: ${e.response.status}`);
-         addLog(`Data: ${JSON.stringify(e.response.data)}`);
-      }
       setSaveStatus('error');
     }
   };
 
-  /* */ /* Actualización: Helper para sincronizar la URL de la landing page seleccionada con el enlace de CTA del artículo - 11/03/2025 15:55 */
   const handlePageRedirectSelect = (pageId: string) => {
     setSelectedPageId(pageId);
     const page = userPages.find(p => p.id === pageId);
@@ -401,16 +391,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
     }
   };
 
-  if (loading && editArticleId) {
-      return (
-          <div className="flex items-center justify-center h-full">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <span className="ml-2 text-white">Cargando artículo...</span>
-          </div>
-      );
-  }
-
-  /* */ /* Actualización: Lógica de cálculo de límites y color de barra para concordancia visual con ArticlesList - 10/03/2025 12:00 */
   const isRealAdmin = user.role === 'admin' && !isSimulating;
   const maxArticles = user.planLimits?.maxArticles || 2;
   const usagePercent = Math.min(100, (articleCount / maxArticles) * 100);
@@ -421,16 +401,19 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
   if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
   return (
-    /* */ /* Actualización: Expansión dinámica del ancho del contenedor en la fase de Redacción (Step 5) para optimizar el espacio de trabajo del editor y la barra lateral de SEO - 07/06/2025 21:00 */
     <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step === 5 ? 'max-w-[98%] xl:max-w-[1600px]' : 'max-w-5xl'}`}>
       <UpgradeModal 
           isOpen={showUpgradeModal} 
-          onClose={() => navigate('/dashboard/articles')} 
+          onClose={() => onClose ? onClose() : navigate('/dashboard/articles')} 
           reason={`Has alcanzado el límite de ${user.planLimits?.maxArticles} artículos de tu plan ${user.planLimits?.planName}.`}
       />
 
-      {/* Header Premium y Barra de Progreso unificada para el Generador de Contenidos - 20/06/2024 10:15 */}
-      <div className={`bg-purple-600/10 p-8 text-center border-b border-purple-500/10 ${showUpgradeModal || loadingStatus ? 'opacity-30 pointer-events-none' : ''}`}>
+      <div className={`bg-purple-600/10 p-8 text-center border-b border-purple-500/10 relative ${showUpgradeModal || loadingStatus ? 'opacity-30 pointer-events-none' : ''}`}>
+        {onClose && (
+            <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+                <X className="w-6 h-6" />
+            </button>
+        )}
         <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
           <BookOpen className="w-8 h-8 text-purple-400" />
         </div>
@@ -448,14 +431,13 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
         </div>
       </div>
 
-      <div className={`p-8 flex-1 ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
+      <div className={`p-8 flex-1 overflow-y-auto ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
         {error && (
           <div className="bg-red-900/30 border border-red-800 text-red-400 p-4 rounded-lg mb-6 text-sm">
             {error}
           </div>
         )}
 
-        {/* */ /* Actualización: Rediseño completo del Paso 0 para unificar la estética con el asistente de email, aplicando radios de [3rem], paddings p-10, línea de acento superior y botón de selección - 06/03/2025 10:45 */ }
         {step === 0 && (
           <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center">
               <div className="max-w-2xl mx-auto">
@@ -489,7 +471,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                                 </div>
                                 <div className="flex-1 mb-10">
                                     <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
-                                    {/* Eliminación de truncamiento en descripción de proyecto para mostrar texto completo - 06/03/2025 15:30 */ }
                                     <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p>
                                 </div>
                                 <button 
@@ -500,30 +481,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                                 </button>
                             </div>
                         ))}
-                        <button 
-                            onClick={() => navigate('/dashboard/projects/create')}
-                            className="p-10 bg-transparent border-2 border-dashed border-gray-800 rounded-[3rem] hover:border-gray-600 hover:text-white transition-all text-gray-500 group flex flex-col items-center justify-center gap-6 shadow-2xl min-h-[400px]"
-                        >
-                            <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center shadow-lg group-hover:bg-gray-700 transition-colors">
-                                <Plus className="w-8 h-8 text-gray-400 group-hover:text-white" />
-                            </div>
-                            <div className="text-center">
-                                <h4 className="text-xl font-black uppercase tracking-widest">Crear un nuevo proyecto</h4>
-                                <p className="text-xs font-bold uppercase tracking-widest mt-2 opacity-60">Define un nuevo nicho o producto</p>
-                            </div>
-                        </button>
                       </>
-                  ) : (
-                      <div className="md:col-span-2 py-20 bg-black/20 border border-dashed border-gray-800 rounded-[2rem] text-center w-full">
-                          <p className="text-gray-500 mb-6 font-medium">Aún no tienes proyectos creados para gestionar contenidos.</p>
-                          <button 
-                            onClick={() => navigate('/dashboard/projects/create')}
-                            className="px-8 py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20"
-                          >
-                            Crear mi primer proyecto
-                          </button>
-                      </div>
-                  )}
+                  ) : null}
               </div>
           </div>
         )}
@@ -555,7 +514,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
 
         {step === 2 && (
            <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-              {/* */ /* Actualización: Mejora visual del modal de confirmación manual, visualización de créditos disponibles y bloqueo por límite de artículos para optimizar la experiencia de usuario - 10/03/2025 12:00 */}
               {showManualConfirm && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col p-10 text-center space-y-8">
@@ -564,9 +522,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                         </div>
                         <div className="space-y-4">
                             <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¿Estás seguro de generar esta estructura?</h3>
-                            <p className="text-white text-lg leading-relaxed font-medium">Vas a consumir créditos al momento de crearlo. La IA redactará una estructura profesional basada en tu tema y objetivos manuales.</p>
+                            <p className="text-white text-lg leading-relaxed font-medium">Vas a consumir créditos al momento de crearlo.</p>
                             
-                            {/* Bloque Informativo de Créditos con Barra de Progreso Premium */}
                             <div className="mt-8 p-6 bg-black/40 border border-white/10 rounded-[2rem] shadow-inner text-left">
                                 <div className="flex justify-between items-center mb-3">
                                     <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span>
@@ -575,9 +532,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                                 <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner p-0.5">
                                     <div className={`h-full transition-all duration-1000 ease-out rounded-full ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                 </div>
-                                <p className="text-gray-500 text-[10px] font-bold mt-4 uppercase tracking-widest text-center">
-                                    {isRealAdmin ? 'Infinitos disponibles' : `Tienes ${maxArticles - articleCount} de ${maxArticles} artículos disponibles`}
-                                </p>
                             </div>
                         </div>
                         <div className="flex flex-col gap-3 pt-4">
@@ -589,31 +543,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                                     >
                                         Sí, Generar Ahora
                                     </button>
-                                    <button 
-                                        onClick={() => setShowManualConfirm(false)}
-                                        className="w-full py-5 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-2xl transition-all text-xs uppercase tracking-widest"
-                                    >
+                                    <button onClick={() => setShowManualConfirm(false)} className="w-full py-5 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-2xl transition-all text-xs uppercase tracking-widest">
                                         Cancelar
                                     </button>
                                 </>
                             ) : (
-                                <>
-                                    <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-2xl mb-2">
-                                         <p className="text-red-400 text-sm font-bold">Has llegado al límite de tu plan actual.</p>
-                                    </div>
-                                    <button 
-                                        onClick={() => { setShowManualConfirm(false); setShowUpgradeModal(true); }}
-                                        className="w-full py-5 bg-gradient-to-r from-[#FF5A1F] to-orange-600 hover:from-[#D94A1E] hover:to-orange-700 text-white font-black rounded-2xl transition-all shadow-lg uppercase text-sm tracking-widest flex items-center justify-center gap-3 transform active:scale-95"
-                                    >
-                                        <Zap className="w-5 h-5 fill-current" /> Actualizar Plan
-                                    </button>
-                                    <button 
-                                        onClick={() => setShowManualConfirm(false)}
-                                        className="w-full py-5 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-2xl transition-all text-xs uppercase tracking-widest"
-                                    >
-                                        Cancelar
-                                    </button>
-                                </>
+                                <button onClick={() => { setShowManualConfirm(false); setShowUpgradeModal(true); }} className="w-full py-5 bg-gradient-to-r from-[#FF5A1F] to-orange-600 text-white font-black rounded-2xl transition-all shadow-lg uppercase text-sm tracking-widest">
+                                    Actualizar Plan
+                                </button>
                             )}
                         </div>
                     </div>
@@ -623,13 +560,26 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
               <button onClick={() => setStep(1)} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm font-bold">
                   <ChevronRight className="w-4 h-4 rotate-180" /> Volver al selector
               </button>
+
+              {/* PROJECT INFO BLOCK */}
+              <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700 border-dashed mb-6">
+                  <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2 flex items-center gap-2">
+                      <Briefcase className="w-3.5 h-3.5 text-[#FF5A1F]" /> Proyecto Seleccionado
+                  </label>
+                  <div className="flex items-center justify-between bg-black border border-[#FF5A1F]/20 rounded-xl px-4 py-3">
+                      <div className="flex items-center gap-3">
+                          <div className="w-5 h-5 text-[#FF5A1F]"><CheckCircle className="w-full h-full"/></div>
+                          <span className="text-white font-bold">{userProjects.find(p => p.id === selectedProject)?.name || 'Proyecto'}</span>
+                      </div>
+                  </div>
+              </div>
+
               <div className="bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl space-y-8">
                   <div className="flex items-center gap-4 border-b border-white/5 pb-6">
                       <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400">
                           <BookOpen className="w-6 h-6" />
                       </div>
                       <div>
-                          {/* */ /* Actualización: Título dinámico basado en el origen del flujo de creación - 11/03/2025 16:30 */ }
                           <h3 className="text-xl font-bold text-white uppercase tracking-tight">{isAiGeneratedFlow ? 'Creación Automática' : 'Contenido Personalizado'}</h3>
                           <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">{isAiGeneratedFlow ? 'Valida la sugerencia de la IA antes de generar' : 'Configura manualmente tu artículo'}</p>
                       </div>
@@ -638,24 +588,22 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                   <div className="space-y-6">
                       <div>
                           <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Titulo de tu Artículo de Blog</label>
-                          {/* */ /* Actualización: Se implementa placeholder dinámico que prioriza una de las recomendaciones del proyecto activo como ejemplo de prueba - 24/05/2024 20:45 */ }
                           <input
                               type="text"
                               value={topic}
                               onChange={(e) => setTopic(e.target.value)}
                               className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
-                              placeholder={userProjects.find(p => p.id === selectedProject)?.strategy_json?.modules?.content?.[0]?.title || "Ej: Cómo escalar tu negocio de belleza con estrategias de Inteligencia Artificial"}
+                              placeholder="Ej: Cómo escalar tu negocio..."
                           />
                       </div>
 
                       <div>
                           <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">Selecciona el Objetivo del Articulo</label>
-                          {/* */ /* Actualización: Transformación del selector de objetivo en un área de texto (textarea) para permitir descripciones detalladas o instrucciones personalizadas de la IA - 11/03/2025 16:45 */ }
                           <textarea
                               value={objective}
                               onChange={(e) => setObjective(e.target.value)}
                               className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition resize-none h-32"
-                              placeholder="Describe qué pretendes lograr con este artículo (ej: Atraer tráfico, vender un curso, etc.)"
+                              placeholder="Describe qué pretendes lograr..."
                           />
                       </div>
 
@@ -670,7 +618,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                           />
                       </div>
 
-                      {/* */ /* Actualización: Incorporación de selector de redirección estratégica (Landing, Hotlink o Externa) para centralizar el destino del tráfico del artículo - 11/03/2025 15:55 */ }
                       <div>
                           <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">¿Dónde dirigir a tus visitantes?</label>
                           <div className="space-y-4">
@@ -686,7 +633,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                               
                               {redirectType === 'landing' && (
                                   <div className="animate-in fade-in slide-in-from-top-2">
-                                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-1 mb-2 italic">Para que las personas se registren a su clase</p>
                                       <select
                                           value={selectedPageId}
                                           onChange={(e) => handlePageRedirectSelect(e.target.value)}
@@ -700,24 +646,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave }) =>
                                   </div>
                               )}
 
-                              {redirectType === 'hotlink' && (
-                                  <div className="animate-in fade-in slide-in-from-top-2">
-                                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-1 mb-2 italic">Selecciona un enlace de afiliado guardado en el proyecto</p>
-                                      <select
-                                          onChange={(e) => setCtaLink(e.target.value)}
-                                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
-                                      >
-                                          <option value="" disabled selected>-- Selecciona un Hotlink --</option>
-                                          {userProjects.find(p => p.id === selectedProject)?.affiliateLinks?.map((link, i) => (
-                                              <option key={i} value={link.url}>{link.label}</option>
-                                          ))}
-                                      </select>
-                                  </div>
-                              )}
-
                               {redirectType === 'external' && (
                                   <div className="animate-in fade-in slide-in-from-top-2">
-                                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-1 mb-2 italic">Ingresa la URL personalizada para el botón de acción</p>
                                       <input
                                           type="text"
                                           value={ctaLink}
