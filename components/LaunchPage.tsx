@@ -6,7 +6,11 @@ import {
     ShieldCheck, Sparkles, ChevronRight, CheckCircle2 
 } from 'lucide-react';
 
-export const LaunchPage: React.FC = () => {
+interface LaunchPageProps {
+    isDashboard?: boolean;
+}
+
+export const LaunchPage: React.FC<LaunchPageProps> = ({ isDashboard = false }) => {
     const benefits = [
         { icon: Layout, title: "Embudos IA", desc: "Crea sistemas de venta automáticos que trabajan 24/7." },
         { icon: PenTool, title: "Copywriting", desc: "Textos persuasivos que tocan los dolores reales de tu avatar." },
@@ -19,7 +23,7 @@ export const LaunchPage: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-[#0B0B0B] text-white font-sans overflow-x-hidden selection:bg-[#FF5A1F] selection:text-white">
+        <div className={`min-h-screen ${isDashboard ? 'bg-transparent' : 'bg-[#0B0B0B]'} text-white font-sans overflow-x-hidden selection:bg-[#FF5A1F] selection:text-white`}>
             <style>{`
                 @keyframes pulse-orange {
                     0% { box-shadow: 0 0 0 0 rgba(255, 90, 31, 0.7); }
@@ -36,27 +40,31 @@ export const LaunchPage: React.FC = () => {
                 }
             `}</style>
 
-            {/* Background Blobs */}
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FF5A1F]/5 rounded-full blur-[150px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/5 rounded-full blur-[150px]" />
-            </div>
-
-            {/* Navigation */}
-            <nav className="fixed w-full z-50 top-0 left-0 bg-black/60 backdrop-blur-xl border-b border-white/5">
-                <div className="container mx-auto px-6 py-6 flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-10 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-[#FF5A1F]/20">AM</div>
-                        <span className="text-xl font-bold tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></span>
+            {!isDashboard && (
+                <>
+                    {/* Background Blobs */}
+                    <div className="fixed inset-0 pointer-events-none">
+                        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FF5A1F]/5 rounded-full blur-[150px]" />
+                        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/5 rounded-full blur-[150px]" />
                     </div>
-                    <div className="hidden md:flex items-center gap-4 px-4 py-2 rounded-full border border-white/10 bg-white/5">
-                        <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Modo Lanzamiento Activo</span>
-                    </div>
-                </div>
-            </nav>
 
-            <main className="relative z-10 pt-40 pb-24">
+                    {/* Navigation */}
+                    <nav className="fixed w-full z-50 top-0 left-0 bg-black/60 backdrop-blur-xl border-b border-white/5">
+                        <div className="container mx-auto px-6 py-6 flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-10 bg-[#FF5A1F] rounded-xl flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-[#FF5A1F]/20">AM</div>
+                                <span className="text-xl font-bold tracking-tight">Aprende.<span className="text-[#FF5A1F]">Marketing</span></span>
+                            </div>
+                            <div className="hidden md:flex items-center gap-4 px-4 py-2 rounded-full border border-white/10 bg-white/5">
+                                <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div>
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Modo Lanzamiento Activo</span>
+                            </div>
+                        </div>
+                    </nav>
+                </>
+            )}
+
+            <main className={`relative z-10 ${isDashboard ? 'pt-10' : 'pt-40'} pb-24`}>
                 <div className="container mx-auto px-6">
                     {/* Hero Section */}
                     <div className="max-w-4xl mx-auto text-center space-y-10">
@@ -103,9 +111,9 @@ export const LaunchPage: React.FC = () => {
                     {/* Footer Info */}
                     <div className="mt-40 pt-20 border-t border-white/5 flex flex-col items-center text-center gap-8 opacity-40">
                         <div className="flex items-center gap-8">
-                            <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> 100% Automatizado</div>
-                            <div className="flex items-center gap-2"><Zap className="w-4 h-4" /> IA Gemini 1.5 Pro</div>
-                            <div className="flex items-center gap-2"><ShieldCheck className="w-4 h-4" /> Seguridad Bancaria</div>
+                            <div className="flex items-center gap-2 text-white"><CheckCircle2 className="w-4 h-4" /> 100% Automatizado</div>
+                            <div className="flex items-center gap-2 text-white"><Zap className="w-4 h-4" /> IA Gemini 1.5 Pro</div>
+                            <div className="flex items-center gap-2 text-white"><ShieldCheck className="w-4 h-4" /> Seguridad Bancaria</div>
                         </div>
                         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500">Aprende.Marketing — Protocolo de Lanzamiento v2.0</p>
                     </div>

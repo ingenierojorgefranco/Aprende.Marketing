@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket } from 'lucide-react';
 ////////// Fin de actualización - 05/06/2025 10:00 //////////
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
@@ -36,6 +37,8 @@ export const DashboardLayout = ({
 }: DashboardLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [systemMode, setSystemMode] = useState<string>('production');
 
   /* */ /* Actualización: Mejora de la lógica de detección de categoría activa y resaltado de sub-ítems para incluir rutas de asistentes (generator, content-creator) y editores, asegurando persistencia visual en el menú lateral - 22/05/2024 11:30 */
   const getActiveMenuId = (pathname: string) => {
@@ -127,7 +130,13 @@ export const DashboardLayout = ({
   useEffect(() => {
       const loadData = async () => {
           try {
-              const list = await api.getCoursesList();
+              const [list, summary, sMode] = await Promise.all([
+                  api.getCoursesList(),
+                  api.getAnalyticsSummary(),
+                  api.getSystemMode()
+              ]);
+              
+              setSystemMode(sMode);
               const items = list.map((c: any) => ({
                   label: c.title,
                   path: `/dashboard/training/${c.slug}`,
@@ -135,7 +144,6 @@ export const DashboardLayout = ({
               }));
               setCourseItems(items);
 
-              const summary = await api.getAnalyticsSummary();
               setProjectCount(summary.totalProjects || 0);
               setPageCount(summary.totalPages || 0);
               setArticleCount(summary.totalArticles || 0);
@@ -166,7 +174,13 @@ export const DashboardLayout = ({
   }, [user, simulatedPlanSlug, availablePlans]);
 
   /* */ /* Actualización: Unificación de todas las herramientas principales en el menú 'Tu Sistema' y limpieza de sub-items de creación - 22/05/2024 18:35 */
-  const menuStructure: MenuItem[] = [
+  
+  // ////////// Lógica de filtrado de menús por Modo Lanzamiento - 28/05/2024 16:30 //////////
+  const isRestricted = systemMode === 'launch' && user.role !== 'admin';
+
+  const menuStructure: MenuItem[] = isRestricted ? [
+    { id: 'dashboard', label: 'Próximamente', icon: Rocket, path: '/dashboard' }
+  ] : [
     { id: 'dashboard', label: 'Panel Principal', icon: LayoutDashboard, path: '/dashboard' },
     { id: 'admin', label: 'Administración', icon: Shield, adminOnly: true, subItems: [
           { label: 'Usuarios', path: '/dashboard/admin', icon: Users },
@@ -290,7 +304,7 @@ export const DashboardLayout = ({
             </div>
         )}
 
-        {currentPlan !== 'max' && (
+        {!isRestricted && currentPlan !== 'max' && (
             <div className="border-t border-white/5 bg-[#0B0B0B] p-6">
                 <div className="p-8 rounded-[2rem] border border-[#FF5A1F]/30 bg-[#FF5A1F]/10 backdrop-blur-md relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
@@ -320,28 +334,32 @@ export const DashboardLayout = ({
              
              {/* ////////// Unificación visual de botones del header con bolita naranja e icono - 06/06/2025 10:45 ////////// */}
              <div className="flex items-center gap-2 sm:gap-4">
-                 <a 
-                    href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-white hover:bg-white/10 transition-all"
-                    title="Comunidad WhatsApp"
-                 >
-                    <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
-                        <Users className="w-4 h-4" />
-                    </div>
-                    <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Comunidad</span>
-                 </a>
+                 {!isRestricted && (
+                     <>
+                        <a 
+                            href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-white hover:bg-white/10 transition-all"
+                            title="Comunidad WhatsApp"
+                        >
+                            <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
+                                <Users className="w-4 h-4" />
+                            </div>
+                            <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Comunidad</span>
+                        </a>
 
-                 <button 
-                    onClick={() => setShowHelpModal(true)}
-                    className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-white hover:bg-white/10 transition-all"
-                 >
-                    <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
-                        <HelpCircle className="w-4 h-4" />
-                    </div>
-                    <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Ayuda</span>
-                 </button>
+                        <button 
+                            onClick={() => setShowHelpModal(true)}
+                            className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#B0B0B0] hover:text-white hover:bg-white/10 transition-all"
+                        >
+                            <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
+                                <HelpCircle className="w-4 h-4" />
+                            </div>
+                            <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Ayuda</span>
+                        </button>
+                     </>
+                 )}
 
                  <button onClick={() => setShowProfileModal(true)} className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition shadow-sm">
                      <div className="w-8 h-8 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center font-bold overflow-hidden shadow-lg shadow-[#FF5A1F]/20 flex-shrink-0">
@@ -369,6 +387,7 @@ export const DashboardLayout = ({
                     pageCount, 
                     articleCount, 
                     isSimulating: !!simulatedPlanSlug && user.role === 'admin',
+                    systemMode,
                     setShowProfileModal 
                 }} />
                 {/* ////////// Fin de actualización - 27/05/2025 12:30 ////////// */}
