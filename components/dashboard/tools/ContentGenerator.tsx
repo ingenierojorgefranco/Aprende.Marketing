@@ -202,12 +202,17 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
           setTopic(proj.niche || '');
           setObjective(proj.mainGoal ? `Atraer clientes interesados en ${proj.mainGoal}` : '');
+          
+          const hasHotlinks = proj.affiliateLinks && proj.affiliateLinks.length > 0;
+          const initialRedirect = hasHotlinks ? 'hotlink' : 'landing';
+          
+          setRedirectType(initialRedirect);
           setFormData(prev => ({
               ...prev,
               pageName: proj.productName || proj.name, 
               targetAudience: audienceInfo,
-              destinationType: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? 'external_url' : 'form',
-              destinationUrl: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks[0].url : '',
+              destinationType: initialRedirect,
+              destinationUrl: hasHotlinks ? proj.affiliateLinks[0].url : '',
           }));
       }
       setStep(1);
