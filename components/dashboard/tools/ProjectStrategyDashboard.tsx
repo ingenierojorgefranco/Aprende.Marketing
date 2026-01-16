@@ -464,6 +464,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                         planLimits={user.planLimits}
                                         onUpgrade={() => setShowUpgradeModal(true)}
                                         nextPlan={nextPlan}
+                                        linkedArticles={linkedArticles}
                                     />
                                 )}
                             </div>

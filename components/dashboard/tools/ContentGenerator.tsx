@@ -3,7 +3,7 @@ import { generateArticleTitles, generateArticleOutline, generateFullArticle, Art
 import { api } from '../../../services/api';
 import { Article, Project, LandingPage, User } from '../../../types';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick, X, CheckCircle } from 'lucide-react';
+import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick, X, CheckCircle, Target } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 // Importing Sub-Components from relative sibling folder
@@ -78,7 +78,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const [saveLogs, setSaveLogs] = useState<string[]>([]);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 
-  // LIMIT CHECK EFFECT
+  // Limit Check Effect
   useEffect(() => {
       const isRealAdmin = user.role === 'admin' && !isSimulating;
       if (!editArticleId && user.planLimits && !isRealAdmin) {
@@ -113,12 +113,12 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   // Pre-fill effect for Modal usage
   useEffect(() => {
     if (preFilledData) {
-        setTopic(preFilledData.topic);
-        setObjective(preFilledData.objective);
-        setKeyword(preFilledData.keyword);
-        setSelectedPageId(preFilledData.pageId);
+        setTopic(preFilledData.topic || '');
+        setObjective(preFilledData.objective || '');
+        setKeyword(preFilledData.keyword || '');
+        setSelectedPageId(preFilledData.pageId || '');
         setIsAiGeneratedFlow(true);
-        setStep(1); // Actualización: Volvemos al Paso 1 para permitir selección de página estratégica
+        setStep(1); 
     }
   }, [preFilledData]);
 
@@ -694,17 +694,33 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
                       <div>
                           <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">¿Dónde dirigir a tus visitantes?</label>
-                          <div className="space-y-4">
-                              <select
-                                  value={redirectType}
-                                  onChange={(e) => setRedirectType(e.target.value as any)}
-                                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <button 
+                                onClick={() => setRedirectType('landing')}
+                                className={`p-4 rounded-2xl border transition-all flex flex-col items-center text-center gap-2 ${redirectType === 'landing' ? 'bg-blue-600/20 border-blue-500 text-white' : 'bg-black border-white/5 text-gray-500 hover:border-white/10'}`}
                               >
-                                  <option value="landing">A tu Landing Page</option>
-                                  <option value="hotlink">A un Hotlink del Proyecto</option>
-                                  <option value="external">A una página externa</option>
-                              </select>
+                                <Globe className={`w-6 h-6 ${redirectType === 'landing' ? 'text-blue-400' : ''}`} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Landing Page</span>
+                              </button>
                               
+                              <button 
+                                onClick={() => setRedirectType('hotlink')}
+                                className={`p-4 rounded-2xl border transition-all flex flex-col items-center text-center gap-2 ${redirectType === 'hotlink' ? 'bg-[#FF5A1F]/20 border-[#FF5A1F] text-white' : 'bg-black border-white/5 text-gray-500 hover:border-white/10'}`}
+                              >
+                                <LinkIcon className={`w-6 h-6 ${redirectType === 'hotlink' ? 'text-[#FF5A1F]' : ''}`} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Hotlink Proyecto</span>
+                              </button>
+
+                              <button 
+                                onClick={() => setRedirectType('external')}
+                                className={`p-4 rounded-2xl border transition-all flex flex-col items-center text-center gap-2 ${redirectType === 'external' ? 'bg-purple-600/20 border-purple-500 text-white' : 'bg-black border-white/5 text-gray-500 hover:border-white/10'}`}
+                              >
+                                <ExternalLink className={`w-6 h-6 ${redirectType === 'external' ? 'text-purple-400' : ''}`} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Externo</span>
+                              </button>
+                          </div>
+                          
+                          <div className="mt-4">
                               {redirectType === 'landing' && (
                                   <div className="animate-in fade-in slide-in-from-top-2">
                                       <select
@@ -729,6 +745,20 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                                           className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
                                           placeholder="https://ejemplo.com/tu-enlace"
                                       />
+                                  </div>
+                              )}
+                              
+                              {redirectType === 'hotlink' && (
+                                  <div className="animate-in fade-in slide-in-from-top-2">
+                                      <select
+                                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition appearance-none cursor-pointer"
+                                          onChange={(e) => setCtaLink(e.target.value)}
+                                      >
+                                          <option value="">-- Elige un Hotlink --</option>
+                                          {userProjects.find(p => p.id === selectedProject)?.affiliateLinks.map((link, i) => (
+                                              <option key={i} value={link.url}>{link.label}</option>
+                                          ))}
+                                      </select>
                                   </div>
                               )}
                           </div>

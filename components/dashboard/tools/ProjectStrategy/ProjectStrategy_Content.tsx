@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight } from 'lucide-react';
+import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PlanLimits, Plan, LandingPage } from '../../../../types';
+import { PlanLimits, Plan, LandingPage, Article } from '../../../../types';
 import { ContentGenerator } from '../ContentGenerator';
 import { api } from '../../../../services/api';
 
@@ -20,11 +20,12 @@ interface ProjectStrategy_ContentProps {
     planLimits?: PlanLimits;
     nextPlan?: Plan | null;
     isSimulating?: boolean;
+    linkedArticles?: Article[];
 }
 
 export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = ({
     contentData, activeArticle, setActiveArticle, selectedArticles, toggleArticleSelection, handleTooltipHover, handleTooltipLeave, onUpgrade,
-    articleCount = 0, planLimits, nextPlan, isSimulating = false
+    articleCount = 0, planLimits, nextPlan, isSimulating = false, linkedArticles = []
 }) => {
     const navigate = useNavigate();
     const { id: projectId } = useParams() as { id: string };
@@ -114,20 +115,25 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             {contentData.map((art: any, idx: number) => {
                                 const isSelected = selectedArticles.includes(idx);
                                 const isActive = activeArticle === idx;
+                                
+                                // Detalle: Cruzar con artículos reales para ver si ya fue generado
+                                const existingArticle = linkedArticles.find(a => a.title === art.title);
+                                const isGenerated = !!existingArticle;
+
                                 return (
                                     <div 
                                         key={art.id} 
                                         id={`psd-content-item-${idx}`}
                                         onClick={() => handleSelectOne(idx)}
                                         onMouseEnter={() => setActiveArticle(idx)}
-                                        className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isSelected ? 'bg-blue-600 border-blue-500 text-white' : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
+                                        className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isSelected ? 'bg-blue-600 border-blue-500 text-white' : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
                                     >
                                         <div className="flex-1">
-                                            <h4 className={`font-medium text-lg leading-snug ${isSelected ? 'text-white' : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'}`}>{art.title}</h4>
+                                            <h4 className={`font-medium text-lg leading-snug ${isGenerated || isSelected ? 'text-white' : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'}`}>{art.title}</h4>
                                         </div>
                                         
-                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
-                                            {isSelected && <Check className="w-4 h-4 text-blue-600 font-bold" />}
+                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? 'bg-white border-white' : isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
+                                            {(isGenerated || isSelected) && <Check className={`w-4 h-4 font-bold ${isGenerated ? 'text-emerald-600' : 'text-blue-600'}`} />}
                                         </div>
                                     </div>
                                 );
@@ -144,9 +150,16 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                     <div className="relative z-10 flex flex-col h-full">
                         <div className="mb-auto">
-                            <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border bg-purple-500/10 text-purple-300 border-purple-500/20">
-                                Análisis de IA
-                            </span>
+                            <div className="flex justify-between items-center mb-4">
+                                <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">
+                                    Análisis de IA
+                                </span>
+                                {linkedArticles.some(a => a.title === contentData[activeArticle].title) && (
+                                    <span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                                        <Check className="w-3 h-3" /> Generado
+                                    </span>
+                                )}
+                            </div>
                             
                             <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
                                 {contentData[activeArticle].title}
@@ -175,21 +188,42 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             </div>
                         </div>
 
-                        <div className="mt-8 pt-8 border-t border-gray-800">
-                            {isAtLimit ? (
-                                <button 
-                                    onClick={onUpgrade} 
-                                    className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"
-                                >
-                                    <Crown className="w-6 h-6 fill-current" /> Límite Alcanzado: Subir a PRO
-                                </button>
+                        <div className="mt-8 pt-8 border-t border-gray-800 space-y-4">
+                            {linkedArticles.find(a => a.title === contentData[activeArticle].title) ? (
+                                <>
+                                    <a 
+                                        href={`/admin/lp/${linkedPages[0]?.subdomain?.split('.')[0] || 'page'}/blog/${linkedArticles.find(a => a.title === contentData[activeArticle].title)?.slug}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20 hover:scale-[1.02]"
+                                    >
+                                        <Eye className="w-6 h-6" /> Ver Artículo Online
+                                    </a>
+                                    <a 
+                                        href={window.location.hash ? `#/dashboard/articles/edit/${linkedArticles.find(a => a.title === contentData[activeArticle].title)?.id}` : `/dashboard/articles/edit/${linkedArticles.find(a => a.title === contentData[activeArticle].title)?.id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"
+                                    >
+                                        <PenTool className="w-4 h-4" /> Editar Contenido Profesional
+                                    </a>
+                                </>
                             ) : (
-                                <button 
-                                    onClick={() => setShowGeneratorModal(true)} 
-                                    className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]"
-                                >
-                                    <PenTool className="w-6 h-6" /> Escribir Articulo Seleccionado
-                                </button>
+                                isAtLimit ? (
+                                    <button 
+                                        onClick={onUpgrade} 
+                                        className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"
+                                    >
+                                        <Crown className="w-6 h-6 fill-current" /> Límite Alcanzado: Subir a PRO
+                                    </button>
+                                ) : (
+                                    <button 
+                                        onClick={() => setShowGeneratorModal(true)} 
+                                        className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]"
+                                    >
+                                        <PenTool className="w-6 h-6" /> Escribir Articulo Seleccionado
+                                    </button>
+                                )
                             )}
                         </div>
                     </div>
