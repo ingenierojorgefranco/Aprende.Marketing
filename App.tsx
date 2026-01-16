@@ -10,7 +10,6 @@ import {
 } from "react-router-dom";
 
 import { PublicHome } from "./components/PublicHome";
-import { LaunchPage } from "./components/LaunchPage";
 import { Login } from "./components/Login";
 import { Register } from "./components/Register";
 import { PublicLandingView } from "./components/PublicLandingView";
@@ -163,9 +162,6 @@ const App: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [domainSlug, setDomainSlug] = useState<string | null>(null);
   const [domainLoading, setDomainLoading] = useState(true);
-  ////////// Estado para systemMode - 28/05/2024 16:30 //////////
-  const [systemMode, setSystemMode] = useState<string>('production');
-  ////////// Fin de actualización - 28/05/2024 16:30 //////////
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -226,18 +222,6 @@ const App: React.FC = () => {
     restoreSession();
   }, []);
 
-  ////////// Obtener System Mode - 28/05/2024 16:30 //////////
-  useEffect(() => {
-    const fetchMode = async () => {
-        try {
-            const mode = await api.getSystemMode();
-            setSystemMode(mode);
-        } catch (e) {}
-    };
-    fetchMode();
-  }, [location.pathname]);
-  ////////// Fin de actualización - 28/05/2024 16:30 //////////
-
   // Check Modo Offline
   useEffect(() => {
       if (user && location.pathname.startsWith("/dashboard")) {
@@ -284,13 +268,6 @@ const App: React.FC = () => {
 
   const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
     if (!user) return <Navigate to="/login" replace />;
-    
-    ////////// Redirección forzada por Modo Lanzamiento - 28/05/2024 16:30 //////////
-    if (systemMode === 'launch' && user.role !== 'admin') {
-        return <Navigate to="/lanzamiento" replace />;
-    }
-    ////////// Fin de actualización - 28/05/2024 16:30 //////////
-
     return <>{children}</>;
   };
 
@@ -320,14 +297,11 @@ const App: React.FC = () => {
             domainSlug ? (
               <PublicLandingView forcedSlug={domainSlug} />
             ) : (
-                ////////// Lógica de Home Dinámico por Modo - 28/05/2024 16:30 //////////
-                systemMode === 'launch' ? (user?.role === 'admin' ? <PublicHome user={user} onLogout={handleLogout} /> : <LaunchPage />) : <PublicHome user={user} onLogout={handleLogout} />
-                ////////// Fin de actualización - 28/05/2024 16:30 //////////
+              <PublicHome user={user} onLogout={handleLogout} />
             )
           }
         />
 
-        <Route path="/lanzamiento" element={<LaunchPage />} />
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login onLogin={handleLoginSubmit} />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register onLogin={handleLoginSubmit} />} />
 

@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { User, PlanLimits, Plan, UserUsageStats } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout } from 'lucide-react';
+import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X } from 'lucide-react';
 
 ////////// Actualización: Implementación de Lazy Load para el componente de auditoría - 05/06/2025 21:30 //////////
 const UserContentModal = React.lazy(() => import('./UserContentModal'));
@@ -37,10 +36,9 @@ export const AdminPanel: React.FC = () => {
 
     // System Settings
     const [redirectUrl, setRedirectUrl] = useState('');
+    ////////// Estado para el método de pago activo - 24/05/2025 10:30 //////////
     const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'hotmart'>('stripe');
-    ////////// Estado para el modo del sistema - 28/05/2024 16:30 //////////
-    const [systemMode, setSystemMode] = useState<'production' | 'launch'>('production');
-    ////////// Fin de actualización - 28/05/2024 16:30 //////////
+    ////////// Fin de actualización - 24/05/2025 10:30 //////////
     const [loadingSettings, setLoadingSettings] = useState(false);
 
     useEffect(() => {
@@ -50,22 +48,20 @@ export const AdminPanel: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [usersData, plansData, settingsData, pMethodData, sModeData] = await Promise.all([
+            const [usersData, plansData, settingsData, pMethodData] = await Promise.all([
                 api.getUsers(),
                 api.getPlans(),
                 api.getLoginRedirect().catch(() => '/dashboard'),
-                api.getActivePaymentMethod().catch(() => 'stripe'),
-                ////////// Se consulta el modo del sistema - 28/05/2024 16:30 //////////
-                api.getSystemMode().catch(() => 'production')
-                ////////// Fin de actualización - 28/05/2024 16:30 //////////
+                ////////// Se consulta el método de pago activo del sistema - 24/05/2025 10:30 //////////
+                api.getActivePaymentMethod().catch(() => 'stripe')
+                ////////// Fin de actualización - 24/05/2025 10:30 //////////
             ]);
             setUsers(usersData);
             setPlans(plansData);
             setRedirectUrl(settingsData || '/dashboard');
+            ////////// Se asigna el método recuperado del sistema - 24/05/2025 10:30 //////////
             setPaymentMethod(pMethodData as any);
-            ////////// Se asigna el modo del sistema recuperado - 28/05/2024 16:30 //////////
-            setSystemMode(sModeData as any);
-            ////////// Fin de actualización - 28/05/2024 16:30 //////////
+            ////////// Fin de actualización - 24/05/2025 10:30 //////////
         } catch (error) {
             console.error("Error loading admin data:", error);
         } finally {
@@ -76,13 +72,10 @@ export const AdminPanel: React.FC = () => {
     const handleSaveSettings = async () => {
         setLoadingSettings(true);
         try {
-            await Promise.all([
-                api.updateLoginRedirect(redirectUrl),
-                api.updateActivePaymentMethod(paymentMethod),
-                ////////// Se guarda la configuración del modo del sistema - 28/05/2024 16:30 //////////
-                api.updateSystemMode(systemMode)
-                ////////// Fin de actualización - 28/05/2024 16:30 //////////
-            ]);
+            await api.updateLoginRedirect(redirectUrl);
+            ////////// Se guarda la configuración del método de pago activo - 24/05/2025 10:30 //////////
+            await api.updateActivePaymentMethod(paymentMethod);
+            ////////// Fin de actualización - 24/05/2025 10:30 //////////
             alert("Configuración actualizada.");
         } catch (e) {
             alert("Error al guardar configuración.");
@@ -243,43 +236,7 @@ export const AdminPanel: React.FC = () => {
                 <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                     <span className="text-primary font-bold">#</span> Configuración Global
                 </h2>
-                <div className="max-w-2xl space-y-8">
-                    {/* ////////// Selector visual para el Modo del Sistema - 28/05/2024 16:30 ////////// */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-4 flex items-center gap-2">
-                            <Rocket className="w-4 h-4 text-[#FF5A1F]" /> Modo de Operación del Sistema
-                        </label>
-                        <div className="grid grid-cols-2 gap-4">
-                            <button 
-                                onClick={() => setSystemMode('production')}
-                                className={`flex items-center justify-center gap-3 p-6 rounded-2xl border transition-all duration-300 ${systemMode === 'production' ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-[0_0_30px_rgba(16,185,129,0.1)]' : 'bg-black border-gray-800 text-gray-600 hover:border-gray-600'}`}
-                            >
-                                <Layout className={`w-8 h-8 ${systemMode === 'production' ? 'text-emerald-400' : ''}`} />
-                                <div className="text-left">
-                                    <p className="font-black text-base uppercase tracking-tight">Producción</p>
-                                    <p className="text-[10px] opacity-70 font-bold uppercase tracking-widest">Normal / Abierto</p>
-                                </div>
-                            </button>
-                            <button 
-                                onClick={() => setSystemMode('launch')}
-                                className={`flex items-center justify-center gap-3 p-6 rounded-2xl border transition-all duration-300 ${systemMode === 'launch' ? 'bg-orange-500/20 border-orange-500 text-white shadow-[0_0_30px_rgba(255,90,31,0.1)]' : 'bg-black border-gray-800 text-gray-600 hover:border-gray-600'}`}
-                            >
-                                <Rocket className={`w-8 h-8 ${systemMode === 'launch' ? 'text-orange-400' : ''}`} />
-                                <div className="text-left">
-                                    <p className="font-black text-base uppercase tracking-tight">Lanzamiento</p>
-                                    <p className="text-[10px] opacity-70 font-bold uppercase tracking-widest">Lista de Espera</p>
-                                </div>
-                            </button>
-                        </div>
-                        <div className="mt-4 p-4 bg-gray-800/50 rounded-xl border border-white/5">
-                            <p className="text-xs text-gray-400 leading-relaxed">
-                                <span className="font-bold text-white uppercase tracking-widest text-[10px] block mb-1">Impacto del Modo Lanzamiento:</span>
-                                Al activar este modo, todos los usuarios (excepto administradores) que intenten acceder al Login o Registro serán redirigidos a una página especial de "Próximamente" para capturar leads en una lista de espera.
-                            </p>
-                        </div>
-                    </div>
-                    {/* ////////// Fin de actualización - 28/05/2024 16:30 ////////// */}
-
+                <div className="max-w-2xl space-y-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-400 mb-2">URL de Redirección (Login/Registro Exitoso)</label>
                         <Input 
@@ -291,6 +248,7 @@ export const AdminPanel: React.FC = () => {
                         <p className="text-xs text-gray-500 mt-2">Define a dónde van los usuarios inmediatamente después de iniciar sesión por defecto.</p>
                     </div>
 
+                    {/* ////////// Selector visual para el método de pago activo global - 24/05/2025 10:30 ////////// */}
                     <div>
                         <label className="block text-sm font-medium text-gray-400 mb-2">Método de Pago Activo (Global)</label>
                         <div className="grid grid-cols-2 gap-4">
@@ -317,14 +275,15 @@ export const AdminPanel: React.FC = () => {
                         </div>
                         <p className="text-xs text-gray-500 mt-3 italic">* El método seleccionado se aplicará a todos los usuarios que intenten comprar un plan.</p>
                     </div>
+                    {/* ////////// Fin de actualización - 24/05/2025 10:30 ////////// */}
 
                     <button 
                         onClick={handleSaveSettings}
                         disabled={loadingSettings}
-                        className="bg-primary hover:bg-indigo-600 text-white px-8 py-4 rounded-xl font-black transition flex items-center justify-center gap-2 w-full md:w-auto shadow-lg shadow-primary/20 transform active:scale-95"
+                        className="bg-primary hover:bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 w-full md:w-auto"
                     >
                         {loadingSettings ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                        Guardar Configuración del Sistema
+                        Guardar Cambios del Sistema
                     </button>
                 </div>
             </div>
@@ -408,7 +367,7 @@ export const AdminPanel: React.FC = () => {
                     <div 
                         ////////// Actualización: Evitar propagación - 28/05/2025 15:30 //////////
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]"
+                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]"
                     >
                         <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-850 shrink-0">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">

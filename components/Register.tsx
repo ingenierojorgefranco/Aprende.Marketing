@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ArrowLeft, UserPlus, Loader2, AlertCircle, Mail, Lock, User as UserIcon } from 'lucide-react';
 import { User } from '../types';
 import { register } from '../services/auth';
@@ -19,25 +18,6 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
   
   const navigate = useNavigate();
 
-  ////////// Actualización: Verificación de System Mode al cargar - 28/05/2024 16:30 //////////
-  useEffect(() => {
-    const checkMode = async () => {
-        try {
-            const systemMode = await api.getSystemMode();
-            if (systemMode === 'launch') {
-                const user = await api.getCurrentUser();
-                if (!user || user.role !== 'admin') {
-                    navigate('/lanzamiento');
-                }
-            }
-        } catch (e) {
-            console.error("Error checking system mode");
-        }
-    };
-    checkMode();
-  }, [navigate]);
-  ////////// Fin de actualización - 28/05/2024 16:30 //////////
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -45,16 +25,6 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
 
     try {
       const { user } = await register({ name, email, password });
-
-      ////////// Lógica de bloqueo por Modo Lanzamiento tras autenticación - 28/05/2024 16:30 //////////
-      const systemMode = await api.getSystemMode();
-      if (systemMode === 'launch' && user.role !== 'admin') {
-          setError("El registro está limitado temporalmente debido al modo lanzamiento.");
-          setLoading(false);
-          return;
-      }
-      ////////// Fin de actualización - 28/05/2024 16:30 //////////
-
       const mappedUser: User = {
         id: user.id.toString(),
         name: user.name,

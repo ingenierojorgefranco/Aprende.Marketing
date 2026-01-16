@@ -554,16 +554,4 @@ router.get('/system/news/history', async (req, res) => {
 });
 ////////// Fin de actualización - 07/06/2025 10:00 //////////
 
-////////// Actualización: Endpoint para obtener el system_mode - 28/05/2024 16:15 //////////
-router.get('/system/mode', async (req, res) => {
-    try {
-        const [rows] = await pool.query("SELECT setting_value FROM system_settings WHERE setting_key = 'system_mode'");
-        const mode = rows.length > 0 ? rows[0].setting_value : 'production';
-        res.json({ mode });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-////////// Fin de actualización - 28/05/2024 16:15 //////////
-
 module.exports = router;

@@ -16,14 +16,12 @@ import { MOCK_NEWS } from '../../services/mockData';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { User, DashboardNews } from '../../types';
 import { NewsHistoryModal } from './NewsHistoryModal';
-import { LaunchPage } from '../LaunchPage';
 
 interface DashboardContext {
     user: User;
     pageCount: number;
     projectCount: number;
     articleCount: number;
-    systemMode: string;
     ////////// Adición de función para abrir el perfil desde el contexto - 27/05/2025 12:35 //////////
     setShowProfileModal: (show: boolean) => void;
     ////////// Fin de actualización - 27/05/2025 12:35 //////////
@@ -32,8 +30,8 @@ interface DashboardContext {
 
 export const DashboardHome: React.FC = () => {
   const navigate = useNavigate();
-  ////////// Extracción de setShowProfileModal y systemMode del contexto - 27/05/2025 12:35 //////////
-  const { user, systemMode, setShowProfileModal } = useOutletContext() as DashboardContext;
+  ////////// Extracción de setShowProfileModal del contexto - 27/05/2025 12:35 //////////
+  const { user, setShowProfileModal } = useOutletContext() as DashboardContext;
   ////////// Fin de actualización - 27/05/2025 12:35 //////////
 
   const [analyticsData, setAnalyticsData] = useState<any[]>([]);
@@ -49,6 +47,10 @@ export const DashboardHome: React.FC = () => {
   const [newsFeed, setNewsFeed] = useState<DashboardNews[]>([]);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   ////////// Fin de actualización - 07/06/2025 10:30 //////////
+
+  ////////// Eliminación de la lógica de cálculo de Potencial Dinámico por solicitud del usuario - 01/06/2025 20:45 //////////
+  // La métrica de Potencial de Facturación ha sido removida para centrar el Dashboard en datos de tráfico y leads reales.
+  ////////// Fin de actualización - 01/06/2025 20:45 //////////
 
   const formatTooltipDate = (dateString: string) => {
       if (!dateString) return '';
@@ -113,7 +115,7 @@ export const DashboardHome: React.FC = () => {
   const StrategicTooltip = ({ title, content }: { title: string, content: string }) => (
       <div className="absolute bottom-[105%] left-1/2 -translate-x-1/2 mb-2 w-64 bg-[#111111] border border-[#FF5A1F]/50 p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 z-[100] backdrop-blur-xl">
           <div className="flex items-center gap-2 mb-2 text-[#FF5A1F]">
-              <span className="w-3.5 h-3.5"><Sparkles className="w-full h-full" /></span>
+              <Sparkles className="w-3.5 h-3.5" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em]">{title}</span>
           </div>
           <p className="text-xs text-gray-300 font-medium leading-relaxed">{content}</p>
@@ -121,15 +123,6 @@ export const DashboardHome: React.FC = () => {
       </div>
   );
   ////////// Fin de actualización - 27/05/2025 14:15 /////////
-
-  // ////////// Lógica de Renderizado por Modo Lanzamiento - 28/05/2024 16:30 //////////
-  if (systemMode === 'launch' && user.role !== 'admin') {
-      return (
-          <div className="animate-in fade-in duration-700">
-              <LaunchPage isDashboard={true} />
-          </div>
-      );
-  }
 
   if (loading) {
       return (
@@ -149,6 +142,9 @@ export const DashboardHome: React.FC = () => {
             <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase">Centro de Mando AM</h1>
             <p className="text-gray-500 font-light text-lg mt-1">Tu ecosistema ha crecido un <span className="text-[#FF5A1F] font-bold">12%</span> esta semana. Mantén el ritmo.</p>
         </div>
+        <div className="flex gap-3">
+             {/* ////////// Eliminación de "Servidores Online" por solicitud del usuario - 27/05/2025 14:15 ////////// */}
+        </div>
       </header>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
@@ -156,6 +152,7 @@ export const DashboardHome: React.FC = () => {
         {/* COLUMNA IZQUIERDA: MÉTRICAS Y GRÁFICAS (8 Cols) */}
         <div className="xl:col-span-8 space-y-8">
             
+            {/* ////////// Actualización: Reducción de 4 a 3 columnas para optimizar visualización de métricas reales - 01/06/2025 20:45 ////////// */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {/* 1. Visitas Recibidas */}
                 <div className="bg-[#111111] p-6 rounded-[2rem] border border-white/5 shadow-2xl relative group">
@@ -163,8 +160,8 @@ export const DashboardHome: React.FC = () => {
                         title="Tráfico Total" 
                         content="Cantidad total de personas que han aterrizado en tus páginas. Es el volumen inicial de tu embudo de ventas." 
                     />
-                    <div className="absolute top-2 right-2 p-4 opacity-5 group-hover:scale-110 transition-transform text-white">
-                        <Eye className="w-16 h-16" />
+                    <div className="absolute top-2 right-2 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                        <Eye className="w-16 h-16 text-white" />
                     </div>
                     <p className="text-xs font-black text-blue-400 uppercase tracking-[0.2em] mb-3">Visitas Recibidas</p>
                     <h3 className="text-4xl font-black text-white leading-none">{summaryData.totalVisits}</h3>
@@ -177,8 +174,8 @@ export const DashboardHome: React.FC = () => {
                         title="Leads (Contactos)" 
                         content="Personas que demostraron interés real dejando su email o iniciando chat. Son la base de tu base de datos." 
                     />
-                    <div className="absolute top-2 right-2 p-4 opacity-5 group-hover:scale-110 transition-transform text-white">
-                        <Users className="w-16 h-16" />
+                    <div className="absolute top-2 right-2 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                        <Users className="w-16 h-16 text-white" />
                     </div>
                     <p className="text-xs font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-3">Leads Capturados</p>
                     <h3 className="text-4xl font-black text-white leading-none">{summaryData.totalConversions}</h3>
@@ -193,14 +190,17 @@ export const DashboardHome: React.FC = () => {
                         title="Efectividad" 
                         content="Mide qué porcentaje de visitas se convierten en leads. Si es bajo, necesitas mejorar el copy de tu landing." 
                     />
-                    <div className="absolute top-2 right-2 p-4 opacity-5 group-hover:scale-110 transition-transform text-white">
-                        <TrendingUp className="w-16 h-16" />
+                    <div className="absolute top-2 right-2 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                        <TrendingUp className="w-16 h-16 text-white" />
                     </div>
                     <p className="text-xs font-black text-purple-400 uppercase tracking-[0.2em] mb-3">Tasa Conversión</p>
                     <h3 className="text-4xl font-black text-white leading-none">{summaryData.conversionRate}%</h3>
                     <p className="text-gray-500 text-xs mt-3 font-medium italic">Ratio de Éxito</p>
                 </div>
+
+                {/* ////////// Eliminación de la tarjeta "Potencial Facturación" por solicitud del usuario - 01/06/2025 20:45 ////////// */}
             </div>
+            {/* ////////// Fin de actualización - 01/06/2025 20:45 ////////// */}
 
             {/* Bloque de Gráficas */}
             <div className="space-y-6">
@@ -280,21 +280,24 @@ export const DashboardHome: React.FC = () => {
                         </ResponsiveContainer>
                     </div>
                 </div>
+                {/* ////////// Fin de actualización - 27/05/2025 14:30 ////////// */}
             </div>
         </div>
 
         {/* COLUMNA DERECHA: CUENTA, ACCIONES Y NOVEDADES (4 Cols) */}
         <div className="xl:col-span-4 space-y-8">
-            <div className="bg-[#111111] p-8 rounded-[2rem] border border-white/5 relative group text-white">
+            
+            {/* ////////// Actualización: Optimización de legibilidad en Estado de Cuenta - 27/05/2025 17:15 ////////// */}
+            <div className="bg-[#111111] p-8 rounded-[2rem] border border-white/5 relative group">
                 <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-12 transition-transform">
-                    <ShieldCheck className="w-16 h-16" />
+                    <ShieldCheck className="w-16 h-16 text-white" />
                 </div>
                 <h3 className="text-sm font-black text-gray-500 uppercase tracking-[0.2em] mb-6">Estado de Tu Cuenta</h3>
                 
                 <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                        <div className="p-3 bg-[#FF5A1F]/10 rounded-xl text-[#FF5A1F]">
-                            <CreditCard className="w-6 h-6" />
+                        <div className="p-3 bg-[#FF5A1F]/10 rounded-xl">
+                            <CreditCard className="w-6 h-6 text-[#FF5A1F]" />
                         </div>
                         <div>
                             <p className="text-xs text-gray-500 font-black uppercase tracking-widest">Plan Actual</p>
@@ -304,8 +307,8 @@ export const DashboardHome: React.FC = () => {
 
                     {(user?.planLimits?.planName === 'pro' || user?.planLimits?.planName === 'max') ? (
                         <div className="flex items-center gap-4 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl">
-                            <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
-                                <Calendar className="w-5 h-5" />
+                            <div className="p-2 bg-emerald-500/10 rounded-lg">
+                                <Calendar className="w-5 h-5 text-emerald-400" />
                             </div>
                             <div>
                                 <p className="text-[11px] text-gray-500 font-black uppercase tracking-widest">Suscripción Activa</p>
@@ -318,16 +321,20 @@ export const DashboardHome: React.FC = () => {
                         </p>
                     )}
 
+                    {/* ////////// Actualización: Redirección al panel de gestión de usuario en lugar de al Home - 27/05/2025 12:45 ////////// */}
                     <button 
                         onClick={() => setShowProfileModal(true)} 
                         className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest bg-white/5 border border-white/10 text-white hover:bg-[#FF5A1F] hover:border-[#FF5A1F] transition-all flex items-center justify-center gap-2"
                     >
                         <Zap className="w-4 h-4 fill-current" /> Gestionar Suscripción
                     </button>
+                    {/* ////////// Fin de actualización - 27/05/2025 12:45 ////////// */}
                 </div>
             </div>
+            {/* ////////// Fin de actualización - 27/05/2025 17:15 ////////// */}
 
-            <div className="bg-[#111] p-8 rounded-[2rem] border border-white/5 text-white">
+            {/* ////////// Acciones Rápidas Actualizadas (Navegación a Paneles) - 27/05/2025 14:45 ////////// */}
+            <div className="bg-[#111] p-8 rounded-[2rem] border border-white/5">
                 <h3 className="text-sm font-black text-gray-500 uppercase tracking-[0.2em] mb-6">Acciones Rápidas</h3>
                 <div className="space-y-4">
                     <button 
@@ -335,8 +342,8 @@ export const DashboardHome: React.FC = () => {
                         className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-blue-600 hover:border-blue-500 transition-all group"
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors text-white">
-                                <Briefcase className="w-6 h-6" />
+                            <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
+                                <Briefcase className="w-6 h-6 text-white" />
                             </div>
                             <span className="font-bold text-lg">Gestionar Proyectos</span>
                         </div>
@@ -348,8 +355,8 @@ export const DashboardHome: React.FC = () => {
                         className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-[#FF5A1F] hover:border-[#FF5A1F] transition-all group"
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors text-white">
-                                <Layout className="w-6 h-6" />
+                            <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
+                                <Layout className="w-6 h-6 text-white" />
                             </div>
                             <span className="font-bold text-lg">Tus Páginas</span>
                         </div>
@@ -361,8 +368,8 @@ export const DashboardHome: React.FC = () => {
                         className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-purple-600 hover:border-purple-500 transition-all group"
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors text-white">
-                                <FileText className="w-6 h-6" />
+                            <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
+                                <FileText className="w-6 h-6 text-white" />
                             </div>
                             <span className="font-bold text-lg">Contenidos SEO</span>
                         </div>
@@ -370,9 +377,11 @@ export const DashboardHome: React.FC = () => {
                     </button>
                 </div>
             </div>
+            {/* ////////// Fin de actualización - 27/05/2025 14:45 ////////// */}
 
-            <div className="bg-[#111] p-8 rounded-[2rem] border border-white/5 relative overflow-hidden text-white">
-                <div className="absolute -top-10 -left-10 opacity-5 pointer-events-none text-white">
+            {/* ////////// Eliminación de "Top Páginas" y Rediseño de Novedades - 27/05/2025 15:00 ////////// */}
+            <div className="bg-[#111] p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
+                <div className="absolute -top-10 -left-10 opacity-5 pointer-events-none">
                     < Newspaper className="w-40 h-40" />
                 </div>
                 <h3 className="text-sm font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-8 relative z-10">Novedades y TIPS</h3>
@@ -403,13 +412,18 @@ export const DashboardHome: React.FC = () => {
                     Ver Histórico
                 </button>
             </div>
+            {/* ////////// Fin de actualización - 27/05/2025 15:00 ////////// */}
+
         </div>
       </div>
 
+      {/* ////////// Actualización: Modal de histórico de novedades - 07/06/2025 10:30 ////////// */}
       {showHistoryModal && (
           <NewsHistoryModal isOpen={showHistoryModal} onClose={() => setShowHistoryModal(false)} />
       )}
+      {/* ////////// Fin de actualización - 07/06/2025 10:30 ////////// */}
 
+      {/* Footer del Dashboard */}
       <footer className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-30">
           <p className="text-xs font-medium uppercase tracking-[0.4em]">Aprende.Marketing v2.9 // Sistema Estratégico</p>
       </footer>
