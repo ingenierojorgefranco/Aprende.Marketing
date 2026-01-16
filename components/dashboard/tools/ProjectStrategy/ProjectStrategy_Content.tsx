@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X } from 'lucide-react';
+import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PlanLimits, Plan, LandingPage } from '../../../../types';
 import { ContentGenerator } from '../ContentGenerator';
@@ -19,11 +19,12 @@ interface ProjectStrategy_ContentProps {
     articleCount?: number;
     planLimits?: PlanLimits;
     nextPlan?: Plan | null;
+    isSimulating?: boolean;
 }
 
 export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = ({
     contentData, activeArticle, setActiveArticle, selectedArticles, toggleArticleSelection, handleTooltipHover, handleTooltipLeave, onUpgrade,
-    articleCount = 0, planLimits, nextPlan
+    articleCount = 0, planLimits, nextPlan, isSimulating = false
 }) => {
     const navigate = useNavigate();
     const { id: projectId } = useParams() as { id: string };
@@ -47,6 +48,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             toggleArticleSelection(idx);
         }
     };
+
+    // Lógica de límites
+    const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
+    const maxArticles = planLimits?.maxArticles || 2;
+    const isAtLimit = !isRealAdmin && articleCount >= maxArticles;
 
     return (
         <div id="psd-content-section" className="space-y-16">
@@ -148,11 +154,13 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                             <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6">
                                 <h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-                                    <Sparkles className="w-4 h-4 text-purple-400"/> Por qué esta keyword
+                                    <Sparkles className="w-4 h-4 text-purple-400"/> Enfoque Estratégico del Artículo
                                 </h5>
-                                <p className="text-gray-300 text-xl leading-relaxed font-light">
-                                    {contentData[activeArticle].strategy}
-                                </p>
+                                <div className="max-h-[180px] overflow-y-auto custom-scrollbar">
+                                    <p className="text-gray-300 text-xl leading-relaxed font-light">
+                                        {contentData[activeArticle].strategy}
+                                    </p>
+                                </div>
                             </div>
                             
                             <div>
@@ -168,12 +176,21 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         </div>
 
                         <div className="mt-8 pt-8 border-t border-gray-800">
-                            <button 
-                                onClick={() => setShowGeneratorModal(true)} 
-                                className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:scale-[1.02]"
-                            >
-                                <PenTool className="w-6 h-6" /> Redactar con IA
-                            </button>
+                            {isAtLimit ? (
+                                <button 
+                                    onClick={onUpgrade} 
+                                    className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"
+                                >
+                                    <Crown className="w-6 h-6 fill-current" /> Límite Alcanzado: Subir a PRO
+                                </button>
+                            ) : (
+                                <button 
+                                    onClick={() => setShowGeneratorModal(true)} 
+                                    className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]"
+                                >
+                                    <PenTool className="w-6 h-6" /> Escribir Articulo Seleccionado
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
