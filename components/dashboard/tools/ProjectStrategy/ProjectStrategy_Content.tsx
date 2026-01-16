@@ -190,6 +190,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 keyword: contentData[activeArticle].keyword,
                                 pageId: linkedPages[0]?.id || ''
                             }}
+                            embeddedProjectId={projectId}
                             onClose={() => setShowGeneratorModal(false)}
                             onSave={async (article) => {
                                 await api.saveArticle(article);

@@ -33,7 +33,6 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         {
             module: "¿Qué creará nuestro sistema por ti?",
             items: [
-                { id: 'ecosystem', label: 'Centro de Mando', icon: Activity, module: "SISTEMA DE VENTAS", description: "Estado de tus activos" },
                 { id: 'web', label: 'Genera tu Página de Captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
                 { id: 'content', label: 'Generar Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
                 { id: 'email', label: 'Email Marketing: Secuencia de Conversión', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },

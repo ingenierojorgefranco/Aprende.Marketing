@@ -21,7 +21,6 @@ const ProjectStrategy_Content = React.lazy(() => import('./ProjectStrategy/Proje
 const ProjectStrategy_Email = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Email').then(m => ({ default: m.ProjectStrategy_Email })));
 const ProjectStrategy_Evergreen = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Evergreen').then(m => ({ default: m.ProjectStrategy_Evergreen })));
 const ProjectStrategy_WhatsApp = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_WhatsApp').then(m => ({ default: m.ProjectStrategy_WhatsApp })));
-const ProjectStrategy_Ecosystem = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Ecosystem').then(m => ({ default: m.ProjectStrategy_Ecosystem })));
 ////////// Fin de actualización - 05/06/2025 21:30 //////////
 
 import { UpgradeModal } from '../UpgradeModal';
@@ -81,7 +80,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [activeWaScript, setActiveWaScript] = useState(0);
     const [activeEmail, setActiveEmail] = useState(0);
     const [activeArticle, setActiveArticle] = useState(0);
-    const [selectedArticles, setSelectedArticles] = useState<number[]>([]); 
+    const [selectedArticles, setSelectedArticles] = useState<number[]>([0]); 
     const [activeHeaderItem, setActiveHeaderItem] = useState<string | null>(null);
     const [activeEvergreenEmail, setActiveEvergreenEmail] = useState(0); 
     
@@ -424,18 +423,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                         benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items}
                                     />
                                 )}
-                            </div>
-                        )}
-
-                        {activeSection === 'ecosystem' && (
-                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                <ProjectStrategy_Ecosystem 
-                                    projectId={id}
-                                    linkedPages={linkedPages}
-                                    linkedSequences={linkedSequences}
-                                    linkedArticles={linkedArticles}
-                                    onNavigate={setActiveSection}
-                                />
                             </div>
                         )}
 

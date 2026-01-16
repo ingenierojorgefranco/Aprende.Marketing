@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Project, LandingPage, User } from '../../../../types';
 import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, Loader2, AlertTriangle, ExternalLink, X, Zap } from 'lucide-react';
 
@@ -23,13 +23,16 @@ interface Step1InputsProps {
   articleCount: number;
   setShowUpgradeModal: (show: boolean) => void;
   isSimulating: boolean;
+  isPreFilled?: boolean;
 }
 
 export const Step1Inputs: React.FC<Step1InputsProps> = ({
   userProjects, selectedProject,
   userPages, selectedPageId, onSelectPage,
+  topic, objective, keyword,
   onGenerate, onSelectRecommendation, onBack, loading,
-  user, articleCount, setShowUpgradeModal, isSimulating
+  user, articleCount, setShowUpgradeModal, isSimulating,
+  isPreFilled = false
 }) => {
   /* */ /* Actualización: Implementación del Selector de Página Estratégico interceptando el flujo de creación para forzar la vinculación de activos antes de proceder con la IA - 25/05/2024 10:00 */
   const [selectionMode, setSelectionMode] = useState<'choice' | 'ia'>('choice');
@@ -38,9 +41,18 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
   /* */ /* Estados para el control de la ventana modal de selección de página estratégica - 25/05/2024 10:05 */
   const [showPageSelector, setShowPageSelector] = useState(false);
   const [pendingAction, setPendingAction] = useState<'ia' | 'manual' | null>(null);
+  const [hasAutoOpened, setHasAutoOpened] = useState(false);
   
   const activeProject = userProjects.find(p => p.id === selectedProject);
   const recommendations = activeProject?.strategy_json?.modules?.content || [];
+
+  /* */ /* Actualización: Auto-disparo del selector si es un flujo pre-llenado desde estrategia - 11/03/2025 11:45 */
+  useEffect(() => {
+    if (isPreFilled && !hasAutoOpened && userPages.length > 0) {
+      setHasAutoOpened(true);
+      handleInitiateAction('ia');
+    }
+  }, [isPreFilled, userPages, hasAutoOpened]);
 
   /* */ /* Actualización: Función para interceptar el inicio de la acción y abrir el selector de página estratégica - 25/05/2024 10:10 */
   const handleInitiateAction = (action: 'ia' | 'manual') => {
@@ -53,7 +65,16 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
     setShowPageSelector(false);
     
     if (pendingAction === 'ia') {
-      setSelectionMode('ia');
+      if (isPreFilled) {
+        // Actualización: Redirección fluida directa al formulario de revisión cuando los datos ya existen
+        onSelectRecommendation({
+            title: topic,
+            strategy: objective,
+            keyword: keyword
+        });
+      } else {
+        setSelectionMode('ia');
+      }
     } else if (pendingAction === 'manual') {
       onGenerate();
     }
@@ -79,60 +100,71 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
   if (selectionMode === 'choice') {
     return (
       <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
-        <div className="flex items-center justify-between">
-          <button onClick={onBack} className="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-bold transition">
-            <ArrowLeft className="w-4 h-4" /> Cambiar Proyecto
-          </button>
-          <div className="flex items-center gap-3 bg-[#111] px-4 py-2 rounded-xl border border-white/5">
-              <Briefcase className="w-4 h-4 text-purple-400" />
-              <span className="text-xs font-bold text-white uppercase tracking-widest">Proyecto: {activeProject?.name}</span>
+        {!isPreFilled && (
+          <>
+            <div className="flex items-center justify-between">
+              <button onClick={onBack} className="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-bold transition">
+                <ArrowLeft className="w-4 h-4" /> Cambiar Proyecto
+              </button>
+              <div className="flex items-center gap-3 bg-[#111] px-4 py-2 rounded-xl border border-white/5">
+                  <Briefcase className="w-4 h-4 text-purple-400" />
+                  <span className="text-xs font-bold text-white uppercase tracking-widest">Proyecto: {activeProject?.name}</span>
+              </div>
+            </div>
+
+            <div className="text-center space-y-4">
+              <h2 className="text-4xl font-black text-white tracking-tight uppercase italic">¿Cómo quieres crear tu contenido?</h2>
+              <p className="text-gray-400 text-xl font-medium">Selecciona el método que mejor se adapte a tus necesidades actuales.</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* OPCIÓN A: RECOMENDACIONES IA */}
+              <button 
+                /* */ /* Actualización: Intercepción del flujo de creación automática para solicitar selección de página estratégica - 25/05/2024 10:15 */
+                onClick={() => handleInitiateAction('ia')}
+                className="group bg-[#0B0B0B] border border-white/10 rounded-[3rem] p-10 flex flex-col items-center text-center hover:border-purple-500/50 hover:bg-purple-500/5 transition-all duration-500 shadow-2xl relative overflow-hidden h-[400px] justify-center"
+              >
+                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <Brain className="w-40 h-40 text-purple-500" />
+                </div>
+                <div className="w-20 h-20 bg-purple-500/10 rounded-[2rem] flex items-center justify-center text-purple-400 mb-8 border border-purple-500/20 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all duration-500">
+                  <Sparkles className="w-10 h-10" />
+                </div>
+                <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter">CREACION AUTOMATICA</h3>
+                <p className="text-gray-400 text-lg leading-relaxed">Nuestra inteligencia artificial creará tu contenido con base en tu nicho y publico objetivo de tu proyecto.</p>
+                <div className="mt-8 flex items-center gap-2 text-white font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-10 transition-all">
+                  Clic para Seleccionar <ChevronRight className="w-4 h-4" />
+                </div>
+              </button>
+
+              {/* OPCIÓN B: MANUAL */}
+              <button 
+                /* */ /* Actualización: Intercepción del flujo de creación manual para solicitar selección de página estratégica - 25/05/2024 10:15 */
+                onClick={() => handleInitiateAction('manual')}
+                className="group bg-[#0B0B0B] border border-white/10 rounded-[3rem] p-10 flex flex-col items-center text-center hover:border-blue-500/50 hover:bg-blue-500/5 transition-all duration-500 shadow-2xl relative overflow-hidden h-[400px] justify-center"
+              >
+                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <PenTool className="w-40 h-40 text-blue-500" />
+                </div>
+                <div className="w-20 h-20 bg-blue-500/10 rounded-[2rem] flex items-center justify-center text-blue-400 mb-8 border border-blue-500/20 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all duration-500">
+                  <PenTool className="w-10 h-10" />
+                </div>
+                <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter">Creación Manual</h3>
+                <p className="text-gray-400 text-lg leading-relaxed">Define tu propio tema, palabra clave y objetivo desde cero sin restricciones.</p>
+                <div className="mt-8 flex items-center gap-2 text-white font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">
+                  Configurar ahora <ChevronRight className="w-4 h-4" />
+                </div>
+              </button>
+            </div>
+          </>
+        )}
+
+        {isPreFilled && !showPageSelector && (
+          <div className="flex flex-col items-center justify-center py-40 gap-4">
+              <Loader2 className="w-12 h-12 animate-spin text-[#FF5A1F]" />
+              <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">Abriendo selector estratégico...</p>
           </div>
-        </div>
-
-        <div className="text-center space-y-4">
-          <h2 className="text-4xl font-black text-white tracking-tight uppercase italic">¿Cómo quieres crear tu contenido?</h2>
-          <p className="text-gray-400 text-xl font-medium">Selecciona el método que mejor se adapte a tus necesidades actuales.</p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* OPCIÓN A: RECOMENDACIONES IA */}
-          <button 
-            /* */ /* Actualización: Intercepción del flujo de creación automática para solicitar selección de página estratégica - 25/05/2024 10:15 */
-            onClick={() => handleInitiateAction('ia')}
-            className="group bg-[#0B0B0B] border border-white/10 rounded-[3rem] p-10 flex flex-col items-center text-center hover:border-purple-500/50 hover:bg-purple-500/5 transition-all duration-500 shadow-2xl relative overflow-hidden h-[400px] justify-center"
-          >
-            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-              <Brain className="w-40 h-40 text-purple-500" />
-            </div>
-            <div className="w-20 h-20 bg-purple-500/10 rounded-[2rem] flex items-center justify-center text-purple-400 mb-8 border border-purple-500/20 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all duration-500">
-              <Sparkles className="w-10 h-10" />
-            </div>
-            <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter">CREACION AUTOMATICA</h3>
-            <p className="text-gray-400 text-lg leading-relaxed">Nuestra inteligencia artificial creará tu contenido con base en tu nicho y publico objetivo de tu proyecto.</p>
-            <div className="mt-8 flex items-center gap-2 text-white font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-10 transition-all">
-              Clic para Seleccionar <ChevronRight className="w-4 h-4" />
-            </div>
-          </button>
-
-          {/* OPCIÓN B: MANUAL */}
-          <button 
-            /* */ /* Actualización: Intercepción del flujo de creación manual para solicitar selección de página estratégica - 25/05/2024 10:15 */
-            onClick={() => handleInitiateAction('manual')}
-            className="group bg-[#0B0B0B] border border-white/10 rounded-[3rem] p-10 flex flex-col items-center text-center hover:border-blue-500/50 hover:bg-blue-500/5 transition-all duration-500 shadow-2xl relative overflow-hidden h-[400px] justify-center"
-          >
-            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-              <PenTool className="w-40 h-40 text-blue-500" />
-            </div>
-            <div className="w-20 h-20 bg-blue-500/10 rounded-[2rem] flex items-center justify-center text-blue-400 mb-8 border border-blue-500/20 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all duration-500">
-              <PenTool className="w-10 h-10" />
-            </div>
-            <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter">Creación Manual</h3>
-            <p className="text-gray-400 text-lg leading-relaxed">Define tu propio tema, palabra clave y objetivo desde cero sin restricciones.</p>
-            <div className="mt-8 flex items-center gap-2 text-white font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all">
-              Configurar ahora <ChevronRight className="w-4 h-4" />
-            </div>
-          </button>
-        </div>
+        )}
 
         {/* */ /* Actualización: Implementación de la ventana modal prioritaria para la selección de página estratégica con estética Premium Dark y línea de acento naranja - 25/05/2024 10:20 */ }
         {showPageSelector && (

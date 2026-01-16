@@ -21,6 +21,7 @@ interface ContentGeneratorProps {
         keyword: string;
         pageId: string;
     };
+    embeddedProjectId?: string;
     onClose?: () => void;
 }
 
@@ -30,7 +31,7 @@ interface DashboardContext {
   isSimulating: boolean;
 }
 
-export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preFilledData, onClose }) => {
+export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preFilledData, embeddedProjectId, onClose }) => {
   const [step, setStep] = useState(0); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -42,6 +43,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   
   // Limit Check State
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [isPageSelectorOpen, setIsPageSelectorOpen] = useState(false);
   
   const [topic, setTopic] = useState('');
   const [objective, setObjective] = useState('');
@@ -116,9 +118,17 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         setKeyword(preFilledData.keyword);
         setSelectedPageId(preFilledData.pageId);
         setIsAiGeneratedFlow(true);
-        setStep(2); // Jump to automatic creation step
+        setStep(1); // Actualización: Volvemos al Paso 1 para permitir selección de página estratégica
     }
   }, [preFilledData]);
+
+  // Sync pre-selected project from Props
+  useEffect(() => {
+    if (embeddedProjectId && userProjects.length > 0) {
+      handleProjectSelect(embeddedProjectId);
+      setStep(1);
+    }
+  }, [embeddedProjectId, userProjects]);
 
   useEffect(() => {
     if (editArticleId) {
@@ -509,6 +519,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
             articleCount={articleCount}
             setShowUpgradeModal={setShowUpgradeModal}
             isSimulating={isSimulating}
+            isPreFilled={!!preFilledData}
           />
         )}
 
@@ -539,7 +550,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                                 <>
                                     <button 
                                         onClick={executeManualGenerateOutline}
-                                        className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest transform active:scale-95"
+                                        className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest transform active:scale-[0.98]"
                                     >
                                         Sí, Generar Ahora
                                     </button>
@@ -573,6 +584,69 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                       </div>
                   </div>
               </div>
+
+              {/* LANDING PAGE SELECTION BLOCK */}
+              <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700 border-dashed mb-6">
+                  <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2 flex items-center gap-2">
+                      <Globe className="w-3.5 h-3.5 text-blue-400" /> Landing Page Seleccionada
+                  </label>
+                  <div className="flex items-center justify-between bg-black border border-blue-500/20 rounded-xl px-4 py-3">
+                      <div className="flex items-center gap-3">
+                          <div className="w-5 h-5 text-blue-400"><CheckCircle className="w-full h-full"/></div>
+                          <span className="text-white font-bold">{userPages.find(p => p.id === selectedPageId)?.name || 'Sin seleccionar'}</span>
+                      </div>
+                      <button 
+                          onClick={() => setIsPageSelectorOpen(true)}
+                          className="text-xs text-gray-500 hover:text-white underline transition"
+                      >
+                          Cambiar
+                      </button>
+                  </div>
+              </div>
+
+              {/* LANDING PAGE SELECTOR MODAL */}
+              {isPageSelectorOpen && (
+                <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsPageSelectorOpen(false)}>
+                  <div 
+                    className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600"></div>
+                    <div className="p-8 md:p-10 border-b border-white/5 flex justify-between items-start">
+                      <div className="space-y-4">
+                        <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic leading-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500 flex items-center gap-3">
+                          <Globe className="w-6 h-6 text-[#FF5A1F]" /> Cambiar Landing Page
+                        </h3>
+                        <p className="text-gray-200 text-sm md:text-base leading-relaxed font-medium mt-4">
+                          Selecciona la página a la cual deseas vincular este contenido.
+                        </p>
+                      </div>
+                      <button onClick={() => setIsPageSelectorOpen(false)} className="text-gray-500 hover:text-white transition p-2 hover:bg-white/5 rounded-full"><X className="w-6 h-6" /></button>
+                    </div>
+                    <div className="p-8 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
+                      {userPages.length > 0 ? (
+                        userPages.map((page) => (
+                          <div 
+                            key={page.id}
+                            onClick={() => { setSelectedPageId(page.id); setIsPageSelectorOpen(false); }}
+                            className="group w-full flex items-center justify-between p-5 bg-black border border-white/5 rounded-2xl hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all cursor-pointer"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-[#FF5A1F] group-hover:bg-[#FF5A1F]/10 transition-all shadow-inner">
+                                <Globe className="w-5 h-5" />
+                              </div>
+                              <span className="text-white font-bold text-lg group-hover:text-[#FF5A1F] transition-colors">{page.name}</span>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-[#FF5A1F] transition-all" />
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 text-center py-4">No hay páginas disponibles.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl space-y-8">
                   <div className="flex items-center gap-4 border-b border-white/5 pb-6">
