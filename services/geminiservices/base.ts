@@ -26,21 +26,31 @@ export const Type = {
 
 /**
  * Llama al backend de Gemini.
- * @param forceJson Si es true, obliga al modelo a responder en formato JSON incluso sin schema - 01/01/2026 14:25
+ * @param prompt Texto de instrucción para la IA.
+ * @param responseSchema Esquema opcional para respuesta estructurada.
+ * @param forceJson Si es true, obliga al modelo a responder en formato JSON incluso sin schema.
+ * @param modelName Nombre del modelo a utilizar (por defecto flash).
+ * @param thinkingBudget Presupuesto de razonamiento en tokens (0 para desactivar).
  */
-export const callGeminiBackend = async (prompt: string, responseSchema?: any, forceJson: boolean = false) => {
+export const callGeminiBackend = async (
+    prompt: string, 
+    responseSchema?: any, 
+    forceJson: boolean = false, 
+    modelName: string = "gemini-3-flash-preview", 
+    thinkingBudget: number = 0
+) => {
     try {
         const baseUrl = api.getBaseUrl();
         const response = await fetch(`${baseUrl}/gemini`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: "gemini-3-flash-preview",
+                model: modelName,
                 contents: prompt,
                 config: {
-                    // Configuración dinámica de tipo de respuesta - 01/01/2026 14:25
                     responseMimeType: (responseSchema || forceJson) ? "application/json" : "text/plain",
-                    ...(responseSchema ? { responseSchema } : {})
+                    ...(responseSchema ? { responseSchema } : {}),
+                    ...(thinkingBudget > 0 ? { thinkingConfig: { thinkingBudget } } : {})
                 }
             })
         });

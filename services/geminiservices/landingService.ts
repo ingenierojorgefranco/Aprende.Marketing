@@ -1,7 +1,6 @@
 
 // Refactorización: Creación de servicio para contenido de landing pages - 22/05/2024 14:30
 import { callGeminiBackend, PREDEFINED_LOGOS } from "./base";
-// LANDING_PAGE_SCHEMA eliminado para optimización de tokens de entrada - 01/01/2026 14:25
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../../types";
 
 export const generateLandingPageContent = async (
@@ -63,7 +62,6 @@ export const generateLandingPageContent = async (
       REGLA OBLIGATORIA: Si te he proporcionado los Dolores y Beneficios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
       `;
 
-      // DEBUG LOG: Se actualiza para verificar la integración con datos limpios - 01/01/2026 13:05
       console.log("[DEBUG LANDING] Integración de Estrategia del Proyecto (Datos Limpios):", {
           pName,
           pTone,
@@ -116,12 +114,8 @@ export const generateLandingPageContent = async (
   Responde ÚNICAMENTE con el objeto JSON válido.`;
 
   try {
-    // Optimización de Tokens: Llamada al backend forzando JSON pero sin enviar el schema pesado - 01/01/2026 14:25
-    
-    // Auditoría de datos antes del envío - 01/01/2026 14:25
-    console.log("[DEBUG] PROMPT OPTIMIZADO ENVIADO A LA IA (Template Prompting):", prompt);
-
-    const response = await callGeminiBackend(prompt, null, true);
+    // Se utiliza el modelo Pro con Thinking Config para evitar errores de formato y mejorar la persuasión.
+    const response = await callGeminiBackend(prompt, null, true, "gemini-3-pro-preview", 16384);
     
     if (response.text) {
         const content = JSON.parse(response.text) as GeneratedPageContent;
@@ -164,11 +158,9 @@ export const generateLandingPageContent = async (
         content.destination = destination;
         content.targetAudience = targetAudience;
 
-        // Actualización: Persistencia forzada de 6 dolores y beneficios en el JSON - 01/01/2026 13:20
         if (projectContext) {
             const pStrategy = projectContext.strategy_json ? JSON.parse(JSON.stringify(projectContext.strategy_json)) : null;
 
-            // 1. Sincronización Estricta de Beneficios (Exactamente 6) - 01/01/2026 13:20
             let rawBenefits = Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : [];
             if (rawBenefits.length === 0 && pStrategy?.modules?.web?.landingPageTabs?.benefits?.items) {
                 rawBenefits = pStrategy.modules.web.landingPageTabs.benefits.items;
@@ -183,7 +175,6 @@ export const generateLandingPageContent = async (
                 }));
             }
 
-            // 2. Sincronización Estricta de Dolores en "Lo que aprenderás" (Exactamente 6) - 01/01/2026 13:20
             let rawPains = Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : [];
             if (rawPains.length === 0 && pStrategy?.psychology?.pains) {
                 rawPains = pStrategy.psychology.pains;
