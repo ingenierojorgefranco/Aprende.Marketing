@@ -52,7 +52,7 @@ const checkMonthlyQuota = async (userId, resourceType, limit) => {
         WHERE user_id = ? 
           AND resource_type = ? 
           AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(CURRENT_DATE()) = YEAR(created_at)
+          AND YEAR(created_at) = YEAR(CURRENT_DATE())
     `, [userId, resourceType]);
 
     const used = rows[0].count;
@@ -125,8 +125,9 @@ router.post('/pages', authMiddleware, async (req, res) => {
     const tyPage = content.thankYouPage;
     if (tyPage) { delete content.thankYouPage; }
 
+    // SE ACTUALIZA IS_PUBLISHED A 1 (PUBLICADA) POR DEFECTO SEGÚN REQUERIMIENTO
     const [resDb] = await pool.query(
-      'INSERT INTO landing_pages (user_id, project_id, name, niche, goal, subdomain, content, thankyoupage_json, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, NOW())',
+      'INSERT INTO landing_pages (user_id, project_id, name, niche, goal, subdomain, content, thankyoupage_json, is_published, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NOW())',
       [req.user.id, projectId || null, name, niche, goal, subdomain, JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null]
     );
 
