@@ -76,6 +76,7 @@ export interface ProjectMasterStrategy {
             traffic: number;
             difficulty: number;
             keyword: string;
+            searchVolume: string | number;
             objective: string;
             strategy: string;
         }>;
@@ -377,21 +378,133 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
         content: [
             {
                 id: 1,
-                title: "Cómo construir un negocio de belleza desde cero sin caer en promesas vacías",
-                traffic: 85,
-                difficulty: 30,
-                keyword: "negocio belleza autoempleo",
-                objective: "Generar confianza y autoridad.",
-                strategy: "Atacamos frontalmente la desconfianza del avatar, educándolo sobre lo que realmente se necesita para emprender con éxito en estética."
+                title: "¿Qué es el microblading en cejas?",
+                traffic: 50,
+                difficulty: 20,
+                keyword: "que es microblading cejas",
+                searchVolume: "De 100 a 1 K",
+                objective: "Educación inicial para el futuro artista",
+                strategy: "Definimos la técnica desde una perspectiva profesional para que el alumno entienda el potencial del negocio. Posicionamos el microblading como la habilidad mejor pagada en estética actualmente."
             },
             {
                 id: 2,
-                title: "Microblading: La técnica de alto valor para generar ingresos propios in 2025",
-                traffic: 95,
-                difficulty: 60,
-                keyword: "ingresos propios microblading",
-                objective: "Mostrar la rentabilidad real.",
-                strategy: "Desglosamos por qué esta técnica es la mejor opción para el autoempleo de alto valor comparado con otros servicios menores."
+                title: "¿Qué desventajas tiene el microblading?",
+                traffic: 40,
+                difficulty: 15,
+                keyword: "desventajas de microblading",
+                searchVolume: "De 10 a 100",
+                objective: "Transparencia y profesionalismo",
+                strategy: "Abordamos los retos y cuidados necesarios con honestidad. El objetivo es filtrar a alumnos comprometidos y demostrar que la formación adecuada elimina la mayoría de estos riesgos."
+            },
+            {
+                id: 3,
+                title: "¿Cuál es la diferencia entre Microblading y Microshading y Micropigmentacion?",
+                traffic: 65,
+                difficulty: 30,
+                keyword: "diferencia entre microblading y microshading y micropigmentacion",
+                searchVolume: "De 100 a 1 K",
+                objective: "Claridad técnica y autoridad",
+                strategy: "Desglosamos las terminologías para que el alumno aprenda a asesorar a sus futuros clientes. Esto establece una base de autoridad técnica indispensable para cobrar precios premium."
+            },
+            {
+                id: 4,
+                title: "¿Cuánto dura el microblading?",
+                traffic: 75,
+                difficulty: 40,
+                keyword: "cuánto dura el microblading",
+                searchVolume: "De 1 K a 10 k",
+                objective: "Expectativas y rentabilidad",
+                strategy: "Explicamos el ciclo de vida del servicio. Esto ayuda al alumno a entender la necesidad de retoques y cómo fidelizar clientes para generar ingresos recurrentes en su negocio."
+            },
+            {
+                id: 5,
+                title: "¿Cuánto suele costar el microblading de cejas?",
+                traffic: 85,
+                difficulty: 50,
+                keyword: "microblading cejas precio",
+                searchVolume: "De 1 K a 10 k",
+                objective: "Análisis de mercado y viabilidad",
+                strategy: "Mostramos el rango de precios del mercado para que el alumno visualice su retorno de inversión. Motivamos la profesionalización como vía para cobrar en el rango más alto."
+            },
+            {
+                id: 6,
+                title: "¿Cómo se ve el microblading después de 10 días?",
+                traffic: 30,
+                difficulty: 10,
+                keyword: "cómo se ve el microblading después de 10 días",
+                searchVolume: "De 0 a 10",
+                objective: "Conocimiento del proceso de curación",
+                strategy: "Es fundamental que el artista sepa qué esperar. Educamos sobre la fase de oscurecimiento y regeneración para que el alumno pueda dar seguridad total a sus clientes."
+            },
+            {
+                id: 7,
+                title: "¿Cuánto cuesta un microblading para cejas?",
+                traffic: 80,
+                difficulty: 45,
+                keyword: "precio de micropigmentación de cejas",
+                searchVolume: "De 1 K a 10 k",
+                objective: "Posicionamiento High Ticket",
+                strategy: "Comparamos el costo del servicio vs la rentabilidad para el artista. Enfocamos el contenido en cómo vender el valor del resultado final en lugar de competir por el precio más bajo."
+            },
+            {
+                id: 8,
+                title: "¿Cuántos días debo cuidar mis cejas después del microblading?",
+                traffic: 55,
+                difficulty: 25,
+                keyword: "cuántos días debo cuidar mis cejas después del microblading",
+                searchVolume: "De 10 a 100",
+                objective: "Bioseguridad y éxito del procedimiento",
+                strategy: "Un artista profesional se diferencia por su protocolo post-venta. Establecemos los estándares de oro en cuidados para garantizar la máxima retención del pigmento."
+            },
+            {
+                id: 9,
+                title: "¿Qué opinan los dermatólogos del microblading?",
+                traffic: 25,
+                difficulty: 15,
+                keyword: "qué opinan los dermatólogos del microblading",
+                searchVolume: "De 0 a 10",
+                objective: "Derribar miedos de salud",
+                strategy: "Aportamos validación médica sobre la seguridad de la técnica cuando se realiza con pigmentos certificados y normas de higiene, calmando las dudas de seguridad del alumno."
+            },
+            {
+                id: 10,
+                title: "¿Por qué no deberías hacerte el microblading de cejas?",
+                traffic: 20,
+                difficulty: 5,
+                keyword: "por qué no deberías hacerte el microblading de cejas",
+                searchVolume: "De 0 a 10",
+                objective: "Filtro de clientes y ética profesional",
+                strategy: "Utilizamos el 'marketing negativo' para explicar contraindicaciones reales. Esto enseña al alumno a ser un profesional ético que sabe cuándo decir 'no', aumentando su prestigio."
+            },
+            {
+                id: 11,
+                title: "¿Cuándo no se recomienda microblading?",
+                traffic: 15,
+                difficulty: 5,
+                keyword: "cuándo no se recomienda microblading",
+                searchVolume: "De 0 a 10",
+                objective: "Prevención y seguridad legal",
+                strategy: "Listamos casos clínicos (embarazo, diabetes no controlada, etc.) donde se desaconseja la técnica. Vital para que el alumno opere con seguridad y evite complicaciones legales."
+            },
+            {
+                id: 12,
+                title: "¿Cuál es la ceja permanente de aspecto más natural?",
+                traffic: 45,
+                difficulty: 20,
+                keyword: "cuál es la ceja permanente de aspecto más natural",
+                searchVolume: "De 0 a 10",
+                objective: "Venta del beneficio estético",
+                strategy: "Enfatizamos el trazo hiperrealista del microblading frente a técnicas más pesadas. Orientamos al alumno a especializarse en la naturalidad, que es lo más demandado hoy."
+            },
+            {
+                id: 13,
+                title: "¿Qué es mejor, cejas pelo a pelo o microblading?",
+                traffic: 50,
+                difficulty: 20,
+                keyword: "que es mejor cejas pelo a pelo o microblading",
+                searchVolume: "De 0 a 10",
+                objective: "Claridad en la oferta de servicios",
+                strategy: "Aclara la confusión común entre extensiones de cejas y microblading. Ayuda al alumno a definir su catálogo de servicios y a educar al mercado sobre la superioridad del microblading."
             }
         ],
         emails: {

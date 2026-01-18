@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye } from 'lucide-react';
+import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PlanLimits, Plan, LandingPage, Article } from '../../../../types';
 import { ContentGenerator } from '../ContentGenerator';
@@ -31,6 +31,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const { id: projectId } = useParams() as { id: string };
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
+
+    // Lógica de Paginación
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 7;
+    const totalPages = Math.ceil(contentData.length / itemsPerPage);
+    const paginatedData = contentData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     useEffect(() => {
         if (projectId) {
@@ -112,9 +118,10 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         </div>
                         
                         <div id="psd-content-items-list" className="space-y-4 flex-1">
-                            {contentData.map((art: any, idx: number) => {
-                                const isSelected = selectedArticles.includes(idx);
-                                const isActive = activeArticle === idx;
+                            {paginatedData.map((art: any, indexInPage: number) => {
+                                const globalIdx = (currentPage - 1) * itemsPerPage + indexInPage;
+                                const isSelected = selectedArticles.includes(globalIdx);
+                                const isActive = activeArticle === globalIdx;
                                 
                                 // Detalle: Cruzar con artículos reales para ver si ya fue generado
                                 const existingArticle = linkedArticles.find(a => a.title === art.title);
@@ -123,9 +130,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 return (
                                     <div 
                                         key={art.id} 
-                                        id={`psd-content-item-${idx}`}
-                                        onClick={() => handleSelectOne(idx)}
-                                        onMouseEnter={() => setActiveArticle(idx)}
+                                        id={`psd-content-item-${globalIdx}`}
+                                        onClick={() => handleSelectOne(globalIdx)}
+                                        onMouseEnter={() => setActiveArticle(globalIdx)}
                                         className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isSelected ? 'bg-blue-600 border-blue-500 text-white' : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
                                     >
                                         <div className="flex-1">
@@ -139,6 +146,29 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 );
                             })}
                         </div>
+
+                        {/* Pagination Controls */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-800">
+                                <button 
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage(prev => prev - 1)}
+                                    className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-purple-400 hover:border-purple-500/50 disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                    Página <span className="text-white">{currentPage}</span> de <span className="text-white">{totalPages}</span>
+                                </span>
+                                <button 
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage(prev => prev + 1)}
+                                    className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-purple-400 hover:border-purple-500/50 disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+                                >
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -176,7 +206,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 </div>
                             </div>
                             
-                            <div>
+                            <div className="grid grid-cols-2 gap-4">
                                 <div 
                                     className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative"
                                     onMouseEnter={(e) => handleTooltipHover(e, ["Este artículo aparecerá en Google cuando tu cliente busque exactamente esta frase."])}
@@ -184,6 +214,14 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 >
                                     <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1"><Search className="w-3 h-3"/> Keyword SEO</p>
                                     <p className="text-purple-300 font-bold text-lg leading-tight break-words">{contentData[activeArticle].keyword}</p>
+                                </div>
+                                <div 
+                                    className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative"
+                                    onMouseEnter={(e) => handleTooltipHover(e, ["Indica cuántas personas buscan esta frase al mes en promedio."])}
+                                    onMouseLeave={handleTooltipLeave}
+                                >
+                                    <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1"><BarChart className="w-3 h-3"/> Vol. Búsqueda</p>
+                                    <p className="text-emerald-300 font-bold text-lg leading-tight break-words">{contentData[activeArticle].searchVolume || 'N/A'}</p>
                                 </div>
                             </div>
                         </div>
