@@ -3,7 +3,7 @@ import { generateArticleTitles, generateArticleOutline, generateFullArticle, Art
 import { api } from '../../../services/api';
 import { Article, Project, LandingPage, User } from '../../../types';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick, X, CheckCircle, Target, PenTool, Wand2 } from 'lucide-react';
+import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick, X, CheckCircle, Target, Wand2, PenTool, Eye } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 // Importing Sub-Components from relative sibling folder
@@ -41,11 +41,10 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const navigate = useNavigate();
   const { user, articleCount, isSimulating } = useOutletContext() as DashboardContext;
   
-  // --- NUEVOS ESTADOS DE GENERACIÓN AVANZADA ---
+  // --- ESTADOS DE GENERACIÓN ESTILO LANDING ---
   const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
   const [progress, setProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState('');
-  const [generatedArticleResult, setGeneratedArticleResult] = useState<any>(null);
   // --------------------------------------------
 
   // Limit Check State
@@ -258,7 +257,33 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
   const executeManualGenerateOutline = async () => {
     setShowManualConfirm(false);
+    setGenerationStatus('generating');
     setLoading(true);
+    setError('');
+    setProgress(0);
+
+    const messages = [
+        "Analizando intención de búsqueda...",
+        "Investigando palabras clave semánticas...",
+        "Estructurando jerarquía SEO (H2, H3)...",
+        "Redactando ganchos de lectura...",
+        "Sincronizando con la estrategia del proyecto...",
+        "Finalizando arquitectura de contenido..."
+    ];
+
+    // Lógica de simulación de progreso lineal de 7 segundos (70ms * 100)
+    let currentProgress = 0;
+    const progressInterval = setInterval(() => {
+        if (currentProgress < 100) {
+            currentProgress += 1;
+            setProgress(currentProgress);
+            
+            const msgIdx = Math.min(Math.floor((currentProgress / 100) * messages.length), messages.length - 1);
+            setLoadingMessage(messages[msgIdx]);
+        } else {
+            clearInterval(progressInterval);
+        }
+    }, 70);
     
     const idea: ArticleTitleIdea = {
       title: topic,
@@ -270,37 +295,44 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     setMetaDescription(objective);
     setSlug(generateCleanSlug(topic));
 
-    if (api.isUsingMockData()) {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        const mockOutline = [
-            `H1: ${topic}`,
-            "H2: Introducción Estratégica",
-            "H2: Análisis del Mercado Actual",
-            "H3: Comportamiento del Consumidor Moderno",
-            "H3: Tendencias Tecnológicas 2025",
-            "H2: Pilares de una Estrategia de Éxito",
-            "H3: Optimización de Procesos Internos",
-            "H2: Implementación Paso a Paso",
-            "H3: Herramientas de Control y Seguimiento",
-            "H2: Casos de Estudio y Resultados Reales",
-            "H2: Conclusión y Próximos Pasos"
-        ];
-        setOutline(mockOutline);
-        setStep(4);
-        setLoading(false);
-        return;
-    }
-
     try {
-      const generatedOutline = await generateArticleOutline(topic, objective);
-      if (Array.isArray(generatedOutline)) {
+        let generatedOutline: string[] = [];
+        if (api.isUsingMockData()) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            generatedOutline = [
+                `H1: ${topic}`,
+                "H2: Introducción Estratégica",
+                "H2: Análisis del Mercado Actual",
+                "H3: Comportamiento del Consumidor Moderno",
+                "H3: Tendencias Tecnológicas 2025",
+                "H2: Pilares de una Estrategia de Éxito",
+                "H3: Optimización de Procesos Internos",
+                "H2: Implementación Paso a Paso",
+                "H3: Herramientas de Control y Seguimiento",
+                "H2: Casos de Estudio y Resultados Reales",
+                "H2: Conclusión y Próximos Pasos"
+            ];
+        } else {
+            const result = await generateArticleOutline(topic, objective);
+            if (Array.isArray(result)) {
+                generatedOutline = result;
+            } else {
+                generatedOutline = ["H2: Introducción", "H2: Contenido Principal", "H2: Conclusión"];
+            }
+        }
+
+        // Esperamos a que la barra de progreso llegue al 100% (7 segundos total)
+        while (currentProgress < 100) {
+            await new Promise(r => setTimeout(r, 50));
+        }
+
         setOutline(generatedOutline);
-        setStep(4);
-      } else {
-        alert("Error generando la estructura.");
-      }
+        setGenerationStatus('success');
+
     } catch (e) {
-      alert("Error de conexión con la IA.");
+      clearInterval(progressInterval);
+      setError("Error de conexión con la IA.");
+      setGenerationStatus('idle');
     } finally {
       setLoading(false);
     }
@@ -331,100 +363,44 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
   const handleGenerateArticle = async () => {
     if (!selectedTitle) return;
-    
-    // --- NUEVA LÓGICA DE GENERACIÓN AVANZADA ---
-    setGenerationStatus('generating');
     setLoading(true);
-    setError('');
-    setProgress(0);
 
-    const messages = [
-        "Investigando palabras clave relacionadas...",
-        "Analizando intención de búsqueda SEO...",
-        "Estructurando encabezados H2 persuasivos...",
-        "Optimizando semántica para Google®...",
-        "Inyectando gatillos mentales del avatar...",
-        "Finalizando redacción inteligente..."
-    ];
-
-    // Lógica de simulación de progreso lineal de 7 segundos (70ms * 100)
-    let currentProgress = 0;
-    const progressInterval = setInterval(() => {
-        if (currentProgress < 100) {
-            currentProgress += 1;
-            setProgress(currentProgress);
-            
-            const msgIdx = Math.min(Math.floor((currentProgress / 100) * messages.length), messages.length - 1);
-            setLoadingMessage(messages[msgIdx]);
-        } else {
-            clearInterval(progressInterval);
-        }
-    }, 70);
+    if (api.isUsingMockData()) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const mockContent = `
+            <p>Este es un artículo de demostración generado automáticamente en modo local. El tema central es <strong>${articleTitle}</strong>.</p>
+            <h2>Introducción Estratégica</h2>
+            <p>La implementación de un sistema de contenidos optimizado es fundamental para cualquier estrategia de marketing digital que busque resultados a largo plazo.</p>
+            <h2>Análisis del Mercado Actual</h2>
+            <p>Actualmente, el consumidor busca valor inmediato y soluciones prácticas a sus problemas cotidianos.</p>
+            <h3>Comportamiento del Consumidor</h3>
+            <p>La atención es el activo más valioso. Los primeros párrafos deben capturar el interés de inmediato.</p>
+            <h3>Tendencias 2025</h3>
+            <p>La personalización masiva mediante IA será el estándar para la creación de contenido relevante.</p>
+            <h2>Implementación Paso a Paso</h2>
+            <p>Sigue los procesos definidos en la estructura para asegurar que el mensaje llegue a la audiencia correcta.</p>
+            <div style="text-align: center; margin: 40px 0;">
+                <a href="${ctaLink || '#'}" style="background-color: #FF5A1F; color: white; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; box-shadow: 0 10px 20px -5px rgba(255,90,31,0.4);">ADQUIRIR EL MÉTODO COMPLETO</a>
+            </div>
+            <h2>Conclusión</h2>
+            <p>No esperes a que el mercado cambie, sé tú quien lo lidere aplicando estas estrategias hoy mismo.</p>
+        `;
+        setArticleContent(mockContent);
+        setMetaDescription(`Descubre los secretos de ${articleTitle} y cómo aplicarlos en tu negocio para maximizar resultados este año.`);
+        setStep(5);
+        setLoading(false);
+        return;
+    }
 
     const projectContext = userProjects.find(p => p.id === selectedProject);
 
     try {
-      let result: any;
-      if (api.isUsingMockData()) {
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          result = {
-              html: `
-                <p>Este es un artículo de demostración generado automáticamente en modo local. El tema central es <strong>${articleTitle}</strong>.</p>
-                <h2>Introducción Estratégica</h2>
-                <p>La implementación de un sistema de contenidos optimizado es fundamental para cualquier estrategia de marketing digital que busque resultados a largo plazo.</p>
-                <h2>Análisis del Mercado Actual</h2>
-                <p>Actualmente, el consumidor busca valor inmediato y soluciones prácticas a sus problemas cotidianos.</p>
-                <h3>Comportamiento del Consumidor</h3>
-                <p>La atención es el activo más valioso. Los primeros párrafos deben capturar el interés de inmediato.</p>
-                <h3>Tendencias 2025</h3>
-                <p>La personalización masiva mediante IA será el estándar para la creación de contenido relevante.</p>
-                <h2>Implementación Paso a Paso</h2>
-                <p>Sigue los procesos definidos en la estructura para asegurar que el mensaje llegue a la audiencia correcta.</p>
-                <div style="text-align: center; margin: 40px 0;">
-                    <a href="${ctaLink || '#'}" style="background-color: #FF5A1F; color: white; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; box-shadow: 0 10px 20px -5px rgba(255,90,31,0.4);">ADQUIRIR EL MÉTODO COMPLETO</a>
-                </div>
-                <h2>Conclusión</h2>
-                <p>No esperes a que el mercado cambie, sé tú quien lo lidere aplicando estas estrategias hoy mismo.</p>
-              `,
-              metaDescription: `Descubre los secretos de ${articleTitle} y cómo aplicarlos en tu negocio para maximizar resultados este año.`
-          };
-      } else {
-          result = await generateFullArticle(selectedTitle.title, outline, objective, ctaLink || '#', keyword, projectContext);
-      }
-
+      const result = await generateFullArticle(selectedTitle.title, outline, objective, ctaLink || '#', keyword, projectContext);
       setArticleContent(result.html || "<p>Error en la generación.</p>");
       setMetaDescription(result.metaDescription || '');
-
-      // Guardado automático inicial para persistencia antes de mostrar el éxito
-      const articlePayload = {
-        pageId: selectedPageId || undefined,
-        title: articleTitle,
-        slug: slug || generateCleanSlug(articleTitle),
-        description: result.metaDescription || '',
-        contentHtml: result.html,
-        featuredImage: featuredImage,
-        keyword: keyword,
-        seoScore: seoScore || 85,
-        metaTitle: metaTitle || articleTitle,
-        metaDescription: result.metaDescription || '',
-        status: status,
-        publishedAt: new Date(publishDate)
-      };
-      
-      const savedArticle = await api.saveArticle(articlePayload);
-      setGeneratedArticleResult(savedArticle);
-
-      // Esperamos a que la barra llegue al 100%
-      while (currentProgress < 100) {
-          await new Promise(r => setTimeout(r, 50));
-      }
-      
-      setGenerationStatus('success');
-
+      setStep(5);
     } catch (e) {
-      clearInterval(progressInterval);
-      setError("Error escribiendo artículo.");
-      setGenerationStatus('idle');
+      alert("Error escribiendo artículo.");
     } finally {
       setLoading(false);
     }
@@ -504,7 +480,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
   return (
-    <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step === 5 || generationStatus === 'generating' ? 'max-w-[98%] xl:max-w-[1600px]' : 'max-w-5xl'}`}>
+    <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step === 5 ? 'max-w-[98%] xl:max-w-[1600px]' : 'max-w-5xl'}`}>
       <style>{`
         @keyframes confetti-fall {
           0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
@@ -531,10 +507,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
           background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
           animation: loading-shine 1.5s infinite;
         }
-        @keyframes loading-bar {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(0); }
-        }
       `}</style>
 
       <UpgradeModal 
@@ -543,7 +515,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
           reason={`Has alcanzado el límite de ${user.planLimits?.maxArticles} artículos de tu plan ${user.planLimits?.planName}.`}
       />
 
-      <div className={`bg-purple-600/10 p-8 text-center border-b border-purple-500/10 relative ${(showUpgradeModal || (loading && generationStatus !== 'generating')) ? 'opacity-30 pointer-events-none' : ''}`}>
+      <div className={`bg-purple-600/10 p-8 text-center border-b border-purple-500/10 relative ${showUpgradeModal || (loading && generationStatus !== 'generating') ? 'opacity-30 pointer-events-none' : ''}`}>
         {onClose && (
             <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
                 <X className="w-6 h-6" />
@@ -568,7 +540,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
       <div className={`p-8 flex-1 overflow-y-auto relative transition-colors duration-500 ${generationStatus === 'generating' ? 'bg-white' : ''} ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
         
-        {/* --- UI DE GENERACIÓN (LOADING STATE) --- */}
+        {/* --- UI DE GENERACIÓN ESTILO LANDING --- */}
         {generationStatus === 'generating' && (
             <div className="h-full flex flex-col items-center justify-center py-20 space-y-12 animate-in fade-in duration-500">
                 <div className="relative mb-4">
@@ -578,13 +550,13 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                 </div>
 
                 <div className="text-center space-y-4">
-                    <h3 className="text-4xl font-black text-black uppercase tracking-tighter italic">Generando tu Artículo SEO</h3>
+                    <h3 className="text-4xl font-black text-black uppercase tracking-tighter italic">Generando Estructura de Artículo</h3>
                     <p className="text-gray-500 font-bold text-sm uppercase tracking-widest">{loadingMessage}</p>
                 </div>
 
                 <div className="w-full max-w-md space-y-4">
                     <div className="flex justify-between text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">
-                        <span>Inteligencia Editorial IA</span>
+                        <span>Inteligencia SEO</span>
                         <span>{Math.round(progress)}%</span>
                     </div>
                     <div className="w-full h-5 bg-gray-100 rounded-full overflow-hidden border border-gray-200 shadow-inner relative">
@@ -599,8 +571,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
             </div>
         )}
 
-        {/* --- UI DE ÉXITO --- */}
-        {generationStatus === 'success' && generatedArticleResult && (
+        {/* --- UI DE ÉXITO ESTILO LANDING --- */}
+        {generationStatus === 'success' && (
             <div className="h-full flex flex-col items-center justify-center py-10 space-y-8 animate-in zoom-in-95 duration-700 relative overflow-hidden">
                 {/* Confetti simulation */}
                 {[...Array(30)].map((_, i) => (
@@ -609,7 +581,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                         className="confetti" 
                         style={{
                             left: `${Math.random() * 100}%`,
-                            backgroundColor: ['#A855F7', '#EC4899', '#4C1D95', '#FF5A1F', '#A855F7'][Math.floor(Math.random() * 5)],
+                            backgroundColor: ['#9333ea', '#db2777', '#4C1D95', '#F59E0B', '#9333ea'][Math.floor(Math.random() * 5)],
                             animationDelay: `${Math.random() * 3}s`,
                             animationDuration: `${2 + Math.random() * 2}s`
                         }}
@@ -621,29 +593,24 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                 </div>
 
                 <div className="text-center max-w-xl space-y-4">
-                    <h3 className="text-4xl font-black text-white leading-tight">¡Tu Artículo SEO ha sido generado correctamente!</h3>
+                    <h3 className="text-4xl font-black text-white leading-tight">¡Tu Estructura de Artículo ha sido generada!</h3>
                     <p className="text-gray-400 text-lg font-medium leading-relaxed">
-                        El contenido ha sido optimizado para Google y está listo para atraer tráfico gratuito hacia tus ofertas.
+                        Hemos diseñado la arquitectura SEO perfecta para posicionar tu contenido y atraer prospectos cualificados.
                     </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md pt-6">
-                    <a 
-                        href={`/admin/lp/${userPages.find(p => p.id === selectedPageId)?.subdomain?.split('.')[0] || 'page'}/blog/${generatedArticleResult.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <button 
+                        onClick={() => { setGenerationStatus('idle'); setStep(4); }}
                         className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
                     >
-                        <ExternalLink className="w-5 h-5" /> Ver Artículo
-                    </a>
+                        <Eye className="w-5 h-5" /> Ver Artículo
+                    </button>
                     <button 
-                        onClick={() => {
-                          setGenerationStatus('idle');
-                          setStep(5); // Ir al editor para ajustes finales
-                        }}
-                        className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
+                        onClick={() => { setGenerationStatus('idle'); setStep(5); }}
+                        className="flex-1 bg-purple-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-purple-900/20 flex items-center justify-center gap-3 hover:bg-purple-700 transform hover:scale-[1.03] active:scale-95"
                     >
-                        <PenTool className="w-5 h-5" /> Editar Contenido
+                        <PenTool className="w-5 h-5" /> Editar Artículo
                     </button>
                 </div>
 
@@ -655,12 +622,11 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                     }}
                     className="text-gray-500 hover:text-white font-bold text-sm transition-colors pt-4 underline"
                 >
-                    Volver a la Biblioteca
+                    Cerrar
                 </button>
             </div>
         )}
 
-        {/* --- PASOS ORIGINALES (MODO IDLE) --- */}
         {generationStatus === 'idle' && (
             <>
                 {error && (
@@ -793,7 +759,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                         <ChevronRight className="w-4 h-4 rotate-180" /> Volver al selector
                     </button>
 
-                    {/* PROJECT INFO BLOCK */}
+                    {/* INFO BLOCKS */}
                     <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700 border-dashed mb-6">
                         <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2 flex items-center gap-2">
                             <Briefcase className="w-3.5 h-3.5 text-[#FF5A1F]" /> Proyecto Seleccionado
@@ -806,7 +772,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                         </div>
                     </div>
 
-                    {/* LANDING PAGE SELECTION BLOCK */}
                     <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700 border-dashed mb-6">
                         <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2 flex items-center gap-2">
                             <Globe className="w-3.5 h-3.5 text-blue-400" /> Landing Page Seleccionada
@@ -825,47 +790,47 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                         </div>
                     </div>
 
-                    {/* LANDING PAGE SELECTOR MODAL */}
+                    {/* SELECTOR MODAL */}
                     {isPageSelectorOpen && (
                         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsPageSelectorOpen(false)}>
-                        <div 
-                            className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative"
-                            onClick={e => e.stopPropagation()}
-                        >
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600"></div>
-                            <div className="p-8 md:p-10 border-b border-white/5 flex justify-between items-start">
-                            <div className="space-y-4">
-                                <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic leading-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500 flex items-center gap-3">
-                                <Globe className="w-6 h-6 text-[#FF5A1F]" /> Cambiar Landing Page
-                                </h3>
-                                <p className="text-gray-200 text-sm md:text-base leading-relaxed font-medium mt-4">
-                                Selecciona la página a la cual deseas vincular este contenido.
-                                </p>
-                            </div>
-                            <button onClick={() => setIsPageSelectorOpen(false)} className="text-gray-500 hover:text-white transition p-2 hover:bg-white/5 rounded-full"><X className="w-6 h-6" /></button>
-                            </div>
-                            <div className="p-8 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
-                            {userPages.length > 0 ? (
-                                userPages.map((page) => (
-                                <div 
-                                    key={page.id}
-                                    onClick={() => { setSelectedPageId(page.id); setIsPageSelectorOpen(false); }}
-                                    className="group w-full flex items-center justify-between p-5 bg-black border border-white/5 rounded-2xl hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all cursor-pointer"
-                                >
-                                    <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-[#FF5A1F] group-hover:bg-[#FF5A1F]/10 transition-all shadow-inner">
-                                        <Globe className="w-5 h-5" />
+                            <div 
+                                className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600"></div>
+                                <div className="p-8 md:p-10 border-b border-white/5 flex justify-between items-start">
+                                    <div className="space-y-4">
+                                        <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic leading-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500 flex items-center gap-3">
+                                            <Globe className="w-6 h-6 text-[#FF5A1F]" /> Cambiar Landing Page
+                                        </h3>
+                                        <p className="text-gray-200 text-sm md:text-base leading-relaxed font-medium mt-4">
+                                            Selecciona la página a la cual deseas vincular este contenido.
+                                        </p>
                                     </div>
-                                    <span className="text-white font-bold text-lg group-hover:text-[#FF5A1F] transition-colors">{page.name}</span>
-                                    </div>
-                                    <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-[#FF5A1F] transition-all" />
+                                    <button onClick={() => setIsPageSelectorOpen(false)} className="text-gray-500 hover:text-white transition p-2 hover:bg-white/5 rounded-full"><X className="w-6 h-6" /></button>
                                 </div>
-                                ))
-                            ) : (
-                                <p className="text-gray-500 text-center py-4">No hay páginas disponibles.</p>
-                            )}
+                                <div className="p-8 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
+                                    {userPages.length > 0 ? (
+                                        userPages.map((page) => (
+                                            <div 
+                                                key={page.id}
+                                                onClick={() => { setSelectedPageId(page.id); setIsPageSelectorOpen(false); }}
+                                                className="group w-full flex items-center justify-between p-5 bg-black border border-white/5 rounded-2xl hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all cursor-pointer"
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-[#FF5A1F] group-hover:bg-[#FF5A1F]/10 transition-all shadow-inner">
+                                                        <Globe className="w-5 h-5" />
+                                                    </div>
+                                                    <span className="text-white font-bold text-lg group-hover:text-[#FF5A1F] transition-colors">{page.name}</span>
+                                                </div>
+                                                <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-[#FF5A1F] transition-all" />
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-gray-500 text-center py-4">No hay páginas disponibles.</p>
+                                    )}
+                                </div>
                             </div>
-                        </div>
                         </div>
                     )}
 
