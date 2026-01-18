@@ -257,7 +257,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 ) : (
                                     <button 
                                         onClick={() => setShowGeneratorModal(true)} 
-                                        className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]"
+                                        disabled={selectedArticles.length === 0}
+                                        className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg ${selectedArticles.length === 0 ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50 grayscale' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]'}`}
                                     >
                                         <PenTool className="w-6 h-6" /> Escribir Articulo Seleccionado
                                     </button>
@@ -274,9 +275,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     <div className="w-full max-w-[1200px] h-[95vh] overflow-y-auto rounded-[3rem] shadow-2xl relative border border-white/10 custom-scrollbar" onClick={e => e.stopPropagation()}>
                         <ContentGenerator 
                             preFilledData={{
-                                topic: contentData[activeArticle].title,
-                                objective: contentData[activeArticle].strategy,
-                                keyword: contentData[activeArticle].keyword,
+                                topic: contentData[selectedArticles[0]]?.title || '',
+                                objective: contentData[selectedArticles[0]]?.strategy || '',
+                                keyword: contentData[selectedArticles[0]]?.keyword || '',
                                 pageId: linkedPages[0]?.id || ''
                             }}
                             embeddedProjectId={projectId}
