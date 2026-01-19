@@ -55,15 +55,16 @@ export const callGeminiBackend = async (
             })
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            throw new Error(`Backend Error: ${response.statusText}`);
+            throw new Error(data.error || `Backend Error: ${response.statusText}`);
         }
 
-        const data = await response.json();
         return { text: data.text };
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Gemini Backend Call Failed:", error);
-        throw error;
+        throw new Error(error.message || "Fallo en la comunicación con el servicio de IA.");
     }
 };

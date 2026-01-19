@@ -32,16 +32,16 @@ export const generateLandingPageContent = async (
       const pStrategy = projectContext.strategy_json ? JSON.parse(JSON.stringify(projectContext.strategy_json)) : null;
 
       // 1. Extraer Títulos definidos en la estrategia (Web Blueprint) - 12/03/2025 10:00
-      const pH1 = pStrategy?.modules?.web?.landingPageTabs?.hero?.h1;
-      const pH2 = pStrategy?.modules?.web?.landingPageTabs?.hero?.h2;
+      const pH1 = pStrategy?.modules?.web?.landingPageTabs?.hero?.h1 ? String(pStrategy.modules.web.landingPageTabs.hero.h1) : "";
+      const pH2 = pStrategy?.modules?.web?.landingPageTabs?.hero?.h2 ? String(pStrategy.modules.web.landingPageTabs.hero.h2) : "";
       const mandatoryHeadlines = (pH1 && pH2) 
           ? `- Título Principal OBLIGATORIO (h1): "${pH1}"\n      - Subtítulo OBLIGATORIO (h2): "${pH2}"`
           : "";
 
       // 2. Extraer Dolores (Pains) - Prioriza campo directo, sino busca en strategy_json - 01/01/2026 13:05
-      let extractedPains = Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : [];
+      let extractedPains: string[] = Array.isArray(projectContext.painPoints) ? projectContext.painPoints.map(p => String(p)) : [];
       if (extractedPains.length === 0 && pStrategy?.psychology?.pains) {
-          extractedPains = pStrategy.psychology.pains;
+          extractedPains = pStrategy.psychology.pains.map((p: any) => String(p));
       }
       
       const painsText = (extractedPains.length > 0) 
@@ -49,9 +49,9 @@ export const generateLandingPageContent = async (
           : "";
 
       // 3. Extraer Beneficios - Prioriza campo directo, sino busca en strategy_json (títulos de items) - 01/01/2026 13:05
-      let extractedBenefits = Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : [];
+      let extractedBenefits: string[] = Array.isArray(projectContext.keyBenefits) ? projectContext.keyBenefits.map(b => String(b)) : [];
       if (extractedBenefits.length === 0 && pStrategy?.modules?.web?.landingPageTabs?.benefits?.items) {
-          extractedBenefits = pStrategy.modules.web.landingPageTabs.benefits.items.map((b: any) => b.title);
+          extractedBenefits = pStrategy.modules.web.landingPageTabs.benefits.items.map((b: any) => String(b.title));
       }
 
       const benefitsText = (extractedBenefits.length > 0) 
@@ -69,14 +69,6 @@ export const generateLandingPageContent = async (
       
       REGLA OBLIGATORIA: Si te he proporcionado los Títulos (h1, h2), Dolores y Beneficios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
       `;
-
-      console.log("[DEBUG LANDING] Integración de Estrategia del Proyecto (Datos Limpios):", {
-          pName,
-          pTone,
-          painsTextFound: painsText.length > 0,
-          benefitsTextFound: benefitsText.length > 0,
-          headlinesFound: !!(pH1 && pH2)
-      });
   }
 
   // JSON Template Prompting: Definición compacta de la estructura requerida para reducir tokens - 01/01/2026 14:25
