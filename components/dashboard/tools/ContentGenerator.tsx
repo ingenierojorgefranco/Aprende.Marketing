@@ -45,6 +45,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
   const [progress, setProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState('');
+  const [savedArticleResult, setSavedArticleResult] = useState<Article | null>(null);
   // --------------------------------------------
 
   // Limit Check State
@@ -268,13 +269,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         "Redactando contenido profesional...",
         "Optimizando ganchos de lectura...",
         "Sincronizando con la estrategia del proyecto...",
+        "Guardando artículo en base de datos...",
         "Finalizando artículo de alta conversión..."
     ];
 
     // Lógica de simulación de progreso lineal de 10 segundos para mayor realismo en doble fase
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
-        if (currentProgress < 98) {
+        if (currentProgress < 95) {
             currentProgress += 1;
             setProgress(currentProgress);
             
@@ -291,13 +293,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     setArticleTitle(topic);
     setMetaTitle(topic);
     setMetaDescription(objective);
-    setSlug(generateCleanSlug(topic));
+    const finalSlug = generateCleanSlug(topic);
+    setSlug(finalSlug);
 
     try {
         let generatedOutline: string[] = [];
         // FASE 1: GENERAR ESTRUCTURA
         if (api.isUsingMockData()) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1500));
             generatedOutline = [
                 `H1: ${topic}`,
                 "H2: Introducción Estratégica",
@@ -322,7 +325,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         const projectContext = userProjects.find(p => p.id === selectedProject);
         let result;
         if (api.isUsingMockData()) {
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await new Promise(resolve => setTimeout(resolve, 2000));
             result = {
                 html: `
                     <p>Este es un artículo completo generado automáticamente. El tema central es <strong>${topic}</strong>.</p>
@@ -344,6 +347,25 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
         setArticleContent(result.html || "<p>Error en la generación.</p>");
         setMetaDescription(result.metaDescription || '');
+
+        // FASE 3: GUARDADO AUTOMÁTICO
+        const articlePayload = {
+          pageId: selectedPageId || undefined,
+          title: topic,
+          slug: finalSlug,
+          description: result.metaDescription || objective || '',
+          contentHtml: result.html || '',
+          featuredImage: featuredImage,
+          keyword: keyword,
+          seoScore: 0,
+          metaTitle: topic,
+          metaDescription: result.metaDescription || '',
+          status: 'published' as const,
+          publishedAt: new Date()
+        };
+
+        const saved = await api.saveArticle(articlePayload);
+        setSavedArticleResult(saved);
 
         clearInterval(progressInterval);
         setProgress(100);
@@ -621,13 +643,22 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
                 <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md pt-6">
                     <button 
-                        onClick={() => { setGenerationStatus('idle'); setStep(5); }}
+                        onClick={() => {
+                            const basePageSlug = selectedPageId ? userPages.find(p => p.id === selectedPageId)?.subdomain?.split('.')[0] : null;
+                            const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${savedArticleResult?.slug}` : '#';
+                            window.open(articleUrl, '_blank');
+                        }}
                         className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
                     >
                         <Eye className="w-5 h-5" /> Ver Artículo
                     </button>
                     <button 
-                        onClick={() => { setGenerationStatus('idle'); setStep(5); }}
+                        onClick={() => {
+                            const editUrl = window.location.hash 
+                                ? `#/dashboard/articles/edit/${savedArticleResult?.id}` 
+                                : `/dashboard/articles/edit/${savedArticleResult?.id}`;
+                            window.open(editUrl, '_blank');
+                        }}
                         className="flex-1 bg-purple-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-purple-900/20 flex items-center justify-center gap-3 hover:bg-purple-700 transform hover:scale-[1.03] active:scale-95"
                     >
                         <PenTool className="w-5 h-5" /> Editar Artículo
