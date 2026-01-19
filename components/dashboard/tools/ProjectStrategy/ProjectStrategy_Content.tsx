@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -90,7 +91,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
                         <iframe 
                             className="w-full h-full"
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
+                            src="https://www.youtube.com/embed/dQw4w9XcQ?rel=0&modestbranding=1" 
                             title="Estrategia de Contenidos Automáticos" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowFullScreen
@@ -238,7 +239,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <Eye className="w-6 h-6" /> Ver Artículo Online
                                     </a>
                                     <a 
-                                        href={window.location.hash ? `#/dashboard/articles/edit/${linkedArticles.find(a => a.title === contentData[activeArticle].title)?.id}` : `/dashboard/articles/edit/${linkedArticles.find(a => a.title === contentData[activeArticle].title)?.id}`}
+                                        href={window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${linkedArticles.find(a => a.title === contentData[activeArticle].title)?.id}` : `/dashboard/articles/edit/${linkedArticles.find(a => a.title === contentData[activeArticle].title)?.id}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"

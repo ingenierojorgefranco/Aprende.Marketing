@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../../../services/geminiService';
 import { api } from '../../../services/api';
@@ -654,7 +655,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                     </button>
                     <button 
                         onClick={() => {
-                            const editUrl = window.location.hash 
+                            const editUrl = window.location.hash.startsWith('#/')
                                 ? `#/dashboard/articles/edit/${savedArticleResult?.id}` 
                                 : `/dashboard/articles/edit/${savedArticleResult?.id}`;
                             window.open(editUrl, '_blank');

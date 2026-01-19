@@ -506,7 +506,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                         <ExternalLink className="w-5 h-5" /> Ver Página
                     </a>
                     <a 
-                        href={window.location.hash ? `#/dashboard/editor/${generatedPageResult.id}` : `/dashboard/editor/${generatedPageResult.id}`}
+                        href={window.location.hash.startsWith('#/') ? `#/dashboard/editor/${generatedPageResult.id}` : `/dashboard/editor/${generatedPageResult.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
