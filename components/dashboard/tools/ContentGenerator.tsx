@@ -263,27 +263,25 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     setProgress(0);
 
     const messages = [
-        "Analizando intención de búsqueda...",
-        "Investigando palabras clave semánticas...",
-        "Estructurando jerarquía SEO (H2, H3)...",
-        "Redactando ganchos de lectura...",
+        "Analizando nicho estratégico...",
+        "Diseñando estructura SEO (H2, H3)...",
+        "Redactando contenido profesional...",
+        "Optimizando ganchos de lectura...",
         "Sincronizando con la estrategia del proyecto...",
-        "Finalizando arquitectura de contenido..."
+        "Finalizando artículo de alta conversión..."
     ];
 
-    // Lógica de simulación de progreso lineal de 7 segundos (70ms * 100)
+    // Lógica de simulación de progreso lineal de 10 segundos para mayor realismo en doble fase
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
-        if (currentProgress < 100) {
+        if (currentProgress < 98) {
             currentProgress += 1;
             setProgress(currentProgress);
             
             const msgIdx = Math.min(Math.floor((currentProgress / 100) * messages.length), messages.length - 1);
             setLoadingMessage(messages[msgIdx]);
-        } else {
-            clearInterval(progressInterval);
         }
-    }, 70);
+    }, 100);
     
     const idea: ArticleTitleIdea = {
       title: topic,
@@ -297,6 +295,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
     try {
         let generatedOutline: string[] = [];
+        // FASE 1: GENERAR ESTRUCTURA
         if (api.isUsingMockData()) {
             await new Promise(resolve => setTimeout(resolve, 2000));
             generatedOutline = [
@@ -314,24 +313,45 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
             ];
         } else {
             const result = await generateArticleOutline(topic, objective);
-            if (Array.isArray(result)) {
-                generatedOutline = result;
-            } else {
-                generatedOutline = ["H2: Introducción", "H2: Contenido Principal", "H2: Conclusión"];
-            }
-        }
-
-        // Esperamos a que la barra de progreso llegue al 100% (7 segundos total)
-        while (currentProgress < 100) {
-            await new Promise(r => setTimeout(r, 50));
+            generatedOutline = Array.isArray(result) ? result : ["H2: Introducción", "H2: Contenido Principal", "H2: Conclusión"];
         }
 
         setOutline(generatedOutline);
+
+        // FASE 2: GENERAR CONTENIDO COMPLETO INMEDIATAMENTE
+        const projectContext = userProjects.find(p => p.id === selectedProject);
+        let result;
+        if (api.isUsingMockData()) {
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            result = {
+                html: `
+                    <p>Este es un artículo completo generado automáticamente. El tema central es <strong>${topic}</strong>.</p>
+                    <h2>Introducción Estratégica</h2>
+                    <p>La implementación de un sistema de contenidos optimizado es fundamental para cualquier estrategia de marketing digital que busque resultados a largo plazo.</p>
+                    <h2>Análisis del Mercado Actual</h2>
+                    <p>Actualmente, el consumidor busca valor inmediato y soluciones prácticas a sus problemas cotidianos.</p>
+                    <h3>Comportamiento del Consumidor</h3>
+                    <p>La atención es el activo más valioso. Los primeros párrafos deben capturar el interés de inmediato.</p>
+                    <div style="text-align: center; margin: 40px 0;">
+                        <a href="${ctaLink || '#'}" style="background-color: #FF5A1F; color: white; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; box-shadow: 0 10px 20px -5px rgba(255,90,31,0.4);">ADQUIRIR EL MÉTODO COMPLETO</a>
+                    </div>
+                `,
+                metaDescription: `Descubre los secretos de ${topic} y cómo aplicarlos en tu negocio para maximizar resultados este año.`
+            };
+        } else {
+            result = await generateFullArticle(idea.title, generatedOutline, objective, ctaLink || '#', keyword, projectContext);
+        }
+
+        setArticleContent(result.html || "<p>Error en la generación.</p>");
+        setMetaDescription(result.metaDescription || '');
+
+        clearInterval(progressInterval);
+        setProgress(100);
         setGenerationStatus('success');
 
     } catch (e) {
       clearInterval(progressInterval);
-      setError("Error de conexión con la IA.");
+      setError("Error de conexión con la IA al redactar el artículo.");
       setGenerationStatus('idle');
     } finally {
       setLoading(false);
@@ -550,7 +570,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                 </div>
 
                 <div className="text-center space-y-4">
-                    <h3 className="text-4xl font-black text-black uppercase tracking-tighter italic">Generando Estructura de Artículo</h3>
+                    <h3 className="text-4xl font-black text-black uppercase tracking-tighter italic">Generando tu Artículo Completo</h3>
                     <p className="text-gray-500 font-bold text-sm uppercase tracking-widest">{loadingMessage}</p>
                 </div>
 
@@ -593,15 +613,15 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                 </div>
 
                 <div className="text-center max-w-xl space-y-4">
-                    <h3 className="text-4xl font-black text-white leading-tight">¡Tu Estructura de Artículo ha sido generada!</h3>
+                    <h3 className="text-4xl font-black text-white leading-tight">¡Tu Artículo Completo ha sido generado correctamente!</h3>
                     <p className="text-gray-400 text-lg font-medium leading-relaxed">
-                        Hemos diseñado la arquitectura SEO perfecta para posicionar tu contenido y atraer prospectos cualificados.
+                        Hemos diseñado y redactado el contenido SEO perfecto para posicionar tu marca y atraer prospectos cualificados.
                     </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md pt-6">
                     <button 
-                        onClick={() => { setGenerationStatus('idle'); setStep(4); }}
+                        onClick={() => { setGenerationStatus('idle'); setStep(5); }}
                         className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
                     >
                         <Eye className="w-5 h-5" /> Ver Artículo
@@ -719,7 +739,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                                     <AlertTriangle className="w-10 h-10" />
                                 </div>
                                 <div className="space-y-4">
-                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¿Estás seguro de generar esta estructura?</h3>
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¿Estás seguro de generar este artículo?</h3>
                                     <p className="text-white text-lg leading-relaxed font-medium">Vas a consumir créditos al momento de crearlo.</p>
                                     
                                     <div className="mt-8 p-6 bg-black/40 border border-white/10 rounded-[2rem] shadow-inner text-left">
@@ -970,8 +990,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                                 disabled={loading}
                                 className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest"
                             >
-                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Layers className="w-5 h-5" />}
-                                Generar Estructura del Artículo
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <PenTool className="w-5 h-5" />}
+                                Generar Artículo Completo con IA
                             </button>
                         </div>
                     </div>
