@@ -208,7 +208,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                         </div>
                     </div>
                 ) : (
-                    <div className="h-24 bg-gray-800 flex items-center justify-center text-gray-600 relative">
+                    <div className="h-48 bg-gray-800 flex items-center justify-center text-gray-600 relative">
                         <FileText className="w-8 h-8" />
                         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
                     </div>
@@ -246,7 +246,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                     
                     <div className="space-y-4 mt-auto pt-6 border-t border-white/5">
                         {article.pageId ? (
-                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
                                 <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
                                     <Globe className="w-3.5 h-3.5" />
                                 </div>
@@ -254,9 +254,9 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                                     href={landingUrl}
                                     target="_blank"
                                     rel="noopener noreferrer" 
-                                    className="hover:text-[#FF5A1F] transition-colors truncate max-w-[150px]"
+                                    className="hover:text-[#FF5A1F] transition-colors"
                                 >
-                                    {article.pageName || "Landing Page"}
+                                    Proyecto: {article.pageName || "Landing Page"}
                                 </a>
                             </div>
                         ) : (

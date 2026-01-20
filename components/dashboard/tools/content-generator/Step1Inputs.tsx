@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Project, LandingPage, User } from '../../../../types';
-import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, Loader2, AlertTriangle, ExternalLink, X, Zap } from 'lucide-react';
+import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, ChevronLeft, Loader2, AlertTriangle, ExternalLink, X, Zap } from 'lucide-react';
 
 interface Step1InputsProps {
   userProjects: Project[];
@@ -34,19 +34,27 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
   user, articleCount, setShowUpgradeModal, isSimulating,
   isPreFilled = false
 }) => {
-  /* */ /* Actualización: Implementación del Selector de Página Estratégico interceptando el flujo de creación para forzar la vinculación de activos antes de proceder con la IA - 25/05/2024 10:00 */
+  /* Actualización: Implementación del Selector de Página Estratégico interceptando el flujo de creación para forzar la vinculación de activos antes de proceder con la IA - 25/05/2024 10:00 */
   const [selectionMode, setSelectionMode] = useState<'choice' | 'ia'>('choice');
   const [isPreparing, setIsPreparing] = useState(false);
   
-  /* */ /* Estados para el control de la ventana modal de selección de página estratégica - 25/05/2024 10:05 */
+  /* Estados para el control de la ventana modal de selección de página estratégica - 25/05/2024 10:05 */
   const [showPageSelector, setShowPageSelector] = useState(false);
   const [pendingAction, setPendingAction] = useState<'ia' | 'manual' | null>(null);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
   
+  /* Estados para la paginación de recomendaciones - 07/06/2025 15:45 */
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  
   const activeProject = userProjects.find(p => p.id === selectedProject);
   const recommendations = activeProject?.strategy_json?.modules?.content || [];
 
-  /* */ /* Actualización: Auto-disparo del selector si es un flujo pre-llenado desde estrategia - 11/03/2025 11:45 */
+  // Cálculos de paginación
+  const totalPages = Math.ceil(recommendations.length / itemsPerPage);
+  const paginatedRecommendations = recommendations.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  /* Actualización: Auto-disparo del selector si es un flujo pre-llenado desde estrategia - 11/03/2025 11:45 */
   useEffect(() => {
     if (isPreFilled && !hasAutoOpened && userPages.length > 0) {
       setHasAutoOpened(true);
@@ -54,7 +62,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
     }
   }, [isPreFilled, userPages, hasAutoOpened]);
 
-  /* */ /* Actualización: Función para interceptar el inicio de la acción y abrir el selector de página estratégica - 25/05/2024 10:10 */
+  /* Actualización: Función para interceptar el inicio de la acción y abrir el selector de página estratégica - 25/05/2024 10:10 */
   const handleInitiateAction = (action: 'ia' | 'manual') => {
     setPendingAction(action);
     setShowPageSelector(true);
@@ -120,7 +128,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
             <div className="grid md:grid-cols-2 gap-8">
               {/* OPCIÓN A: RECOMENDACIONES IA */}
               <button 
-                /* */ /* Actualización: Intercepción del flujo de creación automática para solicitar selección de página estratégica - 25/05/2024 10:15 */
+                /* Actualización: Intercepción del flujo de creación automática para solicitar selección de página estratégica - 25/05/2024 10:15 */
                 onClick={() => handleInitiateAction('ia')}
                 className="group bg-[#0B0B0B] border border-white/10 rounded-[3rem] p-10 flex flex-col items-center text-center hover:border-purple-500/50 hover:bg-purple-500/5 transition-all duration-500 shadow-2xl relative overflow-hidden h-[400px] justify-center"
               >
@@ -139,7 +147,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
 
               {/* OPCIÓN B: MANUAL */}
               <button 
-                /* */ /* Actualización: Intercepción del flujo de creación manual para solicitar selección de página estratégica - 25/05/2024 10:15 */
+                /* Actualización: Intercepción del flujo de creación manual para solicitar selección de página estratégica - 25/05/2024 10:15 */
                 onClick={() => handleInitiateAction('manual')}
                 className="group bg-[#0B0B0B] border border-white/10 rounded-[3rem] p-10 flex flex-col items-center text-center hover:border-blue-500/50 hover:bg-blue-500/5 transition-all duration-500 shadow-2xl relative overflow-hidden h-[400px] justify-center"
               >
@@ -166,7 +174,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
           </div>
         )}
 
-        {/* */ /* Actualización: Implementación de la ventana modal prioritaria para la selección de página estratégica con estética Premium Dark y línea de acento naranja - 25/05/2024 10:20 */ }
+        {/* Actualización: Implementación de la ventana modal prioritaria para la selección de página estratégica con estética Premium Dark y línea de acento naranja - 25/05/2024 10:20 */}
         {showPageSelector && (
           <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowPageSelector(false)}>
             <div 
@@ -177,7 +185,6 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600"></div>
               
               <div className="p-8 md:p-10 border-b border-white/5 flex justify-between items-start">
-                {/* */ /* Actualización: Mejora visual del encabezado del selector de página aplicando gradiente de marca al título y optimizando el contraste del texto descriptivo para mayor legibilidad - 11/03/2025 11:30 */ }
                 <div className="space-y-4">
                   <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic leading-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500 flex items-center gap-3">
                     <Globe className="w-6 h-6 text-[#FF5A1F]" /> ¿A cuál de tus páginas deseas asignar el artículo?
@@ -256,39 +263,72 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
       </div>
 
       <div className="space-y-6">
-          {recommendations.length > 0 ? recommendations.map((rec: any, idx: number) => (
-              <button 
-                key={idx}
-                /* */ /* Actualización: Redirección directa al formulario de revisión (Step 2) al hacer clic en una sugerencia, eliminando el modal de confirmación inmediata - 11/03/2025 16:30 */
-                onClick={() => onSelectRecommendation(rec)}
-                className="w-full text-left p-10 bg-[#0B0B0B] border border-white/10 rounded-[3rem] hover:border-purple-500/50 hover:bg-purple-500/5 transition-all group flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden"
-              >
-                <div className="absolute top-0 left-0 w-2 h-full bg-purple-500 opacity-20 group-hover:opacity-100 transition-opacity"></div>
-                
-                <div className="flex-1 space-y-6">
-                    <div className="space-y-2">
-                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 bg-purple-500/10 px-3 py-1 rounded-lg border border-purple-500/20">Sugerencia #{idx + 1}</span>
-                      <h4 className="text-3xl font-black text-white group-hover:text-purple-400 transition-colors leading-tight">{rec.title}</h4>
-                    </div>
+          {recommendations.length > 0 ? (
+            <>
+              {/* Bloque de items con animación de entrada suave */}
+              <div className="space-y-6 animate-in fade-in duration-500" key={`page-${currentPage}`}>
+                {paginatedRecommendations.map((rec: any, idx: number) => {
+                    const globalIdx = (currentPage - 1) * itemsPerPage + idx;
+                    return (
+                      <button 
+                        key={globalIdx}
+                        /* Actualización: Redirección directa al formulario de revisión (Step 2) al hacer clic en una sugerencia, eliminando el modal de confirmación inmediata - 11/03/2025 16:30 */
+                        onClick={() => onSelectRecommendation(rec)}
+                        className="w-full text-left p-10 bg-[#0B0B0B] border border-white/10 rounded-[3rem] hover:border-purple-500/50 hover:bg-purple-500/5 transition-all group flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden"
+                      >
+                        <div className="absolute top-0 left-0 w-2 h-full bg-purple-500 opacity-20 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        <div className="flex-1 space-y-6">
+                            <div className="space-y-2">
+                              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 bg-purple-500/10 px-3 py-1 rounded-lg border border-purple-500/20">Sugerencia #{globalIdx + 1}</span>
+                              <h4 className="text-3xl font-black text-white group-hover:text-purple-400 transition-colors leading-tight">{rec.title}</h4>
+                            </div>
 
-                    <div className="bg-black/40 p-6 rounded-2xl border border-white/5">
-                      <p className="text-white text-xl font-medium leading-relaxed italic">
-                        "{rec.strategy}"
-                      </p>
-                    </div>
+                            <div className="bg-black/40 p-6 rounded-2xl border border-white/5">
+                              <p className="text-white text-xl font-medium leading-relaxed italic">
+                                "{rec.strategy}"
+                              </p>
+                            </div>
 
-                    <div className="flex flex-wrap gap-4 items-center">
-                        <span className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 bg-white/5 px-4 py-2 rounded-xl border border-white/5 shadow-inner">
-                            <Search className="w-4 h-4 text-purple-400" /> <span className="text-gray-500 mr-1">Palabra clave:</span> <span className="text-white">{rec.keyword}</span>
-                        </span>
-                    </div>
-                </div>
-                
-                <div className="shrink-0 w-20 h-20 rounded-[2rem] bg-white/5 flex items-center justify-center text-gray-600 group-hover:bg-purple-500 group-hover:text-white transition-all duration-500 shadow-2xl border border-white/5">
-                    <Plus className="w-10 h-10" />
-                </div>
-              </button>
-          )) : (
+                            <div className="flex flex-wrap gap-4 items-center">
+                                <span className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 bg-white/5 px-4 py-2 rounded-xl border border-white/5 shadow-inner">
+                                    <Search className="w-4 h-4 text-purple-400" /> <span className="text-gray-500 mr-1">Palabra clave:</span> <span className="text-white">{rec.keyword}</span>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div className="shrink-0 w-20 h-20 rounded-[2rem] bg-white/5 flex items-center justify-center text-gray-600 group-hover:bg-purple-500 group-hover:text-white transition-all duration-500 shadow-2xl border border-white/5">
+                            <Plus className="w-10 h-10" />
+                        </div>
+                      </button>
+                    );
+                })}
+              </div>
+
+              {/* Controles de Paginación Estilo Premium Dark */}
+              <div className="flex items-center justify-between mt-10 pt-8 border-t border-white/5">
+                  <button 
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      className="px-6 py-3 rounded-xl bg-black/40 border border-white/5 text-gray-400 hover:text-white hover:border-purple-500/50 disabled:opacity-20 disabled:cursor-not-allowed transition-all flex items-center gap-2 font-bold text-xs uppercase tracking-widest group"
+                  >
+                      <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Anterior
+                  </button>
+                  
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">
+                      Página <span className="text-white">{currentPage}</span> de <span className="text-white">{totalPages}</span>
+                  </span>
+
+                  <button 
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      className="px-6 py-3 rounded-xl bg-black/40 border border-white/5 text-gray-400 hover:text-white hover:border-purple-500/50 disabled:opacity-20 disabled:cursor-not-allowed transition-all flex items-center gap-2 font-bold text-xs uppercase tracking-widest group"
+                  >
+                      Siguiente <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
+              </div>
+            </>
+          ) : (
               <div className="py-20 text-center bg-[#0B0B0B] rounded-[3rem] border border-dashed border-white/10 shadow-2xl">
                   <p className="text-gray-500 text-lg font-bold uppercase tracking-widest">No se detectaron sugerencias en la estrategia del proyecto.</p>
                   <button onClick={() => setSelectionMode('choice')} className="mt-6 text-purple-400 font-bold hover:underline">Volver a opciones</button>

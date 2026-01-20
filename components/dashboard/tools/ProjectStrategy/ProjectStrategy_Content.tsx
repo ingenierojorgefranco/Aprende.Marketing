@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -57,13 +56,27 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         }
     };
 
+    // */ Actualización: Función maestra de cierre y recarga forzada al estilo GeneratorLanding - 24/05/2024 20:45
+    const handleCloseAndReload = () => {
+        setShowGeneratorModal(false);
+        // Construimos la URL de retorno con la sección activa y el ancla para scroll automático
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('section', 'content');
+        currentUrl.hash = 'psd-content-anchor';
+        
+        // Forzamos la recarga total del navegador para refrescar los datos del servidor
+        window.location.replace(currentUrl.toString());
+        window.location.reload();
+    };
+
     // Lógica de límites
     const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
     const maxArticles = planLimits?.maxArticles || 2;
-    const isAtLimit = !isRealAdmin && articleCount >= maxArticles;
+    // Bypass del límite si estamos en modo Mock
+    const isAtLimit = !isRealAdmin && !api.isUsingMockData() && articleCount >= maxArticles;
 
     return (
-        <div id="psd-content-section" className="space-y-16">
+        <div id="psd-content-anchor" className="space-y-16">
             {/* --- ENCABEZADO ESTRATÉGICO DE CLASE MUNDIAL --- */}
             <div id="psd-content-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-purple-500/5">
@@ -91,7 +104,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
                         <iframe 
                             className="w-full h-full"
-                            src="https://www.youtube.com/embed/dQw4w9XcQ?rel=0&modestbranding=1" 
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
                             title="Estrategia de Contenidos Automáticos" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowFullScreen
@@ -272,7 +285,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
             {/* MODAL GENERADOR DE CONTENIDOS */}
             {showGeneratorModal && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300" onClick={() => setShowGeneratorModal(false)}>
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300" onClick={handleCloseAndReload}>
                     <div className="w-full max-w-[1200px] h-[95vh] overflow-y-auto rounded-[3rem] shadow-2xl relative border border-white/10 custom-scrollbar" onClick={e => e.stopPropagation()}>
                         <ContentGenerator 
                             preFilledData={{
@@ -282,11 +295,10 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 pageId: linkedPages[0]?.id || ''
                             }}
                             embeddedProjectId={projectId}
-                            onClose={() => setShowGeneratorModal(false)}
+                            onClose={handleCloseAndReload}
                             onSave={async (article) => {
                                 await api.saveArticle(article);
-                                setShowGeneratorModal(false);
-                                navigate('/dashboard/articles');
+                                handleCloseAndReload();
                             }}
                         />
                     </div>
