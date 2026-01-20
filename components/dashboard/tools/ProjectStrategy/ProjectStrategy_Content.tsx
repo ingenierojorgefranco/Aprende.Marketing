@@ -76,7 +76,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const isAtLimit = !isRealAdmin && !api.isUsingMockData() && articleCount >= maxArticles;
 
     return (
-        <div id="psd-content-anchor" className="space-y-16">
+        <div className="space-y-16">
             {/* --- ENCABEZADO ESTRATÉGICO DE CLASE MUNDIAL --- */}
             <div id="psd-content-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-purple-500/5">
@@ -117,6 +117,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 </div>
             </div>
 
+            <div id="psd-content-anchor" className="scroll-mt-24"></div>
             <div id="psd-content-grid" className="grid lg:grid-cols-2 gap-8">
                 {/* LEFT COLUMN: ARTICLES LIST & OBJECTIVES */}
                 <div id="psd-content-list-col" className="space-y-6">

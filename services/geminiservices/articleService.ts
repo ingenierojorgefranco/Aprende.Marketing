@@ -124,7 +124,7 @@ export const generateFullArticle = async (
     };
 
     try {
-        const response = await callGeminiBackend(prompt, schema);
+        const response = await callGeminiBackend(prompt, schema, true, "gemini-3-pro-preview", 16384);
         if (response.text) {
             return JSON.parse(response.text);
         }
