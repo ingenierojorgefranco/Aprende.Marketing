@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown } from 'lucide-react';
@@ -118,7 +117,6 @@ export const ProjectWizard: React.FC = () => {
     const [loadingStatus, setLoadingStatus] = useState('');
     const [analyzing, setAnalyzing] = useState(false);
     
-    /* */ /* Actualización: Confirmación de flujo de guardado sin campo shortDescription independiente, delegando su creación a la IA dentro de la estrategia - 25/06/2024 11:50 */
     const [showAnalyzeConfirm, setShowAnalyzeConfirm] = useState(false);
     
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -325,40 +323,34 @@ export const ProjectWizard: React.FC = () => {
                 <div className="p-8 min-h-[450px]">
                     {step === 1 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
-                            {/* CONFIGURACIÓN PROYECTO MAESTRO (SOLO ADMIN REAL) - UBICADO ANTES DE IDENTIDAD Y ESTILO */}
+                            {/* CONFIGURACIÓN PROYECTO MAESTRO (SOLO ADMIN REAL) */}
                             {user.role === 'admin' && !isSimulating && (
-                                <div className="bg-yellow-500/10 border border-yellow-500/20 p-6 rounded-2xl animate-in slide-in-from-top-2">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-3 bg-yellow-500/20 rounded-xl text-yellow-500">
-                                                <Crown className="w-6 h-6 fill-current" />
+                                <div className="bg-yellow-500/10 border border-yellow-500/30 p-8 rounded-[2rem] animate-in slide-in-from-top-2 shadow-[0_0_40px_rgba(234,179,8,0.1)]">
+                                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                                        <div className="flex items-center gap-5">
+                                            <div className="p-4 bg-yellow-500/20 rounded-2xl text-yellow-500 shadow-lg border border-yellow-500/20">
+                                                <Crown className="w-8 h-8 fill-current" />
                                             </div>
                                             <div>
-                                                <h4 className="text-white font-bold text-lg">¿Es este un Proyecto Maestro?</h4>
-                                                <p className="text-gray-400 text-xs uppercase font-black tracking-widest mt-1">Si marcas SÍ, será una plantilla pública en la biblioteca.</p>
+                                                <h4 className="text-white font-black text-xl uppercase tracking-tight">¿Convertir en Proyecto Maestro?</h4>
+                                                <p className="text-gray-400 text-xs font-bold uppercase tracking-[0.2em] mt-2">Será visible para todos los usuarios en la Biblioteca Maestra.</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-4">
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <input 
-                                                    type="radio" 
-                                                    name="isMaster"
-                                                    checked={isMaster === true} 
-                                                    onChange={() => setIsMaster(true)} 
-                                                    className="w-4 h-4 accent-yellow-500"
-                                                />
-                                                <span className="text-white font-bold text-sm">SÍ</span>
-                                            </label>
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <input 
-                                                    type="radio" 
-                                                    name="isMaster"
-                                                    checked={isMaster === false} 
-                                                    onChange={() => setIsMaster(false)} 
-                                                    className="w-4 h-4 accent-gray-500"
-                                                />
-                                                <span className="text-white font-bold text-sm">NO</span>
-                                            </label>
+                                        <div className="flex items-center gap-3 bg-black/40 p-2 rounded-2xl border border-white/5 shadow-inner">
+                                            <button 
+                                                type="button"
+                                                onClick={() => setIsMaster(true)}
+                                                className={`px-8 py-3 rounded-xl text-sm font-black transition-all ${isMaster ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'text-gray-500 hover:text-white'}`}
+                                            >
+                                                SÍ, MAESTRO
+                                            </button>
+                                            <button 
+                                                type="button"
+                                                onClick={() => setIsMaster(false)}
+                                                className={`px-8 py-3 rounded-xl text-sm font-black transition-all ${!isMaster ? 'bg-gray-700 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                                            >
+                                                NO, PRIVADO
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

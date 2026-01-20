@@ -1,4 +1,3 @@
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES } from "./mockData";
 import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
@@ -27,13 +26,11 @@ let localPages: LandingPage[] = [...MOCK_PAGES];
 let localArticles: Article[] = [...MOCK_ARTICLES];
 let localProjects: Project[] = [...MOCK_PROJECTS];
 let localLeads: Lead[] = [...MOCK_LEADS];
-/* */ /* Actualización: Corrección de error de compilación por redeclaración de localCourses - 21/05/2024 11:20 */
 let localCourses: Course[] = [...MOCK_COURSES];
 let localComments: Comment[] = [...MOCK_COMMENTS];
 let localCrmContacts: CRMContact[] = [...MOCK_CRM_CONTACTS];
 let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
 
-////////// Actualización: Expansión de Capa de Caché para Novedades, Histórico e Integraciones - 07/06/2025 10:15 //////////
 const apiCache: {
     pages: LandingPage[] | null;
     projects: Project[] | null;
@@ -176,7 +173,6 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.adminUserResources = {};
         apiCache.systemLogs = {};
         apiCache.contactHistory = {};
-        ////////// Corrección de error de sintaxis en clearCache - 07/06/2025 20:15 //////////
         apiCache.publicBlogArticles = {};
         apiCache.publicArticleDetails = {};
         apiCache.userUsageStats = {};
@@ -185,12 +181,9 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.publicPages = {};
         apiCache.masterStrategies = {};
         apiCache.emailSequences = null;
-        ////////// Fin de actualización - 07/06/2025 20:15 //////////
     }
 };
-////////// Fin de actualización - 07/06/2025 10:15 //////////
 
-// --- FUNCIÓN FETCH CON TIMEOUT ---
 const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
     const url = `${API_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
 
@@ -209,7 +202,6 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
             if (errorBody.error) errorMsg = errorBody.error;
         } catch(e) {}
         
-        ////////// Mejora de logs para diagnóstico de errores 500 - 07/06/2025 20:15 //////////
         if (res.status >= 500) {
             console.error(`[API 500 ERROR] Endpoint: ${endpoint}`, {
                 status: res.status,
@@ -217,7 +209,6 @@ const fetchWithFallback = async (endpoint: string, options?: RequestInit) => {
                 body: errorBody
             });
         }
-        ////////// Fin de actualización - 07/06/2025 20:15 //////////
 
         throw new Error(`HTTP Error ${res.status}: ${errorMsg}`);
     }
@@ -320,7 +311,6 @@ export const api = {
 
   getCurrentUser: async (): Promise<User | null> => {
       if (isMockMode) return MOCK_USER;
-      // Note: Original code returned User[] incorrectly, fixed to User | null
       try {
           const user = await fetchWithFallback('/auth/me', { headers: getAuthHeaders() });
           return user;
@@ -409,7 +399,6 @@ export const api = {
       return page;
   },
 
-  ////////// Actualización: Método para obtener landing pública con caché - 05/06/2025 21:15 //////////
   getPublicPage: async (slug: string, userSlug?: string): Promise<LandingPage | null> => {
       if (isMockMode) return localPages.find(p => p.subdomain.includes(slug)) || null;
       const cacheKey = userSlug ? `${userSlug}_${slug}` : slug;
@@ -439,7 +428,6 @@ export const api = {
           return null;
       }
   },
-  ////////// Fin de actualización - 05/06/2025 21:15 //////////
 
   createPage: async (page: LandingPage): Promise<LandingPage> => {
     if (isMockMode) {
@@ -482,9 +470,7 @@ export const api = {
     });
     clearCache('pages');
     clearCache('pageDetails', page.id);
-    ////////// Actualización: Invalidar caché pública al actualizar - 05/06/2025 21:15 //////////
     clearCache('publicPages');
-    ////////// Fin de actualización - 05/06/2025 21:15 //////////
     return page;
   },
 
@@ -497,12 +483,9 @@ export const api = {
     clearCache('pages');
     clearCache('pageDetails', id);
     clearCache('userUsageStats');
-    ////////// Actualización: Invalidar caché pública al eliminar - 05/06/2025 21:15 //////////
     clearCache('publicPages');
-    ////////// Fin de actualización - 05/06/2025 21:15 //////////
   },
 
-  /* */ /* Actualización: Mapeo de shortDescription directamente desde el JSON de estrategia para centralizar activos generados por IA y eliminar dependencia de columna física redundante - 25/06/2024 11:30 */
   getProjects: async (): Promise<Project[]> => {
       if (isMockMode) return Promise.resolve([...localProjects]);
       if (apiCache.projects) return apiCache.projects;
@@ -523,8 +506,6 @@ export const api = {
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
-              /* Actualización: Extracción de shortDescription desde strategy_json - 25/06/2024 11:30 */
-              /* */ /* Corrección técnica: Uso de short_description (snake_case) como fallback para asegurar la lectura correcta de la columna de base de datos MySQL antes de la migración completa al JSON - 05/03/2025 15:15 */
               shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
               mainGoal: p.main_goal || p.mainGoal,
               salesPageUrl: p.sales_page_url || p.salesPageUrl,
@@ -532,17 +513,14 @@ export const api = {
               commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
               leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
               createdAt: new Date(p.created_at || p.createdAt),
-              ////////// Actualización: Campos para maestros - 05/03/2025 10:00 //////////
               isMaster: !!p.is_master,
               isUnlocked: !!p.is_unlocked
-              ////////// Fin de actualización - 05/03/2025 10:00 //////////
           };
       });
       apiCache.projects = mapped;
       return mapped;
   },
 
-  ////////// Actualización: Método para obtener biblioteca maestra - 05/03/2025 10:00 //////////
   getMasterLibrary: async (): Promise<Project[]> => {
     if (isMockMode) return [];
     if (apiCache.masterLibrary) return apiCache.masterLibrary;
@@ -574,7 +552,6 @@ export const api = {
     clearCache('projects');
     clearCache('masterLibrary');
   },
-  ////////// Fin de actualización - 05/03/2025 10:00 //////////
 
   getProjectById: async (id: string): Promise<Project | null> => {
       if (isMockMode) {
@@ -598,8 +575,6 @@ export const api = {
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
-              /* Actualización: Extracción de shortDescription desde strategy_json - 25/06/2024 11:30 */
-              /* */ /* Corrección técnica: Uso de short_description (snake_case) como fallback para asegurar la lectura correcta de la columna de base de datos MySQL antes de la migración completa al JSON - 05/03/2025 15:15 */
               shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
               mainGoal: p.main_goal || p.mainGoal,
               salesPageUrl: p.sales_page_url || p.salesPageUrl,
@@ -615,20 +590,15 @@ export const api = {
           return null;
       }
   },
-  /* Fin de actualización - 25/06/2024 11:30 */
 
   getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy | null> => {
       if (isMockMode) return Promise.resolve(MOCK_MASTER_STRATEGY);
-      ////////// Actualización: Intercepción de caché para Estrategia Maestra - 05/06/2025 21:15 //////////
       if (apiCache.masterStrategies[id]) return apiCache.masterStrategies[id];
-      ////////// Fin de actualización - 05/06/2025 21:15 //////////
       try {
           const project = await api.getProjectById(id);
           if (project && project.strategy_json) {
               const strategy = project.strategy_json as ProjectMasterStrategy;
-              ////////// Actualización: Guardar en caché profundo tras parseo - 05/06/2025 21:15 //////////
               apiCache.masterStrategies[id] = strategy;
-              ////////// Fin de actualización - 05/06/2025 21:15 //////////
               return strategy;
           }
           return null;
@@ -659,16 +629,13 @@ export const api = {
             return Promise.resolve();
         }
         await fetchWithFallback(`/projects/${id}`, {
-            // Note: Correct method should be PUT as per routes
             method: 'PUT',
             headers: getAuthHeaders(),
             body: JSON.stringify(project)
         });
         clearCache('projects');
         clearCache('projectDetails', id);
-        ////////// Actualización: Invalidar caché de estrategia al actualizar proyecto - 05/06/2025 21:15 //////////
         clearCache('masterStrategies', id);
-        ////////// Fin de actualización - 05/06/2025 21:15 //////////
     },
   
     deleteProject: async (id: string): Promise<void> => {
@@ -680,9 +647,7 @@ export const api = {
         clearCache('projects');
         clearCache('projectDetails', id);
         clearCache('userUsageStats');
-        ////////// Actualización: Invalidar caché de estrategia al eliminar proyecto - 05/06/2025 21:15 //////////
         clearCache('masterStrategies', id);
-        ////////// Fin de actualización - 05/06/2025 21:15 //////////
     },
   
     analyzeSite: async (url: string): Promise<{ productName: string, description: string, niche: string }> => {
@@ -715,9 +680,7 @@ export const api = {
         });
         clearCache('projects');
         clearCache('projectDetails', projectId);
-        ////////// Actualización: Invalidar caché de estrategia maestra tras regeneración con IA - 05/06/2025 21:15 //////////
         clearCache('masterStrategies', projectId);
-        ////////// Fin de actualización - 05/06/2025 21:15 //////////
         return strategy;
     },
   
@@ -725,7 +688,6 @@ export const api = {
         if (isMockMode) return Promise.resolve([...localLeads]);
         if (apiCache.leads) return apiCache.leads;
         const leads = await fetchWithFallback('/leads', { headers: getAuthHeaders() });
-        ////////// Actualización: Mapeo correcto de leads con tipos explícitos para corregir error TS7006 - 24/06/2024 20:30 //////////
         const mapped = leads.map((l: any) => ({
             id: String(l.id),
             name: l.name,
@@ -736,7 +698,6 @@ export const api = {
         }));
         apiCache.leads = mapped;
         return mapped;
-        ////////// Fin de actualización - 07/06/2025 19:30 //////////
     },
   
     getWeeklyAnalytics: async (): Promise<{date: string, visits: number, conversions: number}[]> => {
@@ -778,7 +739,6 @@ export const api = {
         if (apiCache.articles) return apiCache.articles;
 
         const articles = await fetchWithFallback('/articles', { headers: getAuthHeaders() });
-        ////////// Actualización: Mapeo de artículos con tipo explícito para corregir error TS7006 - 24/06/2024 20:30 //////////
         const mapped = articles.map((a: any) => ({
             id: a.id.toString(),
             pageId: a.page_id ? a.page_id.toString() : undefined,
@@ -844,10 +804,7 @@ export const api = {
                 title: article.title,
                 slug: article.slug,
                 description: article.description,
-                ////////// Actualización: Corrección de propiedad content_html para mapear a article.contentHtml - 05/06/2025 21:15 //////////
                 content_html: article.contentHtml,
-                ////////// Fin de actualización - 05/06/2025 21:15 //////////
-                // Fix: Corrected property name from featured_image to featuredImage to match Article type
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
@@ -876,13 +833,10 @@ export const api = {
                 slug: article.slug,
                 description: article.description,
                 content_html: article.contentHtml,
-                // Fix: Corrected property name from featured_image to featuredImage to match Article type
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
-                // Fix: meta_title -> metaTitle to match Article type
                 meta_title: article.metaTitle,
-                // Fix: meta_description -> metaDescription to match Article type
                 meta_description: article.metaDescription,
                 status: article.status,
                 published_at: article.publishedAt
@@ -907,7 +861,6 @@ export const api = {
         if (isMockMode) return Promise.resolve(localArticles.filter(a => a.pageId === pageId));
         if (apiCache.publicBlogArticles[pageId]) return apiCache.publicBlogArticles[pageId];
         const articles = await fetchWithFallback(`/public/pages/${pageId}/blog`);
-        ////////// Actualización: Mapeo de artículos públicos con tipo explícito para corregir error TS7006 - 24/06/2024 20:30 //////////
         const mapped = articles.map((a: any) => ({
             id: a.id.toString(),
             title: a.title,
@@ -975,7 +928,6 @@ export const api = {
   
     deleteUser: async (id: string) => {
         if (isMockMode) return Promise.resolve();
-        // Fix: Added explicit method DELETE - 17/06/2025 10:30
         await fetchWithFallback(`/admin/users/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
         clearCache('adminUserResources');
         clearCache('usersList');
@@ -1023,8 +975,6 @@ export const api = {
         return stats;
     },
   
-    // --- LMS / COURSES ---
-    
     getCoursesList: async (): Promise<{id: string, title: string, slug: string}[]> => {
         if (isMockMode) return Promise.resolve(localCourses.map(c => ({ id: c.id, title: c.title, slug: c.slug })));
         if (apiCache.courses) return apiCache.courses;
@@ -1056,8 +1006,6 @@ export const api = {
         return lessons;
     },
   
-    // --- ADMIN COURSE MANAGEMENT ---
-    
     getAdminCourses: async (): Promise<Course[]> => {
         if (isMockMode) return Promise.resolve(localCourses);
         return await fetchWithFallback('/admin/courses', { headers: getAuthHeaders() });
@@ -1076,7 +1024,6 @@ export const api = {
         }
         const method = course.id ? 'PUT' : 'POST';
         const endpoint = course.id ? `/admin/courses/${course.id}` : '/admin/courses';
-        // Fix: Explicit shorthand property assignment to avoid scope issues - 17/06/2025 10:30
         const res = await fetchWithFallback(endpoint, { method: method, headers: getAuthHeaders(), body: JSON.stringify(course) });
         clearCache('courses');
         if (course.slug) clearCache('courseDetails', course.slug);
@@ -1097,8 +1044,6 @@ export const api = {
         await fetchWithFallback(`/admin/courses/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
         clearCache('courses');
     },
-  
-    // --- ADMIN COMMENTS MANAGEMENT ---
   
     getAdminComments: async (): Promise<Comment[]> => {
         if (isMockMode) return Promise.resolve(localComments);
@@ -1216,7 +1161,6 @@ export const api = {
         if (isMockMode) return Promise.resolve();
         const method = plan.id ? 'PUT' : 'POST';
         const endpoint = plan.id ? `/admin/plans/${plan.id}` : '/admin/plans';
-        // Fix: Explicit shorthand property assignment to avoid scope issues - 17/06/2025 10:30
         const res = await fetchWithFallback(endpoint, { method: method, headers: getAuthHeaders(), body: JSON.stringify(plan) });
         clearCache('plans');
         clearCache('publicPlans');
@@ -1233,7 +1177,6 @@ export const api = {
         if (isMockMode) return Promise.resolve([...localCrmContacts]);
         if (apiCache.contacts) return apiCache.contacts;
         const contacts = await fetchWithFallback('/crm/contacts', { headers: getAuthHeaders() });
-        ////////// Actualización: Mapeo de contactos con tipo explícito para corregir error TS7006 - 24/06/2024 20:30 //////////
         const mapped = contacts.map((c: any) => ({
             ...c,
             id: c.id.toString(),
@@ -1280,7 +1223,6 @@ export const api = {
         if (isMockMode) return Promise.resolve(localCrmActivities.filter(a => a.contactId === contactId));
         if (apiCache.contactHistory[contactId]) return apiCache.contactHistory[contactId];
         const activities = await fetchWithFallback(`/crm/contacts/${contactId}/history`, { headers: getAuthHeaders() });
-        ////////// Actualización: Mapeo de historial con tipo explícito para corregir error TS7006 - 24/06/2024 20:30 //////////
         const mapped = activities.map((a: any) => ({
             id: a.id.toString(),
             contact_id: a.contact_id.toString(),
@@ -1326,7 +1268,6 @@ export const api = {
         }
     },
 
-    ////////// Actualización: Refuerzo de intercepción de caché para Novedades - 05/06/2025 21:30 //////////
     getNewsFeed: async (): Promise<DashboardNews[]> => {
         if (isMockMode) return MOCK_NEWS;
         if (apiCache.newsFeed) return apiCache.newsFeed;
@@ -1336,18 +1277,14 @@ export const api = {
             apiCache.newsFeed = news;
             return news;
         } catch (e) {
-            // Fallback agresivo a Mock si falla la red para no dejar el dashboard vacío
             return MOCK_NEWS;
         }
     },
-    ////////// Fin de actualización - 05/06/2025 21:30 //////////
 
-    ////////// Actualización: Métodos de gestión de novedades para administradores e histórico - 07/06/2025 10:15 //////////
     getAdminNews: async (): Promise<DashboardNews[]> => {
         if (isMockMode) return MOCK_NEWS;
         if (apiCache.adminNews) return apiCache.adminNews;
         const news = await fetchWithFallback('/admin/news', { headers: getAuthHeaders() });
-        ////////// Actualización: Mapeo de noticias admin con tipo explícito para corregir error TS7006 - 24/06/2024 20:30 //////////
         const mapped = news.map((n: any) => ({
             id: n.id.toString(),
             title: n.title,
@@ -1363,7 +1300,6 @@ export const api = {
         if (isMockMode) return;
         const method = news.id ? 'PUT' : 'POST';
         const endpoint = news.id ? `/admin/news/${news.id}` : '/admin/news';
-        // Fix: Explicit shorthand property assignment to avoid scope issues - 17/06/2025 10:30
         await fetchWithFallback(endpoint, {
             method: method,
             headers: getAuthHeaders(),
@@ -1401,12 +1337,9 @@ export const api = {
         apiCache.newsHistory[cacheKey] = news;
         return news;
     },
-    ////////// Fin de actualización - 07/06/2025 10:15 //////////
 
     getIntegrationSettings: async (): Promise<Record<string, any>> => {
-        ////////// Actualización: Soporte para Systeme.io en Mock - 07/06/2025 19:30 //////////
         if (isMockMode) return { getResponseKey: 'gr_mock_key', systemeIoKey: 'sys_mock_key', waWebhook: 'https://wa.mock' };
-        ////////// Fin de actualización - 07/06/2025 19:30 //////////
         if (apiCache.integrationSettings) return apiCache.integrationSettings;
         
         try {
@@ -1424,7 +1357,6 @@ export const api = {
         clearCache('integrationSettings');
     },
 
-    ////////// Actualización: Método para sincronización manual de leads pendientes - 07/06/2025 19:40 //////////
     syncPendingLeads: async (tagId?: string): Promise<{ success: boolean; count: number; message: string }> => {
         if (isMockMode) {
             return Promise.resolve({ success: true, count: 2, message: "Sincronización simulada exitosa (Mock Mode)" });
@@ -1437,9 +1369,7 @@ export const api = {
         clearCache('leads');
         return res;
     },
-    ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
-    ////////// Actualización: Método para sincronización individual de un lead con soporte para etiqueta (Tag) - 17/06/2025 11:30 //////////
     syncSingleLead: async (leadId: string, tagId?: string): Promise<{ success: boolean; message: string }> => {
         if (isMockMode) {
             return Promise.resolve({ success: true, message: "Sincronización individual simulada exitosa." });
@@ -1451,9 +1381,6 @@ export const api = {
         });
     },
 
-    /**
-     * Obtiene las etiquetas (Tags) del usuario desde Systeme.io
-     */
     getSystemeIoTags: async (): Promise<any[]> => {
         if (isMockMode) return [{ id: 1, name: 'Tag Mock A' }, { id: 2, name: 'Tag Mock B' }];
         return await fetchWithFallback('/system/integrations/systemeio/tags', {
@@ -1461,10 +1388,6 @@ export const api = {
         });
     },
 
-    /* Actualización: Adición de método createSystemeIoTag para permitir la creación de etiquetas directamente desde la interfaz - 30/06/2025 15:30 */
-    /**
-     * Crea una nueva etiqueta en Systeme.io
-     */
     createSystemeIoTag: async (name: string): Promise<any> => {
         if (isMockMode) return { id: Date.now(), name };
         return await fetchWithFallback('/system/integrations/systemeio/tags', {
@@ -1473,15 +1396,11 @@ export const api = {
             body: JSON.stringify({ name })
         });
     },
-    ////////// Fin de actualización - 17/06/2025 11:30 //////////
 
-    /* */ /* Actualización: Métodos de Email Marketing para persistencia real de secuencias y mensajes - 24/06/2024 16:20 */
     getEmailSequences: async (): Promise<EmailSequence[]> => {
-        /* Actualización: Soporte para modo Offline/Mock en secuencias de Email Marketing - 13/03/2024 11:50 */
         if (isMockMode) return Promise.resolve([...MOCK_EMAIL_SEQUENCES]);
         if (apiCache.emailSequences) return apiCache.emailSequences;
         const data = await fetchWithFallback('/email/sequences', { headers: getAuthHeaders() });
-        /* */ /* Actualización: Corrección de mapeo de ID, Project ID y Fecha (Invalid Date) para asegurar compatibilidad total con el frontend - 11/12/2024 15:30 */
         const mapped = data.map((seq: any) => ({
             ...seq,
             id: String(seq.id),
@@ -1496,7 +1415,6 @@ export const api = {
     },
 
     createEmailSequence: async (projectId: string, name?: string): Promise<{ id: string; isNew: boolean }> => {
-        /* */ /* Actualización: Sincronización de ID mock y validación de existencia de mensajes para evitar error 'isGenerated' de undefined - 20/05/2024 10:15 */
         if (isMockMode) return Promise.resolve({ id: 'mock-seq-1', isNew: true });
         const res = await fetchWithFallback('/email/sequences', {
             method: 'POST',
@@ -1507,7 +1425,6 @@ export const api = {
         return res;
     },
 
-    /* */ /* Actualización: Implementación del método de borrado de secuencia - 11/12/2024 15:35 */
     deleteEmailSequence: async (id: string) => {
         if (isMockMode) return Promise.resolve();
         await fetchWithFallback(`/email/sequences/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
@@ -1515,7 +1432,6 @@ export const api = {
     },
 
     getSequenceMessages: async (sequenceId: string): Promise<EmailMessage[]> => {
-        /* Actualización: Soporte para modo Offline/Mock en mensajes de secuencias de Email - 13/03/2024 11:50 */
         if (isMockMode) return Promise.resolve(MOCK_EMAIL_MESSAGES.filter(m => m.sequenceId === sequenceId));
         return await fetchWithFallback(`/email/sequences/${sequenceId}/messages`, { headers: getAuthHeaders() });
     },
@@ -1529,12 +1445,9 @@ export const api = {
         });
         clearCache('emailSequences');
     },
-    /* Fin de actualización - 24/06/2024 16:20 */
 
-    ////////// Actualización: Métodos para persistencia de tìtulos SEO generados - 05/06/2025 21:15 //////////
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,
     setLastGeneratedTitles: (titles: any[]) => { apiCache.lastGeneratedTitles = titles; }
-    ////////// Fin de actualización - 05/06/2025 21:15 //////////
   };
   
   function safeParseJsonList(data: any): any[] {

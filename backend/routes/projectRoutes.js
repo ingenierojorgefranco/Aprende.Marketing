@@ -1,4 +1,3 @@
-
 const express = require('express');
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
@@ -36,7 +35,7 @@ const checkMonthlyQuota = async (userId, resourceType, limit) => {
         WHERE user_id = ? 
           AND resource_type = ? 
           AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(created_at) = YEAR(CURRENT_DATE())
+          AND YEAR(CURRENT_DATE()) = YEAR(created_at)
     `, [userId, resourceType]);
 
     const used = rows[0].count;
@@ -291,6 +290,9 @@ router.post('/', async (req, res) => {
         return res.status(403).json({ error: `Has alcanzado tu cupo mensual de ${limits.maxProjects} generaciones de proyectos.` });
     }
 
+    // Refuerzo de seguridad para is_master: Solo administradores reales pueden establecerlo como true (1)
+    const isMasterFinal = (req.user.role === 'admin' && isMaster === true) ? 1 : 0;
+
     const [result] = await pool.query(
       `INSERT INTO projects 
        (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, full_price, commission_rate, lead_magnet_type, sales_page_url, is_master, created_at, updated_at)
@@ -312,11 +314,11 @@ router.post('/', async (req, res) => {
         commissionRate || 0,
         leadMagnetType || '',
         salesPageUrl || '',
-        (isMaster && req.user.role === 'admin') ? 1 : 0
+        isMasterFinal
       ]
     );
     await logUsage(req.user.id, 'project');
-    await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
+    await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name, isMaster: isMasterFinal });
     res.json({ id: result.insertId, message: 'Proyecto guardado exitosamente' });
   } catch (error) {
     console.error(error);
@@ -340,6 +342,12 @@ router.put('/:id', async (req, res) => {
     if (check[0].user_id !== req.user.id && req.user.role !== 'admin') {
         return res.status(403).json({ error: 'No autorizado para editar este proyecto maestro.' });
     }
+
+    // Refuerzo de seguridad para is_master en actualización
+    let isMasterFinal = check[0].is_master;
+    if (req.user.role === 'admin' && isMaster !== undefined) {
+        isMasterFinal = isMaster ? 1 : 0;
+    }
     
     await pool.query(
       `UPDATE projects 
@@ -361,7 +369,7 @@ router.put('/:id', async (req, res) => {
         commissionRate || 0,
         leadMagnetType || '',
         salesPageUrl || '',
-        (isMaster !== undefined && req.user.role === 'admin') ? (isMaster ? 1 : 0) : check[0].is_master,
+        isMasterFinal,
         id
       ]
     );
