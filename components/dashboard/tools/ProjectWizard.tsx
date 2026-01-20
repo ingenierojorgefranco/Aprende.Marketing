@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -132,6 +132,7 @@ export const ProjectWizard: React.FC = () => {
     const [commissionValue, setCommissionValue] = useState<number>(0);
     const [leadMagnetType, setLeadMagnetType] = useState('Ebook / Guía PDF');
     const [salesPageUrl, setSalesPageUrl] = useState('');
+    const [isMaster, setIsMaster] = useState(false);
     
     const [niche, setNiche] = useState('');
     const [targetAudience, setTargetAudience] = useState('');
@@ -177,6 +178,7 @@ export const ProjectWizard: React.FC = () => {
                 setPainPoints(proj.painPoints || []);
                 setKeyBenefits(proj.keyBenefits || []);
                 setAffiliateLinks(proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks : [{ label: 'Checkout Principal', url: '' }]);
+                setIsMaster(!!proj.isMaster);
             }
         } catch (error) {
             console.error("Error loading project", error);
@@ -227,7 +229,8 @@ export const ProjectWizard: React.FC = () => {
             mainGoal: mainGoal || 'Venta Directa',
             painPoints: painPoints,
             keyBenefits: keyBenefits,
-            affiliateLinks: affiliateLinks.filter(l => l.url.trim() !== '')
+            affiliateLinks: affiliateLinks.filter(l => l.url.trim() !== ''),
+            isMaster: (user.role === 'admin' && !isSimulating) ? isMaster : false
         };
         try {
             let projectId = id;
@@ -328,6 +331,34 @@ export const ProjectWizard: React.FC = () => {
                                 </h3>
                                 <p className="text-xs text-gray-500 mt-1">Define qué vendes y cómo debe comunicarse tu marca.</p>
                             </div>
+
+                            {/* CONFIGURACIÓN PROYECTO MAESTRO (SOLO ADMIN REAL) */}
+                            {user.role === 'admin' && !isSimulating && (
+                                <div className="bg-yellow-500/10 border border-yellow-500/20 p-6 rounded-2xl animate-in slide-in-from-top-2">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-3 bg-yellow-500/20 rounded-xl text-yellow-500">
+                                                <Crown className="w-6 h-6 fill-current" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-white font-bold text-lg">Proyecto Maestro (Plantilla)</h4>
+                                                <p className="text-gray-400 text-xs uppercase font-black tracking-widest mt-1">Visibilidad Global en la Biblioteca</p>
+                                            </div>
+                                        </div>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={isMaster} 
+                                                onChange={(e) => setIsMaster(e.target.checked)} 
+                                                className="sr-only peer"
+                                            />
+                                            <div className="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-yellow-600"></div>
+                                        </label>
+                                    </div>
+                                    <p className="text-[10px] text-gray-500 mt-4 italic">* Al activar esta opción, el proyecto aparecerá en la "Biblioteca de Estrategias Maestras" para todos los usuarios de la plataforma.</p>
+                                </div>
+                            )}
+
                             <div className="bg-primary/5 border border-primary/20 p-6 rounded-2xl">
                                 <label className="block text-sm font-bold text-primary mb-3 uppercase tracking-wider flex items-center gap-2">
                                     <Globe className="w-4 h-4" /> Analizador Inteligente (Opcional)

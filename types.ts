@@ -452,6 +452,10 @@ export interface Project {
   strategy_json?: StrategyJSON | any; // Updated to accept both types
   
   createdAt: Date;
+  ////////// Actualización: Campos para el sistema de Proyectos Maestros - 05/03/2025 10:00 //////////
+  isMaster?: boolean;
+  isUnlocked?: boolean;
+  ////////// Fin de actualización - 05/03/2025 10:00 //////////
 }
 /* Fin de actualización - 25/06/2024 11:30 */
 

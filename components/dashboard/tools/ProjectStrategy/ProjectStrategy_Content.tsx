@@ -221,7 +221,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 </div>
                             </div>
                             
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-4">
                                 <div 
                                     className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative"
                                     onMouseEnter={(e) => handleTooltipHover(e, ["Este artículo aparecerá en Google cuando tu cliente busque exactamente esta frase."])}

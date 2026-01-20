@@ -256,6 +256,18 @@ const initDb = async () => {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
         /* Fin de actualización - 24/06/2024 16:20 */
 
+        ////////// Actualización: Tabla para seguimiento de Proyectos Maestros desbloqueados - 05/03/2025 10:00 //////////
+        await connection.query(`CREATE TABLE IF NOT EXISTS unlocked_projects (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id ${userIdType} NOT NULL,
+            project_id INT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY user_project (user_id, project_id),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+        ////////// Fin de actualización - 05/03/2025 10:00 //////////
+
         // Tablas existentes del sistema (Projects, Pages, etc.)
         const tables = [
             {
@@ -359,6 +371,9 @@ const initDb = async () => {
         await addColumnSafe(connection, 'projects', "commission_rate DECIMAL(5,4) DEFAULT 0");
         await addColumnSafe(connection, 'projects', "lead_magnet_type VARCHAR(100)");
         await addColumnSafe(connection, 'projects', "sales_page_url VARCHAR(500)");
+        ////////// Actualización: Columna para marcar proyectos maestros - 05/03/2025 10:00 //////////
+        await addColumnSafe(connection, 'projects', "is_master BOOLEAN DEFAULT FALSE");
+        ////////// Fin de actualización - 05/03/2025 10:00 //////////
         
         /* */ /* Actualización: Eliminación de la creación de la columna redundante short_description en la tabla projects, centralizando su almacenamiento dentro de strategy_json - 25/06/2024 11:30 */
         // await addColumnSafe(connection, 'projects', "short_description VARCHAR(255)");

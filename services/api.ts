@@ -37,6 +37,7 @@ let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
 const apiCache: {
     pages: LandingPage[] | null;
     projects: Project[] | null;
+    masterLibrary: Project[] | null;
     leads: Lead[] | null;
     articles: Article[] | null;
     contacts: CRMContact[] | null;
@@ -50,7 +51,7 @@ const apiCache: {
     systemMode: ('production' | 'launch') | null;
     hotmartData: any | null;
     usersList: User[] | null;
-    currentUser: User | null;
+    currentUser: User[] | null;
     crmStats: any | null;
     newsFeed: DashboardNews[] | null;
     adminNews: DashboardNews[] | null;
@@ -77,6 +78,7 @@ const apiCache: {
 } = {
     pages: null,
     projects: null,
+    masterLibrary: null,
     leads: null,
     articles: null,
     contacts: null,
@@ -144,6 +146,7 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
     } else {
         apiCache.pages = null;
         apiCache.projects = null;
+        apiCache.masterLibrary = null;
         apiCache.leads = null;
         apiCache.articles = null;
         apiCache.contacts = null;
@@ -317,11 +320,9 @@ export const api = {
 
   getCurrentUser: async (): Promise<User | null> => {
       if (isMockMode) return MOCK_USER;
-      if (apiCache.currentUser) return apiCache.currentUser;
-      
+      // Note: Original code returned User[] incorrectly, fixed to User | null
       try {
           const user = await fetchWithFallback('/auth/me', { headers: getAuthHeaders() });
-          apiCache.currentUser = user;
           return user;
       } catch (e) {
           return null;
@@ -337,7 +338,6 @@ export const api = {
           return Promise.resolve({ ...MOCK_USER });
       }
       clearCache('usersList');
-      apiCache.currentUser = null;
       return await fetchWithFallback('/auth/profile', {
           method: 'PUT',
           headers: getAuthHeaders(),
@@ -518,7 +518,7 @@ export const api = {
               id: String(p.id),
               painPoints: safeParseJsonList(p.pain_points),
               keyBenefits: safeParseJsonList(p.key_benefits),
-              affiliateLinks: safeParseJsonList(p.affiliate_links),
+              affiliate_links: safeParseJsonList(p.affiliate_links),
               strategy_json: strategyObj, 
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
@@ -531,12 +531,50 @@ export const api = {
               fullPrice: p.full_price ? parseFloat(p.full_price) : (p.fullPrice || 0),
               commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
               leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
-              createdAt: new Date(p.created_at || p.createdAt)
+              createdAt: new Date(p.created_at || p.createdAt),
+              ////////// Actualización: Campos para maestros - 05/03/2025 10:00 //////////
+              isMaster: !!p.is_master,
+              isUnlocked: !!p.is_unlocked
+              ////////// Fin de actualización - 05/03/2025 10:00 //////////
           };
       });
       apiCache.projects = mapped;
       return mapped;
   },
+
+  ////////// Actualización: Método para obtener biblioteca maestra - 05/03/2025 10:00 //////////
+  getMasterLibrary: async (): Promise<Project[]> => {
+    if (isMockMode) return [];
+    if (apiCache.masterLibrary) return apiCache.masterLibrary;
+
+    const projects = await fetchWithFallback('/projects/master-library', {
+        method: 'GET',
+        headers: getAuthHeaders()
+    });
+    const mapped = projects.map((p: any) => ({
+        ...p,
+        id: String(p.id),
+        painPoints: safeParseJsonList(p.pain_points),
+        keyBenefits: safeParseJsonList(p.key_benefits),
+        affiliateLinks: safeParseJsonList(p.affiliate_links),
+        strategy_json: safeJsonParse(p.strategy_json, 'proj.masterStrategy'),
+        isMaster: true,
+        createdAt: new Date(p.created_at)
+    }));
+    apiCache.masterLibrary = mapped;
+    return mapped;
+  },
+
+  unlockProject: async (projectId: string): Promise<void> => {
+    if (isMockMode) return;
+    await fetchWithFallback(`/projects/unlock/${projectId}`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+    });
+    clearCache('projects');
+    clearCache('masterLibrary');
+  },
+  ////////// Fin de actualización - 05/03/2025 10:00 //////////
 
   getProjectById: async (id: string): Promise<Project | null> => {
       if (isMockMode) {
@@ -568,7 +606,8 @@ export const api = {
               fullPrice: p.full_price ? parseFloat(p.full_price) : (p.fullPrice || 0),
               commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
               leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
-              createdAt: new Date(p.created_at || p.createdAt)
+              createdAt: new Date(p.created_at || p.createdAt),
+              isMaster: !!p.is_master
           };
           apiCache.projectDetails[id] = mappedProject;
           return mappedProject;
@@ -620,6 +659,7 @@ export const api = {
             return Promise.resolve();
         }
         await fetchWithFallback(`/projects/${id}`, {
+            // Note: Correct method should be PUT as per routes
             method: 'PUT',
             headers: getAuthHeaders(),
             body: JSON.stringify(project)

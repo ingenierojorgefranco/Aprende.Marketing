@@ -36,7 +36,7 @@ const checkMonthlyQuota = async (userId, resourceType, limit) => {
         WHERE user_id = ? 
           AND resource_type = ? 
           AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(CURRENT_DATE()) = YEAR(created_at)
+          AND YEAR(created_at) = YEAR(CURRENT_DATE())
     `, [userId, resourceType]);
 
     const used = rows[0].count;
@@ -57,6 +57,79 @@ const logUsage = async (userId, resourceType) => {
 };
 
 router.use(authMiddleware);
+
+// ======================================================
+//  BIBLIOTECA MAESTRA
+// ======================================================
+
+/**
+ * Obtiene todos los proyectos maestros que el usuario aún no ha desbloqueado.
+ */
+router.get('/master-library', async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            `SELECT p.* FROM projects p 
+             WHERE p.is_master = 1 
+             AND p.user_id != ? 
+             AND p.id NOT IN (SELECT project_id FROM unlocked_projects WHERE user_id = ?)
+             ORDER BY p.created_at DESC`,
+            [req.user.id, req.user.id]
+        );
+        
+        const projects = rows.map(p => ({
+            ...p,
+            pain_points: safeParseJson(p.pain_points),
+            key_benefits: safeParseJson(p.key_benefits),
+            affiliate_links: safeParseJson(p.affiliate_links),
+            strategy_json: safeParseJson(p.strategy_json),
+            isMaster: !!p.is_master
+        }));
+        
+        res.json(projects);
+    } catch (error) {
+        res.status(500).json({ error: 'Error cargando biblioteca maestra' });
+    }
+});
+
+/**
+ * Desbloquea un proyecto maestro para el usuario.
+ */
+router.post('/unlock/:id', async (req, res) => {
+    const projectId = req.params.id;
+    try {
+        // 1. Verificar si el proyecto es maestro
+        const [projRows] = await pool.query('SELECT is_master, name FROM projects WHERE id = ?', [projectId]);
+        if (projRows.length === 0 || !projRows[0].is_master) {
+            return res.status(404).json({ error: 'Proyecto maestro no encontrado.' });
+        }
+
+        // 2. Verificar límites del usuario
+        const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
+        const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
+        
+        // Contar proyectos actuales (propios + desbloqueados)
+        const [countRows] = await pool.query(`
+            SELECT 
+                (SELECT COUNT(*) FROM projects WHERE user_id = ?) + 
+                (SELECT COUNT(*) FROM unlocked_projects WHERE user_id = ?) as total
+        `, [req.user.id, req.user.id]);
+
+        if (countRows[0].total >= limits.maxProjects && req.user.role !== 'admin') {
+            return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxProjects} proyectos en tu plan.` });
+        }
+
+        // 3. Registrar desbloqueo
+        await pool.query(
+            'INSERT IGNORE INTO unlocked_projects (user_id, project_id) VALUES (?, ?)',
+            [req.user.id, projectId]
+        );
+
+        await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_PROJECT', 'project', projectId, { name: projRows[0].name });
+        res.json({ success: true, message: 'Estrategia desbloqueada correctamente.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al desbloquear el proyecto' });
+    }
+});
 
 // ======================================================
 //  ANALIZADOR INTELIGENTE
@@ -127,15 +200,22 @@ router.post('/analyze-site', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    let query = 'SELECT * FROM projects';
-    let params = [];
+    let query = `
+      SELECT p.*, 
+             (p.user_id = ?) as is_owner,
+             EXISTS(SELECT 1 FROM unlocked_projects up WHERE up.project_id = p.id AND up.user_id = ?) as is_unlocked
+      FROM projects p
+      LEFT JOIN unlocked_projects up ON p.id = up.project_id AND up.user_id = ?
+      WHERE p.user_id = ? OR up.user_id = ?
+      ORDER BY p.updated_at DESC
+    `;
+    let params = [req.user.id, req.user.id, req.user.id, req.user.id, req.user.id];
     
-    if (req.user.role !== 'admin') {
-        query += ' WHERE user_id = ?';
-        params.push(req.user.id);
+    // Si es admin, puede ver todo, pero marcamos lo que es "desbloqueado" o "maestro"
+    if (req.user.role === 'admin') {
+        query = 'SELECT *, (user_id = ?) as is_owner, (is_master = 1) as is_master_logic FROM projects ORDER BY updated_at DESC';
+        params = [req.user.id];
     }
-    
-    query += ' ORDER BY updated_at DESC';
     
     const [rows] = await pool.query(query, params);
 
@@ -144,7 +224,9 @@ router.get('/', async (req, res) => {
         pain_points: safeParseJson(p.pain_points),
         key_benefits: safeParseJson(p.key_benefits),
         affiliate_links: safeParseJson(p.affiliate_links),
-        strategy_json: safeParseJson(p.strategy_json)
+        strategy_json: safeParseJson(p.strategy_json),
+        isMaster: !!p.is_master,
+        isUnlocked: !!p.is_unlocked
     }));
 
     res.json(projects);
@@ -155,15 +237,18 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    let query = 'SELECT * FROM projects WHERE id = ?';
-    let params = [req.params.id];
-    
-    if (req.user.role !== 'admin') {
-        query += ' AND user_id = ?';
-        params.push(req.user.id);
-    }
+    const projectId = req.params.id;
+    const userId = req.user.id;
 
-    const [rows] = await pool.query(query, params);
+    // Verificar si el usuario es el dueño o si lo ha desbloqueado
+    const query = `
+        SELECT p.*, (p.user_id = ?) as is_owner
+        FROM projects p
+        LEFT JOIN unlocked_projects up ON p.id = up.project_id AND up.user_id = ?
+        WHERE p.id = ? AND (p.user_id = ? OR up.user_id = ? OR ? = 'admin')
+        LIMIT 1
+    `;
+    const [rows] = await pool.query(query, [userId, userId, projectId, userId, userId, req.user.role]);
     
     if (rows.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado o sin permisos' });
     
@@ -172,6 +257,7 @@ router.get('/:id', async (req, res) => {
     project.key_benefits = safeParseJson(project.key_benefits);
     project.affiliate_links = safeParseJson(project.affiliate_links);
     project.strategy_json = safeParseJson(project.strategy_json);
+    project.isMaster = !!project.is_master;
 
     res.json(project);
   } catch (error) {
@@ -179,19 +265,24 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-/* */ /* Actualización: Eliminación del campo short_description de la consulta INSERT, centralizando la descripción en el JSON de estrategia - 25/06/2024 11:30 */
 router.post('/', async (req, res) => {
   const {
     name, niche, description, targetAudience, brandTone,
     productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json,
-    fullPrice, commissionRate, leadMagnetType, salesPageUrl
+    fullPrice, commissionRate, leadMagnetType, salesPageUrl, isMaster
   } = req.body;
   try {
     const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
     const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
     
-    const [count] = await pool.query('SELECT COUNT(*) as c FROM projects WHERE user_id = ?', [req.user.id]);
-    if (count[0].c >= limits.maxProjects && req.user.role !== 'admin') {
+    // Contar proyectos propios + desbloqueados
+    const [countRows] = await pool.query(`
+        SELECT 
+            (SELECT COUNT(*) FROM projects WHERE user_id = ?) + 
+            (SELECT COUNT(*) FROM unlocked_projects WHERE user_id = ?) as total
+    `, [req.user.id, req.user.id]);
+
+    if (countRows[0].total >= limits.maxProjects && req.user.role !== 'admin') {
         return res.status(403).json({ error: `Has alcanzado el límite de almacenamiento de ${limits.maxProjects} proyectos.` });
     }
     
@@ -202,8 +293,8 @@ router.post('/', async (req, res) => {
 
     const [result] = await pool.query(
       `INSERT INTO projects 
-       (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, full_price, commission_rate, lead_magnet_type, sales_page_url, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+       (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, full_price, commission_rate, lead_magnet_type, sales_page_url, is_master, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         req.user.id,
         name,
@@ -220,7 +311,8 @@ router.post('/', async (req, res) => {
         fullPrice || 0,
         commissionRate || 0,
         leadMagnetType || '',
-        salesPageUrl || ''
+        salesPageUrl || '',
+        (isMaster && req.user.role === 'admin') ? 1 : 0
       ]
     );
     await logUsage(req.user.id, 'project');
@@ -232,25 +324,26 @@ router.post('/', async (req, res) => {
   }
 });
 
-/* */ /* Actualización: Eliminación del campo short_description de la consulta UPDATE para simplificar la persistencia de datos - 25/06/2024 11:30 */
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const {
     name, niche, description, targetAudience, brandTone,
     productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json,
-    fullPrice, commissionRate, leadMagnetType, salesPageUrl
+    fullPrice, commissionRate, leadMagnetType, salesPageUrl, isMaster
   } = req.body;
   try {
-    const [check] = await pool.query('SELECT user_id FROM projects WHERE id = ?', [id]);
+    const [check] = await pool.query('SELECT user_id, is_master FROM projects WHERE id = ?', [id]);
     if (check.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
     
+    // Solo el dueño o admin pueden editar.
+    // Un usuario que lo desbloqueó NO puede editar el proyecto base.
     if (check[0].user_id !== req.user.id && req.user.role !== 'admin') {
-        return res.status(403).json({ error: 'No autorizado' });
+        return res.status(403).json({ error: 'No autorizado para editar este proyecto maestro.' });
     }
     
     await pool.query(
       `UPDATE projects 
-       SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, sales_page_url=?, updated_at=NOW()
+       SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, sales_page_url=?, is_master=?, updated_at=NOW()
        WHERE id=?`,
       [
         name,
@@ -268,6 +361,7 @@ router.put('/:id', async (req, res) => {
         commissionRate || 0,
         leadMagnetType || '',
         salesPageUrl || '',
+        (isMaster !== undefined && req.user.role === 'admin') ? (isMaster ? 1 : 0) : check[0].is_master,
         id
       ]
     );
@@ -279,18 +373,21 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const [proj] = await pool.query('SELECT name, user_id FROM projects WHERE id = ?', [req.params.id]);
+    const [proj] = await pool.query('SELECT name, user_id, is_master FROM projects WHERE id = ?', [req.params.id]);
     if (proj.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
     
+    // Si no es el dueño ni admin, solo puede "quitarlo de su lista" si era un desbloqueo
     if (proj[0].user_id !== req.user.id && req.user.role !== 'admin') {
+        const [delUnlocked] = await pool.query('DELETE FROM unlocked_projects WHERE user_id = ? AND project_id = ?', [req.user.id, req.params.id]);
+        if (delUnlocked.affectedRows > 0) {
+            return res.json({ message: 'Proyecto quitado de tu biblioteca personal.' });
+        }
         return res.status(403).json({ error: 'No autorizado' });
     }
 
-    // Al eliminar el proyecto, las páginas asociadas se mantienen gracias a ON DELETE SET NULL en la BD.
-    // Se elimina la instrucción que borraba las páginas explícitamente.
     await pool.query('DELETE FROM projects WHERE id = ?', [req.params.id]);
     await logSystemActivity(req.user.id, req.user.email, 'DELETE_PROJECT', 'project', req.params.id, { name: proj[0]?.name });
-    res.json({ message: 'Proyecto eliminado. Las páginas asociadas han sido conservadas.' });
+    res.json({ message: 'Proyecto eliminado permanentemente.' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -300,21 +397,21 @@ router.delete('/:id', async (req, res) => {
 //  GENERACIÓN DE ESTRATEGIA CON IA
 // ======================================================
 
-/* */ /* Actualización: Ajuste del endpoint de generación estratégica para eliminar la actualización de la columna física redundante short_description - 25/06/2024 11:30 */
 router.post('/:id/generate-strategy', async (req, res) => {
     const { id } = req.params;
     try {
         let query = 'SELECT * FROM projects WHERE id = ?';
         let params = [id];
         
-        if (req.user.role !== 'admin') {
-            query += ' AND user_id = ?';
-            params.push(req.user.id);
-        }
-
         const [projects] = await pool.query(query, params);
-        if (projects.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado o sin permisos.' });
+        if (projects.length === 0) return res.status(404).json({ error: 'Proyecto no encontrado.' });
         const project = projects[0];
+
+        // Solo el dueño o admin pueden regenerar estrategia si es un proyecto base.
+        if (project.user_id !== req.user.id && req.user.role !== 'admin') {
+            // Si es un proyecto desbloqueado, no se permite regenerar la base maestra.
+            return res.status(403).json({ error: 'Solo el autor original puede regenerar la estrategia base.' });
+        }
         
         const strategyJson = await generateFullStrategy({
             name: project.name,
