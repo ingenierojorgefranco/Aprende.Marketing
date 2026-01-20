@@ -139,6 +139,7 @@ export const ProjectWizard: React.FC = () => {
     const [keyBenefits, setKeyBenefits] = useState<string[]>([]);
     
     const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([{ label: 'Checkout Principal', url: '' }]);
+    const [originalStrategyJson, setOriginalStrategyJson] = useState<any>(null);
 
     const commissionRate = fullPrice > 0 ? (commissionValue / fullPrice) * 100 : 0;
 
@@ -177,6 +178,7 @@ export const ProjectWizard: React.FC = () => {
                 setKeyBenefits(proj.keyBenefits || []);
                 setAffiliateLinks(proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks : [{ label: 'Checkout Principal', url: '' }]);
                 setIsMaster(!!proj.isMaster);
+                setOriginalStrategyJson(proj.strategy_json);
             }
         } catch (error) {
             console.error("Error loading project", error);
@@ -228,15 +230,15 @@ export const ProjectWizard: React.FC = () => {
             painPoints: painPoints,
             keyBenefits: keyBenefits,
             affiliateLinks: affiliateLinks.filter(l => l.url.trim() !== ''),
-            isMaster: (user.role === 'admin' && !isSimulating) ? isMaster : false
+            isMaster: (user.role === 'admin' && !isSimulating) ? isMaster : false,
+            strategy_json: id ? originalStrategyJson : undefined
         };
 
         try {
             if (id) {
-                // MODO EDICIÓN: Solo actualizar datos manuales
+                // MODO EDICIÓN: Solo actualizar datos manuales persistiendo la estrategia existente
                 setLoadingStatus('Actualizando proyecto...');
                 await api.updateProject(id, projectData as any);
-                // Redirigir directamente omitiendo generación de IA para no consumir créditos
                 navigate(`/dashboard/projects/${id}/strategy`);
             } else {
                 // MODO CREACIÓN: Flujo completo con generación inicial de IA
