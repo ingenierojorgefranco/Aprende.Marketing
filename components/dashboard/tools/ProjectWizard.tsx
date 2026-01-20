@@ -212,7 +212,7 @@ export const ProjectWizard: React.FC = () => {
     const saveProject = async () => {
         if (!name || !productName) return alert('Por favor completa el nombre del proyecto y del producto.');
         setLoading(true);
-        setLoadingStatus('Fase 1/2: Guardando información en base de datos...');
+        
         const projectData = {
             name,
             productName,
@@ -230,17 +230,24 @@ export const ProjectWizard: React.FC = () => {
             affiliateLinks: affiliateLinks.filter(l => l.url.trim() !== ''),
             isMaster: (user.role === 'admin' && !isSimulating) ? isMaster : false
         };
+
         try {
-            let projectId = id;
             if (id) {
+                // MODO EDICIÓN: Solo actualizar datos manuales
+                setLoadingStatus('Actualizando proyecto...');
                 await api.updateProject(id, projectData as any);
+                // Redirigir directamente omitiendo generación de IA para no consumir créditos
+                navigate(`/dashboard/projects/${id}/strategy`);
             } else {
+                // MODO CREACIÓN: Flujo completo con generación inicial de IA
+                setLoadingStatus('Fase 1/2: Guardando información en base de datos...');
                 const saved = await api.createProject(projectData as any);
-                projectId = saved.id;
+                const projectId = saved.id;
+                
+                setLoadingStatus('Fase 2/2: La IA está diseñando tu Estrategia Maestra (esto puede tardar unos 20 segundos)...');
+                await api.generateProjectStrategyFull(projectId);
+                navigate(`/dashboard/projects/${projectId}/strategy`);
             }
-            setLoadingStatus('Fase 2/2: La IA está diseñando tu Estrategia Maestra (esto puede tardar unos 20 segundos)...');
-            await api.generateProjectStrategyFull(projectId);
-            navigate(`/dashboard/projects/${projectId}/strategy`);
         } catch (error) {
             console.error(error);
             alert('Error al procesar el proyecto. Revisa tu conexión.');
@@ -477,7 +484,7 @@ export const ProjectWizard: React.FC = () => {
                 </div>
                 <div className="bg-gray-800/30 p-6 border-t border-gray-800 flex justify-between items-center">
                     {step > 1 ? <button onClick={() => setStep(step - 1)} className="px-6 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-bold transition flex items-center gap-2 shadow-md"><ArrowLeft className="w-4 h-4" /> Anterior</button> : <div />}
-                    {step < 3 ? <button onClick={() => setStep(step + 1)} className="px-8 py-3 rounded-xl bg-primary hover:bg-indigo-600 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-primary/20">Siguiente <ArrowRight className="w-4 h-4" /></button> : <button onClick={saveProject} disabled={loading} className="px-10 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-green-900/20 transform hover:scale-[1.02] active:scale-95">{loading ? <Loader2 className="w-5 h-5 animate-spin"/> : <Save className="w-5 h-5"/>}{id ? 'Actualizar y Generar' : 'Finalizar y Generar con IA'}</button>}
+                    {step < 3 ? <button onClick={() => setStep(step + 1)} className="px-8 py-3 rounded-xl bg-primary hover:bg-indigo-600 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-primary/20">Siguiente <ArrowRight className="w-4 h-4" /></button> : <button onClick={saveProject} disabled={loading} className="px-10 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-green-900/20 transform hover:scale-[1.02] active:scale-95">{loading ? <Loader2 className="w-5 h-5 animate-spin"/> : <Save className="w-5 h-5"/>}{id ? 'Actualizar Proyecto' : 'Finalizar y Generar con IA'}</button>}
                 </div>
             </div>
         </div>
