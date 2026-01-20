@@ -59,7 +59,11 @@ export const ProjectsList: React.FC = () => {
         
         const isRealAdmin = user.role === 'admin' && !isSimulating;
         const maxProjects = user.planLimits?.maxProjects || 1;
-        if (projects.length >= maxProjects && !isRealAdmin) {
+        
+        // Contar proyectos totales (propios + desbloqueados)
+        const totalActive = projects.length;
+
+        if (totalActive >= maxProjects && !isRealAdmin) {
             setShowUpgradeModal(true);
             return;
         }

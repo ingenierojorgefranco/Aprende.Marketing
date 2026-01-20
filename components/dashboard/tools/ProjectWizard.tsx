@@ -325,14 +325,7 @@ export const ProjectWizard: React.FC = () => {
                 <div className="p-8 min-h-[450px]">
                     {step === 1 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
-                            <div className="border-b border-gray-800 pb-4">
-                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                                    <Briefcase className="w-5 h-5 text-blue-400" /> Identidad y Estilo
-                                </h3>
-                                <p className="text-xs text-gray-500 mt-1">Define qué vendes y cómo debe comunicarse tu marca.</p>
-                            </div>
-
-                            {/* CONFIGURACIÓN PROYECTO MAESTRO (SOLO ADMIN REAL) */}
+                            {/* CONFIGURACIÓN PROYECTO MAESTRO (SOLO ADMIN REAL) - UBICADO ANTES DE IDENTIDAD Y ESTILO */}
                             {user.role === 'admin' && !isSimulating && (
                                 <div className="bg-yellow-500/10 border border-yellow-500/20 p-6 rounded-2xl animate-in slide-in-from-top-2">
                                     <div className="flex items-center justify-between">
@@ -341,23 +334,42 @@ export const ProjectWizard: React.FC = () => {
                                                 <Crown className="w-6 h-6 fill-current" />
                                             </div>
                                             <div>
-                                                <h4 className="text-white font-bold text-lg">Proyecto Maestro (Plantilla)</h4>
-                                                <p className="text-gray-400 text-xs uppercase font-black tracking-widest mt-1">Visibilidad Global en la Biblioteca</p>
+                                                <h4 className="text-white font-bold text-lg">¿Es este un Proyecto Maestro?</h4>
+                                                <p className="text-gray-400 text-xs uppercase font-black tracking-widest mt-1">Si marcas SÍ, será una plantilla pública en la biblioteca.</p>
                                             </div>
                                         </div>
-                                        <label className="relative inline-flex items-center cursor-pointer">
-                                            <input 
-                                                type="checkbox" 
-                                                checked={isMaster} 
-                                                onChange={(e) => setIsMaster(e.target.checked)} 
-                                                className="sr-only peer"
-                                            />
-                                            <div className="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-yellow-600"></div>
-                                        </label>
+                                        <div className="flex items-center gap-4">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input 
+                                                    type="radio" 
+                                                    name="isMaster"
+                                                    checked={isMaster === true} 
+                                                    onChange={() => setIsMaster(true)} 
+                                                    className="w-4 h-4 accent-yellow-500"
+                                                />
+                                                <span className="text-white font-bold text-sm">SÍ</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input 
+                                                    type="radio" 
+                                                    name="isMaster"
+                                                    checked={isMaster === false} 
+                                                    onChange={() => setIsMaster(false)} 
+                                                    className="w-4 h-4 accent-gray-500"
+                                                />
+                                                <span className="text-white font-bold text-sm">NO</span>
+                                            </label>
+                                        </div>
                                     </div>
-                                    <p className="text-[10px] text-gray-500 mt-4 italic">* Al activar esta opción, el proyecto aparecerá en la "Biblioteca de Estrategias Maestras" para todos los usuarios de la plataforma.</p>
                                 </div>
                             )}
+
+                            <div className="border-b border-gray-800 pb-4">
+                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <Briefcase className="w-5 h-5 text-blue-400" /> Identidad y Estilo
+                                </h3>
+                                <p className="text-xs text-gray-500 mt-1">Define qué vendes y cómo debe comunicarse tu marca.</p>
+                            </div>
 
                             <div className="bg-primary/5 border border-primary/20 p-6 rounded-2xl">
                                 <label className="block text-sm font-bold text-primary mb-3 uppercase tracking-wider flex items-center gap-2">
