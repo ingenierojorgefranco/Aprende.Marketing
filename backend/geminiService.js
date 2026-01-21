@@ -81,27 +81,29 @@ const analyzeWebsiteContent = async (rawText) => {
     const prompt = `
     Actúa como un experto en Ingeniería Inversa de Marketing y Copywriting Senior. Tu misión es desglosar por completo una página de ventas para alimentar un sistema de IA posterior con el máximo contexto posible.
     
-    Analiza TODO el texto proporcionado y extrae de forma exhaustiva: 
+    Analiza TODO el texto proporcionado y extrae de forma exhaustiva obligatoriamente sin inventar ningun dato ni informacion: 
 
     - Usa <h3> para las categorías principales (ej: 'Propuesta Única', 'Contenido del Programa', 'Bonos Exclusivos', 'Perfil del Instructor', 'Garantías de Seguridad').
     - <p> para las introducciones y explicaciones de contexto.
     - Usa <ul> y <li> para listar cada módulo, cada lección y cada bono encontrado con su respectiva descripción detallada.
       REGLA DE ORO: Si encuentras listas de beneficios o contenido en la web original, NO los resumas. Transcríbelos íntegramente en los items de la lista HTML para proporcionar el máximo contexto al sistema.",
     - Haz el informe con un lenguaje natural, dirigido a una persona que quiere conocer todo acerca de este producto digital.
+    - No inventes ni generes ningun tipo de contenido que no esta en el contenido que se te ha entregado, en caso de no existir el contenido simplemente omitelo
 
     1. Introducción del Producto donde explicas brevemente el producto.
     2. Objetivos del Producto Digital.
     3. Propuesta de valor y promesa irresistible principal.
     4. Desglose detallado de Beneficios Racionales (lo que obtiene) y Beneficios Emocionales (cómo se sentirá).
-    5. Perfil de Autoridad del Mentor/Instructor: Extrae su experiencia, logros mencionados y por qué es una autoridad en el tema.
-    6. Estructura del Programa: Módulos, lecciones o fases paso a paso que componen el producto.
-    7. Entregables y Bonos Detallados: Extrae el nombre de cada bono, su propósito y su valor percibido si se menciona.
-    8. Garantías y disparadores de escasez o urgencia.
+    5. Temario del Curso: añade toda la informacion que consideres sobre los modulos, temas a tratar o todo lo relacionado al temario, no inventes informacion, en caso de no tener esta informacion omite la seccion, en caso de tenerla añadela.
+    6. Perfil de Autoridad del Mentor/Instructor: Extrae el nombre, experiencia y cualquier tipo de informacion de interes que se menciona.
+    7. Estructura del Programa: Solo añade datos reales que extraigas añade Módulos, lecciones o fases paso a paso que componen el producto, en caso de no tener esta informacion omite la seccion.
+    8. Entregables y Bonos Detallados: Analiza todos los bonos que se mencionen en el contenido, extrae el nombre de cada bono, su propósito y su valor percibido unicamente si se menciona en el contenido, en caso de no tener esta informacion omite la seccion.
+    9. Garantías y disparadores de escasez o urgencia.
         
     Responde EXCLUSIVAMENTE en formato JSON válido:
     {
       "productName": "Nombre comercial del producto",
-      "description": "Un INFORME ESTRATÉGICO COMPLETO en formato HTML. Usa H3 para categorías (ej: '💎 Promesa Principal', '✅ Beneficios Racionales y Emocionales', '🎓 Autoridad del Mentor', '📚 Estructura del Programa', '🎁 Bonos y Entregables Exclusivos'), P para explicaciones y UL/LI para detallar cada punto relevante extraído de forma exhaustiva. No omitas ningún detalle técnico o persuasivo importante que sirva como contexto para generar otras páginas.",
+      "description": "Un INFORME ESTRATÉGICO COMPLETO en formato HTML. Usa H3 para categorías (ej: '📚 Introduccion', '📚 Objetivos del Producto Digital', '📚 Promesa de Valor y Promesa Irresistible', '📚 Beneficios Racionales y Emocionales', '📚 Autoridad del Mentor', '📚 Estructura del Programa', '📚 Bonos y Entregables Exclusivos', '📚 Garantías y Disparadores'), P para explicaciones y UL/LI para detallar cada punto relevante extraído de forma exhaustiva. No añadas datos que no estan en el texto, no inventes contenido que no exista, No omitas ningún detalle técnico o persuasivo importante que sirva como contexto para generar otras páginas.",
       "niche": "Nicho o categoría de mercado"
     }
 
