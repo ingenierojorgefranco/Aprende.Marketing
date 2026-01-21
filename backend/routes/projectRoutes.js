@@ -35,7 +35,7 @@ const checkMonthlyQuota = async (userId, resourceType, limit) => {
         WHERE user_id = ? 
           AND resource_type = ? 
           AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(CURRENT_DATE()) = YEAR(created_at)
+          AND YEAR(created_at) = YEAR(CURRENT_DATE())
     `, [userId, resourceType]);
 
     const used = rows[0].count;
@@ -144,11 +144,13 @@ router.post('/analyze-site', async (req, res) => {
             return new Promise((resolve, reject) => {
                 const options = {
                     headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
                         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-                        'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8'
+                        'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
                     },
-                    timeout: 10000
+                    timeout: 15000
                 };
 
                 https.get(targetUrl, options, (response) => {
@@ -179,9 +181,14 @@ router.post('/analyze-site', async (req, res) => {
             .replace(/\s+/g, ' ')
             .trim();
 
+        // AUDITORÍA DE SCRAPPING: Imprimimos el inicio del texto extraído para depuración
+        console.log(`[SCRAPER AUDIT] URL analizada: ${url}`);
+        console.log(`[SCRAPER AUDIT] Longitud total extraída: ${cleanText.length} caracteres`);
+        console.log(`[SCRAPER AUDIT] Texto inicial (500 car.): ${cleanText.substring(0, 500)}`);
+
         // Validation: If no significant text was extracted, don't waste AI credits
         if (!cleanText || cleanText.length < 300) {
-            return res.status(422).json({ error: 'No se pudo extraer suficiente contenido legible de la página. Es posible que el sitio esté protegido o sea una página de carga dinámica.' });
+            return res.status(422).json({ error: 'No se pudo extraer suficiente contenido legible de la página. Es posible que el sitio esté protegido por Cloudflare o sea una página de carga dinámica (SPA).' });
         }
 
         const analysis = await analyzeWebsiteContent(cleanText);
@@ -279,7 +286,7 @@ router.post('/', async (req, res) => {
         SELECT 
             (SELECT COUNT(*) FROM projects WHERE user_id = ?) + 
             (SELECT COUNT(*) FROM unlocked_projects WHERE user_id = ?) as total
-    `, [req.user.id, req.user.id]);
+        `, [req.user.id, req.user.id]);
 
     if (countRows[0].total >= limits.maxProjects && req.user.role !== 'admin') {
         return res.status(403).json({ error: `Has alcanzado el límite de almacenamiento de ${limits.maxProjects} proyectos.` });

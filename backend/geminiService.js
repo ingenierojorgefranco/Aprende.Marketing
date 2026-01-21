@@ -74,36 +74,40 @@ const generateContent = async (model, contents, config = {}) => {
 const analyzeWebsiteContent = async (rawText) => {
     if (!aiClient) throw new Error("Gemini API Key not configured.");
 
-    if (!rawText || rawText.trim().length < 200) {
+    if (!rawText || rawText.trim().length < 150) {
         throw new Error("El contenido extraído del sitio web es insuficiente para un análisis de marketing profesional.");
     }
 
     const prompt = `
     Actúa como un experto en Ingeniería Inversa de Marketing y Copywriting Senior. Tu misión es desglosar por completo una página de ventas para alimentar un sistema de IA posterior con el máximo contexto posible.
     
-    Analiza TODO el texto proporcionado y extrae de forma exhaustiva el contenido de la pagina sin inventar ningun dato ni informacion: 
-
+    REGLA DE ORO DE VERACIDAD (CRÍTICA): 
+    - Analiza el "TEXTO EXTRAÍDO DEL SITIO" al final de este prompt.
+    - Si el texto parece ser un mensaje de error (ej: '403 Forbidden', 'Access Denied', 'Cloudflare', 'Página no encontrada'), o si el contenido es tan escaso que no describe un producto real, DEBES RESPONDER EXACTAMENTE CON ESTE JSON: {"productName": "ERROR", "description": "ERROR_ACCESO_DENEGADO", "niche": "ERROR"}.
+    - No intentes adivinar ni inventar información si la web está bloqueada. Es preferible informar del error que generar una estrategia falsa.
+    
+    Instrucciones si el texto es válido:
+    - Extrae de forma exhaustiva el contenido sin inventar ningun dato.
     - Usa <h3> para las categorías principales (ej: 'Propuesta Única', 'Contenido del Programa', 'Bonos Exclusivos', 'Perfil del Instructor', 'Garantías de Seguridad').
     - <p> para las introducciones y explicaciones de contexto.
     - Usa <ul> y <li> para listar cada módulo, cada lección y cada bono encontrado con su respectiva descripción detallada.
-      REGLA DE ORO: Si encuentras listas de beneficios o contenido en la web original, NO los resumas. Transcríbelos íntegramente en los items de la lista HTML para proporcionar el máximo contexto al sistema.",
-    - Haz el informe con un lenguaje natural, dirigido a una persona que quiere conocer todo acerca de este producto digital.
-    - No inventes ni generes ningun tipo de contenido que no esta en el contenido que se te ha entregado, en caso de no existir el contenido simplemente omitelo
+    - REGLA DE ORO: Si encuentras listas de beneficios o contenido en la web original, NO los resumas. Transcríbelos íntegramente.
 
-    1. Introducción del Producto donde explicas brevemente el producto.
+    Estructura del informe en el campo "description":
+    1. Introducción del Producto.
     2. Objetivos del Producto Digital.
-    3. Propuesta de valor y promesa irresistible principal.
-    4. Desglose detallado de Beneficios Racionales (lo que obtiene) y Beneficios Emocionales (cómo se sentirá).
-    5. Temario del Curso: añade toda la informacion que consideres sobre los modulos, temas a tratar o todo lo relacionado al temario, no inventes informacion, en caso de no tener esta informacion omite la seccion, en caso de tenerla añadela.
-    6. Perfil de Autoridad del Mentor/Instructor: Extrae el nombre, experiencia y cualquier tipo de informacion de interes que se menciona.
-    7. Estructura del Programa: Solo añade datos reales que extraigas añade Módulos, lecciones o fases paso a paso que componen el producto, en caso de no tener esta informacion omite la seccion.
-    8. Entregables y Bonos Detallados: Analiza todos los bonos que se mencionen en el contenido, extrae el nombre de cada bono, su propósito y su valor percibido unicamente si se menciona en el contenido, en caso de no tener esta informacion omite la seccion.
-    9. Garantías y disparadores de escasez o urgencia.
+    3. Propuesta de valor y promesa irresistible.
+    4. Desglose de Beneficios Racionales y Emocionales.
+    5. Temario del Curso: Incluye módulos y lecciones encontradas. Si no hay, omite la sección.
+    6. Perfil de Autoridad del Mentor: Extrae nombre y experiencia.
+    7. Estructura del Programa: Datos reales de fases o pasos.
+    8. Entregables y Bonos: Nombre, propósito y valor si se menciona.
+    9. Garantías y disparadores de urgencia.
         
     Responde EXCLUSIVAMENTE en formato JSON válido:
     {
       "productName": "Nombre comercial del producto",
-      "description": "Un INFORME ESTRATÉGICO COMPLETO en formato HTML. Usa H3 para categorías (ej: '📚 Introduccion', '📚 Objetivos del Producto Digital', '📚 Promesa de Valor y Promesa Irresistible', '📚 Beneficios Racionales y Emocionales', '📚 Autoridad del Mentor', '📚 Estructura del Programa', '📚 Bonos y Entregables Exclusivos', '📚 Garantías y Disparadores'), P para explicaciones y UL/LI para detallar cada punto relevante extraído de forma exhaustiva. No añadas datos que no estan en el texto, no inventes contenido que no exista, No omitas ningún detalle técnico o persuasivo importante que sirva como contexto para generar otras páginas.",
+      "description": "INFORME ESTRATÉGICO EN HTML (H3, P, UL, LI). Si el texto es un error o insuficiente, pon aquí 'ERROR_ACCESO_DENEGADO'",
       "niche": "Nicho o categoría de mercado"
     }
 
@@ -120,7 +124,14 @@ const analyzeWebsiteContent = async (rawText) => {
             });
 
             if (!response.text) throw new Error("IA returned empty response");
-            return JSON.parse(response.text.trim());
+            const result = JSON.parse(response.text.trim());
+            
+            // Verificación post-IA de error de acceso
+            if (result.description === "ERROR_ACCESO_DENEGADO" || result.productName === "ERROR") {
+                throw new Error("No se ha podido extraer contenido real de la web. Verifique que la URL no esté protegida por sistemas anti-bot como Cloudflare.");
+            }
+
+            return result;
         });
     } catch (error) {
         console.error("❌ [GEMINI ANALYZE ERROR]:", error);
