@@ -81,7 +81,7 @@ const analyzeWebsiteContent = async (rawText) => {
     const prompt = `
     Actúa como un experto en Ingeniería Inversa de Marketing y Copywriting Senior. Tu misión es desglosar por completo una página de ventas para alimentar un sistema de IA posterior con el máximo contexto posible.
     
-    Analiza TODO el texto proporcionado y extrae de forma exhaustiva obligatoriamente sin inventar ningun dato ni informacion: 
+    Analiza TODO el texto proporcionado y extrae de forma exhaustiva el contenido de la pagina sin inventar ningun dato ni informacion: 
 
     - Usa <h3> para las categorías principales (ej: 'Propuesta Única', 'Contenido del Programa', 'Bonos Exclusivos', 'Perfil del Instructor', 'Garantías de Seguridad').
     - <p> para las introducciones y explicaciones de contexto.
@@ -239,9 +239,26 @@ const generateFullStrategy = async (projectData) => {
                     "magnet": { "label": "3. Regalo", "title": "Descarga", "type": "magnet", "content": { "h1": "...", "h2": "..." }, "strategyText": "..." }
                 }
             },
-            "content": [ { "id": 1, "title": "Título SEO", "keyword": "Palabra clave", "strategy": "Enfoque" } ],
+            "content": [ 
+              { 
+                "id": "number", 
+                "title": "Título magnético e informativo (ESTRICTAMENTE < 70 caracteres)", 
+                "keyword": "Long-tail keyword realista", 
+                "searchVolume": "Volumen mensual (ej: 500-1K)", 
+                "strategy": "Enfoque del contenido viral" 
+              } 
+            ], // REGLA: Genera una lista de MÍNIMO 10 artículos únicos.
             "emails": {
-               "nurture": [ { "day": "Día 0", "subject": "...", "type": "Valor", "objective": "...", "bodyPreview": "..." } ]
+               "nurture": [ 
+                  { 
+                    "id": number, 
+                    "day": "Día X (0 a 6)", 
+                    "subject": "Icono llamativo + Título magnético e informativo (ESTRICTAMENTE < 70 caracteres)", 
+                    "type": "Pilar Estratégico (Entrega de Valor, Agitación del Dolor, Prueba Social, Mecanismo Único, Lanzamiento, Escasez o Cierre)", 
+                    "objective": "Enfoque estratégico / Lógica persuasiva del día", 
+                    "bodyPreview": "Introducción del mensaje" 
+                  } 
+               ] // REGLA: Genera EXACTAMENTE 7 correos (Día 0 al 6) siguiendo esta secuencia lógica: Día 0: Valor, Día 1: Dolor, Día 2: Prueba Social, Día 3: Mecanismo Único, Día 4: Lanzamiento, Día 5: Escasez, Día 6: Cierre.
             },
             "whatsapp": [ { "id": 1, "title": "Bienvenida", "objective": "...", "messages": [ { "role": "agent", "text": "..." } ] } ]
           }

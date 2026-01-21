@@ -1,6 +1,7 @@
 import React from 'react';
-import { Calendar, Sparkles, Check, Info, Crown, Lock, PlayCircle } from 'lucide-react';
-import { PlanFeatures, PlanLimits, Plan } from '../../../../types';
+import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { PlanFeatures, PlanLimits, Plan, Article } from '../../../../types';
 
 interface ProjectStrategy_EvergreenProps {
     evergreenData: any[];
@@ -9,166 +10,195 @@ interface ProjectStrategy_EvergreenProps {
     setActiveEvergreenEmail: (idx: number) => void;
     onUpgrade: () => void;
     
-    // Props de límites
+    // Props de límites y datos vinculados
     features?: PlanFeatures;
     planLimits?: PlanLimits;
     nextPlan?: Plan | null;
+    linkedArticles?: Article[];
 }
 
 export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps> = ({
-    evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan
+    evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan, linkedArticles = []
 }) => {
-    
-    return (
-        <div id="psd-evergreen-section" className="pt-12">
-            {/* --- ENCABEZADO ESTRATÉGICO DE CLASE MUNDIAL --- */}
-            <div id="psd-evergreen-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
-                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
-                    <Sparkles className="w-4 h-4" /> Correos Electrónicos a largo plazo
+    const navigate = useNavigate();
+
+    // Si no hay artículos, mostramos el estado vacío con invitación a generar contenido
+    if (linkedArticles.length === 0) {
+        return (
+            <div id="psd-evergreen-empty" className="space-y-12 animate-in fade-in duration-500 pt-8">
+                <div id="psd-evergreen-header" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
+                    <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
+                        <Sparkles className="w-4 h-4" /> Correos Electrónicos a largo plazo
+                    </div>
+                    <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
+                        Secuencia de Autoridad <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">(Evergreen)</span>
+                    </h3>
+                    <p className="text-gray-300 text-xl font-light border-l-4 border-orange-500 pl-8 py-2">
+                        Esta secuencia se construye automáticamente a partir de los artículos que generes en la sección "Contenido". Cada artículo se transforma en un punto de contacto para nutrir a tu audiencia.
+                    </p>
                 </div>
-                
-                <h3 id="psd-evergreen-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
-                    Secuencia de Autoridad <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">(30 Días)</span>
+
+                <div className="bg-[#111] p-16 rounded-[3rem] border border-white/5 text-center space-y-8 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-10 opacity-5">
+                        <BookOpen className="w-32 h-32 text-orange-500" />
+                    </div>
+                    <div className="w-20 h-20 bg-orange-500/10 rounded-3xl flex items-center justify-center text-orange-500 mx-auto border border-orange-500/20 shadow-lg">
+                        <Info className="w-10 h-10" />
+                    </div>
+                    <div className="max-w-md mx-auto">
+                        <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-4">Sin contenidos generados</h4>
+                        <p className="text-gray-400 font-medium leading-relaxed">
+                            Para activar la secuencia Evergreen, primero debes redactar al menos un artículo SEO en la pestaña "Generar Estrategia de Contenidos".
+                        </p>
+                    </div>
+                    <button 
+                        onClick={() => navigate({ search: "?section=content" })}
+                        className="px-10 py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 mx-auto transform hover:scale-[1.03]"
+                    >
+                        Ir a Generar Contenidos <ArrowRight className="w-5 h-5" />
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // Mapeamos los artículos reales a una secuencia dinámica
+    const dynamicSequence = linkedArticles.map((article, idx) => ({
+        id: article.id,
+        day: `Día ${8 + (idx * 7)}`,
+        subject: `[LECTURA RECOMENDADA] ${article.title}`,
+        type: 'Evergreen / Valor',
+        objective: 'Construir autoridad de marca enviando tráfico al blog de tu landing page.',
+        bodyPreview: `Hola ${avatars[0]?.name.split(' ')[0] || 'amiga'}, hoy quiero compartir contigo un tema vital que acabamos de publicar en nuestro portal: "${article.title}". Entender esto es fundamental para tu éxito...`,
+        articleSlug: article.slug
+    }));
+
+    const activeEmail = dynamicSequence[activeEvergreenEmail] || dynamicSequence[0];
+
+    return (
+        <div id="psd-evergreen-section" className="space-y-12 animate-in fade-in duration-500 pt-8">
+            {/* ENCABEZADO ESTRATÉGICO */}
+            <div id="psd-evergreen-header" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
+                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
+                    <Sparkles className="w-4 h-4" /> Secuencia dinámica activa
+                </div>
+                <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
+                    Tu Estrategia <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">Evergreen de 30 Días</span>
                 </h3>
-                
                 <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
                     <p className="border-l-4 border-blue-500 pl-8 py-2">
-                        Esta secuencia te permite generar contenido informativo y motivacional que nutrirá a tu audiencia a largo plazo, construyendo una autoridad inquebrantable.
+                        Tienes {linkedArticles.length} artículos vinculados. El sistema ha programado estos correos para enviarse a partir del Día 8, manteniendo tu oferta presente sin ser invasivo.
                     </p>
                     <p className="border-l-4 border-orange-500 pl-8 py-2">
-                        Mantenemos tu marca en la mente del consumidor de forma estratégica, aportando valor constante hasta que el lead esté listo para realizar la compra.
+                        Cada clic hacia tu blog no solo educa al prospecto, sino que aumenta el deseo de adquirir tu solución profesional definitiva.
                     </p>
                 </div>
             </div>
 
-            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
-            <div id="psd-evergreen-video-block" className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
-                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
-                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
-                        <iframe 
-                            className="w-full h-full"
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
-                            title="Estrategia de Nutrición Evergreen" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
-                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
-                            <PlayCircle className="w-5 h-5 text-indigo-400" />
-                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo Evergreen</span>
+            {/* CUADRÍCULA DE 2 COLUMNAS: LISTA + VISTA PREVIA */}
+            <div id="psd-evergreen-grid" className="grid lg:grid-cols-2 gap-8 max-w-[85em] mx-auto">
+                
+                {/* COLUMNA IZQUIERDA: LISTADO DE CORREOS */}
+                <div id="psd-evergreen-list-col" className="bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col h-full">
+                    <div className="flex items-center gap-4 mb-10">
+                        <div className="p-3 bg-orange-900/30 rounded-2xl text-orange-400 border border-orange-900/50">
+                            <Mail className="w-7 h-7" />
+                        </div>
+                        <div>
+                            <h4 className="text-2xl font-bold text-white tracking-tight">Cronograma de Autoridad</h4>
+                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-1">Sincronizado con tus Artículos</p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4 overflow-y-auto max-h-[600px] custom-scrollbar pr-2">
+                        {dynamicSequence.map((email, idx) => (
+                            <div 
+                                key={email.id}
+                                onClick={() => setActiveEvergreenEmail(idx)}
+                                className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer flex items-center justify-between gap-5 ${activeEvergreenEmail === idx ? 'bg-orange-900/10 border-orange-500/30 shadow-xl' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xs font-black shrink-0 transition-colors ${activeEvergreenEmail === idx ? 'bg-orange-500 text-white' : 'bg-gray-800 text-gray-500'}`}>
+                                        {email.day.split(' ')[1]}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className={`text-[11px] font-black uppercase tracking-widest mb-1 ${activeEvergreenEmail === idx ? 'text-orange-400' : 'text-gray-600'}`}>
+                                            {email.day}
+                                        </p>
+                                        <h5 className={`font-bold text-lg leading-tight truncate ${activeEvergreenEmail === idx ? 'text-white' : 'text-gray-400'}`}>
+                                            {email.subject}
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div className="shrink-0">
+                                    <Check className={`w-5 h-5 ${activeEvergreenEmail === idx ? 'text-orange-500' : 'text-gray-800'}`} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* COLUMNA DERECHA: VISTA PREVIA DEL CORREO */}
+                <div id="psd-evergreen-preview-col" className="bg-[#0b0b0b] border border-gray-800 rounded-[3rem] p-10 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl">
+                    <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+                        <Calendar className="w-40 h-40 text-orange-500" />
+                    </div>
+
+                    <div className="relative z-10 flex flex-col h-full">
+                        <div className="mb-10">
+                            <div className="flex justify-between items-center mb-4">
+                                <span className="bg-orange-900/20 text-orange-400 border border-orange-900/50 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                    {activeEmail.type}
+                                </span>
+                                <span className="text-gray-600 font-mono text-xs font-bold">{activeEmail.day}</span>
+                            </div>
+                            <h3 className="text-3xl md:text-4xl font-black text-white leading-tight">{activeEmail.subject}</h3>
+                        </div>
+
+                        <div className="bg-orange-900/10 border border-orange-500/20 p-6 rounded-2xl mb-10 flex gap-4">
+                            <Info className="w-6 h-6 text-orange-400 shrink-0" />
+                            <p className="text-gray-300 text-base leading-relaxed">
+                                <span className="font-bold text-orange-200 block mb-1">Estrategia Detrás:</span>
+                                {activeEmail.objective}
+                            </p>
+                        </div>
+
+                        <div className="bg-white rounded-2xl shadow-2xl p-10 text-gray-900 font-serif leading-relaxed text-xl flex-1 border-2 border-gray-200 flex flex-col">
+                            <div className="border-b border-gray-100 pb-6 mb-8 text-sm text-gray-400 font-sans italic">
+                                <p>De: Tu Marca Profesional</p>
+                                <p>Asunto: {activeEmail.subject}</p>
+                            </div>
+
+                            <p className="mb-6">Hola {avatars[0]?.name.split(' ')[0] || 'amiga'},</p>
+                            <p className="mb-8">{activeEmail.bodyPreview}</p>
+                            
+                            <div className="my-10 text-center">
+                                <div className="inline-block px-10 py-5 bg-orange-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl pointer-events-none">
+                                    Hacer clic para leer el artículo
+                                </div>
+                                <p className="text-gray-400 text-xs mt-4 font-sans italic">El enlace dirigirá automáticamente al blog de tu landing page.</p>
+                            </div>
+
+                            <div className="mt-auto pt-8 border-t border-gray-100 font-sans">
+                                <p className="text-base text-gray-500">Un abrazo,<br/><strong>Tu Equipo.</strong></p>
+                            </div>
+                        </div>
+
+                        <div className="mt-10">
+                            <button 
+                                onClick={() => navigate('/dashboard/email')}
+                                className="w-full py-5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 transform active:scale-95"
+                            >
+                                <PenTool className="w-5 h-5" /> Configurar en Systeme.io
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div id="psd-evergreen-card" className="relative w-full bg-gray-900 border border-gray-800 rounded-3xl p-8 overflow-hidden group shadow-2xl">
-                <div className="grid lg:grid-cols-2 gap-8">
-                    {/* LEFT: LIST */}
-                    <div id="psd-evergreen-list-col" className="h-full flex flex-col gap-6">
-                        <div id="psd-evergreen-list-card" className="bg-gray-900 p-6 rounded-2xl border border-gray-800 flex flex-col h-full shadow-xl">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 bg-orange-900/30 rounded-lg text-orange-400 border border-orange-900/50"><Calendar className="w-6 h-6" /></div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-white">Cronograma de 30 Días</h3>
-                                    <p className="text-sm text-gray-400">Nutrición masiva de audiencia.</p>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4 flex-1 overflow-y-auto max-h-[600px] custom-scrollbar pr-2">
-                                {evergreenData.map((email: any, idx: number) => {
-                                    const isGap = idx === 3; 
-                                    return (
-                                        <React.Fragment key={email.id}>
-                                            {isGap && (
-                                                <div className="flex flex-col items-center gap-1 py-2 opacity-30">
-                                                    <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                                                    <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                                                    <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                                                </div>
-                                            )}
-                                            <div 
-                                                id={`psd-evergreen-item-${idx}`}
-                                                onClick={() => setActiveEvergreenEmail(idx)}
-                                                className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all cursor-pointer group flex items-start justify-between gap-4 ${activeEvergreenEmail === idx ? 'bg-orange-900/10 border-orange-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800'}`}
-                                            >
-                                                <div className="flex items-center gap-4">
-                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${activeEvergreenEmail === idx ? 'bg-orange-500 text-white' : 'bg-gray-800 text-gray-400'}`}>
-                                                        {email.day.replace('Día ', '')}
-                                                    </div>
-                                                    <div>
-                                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">{email.day}</span>
-                                                        <h4 className={`text-lg font-bold leading-snug ${activeEvergreenEmail === idx ? 'text-orange-200' : 'text-gray-300'}`}>{email.subject}</h4>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all mt-2 ${activeEvergreenEmail === idx ? 'border-orange-500 bg-orange-500' : 'border-gray-600'}`}>
-                                                    {activeEvergreenEmail === idx && <Check className="w-4 h-4 text-white font-bold" />}
-                                                </div>
-                                            </div>
-                                        </React.Fragment>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* RIGHT: DETAIL PANEL */}
-                    <div id="psd-evergreen-detail-card" className="bg-black/40 border border-gray-800 rounded-2xl p-8 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl">
-                        <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
-                            <Calendar className="w-32 h-32 text-orange-500" />
-                        </div>
-
-                        <div className="relative z-10 flex flex-col h-full">
-                            <div className="mb-8">
-                                <div className="flex items-center justify-between mb-4">
-                                    <span className="bg-orange-900/20 text-orange-400 border border-orange-900/50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                                        {evergreenData[activeEvergreenEmail].type}
-                                    </span>
-                                    <span className="text-gray-500 text-xs font-mono">{evergreenData[activeEvergreenEmail].day}</span>
-                                </div>
-                                
-                                <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">{evergreenData[activeEvergreenEmail].subject}</h3>
-                            </div>
-
-                            <div className="bg-orange-900/10 border border-orange-500/20 p-6 rounded-xl mb-8">
-                                <div className="flex gap-4">
-                                    <div className="p-2 bg-orange-500/20 rounded-lg h-fit"><Info className="w-5 h-5 text-orange-200" /></div>
-                                    <div>
-                                        <span className="text-orange-200 font-bold block mb-1">Misión de este correo</span>
-                                        <p className="text-gray-300 text-base font-light leading-relaxed">
-                                            {evergreenData[activeEvergreenEmail].objective}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="bg-white text-gray-900 rounded-xl p-8 shadow-2xl relative overflow-hidden font-serif leading-relaxed text-lg flex-1 border-2 border-gray-200">
-                                <div className="border-b border-gray-200 pb-4 mb-6 text-sm text-gray-500 font-sans">
-                                    <p><strong>De:</strong> Tu Nombre &lt;info@tuempresa.com&gt;</p>
-                                    <p><strong>Para:</strong> {avatars[0].name}</p>
-                                </div>
-
-                                <p className="mb-4 font-bold">Hola {avatars[0].name.split(' ')[0]},</p>
-                                <p className="mb-6">{evergreenData[activeEvergreenEmail].bodyPreview}</p>
-                                
-                                <div className="my-8 p-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg text-center text-gray-500 text-sm italic">
-                                    [... El sistema generará este contenido educativo para generar autoridad ...]
-                                </div>
-
-                                <p>Atentamente,<br/>Tu Equipo.</p>
-                            </div>
-
-                            <div className="mt-8 pt-8 border-t border-gray-800">
-                                <button 
-                                    onClick={() => {}} 
-                                    className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg hover:scale-[1.02] bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white shadow-orange-900/20"
-                                >
-                                    <Crown className="w-6 h-6" /> Generar Estrategia Evergreen
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            
+            {/* FOOTER INFORMATIVO */}
+            <div className="max-w-[70em] mx-auto text-center pt-12 border-t border-white/5 opacity-40">
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500">Sistema Evergreen Automatizado v2.9 — Motor de Autoridad Dinámico</p>
             </div>
         </div>
     );

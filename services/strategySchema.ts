@@ -382,7 +382,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 traffic: 50,
                 difficulty: 20,
                 keyword: "que es microblading cejas",
-                searchVolume: "De 100 a 1 K",
+                searchVolume: "500 - 1K",
                 objective: "Educación inicial para el futuro artista",
                 strategy: "Definimos la técnica desde una perspectiva profesional para que el alumno entienda el potencial del negocio. Posicionamos el microblading como la habilidad mejor pagada en estética actualmente."
             },
@@ -392,27 +392,27 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 traffic: 40,
                 difficulty: 15,
                 keyword: "desventajas de microblading",
-                searchVolume: "De 10 a 100",
-                objective: "Transparencia y profesionalismo",
+                searchVolume: "100 - 500",
+                objective: "Transparencia and profesionalismo",
                 strategy: "Abordamos los retos y cuidados necesarios con honestidad. El objetivo es filtrar a alumnos comprometidos y demostrar que la formación adecuada elimina la mayoría de estos riesgos."
             },
             {
                 id: 3,
-                title: "¿Cuál es la diferencia entre Microblading y Microshading y Micropigmentacion?",
+                title: "Diferencia entre Microblading, Microshading y Micropigmentación",
                 traffic: 65,
                 difficulty: 30,
-                keyword: "diferencia entre microblading y microshading y micropigmentacion",
-                searchVolume: "De 100 a 1 K",
+                keyword: "diferencia microblading microshading micropigmentacion",
+                searchVolume: "800 - 2K",
                 objective: "Claridad técnica y autoridad",
                 strategy: "Desglosamos las terminologías para que el alumno aprenda a asesorar a sus futuros clientes. Esto establece una base de autoridad técnica indispensable para cobrar precios premium."
             },
             {
                 id: 4,
-                title: "¿Cuánto dura el microblading?",
+                title: "¿Cuánto dura el microblading? Realidad y retoques",
                 traffic: 75,
                 difficulty: 40,
                 keyword: "cuánto dura el microblading",
-                searchVolume: "De 1 K a 10 k",
+                searchVolume: "2K - 5K",
                 objective: "Expectativas y rentabilidad",
                 strategy: "Explicamos el ciclo de vida del servicio. Esto ayuda al alumno a entender la necesidad de retoques y cómo fidelizar clientes para generar ingresos recurrentes en su negocio."
             },
@@ -422,17 +422,17 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 traffic: 85,
                 difficulty: 50,
                 keyword: "microblading cejas precio",
-                searchVolume: "De 1 K a 10 k",
+                searchVolume: "1.5K - 3K",
                 objective: "Análisis de mercado y viabilidad",
                 strategy: "Mostramos el rango de precios del mercado para que el alumno visualice su retorno de inversión. Motivamos la profesionalización como vía para cobrar en el rango más alto."
             },
             {
                 id: 6,
-                title: "¿Cómo se ve el microblading después de 10 días?",
+                title: "Microblading: El proceso de curación en los primeros 10 días",
                 traffic: 30,
                 difficulty: 10,
-                keyword: "cómo se ve el microblading después de 10 días",
-                searchVolume: "De 0 a 10",
+                keyword: "curacion microblading dia a dia",
+                searchVolume: "300 - 600",
                 objective: "Conocimiento del proceso de curación",
                 strategy: "Es fundamental que el artista sepa qué esperar. Educamos sobre la fase de oscurecimiento y regeneración para que el alumno pueda dar seguridad total a sus clientes."
             },
@@ -442,17 +442,17 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 traffic: 80,
                 difficulty: 45,
                 keyword: "precio de micropigmentación de cejas",
-                searchVolume: "De 1 K a 10 k",
+                searchVolume: "1K - 2.5K",
                 objective: "Posicionamiento High Ticket",
                 strategy: "Comparamos el costo del servicio vs la rentabilidad para el artista. Enfocamos el contenido en cómo vender el valor del resultado final en lugar de competir por el precio más bajo."
             },
             {
                 id: 8,
-                title: "¿Cuántos días debo cuidar mis cejas después del microblading?",
+                title: "Guía de cuidados: ¿Cuántos días proteger el microblading?",
                 traffic: 55,
                 difficulty: 25,
-                keyword: "cuántos días debo cuidar mis cejas después del microblading",
-                searchVolume: "De 10 a 100",
+                keyword: "cuidados microblading cejas",
+                searchVolume: "500 - 1.2K",
                 objective: "Bioseguridad y éxito del procedimiento",
                 strategy: "Un artista profesional se diferencia por su protocolo post-venta. Establecemos los estándares de oro en cuidados para garantizar la máxima retención del pigmento."
             },
@@ -461,8 +461,8 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 title: "¿Qué opinan los dermatólogos del microblading?",
                 traffic: 25,
                 difficulty: 15,
-                keyword: "qué opinan los dermatólogos del microblading",
-                searchVolume: "De 0 a 10",
+                keyword: "seguridad microblading dermatologos",
+                searchVolume: "200 - 400",
                 objective: "Derribar miedos de salud",
                 strategy: "Aportamos validación médica sobre la seguridad de la técnica cuando se realiza con pigmentos certificados y normas de higiene, calmando las dudas de seguridad del alumno."
             },
@@ -471,18 +471,18 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 title: "¿Por qué no deberías hacerte el microblading de cejas?",
                 traffic: 20,
                 difficulty: 5,
-                keyword: "por qué no deberías hacerte el microblading de cejas",
-                searchVolume: "De 0 a 10",
+                keyword: "contraindicaciones microblading",
+                searchVolume: "400 - 900",
                 objective: "Filtro de clientes y ética profesional",
                 strategy: "Utilizamos el 'marketing negativo' para explicar contraindicaciones reales. Esto enseña al alumno a ser un profesional ético que sabe cuándo decir 'no', aumentando su prestigio."
             },
             {
                 id: 11,
-                title: "¿Cuándo no se recomienda microblading?",
+                title: "¿Cuándo no se recomienda el microblading?",
                 traffic: 15,
                 difficulty: 5,
-                keyword: "cuándo no se recomienda microblading",
-                searchVolume: "De 0 a 10",
+                keyword: "casos donde no hacer microblading",
+                searchVolume: "150 - 300",
                 objective: "Prevención y seguridad legal",
                 strategy: "Listamos casos clínicos (embarazo, diabetes no controlada, etc.) donde se desaconseja la técnica. Vital para que el alumno opere con seguridad y evite complicaciones legales."
             },
@@ -491,18 +491,18 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 title: "¿Cuál es la ceja permanente de aspecto más natural?",
                 traffic: 45,
                 difficulty: 20,
-                keyword: "cuál es la ceja permanente de aspecto más natural",
-                searchVolume: "De 0 a 10",
+                keyword: "cejas naturales permanentes",
+                searchVolume: "500 - 1K",
                 objective: "Venta del beneficio estético",
                 strategy: "Enfatizamos el trazo hiperrealista del microblading frente a técnicas más pesadas. Orientamos al alumno a especializarse en la naturalidad, que es lo más demandado hoy."
             },
             {
                 id: 13,
-                title: "¿Qué es mejor, cejas pelo a pelo o microblading?",
+                title: "Comparativa: ¿Cejas pelo a pelo o Microblading?",
                 traffic: 50,
                 difficulty: 20,
-                keyword: "que es mejor cejas pelo a pelo o microblading",
-                searchVolume: "De 0 a 10",
+                keyword: "cejas pelo a pelo vs microblading",
+                searchVolume: "600 - 1.5K",
                 objective: "Claridad en la oferta de servicios",
                 strategy: "Aclara la confusión común entre extensiones de cejas y microblading. Ayuda al alumno a definir su catálogo de servicios y a educar al mercado sobre la superioridad del microblading."
             }
@@ -512,58 +512,58 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 {
                     id: 1,
                     day: "Día 0",
-                    subject: "Aquí tienes tu acceso: Guía de Inicio Rápido en Microblading 🎁",
+                    subject: "🎁 Tu regalo: Guía de Inicio Rápido en Microblading",
                     type: "Entrega de Valor",
                     objective: "Establecer reciprocidad y cumplir la promesa inmediata entregando el Lead Magnet.",
-                    bodyPreview: "Hola [Nombre], tal como te prometí, aquí tienes el acceso directo a la guía que te enseñará a dar tus primeros pasos..."
+                    bodyPreview: "Hola [Nombre], tal como te prometí, aquí tienes el acceso directo a la guía..."
                 },
                 {
                     id: 2,
                     day: "Día 1",
-                    subject: "¿Cansada de trabajar 10h y no ver frutos reales? 😫",
+                    subject: "😫 ¿Cansada de trabajar 10h y no ver frutos reales?",
                     type: "Agitación del Dolor",
-                    objective: "Conectar emocionalmente con el cansancio sistémico del avatar y posicionar el alto valor como salida.",
-                    bodyPreview: "Hola [Nombre], entiendo perfectamente esa sensación de darlo todo y que la cuenta bancaria no se mueva. El problema no es tu esfuerzo, es el vehículo..."
+                    objective: "Conectar emocionalmente con el cansancio sistémico del avatar.",
+                    bodyPreview: "Hola [Nombre], entiendo perfectamente esa sensación de darlo todo..."
                 },
                 {
                     id: 3,
                     day: "Día 2",
-                    subject: "Cómo Maria pasó de 0 a $2,000/mes con cejas 📈",
+                    subject: "📈 Cómo Maria pasó de 0 a $2,000/mes con cejas",
                     type: "Prueba Social",
-                    objective: "Demostrar factibilidad mediante un caso de éxito real que genere deseo y credibilidad.",
-                    bodyPreview: "Hola [Nombre], hoy quiero contarte la historia de una de mis alumnas que, como tú, tenía miedo de empezar pero decidió confiar en el proceso..."
+                    objective: "Demostrar factibilidad mediante un caso de éxito real.",
+                    bodyPreview: "Hola [Nombre], hoy quiero contarte la historia de una de mis alumnas..."
                 },
                 {
                     id: 4,
                     day: "Día 3",
-                    subject: "La verdad sobre el Microblading (y por qué otros métodos fallan) 💎",
+                    subject: "💎 La verdad sobre el Microblading (y por qué otros fallan)",
                     type: "Mecanismo Único",
-                    objective: "Explicar la diferenciación del Método Brows360 para justificar la inversión premium.",
-                    bodyPreview: "Hola [Nombre], ¿sabes por qué muchas esteticistas no logran resultados naturales? La clave está en el visajismo avanzado que te enseñaré..."
+                    objective: "Explicar la diferenciación del Método Brows360.",
+                    bodyPreview: "Hola [Nombre], ¿sabes por qué muchas esteticistas no logran resultados?"
                 },
                 {
                     id: 5,
                     day: "Día 4",
-                    subject: "¡INSCRIPCIONES ABIERTAS! Domina la Certificación Pro 🚀",
+                    subject: "🚀 ¡INSCRIPCIONES ABIERTAS! Domina la Certificación Pro",
                     type: "Lanzamiento / Oferta",
-                    objective: "Presentar oficialmente el programa completo con todos los beneficios y el llamado a la acción.",
-                    bodyPreview: "Hola [Nombre], llegó el momento. Las puertas de la Certificación Expert Microblading están abiertas para quienes buscan el siguiente nivel..."
+                    objective: "Presentar oficialmente el programa completo con todos los beneficios.",
+                    bodyPreview: "Hola [Nombre], llegó el momento. Las puertas están abiertas..."
                 },
                 {
                     id: 6,
                     day: "Día 5",
-                    subject: "Tus 3 Bonos Exclusivos expiran en pocas horas... ⏳",
+                    subject: "⏳ Tus 3 Bonos Exclusivos expiran en pocas horas...",
                     type: "Escasez / Valor",
-                    objective: "Añadir presión positiva mediante la pérdida de bonos adicionales por tiempo limitado.",
-                    bodyPreview: "Hola [Nombre], no quiero que te quedes fuera de los bonos de acción rápida: el kit de pigmentos y la asesoría personalizada están esperándote..."
+                    objective: "Añadir presión positiva mediante la pérdida de bonos adicionales.",
+                    bodyPreview: "Hola [Nombre], no quiero que te quedes fuera de los bonos..."
                 },
                 {
                     id: 7,
                     day: "Día 6",
-                    subject: "ÚLTIMA LLAMADA: Tu futuro profesional empieza aquí o termina hoy",
+                    subject: "⚠️ ÚLTIMA LLAMADA: Tu futuro profesional empieza hoy",
                     type: "Cierre / Urgencia",
-                    objective: "Llamada final a la acción antes del cierre de inscripciones o fin de la oferta especial.",
-                    bodyPreview: "Hola [Nombre], esta es mi última invitación. Mañana el precio subirá y esta oportunidad de transformación no volverá a estar disponible..."
+                    objective: "Llamada final a la acción antes del cierre de inscripciones.",
+                    bodyPreview: "Hola [Nombre], esta es mi última invitación. Mañana el precio subirá..."
                 }
             ],
             evergreen: [

@@ -245,7 +245,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
             <div className="min-h-screen bg-black flex items-center justify-center text-white">
                 <div className="text-center">
                     <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
-                    <p className="text-gray-400">Cargando estrategia maestra...</p>
+                    <p className="text-gray-400">Cargando estrategia personalizada...</p>
                 </div>
             </div>
         );
@@ -489,18 +489,17 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
                         {activeSection === 'evergreen' && (
                             <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                {strategyData.modules?.emails?.evergreen && (
-                                    <ProjectStrategy_Evergreen 
-                                        evergreenData={strategyData.modules.emails.evergreen}
-                                        avatars={strategyData.avatars}
-                                        activeEvergreenEmail={activeEvergreenEmail}
-                                        setActiveEvergreenEmail={setActiveEvergreenEmail}
-                                        features={user.planLimits?.features}
-                                        onUpgrade={() => setShowUpgradeModal(true)}
-                                        planLimits={user.planLimits}
-                                        nextPlan={nextPlan}
-                                    />
-                                )}
+                                <ProjectStrategy_Evergreen 
+                                    evergreenData={strategyData.modules.emails.evergreen}
+                                    avatars={strategyData.avatars}
+                                    activeEvergreenEmail={activeEvergreenEmail}
+                                    setActiveEvergreenEmail={setActiveEvergreenEmail}
+                                    features={user.planLimits?.features}
+                                    onUpgrade={() => setShowUpgradeModal(true)}
+                                    planLimits={user.planLimits}
+                                    nextPlan={nextPlan}
+                                    linkedArticles={linkedArticles}
+                                />
                             </div>
                         )}
 
