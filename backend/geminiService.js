@@ -173,14 +173,14 @@ const generateFullStrategy = async (projectData) => {
     const { niche, productName, brandTone, fullPrice, commissionRate, leadMagnetType } = projectData;
 
     try {
-        // ETAPA 1
+        // ETAPA 1: Cambio a gemini-3-flash-preview para mayor rapidez y evitar timeouts
         const step1Prompt = `Estratega Senior. Genera ADN y 3 Avatares para "${productName}". Nicho: "${niche}". Tono: "${brandTone}". Responde JSON...`;
-        const step1Res = await generateContent('gemini-3-pro-preview', step1Prompt, { responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 8000 } });
+        const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 8000 } });
         const step1Data = JSON.parse(step1Res.trim());
 
-        // ETAPA 2
+        // ETAPA 2: Cambio a gemini-3-flash-preview para mayor estabilidad
         const step2Prompt = `Basado en avatares: ${JSON.stringify(step1Data.avatars)}. Genera psicología de venta para "${productName}". Responde JSON...`;
-        const step2Res = await generateContent('gemini-3-pro-preview', step2Prompt, { responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 6000 } });
+        const step2Res = await generateContent('gemini-3-flash-preview', step2Prompt, { responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 6000 } });
         const step2Data = JSON.parse(step2Res.trim());
 
         // ETAPA 3

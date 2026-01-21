@@ -89,7 +89,7 @@ const VisualEditor = ({ value, onChange, className, placeholder }: VisualEditorP
                 ) : (
                     <div 
                         ref={contentRef}
-                        className="prose prose-invert prose-sm max-w-none p-3 outline-none min-h-[150px] text-gray-300"
+                        className="prose prose-invert max-w-none p-3 outline-none min-h-[150px] text-gray-300 text-lg leading-loose"
                         contentEditable
                         onInput={handleInput}
                         suppressContentEditableWarning={true}
@@ -139,7 +139,10 @@ export const ProjectWizard: React.FC = () => {
     const [painPoints, setPainPoints] = useState<string[]>([]);
     const [keyBenefits, setKeyBenefits] = useState<string[]>([]);
     
-    const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([{ label: 'Checkout Principal', url: '' }]);
+    const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([
+        { label: 'Hotlink Principal Precio Full', url: '' },
+        { label: 'Hotlink con Descuento', url: '' }
+    ]);
     const [originalStrategyJson, setOriginalStrategyJson] = useState<any>(null);
 
     const commissionRate = fullPrice > 0 ? (commissionValue / fullPrice) * 100 : 0;
@@ -196,7 +199,10 @@ export const ProjectWizard: React.FC = () => {
                 setMainGoal(proj.mainGoal || 'Venta Directa');
                 setPainPoints(proj.painPoints || []);
                 setKeyBenefits(proj.keyBenefits || []);
-                setAffiliateLinks(proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks : [{ label: 'Checkout Principal', url: '' }]);
+                setAffiliateLinks(proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks : [
+                    { label: 'Hotlink Principal Precio Full', url: '' },
+                    { label: 'Hotlink con Descuento', url: '' }
+                ]);
                 setIsMaster(!!proj.isMaster);
                 setOriginalStrategyJson(proj.strategy_json);
             }
@@ -488,13 +494,6 @@ export const ProjectWizard: React.FC = () => {
                                         <option value="Masterclass en Vivo">Masterclass en Vivo</option>
                                         <option value="Plantilla / Checklist">Plantilla / Checklist</option>
                                     </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Página de Ventas Actual (Opcional)</label>
-                                    <div className="relative">
-                                        <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                                        <input type="text" value={salesPageUrl} onChange={e => setSalesPageUrl(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-10 py-3 text-white focus:border-primary outline-none transition-all" placeholder="https://..." />
-                                    </div>
                                 </div>
                             </div>
                         </div>
