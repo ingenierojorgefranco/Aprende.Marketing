@@ -82,13 +82,22 @@ const analyzeWebsiteContent = async (rawText) => {
     Actúa como un experto en Ingeniería Inversa de Marketing y Copywriting Senior. Tu misión es desglosar por completo una página de ventas para alimentar un sistema de IA posterior con el máximo contexto posible.
     
     Analiza TODO el texto proporcionado y extrae de forma exhaustiva: 
-    1. Propuesta de valor y promesa irresistible principal.
-    2. Desglose detallado de Beneficios Racionales (lo que obtiene) y Beneficios Emocionales (cómo se sentirá).
-    3. Perfil de Autoridad del Mentor/Instructor: Extrae su experiencia, logros mencionados y por qué es una autoridad en el tema.
-    4. Estructura del Programa: Módulos, lecciones o fases paso a paso que componen el producto.
-    5. Entregables y Bonos Detallados: Extrae el nombre de cada bono, su propósito y su valor percibido si se menciona.
-    6. Garantías y disparadores de escasez o urgencia.
-    
+
+    - Usa <h3> para las categorías principales (ej: 'Propuesta Única', 'Contenido del Programa', 'Bonos Exclusivos', 'Perfil del Instructor', 'Garantías de Seguridad').
+    - <p> para las introducciones y explicaciones de contexto.
+    - Usa <ul> y <li> para listar cada módulo, cada lección y cada bono encontrado con su respectiva descripción detallada.
+      REGLA DE ORO: Si encuentras listas de beneficios o contenido en la web original, NO los resumas. Transcríbelos íntegramente en los items de la lista HTML para proporcionar el máximo contexto al sistema.",
+    - Haz el informe con un lenguaje natural, dirigido a una persona que quiere conocer todo acerca de este producto digital.
+
+    1. Introducción del Producto donde explicas brevemente el producto.
+    2. Objetivos del Producto Digital.
+    3. Propuesta de valor y promesa irresistible principal.
+    4. Desglose detallado de Beneficios Racionales (lo que obtiene) y Beneficios Emocionales (cómo se sentirá).
+    5. Perfil de Autoridad del Mentor/Instructor: Extrae su experiencia, logros mencionados y por qué es una autoridad en el tema.
+    6. Estructura del Programa: Módulos, lecciones o fases paso a paso que componen el producto.
+    7. Entregables y Bonos Detallados: Extrae el nombre de cada bono, su propósito y su valor percibido si se menciona.
+    8. Garantías y disparadores de escasez o urgencia.
+        
     Responde EXCLUSIVAMENTE en formato JSON válido:
     {
       "productName": "Nombre comercial del producto",
