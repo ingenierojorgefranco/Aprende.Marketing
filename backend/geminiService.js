@@ -79,23 +79,29 @@ const analyzeWebsiteContent = async (rawText) => {
     }
 
     const prompt = `
-    Actúa como un experto en Ingeniería Inversa de Marketing y Copywriting Senior. Tu misión es desglosar por completo una página de ventas para alimentar un sistema de IA posterior con el máximo contexto posible.
-    
-    Analiza TODO el texto proporcionado y extrae de forma exhaustiva: 
-    1. Propuesta de valor y promesa principal.
-    2. Características técnicas y funcionales detalladas.
-    3. Módulos, lecciones o partes que componen el producto.
-    4. Bonos, garantías y elementos de escasez.
-    5. Beneficios emocionales y racionales.
-    
+    Actúa como un Arquitecto de Ingeniería Inversa en Marketing y Copywriting Senior. Tu misión es desglosar por completo esta página de ventas para alimentar un sistema de IA posterior con el máximo contexto técnico y persuasivo posible.
+
+    Analiza TODO el texto proporcionado y extrae de forma exhaustiva los siguientes puntos. Tienes la OBLIGACIÓN TÉCNICA de no resumir, sino transcribir detalles específicos encontrados:
+
+    1. PROPUESTA DE VALOR: La promesa principal y el ángulo de venta detectado.
+    2. DESGLOSE TÉCNICO: Si la web menciona módulos o lecciones (ej: "7 módulos", "Fase 1", etc.), localiza y transcribe el nombre y el contenido/objetivo de cada uno de ellos.
+    3. SISTEMA DE BONOS: Si encuentras menciones a elementos extra (ej: "4 bonos", "Regalos exclusivos"), busca y extrae el nombre, valor (si se menciona) y descripción detallada de CADA BONO por separado. No omitas ninguno.
+    4. FIGURA DE AUTORIDAD: Localiza al Instructor, Mentor o Experto. Extrae su nombre completo, trayectoria profesional, bio y cualquier dato que refuerce su autoridad.
+    5. PROMESA ADICIONAL Y SEGURIDAD: Garantías (días), elementos de escasez (cupos, fechas) y testimonios destacados.
+    6. PSICOLOGÍA DE VENTA: Beneficios emocionales y racionales implícitos y explícitos.
+
     Responde EXCLUSIVAMENTE en formato JSON válido:
     {
       "productName": "Nombre comercial del producto",
-      "description": "Un INFORME ESTRATÉGICO COMPLETO en formato HTML. Usa H3 para categorías (ej: 'Propuesta Única', 'Contenido del Programa', 'Bonos Exclusivos'), P para explicaciones y UL/LI para detallar cada punto relevante extraído de forma exhaustiva. No omitas ningún detalle técnico o persuasivo importante que sirva como contexto para generar otras páginas.",
-      "niche": "Nicho o categoría de mercado"
+      "description": "Genera un INFORME ESTRATÉGICO DE INGENIERÍA INVERSA en formato HTML. Estructura recomendada:
+      - Usa <h3> para las categorías principales (ej: 'Propuesta Única', 'Contenido del Programa', 'Bonos Exclusivos', 'Perfil del Instructor', 'Garantías de Seguridad').
+      - Usa <p> para las introducciones y explicaciones de contexto.
+      - Usa <ul> y <li> para listar cada módulo, cada lección y cada bono encontrado con su respectiva descripción detallada.
+      REGLA DE ORO: Si encuentras listas de beneficios o contenido en la web original, NO los resumas. Transcríbelos íntegramente en los items de la lista HTML para proporcionar el máximo contexto al sistema.",
+      "niche": "Nicho o categoría de mercado detectada"
     }
 
-    TEXTO EXTRAÍDO DEL SITIO:
+    TEXTO EXTRAÍDO DEL SITIO PARA ANALIZAR:
     ${rawText.substring(0, 15000)}
     `;
 
