@@ -106,6 +106,16 @@ const analyzeWebsiteContent = async (rawText) => {
     Instrucciones si el texto es válido:
     - Extrae de forma exhaustiva el contenido sin inventar ningun dato.
     - Usa HTML básico (H3, P, UL, LI) en el campo "description".
+
+    usa la siguiente estructura:
+
+    1. Introducción del Producto donde explicas brevemente el producto.
+    2. Objetivos del Producto.
+    3. Propuesta de valor y promesa irresistible principal.
+    4. Desglose detallado de Beneficios Racionales (lo que obtiene) y Beneficios Emocionales (cómo se sentirá).
+    5. Temario del Curso (En caso de existir): temas que incluye el curso.
+    6. Perfil de Autoridad del Mentor/Instructor (En caso de existir): Nombre y cualquier tipo de informacion del instructor.
+    7. Entregables y Bonos Detallados (En caso de existir): Analiza todos los bonos que se mencionen en el contenido, añade cada bono y una pequeña descripcion.
         
     Responde EXCLUSIVAMENTE en formato JSON válido:
     {
