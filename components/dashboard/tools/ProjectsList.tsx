@@ -1,9 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { Project, User } from '../../../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library } from 'lucide-react';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface DashboardContext {
@@ -23,6 +22,11 @@ export const ProjectsList: React.FC = () => {
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [showVideoModal, setShowVideoModal] = useState(false);
     
+    // --- Nuevo Estado para Protocolo de Desbloqueo ---
+    const [showUnlockProtocol, setShowUnlockProtocol] = useState(false);
+    const [selectedMasterProject, setSelectedMasterProject] = useState<Project | null>(null);
+    // ------------------------------------------------
+
     // Generating state per project ID
     const [generatingId, setGeneratingId] = useState<string | null>(null);
 
@@ -54,30 +58,40 @@ export const ProjectsList: React.FC = () => {
         }
     };
 
-    const handleUnlock = async (projectId: string, e: React.MouseEvent) => {
+    // --- Lógica de Interceptación del Desbloqueo ---
+    const handleUnlock = (project: Project, e: React.MouseEvent) => {
         e.stopPropagation();
+        setSelectedMasterProject(project);
+        setShowUnlockProtocol(true);
+    };
+
+    const handleConfirmUnlock = async () => {
+        if (!selectedMasterProject) return;
         
         const isRealAdmin = user.role === 'admin' && !isSimulating;
         const maxProjects = user.planLimits?.maxProjects || 1;
-        
-        // Contar proyectos totales (propios + desbloqueados)
         const totalActive = projects.length;
 
         if (totalActive >= maxProjects && !isRealAdmin) {
+            setShowUnlockProtocol(false);
             setShowUpgradeModal(true);
             return;
         }
 
-        setUnlockingId(projectId);
+        setUnlockingId(selectedMasterProject.id);
+        setShowUnlockProtocol(false);
+        
         try {
-            await api.unlockProject(projectId);
-            await loadData(); // Refresh everything
+            await api.unlockProject(selectedMasterProject.id);
+            await loadData();
         } catch (error: any) {
             alert(error.message || "Error al desbloquear estrategia.");
         } finally {
             setUnlockingId(null);
+            setSelectedMasterProject(null);
         }
     };
+    // ----------------------------------------------
 
     const handleViewStrategy = async (e: React.MouseEvent, project: Project) => {
         e.stopPropagation();
@@ -223,7 +237,6 @@ export const ProjectsList: React.FC = () => {
                                             </div>
                                         )}
                                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            {/* Los proyectos maestros NO se editan si no eres dueño, pero permitimos ir a la edición para ver datos */}
                                             <button 
                                                 onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/projects/edit/${project.id}`); }}
                                                 className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
@@ -331,7 +344,7 @@ export const ProjectsList: React.FC = () => {
 
                                 <div className="mt-10 pt-8 border-t border-white/5 relative z-10">
                                     <button 
-                                        onClick={(e) => handleUnlock(item.id, e)}
+                                        onClick={(e) => handleUnlock(item, e)}
                                         disabled={unlockingId === item.id}
                                         className="w-full py-5 bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-yellow-900/20 flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
                                     >
@@ -351,6 +364,91 @@ export const ProjectsList: React.FC = () => {
                 )}
             </div>
 
+            {/* --- PROTOCOLO DE DESBLOQUEO MAESTRO (MODAL INTERCEPTOR) --- */}
+            {showUnlockProtocol && selectedMasterProject && (
+                <div 
+                    onClick={() => setShowUnlockProtocol(false)}
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative"
+                    >
+                        {/* Línea de acento dorada */}
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600"></div>
+                        
+                        <div className="p-8 md:p-12 space-y-8 flex-1 overflow-y-auto">
+                            <div className="flex flex-col items-center text-center space-y-6">
+                                <div className="w-20 h-20 bg-yellow-500/10 text-yellow-500 rounded-3xl flex items-center justify-center border border-yellow-500/20 shadow-lg shadow-yellow-900/10 animate-pulse">
+                                    <Crown className="w-10 h-10" />
+                                </div>
+                                <div className="space-y-2">
+                                    <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight italic">Protocolo de Desbloqueo</h3>
+                                    <p className="text-yellow-500 font-black uppercase tracking-[0.2em] text-xs">Estrategia Maestra Validada</p>
+                                </div>
+                                <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                    Estás a punto de adquirir el ADN estratégico completo para <span className="text-white font-bold">"{selectedMasterProject.name}"</span>. 
+                                    Este activo incluye avatares, guiones de venta, copys para email y estructura web de alta conversión.
+                                </p>
+                            </div>
+
+                            {/* Video Informativo Placeholder */}
+                            <div className="aspect-video w-full bg-black rounded-3xl overflow-hidden border border-white/5 shadow-2xl relative group cursor-pointer">
+                                <div className="absolute inset-0 flex items-center justify-center bg-white/5 opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <PlayCircle className="w-16 h-16 text-yellow-500" />
+                                </div>
+                                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 font-black uppercase text-[10px] tracking-widest">Vista previa del proyecto</div>
+                            </div>
+
+                            {/* Barra de Consumo de Cupos */}
+                            <div className="bg-white/5 border border-white/5 p-8 rounded-[2rem] shadow-inner">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Cupos de Proyecto Utilizados</span>
+                                    <span className="text-white font-bold text-sm">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
+                                </div>
+                                <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
+                                    <div 
+                                        className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-lg ${progressColor}`} 
+                                        style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}
+                                    ></div>
+                                </div>
+                                {isAtLimit && (
+                                    <div className="mt-4 flex items-center gap-3 p-3 bg-red-900/20 border border-red-900/30 rounded-xl">
+                                        <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
+                                        <p className="text-red-400 text-xs font-bold leading-snug">Has alcanzado tu límite. No puedes desbloquear más estrategias.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Acciones del Protocolo */}
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button 
+                                onClick={() => setShowUnlockProtocol(false)}
+                                className="flex-1 py-5 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all"
+                            >
+                                No, cancelar
+                            </button>
+                            {isAtLimit ? (
+                                <button 
+                                    onClick={() => { setShowUnlockProtocol(false); setShowUpgradeModal(true); }}
+                                    className="flex-1 py-5 rounded-2xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-orange-900/20 transform hover:scale-105 active:scale-95 transition-all"
+                                >
+                                    Actualizar Plan <ArrowRight className="w-4 h-4 inline ml-2" />
+                                </button>
+                            ) : (
+                                <button 
+                                    onClick={handleConfirmUnlock}
+                                    className="flex-1 py-5 rounded-2xl bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-widest shadow-xl shadow-yellow-900/20 transform hover:scale-105 active:scale-95 transition-all"
+                                >
+                                    Sí, desbloquear ahora
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* MODALS */}
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
@@ -361,7 +459,7 @@ export const ProjectsList: React.FC = () => {
 
             {showVideoModal && (
                 <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-                    <div className="relative w-full max-w-4xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+                    <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
                         <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
                             <h3 className="font-bold text-white flex items-center gap-2">
                                 <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Estrategia de Nichos
