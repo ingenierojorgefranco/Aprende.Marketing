@@ -118,6 +118,7 @@ export const ProjectWizard: React.FC = () => {
     const [analyzing, setAnalyzing] = useState(false);
     
     const [showAnalyzeConfirm, setShowAnalyzeConfirm] = useState(false);
+    const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
     
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     
@@ -142,6 +143,25 @@ export const ProjectWizard: React.FC = () => {
     const [originalStrategyJson, setOriginalStrategyJson] = useState<any>(null);
 
     const commissionRate = fullPrice > 0 ? (commissionValue / fullPrice) * 100 : 0;
+
+    const analysisMessages = [
+        "Conectando con el servidor de IA...",
+        "Analizando estructura del sitio web...",
+        "Extrayendo ADN de marketing y copywriting...",
+        "Detectando nicho y propuesta de valor..."
+    ];
+
+    useEffect(() => {
+        let interval: any;
+        if (analyzing) {
+            interval = setInterval(() => {
+                setLoadingMessageIndex((prev) => (prev + 1) % analysisMessages.length);
+            }, 2500);
+        } else {
+            setLoadingMessageIndex(0);
+        }
+        return () => clearInterval(interval);
+    }, [analyzing]);
 
     useEffect(() => {
         const isRealAdmin = user.role === 'admin' && !isSimulating;
@@ -195,17 +215,20 @@ export const ProjectWizard: React.FC = () => {
 
     const handleAnalyzeSite = async () => {
         if (!salesPageUrl) return alert('Por favor ingresa una URL para analizar.');
-        setShowAnalyzeConfirm(false);
         setAnalyzing(true);
         try {
             const data = await api.analyzeSite(salesPageUrl);
-            if (data.productName) setProductName(data.productName);
+            if (data.productName) {
+                setProductName(data.productName);
+                setName(data.productName); // Sincronización automática de nombre de proyecto
+            }
             if (data.description) setDescription(data.description);
             if (data.niche) setNiche(data.niche);
-            alert('¡Análisis completado! Hemos completado la información basándonos en la página web.');
+            setShowAnalyzeConfirm(false);
         } catch (error: any) {
             console.error("Analysis failure:", error);
             alert(error.message || 'No se pudo analizar el sitio. Es posible que el servidor de la web bloquee el acceso automático o que la URL no sea válida.');
+            setShowAnalyzeConfirm(false);
         } finally {
             setAnalyzing(false);
         }
@@ -236,12 +259,10 @@ export const ProjectWizard: React.FC = () => {
 
         try {
             if (id) {
-                // MODO EDICIÓN: Solo actualizar datos manuales persistiendo la estrategia existente
                 setLoadingStatus('Actualizando proyecto...');
                 await api.updateProject(id, projectData as any);
                 navigate(`/dashboard/projects/${id}/strategy`);
             } else {
-                // MODO CREACIÓN: Flujo completo con generación inicial de IA
                 setLoadingStatus('Fase 1/2: Guardando información en base de datos...');
                 const saved = await api.createProject(projectData as any);
                 const projectId = saved.id;
@@ -293,21 +314,42 @@ export const ProjectWizard: React.FC = () => {
                 </div>
             )}
 
-            {/* Modal de Confirmación de Análisis */}
+            {/* Modal de Confirmación de Análisis y Estado de Carga */}
             {showAnalyzeConfirm && (
-                <div className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => setShowAnalyzeConfirm(false)}>
+                <div className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={() => !analyzing && setShowAnalyzeConfirm(false)}>
                     <div className="bg-gray-900 border border-gray-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 p-8 text-center space-y-6" onClick={e => e.stopPropagation()}>
-                        <div className="w-16 h-16 bg-blue-900/30 text-blue-400 border border-blue-800/50 rounded-2xl flex items-center justify-center mx-auto">
-                            <AlertTriangle className="w-8 h-8" />
-                        </div>
-                        <h3 className="text-2xl font-black text-white tracking-tight">¿Confirmar Análisis?</h3>
-                        <p className="text-gray-400 leading-relaxed">
-                            ¿Estás seguro de analizar este sitio? Antes de continuar, verifica que la página sea accesible y sea la página que desea analizar, ya que solo podrá verificarlo 1 vez cada hora.
-                        </p>
-                        <div className="flex flex-col gap-3 pt-4">
-                            <button onClick={handleAnalyzeSite} className="w-full py-4 bg-primary hover:bg-indigo-600 text-white font-black rounded-xl transition-all shadow-lg shadow-primary/20">Sí, analizar sitio ahora</button>
-                            <button onClick={() => setShowAnalyzeConfirm(false)} className="w-full py-4 bg-gray-800 hover:bg-gray-700 text-gray-400 font-bold rounded-xl transition-all">Cancelar</button>
-                        </div>
+                        {analyzing ? (
+                            <div className="py-10 flex flex-col items-center space-y-8 animate-in fade-in duration-300">
+                                <div className="relative">
+                                    <div className="absolute -inset-4 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
+                                    <Loader2 className="w-16 h-16 animate-spin text-primary relative z-10" />
+                                </div>
+                                <div className="space-y-4">
+                                    <h3 className="text-xl font-black text-white uppercase tracking-tighter italic animate-pulse">
+                                        {analysisMessages[loadingMessageIndex]}
+                                    </h3>
+                                    <div className="bg-red-500/10 border border-red-500/20 px-4 py-2 rounded-xl">
+                                        <p className="text-red-400 text-xs font-black uppercase tracking-widest">
+                                            ⚠️ No cierres esta página, el proceso está en curso...
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="w-16 h-16 bg-blue-900/30 text-blue-400 border border-blue-800/50 rounded-2xl flex items-center justify-center mx-auto">
+                                    <AlertTriangle className="w-8 h-8" />
+                                </div>
+                                <h3 className="text-2xl font-black text-white tracking-tight">¿Confirmar Análisis?</h3>
+                                <p className="text-gray-400 leading-relaxed">
+                                    ¿Estás seguro de analizar este sitio? Antes de continuar, verifica que la página sea accesible y sea la página que desea analizar, ya que solo podrá verificarlo 1 vez cada hora.
+                                </p>
+                                <div className="flex flex-col gap-3 pt-4">
+                                    <button onClick={handleAnalyzeSite} className="w-full py-4 bg-primary hover:bg-indigo-600 text-white font-black rounded-xl transition-all shadow-lg shadow-primary/20">Sí, analizar sitio ahora</button>
+                                    <button onClick={() => setShowAnalyzeConfirm(false)} className="w-full py-4 bg-gray-800 hover:bg-gray-700 text-gray-400 font-bold rounded-xl transition-all">Cancelar</button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

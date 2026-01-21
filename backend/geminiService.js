@@ -1,4 +1,3 @@
-
 const { GoogleGenAI } = require("@google/genai");
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -11,6 +10,33 @@ if (apiKey) {
 }
 
 /**
+ * Función auxiliar para gestionar reintentos automáticos ante errores de saturación (503/504)
+ */
+const withRetries = async (fn, maxRetries = 3) => {
+    let lastError;
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            return await fn();
+        } catch (error) {
+            lastError = error;
+            const isRetryable = error.message?.includes('503') || 
+                                error.message?.includes('504') || 
+                                error.message?.toLowerCase().includes('overloaded') ||
+                                error.message?.toLowerCase().includes('deadline exceeded');
+            
+            if (isRetryable && i < maxRetries - 1) {
+                const delay = Math.pow(2, i) * 1000 + Math.random() * 500;
+                console.log(`[GEMINI RETRY] Intento ${i + 1} fallido (Overloaded). Reintentando en ${Math.round(delay)}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                continue;
+            }
+            throw error;
+        }
+    }
+    throw lastError;
+};
+
+/**
  * Genera contenido usando Google Gemini
  */
 const generateContent = async (model, contents, config = {}) => {
@@ -19,23 +45,23 @@ const generateContent = async (model, contents, config = {}) => {
     }
 
     try {
-        const response = await aiClient.models.generateContent({
-            model: model || 'gemini-3-flash-preview',
-            contents: contents,
-            config: config
-        });
+        return await withRetries(async () => {
+            const response = await aiClient.models.generateContent({
+                model: model || 'gemini-3-flash-preview',
+                contents: contents,
+                config: config
+            });
 
-        if (response) {
-            try {
-                return response.text || "";
-            } catch (textError) {
-                console.warn("⚠️ [GEMINI] Could not access response.text:", textError.message);
-                return "";
+            if (response) {
+                try {
+                    return response.text || "";
+                } catch (textError) {
+                    console.warn("⚠️ [GEMINI] Could not access response.text:", textError.message);
+                    return "";
+                }
             }
-        }
-        
-        return "";
-
+            return "";
+        });
     } catch (error) {
         console.error("❌ [GEMINI SERVICE ERROR]:", error);
         throw error;
@@ -53,13 +79,19 @@ const analyzeWebsiteContent = async (rawText) => {
     }
 
     const prompt = `
-    Actúa como un experto en Marketing Digital y Copywriting Senior. 
-    Tu objetivo es realizar un análisis exhaustivo y profesional de una página de ventas para extraer su ADN estratégico.
+    Actúa como un experto en Ingeniería Inversa de Marketing y Copywriting Senior. Tu misión es desglosar por completo una página de ventas para alimentar un sistema de IA posterior con el máximo contexto posible.
+    
+    Analiza TODO el texto proporcionado y extrae de forma exhaustiva: 
+    1. Propuesta de valor y promesa principal.
+    2. Características técnicas y funcionales detalladas.
+    3. Módulos, lecciones o partes que componen el producto.
+    4. Bonos, garantías y elementos de escasez.
+    5. Beneficios emocionales y racionales.
     
     Responde EXCLUSIVAMENTE en formato JSON válido:
     {
       "productName": "Nombre comercial del producto",
-      "description": "Código HTML estructural detallado aquí (CON H3, P, UL, LI)...",
+      "description": "Un INFORME ESTRATÉGICO COMPLETO en formato HTML. Usa H3 para categorías (ej: 'Propuesta Única', 'Contenido del Programa', 'Bonos Exclusivos'), P para explicaciones y UL/LI para detallar cada punto relevante extraído de forma exhaustiva. No omitas ningún detalle técnico o persuasivo importante que sirva como contexto para generar otras páginas.",
       "niche": "Nicho o categoría de mercado"
     }
 
@@ -68,14 +100,16 @@ const analyzeWebsiteContent = async (rawText) => {
     `;
 
     try {
-        const response = await aiClient.models.generateContent({
-            model: 'gemini-3-flash-preview',
-            contents: prompt,
-            config: { responseMimeType: "application/json" }
-        });
+        return await withRetries(async () => {
+            const response = await aiClient.models.generateContent({
+                model: 'gemini-3-flash-preview',
+                contents: prompt,
+                config: { responseMimeType: "application/json" }
+            });
 
-        if (!response.text) throw new Error("IA returned empty response");
-        return JSON.parse(response.text.trim());
+            if (!response.text) throw new Error("IA returned empty response");
+            return JSON.parse(response.text.trim());
+        });
     } catch (error) {
         console.error("❌ [GEMINI ANALYZE ERROR]:", error);
         throw error;
@@ -102,7 +136,6 @@ const generateFullStrategy = async (projectData) => {
 
     try {
         // --- ETAPA 1: ADN ESTRATÉGICO Y AVATARES ---
-        // Modelo Pro para razonamiento de perfiles
         console.log("[PIPELINE] Etapa 1: Generando ADN y Avatares...");
         const step1Prompt = `
         Actúa como Estratega Senior. Genera el ADN y 3 Avatares para vender "${productName}".
@@ -128,15 +161,16 @@ const generateFullStrategy = async (projectData) => {
           ]
         }`;
 
-        const step1Res = await aiClient.models.generateContent({
-            model: 'gemini-3-pro-preview',
-            contents: step1Prompt,
-            config: { responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 8000 } }
+        const step1Res = await withRetries(async () => {
+            return await aiClient.models.generateContent({
+                model: 'gemini-3-pro-preview',
+                contents: step1Prompt,
+                config: { responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 8000 } }
+            });
         });
         const step1Data = JSON.parse(step1Res.text.trim());
 
         // --- ETAPA 2: PSICOLOGÍA Y CONVERSIÓN ---
-        // Modelo Pro para análisis conductual
         console.log("[PIPELINE] Etapa 2: Analizando Psicología de Venta...");
         const step2Prompt = `
         Basado en estos avatares: ${JSON.stringify(step1Data.avatars)}.
@@ -163,15 +197,16 @@ const generateFullStrategy = async (projectData) => {
           }
         }`;
 
-        const step2Res = await aiClient.models.generateContent({
-            model: 'gemini-3-pro-preview',
-            contents: step2Prompt,
-            config: { responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 6000 } }
+        const step2Res = await withRetries(async () => {
+            return await aiClient.models.generateContent({
+                model: 'gemini-3-pro-preview',
+                contents: step2Prompt,
+                config: { responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 6000 } }
+            });
         });
         const step2Data = JSON.parse(step2Res.text.trim());
 
-        // --- ETAPA 3: ACTIVOS DE MARKETING (COPIES Y WEB) ---
-        // Modelo Flash para redacción rápida de alto volumen
+        // --- ETAPA 3: ACTIVOS DE MARKETING ---
         console.log("[PIPELINE] Etapa 3: Redactando Activos y Blueprint...");
         const step3Prompt = `
         Genera los activos finales para "${productName}".
@@ -200,14 +235,15 @@ const generateFullStrategy = async (projectData) => {
           }
         }`;
 
-        const step3Res = await aiClient.models.generateContent({
-            model: 'gemini-3-flash-preview',
-            contents: step3Prompt,
-            config: { responseMimeType: "application/json" }
+        const step3Res = await withRetries(async () => {
+            return await aiClient.models.generateContent({
+                model: 'gemini-3-flash-preview',
+                contents: step3Prompt,
+                config: { responseMimeType: "application/json" }
+            });
         });
         const step3Data = JSON.parse(step3Res.text.trim());
 
-        // --- ENSAMBLAJE FINAL ---
         const finalJson = {
             ...step1Data,
             ...step2Data,
