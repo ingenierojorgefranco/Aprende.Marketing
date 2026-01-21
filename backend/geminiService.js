@@ -100,7 +100,7 @@ const analyzeWebsiteContent = async (rawText) => {
     
     REGLA DE ORO DE VERACIDAD (CRÍTICA): 
     - Analiza el "TEXTO EXTRAÍDO DEL SITIO" al final de este prompt.
-    - Si el texto parece ser un mensaje de error (ej: '403 Forbidden', 'Access Denied', 'Cloudflare') o está vacío, DEBES RESPONDER EXACTAMENTE: {"productName": "ERROR", "description": "ERROR_ACCESO_DENEGADO", "niche": "ERROR"}.
+    - Si el texto parece ser un message de error (ej: '403 Forbidden', 'Access Denied', 'Cloudflare') o está vacío, DEBES RESPONDER EXACTAMENTE: {"productName": "ERROR", "description": "ERROR_ACCESO_DENEGADO", "niche": "ERROR"}.
     - No intentes adivinar ni inventar información si la web está bloqueada.
     
     Instrucciones si el texto es válido:
@@ -186,8 +186,7 @@ const generateFullStrategy = async (projectData) => {
             }`;
             
             const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { 
-                responseMimeType: "application/json", 
-                thinkingConfig: { thinkingBudget: 4000 } 
+                responseMimeType: "application/json"
             });
             if (!step1Res) throw new Error("La etapa 1 devolvió una respuesta vacía.");
             step1Data = JSON.parse(step1Res.trim());
@@ -196,10 +195,11 @@ const generateFullStrategy = async (projectData) => {
             throw new Error(`Error en Etapa 1 (Avatares): ${err.message}`);
         }
 
-        // ETAPA 2: Psicología de Venta
+        // ETAPA 2: Psicología de Venta (Optimizado: Sin thinkingConfig y Prompt Simplificado)
         try {
-            const step2Prompt = `Basado en los avatares: ${JSON.stringify(step1Data.avatars)}. Genera la psicología profunda de venta para "${productName}". 
+            const step2Prompt = `Genera la psicología profunda de venta para "${productName}" basándote en estos avatares: ${JSON.stringify(step1Data.avatars)}. 
             
+            Instrucciones: Identifica miedos, soluciones, el mecanismo único y la estrategia de canales.
             Responde estrictamente en formato JSON con la llave "psychology":
             {
               "psychology": {
@@ -223,8 +223,7 @@ const generateFullStrategy = async (projectData) => {
             }`;
             
             const step2Res = await generateContent('gemini-3-flash-preview', step2Prompt, { 
-                responseMimeType: "application/json", 
-                thinkingConfig: { thinkingBudget: 4000 } 
+                responseMimeType: "application/json"
             });
             if (!step2Res) throw new Error("La etapa 2 devolvió una respuesta vacía.");
             step2Data = JSON.parse(step2Res.trim());
@@ -257,6 +256,7 @@ const generateFullStrategy = async (projectData) => {
             const step3Res = await generateContent('gemini-3-flash-preview', step3Prompt, { 
                 responseMimeType: "application/json" 
             });
+            if (!step3Res) throw new Error("La etapa 3 devolvió una respuesta vacía.");
             step3Web = JSON.parse(step3Res.trim()).web;
         } catch (err) {
             console.error("❌ [PIPELINE ERROR ETAPA 3]:", err);
@@ -278,6 +278,7 @@ const generateFullStrategy = async (projectData) => {
             const step4Res = await generateContent('gemini-3-flash-preview', step4Prompt, { 
                 responseMimeType: "application/json" 
             });
+            if (!step4Res) throw new Error("La etapa 4 devolvió una respuesta vacía.");
             step4Content = JSON.parse(step4Res.trim()).content;
         } catch (err) {
             console.error("❌ [PIPELINE ERROR ETAPA 4]:", err);
@@ -300,6 +301,7 @@ const generateFullStrategy = async (projectData) => {
             const step5Res = await generateContent('gemini-3-flash-preview', step5Prompt, { 
                 responseMimeType: "application/json" 
             });
+            if (!step5Res) throw new Error("La etapa 5 devolvió una respuesta vacía.");
             step5Emails = JSON.parse(step5Res.trim()).emails;
         } catch (err) {
             console.error("❌ [PIPELINE ERROR ETAPA 5]:", err);
@@ -321,6 +323,7 @@ const generateFullStrategy = async (projectData) => {
             const step6Res = await generateContent('gemini-3-flash-preview', step6Prompt, { 
                 responseMimeType: "application/json" 
             });
+            if (!step6Res) throw new Error("La etapa 6 devolvió una respuesta vacía.");
             step6WhatsApp = JSON.parse(step6Res.trim()).whatsapp;
         } catch (err) {
             console.error("❌ [PIPELINE ERROR ETAPA 6]:", err);
