@@ -164,7 +164,7 @@ const analyzeWebsiteContent = async (rawText) => {
 };
 
 /**
- * Función Maestra: Pipeline de Generación Fraccionada
+ * Función Maestra: Pipeline de Generación Fraccionada en 6 Etapas
  */
 const generateFullStrategy = async (projectData) => {
     if (!aiClient) throw new Error("Gemini API Key not configured.");
@@ -172,27 +172,182 @@ const generateFullStrategy = async (projectData) => {
     const startTime = Date.now();
     const { niche, productName, brandTone, fullPrice, commissionRate, leadMagnetType } = projectData;
 
+    let step1Data, step2Data, step3Web, step4Content, step5Emails, step6WhatsApp;
+
     try {
-        // ETAPA 1: Cambio a gemini-3-flash-preview para mayor rapidez y evitar timeouts
-        const step1Prompt = `Estratega Senior. Genera ADN y 3 Avatares para "${productName}". Nicho: "${niche}". Tono: "${brandTone}". Responde JSON...`;
-        const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 8000 } });
-        const step1Data = JSON.parse(step1Res.trim());
+        // ETAPA 1: ADN y Avatares
+        try {
+            const step1Prompt = `Eres un Estratega Senior. Genera el ADN de marketing y 3 Avatares detallados para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}". 
+            
+            Responde estrictamente en formato JSON con la siguiente estructura:
+            {
+              "meta": { "projectName": "string", "niche": "string", "productType": "string", "objective": "string", "price": number, "commissionRate": number, "projection": [number] },
+              "avatars": [ { "id": number, "name": "string", "archetype": "string", "age": "string", "quote": "string", "pain": "string", "daily_manifestation": "string", "desire": "string", "emotional_reason": "string", "objection": "string", "motivations": { "dinero": number, "tiempo": number, "estatus": number, "seguridad": number } } ]
+            }`;
+            
+            const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { 
+                responseMimeType: "application/json", 
+                thinkingConfig: { thinkingBudget: 4000 } 
+            });
+            if (!step1Res) throw new Error("La etapa 1 devolvió una respuesta vacía.");
+            step1Data = JSON.parse(step1Res.trim());
+        } catch (err) {
+            console.error("❌ [PIPELINE ERROR ETAPA 1]:", err);
+            throw new Error(`Error en Etapa 1 (Avatares): ${err.message}`);
+        }
 
-        // ETAPA 2: Cambio a gemini-3-flash-preview para mayor estabilidad
-        const step2Prompt = `Basado en avatares: ${JSON.stringify(step1Data.avatars)}. Genera psicología de venta para "${productName}". Responde JSON...`;
-        const step2Res = await generateContent('gemini-3-flash-preview', step2Prompt, { responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 6000 } });
-        const step2Data = JSON.parse(step2Res.trim());
+        // ETAPA 2: Psicología de Venta
+        try {
+            const step2Prompt = `Basado en los avatares: ${JSON.stringify(step1Data.avatars)}. Genera la psicología profunda de venta para "${productName}". 
+            
+            Responde estrictamente en formato JSON con la llave "psychology":
+            {
+              "psychology": {
+                "pains": ["string"],
+                "solutions": ["string"],
+                "unique_mechanism": "string",
+                "avoid": ["string"],
+                "awarenessStages": { "stage1_pain": "string", "stage2_solution": "string", "stage3_barrier": "string" },
+                "buyingPsychology": { 
+                    "notBuyingReasons": [ { "title": "string", "description": "string", "detail": "string" } ],
+                    "buyingReasons": [ { "title": "string", "description": "string" } ],
+                    "strategistConclusion": "string"
+                },
+                "conversionStrategy": {
+                    "mainFocus": [ { "label": "string", "description": "string" } ],
+                    "prioritizedChannels": [ { "label": "string", "type": "string" } ],
+                    "communicationStyle": [ { "label": "string", "description": "string" } ],
+                    "tacticalNote": "string"
+                }
+              }
+            }`;
+            
+            const step2Res = await generateContent('gemini-3-flash-preview', step2Prompt, { 
+                responseMimeType: "application/json", 
+                thinkingConfig: { thinkingBudget: 4000 } 
+            });
+            if (!step2Res) throw new Error("La etapa 2 devolvió una respuesta vacía.");
+            step2Data = JSON.parse(step2Res.trim());
+        } catch (err) {
+            console.error("❌ [PIPELINE ERROR ETAPA 2]:", err);
+            throw new Error(`Error en Etapa 2 (Psicología): ${err.message}`);
+        }
 
-        // ETAPA 3
-        const step3Prompt = `Genera activos finales para "${productName}". Contexto: ${JSON.stringify(step2Data.psychology)}. Lead Magnet: "${leadMagnetType}". Tono: "${brandTone}". Responde JSON...`;
-        const step3Res = await generateContent('gemini-3-flash-preview', step3Prompt, { responseMimeType: "application/json" });
-        const step3Data = JSON.parse(step3Res.trim());
+        // ETAPA 3: Web System (Landing & Thank You Page)
+        try {
+            const step3Prompt = `Genera la estructura de la Landing Page y Thank You Page para "${productName}". 
+            Contexto psicológico: ${JSON.stringify(step2Data.psychology)}. Lead Magnet: "${leadMagnetType}".
+            
+            Responde estrictamente en formato JSON con la llave "web":
+            {
+              "web": {
+                "landingPageTabs": {
+                   "hero": { "label": "1. Encabezado", "type": "hero", "h1": "string", "h2": "string", "strategyText": "string" },
+                   "pain": { "label": "2. Dolores", "type": "pain", "items": ["string"], "strategyText": "string" },
+                   "benefits": { "label": "3. Beneficios", "type": "benefits", "items": [ { "title": "string", "desc": "string" } ], "strategyText": "string" }
+                },
+                "thankYouPageTabs": {
+                   "header": { "label": "1. Confirmación", "type": "header", "content": { "h1": "string", "h2": "string" }, "strategyText": "string" },
+                   "action": { "label": "2. Siguiente Paso", "type": "action", "content": { "h1": "string", "h2": "string" }, "strategyText": "string" },
+                   "magnet": { "label": "3. Regalo", "type": "magnet", "content": { "h1": "string", "h2": "string" }, "strategyText": "string" }
+                }
+              }
+            }`;
+            
+            const step3Res = await generateContent('gemini-3-flash-preview', step3Prompt, { 
+                responseMimeType: "application/json" 
+            });
+            step3Web = JSON.parse(step3Res.trim()).web;
+        } catch (err) {
+            console.error("❌ [PIPELINE ERROR ETAPA 3]:", err);
+            throw new Error(`Error en Etapa 3 (Web): ${err.message}`);
+        }
 
-        const finalJson = { ...step1Data, ...step2Data, modules: step3Data.modules };
-        console.log(`[PIPELINE] Éxito en ${(Date.now() - startTime) / 1000}s`);
+        // ETAPA 4: Content Strategy (Artículos SEO)
+        try {
+            const step4Prompt = `Genera una lista de 10 artículos SEO para "${productName}". 
+            Nicho: "${niche}". Contexto: ${JSON.stringify(step2Data.psychology.conversionStrategy)}.
+            
+            Responde estrictamente en formato JSON con la llave "content":
+            {
+              "content": [
+                { "id": number, "title": "string", "keyword": "string", "searchVolume": "string", "objective": "string", "strategy": "string" }
+              ]
+            }`;
+            
+            const step4Res = await generateContent('gemini-3-flash-preview', step4Prompt, { 
+                responseMimeType: "application/json" 
+            });
+            step4Content = JSON.parse(step4Res.trim()).content;
+        } catch (err) {
+            console.error("❌ [PIPELINE ERROR ETAPA 4]:", err);
+            throw new Error(`Error en Etapa 4 (Contenido): ${err.message}`);
+        }
+
+        // ETAPA 5: Email Marketing (Secuencias)
+        try {
+            const step5Prompt = `Genera la secuencia de 7 correos (Nurture) y 1 correo Evergreen para "${productName}". 
+            Avatar Principal: ${JSON.stringify(step1Data.avatars[0])}.
+            
+            Responde estrictamente en formato JSON con la llave "emails":
+            {
+              "emails": {
+                "nurture": [ { "id": number, "day": "Día X", "subject": "string", "type": "string", "objective": "string", "bodyPreview": "string" } ],
+                "evergreen": [ { "id": number, "day": "Día 8+", "subject": "string", "type": "string", "objective": "string", "bodyPreview": "string" } ]
+              }
+            }`;
+            
+            const step5Res = await generateContent('gemini-3-flash-preview', step5Prompt, { 
+                responseMimeType: "application/json" 
+            });
+            step5Emails = JSON.parse(step5Res.trim()).emails;
+        } catch (err) {
+            console.error("❌ [PIPELINE ERROR ETAPA 5]:", err);
+            throw new Error(`Error en Etapa 5 (Emails): ${err.message}`);
+        }
+
+        // ETAPA 6: WhatsApp Scripts
+        try {
+            const step6Prompt = `Genera los guiones de cierre por WhatsApp para "${productName}".
+            Contexto: ${JSON.stringify(step2Data.psychology.buyingPsychology)}.
+            
+            Responde estrictamente en formato JSON con la llave "whatsapp":
+            {
+              "whatsapp": [
+                { "id": number, "title": "string", "objective": "string", "messages": [ { "role": "agent|user", "text": "string" } ] }
+              ]
+            }`;
+            
+            const step6Res = await generateContent('gemini-3-flash-preview', step6Prompt, { 
+                responseMimeType: "application/json" 
+            });
+            step6WhatsApp = JSON.parse(step6Res.trim()).whatsapp;
+        } catch (err) {
+            console.error("❌ [PIPELINE ERROR ETAPA 6]:", err);
+            throw new Error(`Error en Etapa 6 (WhatsApp): ${err.message}`);
+        }
+
+        // Consolidación final del objeto maestro esperado por el frontend
+        const finalJson = { 
+            meta: step1Data.meta,
+            avatars: step1Data.avatars,
+            psychology: step2Data.psychology, 
+            modules: { 
+                web: {
+                    landingPageTabs: step3Web.landingPageTabs,
+                    thankYouPageTabs: step3Web.thankYouPageTabs
+                },
+                content: step4Content,
+                emails: step5Emails,
+                whatsapp: step6WhatsApp
+            } 
+        };
+
+        console.log(`[PIPELINE] Éxito total en ${(Date.now() - startTime) / 1000}s`);
         return finalJson;
+
     } catch (error) {
-        console.error("❌ [PIPELINE ERROR]:", error);
+        console.error("❌ [PIPELINE CRITICAL ERROR]:", error);
         throw error;
     }
 };
