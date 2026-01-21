@@ -175,7 +175,7 @@ const generateFullStrategy = async (projectData) => {
     let step1Data, step2Data, step3Web, step4Content, step5Emails, step6WhatsApp;
 
     try {
-        // ETAPA 1: ADN y Avatares
+        // ETAPA 1: ADN y Avatares (Actualizado a Pro)
         try {
             const step1Prompt = `Eres un Estratega Senior. Genera el ADN de marketing y 3 Avatares detallados para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}". 
             
@@ -185,7 +185,7 @@ const generateFullStrategy = async (projectData) => {
               "avatars": [ { "id": number, "name": "string", "archetype": "string", "age": "string", "quote": "string", "pain": "string", "daily_manifestation": "string", "desire": "string", "emotional_reason": "string", "objection": "string", "motivations": { "dinero": number, "tiempo": number, "estatus": number, "seguridad": number } } ]
             }`;
             
-            const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { 
+            const step1Res = await generateContent('gemini-3-pro-preview', step1Prompt, { 
                 responseMimeType: "application/json"
             });
             if (!step1Res) throw new Error("La etapa 1 devolvió una respuesta vacía.");
@@ -195,7 +195,7 @@ const generateFullStrategy = async (projectData) => {
             throw new Error(`Error en Etapa 1 (Avatares): ${err.message}`);
         }
 
-        // ETAPA 2: Psicología de Venta (Optimizado: Sin thinkingConfig y Prompt Simplificado)
+        // ETAPA 2: Psicología de Venta (Actualizado a Pro + Thinking Config)
         try {
             const step2Prompt = `Genera la psicología profunda de venta para "${productName}" basándote en estos avatares: ${JSON.stringify(step1Data.avatars)}. 
             
@@ -222,8 +222,9 @@ const generateFullStrategy = async (projectData) => {
               }
             }`;
             
-            const step2Res = await generateContent('gemini-3-flash-preview', step2Prompt, { 
-                responseMimeType: "application/json"
+            const step2Res = await generateContent('gemini-3-pro-preview', step2Prompt, { 
+                responseMimeType: "application/json",
+                thinkingConfig: { thinkingBudget: 16384 }
             });
             if (!step2Res) throw new Error("La etapa 2 devolvió una respuesta vacía.");
             step2Data = JSON.parse(step2Res.trim());
@@ -232,7 +233,7 @@ const generateFullStrategy = async (projectData) => {
             throw new Error(`Error en Etapa 2 (Psicología): ${err.message}`);
         }
 
-        // ETAPA 3: Web System (Landing & Thank You Page)
+        // ETAPA 3: Web System (Actualizado a Pro)
         try {
             const step3Prompt = `Genera la estructura de la Landing Page y Thank You Page para "${productName}". 
             Contexto psicológico: ${JSON.stringify(step2Data.psychology)}. Lead Magnet: "${leadMagnetType}".
@@ -253,7 +254,7 @@ const generateFullStrategy = async (projectData) => {
               }
             }`;
             
-            const step3Res = await generateContent('gemini-3-flash-preview', step3Prompt, { 
+            const step3Res = await generateContent('gemini-3-pro-preview', step3Prompt, { 
                 responseMimeType: "application/json" 
             });
             if (!step3Res) throw new Error("La etapa 3 devolvió una respuesta vacía.");
@@ -263,7 +264,7 @@ const generateFullStrategy = async (projectData) => {
             throw new Error(`Error en Etapa 3 (Web): ${err.message}`);
         }
 
-        // ETAPA 4: Content Strategy (Artículos SEO)
+        // ETAPA 4: Content Strategy (Actualizado a Pro)
         try {
             const step4Prompt = `Genera una lista de 10 artículos SEO para "${productName}". 
             Nicho: "${niche}". Contexto: ${JSON.stringify(step2Data.psychology.conversionStrategy)}.
@@ -275,7 +276,7 @@ const generateFullStrategy = async (projectData) => {
               ]
             }`;
             
-            const step4Res = await generateContent('gemini-3-flash-preview', step4Prompt, { 
+            const step4Res = await generateContent('gemini-3-pro-preview', step4Prompt, { 
                 responseMimeType: "application/json" 
             });
             if (!step4Res) throw new Error("La etapa 4 devolvió una respuesta vacía.");
@@ -285,9 +286,9 @@ const generateFullStrategy = async (projectData) => {
             throw new Error(`Error en Etapa 4 (Contenido): ${err.message}`);
         }
 
-        // ETAPA 5: Email Marketing (Secuencias)
+        // ETAPA 5: Email Marketing (Actualizado a Pro)
         try {
-            const step5Prompt = `Genera la secuencia de 7 correos (Nurture) y 1 correo Evergreen para "${productName}". 
+            const step5Prompt = `Genera la secuencia de 7 correos (Nurture) and 1 correo Evergreen para "${productName}". 
             Avatar Principal: ${JSON.stringify(step1Data.avatars[0])}.
             
             Responde estrictamente en formato JSON con la llave "emails":
@@ -298,7 +299,7 @@ const generateFullStrategy = async (projectData) => {
               }
             }`;
             
-            const step5Res = await generateContent('gemini-3-flash-preview', step5Prompt, { 
+            const step5Res = await generateContent('gemini-3-pro-preview', step5Prompt, { 
                 responseMimeType: "application/json" 
             });
             if (!step5Res) throw new Error("La etapa 5 devolvió una respuesta vacía.");
@@ -308,7 +309,7 @@ const generateFullStrategy = async (projectData) => {
             throw new Error(`Error en Etapa 5 (Emails): ${err.message}`);
         }
 
-        // ETAPA 6: WhatsApp Scripts
+        // ETAPA 6: WhatsApp Scripts (Actualizado a Pro)
         try {
             const step6Prompt = `Genera los guiones de cierre por WhatsApp para "${productName}".
             Contexto: ${JSON.stringify(step2Data.psychology.buyingPsychology)}.
@@ -320,7 +321,7 @@ const generateFullStrategy = async (projectData) => {
               ]
             }`;
             
-            const step6Res = await generateContent('gemini-3-flash-preview', step6Prompt, { 
+            const step6Res = await generateContent('gemini-3-pro-preview', step6Prompt, { 
                 responseMimeType: "application/json" 
             });
             if (!step6Res) throw new Error("La etapa 6 devolvió una respuesta vacía.");
