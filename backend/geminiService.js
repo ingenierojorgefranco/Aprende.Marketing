@@ -170,15 +170,21 @@ const analyzeWebsiteContent = async (rawText) => {
 const generateFullStrategy = async (projectId) => {
     if (!aiClient) throw new Error("Gemini API Key not configured.");
 
-    console.log(`🚀 [PIPELINE START] Retrieving data for Project ID: ${projectId}`);
+    // Log inmediato al entrar a la función de servicio
+    console.log(`🚀 [PIPELINE START] Solicitud de datos iniciales para Proyecto ID: ${projectId} - ${new Date().toISOString()}`);
 
+    console.log(`[PIPELINE DB] Intentando consulta SELECT bajo demanda para ID: ${projectId}`);
     // Carga de datos bajo demanda para minimizar carga en memoria del router
     const [rows] = await pool.query(
         "SELECT niche, product_name, brand_tone, full_price, commission_rate, lead_magnet_type, description FROM projects WHERE id = ?",
         [projectId]
     );
+    console.log(`[PIPELINE DB] Datos recuperados con éxito de la BD para ID: ${projectId}.`);
 
-    if (rows.length === 0) throw new Error("Project not found in pipeline retrieval.");
+    if (rows.length === 0) {
+        console.error(`[PIPELINE ERROR] Proyecto ${projectId} no encontrado en la base de datos.`);
+        throw new Error("Project not found in pipeline retrieval.");
+    }
     
     const projectData = rows[0];
     const startTime = Date.now();
@@ -186,11 +192,12 @@ const generateFullStrategy = async (projectId) => {
 
     let step1Data, step2Data, step3Web, step4Content, step5Emails, step6WhatsApp;
 
-    console.log(`🚀 [PIPELINE EXECUTION] Starting strategy generation for: ${productName}`);
+    console.log(`🚀 [PIPELINE EXECUTION] Iniciando motores de IA para el producto: ${productName}`);
 
     try {
         // ETAPA 1: ADN y Avatares
         try {
+            console.log("⏳ [PIPELINE] Generando Etapa 1: ADN y Avatares...");
             const step1Prompt = `Eres un Estratega Senior. Genera el ADN de marketing y 3 Avatares detallados para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}". 
             
             Responde estrictamente en formato JSON con la siguiente estructura:
@@ -212,6 +219,7 @@ const generateFullStrategy = async (projectId) => {
 
         // ETAPA 2: Psicología de Venta
         try {
+            console.log("⏳ [PIPELINE] Generando Etapa 2: Psicología de Venta...");
             const step2Prompt = `Genera la psicología profunda de venta para "${productName}" basándote en estos avatares: ${JSON.stringify(step1Data.avatars)}. 
             
             Instrucciones: Identifica miedos, soluciones, el mecanismo único y la estrategia de canales.
@@ -251,6 +259,7 @@ const generateFullStrategy = async (projectId) => {
 
         // ETAPA 3: Web System
         try {
+            console.log("⏳ [PIPELINE] Generando Etapa 3: Web System...");
             const step3Prompt = `Genera la estructura de la Landing Page y Thank You Page para "${productName}". 
             Contexto psicológico: ${JSON.stringify(step2Data.psychology)}. Lead Magnet: "${leadMagnetType}".
             
@@ -283,6 +292,7 @@ const generateFullStrategy = async (projectId) => {
 
         // ETAPA 4: Content Strategy
         try {
+            console.log("⏳ [PIPELINE] Generando Etapa 4: Content Strategy...");
             const step4Prompt = `Genera una lista de 10 artículos SEO para "${productName}". 
             Nicho: "${niche}". Contexto: ${JSON.stringify(step2Data.psychology.conversionStrategy)}.
             
@@ -307,6 +317,7 @@ const generateFullStrategy = async (projectId) => {
 
         // ETAPA 5: Email Marketing
         try {
+            console.log("⏳ [PIPELINE] Generando Etapa 5: Email Marketing...");
             const step5Prompt = `Genera la secuencia de 7 correos (Nurture) and 1 correo Evergreen para "${productName}". 
             Avatar Principal: ${JSON.stringify(step1Data.avatars[0])}.
             
@@ -332,6 +343,7 @@ const generateFullStrategy = async (projectId) => {
 
         // ETAPA 6: WhatsApp Scripts
         try {
+            console.log("⏳ [PIPELINE] Generando Etapa 6: WhatsApp Scripts...");
             const step6Prompt = `Genera los guiones de cierre por WhatsApp para "${productName}".
             Contexto: ${JSON.stringify(step2Data.psychology.buyingPsychology)}.
             
