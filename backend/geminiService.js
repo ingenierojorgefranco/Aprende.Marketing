@@ -1,4 +1,5 @@
 const { GoogleGenAI } = require("@google/genai");
+const pool = require('./db');
 
 const apiKey = process.env.GEMINI_API_KEY;
 let aiClient = null;
@@ -166,15 +167,26 @@ const analyzeWebsiteContent = async (rawText) => {
 /**
  * Función Maestra: Pipeline de Generación Fraccionada en 6 Etapas
  */
-const generateFullStrategy = async (projectData) => {
+const generateFullStrategy = async (projectId) => {
     if (!aiClient) throw new Error("Gemini API Key not configured.");
 
+    console.log(`🚀 [PIPELINE START] Retrieving data for Project ID: ${projectId}`);
+
+    // Carga de datos bajo demanda para minimizar carga en memoria del router
+    const [rows] = await pool.query(
+        "SELECT niche, product_name, brand_tone, full_price, commission_rate, lead_magnet_type, description FROM projects WHERE id = ?",
+        [projectId]
+    );
+
+    if (rows.length === 0) throw new Error("Project not found in pipeline retrieval.");
+    
+    const projectData = rows[0];
     const startTime = Date.now();
-    const { niche, productName, brandTone, fullPrice, commissionRate, leadMagnetType } = projectData;
+    const { niche, product_name: productName, brand_tone: brandTone, full_price: fullPrice, commission_rate: commissionRate, lead_magnet_type: leadMagnetType } = projectData;
 
     let step1Data, step2Data, step3Web, step4Content, step5Emails, step6WhatsApp;
 
-    console.log(`🚀 [PIPELINE START] Iniciando generación de estrategia para: ${productName}`);
+    console.log(`🚀 [PIPELINE EXECUTION] Starting strategy generation for: ${productName}`);
 
     try {
         // ETAPA 1: ADN y Avatares

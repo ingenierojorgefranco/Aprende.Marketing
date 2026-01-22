@@ -35,7 +35,7 @@ const checkMonthlyQuota = async (userId, resourceType, limit) => {
         WHERE user_id = ? 
           AND resource_type = ? 
           AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(created_at) = YEAR(CURRENT_DATE())
+          AND YEAR(CURRENT_DATE()) = YEAR(created_at)
     `, [userId, resourceType]);
 
     const used = rows[0].count;
@@ -268,12 +268,20 @@ router.delete('/:id', async (req, res) => {
 
 router.post('/:id/generate-strategy', async (req, res) => {
     try {
-        const [projects] = await pool.query('SELECT * FROM projects WHERE id = ?', [req.params.id]);
-        if (projects.length === 0 || (projects[0].user_id !== req.user.id && req.user.role !== 'admin')) return res.status(403).json({ error: 'No autorizado' });
-        const strategyJson = await generateFullStrategy(projects[0]);
+        console.log(`[ROUTE] Triggering strategy generation for Project ID: ${req.params.id}`);
+        // Basic check for existence and permission before starting heavy IA
+        const [check] = await pool.query('SELECT user_id FROM projects WHERE id = ?', [req.params.id]);
+        if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) return res.status(403).json({ error: 'No autorizado' });
+
+        // Call pipeline passing only the ID
+        const strategyJson = await generateFullStrategy(req.params.id);
+
         await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), req.params.id]);
         res.json(strategyJson);
-    } catch (e) { res.status(500).json({ error: e.message }); }
+    } catch (e) { 
+        console.error(`[ROUTE ERROR] Strategy gen failed for ${req.params.id}:`, e.message);
+        res.status(500).json({ error: e.message }); 
+    }
 });
 
 module.exports = router;
