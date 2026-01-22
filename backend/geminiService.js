@@ -170,226 +170,131 @@ const analyzeWebsiteContent = async (rawText) => {
  * Función Maestra: Pipeline de Generación Fraccionada en 6 Etapas
  */
 const generateFullStrategy = async (projectId) => {
+    // 1. LOG DE INICIO DE PIPELINE
+    process.stdout.write(`\n🚀 [PIPELINE DEBUG] Iniciando pipeline de prueba para Proyecto ID: ${projectId}\n`);
+
     if (!aiClient) throw new Error("Gemini API Key not configured.");
 
-    // Log inmediato al entrar a la función de servicio
-    process.stdout.write(`🚀 [PIPELINE START] Solicitud de datos iniciales para Proyecto ID: ${projectId} - ${new Date().toISOString()}\n`);
-
-    process.stdout.write(`[PIPELINE DB] Intentando consulta SELECT bajo demanda para ID: ${projectId}\n`);
-    // Carga de datos bajo demanda para minimizar carga en memoria del router
+    // 2. LOG DE ACCESO A BASE DE DATOS
+    process.stdout.write(`[PIPELINE DEBUG] Consultando base de datos para ID: ${projectId}...\n`);
     const [rows] = await pool.query(
         "SELECT niche, product_name, brand_tone, full_price, commission_rate, lead_magnet_type, description FROM projects WHERE id = ?",
         [projectId]
     );
-    process.stdout.write(`[PIPELINE DB] Datos recuperados con éxito de la BD para ID: ${projectId}.\n`);
 
     if (rows.length === 0) {
-        console.error(`[PIPELINE ERROR] Proyecto ${projectId} no encontrado en la base de datos.`);
+        process.stdout.write(`❌ [PIPELINE DEBUG] ERROR: Proyecto ${projectId} no encontrado.\n`);
         throw new Error("Project not found in pipeline retrieval.");
     }
     
     const projectData = rows[0];
-    const startTime = Date.now();
-    const { niche, product_name: productName, brand_tone: brandTone, full_price: fullPrice, commission_rate: commissionRate, lead_magnet_type: leadMagnetType } = projectData;
+    process.stdout.write(`[PIPELINE DEBUG] Datos recuperados de BD: ${JSON.stringify(projectData)}\n`);
+
+    const { niche, product_name: productName, brand_tone: brandTone, full_price: fullPrice, commission_rate: commissionRate } = projectData;
 
     let step1Data, step2Data, step3Web, step4Content, step5Emails, step6WhatsApp;
 
-    // Inicialización de estructuras vacías para evitar fallos en la consolidación final mientras las etapas están comentadas
-    step2Data = { psychology: { pains: [], solutions: [], unique_mechanism: "", avoid: [], awarenessStages: {}, buyingPsychology: { notBuyingReasons: [], buyingReasons: [], strategistConclusion: "" }, conversionStrategy: { mainFocus: [], prioritizedChannels: [], communicationStyle: [], tacticalNote: "" } } };
-    step3Web = { landingPageTabs: {}, thankYouPageTabs: {} };
-    step4Content = [];
-    step5Emails = { nurture: [], evergreen: [] };
-    step6WhatsApp = [];
+    // 3. INYECCIÓN DE DATOS DUMMY (SALTANDO IA)
+    process.stdout.write(`[PIPELINE DEBUG] Saltando llamadas a IA e inyectando datos estáticos de prueba...\n`);
 
-    process.stdout.write(`🚀 [PIPELINE EXECUTION] Iniciando motores de IA para el producto: ${productName}\n`);
+    step1Data = {
+        meta: {
+            projectName: productName,
+            niche: niche,
+            productType: "Digital Product",
+            objective: "Direct Sales",
+            price: fullPrice || 0,
+            commissionRate: commissionRate || 0,
+            projection: [0, 100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000],
+            insights: {
+                overview: { 
+                    title: "Estrategia General", 
+                    items: [
+                        { label: "Producto", value: productName, icon: "BookOpen", color: "text-pink-400", bg: "bg-pink-500/10", border: "border-pink-500/20" },
+                        { label: "Nicho", value: niche, icon: "Sparkles", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" }
+                    ] 
+                },
+                niche: { title: "Análisis de Nicho", description: `Análisis para el nicho ${niche}.` },
+                product: { title: "Rentabilidad", description: "Producto con alta rentabilidad estimada." },
+                objective: { title: "Método de Cierre", description: "Cierre automático mediante embudo de ventas." }
+            }
+        },
+        avatars: [
+            {
+                id: 1,
+                name: "Avatar de Prueba",
+                archetype: "Emprendedor Digital",
+                age: "25-45 años",
+                quote: "Necesito escalar mis resultados con IA.",
+                pain: "Falta de ventas constantes y procesos manuales lentos.",
+                daily_manifestation: "Frustración al revisar el panel de ventas cada mañana.",
+                desire: "Automatizar su negocio para tener libertad.",
+                emotional_reason: "Sentirse exitoso y proveer a su familia.",
+                objection: "No tengo tiempo para aprender cosas técnicas.",
+                interests: "Marketing, Tecnología",
+                behavior: "Activo en redes sociales",
+                motivations: { dinero: 80, tiempo: 95, estatus: 60, seguridad: 75 }
+            }
+        ]
+    };
+
+    step2Data = {
+        psychology: {
+            pains: ["Miedo al fracaso", "Pérdida de dinero en anuncios"],
+            solutions: ["Sistema validado", "Copywriting de alta conversión"],
+            unique_mechanism: "Algoritmo de IA Propietario",
+            avoid: ["Promesas de riqueza rápida"],
+            awarenessStages: {
+                stage1_pain: "Sabe que necesita un cambio",
+                stage2_solution: "Conoce la automatización",
+                stage3_barrier: "Miedo a la inversión"
+            },
+            buyingPsychology: {
+                notBuyingReasons: [{ title: "Costo", description: "Duda sobre el ROI inicial" }],
+                buyingReasons: [{ title: "Escalabilidad", description: "Potencial de crecimiento ilimitado" }],
+                strategistConclusion: "Enfocar el mensaje en la simplicidad y el retorno rápido."
+            },
+            conversionStrategy: {
+                mainFocus: [{ label: "Emocional", description: "Conectar con el deseo de libertad" }],
+                prioritizedChannels: [{ label: "WhatsApp", type: "WA" }],
+                communicationStyle: [{ label: "Profesional", description: "Tono serio y experto" }],
+                tacticalNote: "Usar testimonios en cada fase del cierre."
+            }
+        }
+    };
+
+    step3Web = {
+        landingPageTabs: {
+            hero: { label: "1. Encabezado", type: "hero", h1: `Domina ${productName} con IA`, h2: "La solución definitiva", strategyText: "Headline directo al beneficio principal." },
+            pain: { label: "2. Dolores", type: "pain", items: ["Dolor 1", "Dolor 2"], strategyText: "Agitación de dolores específicos." },
+            benefits: { label: "3. Beneficios", type: "benefits", items: [{ title: "Beneficio 1", desc: "Descripción del beneficio" }], strategyText: "Presentación de la cura." }
+        },
+        thankYouPageTabs: {
+            header: { label: "1. Confirmación", type: "header", content: { h1: "¡Bienvenido!", h2: "Registro completado con éxito." }, strategyText: "Paz mental inmediata." },
+            action: { label: "2. Siguiente Paso", type: "action", content: { h1: "Únete a la Comunidad", h2: "Haz clic en el botón de abajo." }, strategyText: "Micro-compromiso." },
+            magnet: { label: "3. Regalo", type: "magnet", content: { h1: "Descarga tu Guía", h2: "El PDF está listo." }, strategyText: "Entrega de valor." }
+        }
+    };
+
+    step4Content = [
+        { id: 1, title: "Cómo escalar tu negocio", keyword: "negocio digital", searchVolume: "5K", objective: "Atracción", strategy: "Contenido SEO de valor" }
+    ];
+
+    step5Emails = {
+        nurture: [{ id: 1, day: "Día 0", subject: "Bienvenida", type: "Valor", objective: "Entrega", bodyPreview: "Hola, aquí tienes lo prometido..." }],
+        evergreen: [{ id: 8, day: "Día 8", subject: "Oferta", type: "Venta", objective: "Cierre", bodyPreview: "No dejes pasar esta oportunidad..." }]
+    };
+
+    step6WhatsApp = [
+        { id: 1, title: "Cierre de Venta", objective: "Cierre", messages: [{ role: "agent", text: "¡Hola! ¿Tienes alguna duda con el pago?" }] }
+    ];
+
+    process.stdout.write(`[PIPELINE DEBUG] Datos Dummy inyectados correctamente.\n`);
 
     try {
-        // ETAPA 1: ADN y Avatares
-        try {
-            process.stdout.write("⏳ [PIPELINE] Generando Etapa 1: ADN y Avatares...\n");
-            const step1Prompt = `Eres un Estratega Senior. Genera el ADN de marketing y 3 Avatares detallados para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}". 
-            
-            Responde estrictamente en formato JSON con la siguiente estructura:
-            {
-              "meta": { "projectName": "string", "niche": "string", "productType": "string", "objective": "string", "price": number, "commissionRate": number, "projection": [number] },
-              "avatars": [ { "id": number, "name": "string", "archetype": "string", "age": "string", "quote": "string", "pain": "string", "daily_manifestation": "string", "desire": "string", "emotional_reason": "string", "objection": "string", "motivations": { "dinero": number, "tiempo": number, "estatus": number, "seguridad": number } } ]
-            }`;
-
-            console.log("DEBUG PROMPT ETAPA 1:", step1Prompt);
-            
-            const step1Res = await generateContent('gemini-3-pro-preview', step1Prompt, { 
-                responseMimeType: "application/json"
-            });
-            if (!step1Res) throw new Error("La etapa 1 devolvió una respuesta vacía.");
-            step1Data = JSON.parse(step1Res.trim());
-            console.log("DEBUG ETAPA 1 GENERADA:", JSON.stringify(step1Data, null, 2));
-            process.stdout.write("✅ [PIPELINE] Etapa 1 (Avatares) finalizada con éxito\n");
-        } catch (err) {
-            console.error("❌ [PIPELINE ERROR ETAPA 1]:", err);
-            throw new Error(`Error en Etapa 1 (Avatares): ${err.message}`);
-        }
-
-        /* COMENTADO PARA REVISIÓN PASO A PASO
-        // ETAPA 2: Psicología de Venta
-        try {
-            process.stdout.write("⏳ [PIPELINE] Generando Etapa 2: Psicología de Venta...\n");
-            const step2Prompt = `Genera la psicología profunda de venta para "${productName}" basándote en estos avatares: ${JSON.stringify(step1Data.avatars)}. 
-            
-            Instrucciones: Identifica miedos, soluciones, el mecanismo único y la estrategia de canales.
-            Responde estrictamente en formato JSON con la llave "psychology":
-            {
-              "psychology": {
-                "pains": ["string"],
-                "solutions": ["string"],
-                "unique_mechanism": "string",
-                "avoid": ["string"],
-                "awarenessStages": { "stage1_pain": "string", "stage2_solution": "string", "stage3_barrier": "string" },
-                "buyingPsychology": { 
-                    "notBuyingReasons": [ { "title": "string", "description": "string", "detail": "string" } ],
-                    "buyingReasons": [ { "title": "string", "description": "string" } ],
-                    "strategistConclusion": "string"
-                },
-                "conversionStrategy": {
-                    "mainFocus": [ { "label": "string", "description": "string" } ],
-                    "prioritizedChannels": [ { "label": "string", "type": "string" } ],
-                    "communicationStyle": [ { "label": "string", "description": "string" } ],
-                    "tacticalNote": "string"
-                }
-              }
-            }`;
-
-            console.log("DEBUG PROMPT ETAPA 2:", step2Prompt);
-            
-            const step2Res = await generateContent('gemini-3-pro-preview', step2Prompt, { 
-                responseMimeType: "application/json",
-                thinkingConfig: { thinkingBudget: 16384 }
-            });
-            if (!step2Res) throw new Error("La etapa 2 devolvió una respuesta vacía.");
-            step2Data = JSON.parse(step2Res.trim());
-            process.stdout.write("✅ [PIPELINE] Etapa 2 (Psicología) finalizada con éxito\n");
-        } catch (err) {
-            console.error("❌ [PIPELINE ERROR ETAPA 2]:", err);
-            throw new Error(`Error en Etapa 2 (Psicología): ${err.message}`);
-        }
-
-        // ETAPA 3: Web System
-        try {
-            process.stdout.write("⏳ [PIPELINE] Generando Etapa 3: Web System...\n");
-            const step3Prompt = `Genera la estructura de la Landing Page y Thank You Page para "${productName}". 
-            Contexto psicológico: ${JSON.stringify(step2Data.psychology)}. Lead Magnet: "${leadMagnetType}".
-            
-            Responde estrictamente en formato JSON con la llave "web":
-            {
-              "web": {
-                "landingPageTabs": {
-                   "hero": { "label": "1. Encabezado", "type": "hero", "h1": "string", "h2": "string", "strategyText": "string" },
-                   "pain": { "label": "2. Dolores", "type": "pain", "items": ["string"], "strategyText": "string" },
-                   "benefits": { "label": "3. Beneficios", "type": "benefits", "items": [ { "title": "string", "desc": "string" } ], "strategyText": "string" }
-                },
-                "thankYouPageTabs": {
-                   "header": { "label": "1. Confirmación", "type": "header", "content": { "h1": "string", "h2": "string" }, "strategyText": "string" },
-                   "action": { "label": "2. Siguiente Paso", "type": "action", "content": { "h1": "string", "h2": "string" }, "strategyText": "string" },
-                   "magnet": { "label": "3. Regalo", "type": "magnet", "content": { "h1": "string", "h2": "string" }, "strategyText": "string" }
-                }
-              }
-            }`;
-
-            console.log("DEBUG PROMPT ETAPA 3:", step3Prompt);
-            
-            const step3Res = await generateContent('gemini-3-pro-preview', step3Prompt, { 
-                responseMimeType: "application/json" 
-            });
-            if (!step3Res) throw new Error("La etapa 3 devolvió una respuesta vacía.");
-            step3Web = JSON.parse(step3Res.trim()).web;
-            process.stdout.write("✅ [PIPELINE] Etapa 3 (Web) finalizada con éxito\n");
-        } catch (err) {
-            console.error("❌ [PIPELINE ERROR ETAPA 3]:", err);
-            throw new Error(`Error en Etapa 3 (Web): ${err.message}`);
-        }
-
-        // ETAPA 4: Content Strategy
-        try {
-            process.stdout.write("⏳ [PIPELINE] Generando Etapa 4: Content Strategy...\n");
-            const step4Prompt = `Genera una lista de 10 artículos SEO para "${productName}". 
-            Nicho: "${niche}". Contexto: ${JSON.stringify(step2Data.psychology.conversionStrategy)}.
-            
-            Responde estrictamente en formato JSON con la llave "content":
-            {
-              "content": [
-                { "id": number, "title": "string", "keyword": "string", "searchVolume": "string", "objective": "string", "strategy": "string" }
-              ]
-            }`;
-
-            console.log("DEBUG PROMPT ETAPA 4:", step4Prompt);
-            
-            const step4Res = await generateContent('gemini-3-pro-preview', step4Prompt, { 
-                responseMimeType: "application/json",
-                thinkingConfig: { thinkingBudget: 16384 }
-            });
-            if (!step4Res) throw new Error("La etapa 4 devolvió una respuesta vacía.");
-            step4Content = JSON.parse(step4Res.trim()).content;
-            process.stdout.write("✅ [PIPELINE] Etapa 4 (Contenido SEO) finalizada con éxito\n");
-        } catch (err) {
-            console.error("❌ [PIPELINE ERROR ETAPA 4]:", err);
-            throw new Error(`Error en Etapa 4 (Contenido): ${err.message}`);
-        }
-
-        // ETAPA 5: Email Marketing
-        try {
-            process.stdout.write("⏳ [PIPELINE] Generando Etapa 5: Email Marketing...\n");
-            const step5Prompt = `Genera la secuencia de 7 correos (Nurture) and 1 correo Evergreen para "${productName}". 
-            Avatar Principal: ${JSON.stringify(step1Data.avatars[0])}.
-            
-            Responde estrictamente en formato JSON con la llave "emails":
-            {
-              "emails": {
-                "nurture": [ { "id": number, "day": "Día X", "subject": "string", "type": "string", "objective": "string", "bodyPreview": "string" } ],
-                "evergreen": [ { "id": number, "day": "Día 8+", "subject": "string", "type": "string", "objective": "string", "bodyPreview": "string" } ]
-              }
-            }`;
-
-            console.log("DEBUG PROMPT ETAPA 5:", step5Prompt);
-            
-            const step5Res = await generateContent('gemini-3-pro-preview', step5Prompt, { 
-                responseMimeType: "application/json",
-                thinkingConfig: { thinkingBudget: 16384 }
-            });
-            if (!step5Res) throw new Error("La etapa 5 devolvió una respuesta vacía.");
-            step5Emails = JSON.parse(step5Res.trim()).emails;
-            process.stdout.write("✅ [PIPELINE] Etapa 5 (Emails) finalizada con éxito\n");
-        } catch (err) {
-            console.error("❌ [PIPELINE ERROR ETAPA 5]:", err);
-            throw new Error(`Error en Etapa 5 (Emails): ${err.message}`);
-        }
-
-        // ETAPA 6: WhatsApp Scripts
-        try {
-            process.stdout.write("⏳ [PIPELINE] Generando Etapa 6: WhatsApp Scripts...\n");
-            const step6Prompt = `Genera los guiones de cierre por WhatsApp para "${productName}".
-            Contexto: ${JSON.stringify(step2Data.psychology.buyingPsychology)}.
-            
-            Responde estrictamente en formato JSON con la llave "whatsapp":
-            {
-              "whatsapp": [
-                { "id": number, "title": "string", "objective": "string", "messages": [ { "role": "agent|user", "text": "string" } ] }
-              ]
-            }`;
-
-            console.log("DEBUG PROMPT ETAPA 6:", step6Prompt);
-            
-            const step6Res = await generateContent('gemini-3-pro-preview', step6Prompt, { 
-                responseMimeType: "application/json" 
-            });
-            if (!step6Res) throw new Error("La etapa 6 devolvió una respuesta vacía.");
-            step6WhatsApp = JSON.parse(step6Res.trim()).whatsapp;
-            process.stdout.write("✅ [PIPELINE] Etapa 6 (WhatsApp Scripts) finalizada con éxito\n");
-        } catch (err) {
-            console.error("❌ [PIPELINE ERROR ETAPA 6]:", err);
-            throw new Error(`Error en Etapa 6 (WhatsApp): ${err.message}`);
-        }
-        */
-
-        // Consolidación final
+        // 4. LOG DE CONSOLIDACIÓN
+        process.stdout.write(`[PIPELINE DEBUG] Ensamblando JSON final...\n`);
+        
         const finalJson = { 
             meta: step1Data.meta,
             avatars: step1Data.avatars,
@@ -405,11 +310,14 @@ const generateFullStrategy = async (projectId) => {
             } 
         };
 
-        process.stdout.write(`✨ [PIPELINE COMPLETE] Estrategia generada exitosamente en ${(Date.now() - startTime) / 1000}s\n`);
+        process.stdout.write(`[PIPELINE DEBUG] JSON Ensamblado: ${JSON.stringify(finalJson).substring(0, 200)}...\n`);
+        process.stdout.write(`✨ [PIPELINE DEBUG COMPLETE] Retornando datos al cliente con éxito.\n`);
+
         return finalJson;
 
     } catch (error) {
-        console.error("❌ [PIPELINE CRITICAL ERROR]:", error);
+        process.stdout.write(`❌ [PIPELINE DEBUG ERROR CRÍTICO]: ${error.message}\n`);
+        console.error(error);
         throw error;
     }
 };
