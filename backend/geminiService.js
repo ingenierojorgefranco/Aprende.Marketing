@@ -196,7 +196,13 @@ const generateFullStrategy = async (projectId) => {
     try {
         process.stdout.write(`⏳ [PIPELINE IA] Llamando a Gemini 3 Pro para Etapa 1: ${productName}...\n`);
         
-        const step1Prompt = `Eres un Estratega Senior. Genera el ADN de marketing y 3 Avatares detallados para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}". 
+        const step1Prompt = `Eres un Estratega Senior de Marketing Digital. Tu misión es generar el ADN de marketing y 3 perfiles de Avatar extremadamente detallados para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}".
+
+        INSTRUCCIONES PARA LOS 3 AVATARES (OBLIGATORIO):
+        Genera perfiles diferenciados y profundos para estos 3 tipos de cliente:
+        1. AVATAR 1 (El Emprendedor Activo): Alguien con energía que busca escalar un negocio o empezar uno nuevo con decisión.
+        2. AVATAR 2 (El Escéptico con Miedo): Alguien que ha tenido malas experiencias previas o tiene miedo a perder su inversión.
+        3. AVATAR 3 (La Persona en Reinvención): Alguien estancado en un trabajo convencional que busca un cambio total de estilo de vida.
         
         Responde estrictamente en formato JSON con la siguiente estructura exacta:
         {
@@ -216,34 +222,63 @@ const generateFullStrategy = async (projectId) => {
                         { "label": "Nicho", "value": "${niche}", "icon": "Sparkles", "color": "text-purple-400", "bg": "bg-purple-500/10", "border": "border-purple-500/20" }
                     ] 
                 },
-                "niche": { "title": "Análisis de Nicho", "description": "Análisis profundo generado por IA." },
-                "product": { "title": "Rentabilidad", "description": "Potencial de ingresos alto." },
-                "objective": { "title": "Método de Cierre", "description": "Embudo automático." }
+                "niche": { "title": "Análisis de Nicho", "description": "Análisis profundo del nicho generado por IA." },
+                "product": { "title": "Rentabilidad", "description": "Evaluación del potencial de ingresos del producto." },
+                "objective": { "title": "Método de Cierre", "description": "Embudo sugerido para maximizar ventas." }
             }
           },
           "avatars": [
             {
               "id": 1,
-              "name": "Nombre",
-              "archetype": "Arquetipo",
-              "age": "Rango",
-              "quote": "Frase",
-              "pain": "Dolor",
-              "daily_manifestation": "Día a día",
-              "desire": "Deseo",
-              "emotional_reason": "Para qué",
-              "objection": "Miedo",
-              "interests": "Intereses",
-              "behavior": "Comportamiento",
-              "motivations": { "dinero": 80, "tiempo": 90, "estatus": 50, "seguridad": 70 }
+              "name": "Nombre Realista",
+              "archetype": "Emprendedor Activo",
+              "age": "Rango de edad",
+              "quote": "Frase que define su mentalidad",
+              "pain": "Dolor principal",
+              "daily_manifestation": "Cómo experimenta el dolor en su día a día",
+              "desire": "Deseo profundo",
+              "emotional_reason": "Para qué emocional de su deseo",
+              "objection": "Miedo principal al éxito o al fallo",
+              "interests": "Intereses específicos",
+              "behavior": "Comportamiento en canales digitales",
+              "motivations": { "dinero": 90, "tiempo": 80, "estatus": 70, "seguridad": 60 }
+            },
+            {
+              "id": 2,
+              "name": "Nombre Realista",
+              "archetype": "Escéptico con Miedo",
+              "age": "Rango de edad",
+              "quote": "Frase de duda o desconfianza",
+              "pain": "Dolor principal",
+              "daily_manifestation": "Cómo experimenta el dolor en su día a día",
+              "desire": "Deseo profundo",
+              "emotional_reason": "Para qué emocional de su deseo",
+              "objection": "Miedo al fraude o mala inversión",
+              "interests": "Intereses específicos",
+              "behavior": "Comportamiento en canales digitales",
+              "motivations": { "dinero": 70, "tiempo": 60, "estatus": 50, "seguridad": 95 }
+            },
+            {
+              "id": 3,
+              "name": "Nombre Realista",
+              "archetype": "Persona buscando Reinvención",
+              "age": "Rango de edad",
+              "quote": "Frase de cansancio y esperanza",
+              "pain": "Dolor principal",
+              "daily_manifestation": "Cómo experimenta el dolor en su día a día",
+              "desire": "Deseo profundo",
+              "emotional_reason": "Para qué emocional de su deseo",
+              "objection": "Miedo a empezar de cero",
+              "interests": "Intereses específicos",
+              "behavior": "Comportamiento en canales digitales",
+              "motivations": { "dinero": 80, "tiempo": 95, "estatus": 60, "seguridad": 70 }
             }
           ]
-        }
-        
-        IMPORTANTE: Genera 3 avatares reales en el array 'avatars'.`;
+        }`;
 
         const step1Res = await generateContent('gemini-3-pro-preview', step1Prompt, { 
-            responseMimeType: "application/json"
+            responseMimeType: "application/json",
+            thinkingConfig: { thinkingBudget: 24000 }
         });
 
         if (!step1Res) throw new Error("Gemini devolvió vacío en Etapa 1");
