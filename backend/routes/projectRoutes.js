@@ -113,7 +113,7 @@ router.post('/unlock/:id', async (req, res) => {
 // ======================================================
 
 router.post('/analyze-site', async (req, res) => {
-    process.stdout.write(`\n[CRITICAL SCRAPE] Solicitud analyze-site recibida para URL a las ${new Date().toISOString()}\n`);
+    process.stdout.write(`\n[CRITICAL SCRAPE] Recibida petición analyze-site para URL a las ${new Date().toISOString()}\n`);
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: 'URL no proporcionada' });
 
@@ -144,26 +144,26 @@ router.post('/analyze-site', async (req, res) => {
         
         // LIMPIEZA PROFUNDA DE HTML
         let cleanText = html
-            .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "") // Quitar scripts
-            .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "")   // Quitar estilos
-            .replace(/<!--[\s\S]*?-->/g, "")                      // Quitar comentarios HTML
-            .replace(/<svg\b[^>]*>([\s\S]*?)<\/svg>/gim, "")      // Quitar SVGs
-            .replace(/<[^>]+>/g, ' ')                             // Quitar tags pero dejar espacio
+            .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "") 
+            .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "")   
+            .replace(/<!--[\s\S]*?-->/g, "")                      
+            .replace(/<svg\b[^>]*>([\s\S]*?)<\/svg>/gim, "")      
+            .replace(/<[^>]+>/g, ' ')                             
             .replace(/&nbsp;/g, ' ')
-            .replace(/\s+/g, ' ')                                 // Unificar espacios
+            .replace(/\s+/g, ' ')                                 
             .trim();
 
-        process.stdout.write(`[SCRAPER AUDIT] Longitud extraída: ${cleanText.length} caracteres. Llamando a Gemini...\n`);
+        process.stdout.write(`[SCRAPER AUDIT] Longitud: ${cleanText.length} caracteres. Llamando a IA...\n`);
 
         if (!cleanText || cleanText.length < 200) {
-            return res.status(422).json({ error: 'No se pudo extraer contenido suficiente. El sitio podría estar protegido o cargado dinámicamente.' });
+            return res.status(422).json({ error: 'Contenido insuficiente extraído del sitio.' });
         }
 
         const analysis = await analyzeWebsiteContent(cleanText);
         res.json(analysis);
 
     } catch (error) {
-        console.error("[Analyze Site Error]", error);
+        process.stdout.write(`[SCRAPE ERROR] ${error.message}\n`);
         res.status(500).json({ error: error.message || 'Error analizando el sitio web.' });
     }
 });
@@ -240,14 +240,14 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, salesPageUrl, isMaster } = req.body;
+  const { name, niche, description, targetAudience, brand_tone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, salesPageUrl, isMaster } = req.body;
   try {
     const [check] = await pool.query('SELECT user_id, is_master FROM projects WHERE id = ?', [id]);
     if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) return res.status(403).json({ error: 'No autorizado' });
     const isMasterFinal = (req.user.role === 'admin' && isMaster !== undefined) ? (isMaster ? 1 : 0) : check[0].is_master;
     await pool.query(
       `UPDATE projects SET name=?, niche=?, description=?, target_audience=?, brand_tone=?, product_name=?, main_goal=?, pain_points=?, key_benefits=?, affiliate_links=?, strategy_json=?, full_price=?, commission_rate=?, lead_magnet_type=?, sales_page_url=?, is_master=?, updated_at=NOW() WHERE id=?`,
-      [name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', salesPageUrl || '', isMasterFinal, id]
+      [name, niche, description, targetAudience, brand_tone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', salesPageUrl || '', isMasterFinal, id]
     );
     res.json({ message: 'Actualizado' });
   } catch (error) { res.status(500).json({ error: 'Error' }); }
@@ -268,30 +268,27 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/:id/generate-strategy', async (req, res) => {
-    // 1. FORZADO DE SALIDA EN CONSOLA (Bypassing buffering)
-    process.stdout.write(`\n[CRITICAL AUDIT] Recibida petición POST /generate-strategy para ID: ${req.params.id} a las ${new Date().toISOString()}\n`);
+    process.stdout.write(`\n[CRITICAL AUDIT] POST /generate-strategy ID: ${req.params.id} at ${new Date().toISOString()}\n`);
     
     try {
-        process.stdout.write(`[DB CHECK] Iniciando verificación para Proyecto ID: ${req.params.id}\n`);
-        // 2. Log de seguimiento de conexión BD granular
+        process.stdout.write(`[DB CHECK] Verificando permisos...\n`);
         const [check] = await pool.query('SELECT user_id FROM projects WHERE id = ?', [req.params.id]);
-        process.stdout.write(`[DB CHECK] Proyecto encontrado: ${check.length > 0}. Iniciando Pipeline...\n`);
 
         if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) {
-            console.warn(`[AUTH WARN] Intento de acceso no autorizado o proyecto inexistente: ${req.params.id}`);
+            process.stdout.write(`[AUTH WARN] No autorizado: ${req.params.id}\n`);
             return res.status(403).json({ error: 'No autorizado' });
         }
 
-        // Call pipeline passing only the ID
+        process.stdout.write(`[PIPELINE CALL] Iniciando pipeline fraccionado...\n`);
         const strategyJson = await generateFullStrategy(req.params.id);
-        process.stdout.write(`[PIPELINE SUCCESS] IA devolvió datos para ID: ${req.params.id}. Actualizando BD...\n`);
+        process.stdout.write(`[PIPELINE SUCCESS] Datos recibidos. Guardando en BD...\n`);
 
         await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), req.params.id]);
-        process.stdout.write(`[DB UPDATE] Estrategia guardada exitosamente para ID: ${req.params.id}\n`);
+        process.stdout.write(`[DB UPDATE] Guardado exitoso.\n`);
         
         res.json(strategyJson);
     } catch (e) { 
-        console.error(`[ROUTE ERROR] Fallo crítico en generación para ${req.params.id}:`, e.message);
+        process.stdout.write(`[ROUTE ERROR] Fallo crítico: ${e.message}\n`);
         res.status(500).json({ error: e.message }); 
     }
 });
