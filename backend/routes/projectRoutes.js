@@ -113,6 +113,7 @@ router.post('/unlock/:id', async (req, res) => {
 // ======================================================
 
 router.post('/analyze-site', async (req, res) => {
+    process.stdout.write(`\n[CRITICAL SCRAPE] Solicitud analyze-site recibida para URL a las ${new Date().toISOString()}\n`);
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: 'URL no proporcionada' });
 
@@ -152,7 +153,7 @@ router.post('/analyze-site', async (req, res) => {
             .replace(/\s+/g, ' ')                                 // Unificar espacios
             .trim();
 
-        console.log(`[SCRAPER AUDIT] Longitud extraída: ${cleanText.length} caracteres.`);
+        process.stdout.write(`[SCRAPER AUDIT] Longitud extraída: ${cleanText.length} caracteres. Llamando a Gemini...\n`);
 
         if (!cleanText || cleanText.length < 200) {
             return res.status(422).json({ error: 'No se pudo extraer contenido suficiente. El sitio podría estar protegido o cargado dinámicamente.' });
@@ -267,27 +268,26 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/:id/generate-strategy', async (req, res) => {
-    // 1. Log de entrada prioritario absoluto
-    console.log(`[CRITICAL AUDIT] Recibida petición POST /generate-strategy para ID: ${req.params.id} a las ${new Date().toISOString()}`);
+    // 1. FORZADO DE SALIDA EN CONSOLA (Bypassing buffering)
+    process.stdout.write(`\n[CRITICAL AUDIT] Recibida petición POST /generate-strategy para ID: ${req.params.id} a las ${new Date().toISOString()}\n`);
     
     try {
-        console.log(`[DB CHECK] Iniciando verificación de permisos para Proyecto ID: ${req.params.id}`);
-        // 2. Log de seguimiento de conexión BD
+        process.stdout.write(`[DB CHECK] Iniciando verificación para Proyecto ID: ${req.params.id}\n`);
+        // 2. Log de seguimiento de conexión BD granular
         const [check] = await pool.query('SELECT user_id FROM projects WHERE id = ?', [req.params.id]);
-        console.log(`[DB CHECK] Verificación de existencia completada para ID: ${req.params.id}`);
+        process.stdout.write(`[DB CHECK] Proyecto encontrado: ${check.length > 0}. Iniciando Pipeline...\n`);
 
         if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) {
             console.warn(`[AUTH WARN] Intento de acceso no autorizado o proyecto inexistente: ${req.params.id}`);
             return res.status(403).json({ error: 'No autorizado' });
         }
 
-        console.log(`[PIPELINE CALL] Saltando al servicio de IA para Proyecto ID: ${req.params.id}`);
         // Call pipeline passing only the ID
         const strategyJson = await generateFullStrategy(req.params.id);
-        console.log(`[PIPELINE SUCCESS] IA devolvió datos. Iniciando guardado en BD para ID: ${req.params.id}`);
+        process.stdout.write(`[PIPELINE SUCCESS] IA devolvió datos para ID: ${req.params.id}. Actualizando BD...\n`);
 
         await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), req.params.id]);
-        console.log(`[DB UPDATE] Estrategia guardada exitosamente para ID: ${req.params.id}`);
+        process.stdout.write(`[DB UPDATE] Estrategia guardada exitosamente para ID: ${req.params.id}\n`);
         
         res.json(strategyJson);
     } catch (e) { 
