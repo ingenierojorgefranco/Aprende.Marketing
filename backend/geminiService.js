@@ -194,6 +194,13 @@ const generateFullStrategy = async (projectId) => {
 
     let step1Data, step2Data, step3Web, step4Content, step5Emails, step6WhatsApp;
 
+    // Inicialización de estructuras vacías para evitar fallos en la consolidación final mientras las etapas están comentadas
+    step2Data = { psychology: { pains: [], solutions: [], unique_mechanism: "", avoid: [], awarenessStages: {}, buyingPsychology: { notBuyingReasons: [], buyingReasons: [], strategistConclusion: "" }, conversionStrategy: { mainFocus: [], prioritizedChannels: [], communicationStyle: [], tacticalNote: "" } } };
+    step3Web = { landingPageTabs: {}, thankYouPageTabs: {} };
+    step4Content = [];
+    step5Emails = { nurture: [], evergreen: [] };
+    step6WhatsApp = [];
+
     process.stdout.write(`🚀 [PIPELINE EXECUTION] Iniciando motores de IA para el producto: ${productName}\n`);
 
     try {
@@ -215,12 +222,14 @@ const generateFullStrategy = async (projectId) => {
             });
             if (!step1Res) throw new Error("La etapa 1 devolvió una respuesta vacía.");
             step1Data = JSON.parse(step1Res.trim());
+            console.log("DEBUG ETAPA 1 GENERADA:", JSON.stringify(step1Data, null, 2));
             process.stdout.write("✅ [PIPELINE] Etapa 1 (Avatares) finalizada con éxito\n");
         } catch (err) {
             console.error("❌ [PIPELINE ERROR ETAPA 1]:", err);
             throw new Error(`Error en Etapa 1 (Avatares): ${err.message}`);
         }
 
+        /* COMENTADO PARA REVISIÓN PASO A PASO
         // ETAPA 2: Psicología de Venta
         try {
             process.stdout.write("⏳ [PIPELINE] Generando Etapa 2: Psicología de Venta...\n");
@@ -378,6 +387,7 @@ const generateFullStrategy = async (projectId) => {
             console.error("❌ [PIPELINE ERROR ETAPA 6]:", err);
             throw new Error(`Error en Etapa 6 (WhatsApp): ${err.message}`);
         }
+        */
 
         // Consolidación final
         const finalJson = { 
