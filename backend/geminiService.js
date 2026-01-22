@@ -171,128 +171,147 @@ const analyzeWebsiteContent = async (rawText) => {
  */
 const generateFullStrategy = async (projectId) => {
     // 1. LOG DE INICIO DE PIPELINE
-    process.stdout.write(`\n🚀 [PIPELINE DEBUG] Iniciando pipeline de prueba para Proyecto ID: ${projectId}\n`);
+    process.stdout.write(`\n🚀 [PIPELINE START] Generación real (Etapa 1 IA) para Proyecto ID: ${projectId}\n`);
 
     if (!aiClient) throw new Error("Gemini API Key not configured.");
 
     // 2. LOG DE ACCESO A BASE DE DATOS
-    process.stdout.write(`[PIPELINE DEBUG] Consultando base de datos para ID: ${projectId}...\n`);
+    process.stdout.write(`[PIPELINE DB] Consultando base de datos para ID: ${projectId}...\n`);
     const [rows] = await pool.query(
         "SELECT niche, product_name, brand_tone, full_price, commission_rate, lead_magnet_type, description FROM projects WHERE id = ?",
         [projectId]
     );
 
     if (rows.length === 0) {
-        process.stdout.write(`❌ [PIPELINE DEBUG] ERROR: Proyecto ${projectId} no encontrado.\n`);
+        process.stdout.write(`❌ [PIPELINE ERROR] Proyecto ${projectId} no encontrado.\n`);
         throw new Error("Project not found in pipeline retrieval.");
     }
     
     const projectData = rows[0];
-    process.stdout.write(`[PIPELINE DEBUG] Datos recuperados de BD: ${JSON.stringify(projectData)}\n`);
-
     const { niche, product_name: productName, brand_tone: brandTone, full_price: fullPrice, commission_rate: commissionRate } = projectData;
 
     let step1Data, step2Data, step3Web, step4Content, step5Emails, step6WhatsApp;
 
-    // 3. INYECCIÓN DE DATOS DUMMY (SALTANDO IA)
-    process.stdout.write(`[PIPELINE DEBUG] Saltando llamadas a IA e inyectando datos estáticos de prueba...\n`);
-
-    step1Data = {
-        meta: {
-            projectName: productName,
-            niche: niche,
-            productType: "Digital Product",
-            objective: "Direct Sales",
-            price: fullPrice || 0,
-            commissionRate: commissionRate || 0,
-            projection: [0, 100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000],
-            insights: {
-                overview: { 
-                    title: "Estrategia General", 
-                    items: [
-                        { label: "Producto", value: productName, icon: "BookOpen", color: "text-pink-400", bg: "bg-pink-500/10", border: "border-pink-500/20" },
-                        { label: "Nicho", value: niche, icon: "Sparkles", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" }
+    // 3. GENERACIÓN REAL ETAPA 1 (IA)
+    try {
+        process.stdout.write(`⏳ [PIPELINE IA] Llamando a Gemini 3 Pro para Etapa 1: ${productName}...\n`);
+        
+        const step1Prompt = `Eres un Estratega Senior. Genera el ADN de marketing y 3 Avatares detallados para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}". 
+        
+        Responde estrictamente en formato JSON con la siguiente estructura exacta:
+        {
+          "meta": {
+            "projectName": "${productName}",
+            "niche": "${niche}",
+            "productType": "Digital Product",
+            "objective": "Direct Sales",
+            "price": ${fullPrice || 0},
+            "commissionRate": ${commissionRate || 0},
+            "projection": [0, 100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000],
+            "insights": {
+                "overview": { 
+                    "title": "Estrategia General", 
+                    "items": [
+                        { "label": "Producto", "value": "${productName}", "icon": "BookOpen", "color": "text-pink-400", "bg": "bg-pink-500/10", "border": "border-pink-500/20" },
+                        { "label": "Nicho", "value": "${niche}", "icon": "Sparkles", "color": "text-purple-400", "bg": "bg-purple-500/10", "border": "border-purple-500/20" }
                     ] 
                 },
-                niche: { title: "Análisis de Nicho", description: `Análisis para el nicho ${niche}.` },
-                product: { title: "Rentabilidad", description: "Producto con alta rentabilidad estimada." },
-                objective: { title: "Método de Cierre", description: "Cierre automático mediante embudo de ventas." }
+                "niche": { "title": "Análisis de Nicho", "description": "Análisis profundo generado por IA." },
+                "product": { "title": "Rentabilidad", "description": "Potencial de ingresos alto." },
+                "objective": { "title": "Método de Cierre", "description": "Embudo automático." }
             }
-        },
-        avatars: [
+          },
+          "avatars": [
             {
-                id: 1,
-                name: "Avatar de Prueba",
-                archetype: "Emprendedor Digital",
-                age: "25-45 años",
-                quote: "Necesito escalar mis resultados con IA.",
-                pain: "Falta de ventas constantes y procesos manuales lentos.",
-                daily_manifestation: "Frustración al revisar el panel de ventas cada mañana.",
-                desire: "Automatizar su negocio para tener libertad.",
-                emotional_reason: "Sentirse exitoso y proveer a su familia.",
-                objection: "No tengo tiempo para aprender cosas técnicas.",
-                interests: "Marketing, Tecnología",
-                behavior: "Activo en redes sociales",
-                motivations: { dinero: 80, tiempo: 95, estatus: 60, seguridad: 75 }
+              "id": 1,
+              "name": "Nombre",
+              "archetype": "Arquetipo",
+              "age": "Rango",
+              "quote": "Frase",
+              "pain": "Dolor",
+              "daily_manifestation": "Día a día",
+              "desire": "Deseo",
+              "emotional_reason": "Para qué",
+              "objection": "Miedo",
+              "interests": "Intereses",
+              "behavior": "Comportamiento",
+              "motivations": { "dinero": 80, "tiempo": 90, "estatus": 50, "seguridad": 70 }
             }
-        ]
-    };
+          ]
+        }
+        
+        IMPORTANTE: Genera 3 avatares reales en el array 'avatars'.`;
+
+        const step1Res = await generateContent('gemini-3-pro-preview', step1Prompt, { 
+            responseMimeType: "application/json"
+        });
+
+        if (!step1Res) throw new Error("Gemini devolvió vacío en Etapa 1");
+        
+        step1Data = JSON.parse(step1Res.trim());
+        process.stdout.write(`✅ [PIPELINE IA] Etapa 1 finalizada con éxito para ${productName}.\n`);
+
+    } catch (err) {
+        process.stdout.write(`❌ [PIPELINE ERROR ETAPA 1 IA]: ${err.message}\n`);
+        throw err;
+    }
+
+    // 4. DATOS DUMMY PARA ETAPAS 2-6 (PARA PRUEBAS)
+    process.stdout.write(`[PIPELINE DEBUG] Inyectando datos estáticos para etapas 2 a 6...\n`);
 
     step2Data = {
         psychology: {
-            pains: ["Miedo al fracaso", "Pérdida de dinero en anuncios"],
-            solutions: ["Sistema validado", "Copywriting de alta conversión"],
-            unique_mechanism: "Algoritmo de IA Propietario",
-            avoid: ["Promesas de riqueza rápida"],
+            pains: ["Falta de tiempo", "Escasez de clientes"],
+            solutions: ["Sistema automático", "Copy persuasivo"],
+            unique_mechanism: "Algoritmo IA v2.9",
+            avoid: ["Promesas falsas"],
             awarenessStages: {
-                stage1_pain: "Sabe que necesita un cambio",
-                stage2_solution: "Conoce la automatización",
-                stage3_barrier: "Miedo a la inversión"
+                stage1_pain: "Consciente del problema",
+                stage2_solution: "Buscando solución",
+                stage3_barrier: "Miedo a fallar"
             },
             buyingPsychology: {
-                notBuyingReasons: [{ title: "Costo", description: "Duda sobre el ROI inicial" }],
-                buyingReasons: [{ title: "Escalabilidad", description: "Potencial de crecimiento ilimitado" }],
-                strategistConclusion: "Enfocar el mensaje en la simplicidad y el retorno rápido."
+                notBuyingReasons: [{ title: "Duda", description: "Miedo al riesgo" }],
+                buyingReasons: [{ title: "Confianza", description: "Resultados probados" }],
+                strategistConclusion: "Enfoque en autoridad y resultados rápidos."
             },
             conversionStrategy: {
                 mainFocus: [{ label: "Emocional", description: "Conectar con el deseo de libertad" }],
                 prioritizedChannels: [{ label: "WhatsApp", type: "WA" }],
-                communicationStyle: [{ label: "Profesional", description: "Tono serio y experto" }],
-                tacticalNote: "Usar testimonios en cada fase del cierre."
+                communicationStyle: [{ label: "Cercano", description: "Tono amigable" }],
+                tacticalNote: "Priorizar el seguimiento 1 a 1."
             }
         }
     };
 
     step3Web = {
         landingPageTabs: {
-            hero: { label: "1. Encabezado", type: "hero", h1: `Domina ${productName} con IA`, h2: "La solución definitiva", strategyText: "Headline directo al beneficio principal." },
-            pain: { label: "2. Dolores", type: "pain", items: ["Dolor 1", "Dolor 2"], strategyText: "Agitación de dolores específicos." },
-            benefits: { label: "3. Beneficios", type: "benefits", items: [{ title: "Beneficio 1", desc: "Descripción del beneficio" }], strategyText: "Presentación de la cura." }
+            hero: { label: "1. Encabezado", type: "hero", h1: `Genera ${productName} hoy`, h2: "Sin complicaciones", strategyText: "Headline de curiosidad." },
+            pain: { label: "2. Dolores", type: "pain", items: ["Dolor 1", "Dolor 2"], strategyText: "Agitación de dolores." },
+            benefits: { label: "3. Beneficios", type: "benefits", items: [{ title: "Beneficio 1", desc: "Descripción" }], strategyText: "Presentación de cura." }
         },
         thankYouPageTabs: {
-            header: { label: "1. Confirmación", type: "header", content: { h1: "¡Bienvenido!", h2: "Registro completado con éxito." }, strategyText: "Paz mental inmediata." },
-            action: { label: "2. Siguiente Paso", type: "action", content: { h1: "Únete a la Comunidad", h2: "Haz clic en el botón de abajo." }, strategyText: "Micro-compromiso." },
-            magnet: { label: "3. Regalo", type: "magnet", content: { h1: "Descarga tu Guía", h2: "El PDF está listo." }, strategyText: "Entrega de valor." }
+            header: { label: "1. Confirmación", type: "header", content: { h1: "¡Listo!", h2: "Bienvenido." }, strategyText: "Paz mental." },
+            action: { label: "2. Siguiente Paso", type: "action", content: { h1: "Únete", h2: "Haz clic." }, strategyText: "Compromiso." },
+            magnet: { label: "3. Regalo", type: "magnet", content: { h1: "Descarga", h2: "Guía lista." }, strategyText: "Valor." }
         }
     };
 
     step4Content = [
-        { id: 1, title: "Cómo escalar tu negocio", keyword: "negocio digital", searchVolume: "5K", objective: "Atracción", strategy: "Contenido SEO de valor" }
+        { id: 1, title: "Articulo de prueba", keyword: "seo", searchVolume: "1K", objective: "Tráfico", strategy: "Educativo" }
     ];
 
     step5Emails = {
-        nurture: [{ id: 1, day: "Día 0", subject: "Bienvenida", type: "Valor", objective: "Entrega", bodyPreview: "Hola, aquí tienes lo prometido..." }],
-        evergreen: [{ id: 8, day: "Día 8", subject: "Oferta", type: "Venta", objective: "Cierre", bodyPreview: "No dejes pasar esta oportunidad..." }]
+        nurture: [{ id: 1, day: "Día 0", subject: "Bienvenida", type: "Valor", objective: "Entrega", bodyPreview: "Hola..." }],
+        evergreen: [{ id: 8, day: "Día 8", subject: "Oferta", type: "Venta", objective: "Cierre", bodyPreview: "Compra ahora..." }]
     };
 
     step6WhatsApp = [
-        { id: 1, title: "Cierre de Venta", objective: "Cierre", messages: [{ role: "agent", text: "¡Hola! ¿Tienes alguna duda con el pago?" }] }
+        { id: 1, title: "Cierre WA", objective: "Venta", messages: [{ role: "agent", text: "Hola!" }] }
     ];
 
-    process.stdout.write(`[PIPELINE DEBUG] Datos Dummy inyectados correctamente.\n`);
-
     try {
-        // 4. LOG DE CONSOLIDACIÓN
+        // 5. CONSOLIDACIÓN FINAL
         process.stdout.write(`[PIPELINE DEBUG] Ensamblando JSON final...\n`);
         
         const finalJson = { 
@@ -310,14 +329,11 @@ const generateFullStrategy = async (projectId) => {
             } 
         };
 
-        process.stdout.write(`[PIPELINE DEBUG] JSON Ensamblado: ${JSON.stringify(finalJson).substring(0, 200)}...\n`);
-        process.stdout.write(`✨ [PIPELINE DEBUG COMPLETE] Retornando datos al cliente con éxito.\n`);
-
+        process.stdout.write(`✨ [PIPELINE COMPLETE] Retornando datos al cliente.\n`);
         return finalJson;
 
     } catch (error) {
-        process.stdout.write(`❌ [PIPELINE DEBUG ERROR CRÍTICO]: ${error.message}\n`);
-        console.error(error);
+        process.stdout.write(`❌ [PIPELINE CRITICAL ERROR]: ${error.message}\n`);
         throw error;
     }
 };
