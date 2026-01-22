@@ -174,8 +174,10 @@ const generateFullStrategy = async (projectData) => {
 
     let step1Data, step2Data, step3Web, step4Content, step5Emails, step6WhatsApp;
 
+    console.log(`🚀 [PIPELINE START] Iniciando generación de estrategia para: ${productName}`);
+
     try {
-        // ETAPA 1: ADN y Avatares (Actualizado a Pro)
+        // ETAPA 1: ADN y Avatares
         try {
             const step1Prompt = `Eres un Estratega Senior. Genera el ADN de marketing y 3 Avatares detallados para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}". 
             
@@ -190,12 +192,13 @@ const generateFullStrategy = async (projectData) => {
             });
             if (!step1Res) throw new Error("La etapa 1 devolvió una respuesta vacía.");
             step1Data = JSON.parse(step1Res.trim());
+            console.log("✅ [PIPELINE] Etapa 1 (Avatares) finalizada con éxito");
         } catch (err) {
             console.error("❌ [PIPELINE ERROR ETAPA 1]:", err);
             throw new Error(`Error en Etapa 1 (Avatares): ${err.message}`);
         }
 
-        // ETAPA 2: Psicología de Venta (Actualizado a Pro + Thinking Config)
+        // ETAPA 2: Psicología de Venta
         try {
             const step2Prompt = `Genera la psicología profunda de venta para "${productName}" basándote en estos avatares: ${JSON.stringify(step1Data.avatars)}. 
             
@@ -228,12 +231,13 @@ const generateFullStrategy = async (projectData) => {
             });
             if (!step2Res) throw new Error("La etapa 2 devolvió una respuesta vacía.");
             step2Data = JSON.parse(step2Res.trim());
+            console.log("✅ [PIPELINE] Etapa 2 (Psicología) finalizada con éxito");
         } catch (err) {
             console.error("❌ [PIPELINE ERROR ETAPA 2]:", err);
             throw new Error(`Error en Etapa 2 (Psicología): ${err.message}`);
         }
 
-        // ETAPA 3: Web System (Actualizado a Pro)
+        // ETAPA 3: Web System
         try {
             const step3Prompt = `Genera la estructura de la Landing Page y Thank You Page para "${productName}". 
             Contexto psicológico: ${JSON.stringify(step2Data.psychology)}. Lead Magnet: "${leadMagnetType}".
@@ -259,12 +263,13 @@ const generateFullStrategy = async (projectData) => {
             });
             if (!step3Res) throw new Error("La etapa 3 devolvió una respuesta vacía.");
             step3Web = JSON.parse(step3Res.trim()).web;
+            console.log("✅ [PIPELINE] Etapa 3 (Web) finalizada con éxito");
         } catch (err) {
             console.error("❌ [PIPELINE ERROR ETAPA 3]:", err);
             throw new Error(`Error en Etapa 3 (Web): ${err.message}`);
         }
 
-        // ETAPA 4: Content Strategy (Actualizado a Pro)
+        // ETAPA 4: Content Strategy
         try {
             const step4Prompt = `Genera una lista de 10 artículos SEO para "${productName}". 
             Nicho: "${niche}". Contexto: ${JSON.stringify(step2Data.psychology.conversionStrategy)}.
@@ -277,16 +282,18 @@ const generateFullStrategy = async (projectData) => {
             }`;
             
             const step4Res = await generateContent('gemini-3-pro-preview', step4Prompt, { 
-                responseMimeType: "application/json" 
+                responseMimeType: "application/json",
+                thinkingConfig: { thinkingBudget: 16384 }
             });
             if (!step4Res) throw new Error("La etapa 4 devolvió una respuesta vacía.");
             step4Content = JSON.parse(step4Res.trim()).content;
+            console.log("✅ [PIPELINE] Etapa 4 (Contenido SEO) finalizada con éxito");
         } catch (err) {
             console.error("❌ [PIPELINE ERROR ETAPA 4]:", err);
             throw new Error(`Error en Etapa 4 (Contenido): ${err.message}`);
         }
 
-        // ETAPA 5: Email Marketing (Actualizado a Pro)
+        // ETAPA 5: Email Marketing
         try {
             const step5Prompt = `Genera la secuencia de 7 correos (Nurture) and 1 correo Evergreen para "${productName}". 
             Avatar Principal: ${JSON.stringify(step1Data.avatars[0])}.
@@ -300,16 +307,18 @@ const generateFullStrategy = async (projectData) => {
             }`;
             
             const step5Res = await generateContent('gemini-3-pro-preview', step5Prompt, { 
-                responseMimeType: "application/json" 
+                responseMimeType: "application/json",
+                thinkingConfig: { thinkingBudget: 16384 }
             });
             if (!step5Res) throw new Error("La etapa 5 devolvió una respuesta vacía.");
             step5Emails = JSON.parse(step5Res.trim()).emails;
+            console.log("✅ [PIPELINE] Etapa 5 (Emails) finalizada con éxito");
         } catch (err) {
             console.error("❌ [PIPELINE ERROR ETAPA 5]:", err);
             throw new Error(`Error en Etapa 5 (Emails): ${err.message}`);
         }
 
-        // ETAPA 6: WhatsApp Scripts (Actualizado a Pro)
+        // ETAPA 6: WhatsApp Scripts
         try {
             const step6Prompt = `Genera los guiones de cierre por WhatsApp para "${productName}".
             Contexto: ${JSON.stringify(step2Data.psychology.buyingPsychology)}.
@@ -326,12 +335,13 @@ const generateFullStrategy = async (projectData) => {
             });
             if (!step6Res) throw new Error("La etapa 6 devolvió una respuesta vacía.");
             step6WhatsApp = JSON.parse(step6Res.trim()).whatsapp;
+            console.log("✅ [PIPELINE] Etapa 6 (WhatsApp Scripts) finalizada con éxito");
         } catch (err) {
             console.error("❌ [PIPELINE ERROR ETAPA 6]:", err);
             throw new Error(`Error en Etapa 6 (WhatsApp): ${err.message}`);
         }
 
-        // Consolidación final del objeto maestro esperado por el frontend
+        // Consolidación final
         const finalJson = { 
             meta: step1Data.meta,
             avatars: step1Data.avatars,
@@ -347,7 +357,7 @@ const generateFullStrategy = async (projectData) => {
             } 
         };
 
-        console.log(`[PIPELINE] Éxito total en ${(Date.now() - startTime) / 1000}s`);
+        console.log(`✨ [PIPELINE COMPLETE] Estrategia generada exitosamente en ${(Date.now() - startTime) / 1000}s`);
         return finalJson;
 
     } catch (error) {
