@@ -194,7 +194,7 @@ const generateFullStrategy = async (projectId) => {
 
     // 3. GENERACIÓN REAL ETAPA 1 (IA)
     try {
-        process.stdout.write(`⏳ [PIPELINE IA] Llamando a Gemini 3 Pro para Etapa 1: ${productName}...\n`);
+        process.stdout.write(`⏳ [PIPELINE IA] Llamando a Gemini 3 Flash para Etapa 1: ${productName}...\n`);
         
         const step1Prompt = `Eres un Estratega Senior de Marketing Digital. Tu misión es generar el ADN de marketing y 3 perfiles de Avatar extremadamente detallados para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}".
 
@@ -221,10 +221,7 @@ const generateFullStrategy = async (projectId) => {
                         { "label": "Producto", "value": "${productName}", "icon": "BookOpen", "color": "text-pink-400", "bg": "bg-pink-500/10", "border": "border-pink-500/20" },
                         { "label": "Nicho", "value": "${niche}", "icon": "Sparkles", "color": "text-purple-400", "bg": "bg-purple-500/10", "border": "border-purple-500/20" }
                     ] 
-                },
-                "niche": { "title": "Análisis de Nicho", "description": "Análisis profundo del nicho generado por IA." },
-                "product": { "title": "Rentabilidad", "description": "Evaluación del potencial de ingresos del producto." },
-                "objective": { "title": "Método de Cierre", "description": "Embudo sugerido para maximizar ventas." }
+                }
             }
           },
           "avatars": [
@@ -276,9 +273,9 @@ const generateFullStrategy = async (projectId) => {
           ]
         }`;
 
-        const step1Res = await generateContent('gemini-3-pro-preview', step1Prompt, { 
+        const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { 
             responseMimeType: "application/json",
-            thinkingConfig: { thinkingBudget: 24000 }
+            thinkingConfig: { thinkingBudget: 0 }
         });
 
         if (!step1Res) throw new Error("Gemini devolvió vacío en Etapa 1");
@@ -291,58 +288,408 @@ const generateFullStrategy = async (projectId) => {
         throw err;
     }
 
-    // 4. DATOS DUMMY PARA ETAPAS 2-6 (PARA PRUEBAS)
+    // 4. DATOS DUMMY PARA ETAPAS 2-6 (PARA PRUEBAS - SINCRO CON MOCK)
     process.stdout.write(`[PIPELINE DEBUG] Inyectando datos estáticos para etapas 2 a 6...\n`);
 
     step2Data = {
         psychology: {
-            pains: ["Falta de tiempo", "Escasez de clientes"],
-            solutions: ["Sistema automático", "Copy persuasivo"],
-            unique_mechanism: "Algoritmo IA v2.9",
-            avoid: ["Promesas falsas"],
+            pains: [
+                "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
+                "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.",
+                "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.",
+                "Ves pasar oportunidades de éxito en Instagram, pero te falta la guía técnica para dar el paso con seguridad.",
+                "Te apasiona la estética pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.",
+                "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.",
+                "Te detiene el miedo a las promesas vacías de internet que no enseñan nada realmente útil para tu futuro."
+            ],
+            solutions: [
+                "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo. Maximiza tu tiempo generando servicios de alto impacto económico.",
+                "Certificación profesional y acompañamiento que eliminan todo temor a cometer errores técnicos.",
+                "Metodología 100% práctica basada en resultados reales, con soporte paso a paso.",
+                "Estrategia probada de captación de clientes en Instagram para llenar tu agenda con seguridad.",
+                "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable.",
+                "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa.",
+                "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real."
+            ],
+            powerWords: ["Ingresos Propios", "Alto Valor", "Confianza Real", "Autoempleo", "Garantizado", "Estética Profesional"],
+            unique_mechanism: "Método Brows360: Una técnica patentada que fusiona visajismo digital con pigmentación orgánica para resultados que duran el doble.",
+            avoid: ["Gana dinero fácil", "Sin esfuerzo", "Fórmula mágica", "Hazte rico"],
             awarenessStages: {
-                stage1_pain: "Consciente del problema",
-                stage2_solution: "Buscando solución",
-                stage3_barrier: "Miedo a fallar"
+                stage1_pain: "Frustración por trabajar jornadas agotadoras sin estabilidad económica real.",
+                stage2_solution: "Sabe que el Microblading Hiperrealista es la técnica mejor pagada y más demandada.",
+                stage3_barrier: "Miedo a no tener acompañamiento práctico y desconfianza en la educación online básica."
             },
             buyingPsychology: {
-                notBuyingReasons: [{ title: "Duda", description: "Miedo al riesgo" }],
-                buyingReasons: [{ title: "Confianza", description: "Resultados probados" }],
-                strategistConclusion: "Enfoque en autoridad y resultados rápidos."
+                notBuyingReasons: [
+                    { title: "Duda de la factibilidad", description: "Teme que su falta de experiencia previa sea un impedimento real para aprender una técnica tan compleja.", detail: "Cree que necesita ser dibujante profesional para tener éxito." },
+                    { title: "Falta de claridad", description: "No visualiza cómo pasará de su situación actual a generar ingresos reales de forma segura.", detail: "Le preocupa no saber cómo montar el estudio físico." },
+                    { title: "Riesgo percibido", description: "Siente que puede perder la inversión en el curso si no logra dominar la pluma manual (tébori).", detail: "Teme arruinar la cara de alguien y enfrentar problemas legales." }
+                ],
+                buyingReasons: [
+                    { title: "Siente Seguridad", description: "Percibe que el acompañamiento paso a paso minimiza cualquier riesgo de error técnico." },
+                    { title: "Percibe Autoridad", description: "Nota que la metodología está avalada por years de práctica y miles de alumnas exitosas." },
+                    { title: "Visualiza el Éxito", description: "Se ve logrando independencia financiera y manejando su propio estudio de belleza." },
+                    { title: "Respaldo Total", description: "Siente que la comunidad and el soporte resolverán cualquier duda en tiempo real." }
+                ],
+                strategistConclusion: "El mensaje se enfocará en seguridad, respaldo, práctica real y resultados. Evitaremos promesas exageradas para generar confianza genuina atacando su principal miedo: la desconfianza en la formación online tradicional."
             },
             conversionStrategy: {
-                mainFocus: [{ label: "Emocional", description: "Conectar con el deseo de libertad" }],
-                prioritizedChannels: [{ label: "WhatsApp", type: "WA" }],
-                communicationStyle: [{ label: "Cercano", description: "Tono amigable" }],
-                tacticalNote: "Priorizar el seguimiento 1 a 1."
+                mainFocus: [
+                    { label: "Mensaje Directo", description: "Empatía sin rodeos sobre la inestabilidad económica y el miedo técnico." },
+                    { label: "Autoridad Humana", description: "Liderazgo inspirador basado en resultados reales de alumnas, no solo teoría." },
+                    { label: "Énfasis Práctico", description: "Foco total en el acompañamiento y la técnica paso a paso para elminar el miedo." }
+                ],
+                prioritizedChannels: [
+                    { label: "Landing Page (Captación)", type: "LP" },
+                    { label: "WhatsApp (Canal de Cierre)", type: "WA" },
+                    { label: "Email (Refuerzo & Seguimiento)", type: "EM" }
+                ],
+                communicationStyle: [
+                    { label: "Educativa + Emocional", description: "Enseñamos el potencial del negocio mientras conectamos con su deseo de independencia." },
+                    { label: "Lenguaje Cercano", description: "Claridad profesional sin tecnicismos para no intimidar a las principiantes." },
+                    { label: "Cercanía Total", description: "Hablar como una mentora que ya recorrió el camino y entiende sus miedos." }
+                ],
+                tacticalNote: "Este flujo está diseñado para calentar al prospecto en la Landing Page y llevarlo a WhatsApp, donde la tasa de cierre es 10 veces mayor para productos de alto valor. El sistema usará un lenguaje que evite tecnicismos para no intimidar al avatar Laura."
             }
         }
     };
 
     step3Web = {
         landingPageTabs: {
-            hero: { label: "1. Encabezado", type: "hero", h1: `Genera ${productName} hoy`, h2: "Sin complicaciones", strategyText: "Headline de curiosidad." },
-            pain: { label: "2. Dolores", type: "pain", items: ["Dolor 1", "Dolor 2"], strategyText: "Agitación de dolores." },
-            benefits: { label: "3. Beneficios", type: "benefits", items: [{ title: "Beneficio 1", desc: "Descripción" }], strategyText: "Presentación de cura." }
+            hero: {
+                label: "1. Encabezado",
+                title: "Promesa de Valor (Hero Section)",
+                type: 'hero',
+                h1: "Domina el Arte del Microblading y Genera Ingresos Propios de Alto Valor",
+                h2: "La oportunidad perfecta para emprendedoras del sector belleza que buscan independencia financiera sin trucos ni promesas vacías.",
+                strategyText: "Este titular conecta directamente con el deseo de generar ingresos propios, filtrando a las personas que buscan resultados fáciles y atrayendo a las que valoran el autoempleo de calidad."
+            },
+            pain: {
+                label: "2. Dolores",
+                title: "Identificación del Problema",
+                type: 'pain',
+                items: [
+                    "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
+                    "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.",
+                    "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.",
+                    "Ves pasar oportunidades de éxito en Instagram, pero te falta la guía técnica para dar el paso con seguridad.",
+                    "Te apasiona la estética pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.",
+                    "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.",
+                    "Te detiene el miedo a las promesas vacías de internet que no enseñan nada realmente útil para tu futuro."
+                ],
+                strategyText: "Al mencionar detalladamente estos 7 dolores, validamos el sentimiento del usuario y nos diferenciamos como una opción seria que entiende su realidad."
+            },
+            benefits: {
+                label: "3. Beneficios",
+                title: "Oferta Irresistible",
+                type: 'benefits',
+                items: [
+                    { title: "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo.", desc: "Maximiza tu tiempo generando servicios de alto impacto económico." },
+                    { title: "Certificación profesional and acompañamiento que eliminan todo temor a cometer errores técnicos.", desc: "Seguridad absoluta respaldada por expertos en micropigmentación." },
+                    { title: "Metodología 100% práctica basada en resultados reales, con soporte paso a paso.", desc: "No más teoría vacía; aprende haciendo con modelos reales." },
+                    { title: "Estrategia probada de captación de clientes en Instagram para llenar tu agenda con seguridad.", desc: "Tu agenda llena desde la primera semana gracias a nuestro método de marketing." },
+                    { title: "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable.", desc: "Te enseñamos a escalar tu talento y construir un negocio sólido." },
+                    { title: "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa.", desc: "Toma el control total de tu carrera profesional y financiera." },
+                    { title: "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real.", desc: "Educación de élite diseñada para resultados inmediatos en el mercado." }
+                ],
+                strategyText: "Enfocamos los beneficios en la libertad y la calidad técnica para satisfacer la necesidad de autoempleo genuino del avatar."
+            }
         },
         thankYouPageTabs: {
-            header: { label: "1. Confirmación", type: "header", content: { h1: "¡Listo!", h2: "Bienvenido." }, strategyText: "Paz mental." },
-            action: { label: "2. Siguiente Paso", type: "action", content: { h1: "Únete", h2: "Haz clic." }, strategyText: "Compromiso." },
-            magnet: { label: "3. Regalo", type: "magnet", content: { h1: "Descarga", h2: "Guía lista." }, strategyText: "Valor." }
+            header: {
+                label: "1. Confirmación",
+                title: "Mensaje de Éxito",
+                type: 'header',
+                content: {
+                    h1: "¡Bienvenida al inicio de tu independencia financiera!",
+                    h2: "Has tomado la mejor decisión para tu carrera en el sector de la belleza."
+                },
+                strategyText: "Reforzamos la idea de 'independencia' para mantener la motivación del avatar en su punto más alto."
+            },
+            action: {
+                label: "2. Siguiente Paso",
+                title: "Redirección a Comunidad",
+                type: 'action',
+                content: {
+                    h1: "Conéctate a nuestro WhatsApp Estratégico",
+                    h2: "Es el canal principal donde resolveremos tus dudas y entregaremos el material de estudio."
+                },
+                strategyText: "Aprovechamos que el usuario consume contenido en WhatsApp para asegurar la entrada a la comunidad."
+            },
+            magnet: {
+                label: "3. Lead Magnet",
+                title: "Guía de Inicio Rápido",
+                type: 'magnet',
+                content: {
+                    h1: "Descarga tu Plan de Negocios en Estética",
+                    h2: "El primer paso práctico para empezar a ofrecer servicios de alto valor."
+                },
+                strategyText: "Entregamos valor inmediato que ataca la parálisis por análisis del avatar principiante."
+            }
         }
     };
 
     step4Content = [
-        { id: 1, title: "Articulo de prueba", keyword: "seo", searchVolume: "1K", objective: "Tráfico", strategy: "Educativo" }
+        {
+            id: 1,
+            title: "¿Qué es el microblading en cejas?",
+            traffic: 50,
+            difficulty: 20,
+            keyword: "que es microblading cejas",
+            searchVolume: "500 - 1K",
+            objective: "Educación inicial para el futuro artista",
+            strategy: "Definimos la técnica desde una perspectiva profesional para que el alumno entienda el potencial del negocio. Posicionamos el microblading como la habilidad mejor pagada en estética actualmente."
+        },
+        {
+            id: 2,
+            title: "¿Qué desventajas tiene el microblading?",
+            traffic: 40,
+            difficulty: 15,
+            keyword: "desventajas de microblading",
+            searchVolume: "100 - 500",
+            objective: "Transparencia and profesionalismo",
+            strategy: "Abordamos los retos y cuidados necesarios con honestidad. El objetivo es filtrar a alumnos comprometidos y demostrar que la formación adecuada elimina la mayoría de estos riesgos."
+        },
+        {
+            id: 3,
+            title: "Diferencia entre Microblading, Microshading y Micropigmentación",
+            traffic: 65,
+            difficulty: 30,
+            keyword: "diferencia microblading microshading micropigmentacion",
+            searchVolume: "800 - 2K",
+            objective: "Claridad técnica y autoridad",
+            strategy: "Desglosamos las terminologías para que el alumno aprenda a asesorar a sus futuros clientes. Esto establece una base de autoridad técnica indispensable para cobrar precios premium."
+        },
+        {
+            id: 4,
+            title: "¿Cuánto dura el microblading? Realidad y retoques",
+            traffic: 75,
+            difficulty: 40,
+            keyword: "cuánto dura el microblading",
+            searchVolume: "2K - 5K",
+            objective: "Expectativas y rentabilidad",
+            strategy: "Explicamos el ciclo de vida del servicio. Esto ayuda al alumno a entender la necesidad de retoques y cómo fidelizar clientes para generar ingresos recurrentes en su negocio."
+        },
+        {
+            id: 5,
+            title: "¿Cuánto suele costar el microblading de cejas?",
+            traffic: 85,
+            difficulty: 50,
+            keyword: "microblading cejas precio",
+            searchVolume: "1.5K - 3K",
+            objective: "Análisis de mercado y viabilidad",
+            strategy: "Mostramos el rango de precios del mercado para que el alumno visualice su retorno de inversión. Motivamos la profesionalización como vía para cobrar en el rango más alto."
+        },
+        {
+            id: 6,
+            title: "Microblading: El proceso de curación en los primeros 10 días",
+            traffic: 30,
+            difficulty: 10,
+            keyword: "curacion microblading dia a dia",
+            searchVolume: "300 - 600",
+            objective: "Conocimiento del proceso de curación",
+            strategy: "Es fundamental que el artista sepa qué esperar. Educamos sobre la fase de oscurecimiento y regeneración para que el alumno pueda dar seguridad total a sus clientes."
+        },
+        {
+            id: 7,
+            title: "¿Cuánto cuesta un microblading para cejas?",
+            traffic: 80,
+            difficulty: 45,
+            keyword: "precio de micropigmentación de cejas",
+            searchVolume: "1K - 2.5K",
+            objective: "Posicionamiento High Ticket",
+            strategy: "Comparamos el costo del servicio vs la rentabilidad para el artista. Enfocamos el contenido en cómo vender el valor del resultado final en lugar de competir por el precio más bajo."
+        },
+        {
+            id: 8,
+            title: "Guía de cuidados: ¿Cuántos días proteger el microblading?",
+            traffic: 55,
+            difficulty: 25,
+            keyword: "cuidados microblading cejas",
+            searchVolume: "500 - 1.2K",
+            objective: "Bioseguridad y éxito del procedimiento",
+            strategy: "Un artista profesional se diferencia por su protocolo post-venta. Establecemos los estándares de oro en cuidados para garantizar la máxima retención del pigmento."
+        },
+        {
+            id: 9,
+            title: "¿Qué opinan los dermatólogos del microblading?",
+            traffic: 25,
+            difficulty: 15,
+            keyword: "seguridad microblading dermatologos",
+            searchVolume: "200 - 400",
+            objective: "Derribar miedos de salud",
+            strategy: "Aportamos validación médica sobre la seguridad de la técnica cuando se realiza con pigmentos certificados y normas de higiene, calmando las dudas de seguridad del alumno."
+        },
+        {
+            id: 10,
+            title: "¿Por qué no deberías hacerte el microblading de cejas?",
+            traffic: 20,
+            difficulty: 5,
+            keyword: "contraindicaciones microblading",
+            searchVolume: "400 - 900",
+            objective: "Filtro de clientes y ética profesional",
+            strategy: "Utilizamos el 'marketing negativo' para explicar contraindicaciones reales. Esto enseña al alumno a ser un profesional ético que sabe cuándo decir 'no', aumentando su prestigio."
+        },
+        {
+            id: 11,
+            title: "¿Cuándo no se recomienda el microblading?",
+            traffic: 15,
+            difficulty: 5,
+            keyword: "casos donde no hacer microblading",
+            searchVolume: "150 - 300",
+            objective: "Prevención y seguridad legal",
+            strategy: "Listamos casos clínicos (embarazo, diabetes no controlada, etc.) donde se desaconseja la técnica. Vital para que el alumno opere con seguridad y evite complicaciones legales."
+        },
+        {
+            id: 12,
+            title: "¿Cuál es la ceja permanente de aspecto más natural?",
+            traffic: 45,
+            difficulty: 20,
+            keyword: "cejas naturales permanentes",
+            searchVolume: "500 - 1K",
+            objective: "Venta del beneficio estético",
+            strategy: "Enfatizamos el trazo hiperrealista del microblading frente a técnicas más pesadas. Orientamos al alumno a especializarse en la naturalidad, que es lo más demandado hoy."
+        },
+        {
+            id: 13,
+            title: "Comparativa: ¿Cejas pelo a pelo o Microblading?",
+            traffic: 50,
+            difficulty: 20,
+            keyword: "cejas pelo a pelo vs microblading",
+            searchVolume: "600 - 1.5K",
+            objective: "Claridad en la oferta de servicios",
+            strategy: "Aclara la confusión común entre extensiones de cejas y microblading. Ayuda al alumno a definir su catálogo de servicios y a educar al mercado sobre la superioridad del microblading."
+        }
     ];
 
     step5Emails = {
-        nurture: [{ id: 1, day: "Día 0", subject: "Bienvenida", type: "Valor", objective: "Entrega", bodyPreview: "Hola..." }],
-        evergreen: [{ id: 8, day: "Día 8", subject: "Oferta", type: "Venta", objective: "Cierre", bodyPreview: "Compra ahora..." }]
+        nurture: [
+            {
+                id: 1,
+                day: "Día 0",
+                subject: "🎁 Tu regalo: Guía de Inicio Rápido en Microblading",
+                type: "Entrega de Valor",
+                objective: "Establecer reciprocidad y cumplir la promesa inmediata entregando el Lead Magnet.",
+                bodyPreview: "Hola [Nombre], tal como te prometí, aquí tienes el acceso directo a la guía que transformará tu visión sobre el negocio de la belleza. En este PDF encontrarás..."
+            },
+            {
+                id: 2,
+                day: "Día 1",
+                subject: "😫 ¿Cansada de trabajar 10h y no ver frutos reales?",
+                type: "Agitación del Dolor",
+                objective: "Conectar emocionalmente con el cansancio sistémico del avatar y la frustración económica.",
+                bodyPreview: "Hola [Nombre], entiendo perfectamente esa sensación de darlo todo en el salón y llegar a casa sintiendo que el esfuerzo no se refleja en tu cuenta bancaria. El problema no eres tú, es el modelo..."
+            },
+            {
+                id: 3,
+                day: "Día 2",
+                subject: "📈 Cómo Maria pasó de 0 a $2,000/mes con cejas",
+                type: "Prueba Social",
+                objective: "Demostrar factibilidad mediante un caso de éxito real que genere deseo y credibilidad.",
+                bodyPreview: "Hola [Nombre], hoy quiero contarte la historia de una de mis alumnas que, como tú, tenía miedo de empezar de cero. Maria aplicó el método Brows360 y en solo 4 semanas logró..."
+            },
+            {
+                id: 4,
+                day: "Día 3",
+                subject: "💎 La verdad sobre el Microblading (y por qué otros fallan)",
+                type: "Mecanismo Único",
+                objective: "Explicar la diferenciación del Método Brows360 frente a la competencia genérica.",
+                bodyPreview: "Hola [Nombre], ¿sabes por qué muchas esteticistas no logran resultados naturales? La clave está en el visajismo digital. Hoy te revelo el secreto técnico detrás de las cejas perfectas..."
+            },
+            {
+                id: 5,
+                day: "Día 4",
+                subject: "🚀 ¡INSCRIPCIONES ABIERTAS! Domina la Certificación Pro",
+                type: "Lanzamiento / Oferta",
+                objective: "Presentar oficialmente el programa completo con todos los beneficios y abrir inscripciones.",
+                bodyPreview: "Hola [Nombre], llegó el momento que estabas esperando. Las puertas de la Certificación Expert Microblading están oficialmente abiertas. Esto es todo lo que recibirás al entrar hoy..."
+            },
+            {
+                id: 6,
+                day: "Día 5",
+                subject: "⏳ Tus 3 Bonos Exclusivos expiran en pocas horas...",
+                type: "Escasez / Valor",
+                objective: "Añadir presión positiva mediante la pérdida inminente de los bonos adicionales.",
+                bodyPreview: "Hola [Nombre], no quiero que te quedes fuera de los beneficios extra. El Kit de Pigmentos Orgánicos y la Asesoría VIP solo estarán disponibles para quienes se inscriban antes de medianoche..."
+            },
+            {
+                id: 7,
+                day: "Día 6",
+                subject: "⚠️ ÚLTIMA LLAMADA: Tu futuro profesional empieza hoy",
+                type: "Cierre / Urgencia",
+                objective: "Llamada final a la acción antes del cierre de inscripciones y aumento de precio.",
+                bodyPreview: "Hola [Nombre], esta es mi última invitación personal. Mañana el precio subirá y los bonos desaparecerán. ¿Eliges seguir como hasta ahora o decides tomar el control de tus ingresos?..."
+            }
+        ],
+        evergreen: [
+            {
+                id: 8,
+                day: "Día 8",
+                subject: "¿Cansada de las promesas vacías en cursos online?",
+                type: "Autoridad / Educación",
+                objective: "Empatizar con el miedo del cliente y posicionar el curso como la única solución técnica real.",
+                bodyPreview: "Hola [Nombre], sé que has visto muchos anuncios prometiendo riqueza rápida. Hoy quiero contarte por qué la formación técnica de alto nivel es el único camino seguro hacia el autoempleo rentable..."
+            },
+            {
+                id: 9,
+                day: "Día 15",
+                subject: "El checklist definitivo para montar tu estudio en casa",
+                type: "Valor / Utilidad",
+                objective: "Entregar valor práctico que facilite la visualización del negocio real.",
+                bodyPreview: "Hola [Nombre], mucha gente se paraliza pensando que necesita una clínica de lujo. Aquí te comparto la lista mínima de materiales para empezar con seguridad desde tu hogar..."
+            }
+        ]
     };
 
     step6WhatsApp = [
-        { id: 1, title: "Cierre WA", objective: "Venta", messages: [{ role: "agent", text: "Hola!" }] }
+        {
+            id: 1,
+            title: "👋 Bienvenida e Interés",
+            objective: "Filtro inicial para conocer la experiencia de la alumna y conectar por su canal preferido.",
+            messages: [
+                { role: "agent", text: "¡Hola! Qué alegría saludarte. Soy Valentina de MicroBrows Academy. He visto que te interesa nuestra Certificación Expert en Microblading. Cuéntame un poco de ti, ¿ya tienes experiencia en belleza o empiezas totalmente desde cero?" }
+            ]
+        },
+        {
+            id: 2,
+            title: "🎨 Objeción: 'No sé dibujar'",
+            objective: "Guion persuasivo diseñado para calmar el miedo técnico y la parálisis por falta de 'talento artístico'.",
+            messages: [
+                { role: "agent", text: "¡Esa es la duda más común! Pero te cuento un secreto: para el Microblading profesional no necesitas ser dibujante. Usamos herramientas de visajismo digital y plantillas de simetría que hacen el 90% del trabajo por ti. Lo que realmente importa es la técnica del trazo que te enseñaré paso a paso." }
+            ]
+        },
+        {
+            id: 3,
+            title: "💎 El Método Brows360",
+            objective: "Explicación del mecanismo único de la oferta para diferenciarte de la competencia barata.",
+            messages: [
+                { role: "agent", text: "Lo que nos hace diferentes es el Método Brows360. No solo enseñamos a hacer cejas, enseñamos a diseñar miradas basándonos en la estructura ósea de cada clienta. Así garantizamos resultados hiperrealistas que duran el doble que el microblading tradicional." }
+            ]
+        },
+        {
+            id: 4,
+            title: "💰 Rentabilidad del Negocio",
+            objective: "Argumentos lógicos y matemáticos sobre el potencial de ingresos y la velocidad del retorno de inversión.",
+            messages: [
+                { role: "agent", text: "Hablemos de números. Un servicio de Microblading se cobra entre $150 y $300 USD. Si haces solo 2 servicios a la semana, ya estarías facturando más de $1,200 USD al mes. Recuperas el valor de la certificación con tus primeras 2 clientas. Es la habilidad mejor pagada hoy en día." }
+            ]
+        },
+        {
+            id: 5,
+            title: "🚀 Cierre y Enlace de Pago",
+            objective: "Guion final de conversión con gatillos de escasez y urgencia para forzar la toma de decisión.",
+            messages: [
+                { role: "agent", text: "¡Llegó el momento! Hoy puedes entrar con el 50% de descuento y llevarte el Kit de Pigmentos de regalo. Solo me quedan 3 cupos con este beneficio. ¿Te mando el enlace de pago seguro para que asegures tu lugar y empecemos hoy mismo?" }
+            ]
+        },
+        {
+            id: 6,
+            title: "⏳ Seguimiento (Follow-up)",
+            objective: "Mensaje de reactivación para recuperar interesados que dejaron de responder pero tienen interés latente.",
+            messages: [
+                { role: "agent", text: "¡Hola de nuevo! Te escribo porque no quería que te perdieras el bono de Asesoría VIP que expira hoy a medianoche. ¿Sigues interesada en iniciar tu propio estudio de cejas este mes? Cuéntame si tienes alguna duda final con el pago." }
+            ]
+        }
     ];
 
     try {
