@@ -1,6 +1,7 @@
+
 import { BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
 
-/* */ /* Actualización: Enriquecimiento de la interfaz ProjectMasterStrategy con campos de profundidad psicológica: manifestación diaria, razón emocional, mecanismo único y reglas de estilo negativas - 15/06/2024 19:00 */
+/* */ /* Actualización: Enriquecimiento de la interfaz ProjectMasterStrategy con campos de profundidad psicológica: manifestación diaria, razón emocional y etapas de consciencia - 15/06/2024 19:00 */
 // --- INTERFAZ MAESTRA ---
 export interface ProjectMasterStrategy {
     meta: {
@@ -37,9 +38,6 @@ export interface ProjectMasterStrategy {
     psychology: {
         pains: string[];
         solutions: string[];
-        powerWords: string[];
-        unique_mechanism: string;     // Nuevo: Concepto del mecanismo único
-        avoid: string[];              // Nuevo: Palabras o conceptos a evitar
         awarenessStages: {
             stage1_pain: string;
             stage2_solution: string;
@@ -111,9 +109,6 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
     psychology: {
         pains: [],
         solutions: [],
-        powerWords: [],
-        unique_mechanism: "",
-        avoid: [],
         awarenessStages: {
             stage1_pain: "",
             stage2_solution: "",
@@ -149,7 +144,7 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
     }
 };
 
-/* */ /* Actualización: Enriquecimiento de MOCK_MASTER_STRATEGY con datos reales de profundidad psicológica (Manifestación diaria, Mecanismo único, etc.) - 15/06/2024 19:10 */
+/* */ /* Actualización: Enriquecimiento de MOCK_MASTER_STRATEGY con datos reales de profundidad psicológica (Manifestación diaria, Etapas de consciencia, etc.) - 15/06/2024 19:10 */
 // --- DATOS MOCK CENTRALIZADOS (ACTUALIZADOS CON BENEFICIOS SINCRONIZADOS Y DESCRIPCIONES) ---
 export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
     meta: {
@@ -252,9 +247,6 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa.",
             "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real."
         ],
-        powerWords: ["Ingresos Propios", "Alto Valor", "Confianza Real", "Autoempleo", "Garantizado", "Estética Profesional"],
-        unique_mechanism: "Método Brows360: Una técnica patentada que fusiona visajismo digital con pigmentación orgánica para resultados que duran el doble.",
-        avoid: ["Gana dinero fácil", "Sin esfuerzo", "Fórmula mágica", "Hazte rico"],
         awarenessStages: {
             stage1_pain: "Frustración por trabajar jornadas agotadoras sin estabilidad económica real.",
             stage2_solution: "Sabe que el Microblading Hiperrealista es la técnica mejor pagada y más demandada.",
@@ -270,7 +262,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 { title: "Siente Seguridad", description: "Percibe que el acompañamiento paso a paso minimiza cualquier riesgo de error técnico." },
                 { title: "Percibe Autoridad", description: "Nota que la metodología está avalada por years de práctica y miles de alumnas exitosas." },
                 { title: "Visualiza el Éxito", description: "Se ve logrando independencia financiera y manejando su propio estudio de belleza." },
-                { title: "Respaldo Total", description: "Siente que la comunidad y el soporte resolverán cualquier duda en tiempo real." }
+                { title: "Respaldo Total", description: "Siente que la comunidad and el soporte resolverán cualquier duda en tiempo real." }
             ],
             strategistConclusion: "El mensaje se enfocará en seguridad, respaldo, práctica real y resultados. Evitaremos promesas exageradas para generar confianza genuina atacando su principal miedo: la desconfianza en la formación online tradicional."
         },

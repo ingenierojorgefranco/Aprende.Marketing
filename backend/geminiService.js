@@ -1,3 +1,4 @@
+
 const { GoogleGenAI } = require("@google/genai");
 const pool = require('./db');
 
@@ -311,9 +312,6 @@ const generateFullStrategy = async (projectId) => {
                 "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa.",
                 "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real."
             ],
-            powerWords: ["Ingresos Propios", "Alto Valor", "Confianza Real", "Autoempleo", "Garantizado", "Estética Profesional"],
-            unique_mechanism: "Método Brows360: Una técnica patentada que fusiona visajismo digital con pigmentación orgánica para resultados que duran el doble.",
-            avoid: ["Gana dinero fácil", "Sin esfuerzo", "Fórmula mágica", "Hazte rico"],
             awarenessStages: {
                 stage1_pain: "Frustración por trabajar jornadas agotadoras sin estabilidad económica real.",
                 stage2_solution: "Sabe que el Microblading Hiperrealista es la técnica mejor pagada y más demandada.",

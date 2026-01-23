@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, Layout, Mail, MessageSquare, FileText, MousePointer2, Sparkles, Zap, ShieldAlert, XCircle, PlayCircle } from 'lucide-react';
 
@@ -5,8 +6,6 @@ interface ProjectStrategy_PsychologyProps {
     psychology: {
         pains: string[];
         solutions: string[];
-        unique_mechanism?: string; // Nuevo
-        avoid?: string[];         // Nuevo
         buyingPsychology?: {
             notBuyingReasons: Array<{ title: string; description: string; detail?: string }>;
         }
@@ -45,7 +44,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                     <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
                         <iframe 
                             className="w-full h-full"
-                            src="https://www.youtube.com/embed/dQw4w9XcQ?rel=0&modestbranding=1" 
+                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
                             title="Ingeniería de Persuasión" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowFullScreen
@@ -57,30 +56,6 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                     </div>
                 </div>
             </div>
-
-            {/* */ /* Actualización: Implementación del bloque "Mecanismo Único" para diferenciar la oferta y justificar un precio mayor - 15/06/2024 19:50 */ }
-            {psychology.unique_mechanism && (
-                <div className="max-w-[70em] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                    <div className="bg-gradient-to-r from-indigo-900/40 to-blue-900/20 border border-indigo-500/30 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:rotate-12 transition-transform duration-700">
-                            <Sparkles className="w-32 h-32 text-indigo-400" />
-                        </div>
-                        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
-                            <div className="p-5 bg-indigo-500 text-white rounded-3xl shadow-xl shadow-indigo-500/20 shrink-0">
-                                <Zap className="w-10 h-10 fill-current" />
-                            </div>
-                            <div>
-                                <h5 className="text-indigo-300 font-black uppercase text-xs tracking-[0.3em] mb-2">Diferenciador Estratégico</h5>
-                                <h4 className="text-3xl font-black text-white leading-tight mb-4">Mecanismo Único de tu Oferta</h4>
-                                <p className="text-gray-200 text-xl font-medium leading-relaxed border-l-4 border-white/20 pl-6 py-1">
-                                    "{psychology.unique_mechanism}"
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-            {/* Fin de actualización - 15/06/2024 19:50 */}
 
             {/* --- SECCIÓN DE TÍTULO PARA EL ESPEJO --- */}
             <div className="max-w-[70em] mx-auto text-left mb-10 px-4 md:px-0">
@@ -155,31 +130,6 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                     })}
                 </div>
             </div>
-
-            {/* */ /* Actualización: Inclusión del bloque "Reglas Negativas (AVOID)" para asegurar un tono de marca coherente y profesional - 15/06/2024 19:55 */ }
-            {psychology.avoid && psychology.avoid.length > 0 && (
-                <div className="max-w-[70em] mx-auto pt-10">
-                    <div className="bg-red-950/20 border border-red-500/20 p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-8">
-                        <div className="p-4 bg-red-500/20 text-red-500 rounded-2xl shrink-0">
-                            <ShieldAlert className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h5 className="text-red-400 font-black uppercase text-[10px] tracking-[0.3em] mb-2">Reglas de Estilo: Qué evitar</h5>
-                            <p className="text-gray-300 text-lg font-light leading-relaxed mb-4">
-                                Para mantener la autoridad y evitar sonar como competencia genérica, la IA tiene prohibido usar estos términos en tus textos:
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                                {psychology.avoid.map((word, i) => (
-                                    <span key={i} className="px-4 py-1.5 rounded-full bg-black/40 border border-red-500/30 text-red-300 text-xs font-bold flex items-center gap-2">
-                                        <XCircle className="w-3 h-3" /> {word}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-            {/* Fin de actualización - 15/06/2024 19:55 */}
 
             {/* */ /* Actualización: Matriz de objeciones detallada para FAQ y Cierre de Ventas - 15/06/2024 20:05 */ }
             {psychology.buyingPsychology?.notBuyingReasons && (
