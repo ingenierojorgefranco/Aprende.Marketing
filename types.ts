@@ -252,6 +252,18 @@ export interface GeneratedPageContent {
   closingOfferText?: string; // New: Text above the final CTA e.g. "Quedan pocos cupos..."
   logoSvg?: string; // AI Generated SVG Logo string
 
+  // New section for capture form details
+  capture?: {
+    timerLabel?: string;
+    timerDuration?: number; // in minutes
+    cardTitle?: string;
+    cardDesc?: string;
+    helpText?: string;
+    guaranteeText?: string;
+    socialProofLabel?: string;
+    securityText?: string;
+  };
+
   hero: {
     headline: string;
     subheadline: string;
@@ -273,6 +285,7 @@ export interface GeneratedPageContent {
   intro: {
     title: string;
     description: string;
+    imageUrl?: string; // New independent image field
     imageCardText?: string; // New: Text floating over the intro image
     items?: Array<{ title: string; description: string }>; // For the bullet points like Visajismo etc.
   };
@@ -432,7 +445,7 @@ export interface Project {
   shortDescription?: string; // */ Sigue presente para el frontend, pero poblado desde el JSON - 25/06/2024 11:30
   targetAudience: string; // "Mujeres de 25-40 años que quieren emprender"
   brandTone: string; // "Amigable, Profesional, Urgente"
-  productName: string; // "Masterclass Uñas Premium"
+  productName: string; // "Masterclass Uñas Perfectas"
   
   // New fields for conversational AI and financial tracking
   salesPageUrl?: string;

@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { User, Target, Zap, CheckCircle, Plus, Minus, ScanFace, Palette, Feather, Star, AlertTriangle, XCircle } from 'lucide-react';
 import { Navbar, Footer, SmartCTA, FeatureCard, HeroMedia } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
+import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -46,7 +48,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                      <div className="relative w-full max-w-md">
                         <div className={`absolute top-4 -right-4 w-full h-full rounded-3xl ${ds.blobColor} opacity-20`}></div>
                         <div className="relative z-10 rounded-2xl shadow-2xl overflow-hidden aspect-[4/5]">
-                            <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} className="rounded-2xl" />
+                            <HeroMedia url={content.hero.videoUrl} poster={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} ds={ds} className="rounded-2xl" />
                         </div>
                         
                         {/* Floating Card */}
@@ -119,35 +121,6 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                          <p className={`text-sm ${ds.steps.textColor}`}>{step.text}</p>
                     </div>
                  ))}
-            </div>
-        </div>
-    </section>
-  );
-
-  const TestimonialsSection = () => (
-    <section id="seccion-testimonios" className={`py-20 border-b ${ds.testimonials.sectionBg} ${ds.testimonials.sectionBorder}`}>
-        <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className="text-center mb-12">
-                 <h2 id="testimonials-title" className={`text-3xl md:text-4xl font-bold mb-4 ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Transformaron su pasión en Éxito"}</h2>
-                 <p className={`text-lg max-w-2xl mx-auto ${ds.testimonials.subtitleColor}`}>{content.testimonialSubtitle}</p>
-            </div>
-            <div className={`grid gap-6 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                {(content.testimonials || []).map((t, i) => (
-                    <div key={i} className={`p-6 rounded-2xl flex flex-col gap-4 shadow-xl transition hover:-translate-y-1 backdrop-blur-sm border ${ds.testimonials.cardBg} ${ds.testimonials.cardBorder}`}>
-                        <div>
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-                                    <img src={t.image || `https://randomuser.me/api/portraits/thumb/women/${i+30}.jpg`} alt="User" className="w-full h-full object-cover" />
-                                </div>
-                                <div>
-                                    <p className={`font-bold leading-tight ${ds.testimonials.nameColor}`}>{t.name}</p>
-                                    {t.location && <p className={`text-xs mt-1 ${ds.testimonials.roleColor}`}>{t.location}</p>}
-                                </div>
-                            </div>
-                            {renderRichText(t.text, `text-base leading-relaxed italic ${ds.testimonials.textColor}`)}
-                        </div>
-                    </div>
-                ))}
             </div>
         </div>
     </section>
@@ -254,7 +227,13 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
          <InstructorSection />
          <BenefitsSection />
          <StepsSection />
-         <TestimonialsSection />
+         <WhatsAppTestimonials 
+            testimonials={content.testimonials} 
+            title={content.testimonialTitle} 
+            subtitle={content.testimonialSubtitle} 
+            isMobilePreview={isMobilePreview} 
+            ds={ds} 
+        />
          <FAQSection />
          <FinalCTASection />
          <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />

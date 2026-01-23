@@ -1,8 +1,10 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { GeneratedPageContent } from '../../../types';
-import { PlayCircle, Plus, Minus, CheckCircle, ScanFace, Palette, Feather, Award, Users, Star, BookOpen, AlertTriangle, XCircle } from 'lucide-react';
-import { Navbar, Footer, SmartCTA, FeatureCard, HeroMedia } from '../ui/LiveComponents';
+import { PlayCircle, Plus, Minus, CheckCircle, ScanFace, Palette, Feather, Award, Users, Star, BookOpen, AlertTriangle, XCircle, ArrowRight } from 'lucide-react';
+import { Navbar, Footer, SmartCTA, FeatureCard, HeroMedia, RegistrationModal } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
+import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -15,7 +17,36 @@ interface TemplateProps {
 }
 
 export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
-  
+  const [showModal, setShowModal] = useState(false);
+
+  const PainPointsSection = () => (
+    <section id="seccion-dolores" className={`py-16 ${ds.features.sectionBg}`}>
+        <div className="max-w-4xl mx-auto px-6 text-center">
+            <h2 className={`text-3xl md:text-4xl font-black mb-4 ${ds.features.titleColor}`}>¿Es para ti esta clase?</h2>
+            <p className={`text-xl font-medium mb-12 ${ds.features.descColor}`}>Si te pasa que…</p>
+            <div className="grid md:grid-cols-2 gap-6 text-left mb-12">
+                {(content.whatYouWillLearn.items || []).slice(0, 4).map((item, idx) => (
+                    <div key={idx} className={`flex items-center gap-4 p-6 rounded-2xl border bg-white/50 backdrop-blur-sm ${ds.features.cardBorder}`}>
+                        <XCircle className="w-8 h-8 text-red-500 shrink-0" />
+                        <p className={`text-[1.2rem] leading-relaxed font-medium ${ds.features.descColor}`}>{item}</p>
+                    </div>
+                ))}
+            </div>
+            
+            {/* CTA Premium solicitado */}
+            <div className="flex justify-center">
+                <button 
+                  onClick={() => setShowModal(true)}
+                  className={`group relative px-10 py-5 bg-primary hover:bg-secondary text-white font-black text-xl rounded-full transition-all shadow-[0_20px_40px_-10px_rgba(255,90,31,0.5)] transform hover:-translate-y-2 active:scale-95 flex items-center gap-3`}
+                >
+                    {content.hero.ctaText || "QUIERO REGISTRARME AHORA"}
+                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                </button>
+            </div>
+        </div>
+    </section>
+  );
+
   const IntroSection = () => (
     <section id="seccion-introduccion" className="py-20 max-w-6xl mx-auto px-6">
         <div className={`grid gap-12 items-center ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
@@ -45,7 +76,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
                  <div className={`absolute top-0 right-0 w-2/3 h-2/3 translate-x-4 -translate-y-4 rounded-3xl ${ds.blobOpacity} ${ds.blobColor}`}></div>
                  <div className="relative">
                     <div className="relative z-10 rounded-2xl shadow-2xl overflow-hidden aspect-[4/5]">
-                        <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} className="rounded-2xl" />
+                        <HeroMedia url={content.hero.videoUrl} poster={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} ds={ds} className="rounded-2xl" />
                     </div>
                     
                     {/* Floating Card */}
@@ -64,36 +95,15 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
     </section>
   );
 
-  const StudyPlanSection = () => (
-      <section id="study-plan-section" className={`py-16 ${ds.features.sectionBg} mx-6 rounded-3xl my-8`}>
-          <div className="max-w-4xl mx-auto px-6">
-              <div className="text-center mb-12">
-                  <h2 className={`text-2xl md:text-3xl font-bold mb-4 flex items-center justify-center gap-3 ${ds.features.titleColor}`}>
-                      <div className="w-8 h-8 shrink-0 flex items-center justify-center text-orange-500">
-                        <AlertTriangle className="w-full h-full" />
-                      </div>
-                      {content.whatYouWillLearn.title || "¿Te sientes identificada con alguna de estas situaciones?"}
-                  </h2>
-              </div>
-              <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
-                  {(content.whatYouWillLearn.items || []).map((item, idx) => (
-                      <div key={idx} className={`flex items-center gap-3 p-4 rounded-xl border bg-white/50 backdrop-blur-sm ${ds.features.cardBorder}`}>
-                          <div className={`p-1 rounded-full text-red-500 bg-red-100`}>
-                              <XCircle className="w-4 h-4" />
-                          </div>
-                          <span className={`text-sm font-medium ${ds.features.descColor}`}>{item}</span>
-                      </div>
-                  ))}
-              </div>
-          </div>
-      </section>
-  );
-
   const BenefitsSection = () => (
-    <section id="seccion-beneficios" className={`py-16`}>
+    <section id="seccion-beneficios" className={`py-24 bg-gray-50 border-y border-gray-100`}>
         <div className="px-6 md:px-12 max-w-6xl mx-auto">
-            <h2 className={`text-2xl md:text-4xl font-bold mb-4 text-center ${ds.features.titleColor}`}>{content.benefits.title}</h2>
-            <p className={`text-lg text-center max-w-3xl mx-auto mb-12 ${ds.features.descColor}`}>{content.benefits.subtitle}</p>
+            <h2 className={`text-2xl md:text-4xl font-bold mb-4 text-center ${ds.features.titleColor}`}>
+                {content.benefits.title || "¿Qué Aprenderás Registrándote?"}
+            </h2>
+            <p className={`text-lg text-center max-w-3xl mx-auto mb-12 ${ds.features.descColor}`}>
+                {content.benefits.subtitle || "No pierdas esta gran oportunidad, Regístrate y recibe todos los Beneficios"}
+            </p>
             <div id="benefits-grid" className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                 {(content.benefits.items || []).map((item, idx) => <FeatureCard key={idx} item={item} idx={idx} ds={ds} content={content} />)}
             </div>
@@ -102,24 +112,33 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
   );
 
   const InstructorSection = () => (
-    <section id="seccion-instructor" className={`py-16 ${ds.instructor.sectionBg}`}>
-         <div className="w-full max-w-4xl mx-auto px-6">
-            <div className={`flex flex-col items-center gap-8 ${isMobilePreview ? '' : 'md:flex-row'}`}>
-                <div className="shrink-0 relative">
-                     <div className={`w-40 h-40 rounded-full overflow-hidden border-4 shadow-xl ${ds.instructor.badgeBorder}`}>
-                        <img src={content.instructor.imageUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Instructor" className="w-full h-full object-cover" />
+    <section id="seccion-instructor" className={`py-32 ${ds.instructor.sectionBg}`}>
+         <div className="w-full max-w-5xl mx-auto px-6">
+            <div className={`flex flex-col items-center gap-12 ${isMobilePreview ? '' : 'md:flex-row'}`}>
+                <div className="shrink-0 relative group">
+                     <div className={`absolute -inset-4 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition duration-500 ${ds.blobColor}`}></div>
+                     <div className={`w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden border-8 shadow-2xl relative z-10 ${ds.instructor.badgeBorder}`}>
+                        <img src={content.instructor.imageUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Instructor" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                      </div>
-                     <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-md whitespace-nowrap ${ds.instructor.badgeBg} ${ds.instructor.badgeText} ${ds.instructor.badgeBorder}`}>
-                         {content.instructor.badgeText || "Experto"}
+                     <div className={`absolute -bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white text-sm font-black uppercase tracking-widest border border-white/20 shadow-xl whitespace-nowrap z-20`}>
+                         {content.instructor.badgeText || "Mentor VIP"}
                      </div>
                 </div>
-                <div className="text-center md:text-left flex-1">
-                    <h4 className={`font-bold uppercase tracking-widest text-xs mb-2 opacity-70 ${ds.instructor.textColor}`}>{content.instructor.title || "Conoce a tu Mentor"}</h4>
-                    <h3 className={`text-2xl font-bold mb-2 ${ds.instructor.titleColor}`}>{content.instructor.name}</h3>
-                    {renderRichText(content.instructor.bio, `text-base leading-relaxed mb-4 ${ds.instructor.bioColor}`)}
-                    <div className="flex flex-wrap justify-center md:justify-start gap-3 text-sm">
-                        <span className={`flex items-center gap-1 ${ds.instructor.statLabelColor}`}><Users className="w-4 h-4"/> {content.instructor.statsStudents}</span>
-                        <span className={`flex items-center gap-1 ${ds.instructor.statLabelColor}`}><Star className="w-4 h-4 text-yellow-500"/> {content.instructor.statsRating}</span>
+                <div className="text-center md:text-left flex-1 space-y-6">
+                    <div>
+                        <h4 className={`font-black uppercase tracking-[0.3em] text-sm mb-4 opacity-70 ${ds.instructor.textColor}`}>{content.instructor.title || "Conoce a tu Mentor"}</h4>
+                        <h3 className={`text-5xl md:text-6xl font-black leading-tight ${ds.instructor.titleColor}`}>{content.instructor.name}</h3>
+                    </div>
+                    {renderRichText(content.instructor.bio, `text-xl leading-relaxed font-light ${ds.instructor.bioColor}`)}
+                    <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                        <div className={`flex items-center gap-3 bg-white/5 border border-white/10 px-6 py-3 rounded-2xl shadow-lg`}>
+                            <Users className={`w-6 h-6 ${ds.instructor.statLabelColor}`} />
+                            <span className={`font-black text-lg ${ds.instructor.statValueColor}`}>{content.instructor.statsStudents || "Alumnas"}</span>
+                        </div>
+                        <div className={`flex items-center gap-3 bg-white/5 border border-white/10 px-6 py-3 rounded-2xl shadow-lg`}>
+                            <Star className="w-6 h-6 text-yellow-500 fill-current"/>
+                            <span className={`font-black text-lg ${ds.instructor.statValueColor}`}>{content.instructor.statsRating || "4.9/5"}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -128,50 +147,20 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
   );
 
   const StepsSection = () => (
-    <section id="steps-section" className="py-16 max-w-5xl mx-auto px-6">
-        <h2 className={`text-2xl md:text-3xl font-bold mb-10 text-center ${ds.features.titleColor}`}>¿Cómo funciona?</h2>
-        <div className="grid md:grid-cols-3 gap-6">
+    <section id="steps-section" className="py-24 max-w-6xl mx-auto px-6 overflow-visible">
+        <h2 className={`text-3xl md:text-5xl font-black mb-16 text-center ${ds.features.titleColor}`}>¿Cómo acceder al contenido?</h2>
+        <div className="grid md:grid-cols-3 gap-10">
              {[
                 { num: 1, title: "Regístrate", text: "Haz clic en el botón y completa tus datos." },
                 { num: 2, title: "Recibe Acceso", text: "Te enviaremos todo el material a tu correo." },
                 { num: 3, title: "Empieza", text: "Accede a la plataforma y comienza tu transformación." }
              ].map((step, i) => (
-                <div key={i} className={`flex flex-col items-center text-center p-6 rounded-xl border border-dashed ${ds.features.cardBorder}`}>
-                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mb-4 ${ds.steps.numberColor} ${ds.steps.iconContainer}`}>{step.num}</div>
-                     <h4 className={`font-bold mb-2 ${ds.features.titleColor}`}>{step.title}</h4>
-                     <p className={`text-sm ${ds.features.descColor}`}>{step.text}</p>
+                <div key={i} className={`relative group p-10 rounded-[2.5rem] bg-white border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all duration-300 hover:-translate-y-3 hover:shadow-[0_40px_80px_rgba(0,0,0,0.1)] flex flex-col items-center text-center`}>
+                     <div className={`absolute -top-6 w-14 h-14 rounded-2xl bg-primary text-white flex items-center justify-center font-black text-2xl shadow-xl shadow-primary/20 transform -rotate-3 group-hover:rotate-0 transition-transform`}>{step.num}</div>
+                     <h4 className={`text-2xl font-black mb-4 mt-4 ${ds.features.titleColor}`}>{step.title}</h4>
+                     <p className={`text-lg leading-relaxed ${ds.features.descColor}`}>{step.text}</p>
                 </div>
              ))}
-        </div>
-    </section>
-  );
-
-  const TestimonialsSection = () => (
-    <section id="seccion-testimonios" className={`py-16 ${ds.testimonials.sectionBg} border-y ${ds.testimonials.sectionBorder}`}>
-        <div className="max-w-6xl mx-auto px-6">
-            <h2 className={`text-2xl md:text-4xl font-bold mb-4 text-center ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Resultados Reales"}</h2>
-            <p className={`text-lg text-center max-w-3xl mx-auto mb-12 ${ds.testimonials.subtitleColor}`}>{content.testimonialSubtitle}</p>
-            <div id="testimonials-grid" className={`grid gap-6 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                {(content.testimonials || []).map((t, i) => (
-                    <div key={i} className={`p-8 rounded-2xl flex flex-col gap-4 shadow-lg transition hover:-translate-y-1 backdrop-blur-sm border ${ds.testimonials.cardBg} ${ds.testimonials.cardBorder}`}>
-                        <div>
-                            <div className="flex gap-1 mb-4 text-yellow-400">
-                                {[1,2,3,4,5].map(star => <div key={star} className="w-4 h-4 fill-current">★</div>)}
-                            </div>
-                            {renderRichText(t.text, `text-base leading-relaxed italic mb-4 ${ds.testimonials.textColor}`)}
-                            <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-200/20">
-                                <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-                                    <img src={t.image || `https://randomuser.me/api/portraits/thumb/women/${i+30}.jpg`} alt="User" className="w-full h-full object-cover" />
-                                </div>
-                                <div>
-                                    <p className={`font-bold leading-tight ${ds.testimonials.nameColor}`}>{t.name}</p>
-                                    {t.location && <p className={`text-xs mt-1 ${ds.testimonials.roleColor}`}>{t.location}</p>}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
         </div>
     </section>
   );
@@ -255,26 +244,42 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
                         {/* Security Badge below CTA */}
                         <div className={`mt-6 flex items-center justify-center gap-2 text-xs opacity-70 ${ds.hero.subtitleColor}`}>
                             <CheckCircle className="w-4 h-4" /> 
-                            <span>Acceso Inmediato & Garantizado</span>
+                            <span>{content.capture?.securityText || "Acceso Inmediato & Garantizado"}</span>
                         </div>
                     </div>
 
                 </div>
             </header>
 
-            {/* CONTENT BODY */}
+            {/* CONTENT BODY - REORDERED FLOW */}
             <div className="pb-24">
-                <IntroSection />
+                <PainPointsSection />
                 <BenefitsSection />
-                <StudyPlanSection />
+                <WhatsAppTestimonials 
+                    testimonials={content.testimonials} 
+                    title={content.testimonialTitle} 
+                    subtitle={content.testimonialSubtitle} 
+                    isMobilePreview={isMobilePreview} 
+                    ds={ds} 
+                />
+                <IntroSection />
                 <InstructorSection />
-                <TestimonialsSection />
                 <StepsSection />
                 <FAQSection />
                 <FinalCTASection />
             </div>
             
             <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
+            
+            {showModal && (
+                <RegistrationModal 
+                    content={content} 
+                    ds={ds} 
+                    onClose={() => setShowModal(false)} 
+                    pageId={pageId} 
+                    basePath={basePath} 
+                />
+            )}
         </div>
   );
 };

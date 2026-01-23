@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { PlayCircle, BookOpen, CheckCircle, Star, Award, Users, ScanFace, Palette, Feather, Plus, Minus, AlertTriangle, XCircle } from 'lucide-react';
 import { Navbar, Footer, SmartCTA, FeatureCard, HeroMedia } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
+import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -22,7 +24,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                 <div id="intro-image-container" className="relative">
                      <div id="intro-blob" className={`absolute top-0 left-0 w-2/3 h-2/3 -translate-x-4 -translate-y-4 rounded-3xl ${ds.blobOpacity} ${ds.blobColor}`}></div>
                      <div className="relative">
-                        <img id="intro-main-image" src={content.hero.heroImage || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Intro" className="relative z-10 rounded-3xl shadow-2xl w-full object-cover aspect-[4/3]" />
+                        <img id="intro-main-image" src={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} alt="Intro" className="relative z-10 rounded-3xl shadow-2xl w-full object-cover aspect-[4/3]" />
                         <div id="intro-floating-card" className={`absolute -bottom-6 -right-6 z-20 rounded-2xl p-4 shadow-xl max-w-[200px] border hidden md:block transform rotate-2 hover:rotate-0 transition-transform duration-300 ${ds.intro.floatingCardBg} ${ds.intro.floatingCardBorder}`}>
                             <div className="flex items-start gap-3">
                                 <div className={`w-2 h-12 rounded-full ${content.palette === 'elegant-purple' ? 'bg-purple-500' : 'bg-pink-500'} shrink-0`}></div>
@@ -131,36 +133,6 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
     </section>
   );
 
-  const TestimonialsSection = () => (
-    <section id="seccion-testimonios" className={`py-20 border-b ${ds.testimonials.sectionBg} ${ds.testimonials.sectionBorder}`}>
-        <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className="text-center mb-12">
-                 <h2 id="testimonials-title" className={`text-3xl md:text-4xl font-bold mb-4 ${ds.testimonials.titleColor}`}>{content.testimonialTitle || "Transformaron su pasión en Éxito"}</h2>
-                 <p className={`text-lg max-w-2xl mx-auto ${ds.testimonials.subtitleColor}`}>{content.testimonialSubtitle || "Ellas ya dieron el paso. Ahora es tu turno."}</p>
-            </div>
-            <div id="testimonials-grid" className={`grid gap-6 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                {(content.testimonials || []).map((t, i) => (
-                    <div key={i} className={`p-6 rounded-2xl flex flex-col gap-4 transition hover:-translate-y-1 backdrop-blur-sm border ${ds.testimonials.cardBg} ${ds.testimonials.cardBorder} ${ds.testimonials.cardShadow}`}>
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden border border-white/20">
-                                <img src={t.image || `https://randomuser.me/api/portraits/thumb/women/${i+30}.jpg`} alt="User" className="w-full h-full object-cover" />
-                            </div>
-                            <div>
-                                <p className={`font-bold leading-tight ${ds.testimonials.nameColor}`}>{t.name}</p>
-                                {t.location && <p className={`text-xs ${ds.testimonials.roleColor}`}>{t.location}</p>}
-                            </div>
-                        </div>
-                        <div>
-                            {renderRichText(t.text, `text-base leading-relaxed italic ${ds.testimonials.textColor}`)}
-                            <div className={`flex mt-3 gap-1 ${ds.decorations.starColor}`}>{[...Array(5)].map((_, starI) => <Star key={starI} className="w-4 h-4" fill={starI < t.rating ? "currentColor" : "none"} stroke="currentColor"/>)}</div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    </section>
-  );
-
   const FAQSection = () => {
     const [openIndex, setOpenIndex] = React.useState<number | null>(0);
     const questions = content.faq || [];
@@ -264,7 +236,13 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
           </div>
         </header>
 
-        <TestimonialsSection />
+        <WhatsAppTestimonials 
+            testimonials={content.testimonials} 
+            title={content.testimonialTitle} 
+            subtitle={content.testimonialSubtitle} 
+            isMobilePreview={isMobilePreview} 
+            ds={ds} 
+        />
         <IntroSection />
         <BenefitsSection />
         <StepsSection />

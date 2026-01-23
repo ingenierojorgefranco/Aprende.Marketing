@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, DestinationType } from '../../../types';
 import { api } from '../../../services/api';
@@ -453,7 +454,7 @@ export const RegistrationModal = ({ content, ds, onClose, pageId, basePath }: { 
                     <h3 id="modal-title" className={`text-2xl font-bold mb-2 ${ds.cta.cardTitleColor}`}>Reserva tu Cupo</h3>
                     <p id="modal-desc" className={`text-sm ${ds.cta.cardTextColor}`}>Completa el formulario para acceder ahora.</p>
                 </div>
-                <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.navCta || "Ingresar Ahora"} ds={ds} pageId={pageId} basePath={basePath} />
+                <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} pageId={pageId} basePath={basePath} />
                 <div className={`mt-4 flex items-center justify-center gap-2 text-xs ${ds.cta.cardTextColor}`}>
                     <Lock className="w-3 h-3" /> Datos seguros y encriptados.
                 </div>
@@ -465,6 +466,25 @@ export const RegistrationModal = ({ content, ds, onClose, pageId, basePath }: { 
 // --- Smart CTA ---
 export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, centered = false, pageId, basePath }: { content: GeneratedPageContent, ds: any, isMobilePreview: boolean, fullWidth?: boolean, centered?: boolean, pageId?: string, basePath?: string }) => {
     const dest = content.destination;
+    const capture = content.capture || {};
+    
+    // --- Lógica del Contador de Urgencia ---
+    const initialMinutes = capture.timerDuration !== undefined ? capture.timerDuration : 15;
+    const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
+
+    useEffect(() => {
+        setTimeLeft(initialMinutes * 60);
+    }, [initialMinutes]);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setTimeLeft(prev => prev > 0 ? prev - 1 : 0);
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    const s = (timeLeft % 60).toString().padStart(2, '0');
     
     const handleClick = () => {
         if (dest.type === 'whatsapp') {
@@ -475,31 +495,77 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
         }
     };
 
-    // Determine titles and descriptions based on destination type
-    let cardTitle = "Reserva tu lugar GRATIS";
-    let cardDesc = "Accede al método exclusivo.";
+    // Determine titles and descriptions based on destination type with custom overrides
+    let cardTitle = capture.cardTitle || "Reserva tu lugar GRATIS";
+    let cardDesc = capture.cardDesc || "Accede al método exclusivo.";
+    let helpText = capture.helpText || "";
     
-    if (dest.type === 'whatsapp') {
-        cardTitle = "Únete al Grupo VIP";
-        cardDesc = "Recibe atención personalizada al instante.";
-    } else if (dest.type === 'external_url') {
-        cardTitle = "Acceso Inmediato";
-        cardDesc = "No esperes más para comenzar.";
+    if (!capture.cardTitle) {
+        if (dest.type === 'whatsapp') {
+            cardTitle = "Únete al Grupo VIP";
+        } else if (dest.type === 'external_url') {
+            cardTitle = "Acceso Inmediato";
+        }
     }
+
+    if (!capture.cardDesc) {
+        if (dest.type === 'whatsapp') {
+            cardDesc = "Recibe atención personalizada al instante.";
+        } else if (dest.type === 'external_url') {
+            cardDesc = "No esperes más para comenzar.";
+        }
+    }
+
+    if (!capture.helpText) {
+        if (dest.type === 'whatsapp') {
+            helpText = "Haz clic para chatear con nosotros";
+        } else if (dest.type === 'external_url') {
+            helpText = "Haz clic para ver la oferta completa";
+        }
+    }
+
+    const guaranteeText = capture.guaranteeText || (dest.type === 'form' ? "Tus datos están 100% seguros. No hacemos spam." : "Garantía de satisfacción oficial.");
 
     return (
       <div className={`${centered ? 'mx-auto max-w-md' : 'w-full'}`}>
-        <div id="smart-cta-container" className={`rounded-2xl shadow-2xl border relative ${ds.cta.containerBg} ${ds.cta.containerBorder} ${isMobilePreview ? 'p-5' : 'p-5 md:p-8'}`}>
-            {/* Badge */}
-            <div id="smart-cta-badge" className={`absolute -top-3.5 right-4 md:right-6 text-xs font-bold px-4 py-1.5 rounded-full shadow-lg z-20 border ${ds.badges.spotsBg} ${ds.badges.spotsText} ${ds.badges.spotsBorder}`}>
+        <div id="smart-cta-container" className={`rounded-3xl shadow-2xl border relative ${ds.cta.containerBg} ${ds.cta.containerBorder} ${isMobilePreview ? 'p-6' : 'p-6 md:p-10'}`}>
+            
+            {/* Badge de Cupos Estilo Robusto y Animado (Pulse) */}
+            <div id="smart-cta-badge" className={`absolute -top-5 right-6 text-sm md:text-base font-black px-8 py-2.5 rounded-full shadow-[0_10px_25px_rgba(0,0,0,0.3)] z-20 border-2 animate-pulse transition-transform hover:scale-105 ${ds.badges.spotsBg} ${ds.badges.spotsText} ${ds.badges.spotsBorder}`}>
                 {content.hero.spotsLeft || "¡Cupos Limitados!"}
             </div>
 
+            {/* Reloj Digital Digital Premium (Flip Clock Style) */}
+            <div className="flex flex-col items-center mb-8 pt-4">
+                <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4">{capture.timerLabel || "No te quedes por fuera, empezamos en:"}</p>
+                <div className="flex gap-4 items-center">
+                    {/* Bloque Minutos */}
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="relative bg-gradient-to-b from-[#1a1a1a] to-black border border-white/10 rounded-xl p-4 min-w-[75px] text-center shadow-[0_8px_16px_rgba(0,0,0,0.5)] overflow-hidden">
+                            <div className="absolute top-1/2 left-0 w-full h-px bg-white/5 z-10 shadow-[0_0_5px_rgba(255,255,255,0.1)]"></div>
+                            <span className="relative z-0 text-white text-3xl md:text-5xl font-black tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{m}</span>
+                        </div>
+                        <span className="text-[9px] text-black font-black uppercase tracking-widest">Minutos</span>
+                    </div>
+
+                    <div className="text-white text-3xl md:text-5xl font-black mb-6 animate-pulse">:</div>
+
+                    {/* Bloque Segundos */}
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="relative bg-gradient-to-b from-[#1a1a1a] to-black border border-white/10 rounded-xl p-4 min-w-[75px] text-center shadow-[0_8px_16px_rgba(0,0,0,0.5)] overflow-hidden">
+                            <div className="absolute top-1/2 left-0 w-full h-px bg-white/5 z-10 shadow-[0_0_5px_rgba(255,255,255,0.1)]"></div>
+                            <span className="relative z-0 text-white text-3xl md:text-5xl font-black tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{s}</span>
+                        </div>
+                        <span className="text-[9px] text-black font-black uppercase tracking-widest">Segundos</span>
+                    </div>
+                </div>
+            </div>
+
             {/* Header */}
-            <h3 id="smart-cta-title" className={`font-bold mb-2 text-center ${ds.cta.cardTitleColor} ${isMobilePreview ? 'text-xl' : 'text-xl md:text-2xl'}`}>
+            <h3 id="smart-cta-title" className={`font-black mb-2 text-center leading-tight ${ds.cta.cardTitleColor} ${isMobilePreview ? 'text-2xl' : 'text-2xl md:text-3xl'}`}>
                 {cardTitle}
             </h3>
-            <p id="smart-cta-desc" className={`text-center mb-6 text-sm ${ds.cta.cardTextColor}`}>
+            <p id="smart-cta-desc" className={`text-center mb-8 text-base opacity-80 ${ds.cta.cardTextColor}`}>
                 {cardDesc}
             </p>
 
@@ -511,41 +577,38 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
                     {/* Motivational visual cue for non-form */}
                     <div className={`text-center text-sm font-medium ${ds.cta.cardTextColor} opacity-80 flex flex-col items-center gap-2 mb-4`}>
                         <span className="animate-bounce text-xl">👇</span>
-                        <span>{dest.type === 'whatsapp' ? "Haz clic para chatear con nosotros" : "Haz clic para ver la oferta completa"}</span>
+                        <span>{helpText}</span>
                     </div>
                     
                     <button 
                       id="smart-cta-btn"
                       onClick={handleClick}
-                      className={`w-full py-4 rounded-lg font-bold text-lg transition transform hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 ${ds.buttons.primary}`}
+                      className={`w-full py-5 rounded-2xl font-black text-xl transition transform hover:scale-[1.02] active:scale-[0.98] shadow-2xl flex items-center justify-center gap-3 ${ds.buttons.primary}`}
                     >
-                        {dest.type === 'whatsapp' && <MessageCircle className="w-5 h-5" />}
+                        {dest.type === 'whatsapp' && <MessageCircle className="w-6 h-6" />}
                         {content.hero.ctaText}
-                        {dest.type === 'external_url' && <ArrowRight className="w-5 h-5" />}
+                        {dest.type === 'external_url' && <ArrowRight className="w-6 h-6" />}
                     </button>
                 </div>
             )}
 
             {/* Footer / Guarantee */}
-            <div className={`mt-6 flex items-center justify-center gap-2 text-xs text-center ${ds.cta.cardTextColor}`}>
-                {dest.type === 'form' ? (
-                    <><Lock className="w-3 h-3 flex-shrink-0" /> Tus datos están 100% seguros. No hacemos spam.</>
-                ) : (
-                    <><ShieldCheck className="w-3 h-3 flex-shrink-0" /> Garantía de satisfacción oficial.</>
-                )}
+            <div className={`mt-8 flex items-center justify-center gap-2 text-xs text-center font-medium ${ds.cta.cardTextColor}`}>
+                {dest.type === 'form' ? <Lock className="w-3.5 h-3.5 flex-shrink-0 text-emerald-500" /> : <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0 text-emerald-500" />}
+                {guaranteeText}
             </div>
         </div>
 
-        {/* Social Proof - Moved outside, centered, text-white, font-black, border-4 */}
-        <div className="mt-6 flex items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-2 duration-700">
-            <div className="flex -space-x-3">
-                {[1,2,3].map(i => <img key={i} src={`https://randomuser.me/api/portraits/thumb/women/${i+20}.jpg`} alt="User" className="w-10 h-10 rounded-full border-4 border-white object-cover shadow-lg" />)}
+        {/* Social Proof */}
+        <div className="mt-8 flex items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-2 duration-700">
+            <div className="flex -space-x-4">
+                {[1,2,3].map(i => <img key={i} src={`https://randomuser.me/api/portraits/thumb/women/${i+20}.jpg`} alt="User" className="w-12 h-12 rounded-full border-[3px] border-white object-cover shadow-xl" />)}
             </div>
             <div className="text-left">
-                <div id="smart-cta-social-proof" className="flex items-center gap-1.5 font-black text-xl text-white">
-                        <CheckCircle className={`w-5 h-5 ${ds.decorations.checkColor} fill-current`} /> {content.hero.socialProofCount || "2,458+"}
+                <div id="smart-cta-social-proof" className="flex items-center gap-2 font-black text-2xl text-white">
+                        <CheckCircle className={`w-6 h-6 ${ds.decorations.checkColor} fill-current`} /> {content.hero.socialProofCount || "2,458+"}
                 </div>
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">Alumnos registrados</p>
+                <p className="text-[11px] text-gray-400 font-bold uppercase tracking-[0.2em] leading-none mt-1">{capture.socialProofLabel || "Alumnos registrados"}</p>
             </div>
         </div>
       </div>
@@ -573,12 +636,12 @@ export const FeatureCard: React.FC<{ item: any, idx: number, ds: any, content: G
     const iconColorClass = (item.color && colorMap[item.color]) ? colorMap[item.color] : ds.features.iconColor;
 
     return (
-        <div id={`feature-card-${idx}`} className={`p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 flex flex-col items-start ${ds.features.cardBg} ${ds.features.cardBorder} ${ds.features.cardShadow} border`}>
+        <div id={`feature-card-${idx}`} className={`p-10 rounded-[2.5rem] bg-gradient-to-b from-white to-gray-50 transition-all duration-300 hover:-translate-y-2 flex flex-col items-center text-center ${ds.features.cardBorder} ${ds.features.cardShadow} border`}>
             <div id={`feature-icon-${idx}`} className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 p-4 ${ds.features.iconContainer}`}>
                 <div className={`w-full h-full ${iconColorClass}`}>{IconComponent}</div>
             </div>
-            <h3 id={`feature-title-${idx}`} className={`text-xl font-bold mb-3 ${ds.features.titleColor}`}>{item.title}</h3>
-            {renderRichText(item.description || item.desc || "", `leading-relaxed ${ds.features.descColor}`)}
+            <h3 id={`feature-title-${idx}`} className={`text-2xl font-black mb-4 ${ds.features.titleColor}`}>{item.title}</h3>
+            {renderRichText(item.description || item.desc || "", `text-lg leading-relaxed font-medium ${ds.features.descColor}`)}
         </div>
     );
 };

@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { SmartCTA, Navbar, Footer, FeatureCard, HeroMedia } from '../ui/LiveComponents';
 import { getIcon, renderRichText, renderStyledHeadline } from '../utils';
 import { Anchor, Sparkles, Plus, Minus, Star, Users, CheckCircle, BookOpen, Zap, AlertTriangle, XCircle } from 'lucide-react';
+import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -26,7 +28,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
             <div className="relative max-w-2xl mx-auto mb-16">
                  <div className="relative z-10 rounded-2xl shadow-xl overflow-hidden aspect-[16/9]">
                     <div className={`absolute -inset-1 rounded-2xl blur opacity-20 ${ds.blobColor}`}></div>
-                    <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} className="rounded-2xl" />
+                    <HeroMedia url={content.hero.videoUrl} poster={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} ds={ds} className="rounded-2xl" />
                  </div>
             </div>
 
@@ -120,7 +122,6 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                 
                 <div className="flex flex-wrap justify-center md:justify-start gap-4">
                     <div className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${ds.instructor.statBorder} ${ds.instructor.statBg}`}>
-                        <Users className={`w-4 h-4 ${ds.instructor.statLabelColor}`}/> 
                         <span className={`font-bold ${ds.instructor.statValueColor}`}>{content.instructor.statsStudents}</span>
                     </div>
                     <div className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${ds.instructor.statBorder} ${ds.instructor.statBg}`}>
@@ -128,34 +129,6 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                         <span className={`font-bold ${ds.instructor.statValueColor}`}>{content.instructor.statsRating}</span>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-  );
-
-  const TestimonialsSection = () => (
-    <section id="seccion-testimonios" className={`py-24 ${ds.testimonials.sectionBg}`}>
-        <div className="px-6 max-w-6xl mx-auto">
-            <h2 className={`text-3xl font-bold mb-4 text-center ${ds.testimonials.titleColor}`}>{content.testimonialTitle}</h2>
-            <p className={`text-lg text-center max-w-2xl mx-auto mb-12 ${ds.testimonials.subtitleColor}`}>{content.testimonialSubtitle}</p>
-            <div className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                {(content.testimonials || []).map((t, i) => (
-                    <div key={i} className={`p-8 rounded-2xl shadow-sm border ${ds.testimonials.cardBg} ${ds.testimonials.cardBorder}`}>
-                        <div className={`flex gap-1 mb-4 ${ds.decorations.starColor}`}>
-                            {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
-                        </div>
-                        <p className={`italic mb-6 text-lg leading-relaxed ${ds.testimonials.textColor}`}>"{t.text}"</p>
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-                                <img src={t.image || `https://randomuser.me/api/portraits/thumb/women/${i+30}.jpg`} alt="User" className="w-full h-full object-cover" />
-                            </div>
-                            <div>
-                                <p className={`font-bold ${ds.testimonials.nameColor}`}>{t.name}</p>
-                                {t.location && <p className={`text-sm ${ds.testimonials.roleColor}`}>{t.location}</p>}
-                            </div>
-                        </div>
-                    </div>
-                ))}
             </div>
         </div>
     </section>
@@ -236,7 +209,13 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
              <StudyPlanSection />
              <StepsSection />
              <InstructorSection />
-             <TestimonialsSection />
+             <WhatsAppTestimonials 
+                testimonials={content.testimonials} 
+                title={content.testimonialTitle} 
+                subtitle={content.testimonialSubtitle} 
+                isMobilePreview={isMobilePreview} 
+                ds={ds} 
+            />
              <FAQSection />
              <FinalCTASection />
         </div>
