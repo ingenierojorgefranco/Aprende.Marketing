@@ -1,9 +1,69 @@
 import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, DestinationType } from '../../../types';
 import { api } from '../../../services/api';
-import { CheckCircle, Star, MessageCircle, ArrowRight, Lock, ShieldCheck, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Menu, X, DollarSign, FileText, Briefcase, Award, Users, Loader2 } from 'lucide-react';
+import { CheckCircle, Star, MessageCircle, ArrowRight, Lock, ShieldCheck, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Menu, X, DollarSign, FileText, Briefcase, Award, Users, Loader2, PlayCircle } from 'lucide-react';
 import { getIcon, renderRichText } from '../utils';
 import { useNavigate, useLocation } from 'react-router-dom';
+
+// --- Hero Media Component (Detección Inteligente) ---
+export const HeroMedia = ({ url, poster, ds, className = "" }: { url?: string, poster?: string, ds: any, className?: string }) => {
+    const isVideo = url && (url.includes('youtube.com') || url.includes('youtu.be') || url.includes('vimeo.com') || url.match(/\.(mp4|webm|ogg)$/i));
+
+    if (!isVideo) {
+        return (
+            <img 
+                src={poster || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"} 
+                alt="Visual" 
+                className={`w-full h-full object-cover ${className}`} 
+            />
+        );
+    }
+
+    // YouTube Detection
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        let videoId = '';
+        if (url.includes('v=')) videoId = url.split('v=')[1]?.split('&')[0];
+        else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1];
+        const embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&controls=1&showinfo=0`;
+        return (
+            <iframe 
+                src={embedUrl} 
+                className={`w-full h-full ${className}`} 
+                title="YouTube Video" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowFullScreen 
+            />
+        );
+    }
+
+    // Vimeo Detection
+    if (url.includes('vimeo.com')) {
+        const videoId = url.split('/').pop();
+        const embedUrl = `https://player.vimeo.com/video/${videoId}`;
+        return (
+            <iframe 
+                src={embedUrl} 
+                className={`w-full h-full ${className}`} 
+                title="Vimeo Video" 
+                allow="autoplay; fullscreen; picture-in-picture" 
+                allowFullScreen 
+            />
+        );
+    }
+
+    // Direct MP4 Detection
+    return (
+        <video 
+            src={url} 
+            controls 
+            controlsList="nodownload" 
+            className={`w-full h-full object-cover bg-black ${className}`}
+            poster={poster}
+        >
+            Tu navegador no soporta el elemento de video.
+        </video>
+    );
+};
 
 // --- Navbar ---
 export const Navbar = ({ 
@@ -377,13 +437,11 @@ export const RegistrationModal = ({ content, ds, onClose, pageId, basePath }: { 
     return (
         <div 
             id="registration-modal" 
-            ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
             onClick={() => onClose()}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
         >
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
             <div 
-                ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
                 onClick={(e) => e.stopPropagation()}
                 className={`relative p-8 rounded-2xl border w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-300 ${ds.cta.containerBg} ${ds.cta.containerBorder}`}
             >
@@ -430,64 +488,66 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
     }
 
     return (
-      <div id="smart-cta-container" className={`rounded-2xl shadow-2xl border relative ${ds.cta.containerBg} ${ds.cta.containerBorder} ${centered ? 'mx-auto max-w-md' : 'w-full'} ${isMobilePreview ? 'p-5' : 'p-5 md:p-8'}`}>
-          {/* Badge */}
-          <div id="smart-cta-badge" className={`absolute -top-3.5 right-4 md:right-6 text-xs font-bold px-4 py-1.5 rounded-full shadow-lg z-20 border ${ds.badges.spotsBg} ${ds.badges.spotsText} ${ds.badges.spotsBorder}`}>
-              {content.hero.spotsLeft || "¡Cupos Limitados!"}
-          </div>
+      <div className={`${centered ? 'mx-auto max-w-md' : 'w-full'}`}>
+        <div id="smart-cta-container" className={`rounded-2xl shadow-2xl border relative ${ds.cta.containerBg} ${ds.cta.containerBorder} ${isMobilePreview ? 'p-5' : 'p-5 md:p-8'}`}>
+            {/* Badge */}
+            <div id="smart-cta-badge" className={`absolute -top-3.5 right-4 md:right-6 text-xs font-bold px-4 py-1.5 rounded-full shadow-lg z-20 border ${ds.badges.spotsBg} ${ds.badges.spotsText} ${ds.badges.spotsBorder}`}>
+                {content.hero.spotsLeft || "¡Cupos Limitados!"}
+            </div>
 
-          {/* Header */}
-          <h3 id="smart-cta-title" className={`font-bold mb-2 text-center ${ds.cta.cardTitleColor} ${isMobilePreview ? 'text-xl' : 'text-xl md:text-2xl'}`}>
-              {cardTitle}
-          </h3>
-          <p id="smart-cta-desc" className={`text-center mb-6 text-sm ${ds.cta.cardTextColor}`}>
-              {cardDesc}
-          </p>
+            {/* Header */}
+            <h3 id="smart-cta-title" className={`font-bold mb-2 text-center ${ds.cta.cardTitleColor} ${isMobilePreview ? 'text-xl' : 'text-xl md:text-2xl'}`}>
+                {cardTitle}
+            </h3>
+            <p id="smart-cta-desc" className={`text-center mb-6 text-sm ${ds.cta.cardTextColor}`}>
+                {cardDesc}
+            </p>
 
-          {/* Body Content */}
-          {dest.type === 'form' ? (
-              <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} pageId={pageId} basePath={basePath} />
-          ) : (
-              <div className="space-y-4">
-                  {/* Motivational visual cue for non-form */}
-                  <div className={`text-center text-sm font-medium ${ds.cta.cardTextColor} opacity-80 flex flex-col items-center gap-2 mb-4`}>
-                      <span className="animate-bounce text-xl">👇</span>
-                      <span>{dest.type === 'whatsapp' ? "Haz clic para chatear con nosotros" : "Haz clic para ver la oferta completa"}</span>
-                  </div>
-                  
-                  <button 
-                    id="smart-cta-btn"
-                    onClick={handleClick}
-                    className={`w-full py-4 rounded-lg font-bold text-lg transition transform hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 ${ds.buttons.primary}`}
-                  >
-                      {dest.type === 'whatsapp' && <MessageCircle className="w-5 h-5" />}
-                      {content.hero.ctaText}
-                      {dest.type === 'external_url' && <ArrowRight className="w-5 h-5" />}
-                  </button>
-              </div>
-          )}
+            {/* Body Content */}
+            {dest.type === 'form' ? (
+                <LeadCaptureForm btnClass={ds.buttons.primary} btnText={content.hero.ctaText} ds={ds} pageId={pageId} basePath={basePath} />
+            ) : (
+                <div className="space-y-4">
+                    {/* Motivational visual cue for non-form */}
+                    <div className={`text-center text-sm font-medium ${ds.cta.cardTextColor} opacity-80 flex flex-col items-center gap-2 mb-4`}>
+                        <span className="animate-bounce text-xl">👇</span>
+                        <span>{dest.type === 'whatsapp' ? "Haz clic para chatear con nosotros" : "Haz clic para ver la oferta completa"}</span>
+                    </div>
+                    
+                    <button 
+                      id="smart-cta-btn"
+                      onClick={handleClick}
+                      className={`w-full py-4 rounded-lg font-bold text-lg transition transform hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 ${ds.buttons.primary}`}
+                    >
+                        {dest.type === 'whatsapp' && <MessageCircle className="w-5 h-5" />}
+                        {content.hero.ctaText}
+                        {dest.type === 'external_url' && <ArrowRight className="w-5 h-5" />}
+                    </button>
+                </div>
+            )}
 
-          {/* Footer / Guarantee */}
-          <div className={`mt-6 flex items-center justify-center gap-2 text-xs text-center mb-6 ${ds.cta.cardTextColor}`}>
-              {dest.type === 'form' ? (
-                  <><Lock className="w-3 h-3 flex-shrink-0" /> Tus datos están 100% seguros. No hacemos spam.</>
-              ) : (
-                  <><ShieldCheck className="w-3 h-3 flex-shrink-0" /> Garantía de satisfacción oficial.</>
-              )}
-          </div>
+            {/* Footer / Guarantee */}
+            <div className={`mt-6 flex items-center justify-center gap-2 text-xs text-center ${ds.cta.cardTextColor}`}>
+                {dest.type === 'form' ? (
+                    <><Lock className="w-3 h-3 flex-shrink-0" /> Tus datos están 100% seguros. No hacemos spam.</>
+                ) : (
+                    <><ShieldCheck className="w-3 h-3 flex-shrink-0" /> Garantía de satisfacción oficial.</>
+                )}
+            </div>
+        </div>
 
-          {/* Social Proof */}
-          <div className={`pt-6 border-t flex items-center justify-between ${ds.cta.containerBorder}`}>
-              <div className="flex -space-x-3">
-                  {[1,2,3].map(i => <img key={i} src={`https://randomuser.me/api/portraits/thumb/women/${i+20}.jpg`} alt="User" className="w-8 h-8 rounded-full border-2 border-white object-cover" />)}
-              </div>
-              <div className="text-right">
-                  <div id="smart-cta-social-proof" className={`flex items-center justify-end gap-1 font-bold text-lg ${ds.cta.cardTitleColor}`}>
-                       <CheckCircle className={`w-4 h-4 ${ds.decorations.checkColor}`} /> {content.hero.socialProofCount || "2,458+"}
-                  </div>
-                  <p className={`text-xs ${ds.cta.cardTextColor}`}>Alumnos registrados</p>
-              </div>
-          </div>
+        {/* Social Proof - Moved outside, centered, text-white, font-black, border-4 */}
+        <div className="mt-6 flex items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-2 duration-700">
+            <div className="flex -space-x-3">
+                {[1,2,3].map(i => <img key={i} src={`https://randomuser.me/api/portraits/thumb/women/${i+20}.jpg`} alt="User" className="w-10 h-10 rounded-full border-4 border-white object-cover shadow-lg" />)}
+            </div>
+            <div className="text-left">
+                <div id="smart-cta-social-proof" className="flex items-center gap-1.5 font-black text-xl text-white">
+                        <CheckCircle className={`w-5 h-5 ${ds.decorations.checkColor} fill-current`} /> {content.hero.socialProofCount || "2,458+"}
+                </div>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">Alumnos registrados</p>
+            </div>
+        </div>
       </div>
     );
 };
@@ -518,7 +578,6 @@ export const FeatureCard: React.FC<{ item: any, idx: number, ds: any, content: G
                 <div className={`w-full h-full ${iconColorClass}`}>{IconComponent}</div>
             </div>
             <h3 id={`feature-title-${idx}`} className={`text-xl font-bold mb-3 ${ds.features.titleColor}`}>{item.title}</h3>
-            {/* Actualización: Refuerzo de lógica de extracción de descripción e iconos en FeatureCard - 24/10/2023 14:15 */}
             {renderRichText(item.description || item.desc || "", `leading-relaxed ${ds.features.descColor}`)}
         </div>
     );

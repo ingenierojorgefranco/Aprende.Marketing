@@ -13,14 +13,16 @@ interface ProjectStrategy_AvatarDiagnosisProps {
             stage3_barrier: string;
         };
         buyingPsychology: {
-            notBuyingReasons: Array<{ title: string; description: string }>;
+            // Actualización: Se añade detail opcional para coincidir con ProjectMasterStrategy - 08/06/2025
+            notBuyingReasons: Array<{ title: string; description: string; detail?: string }>;
             buyingReasons: Array<{ title: string; description: string }>;
             strategistConclusion: string;
         };
         conversionStrategy: {
             mainFocus: Array<{ label: string; description: string }>;
             prioritizedChannels: Array<{ label: string; type: string }>;
-            communicationStyle: Array<{ label: string; description: string }>;
+            // Actualización: Se marca communicationStyle como opcional para evitar errores de tipado con ProjectMasterStrategy - 08/06/2025
+            communicationStyle?: Array<{ label: string; description: string }>;
             tacticalNote: string;
         };
         psychographicProfile?: {

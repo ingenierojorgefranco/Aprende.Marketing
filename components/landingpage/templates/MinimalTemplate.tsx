@@ -1,6 +1,6 @@
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
-import { SmartCTA, Navbar, Footer, FeatureCard } from '../ui/LiveComponents';
+import { SmartCTA, Navbar, Footer, FeatureCard, HeroMedia } from '../ui/LiveComponents';
 import { getIcon, renderRichText, renderStyledHeadline } from '../utils';
 import { Anchor, Sparkles, Plus, Minus, Star, Users, CheckCircle, BookOpen, Zap, AlertTriangle, XCircle } from 'lucide-react';
 
@@ -22,11 +22,11 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
             <h2 className={`text-3xl font-bold mb-6 ${ds.intro.titleColor}`}>{content.intro.title}</h2>
             <div className={`text-lg leading-relaxed ${ds.intro.textColor} mb-12`}>{renderRichText(content.intro.description)}</div>
 
-            {/* Added Centered Image with Floating Card */}
+            {/* Added Centered Media with HeroMedia */}
             <div className="relative max-w-2xl mx-auto mb-16">
-                 <div className="relative">
+                 <div className="relative z-10 rounded-2xl shadow-xl overflow-hidden aspect-[16/9]">
                     <div className={`absolute -inset-1 rounded-2xl blur opacity-20 ${ds.blobColor}`}></div>
-                    <img src={content.hero.heroImage || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Intro" className="relative z-10 rounded-2xl shadow-xl w-full object-cover aspect-[16/9]" />
+                    <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} className="rounded-2xl" />
                  </div>
             </div>
 
@@ -61,7 +61,6 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                 <div className="text-center mb-10">
                     <h3 className={`text-2xl md:text-3xl font-bold flex items-center justify-center gap-3 ${ds.features.titleColor}`}>
                         <div className="w-8 h-8 shrink-0 text-orange-500">
-                            {/* Actualización: Icono de alerta en Minimal - 31/12/2025 18:30 */}
                             <AlertTriangle className="w-full h-full" />
                         </div>
                         {content.whatYouWillLearn.title || "¿Te sientes identificada con alguna de estas situaciones?"}
@@ -191,7 +190,6 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
     <section id="final-cta-section" className={`py-24 px-6 text-center ${ds.cta.sectionBg}`}>
         <div className="max-w-4xl mx-auto">
             <h2 className={`text-3xl md:text-5xl font-bold mb-8 ${ds.cta.sectionTitleColor}`}>¿Listo para comenzar?</h2>
-            {/* Added closingOfferText paragraph */}
             <p className={`text-xl mb-12 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>
                 {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
             </p>
@@ -220,15 +218,11 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                           </div>
                       )}
 
-                      {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind - 25/05/2025 21:15 ////////// */}
                       {renderStyledHeadline(content.hero.headline, `text-5xl md:text-7xl font-black mb-8 tracking-tight leading-tight ${ds.hero.titleColor}`, ds.hero.highlightGradient)}
-                      {/* ////////// Fin de actualización - 25/05/2025 21:15 ////////// */}
                       
-                      {/* ////////// Corrección de jerarquía visual del subtítulo de md:text-7xl a md:text-2xl - 01/06/2025 20:30 ////////// */}
                       <div id="subtitulo-principal">
                           {renderRichText(content.hero.subheadline, `text-xl md:text-2xl leading-tight opacity-90 max-w-2xl mx-auto ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-2xl'}`)}
                       </div>
-                      {/* ////////// Fin de actualización - 01/06/2025 20:30 ////////// */}
 
                       <div className="max-w-md mx-auto">
                           <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} basePath={basePath} />
@@ -238,10 +232,8 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
              </header>
 
              <IntroSection />
-             {/* ////////// Corrección de sintaxis: se añade el carácter '<' faltante - 25/05/2025 23:15 ////////// */}
              <BenefitsSection />
-             {/* ////////// Fin de actualización - 25/05/2025 23:15 ////////// */}
-             <StudyPlanSection /> {/* Added new section */}
+             <StudyPlanSection />
              <StepsSection />
              <InstructorSection />
              <TestimonialsSection />

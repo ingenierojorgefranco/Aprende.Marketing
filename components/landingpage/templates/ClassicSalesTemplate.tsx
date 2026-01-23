@@ -1,7 +1,7 @@
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { PlayCircle, BookOpen, CheckCircle, Star, Award, Users, ScanFace, Palette, Feather, Plus, Minus, AlertTriangle, XCircle } from 'lucide-react';
-import { Navbar, Footer, SmartCTA, FeatureCard } from '../ui/LiveComponents';
+import { Navbar, Footer, SmartCTA, FeatureCard, HeroMedia } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
 
 interface TemplateProps {
@@ -209,38 +209,37 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                           <span className="text-xs md:text-sm font-black uppercase tracking-wider">{content.topTagline || "🔥 Oferta por tiempo limitado"}</span>
                       </div>
                  </div>
-                 {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind - 25/05/2025 21:15 ////////// */}
                  {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-tight max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-4xl md:text-7xl'}`, ds.hero.highlightGradient)}
-                 {/* ////////// Fin de actualización - 25/05/2025 21:15 ////////// */}
                  
-                 {/* ////////// Corrección de jerarquía visual del subtítulo de md:text-7xl a md:text-2xl - 01/06/2025 20:30 ////////// */}
                  <div id="subtitulo-principal">
                     {renderRichText(content.hero.subheadline, `font-light opacity-90 max-w-3xl mx-auto leading-tight ${isDark ? 'text-white' : ds.hero.subtitleColor} ${isMobilePreview ? 'text-lg' : 'text-lg md:text-2xl'}`)}
                  </div>
-                 {/* ////////// Fin de actualización - 01/06/2025 20:30 ////////// */}
              </div>
 
              <div className={`grid gap-8 items-start ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-12 lg:gap-12'}`}>
                 <div id="hero-content-left" className={`${isMobilePreview ? 'w-full order-2' : 'lg:col-span-7 text-left order-2 lg:order-1'}`}>
                     <div className={`backdrop-blur-sm border rounded-2xl p-6 md:p-8 shadow-lg ${ds.features.cardBg} ${ds.features.cardBorder}`}>
                         <div id="hero-video-card" className={`relative w-full aspect-video h-auto rounded-2xl overflow-hidden shadow-2xl border cursor-pointer group ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
-                            <img src={content.hero.heroImage || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"} alt="Clase Gratuita" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90"></div>
-                            <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 flex items-center gap-4">
-                                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full backdrop-blur-md flex items-center justify-center border group-hover:scale-110 transition-transform ${ds.decorations.playButtonBg} ${ds.decorations.playButtonBorder}`}>
-                                    <PlayCircle className={`w-5 h-5 md:w-6 md:h-6 ${ds.decorations.playButtonIcon}`} />
-                                </div>
-                                <div>
-                                    <p className="text-white font-bold text-base md:text-lg">{content.hero.videoTitle || "Clase Gratuita: Estrategia Exclusiva"}</p>
-                                    <p className="text-gray-300 text-xs md:text-sm">{content.hero.videoDuration || "Duración: 45 Minutos"}</p>
-                                </div>
-                            </div>
+                            <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} />
+                            {!content.hero.videoUrl && (
+                                <>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90"></div>
+                                    <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 flex items-center gap-4">
+                                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full backdrop-blur-md flex items-center justify-center border group-hover:scale-110 transition-transform ${ds.decorations.playButtonBg} ${ds.decorations.playButtonBorder}`}>
+                                            <PlayCircle className={`w-5 h-5 md:w-6 md:h-6 ${ds.decorations.playButtonIcon}`} />
+                                        </div>
+                                        <div>
+                                            <p className="text-white font-bold text-base md:text-lg">{content.hero.videoTitle || "Clase Gratuita: Estrategia Exclusiva"}</p>
+                                            <p className="text-gray-300 text-xs md:text-sm">{content.hero.videoDuration || "Duración: 45 Minutos"}</p>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                         
                         <div className="mt-8 pt-6 border-t border-gray-100/10">
                             <h3 className={`text-xl md:text-2xl font-bold mb-6 flex items-center gap-3 ${ds.features.titleColor}`}>
                                 <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center ${ds.features.iconContainer}`}>
-                                    {/* Actualización: Icono de alerta para dolores - 31/12/2025 18:30 */}
                                     <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-orange-500" />
                                 </div>
                                 {content.whatYouWillLearn.title || "¿Te sientes identificada con alguna de estas situaciones?"}
@@ -248,7 +247,6 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                             <ul className="space-y-4">
                                 {(content.whatYouWillLearn.items || []).map((item, idx) => (
                                     <li key={idx} className="flex items-start gap-3 md:gap-4 p-3 hover:bg-black/5 rounded-lg transition-colors group">
-                                        {/* Actualización: X roja para dolores - 31/12/2025 18:30 */}
                                         <div className={`mt-0.5 md:mt-1 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform shrink-0 bg-red-500`}>
                                             <XCircle className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" />
                                         </div>

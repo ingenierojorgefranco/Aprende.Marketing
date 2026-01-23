@@ -1,7 +1,7 @@
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { PlayCircle, Plus, Minus, CheckCircle, ScanFace, Palette, Feather, Award, Users, Star, BookOpen, AlertTriangle, XCircle } from 'lucide-react';
-import { Navbar, Footer, SmartCTA, FeatureCard } from '../ui/LiveComponents';
+import { Navbar, Footer, SmartCTA, FeatureCard, HeroMedia } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
 
 interface TemplateProps {
@@ -44,7 +44,9 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
             <div className="relative">
                  <div className={`absolute top-0 right-0 w-2/3 h-2/3 translate-x-4 -translate-y-4 rounded-3xl ${ds.blobOpacity} ${ds.blobColor}`}></div>
                  <div className="relative">
-                    <img src={content.hero.heroImage || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Intro" className="relative z-10 rounded-2xl shadow-2xl w-full object-cover aspect-[4/5]" />
+                    <div className="relative z-10 rounded-2xl shadow-2xl overflow-hidden aspect-[4/5]">
+                        <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} className="rounded-2xl" />
+                    </div>
                     
                     {/* Floating Card */}
                     <div className={`absolute -bottom-6 -left-6 z-20 rounded-xl p-4 shadow-xl max-w-[200px] border transform -rotate-1 hover:rotate-0 transition-transform duration-300 ${ds.intro.floatingCardBg} ${ds.intro.floatingCardBorder}`}>
@@ -68,7 +70,6 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
               <div className="text-center mb-12">
                   <h2 className={`text-2xl md:text-3xl font-bold mb-4 flex items-center justify-center gap-3 ${ds.features.titleColor}`}>
                       <div className="w-8 h-8 shrink-0 flex items-center justify-center text-orange-500">
-                        {/* Actualización: Icono de alerta para dolores en VSL - 31/12/2025 18:30 */}
                         <AlertTriangle className="w-full h-full" />
                       </div>
                       {content.whatYouWillLearn.title || "¿Te sientes identificada con alguna de estas situaciones?"}
@@ -202,7 +203,6 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
     <section id="final-cta-section" className={`py-16 ${ds.cta.sectionBg} mt-8`}>
         <div className="max-w-4xl mx-auto px-6 text-center">
             <h2 className={`text-2xl md:text-4xl font-bold mb-6 ${ds.cta.sectionTitleColor}`}>¿Estás listo para dar el siguiente paso?</h2>
-            {/* Added closingOfferText paragraph */}
             <p className={`text-lg mb-8 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>
                 {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
             </p>
@@ -212,83 +212,6 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
         </div>
     </section>
   );
-
-  // --- VIDEO COMPONENT HELPER ---
-  const VideoPlayer = ({ url, poster }: { url?: string, poster?: string }) => {
-      if (!url) {
-          // Placeholder Thumbnail Mode
-          return (
-             <div className={`w-full aspect-video rounded-2xl shadow-2xl overflow-hidden relative group border-4 mb-10 ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
-                 {poster ? (
-                     <img src={poster} alt="Video Thumbnail" className="absolute inset-0 w-full h-full object-cover opacity-80" />
-                 ) : null}
-                 <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
-                     <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center backdrop-blur-md border shadow-2xl group-hover:scale-110 transition-transform cursor-pointer ${ds.decorations.playButtonBg} ${ds.decorations.playButtonBorder}`}>
-                        <PlayCircle className={`w-10 h-10 md:w-12 md:h-12 ml-1 ${ds.decorations.playButtonIcon}`} />
-                     </div>
-                 </div>
-                 <div className="absolute bottom-4 left-0 w-full text-center px-4">
-                     <p className="text-white/80 text-sm font-medium drop-shadow-md">
-                         {content.hero.videoDuration || "Haz clic para ver el video"}
-                     </p>
-                 </div>
-            </div>
-          );
-      }
-
-      // Check for YouTube
-      if (url.includes('youtube.com') || url.includes('youtu.be')) {
-          let videoId = '';
-          if (url.includes('v=')) videoId = url.split('v=')[1]?.split('&')[0];
-          else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1];
-          
-          const embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&controls=1&showinfo=0`;
-          
-          return (
-              <div className={`w-full aspect-video rounded-2xl shadow-2xl overflow-hidden relative border-4 mb-10 ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
-                  <iframe 
-                      src={embedUrl} 
-                      className="absolute inset-0 w-full h-full" 
-                      title="Video Player" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                      allowFullScreen 
-                  />
-              </div>
-          );
-      }
-
-      // Check for Vimeo
-      if (url.includes('vimeo.com')) {
-          const videoId = url.split('/').pop();
-          const embedUrl = `https://player.vimeo.com/video/${videoId}`;
-          return (
-              <div className={`w-full aspect-video rounded-2xl shadow-2xl overflow-hidden relative border-4 mb-10 ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
-                  <iframe 
-                      src={embedUrl} 
-                      className="absolute inset-0 w-full h-full" 
-                      title="Video Player" 
-                      allow="autoplay; fullscreen; picture-in-picture" 
-                      allowFullScreen 
-                  />
-              </div>
-          );
-      }
-
-      // Default HTML5 Video (Direct MP4)
-      return (
-          <div className={`w-full aspect-video rounded-2xl shadow-2xl overflow-hidden relative border-4 mb-10 ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
-              <video 
-                  src={url} 
-                  controls 
-                  controlsList="nodownload" 
-                  className="w-full h-full object-cover bg-black"
-                  poster={poster}
-              >
-                  Tu navegador no soporta el elemento de video.
-              </video>
-          </div>
-      );
-  };
 
   return (
         <div id="vsl-template-root" className={`min-h-screen font-sans ${ds.bg} scroll-smooth`}>
@@ -302,7 +225,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
 
                 <div className="w-full max-w-4xl mx-auto flex flex-col items-center text-center relative z-10">
                     
-                    {/* Badge (Top Tagline) Added Here */}
+                    {/* Badge (Top Tagline) */}
                     {content.topTagline && (
                         <div className="mb-6 animate-in slide-in-from-top-4 duration-500">
                              <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border backdrop-blur-md shadow-lg ${ds.hero.badgeBg} ${ds.hero.badgeText} ${ds.hero.badgeBorder}`}>
@@ -313,19 +236,17 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
 
                     {/* 1. Headline & Subheadline */}
                     <div className="mb-10 space-y-6">
-                        {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind - 25/05/2025 21:15 ////////// */}
-                        {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-tight ${ds.hero.titleColor} ${isMobilePreview ? 'text-3xl' : 'text-4xl md:text-7xl'}`, ds.hero.highlightGradient)}
-                        {/* ////////// Fin de actualización - 25/05/2025 21:15 ////////// */}
+                        {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-[1.1] ${ds.hero.titleColor} ${isMobilePreview ? 'text-3xl' : 'text-4xl md:text-[4rem]'}`, ds.hero.highlightGradient)}
                         
-                        {/* ////////// Corrección de jerarquía visual del subtítulo de md:text-7xl a md:text-2xl - 01/06/2025 20:30 ////////// */}
                         <div id="subtitulo-principal">
-                            {renderRichText(content.hero.subheadline, `text-lg md:text-2xl font-light opacity-90 max-w-3xl mx-auto leading-tight ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-2xl'}`)}
+                            {renderRichText(content.hero.subheadline, `text-lg md:text-[1.5rem] font-light opacity-100 max-w-3xl mx-auto leading-[2.2rem] text-white ${isMobilePreview ? '' : 'md:text-[1.5rem]'}`)}
                         </div>
-                        {/* ////////// Fin de actualización - 01/06/2025 20:30 ////////// */}
                     </div>
 
-                    {/* 2. Video Player Component */}
-                    <VideoPlayer url={content.hero.videoUrl} poster={content.hero.heroImage} />
+                    {/* 2. Video Player Component Unificado */}
+                    <div className={`w-full aspect-video rounded-2xl shadow-2xl overflow-hidden relative border-4 mb-10 ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
+                        <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} />
+                    </div>
 
                     {/* 3. CTA / Form Section */}
                     <div className="w-full max-w-md animate-in slide-in-from-bottom-4 duration-700 delay-300">
@@ -345,7 +266,7 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
             <div className="pb-24">
                 <IntroSection />
                 <BenefitsSection />
-                <StudyPlanSection /> {/* Added Study Plan */}
+                <StudyPlanSection />
                 <InstructorSection />
                 <TestimonialsSection />
                 <StepsSection />

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType, ThankYouPageConfig } from '../../../types';
 import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift, AlertTriangle, Book, ShoppingBag, XCircle } from 'lucide-react';
@@ -435,6 +434,23 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       });
   };
 
+  // Lógica de detección de video
+  const isVideoUrl = (url: string) => {
+      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('vimeo.com') || url.match(/\.(mp4|webm|ogg)$/i);
+  };
+
+  const handleHeroMediaChange = (val: string) => {
+      const isVideo = isVideoUrl(val);
+      setContent(prev => ({
+          ...prev,
+          hero: {
+              ...prev.hero,
+              videoUrl: isVideo ? val : '',
+              heroImage: isVideo ? prev.hero.heroImage : val
+          }
+      }));
+  };
+
   const palettes: { id: ColorPalette; name: string; colors: string }[] = [
     { id: 'modern-blue', name: 'Azul Tech', colors: 'bg-blue-500' },
     { id: 'elegant-purple', name: 'Púrpura', colors: 'bg-purple-600' },
@@ -603,13 +619,27 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                 <RichTextArea value={content.hero.subheadline} onChange={(e) => updateNestedField('hero', 'subheadline', e.target.value)} />
                             </div>
 
-                            {/* 4. Hero Image URL */}
+                            {/* 4. Hero Multimedia URL (Unificado) */}
                             <div>
-                                <Label>4. URL Imagen/Portada Video</Label>
+                                <Label>4. URL Imagen o Video (YouTube, Vimeo, MP4)</Label>
                                 <div className="flex gap-2">
-                                    <Input value={content.hero.heroImage || ''} onChange={(e) => updateNestedField('hero', 'heroImage', e.target.value)} placeholder="https://..." />
-                                    {content.hero.heroImage && <img src={content.hero.heroImage} alt="Preview" className="w-10 h-10 rounded border border-gray-700 object-cover" />}
+                                    <Input 
+                                        value={content.hero.videoUrl || content.hero.heroImage || ''} 
+                                        onChange={(e) => handleHeroMediaChange(e.target.value)} 
+                                        placeholder="Pega el link de tu imagen o video..." 
+                                    />
+                                    {(content.hero.heroImage && !content.hero.videoUrl) && (
+                                        <img src={content.hero.heroImage} alt="Preview" className="w-10 h-10 rounded border border-gray-700 object-cover" />
+                                    )}
+                                    {content.hero.videoUrl && (
+                                        <div className="w-10 h-10 rounded border border-gray-700 bg-primary/20 flex items-center justify-center">
+                                            <PlayCircle className="w-5 h-5 text-primary"/>
+                                        </div>
+                                    )}
                                 </div>
+                                <p className="text-[10px] text-gray-500 mt-1">
+                                    * Si pegas un video, la imagen previa se mantendrá como portada/miniatura.
+                                </p>
                             </div>
 
                             {/* 5. Video Title */}
@@ -630,7 +660,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                 <Input value={content.hero.ctaText} onChange={(e) => updateNestedField('hero', 'ctaText', e.target.value)} />
                             </div>
 
-                            {/* 8. Problem Identification (Dolores) - Actualización: Transformación semántica 31/12/2025 18:30 */}
+                            {/* 8. Problem Identification (Dolores) */}
                             <div className="pt-4 border-t border-gray-800">
                                 <Label>8. Identificación del Problema (Dolores)</Label>
                                 <div className="mb-2 flex items-center gap-2">
@@ -736,7 +766,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                         <SectionContent id="benefits" openSection={openSection}>
                             <div><Label>Título de Sección</Label><Input value={content.benefits.title} onChange={(e) => setContent({...content, benefits: {...content.benefits, title: e.target.value}})} /></div>
                             
-                            {/* NEW: Subtitle Input */}
                             <div className="mt-3">
                                 <Label>Subtítulo de Sección</Label>
                                 <Input 
@@ -773,7 +802,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                         {/* 6. Instructor */}
                         <SectionHeader id="instructor" title="Instructor / Experto" icon={User} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="instructor" openSection={openSection}>
-                            {/* ADDED TITLE INPUT */}
                             <div className="mb-2">
                               <Label>Título de Sección</Label>
                               <Input 
@@ -1032,29 +1060,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                   ))}
                               </div>
                            </div>
-
-                           {/* VSL Video Configuration - Only visible if structure is VSL */}
-                           {content.structure === 'vsl-focused' && (
-                                <div className="bg-gray-800 border border-primary/30 rounded-xl p-4 animate-in slide-in-from-top-2 shadow-lg shadow-primary/10">
-                                    <h3 className="text-white font-bold mb-3 flex items-center gap-2 text-sm">
-                                        <PlayCircle className="w-4 h-4 text-primary" /> Configuración del Video VSL
-                                    </h3>
-                                    <div className="space-y-3">
-                                        <div>
-                                            <Label>URL del Video (YouTube, Vimeo, MP4)</Label>
-                                            <Input
-                                                value={content.hero.videoUrl || ''}
-                                                onChange={(e) => updateNestedField('hero', 'videoUrl', e.target.value)}
-                                                placeholder="https://www.youtube.com/watch?v=..."
-                                                className="bg-black border-gray-700 focus:border-primary"
-                                            />
-                                            <p className="text-[10px] text-gray-400 mt-1">
-                                                * Se detectará automáticamente si es YouTube/Vimeo para incrustarlo.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                           )}
 
                            {/* COLOR PALETTE SELECTION */}
                            <div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { User, Target, Zap, CheckCircle, Plus, Minus, ScanFace, Palette, Feather, Star, AlertTriangle, XCircle } from 'lucide-react';
-import { Navbar, Footer, SmartCTA, FeatureCard } from '../ui/LiveComponents';
+import { Navbar, Footer, SmartCTA, FeatureCard, HeroMedia } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
 
 interface TemplateProps {
@@ -41,11 +41,13 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                     </div>
                 </div>
 
-                {/* Right: Image with Floating Card */}
+                {/* Right: Media with Floating Card */}
                 <div className="relative flex justify-center">
                      <div className="relative w-full max-w-md">
                         <div className={`absolute top-4 -right-4 w-full h-full rounded-3xl ${ds.blobColor} opacity-20`}></div>
-                        <img src={content.hero.heroImage || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Intro" className="relative z-10 rounded-2xl shadow-2xl w-full object-cover aspect-[4/5]" />
+                        <div className="relative z-10 rounded-2xl shadow-2xl overflow-hidden aspect-[4/5]">
+                            <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} className="rounded-2xl" />
+                        </div>
                         
                         {/* Floating Card */}
                         <div className={`absolute -bottom-6 -left-6 z-20 rounded-xl p-4 shadow-xl max-w-[220px] border bg-white transform rotate-1 hover:rotate-0 transition-transform duration-300 ${ds.intro.floatingCardBg} ${ds.intro.floatingCardBorder}`}>
@@ -204,15 +206,11 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
 
                 {/* 2. Headlines */}
                 <div className="space-y-4 max-w-4xl mx-auto">
-                    {/* ////////// Actualización de tamaño de fuente y interlineado proporcional a Tailwind - 25/05/2025 21:15 ////////// */}
                     {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight leading-tight ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-5xl md:text-7xl'}`, ds.hero.highlightGradient)}
-                    {/* ////////// Fin de actualización - 25/05/2025 21:15 ////////// */}
                     
-                    {/* ////////// Corrección de jerarquía visual del subtítulo de md:text-7xl a md:text-2xl - 01/06/2025 20:30 ////////// */}
                     <div id="subtitulo-principal">
                        {renderRichText(content.hero.subheadline, `text-xl opacity-90 leading-tight max-w-2xl mx-auto ${ds.hero.subtitleColor} ${isMobilePreview ? '' : 'md:text-2xl'}`)}
                     </div>
-                    {/* ////////// Fin de actualización - 01/06/2025 20:30 ////////// */}
                 </div>
                 
                 {/* 3. Details Row */}
@@ -227,7 +225,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                         </div>
                 </div>
 
-                {/* 4. Problem Identification Card (Centered) - Actualización: Temario por Dolores - 31/12/2025 18:30 */}
+                {/* 4. Problem Identification Card (Centered) */}
                 <div id="what-you-will-learn-card" className={`w-full max-w-3xl border rounded-xl p-8 text-left shadow-lg ${ds.features.cardBg} ${ds.features.cardBorder}`}>
                     <h4 className={`font-bold mb-6 flex items-center justify-center gap-2 text-xl ${ds.features.titleColor}`}>
                         <div className={`w-6 h-6 text-orange-500`}>

@@ -1,4 +1,3 @@
-
 const { GoogleGenAI } = require("@google/genai");
 const pool = require('./db');
 
@@ -342,11 +341,6 @@ const generateFullStrategy = async (projectId) => {
                     { label: "WhatsApp (Canal de Cierre)", type: "WA" },
                     { label: "Email (Refuerzo & Seguimiento)", type: "EM" }
                 ],
-                communicationStyle: [
-                    { label: "Educativa + Emocional", description: "Enseñamos el potencial del negocio mientras conectamos con su deseo de independencia." },
-                    { label: "Lenguaje Cercano", description: "Claridad profesional sin tecnicismos para no intimidar a las principiantes." },
-                    { label: "Cercanía Total", description: "Hablar como una mentora que ya recorrió el camino y entiende sus miedos." }
-                ],
                 tacticalNote: "Este flujo está diseñado para calentar al prospecto en la Landing Page y llevarlo a WhatsApp, donde la tasa de cierre es 10 veces mayor para productos de alto valor. El sistema usará un lenguaje que evite tecnicismos para no intimidar al avatar Laura."
             }
         }
@@ -536,7 +530,7 @@ const generateFullStrategy = async (projectId) => {
             keyword: "casos donde no hacer microblading",
             searchVolume: "150 - 300",
             objective: "Prevención y seguridad legal",
-            strategy: "Listamos casos clínicos (embarazo, diabetes no controlada, etc.) donde se desaconseja la técnica. Vital para que el alumno opere con seguridad y evite complicaciones legales."
+            strategy: "Listamos campings clínicos (embarazo, diabetes no controlada, etc.) donde se desaconseja la técnica. Vital para que el alumno opere con seguridad y evite complicaciones legales."
         },
         {
             id: 12,

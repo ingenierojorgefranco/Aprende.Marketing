@@ -1,4 +1,3 @@
-
 import { BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
 
 /* */ /* Actualización: Enriquecimiento de la interfaz ProjectMasterStrategy con campos de profundidad psicológica: manifestación diaria, razón emocional y etapas de consciencia - 15/06/2024 19:00 */
@@ -52,7 +51,6 @@ export interface ProjectMasterStrategy {
         conversionStrategy: {
             mainFocus: Array<{ label: string; description: string }>;
             prioritizedChannels: Array<{ label: string; type: 'LP' | 'WA' | 'EM' | string }>;
-            communicationStyle: Array<{ label: string; description: string }>;
             tacticalNote: string;
         };
         psychographicProfile?: {
@@ -122,7 +120,6 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
         conversionStrategy: {
             mainFocus: [],
             prioritizedChannels: [],
-            communicationStyle: [],
             tacticalNote: ""
         },
         psychographicProfile: {
@@ -276,11 +273,6 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 { label: "Landing Page (Captación)", type: "LP" },
                 { label: "WhatsApp (Canal de Cierre)", type: "WA" },
                 { label: "Email (Refuerzo & Seguimiento)", type: "EM" }
-            ],
-            communicationStyle: [
-                { label: "Educativa + Emocional", description: "Enseñamos el potencial del negocio mientras conectamos con su deseo de independencia." },
-                { label: "Lenguaje Cercano", description: "Claridad profesional sin tecnicismos para no intimidar a las principiantes." },
-                { label: "Cercanía Total", description: "Hablar como una mentora que ya recorrió el camino y entiende sus miedos." }
             ],
             tacticalNote: "Este flujo está diseñado para calentar al prospecto en la Landing Page y llevarlo a WhatsApp, donde la tasa de cierre es 10 veces mayor para productos de alto valor. El sistema usará un lenguaje que evite tecnicismos para no intimidar al avatar Laura."
         },
@@ -496,7 +488,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 keyword: "cejas pelo a pelo vs microblading",
                 searchVolume: "600 - 1.5K",
                 objective: "Claridad en la oferta de servicios",
-                strategy: "Aclara la confusión común entre extensiones de cejas y microblading. Ayuda al alumno a definir su catálogo de servicios y a educar al mercado sobre la superioridad del microblading."
+                strategy: "Aclara la confusión común entre extensiones de cejas y microblading. Help al alumno a definir su catálogo de servicios y a educar al mercado sobre la superioridad del microblading."
             }
         ],
         emails: {

@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, Layout, Mail, MessageSquare, FileText, MousePointer2, Sparkles, Zap, ShieldAlert, XCircle, PlayCircle } from 'lucide-react';
+import { Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, Layout, Mail, MessageSquare, FileText, MousePointer2, Sparkles, Zap, ShieldAlert, XCircle, PlayCircle, Target, Users } from 'lucide-react';
 
 interface ProjectStrategy_PsychologyProps {
     psychology: {
@@ -8,7 +7,12 @@ interface ProjectStrategy_PsychologyProps {
         solutions: string[];
         buyingPsychology?: {
             notBuyingReasons: Array<{ title: string; description: string; detail?: string }>;
-        }
+        };
+        conversionStrategy?: {
+            mainFocus: Array<{ label: string; description: string }>;
+            prioritizedChannels: Array<{ label: string; type: 'LP' | 'WA' | 'EM' | string }>;
+            tacticalNote: string;
+        };
     };
     benefitsItems?: Array<{ title: string; desc: string }>;
 }
@@ -56,6 +60,34 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                     </div>
                 </div>
             </div>
+
+            {/* --- NUEVA SECCIÓN: PILARES DE COMUNICACIÓN ESTRATÉGICA --- */}
+            {psychology.conversionStrategy?.mainFocus && (
+                <div className="max-w-[70em] mx-auto px-4 md:px-0">
+                    <h4 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
+                        <Sparkles className="w-6 h-6 text-indigo-400" /> Pilares de Comunicación Estratégica
+                    </h4>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {psychology.conversionStrategy.mainFocus.map((pillar, idx) => {
+                            const Icon = idx === 0 ? Target : idx === 1 ? Users : Zap;
+                            return (
+                                <div key={idx} className="bg-gray-900/60 border border-gray-800 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-all duration-500 shadow-xl relative group">
+                                    <div className="absolute -inset-1 bg-indigo-500/5 rounded-[2rem] blur opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="relative z-10 space-y-4">
+                                        <div className="p-3 bg-indigo-500/10 rounded-xl text-indigo-400 w-fit shadow-inner">
+                                            <Icon className="w-6 h-6" />
+                                        </div>
+                                        <h5 className="text-xl font-bold text-white tracking-tight">{pillar.label}</h5>
+                                        <p className="text-gray-400 text-base leading-relaxed font-light">
+                                            {pillar.description}
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
             {/* --- SECCIÓN DE TÍTULO PARA EL ESPEJO --- */}
             <div className="max-w-[70em] mx-auto text-left mb-10 px-4 md:px-0">
