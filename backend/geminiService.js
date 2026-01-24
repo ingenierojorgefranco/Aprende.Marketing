@@ -1,13 +1,13 @@
 const { GoogleGenAI } = require("@google/genai");
 const pool = require('./db');
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.API_KEY;
 let aiClient = null;
 
 if (apiKey) {
     aiClient = new GoogleGenAI({ apiKey });
 } else {
-    console.warn("⚠️ [GEMINI] No GEMINI_API_KEY found in environment variables.");
+    console.warn("⚠️ [GEMINI] No API_KEY found in environment variables.");
 }
 
 /**
@@ -313,7 +313,7 @@ const generateFullStrategy = async (projectId) => {
                     { title: "Define el motivador emocional 3", description: "Explica cómo este factor impulsa la decisión de compra" },
                     { title: "Define el motivador emocional 4", description: "Explica cómo este factor impulsa la decisión de compra" }
                 ],
-                strategistConclusion: "Redacta una conclusión de estratega sobre el ángulo de venta maestro que debe seguir todo el copy."
+                strategistConclusion: "Redacta una conclusion de estratega sobre el ángulo de venta maestro que debe seguir todo el copy."
             },
             conversionStrategy: {
                 mainFocus: [
@@ -324,85 +324,10 @@ const generateFullStrategy = async (projectId) => {
                 tacticalNote: "Redacta una nota técnica sobre cómo debe ser la transición del lead desde la landing page hasta el cierre en WhatsApp."
             }
         }
-    }`;
-
-
-
-
-
-
-
-        const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { 
-            responseMimeType: "application/json",
-            thinkingConfig: { thinkingBudget: 0 }
-        });
-
-        if (!step1Res) throw new Error("Gemini devolvió vacío en Etapa 1");
-        
-        step1Data = JSON.parse(step1Res.trim());
-        process.stdout.write(`✅ [PIPELINE IA] Etapa 1 + Psicología finalizada con éxito para ${productName}.\n`);
-
-    } catch (err) {
-        process.stdout.write(`❌ [PIPELINE ERROR ETAPA 1 IA]: ${err.message}\n`);
-        throw err;
     }
 
-    // 4. DATOS DUMMY PARA ETAPAS 3-6 (PARA PRUEBAS - SINCRO CON MOCK)
-    process.stdout.write(`[PIPELINE DEBUG] Inyectando datos estáticos para etapas 3 a 6...\n`);
 
-    /* Comentado Step 2 por integración en Step 1
-    step2Data = {
-        psychology: {
-            pains: [
-                "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
-                "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.",
-                "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.",
-                "Ves pasar oportunidades de éxito en Instagram, pero te falta la guía técnica para dar el paso con seguridad.",
-                "Te apasiona la estética pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.",
-                "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.",
-                "Te detiene el miedo a las promesas vacías de internet que no enseñan nada realmente útil para tu futuro."
-            ],
-            solutions: [
-                "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo. Maximiza tu tiempo generando servicios de alto impacto económico.",
-                "Certificación profesional y acompañamiento que eliminan todo temor a cometer errores técnicos.",
-                "Metodología 100% práctica basada en resultados reales, con soporte paso a paso.",
-                "Estrategia probada de captación de clientes en Instagram para llenar tu agenda con seguridad.",
-                "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable.",
-                "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa.",
-                "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real."
-            ],
-            awarenessStages: {
-                stage1_pain: "Frustración por trabajar jornadas agotadoras sin estabilidad económica real.",
-                stage2_solution: "Sabe que el Microblading Hiperrealista es la técnica mejor pagada y más demandada.",
-                stage3_barrier: "Miedo a no tener acompañamiento práctico y desconfianza en la educación online básica."
-            },
-            buyingPsychology: {
-                notBuyingReasons: [
-                    { title: "Duda de la factibilidad", description: "Teme que su falta de experiencia previa sea un impedimento real para aprender una técnica tan compleja.", detail: "Cree que necesita ser dibujante profesional para tener éxito." },
-                    { title: "Falta de claridad", description: "No visualiza cómo pasará de su situación actual a generar ingresos reales de forma segura.", detail: "Le preocupa no saber cómo montar el estudio físico." },
-                    { title: "Riesgo percibido", description: "Siente que puede perder la inversión en el curso si no logra dominar la pluma manual (tébori).", detail: "Teme arruinar la cara de alguien y enfrentar problemas legales." }
-                ],
-                buyingReasons: [
-                    { title: "Siente Seguridad", description: "Percibe que el acompañamiento paso a paso minimiza cualquier riesgo de error técnico." },
-                    { title: "Percibe Autoridad", description: "Nota que la metodología está avalada por years de práctica y miles de alumnas exitosas." },
-                    { title: "Visualiza el Éxito", description: "Se ve logrando independencia financiera y manejando su propio estudio de belleza." },
-                    { title: "Respaldo Total", description: "Siente que la comunidad and el soporte resolverán cualquier duda en tiempo real." }
-                ],
-                strategistConclusion: "El mensaje se enfocará en seguridad, respaldo, práctica real y resultados. Evitaremos promesas exageradas para generar confianza genuina atacando su principal miedo: la desconfianza en la formación online tradicional."
-            },
-            conversionStrategy: {
-                mainFocus: [
-                    { label: "Mensaje Directo", description: "Empatía sin rodeos sobre la inestabilidad económica y el miedo técnico." },
-                    { label: "Autoridad Humana", description: "Liderazgo inspirador basado en resultados reales de alumnas, no solo teoría." },
-                    { label: "Énfasis Práctico", description: "Foco total en el acompañamiento y la técnica paso a paso para elminar el miedo." }
-                ],
-                tacticalNote: "Este flujo está diseñado para calentar al prospecto en la Landing Page y llevarlo a WhatsApp, donde la tasa de cierre es 10 veces mayor para productos de alto valor. El sistema usará un lenguaje que evite tecnicismos para no intimidar al avatar Laura."
-            }
-        }
-    };
-    */
 
-    step3Web = {
         landingPageTabs: {
             hero: {
                 label: "1. Encabezado",
@@ -474,11 +399,17 @@ const generateFullStrategy = async (projectId) => {
                 },
                 strategyText: "Entregamos valor inmediato que ataca la parálisis por análisis del avatar principiante."
             }
-        }
-    };
+        },
 
-    step4Content = [
-        {
+
+
+
+
+
+
+
+    "content": [
+      {
             id: 1,
             title: "¿Qué es el microblading en cejas?",
             traffic: 50,
@@ -496,7 +427,7 @@ const generateFullStrategy = async (projectId) => {
             keyword: "desventajas de microblading",
             searchVolume: "100 - 500",
             objective: "Transparencia and profesionalismo",
-            strategy: "Abordamos los retos y cuidados necesarios con honestidad. El objetivo es filtrar a alumnos comprometidos y demostrar que la formación adecuada elimina la mayoría de estos riesgos."
+            strategy: "Abordamos los retos and cuidados necesarios con honestidad. El objetivo es filtrar a alumnos comprometidos and demostrar que la formación adecuada elimina la mayoría de estos riesgos."
         },
         {
             id: 3,
@@ -608,11 +539,15 @@ const generateFullStrategy = async (projectId) => {
             objective: "Claridad en la oferta de servicios",
             strategy: "Aclara la confusión común entre extensiones de cejas y microblading. Ayuda al alumno a definir su catálogo de servicios y a educar al mercado sobre la superioridad del microblading."
         }
-    ];
+    ],
 
-    step5Emails = {
-        nurture: [
-            {
+
+
+
+
+    "emails": {
+      "nurture": [
+        {
                 id: 1,
                 day: "Día 0",
                 subject: "🎁 Tu regalo: Guía de Inicio Rápido en Microblading",
@@ -668,9 +603,9 @@ const generateFullStrategy = async (projectId) => {
                 objective: "Llamada final a la acción antes del cierre de inscripciones y aumento de precio.",
                 bodyPreview: "Hola [Nombre], esta es mi última invitación personal. Mañana el precio subirá y los bonos desaparecerán. ¿Eliges seguir como hasta ahora o decides tomar el control de tus ingresos?..."
             }
-        ],
-        evergreen: [
-            {
+      ],
+      "evergreen": [
+        {
                 id: 8,
                 day: "Día 8",
                 subject: "¿Cansada de las promesas vacías en cursos online?",
@@ -686,11 +621,10 @@ const generateFullStrategy = async (projectId) => {
                 objective: "Entregar valor práctico que facilite la visualización del negocio real.",
                 bodyPreview: "Hola [Nombre], mucha gente se paraliza pensando que necesita una clínica de lujo. Aquí te comparto la lista mínima de materiales para empezar con seguridad desde tu hogar..."
             }
-        ]
-    };
-
-    step6WhatsApp = [
-        {
+      ]
+    },
+    "whatsapp": [
+     {
             id: 1,
             title: "👋 Bienvenida e Interés",
             objective: "Filtro inicial para conocer la experiencia de la alumna y conectar por su canal preferido.",
@@ -738,7 +672,42 @@ const generateFullStrategy = async (projectId) => {
                 { role: "agent", text: "¡Hola de nuevo! Te escribo porque no quería que te perdieras el bono de Asesoría VIP que expira hoy a medianoche. ¿Sigues interesada en iniciar tu propio estudio de cejas este mes? Cuéntame si tienes alguna duda final con el pago." }
             ]
         }
-    ];
+    ]
+  }
+}
+
+        
+    `;
+
+
+
+
+
+
+
+
+    try {
+        const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { 
+            responseMimeType: "application/json",
+            thinkingConfig: { thinkingBudget: 0 }
+        });
+
+        if (!step1Res) throw new Error("Gemini devolvió vacío en Etapa 1");
+        
+        step1Data = JSON.parse(step1Res.trim());
+        process.stdout.write(`✅ [PIPELINE IA] Etapa 1 + Psicología finalizada con éxito para ${productName}.\n`);
+
+    } catch (err) {
+        process.stdout.write(`❌ [PIPELINE ERROR ETAPA 1 IA]: ${err.message}\n`);
+        throw err;
+    }
+
+    // 4. DATOS DUMMY PARA ETAPAS 3-6 (PARA PRUEBAS - SINCRO CON MOCK)
+    process.stdout.write(`[PIPELINE DEBUG] Inyectando datos estáticos para etapas 3 a 6...\n`);
+
+
+
+    
 
     try {
         // 5. CONSOLIDACIÓN FINAL
@@ -750,12 +719,12 @@ const generateFullStrategy = async (projectId) => {
             psychology: step1Data.psychology, // Sincronizado: Usando datos de Step 1 (IA)
             modules: { 
                 web: {
-                    landingPageTabs: step3Web.landingPageTabs,
-                    thankYouPageTabs: step3Web.thankYouPageTabs
+                    landingPageTabs: step1Data.landingPageTabs,
+                    thankYouPageTabs: step1Data.thankYouPageTabs
                 },
-                content: step4Content,
-                emails: step5Emails,
-                whatsapp: step6WhatsApp
+                content: step1Data.content,
+                emails: step1Data.emails,
+                whatsapp: step1Data.whatsapp
             } 
         };
 
