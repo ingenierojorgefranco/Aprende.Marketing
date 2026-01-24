@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
@@ -206,9 +205,9 @@ export const DashboardLayout = ({
         { id: 'training', label: 'Entrenamiento', icon: GraduationCap, subItems: courseItems },
         { id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
             { label: 'Mis Proyectos', path: '/dashboard/projects', icon: Briefcase },
-            { label: 'Páginas de Venta', path: '/dashboard/pages', icon: FileText },
-            { label: 'Contenidos Automáticos', path: '/dashboard/articles', icon: BookOpen },
-            { label: 'Email Marketing', path: '/dashboard/email', icon: Mail }
+            { label: 'Páginas de Captura', path: '/dashboard/pages', icon: FileText },
+            { label: 'Contenidos SEO', path: '/dashboard/articles', icon: BookOpen },
+            { label: 'Email Marketing: Captación', path: '/dashboard/email', icon: Mail }
           ]
         },
         { id: 'tools', label: 'Herramientas Pro', icon: Wrench, subItems: [

@@ -1,10 +1,17 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
-import { User, Target, Zap, CheckCircle2, Plus, Minus, ScanFace, Palette, Feather, Star, AlertTriangle, XCircle } from 'lucide-react';
-import { Navbar, Footer, SmartCTA, FeatureCard, HeroMedia } from '../ui/LiveComponents';
-import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
+import { User, Target, AlertTriangle, XCircle } from 'lucide-react';
+import { Navbar } from '../ui/LiveComponents';
+import { renderRichText, renderStyledHeadline } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
+import { IntroModule } from './modules/IntroModule';
+import { InstructorModule } from './modules/InstructorModule';
+import { FaqModule } from './modules/FaqModule';
+import { FooterModule } from './modules/FooterModule';
+import { StepsModule } from './modules/StepsModule';
+import { FinalCtaModule } from './modules/FinalCtaModule';
+import { CtaBlockModule } from './modules/CtaBlockModule';
+import { BenefitsModule } from './modules/BenefitsModule';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -17,135 +24,11 @@ interface TemplateProps {
 }
 
 export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
-  
-  const IntroSection = () => (
-    <section id="seccion-introduccion" className={`py-20 ${ds.intro.sectionBg} border-b ${ds.intro.badgeBorder}`}>
-        <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className={`grid gap-16 items-center ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
-                {/* Left: Text & Bullets */}
-                <div>
-                    <span className={`inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border ${ds.intro.badgeBg} ${ds.intro.badgeText} ${ds.intro.badgeBorder}`}>Información del Evento</span>
-                    <h2 className={`text-3xl font-bold mb-6 ${ds.intro.titleColor}`}>{content.intro.title}</h2>
-                    <div className={`text-lg leading-relaxed mb-8 ${ds.intro.textColor}`}>{renderRichText(content.intro.description)}</div>
-                    
-                    <div className="space-y-4">
-                        {(content.intro.items || []).map((item, i) => (
-                            <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border ${ds.features.cardBg} ${ds.features.cardBorder}`}>
-                                <div className={`p-2 rounded-lg flex-shrink-0 ${ds.intro.bulletIconBg} ${ds.intro.bulletIconColor}`}>
-                                    {i === 0 ? <ScanFace className="w-5 h-5" /> : i === 1 ? <Palette className="w-5 h-5" /> : <Feather className="w-5 h-5" />}
-                                </div>
-                                <div>
-                                    <h4 className={`font-bold text-base mb-1 ${ds.features.titleColor}`}>{item.title}</h4>
-                                    {renderRichText(item.description, `text-sm leading-snug ${ds.features.descColor}`)}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Right: Media with Background Blur Decor */}
-                <div className="relative flex justify-center">
-                     <div className="relative w-full max-w-md">
-                        <div className={`absolute top-4 -right-4 w-full h-full rounded-3xl ${ds.blobColor} opacity-20`}></div>
-                        <div className="relative z-10 rounded-2xl shadow-2xl overflow-hidden aspect-[4/5]">
-                            <img src={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} alt="Intro" className="w-full h-full object-cover rounded-2xl" />
-                        </div>
-                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-  );
-
-  const InstructorSection = () => (
-    <section id="seccion-instructor" className={`py-24 relative overflow-hidden ${ds.instructor.sectionBg}`}>
-         <div className={`absolute top-1/2 left-0 md:left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] ${ds.blobOpacity} ${ds.blobColor}`}></div>
-         <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
-            <div className={`flex flex-col items-center gap-12 ${isMobilePreview ? '' : 'md:flex-row md:gap-20'}`}>
-                <div className="relative group shrink-0">
-                     <div className={`absolute inset-0 rounded-full blur-md opacity-70 group-hover:opacity-100 transition duration-500 ${ds.blobColor}`}></div>
-                     <div className={`relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 shadow-2xl z-10 ${ds.instructor.badgeBorder}`}>
-                        <img src={content.instructor.imageUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Instructor" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                     </div>
-                </div>
-                <div className={`text-center flex-1 ${isMobilePreview ? '' : 'md:text-left'}`}>
-                    <h4 className={`font-bold uppercase tracking-widest text-sm mb-2 opacity-80 ${ds.instructor.textColor}`}>{content.instructor.title || "Conoce a tu Mentor"}</h4>
-                    <h2 id="instructor-name" className={`text-4xl md:text-6xl font-black mb-6 ${ds.instructor.titleColor}`}>{content.instructor.name}</h2>
-                    {renderRichText(content.instructor.bio, `text-lg leading-relaxed mb-8 max-w-2xl font-light ${ds.instructor.bioColor} ${isMobilePreview ? 'mx-auto' : 'mx-auto md:mx-0'}`)}
-                </div>
-            </div>
-         </div>
-    </section>
-  );
-
-  const BenefitsSection = () => (
-    <section id="seccion-beneficios" className={`py-24 ${ds.features.sectionBg}`}>
-        <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className="text-center mb-16">
-                <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${ds.features.titleColor}`}>{content.benefits.title}</h2>
-                <p className={`text-lg max-w-2xl mx-auto ${ds.features.descColor}`}>{content.benefits.subtitle}</p>
-            </div>
-            <div id="benefits-grid" className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                {(content.benefits.items || []).map((item, idx) => <FeatureCard key={idx} item={item} idx={idx} ds={ds} content={content} />)}
-            </div>
-        </div>
-    </section>
-  );
-
-  const StepsSection = () => (
-    <section id="steps-section" className={`py-20 ${ds.steps.sectionBg}`}>
-        <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className="text-center mb-12">
-                <h2 className={`text-3xl font-bold mb-4 ${ds.steps.titleColor}`}>Asegura tu Cupo en 3 Pasos</h2>
-            </div>
-            <div className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                 {[
-                    { num: 1, title: "Regístrate Gratis", text: "Usa el formulario para apartar tu lugar." },
-                    { num: 2, title: "Revisa tu Correo", text: "Te enviaremos el link de acceso único." },
-                    { num: 3, title: "Conéctate en Vivo", text: "Asiste a la hora indicada y aprende." }
-                 ].map((step, i) => (
-                    <div key={i} className={`flex flex-col items-center text-center p-6 rounded-2xl border transition hover:-translate-y-1 ${ds.steps.cardBg} ${ds.steps.cardBorder}`}>
-                         <div className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold mb-4 ${ds.steps.iconContainer} ${ds.steps.numberColor}`}>{step.num}</div>
-                         <h3 className={`text-lg font-bold mb-2 ${ds.steps.titleColor}`}>{step.title}</h3>
-                         <p className={`text-sm ${ds.steps.textColor}`}>{step.text}</p>
-                    </div>
-                 ))}
-            </div>
-        </div>
-    </section>
-  );
-
-  const FAQSection = () => {
-    const [openIndex, setOpenIndex] = React.useState<number | null>(0);
-    const questions = content.faq || [];
-    return (
-        <section id="faq-section" className={`py-24 ${ds.faq.sectionBg}`}>
-            <div className="w-full max-w-4xl mx-auto px-6">
-                <div className="text-center mb-16"><h2 id="faq-title" className={`text-3xl md:text-4xl font-bold mb-4 ${ds.faq.titleColor}`}>Preguntas Frecuentes</h2></div>
-                <div className="space-y-4">
-                    {(questions || []).map((q, idx) => (
-                        <div key={idx} className={`rounded-xl border transition-all duration-300 overflow-hidden ${openIndex === idx ? `shadow-lg border-opacity-0 ${ds.faq.cardBg}` : `border-transparent ${ds.faq.cardBg} hover:bg-opacity-80`}`}>
-                            <button onClick={() => setOpenIndex(openIndex === idx ? null : idx)} className="w-full flex items-center justify-between p-6 text-left"><span className={`font-bold text-lg ${ds.faq.questionColor}`}>{q.question}</span><div className={`p-2 rounded-full ${ds.faq.iconBg} ${ds.faq.iconColor}`}>{openIndex === idx ? <Minus className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}</div></button>
-                            <div className={`transition-all duration-300 ease-in-out px-6 ${openIndex === idx ? 'max-h-48 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}>{renderRichText(q.answer, `leading-relaxed ${ds.faq.answerColor}`)}</div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-  };
-
-  const FinalCTASection = () => (
-    <section id="final-cta-section" className={`py-24 relative overflow-hidden ${ds.cta.sectionBg}`}>
-        <div className="w-full max-w-[75em] mx-auto px-6 text-center relative z-10">
-            <h2 className={`text-3xl md:text-5xl font-bold mb-6 ${ds.cta.sectionTitleColor}`}>¿Lista para cambiar tu vida?</h2>
-            <p className={`text-lg mb-10 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>
-                {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
-            </p>
-            <div className="max-w-md mx-auto"><SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} basePath={basePath} /></div>
-        </div>
-    </section>
-  );
+  const webinarSteps = [
+    { num: 1, title: "Regístrate Gratis", text: "Usa el formulario para apartar tu lugar." },
+    { num: 2, title: "Revisa tu Correo", text: "Te enviaremos el link de acceso único." },
+    { num: 3, title: "Conéctate en Vivo", text: "Asiste a la hora indicada y aprende." }
+  ];
 
   return (
     <div id="webinar-template-root" className={`min-h-screen font-sans ${ds.bg} scroll-smooth`}>
@@ -205,17 +88,23 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                     </ul>
                 </div>
 
-                {/* 5. CTA (Moved to bottom) */}
+                {/* 5. CTA Block */}
                 <div id="hero-cta" className="w-full max-w-md mt-4 animate-in slide-in-from-bottom-4 duration-700">
-                    <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} centered={true} pageId={pageId} basePath={basePath} />
+                    <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} sticky={false} />
                 </div>
             </div>
          </header>
 
-         <IntroSection />
-         <InstructorSection />
-         <BenefitsSection />
-         <StepsSection />
+         <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
+         <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
+         
+         <BenefitsModule 
+            content={content} 
+            ds={ds} 
+            isMobilePreview={isMobilePreview}
+         />
+
+         <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} title="Asegura tu Cupo en 3 Pasos" steps={webinarSteps} />
          <WhatsAppTestimonials 
             testimonials={content.testimonials} 
             title={content.testimonialTitle} 
@@ -223,9 +112,9 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
             isMobilePreview={isMobilePreview} 
             ds={ds} 
         />
-         <FAQSection />
-         <FinalCTASection />
-         <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
+         <FaqModule content={content} ds={ds} />
+         <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
+         <FooterModule content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
     </div>
   );
 };

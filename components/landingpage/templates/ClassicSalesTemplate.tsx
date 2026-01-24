@@ -1,10 +1,17 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
-import { PlayCircle, BookOpen, CheckCircle, Star, Award, Users, ScanFace, Palette, Feather, Plus, Minus, AlertTriangle, XCircle } from 'lucide-react';
-import { Navbar, Footer, SmartCTA, FeatureCard, HeroMedia } from '../ui/LiveComponents';
-import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
+import { PlayCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { Navbar, HeroMedia } from '../ui/LiveComponents';
+import { renderRichText, renderStyledHeadline } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
+import { IntroModule } from './modules/IntroModule';
+import { InstructorModule } from './modules/InstructorModule';
+import { FaqModule } from './modules/FaqModule';
+import { FooterModule } from './modules/FooterModule';
+import { StepsModule } from './modules/StepsModule';
+import { FinalCtaModule } from './modules/FinalCtaModule';
+import { CtaBlockModule } from './modules/CtaBlockModule';
+import { BenefitsModule } from './modules/BenefitsModule';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -17,145 +24,11 @@ interface TemplateProps {
 }
 
 export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles, isDark }) => {
-  const IntroSection = () => (
-    <section id="seccion-introduccion" className={`py-24 relative overflow-hidden ${ds.intro.sectionBg}`}>
-        <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className={`grid gap-12 items-center ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
-                <div id="intro-image-container" className="relative">
-                     <div id="intro-blob" className={`absolute top-0 left-0 w-2/3 h-2/3 -translate-x-4 -translate-y-4 rounded-3xl ${ds.blobOpacity} ${ds.blobColor}`}></div>
-                     <div className="relative">
-                        <img id="intro-main-image" src={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} alt="Intro" className="relative z-10 rounded-3xl shadow-2xl w-full object-cover aspect-[4/3]" />
-                     </div>
-                </div>
-                <div id="intro-text-container" className="relative z-10">
-                    <span id="intro-badge" className={`inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider mb-6 border ${ds.intro.badgeBg} ${ds.intro.badgeText} ${ds.intro.badgeBorder}`}>Descubre Más</span>
-                    <h2 id="intro-title" className={`text-3xl md:text-4xl font-black mb-8 leading-tight ${ds.intro.titleColor}`}>{content.intro.title}</h2>
-                    <div id="intro-description" className={`space-y-6 text-lg leading-relaxed ${ds.intro.textColor}`}>{renderRichText(content.intro.description)}</div>
-                    <div id="intro-bullets" className="mt-10 space-y-4">
-                        {(content.intro.items || []).map((item, i) => (
-                            <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border transition ${ds.features.cardBg} ${ds.features.cardBorder}`}>
-                                <div id={`intro-bullet-icon-${i}`} className={`p-3 rounded-lg flex-shrink-0 ${ds.intro.bulletIconBg} ${ds.intro.bulletIconColor}`}>
-                                   {i === 0 ? <ScanFace className="w-6 h-6" /> : i === 1 ? <Palette className="w-6 h-6" /> : <Feather className="w-6 h-6" />}
-                                </div>
-                                <div><h4 className={`font-bold text-lg mb-1 ${ds.features.titleColor}`}>{item.title}</h4>{renderRichText(item.description, `text-sm leading-snug ${ds.features.descColor}`)}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-  );
-
-  const BenefitsSection = () => (
-    <section id="seccion-beneficios" className={`py-24 ${ds.features.sectionBg}`}>
-        <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className="text-center mb-16">
-                <h2 id="benefits-title" className={`text-3xl md:text-4xl font-bold mb-4 ${ds.features.titleColor}`}>{content.benefits.title}</h2>
-                <p id="benefits-subtitle" className={`text-lg max-w-2xl mx-auto mt-4 leading-relaxed ${ds.features.descColor}`}>{content.benefits.subtitle || "Recibe el arsenal completo de recursos que han llevado a nuestras alumnas a facturar desde su primer mes."}</p>
-                <div className={`h-1.5 w-24 rounded-full mx-auto mt-6 ${ds.blobColor}`}></div>
-            </div>
-            <div id="benefits-grid" className={`grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                {(content.benefits.items || []).map((item, idx) => <FeatureCard key={idx} item={item} idx={idx} ds={ds} content={content} />)}
-            </div>
-        </div>
-    </section>
-  );
-
-  const StepsSection = () => (
-    <section id="steps-section" className={`py-24 relative ${ds.steps.sectionBg}`}>
-        <div className="w-full max-w-[75em] mx-auto px-6">
-            <div className="text-center mb-16">
-                <h2 id="steps-title" className={`text-3xl md:text-4xl font-bold mb-4 ${ds.steps.titleColor}`}>Acceder a tu Transformación es Muy Fácil</h2>
-                <p id="steps-desc" className={`text-lg max-w-2xl mx-auto ${ds.steps.textColor}`}>En solo 3 simples pasos estarás dentro de la clase que puede cambiar tu carrera.</p>
-            </div>
-            <div className={`relative grid gap-8 ${isMobilePreview ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
-                 {[
-                    { num: 1, title: "Regístrate Ahora", text: "Completa el formulario con tu nombre y correo. Es 100% gratis y seguro." },
-                    { num: 2, title: "Confirma tu Correo", text: "Revisa tu bandeja de entrada y haz clic en el enlace para asegurar tu cupo." },
-                    { num: 3, title: "Acceso Instantáneo", text: "Recibirás el acceso a la clase y a tu E-book de regalo de inmediato. ¡Aprende a tu ritmo!" }
-                 ].map((step, i) => (
-                    <div key={i} id={`step-card-${i}`} className={`relative z-10 flex flex-col items-center text-center p-8 rounded-2xl transition hover:-translate-y-2 border ${ds.steps.cardBg} ${ds.steps.cardBorder} ${ds.steps.cardShadow}`}>
-                         <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mb-6 ${ds.steps.iconContainer} ${ds.steps.numberColor}`}>{step.num}</div>
-                         <h3 className={`text-xl font-bold mb-3 ${ds.steps.titleColor}`}>{step.title}</h3>
-                         <p className={`text-sm leading-relaxed ${ds.steps.textColor}`}>{step.text}</p>
-                    </div>
-                 ))}
-            </div>
-        </div>
-    </section>
-  );
-
-  const InstructorSection = () => (
-    <section id="seccion-instructor" className={`py-24 relative overflow-hidden ${ds.instructor.sectionBg}`}>
-         <div className={`absolute top-1/2 left-0 md:left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] ${ds.blobOpacity} ${ds.blobColor}`}></div>
-         <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
-            <div className={`flex flex-col items-center gap-12 ${isMobilePreview ? '' : 'md:flex-row md:gap-20'}`}>
-                <div className="relative group shrink-0">
-                     <div className={`absolute inset-0 rounded-full blur-md opacity-70 group-hover:opacity-100 transition duration-500 ${ds.blobColor}`}></div>
-                     <div className={`relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 shadow-2xl z-10 ${ds.instructor.badgeBorder}`}>
-                        <img id="instructor-image" src={content.instructor.imageUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Instructor" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                     </div>
-                     <div id="instructor-badge" className={`absolute bottom-4 right-4 z-20 backdrop-blur-md border p-3 rounded-2xl shadow-lg flex items-center gap-2 ${ds.instructor.badgeBg} ${ds.instructor.badgeBorder}`}>
-                         <Award className={`w-6 h-6 ${ds.decorations.starColor}`} />
-                         <div>
-                             <p className={`text-[10px] uppercase font-bold tracking-wider ${ds.instructor.badgeText}`}>{content.instructor.badgeText || "Top Rated"}</p>
-                             <p className={`text-xs opacity-80 ${ds.instructor.badgeText}`}>{content.instructor.badgeSubtext || "Mentor 2024"}</p>
-                         </div>
-                     </div>
-                </div>
-                <div className={`text-center flex-1 ${isMobilePreview ? '' : 'md:text-left'}`}>
-                    <h4 id="instructor-subtitle" className={`font-bold uppercase tracking-widest text-sm mb-2 opacity-80 ${ds.instructor.textColor}`}>{content.instructor.title || "Conoce a tu Mentor"}</h4>
-                    <h2 id="instructor-name" className={`text-4xl md:text-6xl font-black mb-6 ${ds.instructor.titleColor}`}>{content.instructor.name}</h2>
-                    {renderRichText(content.instructor.bio, `text-lg leading-relaxed mb-8 max-w-2xl font-light ${ds.instructor.bioColor} ${isMobilePreview ? 'mx-auto' : 'mx-auto md:mx-0'}`)}
-                    <div className={`flex flex-wrap justify-center gap-4 ${isMobilePreview ? '' : 'md:justify-start'}`}>
-                        <div className={`border px-6 py-3 rounded-full flex items-center gap-3 ${ds.instructor.statBg} ${ds.instructor.statBorder}`}>
-                            <Users className={`w-5 h-5 ${ds.instructor.statLabelColor}`} />
-                            <span className={`font-bold ${ds.instructor.statValueColor}`}>{content.instructor.statsStudents || "5k+ Alumnos"}</span>
-                        </div>
-                        <div className={`border px-6 py-3 rounded-full flex items-center gap-3 ${ds.instructor.statBg} ${ds.instructor.statBorder}`}>
-                            <Star className={`w-5 h-5 ${ds.decorations.starColor}`} />
-                            <span className={`font-bold ${ds.instructor.statValueColor}`}>{content.instructor.statsRating || "4.9/5 Rating"}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-         </div>
-    </section>
-  );
-
-  const FAQSection = () => {
-    const [openIndex, setOpenIndex] = React.useState<number | null>(0);
-    const questions = content.faq || [];
-    return (
-        <section id="faq-section" className={`py-24 ${ds.faq.sectionBg}`}>
-            <div className="w-full max-w-4xl mx-auto px-6">
-                <div className="text-center mb-16"><h2 id="faq-title" className={`text-3xl md:text-4xl font-bold mb-4 ${ds.faq.titleColor}`}>Preguntas Frecuentes</h2></div>
-                <div className="space-y-4">
-                    {(questions || []).map((q, idx) => (
-                        <div key={idx} id={`faq-card-${idx}`} className={`rounded-xl border transition-all duration-300 overflow-hidden ${openIndex === idx ? `shadow-lg border-opacity-0 ${ds.faq.cardBg}` : `border-transparent ${ds.faq.cardBg} hover:bg-opacity-80`}`}>
-                            <button onClick={() => setOpenIndex(openIndex === idx ? null : idx)} className="w-full flex items-center justify-between p-6 text-left"><span className={`font-bold text-lg ${ds.faq.questionColor}`}>{q.question}</span><div className={`p-2 rounded-full ${ds.faq.iconBg} ${ds.faq.iconColor}`}>{openIndex === idx ? <Minus className="w-5 h-5"/> : <Plus className="w-5 h-5"/>}</div></button>
-                            <div className={`transition-all duration-300 ease-in-out px-6 ${openIndex === idx ? 'max-h-48 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}>{renderRichText(q.answer, `leading-relaxed ${ds.faq.answerColor}`)}</div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-  };
-
-  const FinalCTASection = () => (
-    <section id="final-cta-section" className={`py-24 relative overflow-hidden ${ds.cta.sectionBg}`}>
-        <div className={`absolute top-0 left-0 w-96 h-96 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 ${ds.blobOpacity} ${ds.blobColor}`}></div>
-        <div className="w-full max-w-[75em] mx-auto px-6 text-center relative z-10">
-            <h2 id="final-cta-title" className={`text-3xl md:text-5xl font-bold mb-6 ${ds.cta.sectionTitleColor}`}>¿Lista para cambiar tu vida?</h2>
-            <p id="final-cta-desc" className={`text-lg mb-10 max-w-2xl mx-auto ${ds.cta.sectionTextColor}`}>
-                {content.closingOfferText || "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder a todos los beneficios."}
-            </p>
-            <div className="max-w-md mx-auto"><SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} basePath={basePath} /></div>
-        </div>
-    </section>
-  );
+  const classicSteps = [
+    { num: 1, title: "Regístrate Ahora", text: "Completa el formulario con tu nombre y correo. Es 100% gratis y seguro." },
+    { num: 2, title: "Confirma tu Correo", text: "Revisa tu bandeja de entrada y haz clic en el enlace para asegurar tu cupo." },
+    { num: 3, title: "Acceso Instantáneo", text: "Recibirás el acceso a la clase y a tu E-book de regalo de inmediato. ¡Aprende a tu ritmo!" }
+  ];
 
   return (
     <div id="classic-template-root" className={`min-h-screen font-sans ${ds.selectionColor} ${ds.bg} scroll-smooth`}>
@@ -221,7 +94,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                     </div>
                 </div>
                 <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-5 lg:sticky lg:top-24 order-1 lg:order-2'}`}>
-                     <SmartCTA content={content} ds={ds} isMobilePreview={isMobilePreview} fullWidth={true} pageId={pageId} basePath={basePath} />
+                     <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
                 </div>
              </div>
           </div>
@@ -234,13 +107,20 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
             isMobilePreview={isMobilePreview} 
             ds={ds} 
         />
-        <IntroSection />
-        <BenefitsSection />
-        <StepsSection />
-        <InstructorSection />
-        <FinalCTASection />
-        <FAQSection />
-        <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
+        <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
+        
+        <BenefitsModule 
+            content={content} 
+            ds={ds} 
+            isMobilePreview={isMobilePreview} 
+            showSeparator={true}
+        />
+
+        <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} description="En solo 3 simples pasos estarás dentro de la clase que puede cambiar tu carrera." steps={classicSteps} />
+        <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
+        <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
+        <FaqModule content={content} ds={ds} />
+        <FooterModule content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
     </div>
   );
 };
