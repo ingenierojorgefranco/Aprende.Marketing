@@ -5,12 +5,16 @@ interface ProjectStrategy_PsychologyProps {
     psychology: {
         pains: string[];
         solutions: string[];
+        awarenessStages: {
+            stage1_pain: string;
+            stage2_solution: string;
+            stage3_barrier: string;
+        };
         buyingPsychology?: {
             notBuyingReasons: Array<{ title: string; description: string; detail?: string }>;
         };
         conversionStrategy?: {
             mainFocus: Array<{ label: string; description: string }>;
-            prioritizedChannels: Array<{ label: string; type: 'LP' | 'WA' | 'EM' | string }>;
             tacticalNote: string;
         };
     };

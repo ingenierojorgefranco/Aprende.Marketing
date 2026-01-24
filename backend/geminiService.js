@@ -192,17 +192,20 @@ const generateFullStrategy = async (projectId) => {
 
     let step1Data, step2Data, step3Web, step4Content, step5Emails, step6WhatsApp;
 
-    // 3. GENERACIÓN REAL ETAPA 1 (IA)
+    // 3. GENERACIÓN REAL ETAPA 1 (IA - Fusionada con Psicología)
     try {
-        process.stdout.write(`⏳ [PIPELINE IA] Llamando a Gemini 3 Flash para Etapa 1: ${productName}...\n`);
+        process.stdout.write(`⏳ [PIPELINE IA] Llamando a Gemini 3 Flash para Etapa 1 + Psicología: ${productName}...\n`);
         
-        const step1Prompt = `Eres un Estratega Senior de Marketing Digital. Tu misión es generar el ADN de marketing y 3 perfiles de Avatar extremadamente detallados para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}".
+        const step1Prompt = `Eres un Estratega Senior de Marketing Digital. Tu misión es generar el ADN de marketing, 3 perfiles de Avatar extremadamente detallados y la psicología profunda del consumidor para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}".
 
         INSTRUCCIONES PARA LOS 3 AVATARES (OBLIGATORIO):
         Genera perfiles diferenciados y profundos para estos 3 tipos de cliente:
         1. AVATAR 1 (El Emprendedor Activo): Alguien con energía que busca escalar un negocio o empezar uno nuevo con decisión.
         2. AVATAR 2 (El Escéptico con Miedo): Alguien que ha tenido malas experiencias previas o tiene miedo a perder su inversión.
         3. AVATAR 3 (La Persona en Reinvención): Alguien estancado en un trabajo convencional que busca un cambio total de estilo de vida.
+
+        INSTRUCCIONES PARA LA PSICOLOGÍA (OBLIGATORIO):
+        Genera un análisis de miedos, objeciones y motivaciones reales para este nicho.
         
         Responde estrictamente en formato JSON con la siguiente estructura exacta:
         {
@@ -270,8 +273,64 @@ const generateFullStrategy = async (projectId) => {
               "behavior": "Comportamiento en canales digitales",
               "motivations": { "dinero": 80, "tiempo": 95, "estatus": 60, "seguridad": 70 }
             }
-          ]
-        }`;
+          ],
+
+
+
+          psychology: {
+            pains: [
+                "Identifica un dolor agudo relacionado con la falta de ingresos o estabilidad en este nicho.",
+                "Detecta una frustración técnica o de aprendizaje específica que detiene al avatar.",
+                "Analiza el miedo al fracaso o a la pérdida de tiempo o dinero en este mercado.",
+                "Describe la sensación de estancamiento profesional o personal del prospecto.",
+                "Identifica la presión social o familiar que siente el avatar por no tener resultados.",
+                "Analiza el agotamiento por métodos tradicionales que no funcionan en este sector.",
+                "Detecta la desconfianza generalizada en las promesas vacías del mercado actual."
+            ],
+            solutions: [
+                "Propón cómo el producto resuelve el dolor financiero o de estabilidad mediante una ventaja técnica clara.",
+                "Explica cómo la metodología elimina la barrera técnica mencionada en el dolor 2 de forma simple.",
+                "Describe el sistema de acompañamiento o garantía que anula por completo el miedo al fracaso.",
+                "Explica el proceso de transformación rápida que saca al cliente de su estancamiento actual.",
+                "Propón cómo el éxito obtenido con este producto mejora el estatus o la relación familiar del cliente.",
+                "Describe por qué este método es disruptivo, escalable y superior a lo tradicional.",
+                "Explica la autoridad, certificación o respaldo que valida la promesa y genera confianza absoluta."
+            ],
+            awarenessStages: {
+                stage1_pain: "Analiza el nivel de consciencia del avatar sobre su dolor principal en este nicho específico.",
+                stage2_solution: "Analiza la percepción del avatar sobre las soluciones existentes y por qué esta es la ideal.",
+                stage3_barrier: "Analiza la barrera mental o duda técnica específica que impide al avatar comprar ahora mismo."
+            },
+            buyingPsychology: {
+                notBuyingReasons: [
+                    { title: "Define la objeción lógica número 1 del avatar", description: "Describe por qué siente esta duda", detail: "Explicación técnica para rebatirla" },
+                    { title: "Define la objeción lógica número 2 del avatar", description: "Describe por qué siente esta duda", detail: "Explicación técnica para rebatirla" },
+                    { title: "Define la objeción lógica número 3 del avatar", description: "Describe por qué siente esta duda", detail: "Explicación técnica para rebatirla" }
+                ],
+                buyingReasons: [
+                    { title: "Define el motivador emocional 1", description: "Explica cómo este factor impulsa la decisión de compra" },
+                    { title: "Define el motivador emocional 2", description: "Explica cómo este factor impulsa la decisión de compra" },
+                    { title: "Define el motivador emocional 3", description: "Explica cómo este factor impulsa la decisión de compra" },
+                    { title: "Define el motivador emocional 4", description: "Explica cómo este factor impulsa la decisión de compra" }
+                ],
+                strategistConclusion: "Redacta una conclusión de estratega sobre el ángulo de venta maestro que debe seguir todo el copy."
+            },
+            conversionStrategy: {
+                mainFocus: [
+                    { label: "Ángulo de Cierre 1", description: "Instrucción técnica para el primer pilar de ventas." },
+                    { label: "Ángulo de Cierre 2", description: "Instrucción técnica para el pilar de autoridad." },
+                    { label: "Ángulo de Cierre 3", description: "Instrucción técnica para el pilar de urgencia." }
+                ],
+                tacticalNote: "Redacta una nota técnica sobre cómo debe ser la transición del lead desde la landing page hasta el cierre en WhatsApp."
+            }
+        }
+    }`;
+
+
+
+
+
+
 
         const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { 
             responseMimeType: "application/json",
@@ -281,16 +340,17 @@ const generateFullStrategy = async (projectId) => {
         if (!step1Res) throw new Error("Gemini devolvió vacío en Etapa 1");
         
         step1Data = JSON.parse(step1Res.trim());
-        process.stdout.write(`✅ [PIPELINE IA] Etapa 1 finalizada con éxito para ${productName}.\n`);
+        process.stdout.write(`✅ [PIPELINE IA] Etapa 1 + Psicología finalizada con éxito para ${productName}.\n`);
 
     } catch (err) {
         process.stdout.write(`❌ [PIPELINE ERROR ETAPA 1 IA]: ${err.message}\n`);
         throw err;
     }
 
-    // 4. DATOS DUMMY PARA ETAPAS 2-6 (PARA PRUEBAS - SINCRO CON MOCK)
-    process.stdout.write(`[PIPELINE DEBUG] Inyectando datos estáticos para etapas 2 a 6...\n`);
+    // 4. DATOS DUMMY PARA ETAPAS 3-6 (PARA PRUEBAS - SINCRO CON MOCK)
+    process.stdout.write(`[PIPELINE DEBUG] Inyectando datos estáticos para etapas 3 a 6...\n`);
 
+    /* Comentado Step 2 por integración en Step 1
     step2Data = {
         psychology: {
             pains: [
@@ -336,15 +396,11 @@ const generateFullStrategy = async (projectId) => {
                     { label: "Autoridad Humana", description: "Liderazgo inspirador basado en resultados reales de alumnas, no solo teoría." },
                     { label: "Énfasis Práctico", description: "Foco total en el acompañamiento y la técnica paso a paso para elminar el miedo." }
                 ],
-                prioritizedChannels: [
-                    { label: "Landing Page (Captación)", type: "LP" },
-                    { label: "WhatsApp (Canal de Cierre)", type: "WA" },
-                    { label: "Email (Refuerzo & Seguimiento)", type: "EM" }
-                ],
                 tacticalNote: "Este flujo está diseñado para calentar al prospecto en la Landing Page y llevarlo a WhatsApp, donde la tasa de cierre es 10 veces mayor para productos de alto valor. El sistema usará un lenguaje que evite tecnicismos para no intimidar al avatar Laura."
             }
         }
     };
+    */
 
     step3Web = {
         landingPageTabs: {
@@ -691,7 +747,7 @@ const generateFullStrategy = async (projectId) => {
         const finalJson = { 
             meta: step1Data.meta,
             avatars: step1Data.avatars,
-            psychology: step2Data.psychology, 
+            psychology: step1Data.psychology, // Sincronizado: Usando datos de Step 1 (IA)
             modules: { 
                 web: {
                     landingPageTabs: step3Web.landingPageTabs,

@@ -50,7 +50,6 @@ export interface ProjectMasterStrategy {
         // Nuevo objeto para estrategia de conversión independiente
         conversionStrategy: {
             mainFocus: Array<{ label: string; description: string }>;
-            prioritizedChannels: Array<{ label: string; type: 'LP' | 'WA' | 'EM' | string }>;
             tacticalNote: string;
         };
         psychographicProfile?: {
@@ -119,7 +118,6 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
         },
         conversionStrategy: {
             mainFocus: [],
-            prioritizedChannels: [],
             tacticalNote: ""
         },
         psychographicProfile: {
@@ -269,11 +267,6 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 { label: "Autoridad Humana", description: "Liderazgo inspirador basado en resultados reales de alumnas, no solo teoría." },
                 { label: "Énfasis Práctico", description: "Foco total en el acompañamiento y la técnica paso a paso para elminar el miedo." }
             ],
-            prioritizedChannels: [
-                { label: "Landing Page (Captación)", type: "LP" },
-                { label: "WhatsApp (Canal de Cierre)", type: "WA" },
-                { label: "Email (Refuerzo & Seguimiento)", type: "EM" }
-            ],
             tacticalNote: "Este flujo está diseñado para calentar al prospecto en la Landing Page y llevarlo a WhatsApp, donde la tasa de cierre es 10 veces mayor para productos de alto valor. El sistema usará un lenguaje que evite tecnicismos para no intimidar al avatar Laura."
         },
         psychographicProfile: {
@@ -316,7 +309,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     type: 'benefits',
                     items: [
                         { title: "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo.", desc: "Maximiza tu tiempo generando servicios de alto impacto económico." },
-                        { title: "Certificación profesional and acompañamiento que eliminan todo temor a cometer errores técnicos.", desc: "Seguridad absoluta respaldada por expertos en micropigmentación." },
+                        { title: "Certificación profesional and acompañamiento que eliminan todo temor a cometer errores técnicos.", desc: "Seguridad absoluta respaldada por expertos in micropigmentación." },
                         { title: "Metodología 100% práctica basada en resultados reales, con soporte paso a paso.", desc: "No más teoría vacía; aprende haciendo con modelos reales." },
                         { title: "Estrategia probada de captación de clientes en Instagram para llenar tu agenda con seguridad.", desc: "Tu agenda llena desde la primera semana gracias a nuestro método de marketing." },
                         { title: "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable.", desc: "Te enseñamos a escalar tu talento y construir un negocio sólido." },

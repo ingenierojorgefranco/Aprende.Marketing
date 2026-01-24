@@ -20,7 +20,6 @@ interface ProjectStrategy_AvatarDiagnosisProps {
         };
         conversionStrategy: {
             mainFocus: Array<{ label: string; description: string }>;
-            prioritizedChannels: Array<{ label: string; type: string }>;
             // Actualización: Se marca communicationStyle como opcional para evitar errores de tipado con ProjectMasterStrategy - 08/06/2025
             communicationStyle?: Array<{ label: string; description: string }>;
             tacticalNote: string;
@@ -73,7 +72,7 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
         const badge = badges[idx] || badges[0];
 
         return (
-            <div className={`absolute top-0 left-0 bg-gradient-to-r ${badge.gradient} text-white text-[10px] font-black px-6 py-2 rounded-br-2xl uppercase tracking-[0.2em] shadow-lg flex items-center gap-2 z-20`}>
+            <div className={`absolute top-0 left-0 bg-gradient-to-r ${badge.gradient} text-white text-[10px] font-black px-6 py-2 rounded-br-2xl uppercase tracking-[0.2em] shadow-lg flex items-center justify-center gap-2 z-20`}>
                 <Crown className="w-3 h-3" /> {badge.label}
             </div>
         );
