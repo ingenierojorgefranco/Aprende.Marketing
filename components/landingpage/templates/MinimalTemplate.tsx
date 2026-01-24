@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { SmartCTA, Navbar, Footer, FeatureCard, HeroMedia } from '../ui/LiveComponents';
@@ -24,11 +23,11 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
             <h2 className={`text-3xl font-bold mb-6 ${ds.intro.titleColor}`}>{content.intro.title}</h2>
             <div className={`text-lg leading-relaxed ${ds.intro.textColor} mb-12`}>{renderRichText(content.intro.description)}</div>
 
-            {/* Added Centered Media with HeroMedia */}
+            {/* Added Centered Media with Forced Image */}
             <div className="relative max-w-2xl mx-auto mb-16">
                  <div className="relative z-10 rounded-2xl shadow-xl overflow-hidden aspect-[16/9]">
                     <div className={`absolute -inset-1 rounded-2xl blur opacity-20 ${ds.blobColor}`}></div>
-                    <HeroMedia url={content.hero.videoUrl} poster={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} ds={ds} className="rounded-2xl" />
+                    <img src={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} alt="Intro" className="w-full h-full object-cover rounded-2xl" />
                  </div>
             </div>
 

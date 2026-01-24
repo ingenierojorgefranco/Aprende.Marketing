@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
-import { User, Target, Zap, CheckCircle, Plus, Minus, ScanFace, Palette, Feather, Star, AlertTriangle, XCircle } from 'lucide-react';
+import { User, Target, Zap, CheckCircle2, Plus, Minus, ScanFace, Palette, Feather, Star, AlertTriangle, XCircle } from 'lucide-react';
 import { Navbar, Footer, SmartCTA, FeatureCard, HeroMedia } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
@@ -43,23 +43,12 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                     </div>
                 </div>
 
-                {/* Right: Media with Floating Card */}
+                {/* Right: Media with Background Blur Decor */}
                 <div className="relative flex justify-center">
                      <div className="relative w-full max-w-md">
                         <div className={`absolute top-4 -right-4 w-full h-full rounded-3xl ${ds.blobColor} opacity-20`}></div>
                         <div className="relative z-10 rounded-2xl shadow-2xl overflow-hidden aspect-[4/5]">
-                            <HeroMedia url={content.hero.videoUrl} poster={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} ds={ds} className="rounded-2xl" />
-                        </div>
-                        
-                        {/* Floating Card */}
-                        <div className={`absolute -bottom-6 -left-6 z-20 rounded-xl p-4 shadow-xl max-w-[220px] border bg-white transform rotate-1 hover:rotate-0 transition-transform duration-300 ${ds.intro.floatingCardBg} ${ds.intro.floatingCardBorder}`}>
-                            <div className="flex items-start gap-3">
-                                <div className={`w-1.5 h-12 rounded-full bg-gradient-to-b from-blue-500 to-purple-600 shrink-0`}></div>
-                                <div>
-                                    <p className={`text-xs font-bold leading-snug ${ds.intro.floatingCardText}`}>"{content.intro.imageCardText || "Descubre este método exclusivo"}"</p>
-                                    <div className={`flex gap-0.5 mt-2 text-yellow-400`}>{[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 fill-current" />)}</div>
-                                </div>
-                            </div>
+                            <img src={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} alt="Intro" className="w-full h-full object-cover rounded-2xl" />
                         </div>
                      </div>
                 </div>

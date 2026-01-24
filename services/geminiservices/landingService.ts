@@ -80,7 +80,7 @@ export const generateLandingPageContent = async (
     "testimonialTitle": "string",
     "hero": { "headline": "string", "subheadline": "string", "ctaText": "string" },
     "testimonials": [{"name": "string", "text": "string", "rating": number}],
-    "intro": { "title": "string", "description": "string", "imageCardText": "string", "items": [{"title": "string", "description": "string"}] },
+    "intro": { "title": "string", "description": "string", "items": [{"title": "string", "description": "string"}] },
     "benefits": { "title": "string", "items": [{"title": "string", "description": "string"}] },
     "whatYouWillLearn": { "title": "string", "items": ["string"] },
     "faq": [{"question": "string", "answer": "string"}],
@@ -105,7 +105,7 @@ export const generateLandingPageContent = async (
   Instrucciones de contenido:
   1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
   2. Testimonios: 3 testimonios cortos y realistas.
-  3. Intro: Qué es el producto. Genera 'imageCardText' (frase corta) and 'items' (3 bullets).
+  3. Intro: Qué es el producto. Genera 'items' (3 bullets).
   4. Beneficios: Lista detallada (usa los proporcionados en el contexto si existen).
   5. Lo que aprenderás: 4-6 puntos clave (basados en dolores si existen).
   6. FAQ: 4 preguntas que maten objeciones.
@@ -139,7 +139,6 @@ export const generateLandingPageContent = async (
         if (!content.instructor.badgeSubtext) content.instructor.badgeSubtext = "Certificado Oficial";
         if (!content.instructor.statsStudents) content.instructor.statsStudents = "+500 Alumnos";
         if (!content.instructor.statsRating) content.instructor.statsRating = "5.0 Estrellas";
-        if (!content.intro.imageCardText) content.intro.imageCardText = "Método Exclusivo";
         if (!content.hero.socialProofCount) content.hero.socialProofCount = "+1000";
         if (!content.hero.videoTitle) content.hero.videoTitle = "Clase Exclusiva";
         if (!content.hero.videoDuration) content.hero.videoDuration = "45 Minutos";

@@ -181,7 +181,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
               intro: {
                   title: `¿Qué es ${formData.pageName}?`,
                   description: `Es un sistema integral diseñado para emprendedores que buscan dominar el mercado de ${formData.pageName} utilizando el poder de la automatización estratégica.`,
-                  imageCardText: "Método Validado 2025",
                   items: [
                       { title: "Escalabilidad Global", description: "Llega a miles de clientes en todo el mundo sin límites." },
                       { title: "Automatización Total", description: "Vende tus productos incluso mientras duermes." },

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Phone, MoreVertical, Send, Smile, Star } from 'lucide-react';
 import { renderRichText } from '../../utils';
@@ -103,21 +102,11 @@ export const WhatsAppTestimonials: React.FC<WhatsAppTestimonialsProps> = ({
                     </div>
                   </div>
 
-                  {/* Expert Reply - Bubble 1 (Validation) */}
+                  {/* Expert Reply - Single Bubble (Validation + Closing) */}
                   <div className="flex justify-end animate-in slide-in-from-right-6 duration-1000 delay-500">
                     <div className="bg-[#DCF8C6] p-3 md:p-4 rounded-2xl md:rounded-3xl rounded-tr-none shadow-md max-w-[85%] relative border border-green-200">
                       <p className="text-sm md:text-[0.95rem] text-[#0B0B0B] leading-relaxed font-medium">
-                        {validation}
-                      </p>
-                      <span className="text-[8px] md:text-[9px] text-green-700 block text-right mt-2 font-bold uppercase tracking-wider">{time.expert} ✓✓</span>
-                    </div>
-                  </div>
-
-                  {/* Expert Reply - Bubble 2 (Specific Closing) */}
-                  <div className="flex justify-end animate-in slide-in-from-right-6 duration-1000 delay-1000">
-                    <div className="bg-[#DCF8C6] p-3 md:p-4 rounded-2xl md:rounded-3xl rounded-tr-none shadow-md max-w-[85%] relative border border-green-200">
-                      <p className="text-sm md:text-[0.95rem] text-[#0B0B0B] leading-relaxed font-bold">
-                        {closing}
+                        {validation} {closing}
                       </p>
                       <span className="text-[8px] md:text-[9px] text-green-700 block text-right mt-2 font-bold uppercase tracking-wider">{time.expert} ✓✓</span>
                     </div>

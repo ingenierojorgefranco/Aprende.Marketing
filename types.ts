@@ -286,7 +286,6 @@ export interface GeneratedPageContent {
     title: string;
     description: string;
     imageUrl?: string; // New independent image field
-    imageCardText?: string; // New: Text floating over the intro image
     items?: Array<{ title: string; description: string }>; // For the bullet points like Visajismo etc.
   };
   benefits: {

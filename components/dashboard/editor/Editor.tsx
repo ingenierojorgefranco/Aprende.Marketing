@@ -818,7 +818,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                     )}
                                 </div>
                             </div>
-                            <div className="pt-2"><Label>Texto Tarjeta Flotante (Sobre Imagen)</Label><Input value={content.intro.imageCardText || ''} onChange={(e) => updateNestedField('intro', 'imageCardText', e.target.value)} placeholder="Ej: Método Único" /></div>
                             
                             <div className="pt-4 border-t border-gray-800">
                                 <Label>Puntos Clave (Bullets)</Label>

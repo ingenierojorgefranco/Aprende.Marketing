@@ -71,23 +71,12 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
                 </div>
             </div>
 
-            {/* Right: Image with Floating Card */}
+            {/* Right: Image with Decor */}
             <div className="relative">
                  <div className={`absolute top-0 right-0 w-2/3 h-2/3 translate-x-4 -translate-y-4 rounded-3xl ${ds.blobOpacity} ${ds.blobColor}`}></div>
                  <div className="relative">
                     <div className="relative z-10 rounded-2xl shadow-2xl overflow-hidden aspect-[4/5]">
-                        <HeroMedia url={content.hero.videoUrl} poster={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} ds={ds} className="rounded-2xl" />
-                    </div>
-                    
-                    {/* Floating Card */}
-                    <div className={`absolute -bottom-6 -left-6 z-20 rounded-xl p-4 shadow-xl max-w-[200px] border transform -rotate-1 hover:rotate-0 transition-transform duration-300 ${ds.intro.floatingCardBg} ${ds.intro.floatingCardBorder}`}>
-                        <div className="flex items-start gap-3">
-                            <div className={`w-1.5 h-10 rounded-full ${content.palette === 'elegant-purple' ? 'bg-purple-500' : content.palette === 'modern-blue' ? 'bg-blue-500' : 'bg-green-500'} shrink-0`}></div>
-                            <div>
-                                <p className={`text-xs font-bold leading-snug ${ds.intro.floatingCardText}`}>"{content.intro.imageCardText || "Descubre este método exclusivo"}"</p>
-                                <div className={`flex gap-0.5 mt-2 ${ds.decorations.starColor}`}>{[1,2,3,4,5].map(i => <Star key={i} className="w-2.5 h-2.5 fill-current" />)}</div>
-                            </div>
-                        </div>
+                        <img src={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} alt="Intro" className="w-full h-full object-cover rounded-2xl" />
                     </div>
                  </div>
             </div>

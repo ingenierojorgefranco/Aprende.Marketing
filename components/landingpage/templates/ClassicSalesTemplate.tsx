@@ -25,15 +25,6 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                      <div id="intro-blob" className={`absolute top-0 left-0 w-2/3 h-2/3 -translate-x-4 -translate-y-4 rounded-3xl ${ds.blobOpacity} ${ds.blobColor}`}></div>
                      <div className="relative">
                         <img id="intro-main-image" src={content.intro.imageUrl || "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1471&auto=format&fit=crop"} alt="Intro" className="relative z-10 rounded-3xl shadow-2xl w-full object-cover aspect-[4/3]" />
-                        <div id="intro-floating-card" className={`absolute -bottom-6 -right-6 z-20 rounded-2xl p-4 shadow-xl max-w-[200px] border hidden md:block transform rotate-2 hover:rotate-0 transition-transform duration-300 ${ds.intro.floatingCardBg} ${ds.intro.floatingCardBorder}`}>
-                            <div className="flex items-start gap-3">
-                                <div className={`w-2 h-12 rounded-full ${content.palette === 'elegant-purple' ? 'bg-purple-500' : 'bg-pink-500'} shrink-0`}></div>
-                                <div>
-                                    <p className={`text-xs font-bold leading-snug ${ds.intro.floatingCardText}`}>"{content.intro.imageCardText || "Descubre este método exclusivo"}"</p>
-                                    <div className={`flex gap-1 mt-2 ${ds.decorations.starColor}`}>{[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 fill-current" />)}</div>
-                                </div>
-                            </div>
-                        </div>
                      </div>
                 </div>
                 <div id="intro-text-container" className="relative z-10">
