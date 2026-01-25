@@ -196,9 +196,9 @@ const generateFullStrategy = async (projectId) => {
     try {
         process.stdout.write(`⏳ [PIPELINE IA] Llamando a Gemini 3 Flash para Etapa 1 + Psicología: ${productName}...\n`);
 
-        const step1Prompt = ``;
+        //const step1Prompt = ``;
         
-        /*
+        
         const step1Prompt = `Eres un Estratega Senior de Marketing Digital. Tu misión es generar el ADN de marketing, 3 perfiles de Avatar extremadamente detallados y la psicología profunda del consumidor para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}".
 
         INSTRUCCIONES PARA LOS 3 AVATARES (OBLIGATORIO):
@@ -682,7 +682,7 @@ const generateFullStrategy = async (projectId) => {
         
     `;
 
-*/
+
 
 
 
@@ -735,8 +735,12 @@ const generateFullStrategy = async (projectId) => {
         return finalJson;
 
     } catch (error) {
-        process.stdout.write(`❌ [PIPELINE CRITICAL ERROR]: ${error.message}\n`);
-        throw error;
+            process.stdout.write(`❌ [PIPELINE CRITICAL ERROR]: ${error.message}\n`);
+            throw error;
+        }
+    } catch (globalError) { // Este catch cierra el try de la línea 212
+        process.stdout.write(`❌ [PIPELINE GLOBAL FAILURE]: ${globalError.message}\n`);
+        throw globalError;
     }
 };
 
