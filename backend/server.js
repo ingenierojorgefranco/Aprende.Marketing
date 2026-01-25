@@ -105,12 +105,15 @@ app.get('*', (req, res) => {
 // ======================================================
 //  SERVER STARTUP
 // ======================================================
-initDb().then(() => {
-    console.log('✅ Base de datos inicializada correctamente.');
-}).catch(err => {
-    console.error("⚠️ Error inicializando base de datos:", err.message);
-}).finally(() => {
-    app.listen(PORT, () => {
-      console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
+    
+    // Inicializamos la base de datos en segundo plano. 
+    // Esto permite que el contenedor responda al "startup probe" de Cloud Run de inmediato,
+    // evitando el error de timeout en el puerto 8080.
+    initDb().then(() => {
+        console.log('✅ Base de datos inicializada correctamente.');
+    }).catch(err => {
+        console.error("⚠️ Error inicializando base de datos:", err.message);
     });
 });
