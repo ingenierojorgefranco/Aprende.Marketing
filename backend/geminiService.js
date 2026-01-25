@@ -195,7 +195,10 @@ const generateFullStrategy = async (projectId) => {
     // 3. GENERACIÓN REAL ETAPA 1 (IA - Fusionada con Psicología)
     try {
         process.stdout.write(`⏳ [PIPELINE IA] Llamando a Gemini 3 Flash para Etapa 1 + Psicología: ${productName}...\n`);
+
+        const step1Prompt = ``;
         
+        /*
         const step1Prompt = `Eres un Estratega Senior de Marketing Digital. Tu misión es generar el ADN de marketing, 3 perfiles de Avatar extremadamente detallados y la psicología profunda del consumidor para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}".
 
         INSTRUCCIONES PARA LOS 3 AVATARES (OBLIGATORIO):
@@ -679,7 +682,7 @@ const generateFullStrategy = async (projectId) => {
         
     `;
 
-
+*/
 
 
 
