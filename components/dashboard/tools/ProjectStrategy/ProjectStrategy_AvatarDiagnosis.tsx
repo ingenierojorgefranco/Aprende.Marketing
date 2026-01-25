@@ -18,12 +18,6 @@ interface ProjectStrategy_AvatarDiagnosisProps {
             buyingReasons: Array<{ title: string; description: string }>;
             strategistConclusion: string;
         };
-        conversionStrategy: {
-            mainFocus: Array<{ label: string; description: string }>;
-            // Actualización: Se marca communicationStyle como opcional para evitar errores de tipado con ProjectMasterStrategy - 08/06/2025
-            communicationStyle?: Array<{ label: string; description: string }>;
-            tacticalNote: string;
-        };
         psychographicProfile?: {
             ageRange: string;
             interests: string;

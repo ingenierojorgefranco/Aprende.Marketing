@@ -47,11 +47,6 @@ export interface ProjectMasterStrategy {
             buyingReasons: Array<{ title: string; description: string }>;
             strategistConclusion: string;
         };
-        // Nuevo objeto para estrategia de conversión independiente
-        conversionStrategy: {
-            mainFocus: Array<{ label: string; description: string }>;
-            tacticalNote: string;
-        };
         psychographicProfile?: {
             ageRange: string;
             interests: string;
@@ -115,10 +110,6 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
             notBuyingReasons: [],
             buyingReasons: [],
             strategistConclusion: ""
-        },
-        conversionStrategy: {
-            mainFocus: [],
-            tacticalNote: ""
         },
         psychographicProfile: {
             ageRange: "",
@@ -260,14 +251,6 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 { title: "Respaldo Total", description: "Siente que la comunidad and el soporte resolverán cualquier duda en tiempo real." }
             ],
             strategistConclusion: "El mensaje se enfocará en seguridad, respaldo, práctica real y resultados. Evitaremos promesas exageradas para generar confianza genuina atacando su principal miedo: la desconfianza en la formación online tradicional."
-        },
-        conversionStrategy: {
-            mainFocus: [
-                { label: "Mensaje Directo", description: "Empatía sin rodeos sobre la inestabilidad económica y el miedo técnico." },
-                { label: "Autoridad Humana", description: "Liderazgo inspirador basado en resultados reales de alumnas, no solo teoría." },
-                { label: "Énfasis Práctico", description: "Foco total en el acompañamiento y la técnica paso a paso para elminar el miedo." }
-            ],
-            tacticalNote: "Este flujo está diseñado para calentar al prospecto en la Landing Page y llevarlo a WhatsApp, donde la tasa de cierre es 10 veces mayor para productos de alto valor. El sistema usará un lenguaje que evite tecnicismos para no intimidar al avatar Laura."
         },
         psychographicProfile: {
             ageRange: "Mujer entre 22 y 38 años",

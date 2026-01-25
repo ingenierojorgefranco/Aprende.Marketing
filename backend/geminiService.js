@@ -203,6 +203,10 @@ const generateFullStrategy = async (projectId) => {
 
         INSTRUCCIONES PARA LA PSICOLOGÍA (OBLIGATORIO):
         Genera un análisis de miedos, objeciones y motivaciones reales para este nicho.
+
+        INSTRUCCIONES PARA CONTENIDOS DE BLOG content (OBLIGATORIO):
+        Genera 13 articulos de blog optimizados para SEO que tenga que ver con el producto especificamente, usa un volumen de keyword de entre 100 a 100, usa palabras claves realistas y completas, titulos que no superen los 60 caracteres, dirigidos a ser informativos y optimizados para generar el maximo ctr posible, 100% optimizados para atraer audiencia cualificada, el enfoque estrategico tiene que ser segun los 3 avatares definidos
+
         
         Responde estrictamente en formato JSON con la siguiente estructura exacta:
         {
@@ -312,15 +316,6 @@ const generateFullStrategy = async (projectId) => {
                 ],
                 strategistConclusion: "Redacta una conclusion de estratega sobre el ángulo de venta maestro que debe seguir todo el copy."
             },
-            conversionStrategy: {
-                mainFocus: [
-                    { label: "Ángulo de Cierre 1", description: "Instrucción técnica para el primer pilar de ventas." },
-                    { label: "Ángulo de Cierre 2", description: "Instrucción técnica para el pilar de autoridad." },
-                    { label: "Ángulo de Cierre 3", description: "Instrucción técnica para el pilar de urgencia." }
-                ],
-                tacticalNote: "Redacta una nota técnica sobre cómo debe ser la transición del lead desde la landing page hasta el cierre en WhatsApp."
-            }
-        }
     }
 
 
