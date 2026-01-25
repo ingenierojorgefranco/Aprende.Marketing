@@ -1,14 +1,7 @@
 const { GoogleGenAI } = require("@google/genai");
 const pool = require('./db');
 
-const apiKey = process.env.API_KEY;
-let aiClient = null;
 
-if (apiKey) {
-    aiClient = new GoogleGenAI({ apiKey });
-} else {
-    console.warn("⚠️ [GEMINI] No API_KEY found in environment variables.");
-}
 
 /**
  * Configuración de seguridad relajada para evitar bloqueos por contenido de marketing o palabras clave sensibles
@@ -52,13 +45,13 @@ const withRetries = async (fn, maxRetries = 3) => {
  * Genera contenido usando Google Gemini con manejo de errores mejorado y settings de seguridad relajados
  */
 const generateContent = async (model, contents, config = {}) => {
-    if (!aiClient) {
-        throw new Error("Gemini API Key not configured on server.");
-    }
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
     try {
         return await withRetries(async () => {
-            const response = await aiClient.models.generateContent({
+
+
+            const response = await ai.models.generateContent({
                 model: model || 'gemini-3-flash-preview',
                 contents: contents,
                 config: {
@@ -90,7 +83,7 @@ const generateContent = async (model, contents, config = {}) => {
  * Analiza el contenido de un sitio web para extraer estrategia
  */
 const analyzeWebsiteContent = async (rawText) => {
-    if (!aiClient) throw new Error("Gemini API Key not configured.");
+   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
     if (!rawText || rawText.trim().length < 150) {
         throw new Error("El contenido extraído del sitio web es insuficiente para un análisis profesional.");
@@ -131,7 +124,7 @@ const analyzeWebsiteContent = async (rawText) => {
 
     try {
         return await withRetries(async () => {
-            const response = await aiClient.models.generateContent({
+            const response = await ai.models.generateContent({
                 model: 'gemini-3-flash-preview',
                 contents: prompt,
                 config: { 
@@ -170,10 +163,11 @@ const analyzeWebsiteContent = async (rawText) => {
  * Función Maestra: Pipeline de Generación Fraccionada en 6 Etapas
  */
 const generateFullStrategy = async (projectId) => {
+
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     // 1. LOG DE INICIO DE PIPELINE
     process.stdout.write(`\n🚀 [PIPELINE START] Generación real (Etapa 1 IA) para Proyecto ID: ${projectId}\n`);
 
-    if (!aiClient) throw new Error("Gemini API Key not configured.");
 
     // 2. LOG DE ACCESO A BASE DE DATOS
     process.stdout.write(`[PIPELINE DB] Consultando base de datos para ID: ${projectId}...\n`);
