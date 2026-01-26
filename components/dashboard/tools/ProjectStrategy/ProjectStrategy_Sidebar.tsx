@@ -37,7 +37,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                 { id: 'content', label: 'Generar Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
                 { id: 'email', label: 'Email Marketing: Secuencia de Conversión', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
                 { id: 'evergreen', label: 'Email Marketing: Secuencia de Nutrición', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
-                { id: 'whatsapp', label: 'Cierre por WhatsApp', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
+                { id: 'whatsapp', label: 'Lanzamiento vía WhatsApp', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
             ]
         }
     ];
@@ -52,7 +52,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             </div>
 
             {/* --- LISTADO DE SECCIONES (LECCIONES) --- */}
-            <div className="custom-scrollbar">
+            <div className="flex-1 pb-32">
                 {menuItems.map((group, gIdx) => (
                     <div key={gIdx} className="border-b border-gray-800 last:border-0">
                         {/* Cabecera de Módulo (Estilo Botón LMS) */}

@@ -266,7 +266,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 
                 <div className="flex flex-col sm:flex-row gap-4">
                     <button 
-                        onClick={handleGenerateStrategy}
+                        onClick={handleGenerateStrategy} 
                         disabled={generating}
                         className="group relative px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl font-black text-xl shadow-2xl shadow-blue-900/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-4 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
@@ -353,7 +353,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
             {/* */ /* Actualización: Reestructuración del grid al estilo Academia con sidebar sticky top-6 - 24/05/2024 21:15 */ }
             <div id="psd-modular-container" className="max-w-full mx-auto py-6 px-0 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-8 relative">
                 
-                <div className="lg:col-span-4">
+                <div className="lg:col-span-3">
                     <ProjectStrategy_Sidebar 
                         activeSection={activeSection}
                         onSectionChange={(id) => {
@@ -363,7 +363,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     />
                 </div>
 
-                <div id="psd-content-viewer" className="lg:col-span-8 min-w-0">
+                <div id="psd-content-viewer" className="lg:col-span-9 min-w-0">
                     <Suspense fallback={
                         <div className="h-96 flex flex-col items-center justify-center text-gray-500 gap-4 animate-pulse">
                             <Loader2 className="w-10 h-10 animate-spin text-primary" />
@@ -505,14 +505,12 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
                         {activeSection === 'whatsapp' && (
                             <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                {strategyData.modules?.whatsapp && (
-                                    <ProjectStrategy_WhatsApp 
-                                        whatsappData={strategyData.modules.whatsapp}
-                                        activeWaScript={activeWaScript}
-                                        setActiveWaScript={setActiveWaScript}
-                                        onUpgrade={() => setShowUpgradeModal(true)}
-                                    />
-                                )}
+                                <ProjectStrategy_WhatsApp 
+                                    whatsappLaunch={strategyData.modules.whatsappLaunch}
+                                    activeWaScript={activeWaScript}
+                                    setActiveWaScript={setActiveWaScript}
+                                    onUpgrade={() => setShowUpgradeModal(true)}
+                                />
                             </div>
                         )}
                     </Suspense>
