@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -16,6 +17,7 @@ const articleRoutes = require('./routes/articleRoutes');
 const crmRoutes = require('./routes/crmRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const systemRoutes = require('./routes/systemRoutes');
+const whatsappRoutes = require('./routes/whatsappRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -86,6 +88,7 @@ app.use('/api', pageRoutes);
 app.use('/api', articleRoutes);
 app.use('/api', crmRoutes);
 app.use('/api', systemRoutes);
+app.use('/api/whatsapp-launch', whatsappRoutes);
 
 // ======================================================
 //  STATIC FILES & SPA FALLBACK

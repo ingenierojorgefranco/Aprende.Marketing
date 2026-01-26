@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useNavigate, useParams, useOutletContext, useSearchParams } from 'react-router-dom';
 import { 
@@ -26,6 +27,7 @@ const ProjectStrategy_WhatsApp = React.lazy(() => import('./ProjectStrategy/Proj
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
 import { ProjectMasterStrategy } from '../../../services/strategySchema';
+import { MOCK_MASTER_STRATEGY } from '../../../services/mockData';
 import { LandingPage, User, Plan, EmailSequence, Article } from '../../../types';
 
 // --- ICONS MAPPING FOR DYNAMIC DATA ---

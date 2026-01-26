@@ -49,6 +49,12 @@ import { EmailMarketing } from "./components/dashboard/tools/EmailMarketing";
 /* */ /* Actualización: Importación del nuevo asistente de secuencias de email - 24/06/2024 15:15 */
 import { EmailSequenceWizard } from "./components/dashboard/tools/EmailSequenceWizard";
 /* Fin de actualización - 24/06/2024 15:15 */
+
+////////// Actualización: Importación de WhatsApp Lanzamientos - 10/06/2025 10:00 //////////
+import { WhatsAppLaunchManager } from "./components/dashboard/tools/WhatsAppLaunchManager";
+import { WhatsAppLaunchWizard } from "./components/dashboard/tools/WhatsAppLaunchWizard";
+////////// Fin de actualización - 10/06/2025 10:00 //////////
+
 import { ContentGenerator } from "./components/dashboard/tools/ContentGenerator";
 import { ArticlesList } from "./components/dashboard/tools/ArticlesList";
 import { ProjectWizard } from "./components/dashboard/tools/ProjectWizard";
@@ -368,6 +374,12 @@ const App: React.FC = () => {
           {/* */ /* Actualización: Registro de la ruta para el asistente de secuencias - 24/06/2024 15:15 */ }
           <Route path="email/create" element={<EmailSequenceWizard />} />
           {/* Fin de actualización - 24/06/2024 15:15 */}
+          
+          {/* ////////// Actualización: Registro de rutas para WhatsApp Lanzamientos - 10/06/2025 10:00 ////////// */}
+          <Route path="whatsapp-launch" element={<WhatsAppLaunchManager />} />
+          <Route path="whatsapp-launch/create" element={<WhatsAppLaunchWizard />} />
+          {/* ////////// Fin de actualización - 10/06/2025 10:00 ////////// */}
+
           {/* ////////// Actualización de ruta CopySell Pro para usar el nuevo componente - 18/06/2024 10:40 ////////// */}
           <Route path="copy-pro" element={<CopySellPro />} />
           {/* ////////// Fin de actualización - 18/06/2024 10:40 ////////// */}
