@@ -1,5 +1,6 @@
-import React from 'react';
-import { MessageCircle, Sparkles, Check, MessageSquare, Brain, PlayCircle } from 'lucide-react';
+
+import React, { useState } from 'react';
+import { MessageCircle, Sparkles, Check, MessageSquare, Brain, PlayCircle, Rocket, Calendar, Copy, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const ChatSimulator: React.FC<{ messages: any[] }> = ({ messages }) => (
@@ -41,15 +42,25 @@ const ChatSimulator: React.FC<{ messages: any[] }> = ({ messages }) => (
 
 interface ProjectStrategy_WhatsAppProps {
     whatsappData: any[];
+    whatsappLaunch?: any[];
     activeWaScript: number;
     setActiveWaScript: (idx: number) => void;
     onUpgrade: () => void;
 }
 
 export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> = ({
-    whatsappData, activeWaScript, setActiveWaScript, onUpgrade
+    whatsappData, whatsappLaunch = [], activeWaScript, setActiveWaScript, onUpgrade
 }) => {
     const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState<'closing' | 'launch'>('closing');
+
+    const handleCopy = (text: string) => {
+        navigator.clipboard.writeText(text);
+        alert("Mensaje copiado para WhatsApp");
+    };
+
+    const currentData = activeTab === 'closing' ? whatsappData : whatsappLaunch;
+    const activeItem = currentData[activeWaScript] || currentData[0];
 
     return (
         <div id="psd-whatsapp-section" className="pt-8">
@@ -65,7 +76,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                         El cierre de ventas moderno ocurre en conversaciones privadas. Hemos preparado guiones psicológicos probados para que no tengas que improvisar.
                     </p>
                     <p className="border-l-4 border-emerald-500 pl-8 py-2">
-                        Desde el saludo inicial hasta el manejo de objeciones de precio, estos mensajes están diseñados para convertir dudas en transacciones.
+                        Desde el saludo inicial hasta la secuencia completa de lanzamiento, estos mensajes están diseñados para convertir dudas en transacciones.
                     </p>
                 </div>
             </div>
@@ -90,19 +101,39 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 </div>
             </div>
 
+            {/* SELECTOR DE MODO WHATSAPP */}
+            <div className="max-w-[85em] mx-auto mb-10 flex gap-4 border-b border-white/5 pb-2">
+                <button 
+                    onClick={() => { setActiveTab('closing'); setActiveWaScript(0); }}
+                    className={`flex items-center gap-2 px-6 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'closing' ? 'text-green-400' : 'text-gray-500 hover:text-white'}`}
+                >
+                    <MessageSquare className="w-4 h-4" /> Scripts de Cierre (CRM)
+                    {activeTab === 'closing' && <div className="absolute bottom-0 left-0 w-full h-1 bg-green-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>}
+                </button>
+                <button 
+                    onClick={() => { setActiveTab('launch'); setActiveWaScript(0); }}
+                    className={`flex items-center gap-2 px-6 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'launch' ? 'text-green-400' : 'text-gray-500 hover:text-white'}`}
+                >
+                    <Rocket className="w-4 h-4" /> Secuencia de Lanzamiento
+                    {activeTab === 'launch' && <div className="absolute bottom-0 left-0 w-full h-1 bg-green-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>}
+                </button>
+            </div>
+
             <div id="psd-whatsapp-grid" className="grid lg:grid-cols-2 gap-8">
                 {/* LEFT: SCRIPTS LIST */}
                 <div id="psd-whatsapp-list-col" className="bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50"><MessageCircle className="w-6 h-6" /></div>
+                        <div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50">
+                            {activeTab === 'closing' ? <MessageCircle className="w-6 h-6" /> : <Calendar className="w-6 h-6" />}
+                        </div>
                         <div>
-                            <h3 className="text-xl font-bold text-white">Guiones de Venta</h3>
-                            <p className="text-sm text-gray-400">Selecciona una etapa para simular.</p>
+                            <h3 className="text-xl font-bold text-white">{activeTab === 'closing' ? 'Guiones de Venta' : 'WhatsApp Flow Lanzamiento'}</h3>
+                            <p className="text-sm text-gray-400">{activeTab === 'closing' ? 'Selecciona una etapa para simular.' : '14 Mensajes estratégicos día a día.'}</p>
                         </div>
                     </div>
 
                     <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] custom-scrollbar pr-2">
-                        {whatsappData.map((script: any, idx: number) => (
+                        {currentData.map((script: any, idx: number) => (
                             <div 
                                 key={script.id} 
                                 id={`psd-whatsapp-script-${idx}`}
@@ -113,9 +144,10 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${activeWaScript === idx ? 'bg-green-500 text-black' : 'bg-gray-800 text-gray-400'}`}>
                                         {idx + 1}
                                     </div>
-                                    <div>
-                                        <h4 className={`text-lg font-bold leading-snug ${activeWaScript === idx ? 'text-green-200' : 'text-gray-300'}`}>{script.title}</h4>
-                                        <p className="text-xs text-gray-500 mt-0.5">{script.objective}</p>
+                                    <div className="flex-1 min-w-0">
+                                        {activeTab === 'launch' && <span className="text-[9px] font-black text-green-500 uppercase tracking-widest block mb-1">{script.moment}</span>}
+                                        <h4 className={`text-lg font-bold leading-tight truncate ${activeWaScript === idx ? 'text-green-200' : 'text-gray-300'}`}>{script.name || script.title}</h4>
+                                        <p className="text-[10px] text-gray-500 mt-0.5 truncate">{script.objective}</p>
                                     </div>
                                 </div>
                                 
@@ -140,18 +172,26 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                 <Brain className="w-4 h-4" /> Psicología detrás del guion
                             </h5>
                             <p className="text-gray-300 text-sm leading-relaxed">
-                                {whatsappData[activeWaScript].objective}
+                                {activeItem?.objective}
                             </p>
                         </div>
 
                         {/* Simulator */}
                         <div className="flex-1 border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
-                            <ChatSimulator messages={whatsappData[activeWaScript].messages} />
+                            <ChatSimulator messages={activeItem?.messages || []} />
                         </div>
 
-                        <button onClick={() => navigate('/dashboard/whatsapp')} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition text-lg shadow-lg shadow-green-900/20 hover:scale-[1.02]">
-                            <MessageSquare className="w-5 h-5" /> Ir al CRM de WhatsApp
-                        </button>
+                        <div className="flex flex-col gap-3">
+                            <button 
+                                onClick={() => handleCopy(activeItem?.messages[0]?.text || '')}
+                                className="w-full py-4 bg-white/5 border border-white/10 rounded-xl font-bold flex items-center justify-center gap-2 text-gray-300 hover:bg-white/10 hover:text-white transition"
+                            >
+                                <Copy className="w-5 h-5" /> Copiar para WhatsApp
+                            </button>
+                            <button onClick={() => navigate('/dashboard/whatsapp')} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition text-lg shadow-lg shadow-green-900/20 hover:scale-[1.02]">
+                                <MessageSquare className="w-5 h-5" /> Ir al CRM de WhatsApp
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

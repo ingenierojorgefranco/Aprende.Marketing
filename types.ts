@@ -298,7 +298,7 @@ export interface GeneratedPageContent {
       color?: string; // Color name e.g. 'blue', 'green'
     }>;
   };
-  whatYouWillLearn: {
+   whatYouWillLearn: {
     title: string;
     icon?: string; // Icon for the title
     items: string[];

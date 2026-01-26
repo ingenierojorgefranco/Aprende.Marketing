@@ -1,3 +1,4 @@
+
 import { BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
 
 /* */ /* Actualización: Enriquecimiento de la interfaz ProjectMasterStrategy con campos de profundidad psicológica: manifestación diaria, razón emocional y etapas de consciencia - 15/06/2024 19:00 */
@@ -75,6 +76,15 @@ export interface ProjectMasterStrategy {
             evergreen: Array<any>;
         };
         whatsapp: Array<any>;
+        ////////// Actualización: Nueva Secuencia de Lanzamiento de WhatsApp de 14 días - 01/01/2026 10:00 //////////
+        whatsappLaunch?: Array<{
+            id: string;
+            name: string;
+            moment: string;
+            objective: string;
+            messages: Array<{ role: 'agent' | 'user'; text: string }>;
+        }>;
+        ////////// Fin de actualización //////////
     };
 }
 /* Fin de actualización - 15/06/2024 19:00 */
@@ -126,7 +136,8 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
         },
         content: [],
         emails: { nurture: [], evergreen: [] },
-        whatsapp: []
+        whatsapp: [],
+        whatsappLaunch: []
     }
 };
 
@@ -405,66 +416,6 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 searchVolume: "1K - 2.5K",
                 objective: "Posicionamiento High Ticket",
                 strategy: "Comparamos el costo del servicio vs la rentabilidad para el artista. Enfocamos el contenido en cómo vender el valor del resultado final en lugar de competir por el precio más bajo."
-            },
-            {
-                id: 8,
-                title: "Guía de cuidados: ¿Cuántos días proteger el microblading?",
-                traffic: 55,
-                difficulty: 25,
-                keyword: "cuidados microblading cejas",
-                searchVolume: "500 - 1.2K",
-                objective: "Bioseguridad y éxito del procedimiento",
-                strategy: "Un artista profesional se diferencia por su protocolo post-venta. Establecemos los estándares de oro en cuidados para garantizar la máxima retención del pigmento."
-            },
-            {
-                id: 9,
-                title: "¿Qué opinan los dermatólogos del microblading?",
-                traffic: 25,
-                difficulty: 15,
-                keyword: "seguridad microblading dermatologos",
-                searchVolume: "200 - 400",
-                objective: "Derribar miedos de salud",
-                strategy: "Aportamos validación médica sobre la seguridad de la técnica cuando se realiza con pigmentos certificados y normas de higiene, calmando las dudas de seguridad del alumno."
-            },
-            {
-                id: 10,
-                title: "¿Por qué no deberías hacerte el microblading de cejas?",
-                traffic: 20,
-                difficulty: 5,
-                keyword: "contraindicaciones microblading",
-                searchVolume: "400 - 900",
-                objective: "Filtro de clientes y ética profesional",
-                strategy: "Utilizamos el 'marketing negativo' para explicar contraindicaciones reales. Esto enseña al alumno a ser un profesional ético que sabe cuándo decir 'no', aumentando su prestigio."
-            },
-            {
-                id: 11,
-                title: "¿Cuándo no se recomienda el microblading?",
-                traffic: 15,
-                difficulty: 5,
-                keyword: "casos donde no hacer microblading",
-                searchVolume: "150 - 300",
-                objective: "Prevención y seguridad legal",
-                strategy: "Listamos casos clínicos (embarazo, diabetes no controlada, etc.) donde se desaconseja la técnica. Vital para que el alumno opere con seguridad y evite complicaciones legales."
-            },
-            {
-                id: 12,
-                title: "¿Cuál es la ceja permanente de aspecto más natural?",
-                traffic: 45,
-                difficulty: 20,
-                keyword: "cejas naturales permanentes",
-                searchVolume: "500 - 1K",
-                objective: "Venta del beneficio estético",
-                strategy: "Enfatizamos el trazo hiperrealista del microblading frente a técnicas más pesadas. Orientamos al alumno a especializarse en la naturalidad, que es lo más demandado hoy."
-            },
-            {
-                id: 13,
-                title: "Comparativa: ¿Cejas pelo a pelo o Microblading?",
-                traffic: 50,
-                difficulty: 20,
-                keyword: "cejas pelo a pelo vs microblading",
-                searchVolume: "600 - 1.5K",
-                objective: "Claridad en la oferta de servicios",
-                strategy: "Aclara la confusión común entre extensiones de cejas y microblading. Help al alumno a definir su catálogo de servicios y a educar al mercado sobre la superioridad del microblading."
             }
         ],
         emails: {
@@ -545,6 +496,106 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 messages: [
                     { role: "agent", text: "Hola, bienvenida. Vi que te interesa el autoempleo en estética. ¿Tienes experiencia previa o empiezas de cero?" }
                 ]
+            }
+        ],
+        whatsappLaunch: [
+            {
+                id: "wl1",
+                name: "Confirmación de Fecha",
+                moment: "Día -7",
+                objective: "Generar expectativa y agendar al lead.",
+                messages: [{ role: 'agent', text: "¡Hola! 🎉 Ya falta poco para nuestra clase maestra de Microblading. Marca tu calendario para el próximo domingo. ¿Ya tienes tu recordatorio listo?" }]
+            },
+            {
+                id: "wl2",
+                name: "Historia de Autoridad",
+                moment: "Día -5",
+                objective: "Crear conexión emocional con la experta.",
+                messages: [{ role: 'agent', text: "Mucha gente me pregunta cómo empecé... la verdad es que no fue fácil. Estuve a punto de rendirme hasta que descubrí el secreto de los trazos naturales." }]
+            },
+            {
+                id: "wl3",
+                name: "Temario y Promesa",
+                moment: "Día -3",
+                objective: "Elevar el valor percibido de la clase.",
+                messages: [{ role: 'agent', text: "En la clase del domingo vamos a desglosar: 1. Visajismo digital, 2. Mezcla de pigmentos y 3. Cómo llenar tu agenda. ¡Va a ser brutal!" }]
+            },
+            {
+                id: "wl4",
+                name: "Adelanto (3 Errores)",
+                moment: "Día -1",
+                objective: "Entregar valor previo para generar compromiso.",
+                messages: [{ role: 'agent', text: "⚠️ Antes de vernos mañana, evita estos 3 errores: No practicar en látex, usar agujas de baja calidad y no medir la simetría." }]
+            },
+            {
+                id: "wl5",
+                name: "¡Hoy es el gran día!",
+                moment: "Día Clase (AM)",
+                objective: "Recordatorio matutino.",
+                messages: [{ role: 'agent', text: "🔥 ¡LLEGÓ EL DÍA! Hoy a las 8 PM nos vemos para transformar tu carrera. ¿Desde qué país te conectarás?" }]
+            },
+            {
+                id: "wl6",
+                name: "Cuenta Regresiva (T-4h)",
+                moment: "Día Clase (PM)",
+                objective: "Instrucciones de preparación.",
+                messages: [{ role: 'agent', text: "Faltan solo 4 horas. ⏳ Prepara papel, lápiz y elimina las distracciones. Esto puede cambiar tu 2025." }]
+            },
+            {
+                id: "wl7",
+                name: "¡Estamos en Vivo!",
+                moment: "Día Clase (Link)",
+                objective: "Acceso directo a YouTube.",
+                messages: [{ role: 'agent', text: "🔴 ¡ENTRA YA! Estamos iniciando la transmisión. Aquí tienes el link: https://youtube.com/live" }]
+            },
+            {
+                id: "wl8",
+                name: "Oferta Abierta (Beca 75%)",
+                moment: "Post-Clase",
+                objective: "Apertura de inscripciones.",
+                messages: [{ role: 'agent', text: "¡La clase fue un éxito! 🚀 Las inscripciones para la Certificación Pro ya están abiertas con el 75% de descuento solo por hoy." }]
+            },
+            {
+                id: "wl9",
+                name: "Bonos de Acción Rápida",
+                moment: "Urgencia 1",
+                objective: "Presión por los regalos exclusivos.",
+                messages: [{ role: 'agent', text: "Quedan solo unas horas para llevarte el Kit de Pigmentos y la Asesoría VIP de regalo. ¡No los dejes pasar!" }]
+            },
+            {
+                id: "wl10",
+                name: "Tutorial de Pago",
+                moment: "Soporte",
+                objective: "Eliminar fricción técnica en el checkout.",
+                messages: [{ role: 'agent', text: "Si tienes dudas con el pago, aquí te dejo un video corto de cómo inscribirte paso a paso. ¡Es súper seguro!" }]
+            },
+            {
+                id: "wl11",
+                name: "Certificado y Garantía",
+                moment: "Garantía",
+                objective: "Seguridad y aval profesional.",
+                messages: [{ role: 'agent', text: "Recuerda que tienes 7 días de garantía total. Si el curso no es para ti, te devolvemos el 100%." }]
+            },
+            {
+                id: "wl12",
+                name: "Últimos Cupos / Apertura Grupo",
+                moment: "Cierre",
+                objective: "Escasez máxima y resolución de dudas.",
+                messages: [{ role: 'agent', text: "⚠️ Solo quedan 7 cupos disponibles para la Certificación con todos los bonos. ¿Tienes alguna duda final?" }]
+            },
+            {
+                id: "wl13",
+                name: "Inscripciones Cerradas",
+                moment: "Final",
+                objective: "Mantener la integridad de la oferta.",
+                messages: [{ role: 'agent', text: "Las puertas se han cerrado oficialmente. Gracias a todas las que dieron el paso. ¡Nos vemos dentro!" }]
+            },
+            {
+                id: "wl14",
+                name: "Bienvenida y Próximos Pasos",
+                moment: "Bienvenida",
+                objective: "Bienvenida a las nuevas alumnas.",
+                messages: [{ role: 'agent', text: "¡Bienvenida al equipo! 🎉 Revisa tu correo para el acceso al área de miembros. Mañana iniciamos el Módulo 1." }]
             }
         ]
     }
