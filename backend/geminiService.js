@@ -231,8 +231,8 @@ const generateFullStrategy = async (projectId) => {
                 bodyPreview: "Hola [Nombre], y un preview del texto que llevaria el correo al inicio segun su tipo y objetivo, la idea es mostrar el primer parrafo y luego colocas al final ... para que se sepa que se debe generar completo el correo"
 
         INSTRUCCIONES PARA SECUENCIA DE LANZAMIENTO WHATSAPP whatsappLaunch (OBLIGATORIO):
-        Genera una secuencia completa de 14 mensajes para un lanzamiento de WhatsApp Flow / Meteórico. Cada mensaje debe ser persuasivo, usar emojis y formato negrita de WhatsApp.
-        Los 14 momentos son:
+        Genera una secuencia completa de 3 mensajes para un lanzamiento de WhatsApp Flow / Meteórico. Cada mensaje debe ser persuasivo, usar emojis y formato negrita de WhatsApp.
+        Los 3 momentos son:
         1. wl1: Confirmación de Fecha (Día -7).
         2. wl2: Historia de Autoridad (Día -5).
         3. wl3: Temario y Promesa (Día -3).
@@ -247,6 +247,10 @@ const generateFullStrategy = async (projectId) => {
         12. wl12: Últimos Cupos / Apertura Grupo (Cierre).
         13. wl13: Inscripciones Cerradas (Final).
         14. wl14: Bienvenida y Próximos Pasos (Bienvenida).
+
+
+
+
 
         Estructura del JSON para whatsappLaunch:
         {
