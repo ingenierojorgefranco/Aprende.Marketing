@@ -205,9 +205,33 @@ const generateFullStrategy = async (projectId) => {
         Genera un análisis de miedos, objeciones y motivaciones reales para este nicho.
 
         INSTRUCCIONES PARA CONTENIDOS DE BLOG content (OBLIGATORIO):
-        Genera 13 articulos de blog optimizados para SEO que tenga que ver con el producto especificamente, usa un volumen de keyword de entre 100 a 100, usa palabras claves realistas y completas, titulos que no superen los 60 caracteres, dirigidos a ser informativos y optimizados para generar el maximo ctr posible, 100% optimizados para atraer audiencia cualificada, el enfoque estrategico tiene que ser segun los 3 avatares definidos
-
+        Genera 7 articulos de blog optimizados para SEO que tenga que ver con el producto especificamente, usa un volumen de keyword de entre 100 a 1000, añade palabras claves realistas con intension de busqueda informativa, titulos que no superen los 60 caracteres, dirigidos a ser informativos en forma de pregunta y optimizados para generar el maximo ctr posible y atraer audiencia cualificada, 3 articulos iniciales enfocados en el primer avatar definido, 2 articulos enfocados en el segundo avatar definido, 2 ultimos articulos enfocados en el tercer avatar definido
         
+
+        INSTRUCCIONES PARA CONTENIDOS DE EMAIL emails (OBLIGATORIO):
+       Actúa como un Copywriter Senior experto en Marketing de Respuesta Directa. Tu misión es redactar una secuencia de titulos y contenidos de 7 correos electrónicos (Día 0 al Día 6) diseñada para convertir prospectos en compradores del producto
+        para ello el sistema tendra el siguiente enfoque segun los dias de envio.
+
+        Día 0: Entrega de Valor. Cumple la promesa. Entrega el Lead Magnet con entusiasmo. Establece autoridad y reciprocidad.
+        Día 1: Agitación del Dolor. Toca la herida. Describe cómo se siente el avatar 1 con sus dolores
+        Día 2: Prueba Social. Muestra que es posible. Narra un caso de éxito del avatar 2 (puedes crear un nombre ficticio coherente) que haya superado los mismos miedos.
+        Día 3: Mecanismo Único. Explica por qué lo que han intentado antes no funciona y por qué este método es la solución definitiva. Elimina las posibles objeciones del avatar 1.
+        Día 4: Lanzamiento de Oferta. Presenta el producto como la mejor opcion para la persona, la que indica la transformacion en su vida.
+        Día 5: Escasez y Valor. Añade presión ética. Menciona que los cupos son limitados o que los bonos están por expirar. Refuerza el valor de la inversión.
+        Día 6: Cierre Final. Llamado a la acción agresivo pero profesional. Confronta al prospecto con su situación actual vs. su potencial futuro si toma acción hoy.
+
+        ten en cuenta la siguiente estructura para generar el json
+        
+                id: identificador del correo,
+                day: dia del correo electronico,
+                subject: titulo experto que incremente el CTR usa iconos atractivos un lenguaje cercano y que sea enfocado en la persona,
+                type: tipo de objetivo del correo entrega de valor agitacion del dolor etc,
+                objective: establece el objetivo del correo (Con base en la explicacion anterior que te di de cada tipo de correo) hazlo bien explicado como instruccion para que luego la ia sepa como construir el correo electronico completo,
+                bodyPreview: "Hola [Nombre], y un preview del texto que llevaria el correo al inicio segun su tipo y objetivo, la idea es mostrar el primer parrafo y luego colocas al final ... para que se sepa que se debe generar completo el correo"
+
+
+
+
         Responde estrictamente en formato JSON con la siguiente estructura exacta:
         {
           "meta": {
@@ -470,66 +494,6 @@ const generateFullStrategy = async (projectId) => {
             searchVolume: "1K - 2.5K",
             objective: "Posicionamiento High Ticket",
             strategy: "Comparamos el costo del servicio vs la rentabilidad para el artista. Enfocamos el contenido en cómo vender el valor del resultado final en lugar de competir por el precio más bajo."
-        },
-        {
-            id: 8,
-            title: "Guía de cuidados: ¿Cuántos días proteger el microblading?",
-            traffic: 55,
-            difficulty: 25,
-            keyword: "cuidados microblading cejas",
-            searchVolume: "500 - 1.2K",
-            objective: "Bioseguridad y éxito del procedimiento",
-            strategy: "Un artista profesional se diferencia por su protocolo post-venta. Establecemos los estándares de oro en cuidados para garantizar la máxima retención del pigmento."
-        },
-        {
-            id: 9,
-            title: "¿Qué opinan los dermatólogos del microblading?",
-            traffic: 25,
-            difficulty: 15,
-            keyword: "seguridad microblading dermatologos",
-            searchVolume: "200 - 400",
-            objective: "Derribar miedos de salud",
-            strategy: "Aportamos validación médica sobre la seguridad de la técnica cuando se realiza con pigmentos certificados y normas de higiene, calmando las dudas de seguridad del alumno."
-        },
-        {
-            id: 10,
-            title: "¿Por qué no deberías hacerte el microblading de cejas?",
-            traffic: 20,
-            difficulty: 5,
-            keyword: "contraindicaciones microblading",
-            searchVolume: "400 - 900",
-            objective: "Filtro de clientes y ética profesional",
-            strategy: "Utilizamos el 'marketing negativo' para explicar contraindicaciones reales. Esto enseña al alumno a ser un profesional ético que sabe cuándo decir 'no', aumentando su prestigio."
-        },
-        {
-            id: 11,
-            title: "¿Cuándo no se recomienda el microblading?",
-            traffic: 15,
-            difficulty: 5,
-            keyword: "casos donde no hacer microblading",
-            searchVolume: "150 - 300",
-            objective: "Prevención y seguridad legal",
-            strategy: "Listamos campings clínicos (embarazo, diabetes no controlada, etc.) donde se desaconseja la técnica. Vital para que el alumno opere con seguridad y evite complicaciones legales."
-        },
-        {
-            id: 12,
-            title: "¿Cuál es la ceja permanente de aspecto más natural?",
-            traffic: 45,
-            difficulty: 20,
-            keyword: "cejas naturales permanentes",
-            searchVolume: "500 - 1K",
-            objective: "Venta del beneficio estético",
-            strategy: "Enfatizamos el trazo hiperrealista del microblading frente a técnicas más pesadas. Orientamos al alumno a especializarse en la naturalidad, que es lo más demandado hoy."
-        },
-        {
-            id: 13,
-            title: "Comparativa: ¿Cejas pelo a pelo o Microblading?",
-            traffic: 50,
-            difficulty: 20,
-            keyword: "cejas pelo a pelo vs microblading",
-            searchVolume: "600 - 1.5K",
-            objective: "Claridad en la oferta de servicios",
-            strategy: "Aclara la confusión común entre extensiones de cejas y microblading. Ayuda al alumno a definir su catálogo de servicios y a educar al mercado sobre la superioridad del microblading."
         }
     ],
 
