@@ -256,33 +256,20 @@ const initDb = async () => {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
         /* Fin de actualización - 24/06/2024 16:20 */
 
-        ////////// Actualización: Tablas para WhatsApp Lanzamientos - 10/06/2025 10:00 //////////
-        await connection.query(`CREATE TABLE IF NOT EXISTS whatsapp_launch_sequences (
+        ////////// Actualización: Tabla única whatsapp_lanzamientos con columna JSON - 10/06/2025 11:15 //////////
+        await connection.query(`CREATE TABLE IF NOT EXISTS whatsapp_lanzamientos (
             id INT AUTO_INCREMENT PRIMARY KEY,
             user_id ${userIdType} NOT NULL,
             project_id INT NOT NULL,
             name VARCHAR(255) NOT NULL,
             status VARCHAR(50) DEFAULT 'borrador',
+            data_json LONGTEXT, -- Almacena el array de los 14 momentos inmersos
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
-
-        await connection.query(`CREATE TABLE IF NOT EXISTS whatsapp_launch_messages (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            sequence_id INT NOT NULL,
-            moment_id VARCHAR(50) NOT NULL,
-            name VARCHAR(255),
-            moment_text VARCHAR(100),
-            objective TEXT,
-            content LONGTEXT,
-            is_generated BOOLEAN DEFAULT FALSE,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            FOREIGN KEY (sequence_id) REFERENCES whatsapp_launch_sequences(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
-        ////////// Fin de actualización - 10/06/2025 10:00 //////////
+        ////////// Fin de actualización - 10/06/2025 11:15 //////////
 
         ////////// Actualización: Tabla para seguimiento de Proyectos Maestros desbloqueados - 05/03/2025 10:00 //////////
         await connection.query(`CREATE TABLE IF NOT EXISTS unlocked_projects (
@@ -603,7 +590,7 @@ const initDb = async () => {
 
             const pointsM3 = JSON.stringify(['Hotmart setup', 'Subida de archivos', 'Checkout']);
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-                [m3.insertId, 'Registro y Configuración de Cuenta', '08:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Primeros pasos en la plataforma.', pointsM3, 1]);
+                [m3.insertId, 'Registro y Configuración de Cuenta', '08:00', 'https://www.youtube.com/embed/dQw4w9XcQ?rel=0&autoplay=1', 'Primeros pasos en la plataforma.', pointsM3, 1]);
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
                 [m3.insertId, 'Subiendo tu Producto Paso a Paso', '25:00', 'https://www.youtube.com/embed/dQw4w9XcQ?rel=0&autoplay=1', 'Configuración técnica.', pointsM3, 2]);
 

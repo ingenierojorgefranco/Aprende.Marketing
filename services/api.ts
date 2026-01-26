@@ -1,5 +1,5 @@
 
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunchSequence, WhatsAppLaunchMessage } from "../types";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES, MOCK_MASTER_STRATEGY } from "./mockData";
 import { ProjectMasterStrategy } from "./strategySchema";
 
@@ -73,7 +73,7 @@ const apiCache: {
     publicPages: Record<string, LandingPage | null>;
     masterStrategies: Record<string, ProjectMasterStrategy | null>;
     emailSequences: EmailSequence[] | null;
-    waLaunchSequences: WhatsAppLaunchSequence[] | null;
+    waLaunches: WhatsAppLaunch[] | null;
 } = {
     pages: null,
     projects: null,
@@ -115,7 +115,7 @@ const apiCache: {
     publicPages: {},
     masterStrategies: {},
     emailSequences: null,
-    waLaunchSequences: null
+    waLaunches: null
 };
 
 const clearCache = (key?: keyof typeof apiCache, id?: string) => {
@@ -184,7 +184,7 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.publicPages = {};
         apiCache.masterStrategies = {};
         apiCache.emailSequences = null;
-        apiCache.waLaunchSequences = null;
+        apiCache.waLaunches = null;
     }
 };
 
@@ -1450,55 +1450,73 @@ export const api = {
         clearCache('emailSequences');
     },
 
-    ////////// Actualización: Métodos de API para WhatsApp Lanzamientos - 10/06/2025 10:00 //////////
-    getWhatsAppLaunchSequences: async (): Promise<WhatsAppLaunchSequence[]> => {
+    ////////// Actualización: Métodos de API para WhatsApp Lanzamientos (Tabla Única con JSON) - 10/06/2025 11:00 //////////
+    getWhatsAppLaunches: async (): Promise<WhatsAppLaunch[]> => {
         if (isMockMode) return [];
-        if (apiCache.waLaunchSequences) return apiCache.waLaunchSequences;
-        const data = await fetchWithFallback('/whatsapp-launch/sequences', { headers: getAuthHeaders() });
-        const mapped = data.map((seq: any) => ({
-            ...seq,
-            id: String(seq.id),
-            projectId: String(seq.project_id),
-            projectName: seq.project_name,
-            createdAt: new Date(seq.created_at),
-            generatedMessages: seq.generatedMessages || []
+        if (apiCache.waLaunches) return apiCache.waLaunches;
+        const data = await fetchWithFallback('/whatsapp-launch/launches', { headers: getAuthHeaders() });
+        const mapped = data.map((l: any) => ({
+            ...l,
+            id: String(l.id),
+            projectId: String(l.project_id),
+            projectName: l.project_name,
+            createdAt: new Date(l.created_at),
+            messages: typeof l.data_json === 'string' ? JSON.parse(l.data_json) : (l.data_json || [])
         }));
-        apiCache.waLaunchSequences = mapped;
+        apiCache.waLaunches = mapped;
         return mapped;
     },
 
-    createWhatsAppLaunchSequence: async (projectId: string, name?: string): Promise<{ id: string; isNew: boolean }> => {
-        if (isMockMode) return Promise.resolve({ id: 'mock-wa-seq-1', isNew: true });
-        const res = await fetchWithFallback('/whatsapp-launch/sequences', {
+    getWhatsAppLaunchByProject: async (projectId: string): Promise<WhatsAppLaunch | null> => {
+        if (isMockMode) return null;
+        try {
+            const l = await fetchWithFallback(`/whatsapp-launch/launches/by-project/${projectId}`, { headers: getAuthHeaders() });
+            return {
+                ...l,
+                id: String(l.id),
+                projectId: String(l.project_id),
+                projectName: l.project_name,
+                createdAt: new Date(l.created_at),
+                messages: typeof l.data_json === 'string' ? JSON.parse(l.data_json) : (l.data_json || [])
+            };
+        } catch (e) {
+            return null;
+        }
+    },
+
+    createWhatsAppLaunch: async (projectId: string, name?: string): Promise<{ id: string }> => {
+        if (isMockMode) return Promise.resolve({ id: 'mock-wa-1' });
+        const res = await fetchWithFallback('/whatsapp-launch/launches', {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify({ projectId, name })
         });
-        clearCache('waLaunchSequences');
+        clearCache('waLaunches');
         return res;
     },
 
-    deleteWhatsAppLaunchSequence: async (id: string) => {
+    updateWhatsAppLaunch: async (launchId: string, data: Partial<WhatsAppLaunch>) => {
         if (isMockMode) return Promise.resolve();
-        await fetchWithFallback(`/whatsapp-launch/sequences/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-        clearCache('waLaunchSequences');
-    },
-
-    getWhatsAppLaunchMessages: async (sequenceId: string): Promise<WhatsAppLaunchMessage[]> => {
-        if (isMockMode) return [];
-        return await fetchWithFallback(`/whatsapp-launch/sequences/${sequenceId}/messages`, { headers: getAuthHeaders() });
-    },
-
-    updateWhatsAppLaunchMessage: async (messageId: string, data: Partial<WhatsAppLaunchMessage>) => {
-        if (isMockMode) return Promise.resolve();
-        await fetchWithFallback(`/whatsapp-launch/messages/${messageId}`, {
+        // Convertimos el objeto de mensajes a string si viene en la petición
+        const payload = { ...data };
+        if (payload.messages) {
+            (payload as any).data_json = JSON.stringify(payload.messages);
+            delete payload.messages;
+        }
+        await fetchWithFallback(`/whatsapp-launch/launches/${launchId}`, {
             method: 'PUT',
             headers: getAuthHeaders(),
-            body: JSON.stringify(data)
+            body: JSON.stringify(payload)
         });
-        clearCache('waLaunchSequences');
+        clearCache('waLaunches');
     },
-    ////////// Fin de actualización - 10/06/2025 10:00 //////////
+
+    deleteWhatsAppLaunch: async (id: string) => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback(`/whatsapp-launch/launches/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+        clearCache('waLaunches');
+    },
+    ////////// Fin de actualización - 10/06/2025 11:00 //////////
 
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,
     setLastGeneratedTitles: (titles: any[]) => { apiCache.lastGeneratedTitles = titles; }

@@ -34,8 +34,17 @@ export interface EmailMessage {
 }
 /* Fin de actualización - 24/06/2024 16:20 */
 
-////////// Actualización: Interfaces para WhatsApp Lanzamientos - 10/06/2025 10:00 //////////
-export interface WhatsAppLaunchSequence {
+////////// Actualización: Interfaces para WhatsApp Lanzamientos (Tabla Única con JSON) - 10/06/2025 11:00 //////////
+export interface WhatsAppLaunchMessage {
+  id: string; // wl1 a wl14
+  name: string;
+  momentText: string;
+  objective: string;
+  content: string;
+  isGenerated: boolean;
+}
+
+export interface WhatsAppLaunch {
   id: string;
   userId: string;
   projectId: string;
@@ -43,20 +52,9 @@ export interface WhatsAppLaunchSequence {
   name: string;
   status: 'activa' | 'borrador';
   createdAt: Date;
-  generatedMessages: string[]; // IDs de wl1 a wl14
+  messages: WhatsAppLaunchMessage[]; // Inmerso en data_json
 }
-
-export interface WhatsAppLaunchMessage {
-  id: string;
-  sequenceId: string;
-  momentId: string; // wl1 a wl14
-  name: string;
-  momentText: string;
-  objective: string;
-  content: string;
-  isGenerated: boolean;
-}
-////////// Fin de actualización - 10/06/2025 10:00 //////////
+////////// Fin de actualización - 10/06/2025 11:00 //////////
 
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',

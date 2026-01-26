@@ -1,24 +1,24 @@
 
 import React, { useState, useEffect } from 'react';
-import { WhatsAppLaunchSequence } from '../../../types';
+import { WhatsAppLaunch } from '../../../types';
 import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useNavigate } from 'react-router-dom';
 
 export const WhatsAppLaunchManager: React.FC = () => {
     const navigate = useNavigate();
-    const [sequences, setSequences] = useState<WhatsAppLaunchSequence[]>([]);
+    const [launches, setLaunches] = useState<WhatsAppLaunch[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        loadSequences();
+        loadLaunches();
     }, []);
 
-    const loadSequences = async () => {
+    const loadLaunches = async () => {
         setLoading(true);
         try {
-            const data = await api.getWhatsAppLaunchSequences();
-            setSequences(data);
+            const data = await api.getWhatsAppLaunches();
+            setLaunches(data);
         } catch (e) {
             console.error("Error cargando lanzamientos", e);
         } finally {
@@ -30,8 +30,8 @@ export const WhatsAppLaunchManager: React.FC = () => {
         e.stopPropagation();
         if (!window.confirm("¿Estás seguro de eliminar este lanzamiento?")) return;
         try {
-            await api.deleteWhatsAppLaunchSequence(id);
-            setSequences(prev => prev.filter(s => s.id !== id));
+            await api.deleteWhatsAppLaunch(id);
+            setLaunches(prev => prev.filter(l => l.id !== id));
         } catch (e) {
             alert("Error al eliminar");
         }
@@ -58,10 +58,10 @@ export const WhatsAppLaunchManager: React.FC = () => {
                             <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-inner">
                                 <div className="flex justify-between items-center mb-3 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
                                     <span>Lanzamientos Activos</span>
-                                    <span className="text-white">{sequences.length} / 5</span>
+                                    <span className="text-white">{launches.length} / 5</span>
                                 </div>
                                 <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
-                                    <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.6)] transition-all duration-[1500ms] ease-out" style={{ width: `${(sequences.length / 5) * 100}%` }}></div>
+                                    <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.6)] transition-all duration-[1500ms] ease-out" style={{ width: `${(launches.length / 5) * 100}%` }}></div>
                                 </div>
                             </div>
                         </div>
@@ -85,25 +85,25 @@ export const WhatsAppLaunchManager: React.FC = () => {
             <div className="space-y-8">
                 {loading ? (
                     <div className="flex justify-center p-20 text-emerald-400"><Loader2 className="w-12 h-12 animate-spin" /></div>
-                ) : sequences.length > 0 ? (
+                ) : launches.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {sequences.map(seq => (
-                            <div key={seq.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 p-8 hover:border-emerald-500/30 transition-all duration-300 group flex flex-col shadow-2xl relative overflow-hidden">
+                        {launches.map(launch => (
+                            <div key={launch.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 p-8 hover:border-emerald-500/30 transition-all duration-300 group flex flex-col shadow-2xl relative overflow-hidden">
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="flex-1">
                                         <h3 className="text-2xl font-black text-white group-hover:text-emerald-400 transition-colors leading-tight mb-2">
-                                            {seq.projectName}
+                                            {launch.projectName}
                                         </h3>
                                         <div className="flex items-center gap-3">
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${seq.status === 'activa' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
-                                                {seq.status}
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${launch.status === 'activa' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
+                                                {launch.status}
                                             </span>
-                                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Creado {seq.createdAt.toLocaleDateString()}</span>
+                                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Creado {launch.createdAt.toLocaleDateString()}</span>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
                                         <button 
-                                            onClick={(e) => handleDelete(seq.id, e)}
+                                            onClick={(e) => handleDelete(launch.id, e)}
                                             className="p-3 rounded-2xl bg-red-900/20 text-red-500 border border-red-900/30 hover:bg-red-500 hover:text-white transition-all shadow-lg"
                                         >
                                             <Trash2 className="w-5 h-5" />
@@ -118,24 +118,20 @@ export const WhatsAppLaunchManager: React.FC = () => {
                                     <div className="bg-black/40 p-6 rounded-3xl border border-white/5">
                                         <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Secuencia de 14 Momentos (Progreso)</p>
                                         <div className="grid grid-cols-7 gap-2">
-                                            {[...Array(14)].map((_, i) => {
-                                                const momentId = `wl${i + 1}`;
-                                                const isDone = seq.generatedMessages.includes(momentId);
-                                                return (
-                                                    <div 
-                                                        key={i} 
-                                                        className={`h-2 rounded-full transition-all duration-500 ${isDone ? 'bg-emerald-500' : 'bg-gray-800'}`}
-                                                        title={`Momento ${i + 1}: ${isDone ? 'Generado' : 'Pendiente'}`}
-                                                    ></div>
-                                                );
-                                            })}
+                                            {launch.messages.map((msg, i) => (
+                                                <div 
+                                                    key={i} 
+                                                    className={`h-2 rounded-full transition-all duration-500 ${msg.isGenerated ? 'bg-emerald-500' : 'bg-gray-800'}`}
+                                                    title={`${msg.name}: ${msg.isGenerated ? 'Generado' : 'Pendiente'}`}
+                                                ></div>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="flex flex-col gap-3 mt-10">
                                     <button 
-                                        onClick={() => navigate(`/dashboard/whatsapp-launch/create?projectId=${seq.projectId}`)}
+                                        onClick={() => navigate(`/dashboard/whatsapp-launch/create?projectId=${launch.projectId}`)}
                                         className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg"
                                     >
                                         <Edit3 className="w-5 h-5" /> Gestionar Mensajes
