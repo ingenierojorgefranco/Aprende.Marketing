@@ -1,16 +1,65 @@
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams, useOutletContext } from 'react-router-dom';
 import { 
     Smartphone, Briefcase, ChevronRight, ArrowLeft, 
     Zap, Loader2, Sparkles, Wand2, Copy, 
-    CheckCircle2, Clock, Info, Save, X, Trash2, Edit3, MessageCircle
+    CheckCircle2, Clock, Info, Save, X, Trash2, Edit3, MessageCircle,
+    Lightbulb, Settings2, User as UserIcon, Smartphone as WaIcon, ChevronDown, Check, Lock
 } from 'lucide-react';
 import { api } from '../../../services/api';
 import { Project, User, WhatsAppLaunch, WhatsAppLaunchMessage } from '../../../types';
 
+// Professional WhatsApp Chat Simulator Component
+const ChatSimulator: React.FC<{ text: string; senderName: string }> = ({ text, senderName }) => {
+    const renderWhatsAppText = (raw: string) => {
+        if (!raw) return null;
+        const parts = raw.split(/(\*[^\*]+\*)/g);
+        return parts.map((part, i) => {
+            if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
+                return <span key={i} className="font-bold">{part.slice(1, -1)}</span>;
+            }
+            return part;
+        });
+    };
+
+    return (
+        <div className="bg-[#0b141a] rounded-[2rem] overflow-hidden border border-gray-800 flex flex-col h-[500px] font-sans text-sm shadow-2xl relative">
+            <div className="bg-[#202c33] p-4 flex items-center gap-3 border-b border-gray-700 shrink-0">
+                <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-black font-black text-lg shadow-lg">
+                    {senderName.charAt(0)}
+                </div>
+                <div>
+                    <p className="text-white font-bold text-base leading-tight">{senderName}</p>
+                    <p className="text-xs text-emerald-400 font-medium">en línea</p>
+                </div>
+            </div>
+            <div className="flex-1 p-6 space-y-4 overflow-y-auto custom-scrollbar bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-opacity-10 bg-repeat">
+                <div className="flex justify-start">
+                    <div className="max-w-[90%] p-4 rounded-2xl shadow-xl text-lg whitespace-pre-wrap bg-[#005c4b] text-[#e9edef] rounded-tl-none relative border border-emerald-800/30">
+                        {renderWhatsAppText(text)}
+                        <span className="block text-[10px] text-right opacity-60 mt-2 font-mono">10:45 AM ✓✓</span>
+                    </div>
+                </div>
+            </div>
+            <div className="p-4 bg-[#202c33] border-t border-gray-700 flex gap-3 shrink-0">
+                <div className="flex-1 bg-[#2a3942] rounded-full h-10 border border-white/5"></div>
+                <div className="w-10 h-10 bg-[#00a884] rounded-full flex items-center justify-center text-white shadow-lg">
+                    <MessageCircle className="w-5 h-5 fill-current" />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+interface DashboardContext {
+    user: User;
+}
+
 export const WhatsAppLaunchWizard: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const { user } = useOutletContext() as DashboardContext;
     const { launchId } = useParams() as { launchId?: string };
     const urlProjectId = searchParams.get('projectId');
     
@@ -22,6 +71,24 @@ export const WhatsAppLaunchWizard: React.FC = () => {
     const [generating, setGenerating] = useState(false);
     const [activeMsgIdx, setActiveMsgIdx] = useState(0);
     const [saveIndicator, setSaveIndicator] = useState(false);
+    const [isTypeLocked, setIsTypeLocked] = useState(true);
+
+    const waTypes = [
+        'Expectativa', 
+        'Autoridad', 
+        'Valor / Curiosidad', 
+        'Valor Preventivo', 
+        'Urgencia Matutina', 
+        'Preparación', 
+        'Acción Inmediata',
+        'Lanzamiento',
+        'Escasez de Bonus',
+        'Facilitación',
+        'Seguridad',
+        'Escasez Final',
+        'Cierre de Carrito',
+        'Onboarding'
+    ];
 
     useEffect(() => {
         const loadInitialData = async () => {
@@ -30,15 +97,12 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                 const projectsData = await api.getProjects();
                 setProjects(projectsData);
 
-                // Si viene un launchId directo (EDICIÓN DESDE MANAGER)
                 if (launchId) {
                     const allLaunches = await api.getWhatsAppLaunches();
                     const currentLaunch = allLaunches.find(l => l.id === launchId);
-                    
                     if (currentLaunch) {
                         const proj = projectsData.find(p => p.id === currentLaunch.projectId);
                         if (proj) setSelectedProject(proj);
-                        
                         setActiveLaunch(currentLaunch);
                         setStep(1);
                         setLoading(false);
@@ -46,7 +110,6 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                     }
                 }
 
-                // Si viene de un proyecto específico (CREACIÓN DESDE PROYECTO)
                 if (urlProjectId) {
                     const proj = projectsData.find(p => p.id === urlProjectId);
                     if (proj) {
@@ -67,10 +130,7 @@ export const WhatsAppLaunchWizard: React.FC = () => {
         setSelectedProject(project);
         setLoading(true);
         try {
-            // 1. Crear o recuperar el registro único
             await api.createWhatsAppLaunch(project.id, `Lanzamiento: ${project.name}`);
-            
-            // 2. Obtener los datos completos
             const launchData = await api.getWhatsAppLaunchByProject(project.id);
             setActiveLaunch(launchData);
             setStep(1);
@@ -84,16 +144,12 @@ export const WhatsAppLaunchWizard: React.FC = () => {
 
     const handleUpdateMessage = async (index: number, field: string, value: any) => {
         if (!activeLaunch) return;
-        
         const newMessages = [...activeLaunch.messages];
         (newMessages[index] as any)[field] = value;
-        
         const updatedLaunch = { ...activeLaunch, messages: newMessages };
         setActiveLaunch(updatedLaunch);
-        
         setSaveIndicator(true);
         try {
-            // Actualización asíncrona de la tabla única mediante su columna JSON
             await api.updateWhatsAppLaunch(activeLaunch.id, { messages: newMessages });
             setTimeout(() => setSaveIndicator(false), 2000);
         } catch (e) {
@@ -105,19 +161,14 @@ export const WhatsAppLaunchWizard: React.FC = () => {
         if (!activeLaunch) return;
         setGenerating(true);
         try {
-            // Lógica de simulación de IA (Gemini sería invocado aquí con el contexto del proyecto)
-            await new Promise(r => setTimeout(r, 2000));
-            
+            await new Promise(r => setTimeout(r, 2500));
             const msg = activeLaunch.messages[activeMsgIdx];
             const pName = selectedProject?.productName || "nuestro programa";
             
             let content = `*${msg.name}* (Momento: ${msg.momentText})\n\n¡Hola! 🎉 Soy el encargado de tu formación. Solo paso para confirmarte que ya tenemos fecha oficial para nuestra clase maestra de *${pName}*. Será el próximo domingo. ¿Ya lo anotaste en tu calendario?`;
             
-            if (msg.id === 'wl7') {
-                content = `🔴 *ESTAMOS EN VIVO*\n\nNo esperes más, entra ahora por este link exclusivo para el grupo: [LINK_CLASE]. ¡Te espero dentro! 🚀`;
-            } else if (msg.id === 'wl8') {
-                content = `¡Increíble la clase de hoy! 🎉\n\nComo les prometí, las inscripciones para *${pName}* están abiertas con una *Beca del 75%* de descuento. Solo para las primeras personas que tomen acción ahora mismo.`;
-            }
+            if (msg.id === 'wl7') content = `🔴 *ESTAMOS EN VIVO*\n\nNo esperes más, entra ahora por este link exclusivo para el grupo: [LINK_CLASE]. ¡Te espero dentro! 🚀`;
+            else if (msg.id === 'wl8') content = `¡Increíble la clase de hoy! 🎉\n\nComo les prometí, las inscripciones para *${pName}* están abiertas con una *Beca del 75%* de descuento. Solo para las primeras personas que tomen acción ahora mismo.`;
 
             await handleUpdateMessage(activeMsgIdx, 'content', content);
             await handleUpdateMessage(activeMsgIdx, 'isGenerated', true);
@@ -138,7 +189,7 @@ export const WhatsAppLaunchWizard: React.FC = () => {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-emerald-400">
                 <Loader2 className="w-12 h-12 animate-spin mb-4" />
-                <p className="font-black uppercase tracking-[0.2em] text-sm">Cargando lanzamientos...</p>
+                <p className="font-black uppercase tracking-[0.2em] text-sm">Cargando tus proyectos...</p>
             </div>
         );
     }
@@ -149,7 +200,7 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md">
                     <div className="bg-[#0B0B0B] border border-white/10 p-12 rounded-[3rem] shadow-2xl flex flex-col items-center gap-6 animate-in zoom-in-95">
                         <Loader2 className="w-16 h-16 text-emerald-500 animate-spin" />
-                        <p className="text-white font-black uppercase tracking-[0.3em] text-center text-sm">IA redactando tu mensaje...</p>
+                        <p className="text-white font-black uppercase tracking-[0.3em] text-center text-sm">IA redactando tu mensaje persuasivo...</p>
                     </div>
                 </div>
             )}
@@ -167,12 +218,12 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                 <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
                     <Smartphone className="w-8 h-8 text-emerald-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Gestor de Lanzamientos de WhatsApp</h2>
+                <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Asistente de Lanzamiento de WhatsApp</h2>
                 {selectedProject && <p className="text-[10px] text-emerald-400 font-black uppercase tracking-[0.3em] mt-2">Proyecto: {selectedProject.name}</p>}
             </div>
 
             <div className="p-8 md:p-12 flex-1 overflow-y-auto">
-                {step === 0 && (
+                {step === 0 ? (
                     <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto py-10">
                         {projects.map((project) => (
                             <div 
@@ -191,29 +242,31 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                                 </div>
                                 <p className="text-gray-400 text-lg leading-relaxed font-medium mb-10 line-clamp-2">{project.shortDescription || "Sin descripción estratégica."}</p>
                                 <button className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all flex items-center justify-center gap-3">
-                                    Gestionar Lanzamiento <ChevronRight className="w-5 h-5" />
+                                    Configurar Secuencia <ChevronRight className="w-5 h-5" />
                                 </button>
                             </div>
                         ))}
                     </div>
-                )}
-
-                {step === 1 && activeLaunch && (
-                    <div className="grid lg:grid-cols-12 gap-10 h-full">
-                        {/* LISTA DE MOMENTOS */}
-                        <div className="lg:col-span-4 bg-gray-900 p-6 rounded-[2.5rem] border border-gray-800 flex flex-col shadow-xl max-h-[700px] overflow-y-auto custom-scrollbar">
+                ) : activeLaunch && (
+                    <div className="grid lg:grid-cols-12 gap-10 items-stretch">
+                        {/* PANEL IZQUIERDO: 14 MOMENTOS */}
+                        <div className="lg:col-span-4 bg-gray-950 p-6 rounded-[2.5rem] border border-gray-800 flex flex-col shadow-2xl h-[700px] overflow-y-auto custom-scrollbar">
+                            <div className="flex items-center gap-3 mb-8 shrink-0">
+                                <div className="p-2.5 bg-emerald-900/30 rounded-xl text-emerald-400 border border-emerald-900/50"><WaIcon className="w-6 h-6" /></div>
+                                <h3 className="text-xl font-bold text-white uppercase tracking-tight">Momentos del Lanzamiento</h3>
+                            </div>
                             <div className="space-y-3">
                                 {activeLaunch.messages.map((msg, idx) => (
                                     <div 
                                         key={msg.id}
                                         onClick={() => setActiveMsgIdx(idx)}
-                                        className={`p-5 rounded-2xl border transition-all cursor-pointer flex items-center gap-4 ${activeMsgIdx === idx ? 'bg-emerald-900/10 border-emerald-500/40' : 'bg-black/40 border-white/5 hover:border-white/10'}`}
+                                        className={`p-5 rounded-2xl border transition-all cursor-pointer flex items-center gap-4 ${activeMsgIdx === idx ? 'bg-emerald-900/10 border-emerald-500/40 shadow-xl shadow-emerald-900/30 translate-x-2' : 'bg-black/40 border-white/5 hover:border-white/10'}`}
                                     >
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${activeMsgIdx === idx ? 'bg-emerald-500 text-black' : 'bg-gray-800 text-gray-500'}`}>
                                             {idx + 1}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-[10px] font-black uppercase text-gray-500 mb-1">{msg.momentText}</p>
+                                            <p className={`text-[10px] font-black uppercase mb-1 ${activeMsgIdx === idx ? 'text-emerald-400' : 'text-gray-600'}`}>{msg.momentText}</p>
                                             <h5 className={`font-bold truncate ${activeMsgIdx === idx ? 'text-white' : 'text-gray-400'}`}>{msg.name}</h5>
                                         </div>
                                         {msg.isGenerated && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
@@ -222,55 +275,136 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* EDITOR DE MENSAJE */}
-                        <div className="lg:col-span-8 bg-[#0B0B0B] border border-gray-800 rounded-[3rem] p-8 md:p-10 flex flex-col shadow-2xl relative">
-                            {saveIndicator && (
-                                <div className="absolute top-6 right-10 flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[9px] font-black text-emerald-400 uppercase">
-                                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Autoguardado
-                                </div>
-                            )}
+                        {/* PANEL DERECHO: ESTRATEGIA VS EDITOR */}
+                        <div className="lg:col-span-8 flex flex-col h-full bg-[#0B0B0B] border border-gray-800 rounded-[3rem] shadow-2xl relative overflow-hidden min-h-[700px]">
+                            <div className="p-10 relative flex-1 flex flex-col">
+                                {saveIndicator && (
+                                    <div className="absolute top-6 right-10 flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[9px] font-black text-emerald-400 uppercase">
+                                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div> Sincronizado
+                                    </div>
+                                )}
 
-                            <div className="flex justify-between items-center mb-8">
-                                <div>
-                                    <h3 className="text-2xl font-black text-white">{activeLaunch.messages[activeMsgIdx]?.name}</h3>
-                                    <p className="text-emerald-400 text-xs font-bold uppercase tracking-widest mt-1">{activeLaunch.messages[activeMsgIdx]?.momentText}</p>
-                                </div>
-                                <div className="flex gap-3">
-                                    <button 
-                                        onClick={handleGenerate}
-                                        className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-emerald-900/20"
-                                    >
-                                        <Wand2 className="w-4 h-4" /> {activeLaunch.messages[activeMsgIdx]?.isGenerated ? 'Regenerar con IA' : 'Generar con IA'}
-                                    </button>
-                                </div>
-                            </div>
+                                {activeLaunch.messages[activeMsgIdx].isGenerated ? (
+                                    <div className="flex-1 flex flex-col space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+                                        <div className="flex justify-between items-center bg-gray-800/30 p-4 rounded-2xl border border-white/5">
+                                            <button 
+                                                onClick={() => handleUpdateMessage(activeMsgIdx, 'isGenerated', false)}
+                                                className="text-[10px] font-black text-white uppercase tracking-widest hover:underline transition-all"
+                                            >
+                                                Modificar configuración estratégica
+                                            </button>
+                                        </div>
 
-                            <div className="bg-emerald-500/5 border border-emerald-500/10 p-6 rounded-2xl mb-8 flex gap-4">
-                                <Info className="w-6 h-6 text-emerald-400 shrink-0" />
-                                <div>
-                                    <span className="text-emerald-400 font-bold block mb-1 uppercase text-[10px] tracking-widest">Objetivo Estratégico</span>
-                                    <p className="text-gray-400 text-sm leading-relaxed">{activeLaunch.messages[activeMsgIdx]?.objective}</p>
-                                </div>
-                            </div>
+                                        <ChatSimulator text={activeLaunch.messages[activeMsgIdx].content} senderName={user.name} />
 
-                            <div className="flex-1 flex flex-col">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Contenido del Mensaje (WhatsApp Format)</label>
-                                <textarea 
-                                    value={activeLaunch.messages[activeMsgIdx]?.content}
-                                    onChange={(e) => handleUpdateMessage(activeMsgIdx, 'content', e.target.value)}
-                                    className="flex-1 w-full bg-black border border-white/10 rounded-2xl p-6 text-gray-200 font-sans text-lg focus:border-emerald-500/50 outline-none transition-all resize-none custom-scrollbar"
-                                    placeholder="Escribe o genera el mensaje persuasivo aquí..."
-                                />
-                                <div className="flex justify-between items-center mt-6">
-                                    <p className="text-[10px] text-gray-600 italic">* Usa asteriscos para *negrita* y emojis para mayor impacto.</p>
-                                    <button 
-                                        onClick={handleCopy}
-                                        disabled={!activeLaunch.messages[activeMsgIdx]?.content}
-                                        className="px-10 py-4 bg-white/5 border border-white/10 hover:bg-emerald-500 hover:text-black rounded-xl text-white font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-30"
-                                    >
-                                        <Copy className="w-4 h-4" /> Copiar para WhatsApp
-                                    </button>
-                                </div>
+                                        <div className="space-y-4">
+                                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Contenido Editable (WhatsApp Format)</label>
+                                            <textarea 
+                                                value={activeLaunch.messages[activeMsgIdx].content}
+                                                onChange={(e) => handleUpdateMessage(activeMsgIdx, 'content', e.target.value)}
+                                                className="w-full bg-black border border-white/10 rounded-2xl p-6 text-gray-200 font-sans text-lg focus:border-emerald-500/50 outline-none transition-all resize-none h-40 custom-scrollbar"
+                                            />
+                                        </div>
+
+                                        <div className="flex justify-center pt-4">
+                                            <button 
+                                                onClick={handleCopy}
+                                                className="px-12 py-5 rounded-[1.5rem] bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-900/20 transform hover:scale-105 active:scale-95"
+                                            >
+                                                <Copy className="w-5 h-5" /> Copiar Mensaje para WhatsApp
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-12 animate-in fade-in duration-500 flex-1 flex flex-col">
+                                        <div className="flex items-center justify-between">
+                                            <span className="bg-emerald-900/20 text-emerald-400 border border-emerald-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
+                                                Pilar: {activeLaunch.messages[activeMsgIdx].pilarType}
+                                            </span>
+                                            <span className="text-white text-lg font-black uppercase tracking-widest italic">{activeLaunch.messages[activeMsgIdx].momentText}</span>
+                                        </div>
+
+                                        <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden flex-1">
+                                            <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/50"></div>
+                                            
+                                            <div className="flex items-center gap-4 mb-10">
+                                                <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400">
+                                                    <Lightbulb className="w-8 h-8" />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-2xl font-black text-white tracking-tight leading-none">Estrategia de WhatsApp: Momento No {activeMsgIdx + 1}</h4>
+                                                    <p className="text-sm text-gray-400 font-bold uppercase tracking-widest mt-4 leading-relaxed">Nuestra inteligencia Artificial generará tu mensaje persuasivo basado en esto.</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-10">
+                                                <div className="space-y-3">
+                                                    <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                                        <Edit3 className="w-5 h-5 text-emerald-500" /> Título Sugerido
+                                                    </label>
+                                                    <input 
+                                                        type="text"
+                                                        value={activeLaunch.messages[activeMsgIdx].name}
+                                                        onChange={(e) => handleUpdateMessage(activeMsgIdx, 'name', e.target.value)}
+                                                        className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-xl outline-none focus:border-emerald-500/50 transition-all shadow-inner"
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-3">
+                                                    <div className="flex justify-between items-center">
+                                                        <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                                            <Settings2 className="w-5 h-5 text-emerald-500" /> Pilar Estratégico (Tipo)
+                                                        </label>
+                                                        <button 
+                                                            onClick={() => setIsTypeLocked(!isTypeLocked)}
+                                                            className="text-xs font-black text-emerald-400 uppercase tracking-widest hover:underline px-3 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/20 transition-all"
+                                                        >
+                                                            {isTypeLocked ? 'Desbloquear' : 'Bloquear'}
+                                                        </button>
+                                                    </div>
+                                                    <div className="relative">
+                                                        <select 
+                                                            disabled={isTypeLocked}
+                                                            value={activeLaunch.messages[activeMsgIdx].pilarType}
+                                                            onChange={(e) => handleUpdateMessage(activeMsgIdx, 'pilarType', e.target.value)}
+                                                            className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none transition-all shadow-inner appearance-none cursor-pointer ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50 ring-2 ring-emerald-500/10'}`}
+                                                        >
+                                                            {waTypes.map(t => (
+                                                                <option key={t} value={t}>{t}</option>
+                                                            ))}
+                                                        </select>
+                                                        {!isTypeLocked && (
+                                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                                <ChevronDown className="w-6 h-6 text-emerald-500" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-3">
+                                                    <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                                        <Zap className="w-5 h-5 text-emerald-500" /> Propósito Estratégico del Momento
+                                                    </label>
+                                                    <textarea 
+                                                        rows={4}
+                                                        value={activeLaunch.messages[activeMsgIdx].purpose}
+                                                        onChange={(e) => handleUpdateMessage(activeMsgIdx, 'purpose', e.target.value)}
+                                                        className="w-full bg-black/60 border border-white/10 rounded-[2rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none focus:border-emerald-500/50 transition-all shadow-inner resize-none"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="pb-6">
+                                            <button 
+                                                onClick={handleGenerate}
+                                                className="w-full py-6 rounded-[2cm] bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95 shadow-emerald-900/30"
+                                            >
+                                                <Wand2 className="w-7 h-7 fill-current" /> Generar Mensaje No {activeMsgIdx + 1} con IA
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

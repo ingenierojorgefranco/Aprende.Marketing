@@ -40,6 +40,8 @@ export interface WhatsAppLaunchMessage {
   name: string;
   momentText: string;
   objective: string;
+  pilarType: string; // Nuevo: Pilar estratégico del momento
+  purpose: string;   // Nuevo: Propósito detallado para la IA
   content: string;
   isGenerated: boolean;
 }

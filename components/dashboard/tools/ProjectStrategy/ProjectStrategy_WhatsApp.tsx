@@ -179,7 +179,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                     padding: 1rem;
                 }
                 .locked-blur {
-                    filter: blur(10px);
+                    filter: blur(12px);
                     pointer-events: none;
                     user-select: none;
                     opacity: 0.6;
@@ -243,53 +243,24 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
             <div id="psd-whatsapp-grid" className="grid lg:grid-cols-12 gap-8 relative">
                 
-                {/* BLOQUEO PERSUASIVO SOBRE LA GRILLA */}
-                {isLocked && (
-                    <div className="absolute inset-0 z-30 flex items-center justify-center p-8 bg-black/20 backdrop-blur-[2px] pointer-events-none">
-                        <div className="mt-80 w-full max-w-lg pointer-events-auto">
-                            <div className="bg-[#111] border-2 border-emerald-500/30 rounded-[3rem] p-10 md:p-12 shadow-[0_20px_60px_rgba(16,185,129,0.3)] text-center space-y-8 animate-in zoom-in-95 duration-700">
-                                <div className="w-20 h-20 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20 shadow-lg">
-                                    <Lock className="w-10 h-10" />
-                                </div>
-                                <div className="space-y-4">
-                                    <h4 className="text-3xl font-black text-white leading-tight">Secuencia de 14 días Bloqueada</h4>
-                                    <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                                        Para ver y copiar los guiones persuasivos de cada momento, primero debes activar el generador inteligente de lanzamientos.
-                                    </p>
-                                </div>
-                                <button 
-                                    onClick={() => navigate(`/dashboard/whatsapp-launch/create?projectId=${projectId}`)}
-                                    className="w-full py-6 rounded-[2rem] bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xl shadow-xl shadow-emerald-900/30 flex items-center justify-center gap-4 transition-all hover:scale-[1.03] active:scale-95 group"
-                                >
-                                    <Wand2 className="w-8 h-8 group-hover:rotate-12 transition-transform" /> 
-                                    Generar Secuencia de Lanzamiento
-                                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-                                </button>
-                                <p className="text-[10px] text-gray-600 font-black uppercase tracking-[0.3em]">IA Estratégica configurada para alta conversión</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
                 <div id="psd-whatsapp-list-col" className="lg:col-span-4 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50">
                             <Calendar className="w-6 h-6" />
                         </div>
                         <div>
-                            <h3 className="text-xl font-bold text-white">Lanzamiento vía WhatsApp</h3>
+                            <h3 className="text-xl font-bold text-white">Listado de Mensajes</h3>
                         </div>
                     </div>
 
                     <div className="space-y-3 flex-1 pr-2">
                         {currentData.map((script: any, idx: number) => {
-                            const isItemLocked = isLocked && idx > 0;
                             return (
                                 <div 
                                     key={script.id} 
                                     id={`psd-whatsapp-script-${idx}`}
-                                    onClick={() => !isItemLocked && setActiveWaScript(idx)}
-                                    className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 ${isItemLocked ? 'locked-blur' : 'cursor-pointer'} ${sentMessages.has(idx) ? 'bg-green-900/10 border-green-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800')}`}
+                                    onClick={() => setActiveWaScript(idx)}
+                                    className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${sentMessages.has(idx) ? 'bg-green-900/10 border-green-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800')}`}
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${sentMessages.has(idx) ? 'bg-green-500 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white shadow-lg' : 'bg-gray-800 text-gray-400')}`}>
@@ -310,7 +281,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                     </div>
                                     
                                     <div 
-                                        onClick={(e) => !isItemLocked && toggleSent(e, idx)}
+                                        onClick={(e) => toggleSent(e, idx)}
                                         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all hover:scale-110 ${sentMessages.has(idx) ? 'border-green-500 bg-green-500' : 'border-gray-600 hover:border-gray-400'}`}
                                     >
                                         {sentMessages.has(idx) && <Check className="w-4 h-4 text-black font-black" />}
@@ -322,7 +293,8 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 </div>
 
                 <div id="psd-whatsapp-simulator-col" className="lg:col-span-8 bg-black/40 border border-gray-800 rounded-2xl p-6 flex flex-col relative overflow-hidden h-full">
-                    <div className={`relative z-10 flex flex-col h-full gap-6 ${isLocked && activeWaScript > 0 ? 'locked-blur' : ''}`}>
+                    
+                    <div className="relative z-10 flex flex-col gap-6 mb-6">
                         <div className="bg-green-900/10 border border-green-500/20 p-8 rounded-xl space-y-8">
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3">
@@ -374,8 +346,12 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                 </div>
                             )}
                         </div>
+                    </div>
 
-                        <div className="flex flex-col gap-6">
+                    {/* ÁREA DE SIMULADOR Y COPIADO CON BLOQUEO SELECTIVO */}
+                    <div className="relative flex flex-col h-full gap-6">
+                        
+                        <div className={`flex flex-col gap-6 transition-all duration-500 ${isLocked && activeWaScript > 0 ? 'locked-blur' : ''}`}>
                             <div className="border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
                                 <ChatSimulator messages={processedMessages} />
                             </div>
@@ -389,6 +365,31 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                 </button>
                             </div>
                         </div>
+
+                        {/* OVERLAY DE BLOQUEO SOBRE EL SIMULADOR */}
+                        {isLocked && activeWaScript > 0 && (
+                            <div className="absolute inset-0 z-30 flex items-center justify-center p-6">
+                                <div className="bg-[#111] border-2 border-emerald-500/30 rounded-[3rem] p-10 shadow-[0_20px_60px_rgba(16,185,129,0.3)] text-center space-y-6 animate-in zoom-in-95 duration-700 w-full max-w-md">
+                                    <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20 shadow-lg">
+                                        <Lock className="w-8 h-8" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h4 className="text-2xl font-black text-white leading-tight">Contenido Protegido</h4>
+                                        <p className="text-gray-400 text-base leading-relaxed font-medium">
+                                            Debes activar el generador inteligente para ver el guión persuasivo de este momento.
+                                        </p>
+                                    </div>
+                                    <button 
+                                        onClick={() => navigate(`/dashboard/whatsapp-launch/create?projectId=${projectId}`)}
+                                        className="w-full py-5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg shadow-xl shadow-emerald-900/30 flex items-center justify-center gap-3 transition-all hover:scale-[1.03] active:scale-95 group"
+                                    >
+                                        <Wand2 className="w-6 h-6 group-hover:rotate-12 transition-transform" /> 
+                                        Generar Secuencia
+                                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

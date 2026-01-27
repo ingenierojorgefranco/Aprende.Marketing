@@ -6,23 +6,23 @@ const { authMiddleware } = require('../authMiddleware');
 const router = express.Router();
 
 /**
- * Inicializador de los 14 momentos estratégicos
+ * Inicializador de los 14 momentos estratégicos con pilares y propósitos detallados
  */
 const DEFAULT_LAUNCH_MESSAGES = [
-    { id: 'wl1', name: 'Confirmación de Fecha', momentText: 'Día -7', objective: 'Generar expectativa y agendar al lead.', content: '', isGenerated: false },
-    { id: 'wl2', name: 'Historia de Autoridad', momentText: 'Día -5', objective: 'Crear conexión emocional con la experta.', content: '', isGenerated: false },
-    { id: 'wl3', name: 'Temario y Promesa', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', content: '', isGenerated: false },
-    { id: 'wl4', name: 'Adelanto (3 Errores)', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', content: '', isGenerated: false },
-    { id: 'wl5', name: '¡Hoy es el gran día!', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', content: '', isGenerated: false },
-    { id: 'wl6', name: 'Cuenta Regresiva (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', content: '', isGenerated: false },
-    { id: 'wl7', name: '¡Estamos en Vivo!', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', content: '', isGenerated: false },
-    { id: 'wl8', name: 'Oferta Abierta', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', content: '', isGenerated: false },
-    { id: 'wl9', name: 'Bonos de Acción Rápida', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', content: '', isGenerated: false },
-    { id: 'wl10', name: 'Tutorial de Pago', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', content: '', isGenerated: false },
-    { id: 'wl11', name: 'Certificado y Garantía', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', content: '', isGenerated: false },
-    { id: 'wl12', name: 'Últimos Cupos', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', content: '', isGenerated: false },
-    { id: 'wl13', name: 'Inscripciones Cerradas', momentText: 'Final', objective: 'Mantener la integridad de la oferta.', content: '', isGenerated: false },
-    { id: 'wl14', name: 'Bienvenida', momentText: 'Bienvenida', objective: 'Bienvenida a las nuevas alumnas.', content: '', isGenerated: false }
+    { id: 'wl1', name: 'Confirmación de Fecha', momentText: 'Día -7', pilarType: 'Expectativa', purpose: 'Confirmar la fecha oficial de la clase y asegurar que lo agenden.', objective: 'Generar expectativa y agendar al lead.', content: '', isGenerated: false },
+    { id: 'wl2', name: 'Historia de Autoridad', momentText: 'Día -5', pilarType: 'Autoridad', purpose: 'Narrar brevemente la historia de éxito del experto para generar confianza.', objective: 'Crear conexión emocional con la experta.', content: '', isGenerated: false },
+    { id: 'wl3', name: 'Temario y Promesa', momentText: 'Día -3', pilarType: 'Valor / Curiosidad', purpose: 'Listar los 3 puntos clave que se aprenderán en la clase.', objective: 'Elevar el valor percibido de la clase.', content: '', isGenerated: false },
+    { id: 'wl4', name: 'Adelanto (3 Errores)', momentText: 'Día -1', pilarType: 'Valor Preventivo', purpose: 'Identificar 3 errores comunes que el lead está cometiendo hoy.', objective: 'Entregar valor previo para generar compromiso.', content: '', isGenerated: false },
+    { id: 'wl5', name: '¡Hoy es el gran día!', momentText: 'Día Clase (AM)', pilarType: 'Urgencia Matutina', purpose: 'Anunciar que hoy es la clase y recordar los horarios.', objective: 'Recordatorio matutino.', content: '', isGenerated: false },
+    { id: 'wl6', name: 'Cuenta Regresiva (T-4h)', momentText: 'Día Clase (PM)', pilarType: 'Preparación', purpose: 'Indicar que busquen libreta, café y un lugar tranquilo.', objective: 'Instrucciones de preparación.', content: '', isGenerated: false },
+    { id: 'wl7', name: '¡Estamos en Vivo!', momentText: 'Día Clase (Link)', pilarType: 'Acción Inmediata', purpose: 'Entregar el enlace directo a la transmisión.', objective: 'Acceso directo a la transmisión.', content: '', isGenerated: false },
+    { id: 'wl8', name: 'Oferta Abierta', momentText: 'Post-Clase', pilarType: 'Lanzamiento', purpose: 'Anunciar la apertura de inscripciones con el descuento máximo.', objective: 'Apertura de inscripciones.', content: '', isGenerated: false },
+    { id: 'wl9', name: 'Bonos de Acción Rápida', momentText: 'Urgencia 1', pilarType: 'Escasez de Bonus', purpose: 'Mencionar los regalos extra para los primeros en comprar.', objective: 'Presión por los regalos exclusivos.', content: '', isGenerated: false },
+    { id: 'wl10', name: 'Tutorial de Pago', momentText: 'Soporte', pilarType: 'Facilitación', purpose: 'Explicar cómo realizar la compra paso a paso.', objective: 'Eliminar fricción técnica en el checkout.', content: '', isGenerated: false },
+    { id: 'wl11', name: 'Certificado y Garantía', momentText: 'Garantía', pilarType: 'Seguridad', purpose: 'Destacar la garantía de 7 días y el aval profesional.', objective: 'Seguridad y aval profesional.', content: '', isGenerated: false },
+    { id: 'wl12', name: 'Últimos Cupos', momentText: 'Cierre', pilarType: 'Escasez Final', purpose: 'Notificar que los cupos con descuento se están terminando.', objective: 'Escasez máxima y resolución de dudas.', content: '', isGenerated: false },
+    { id: 'wl13', name: 'Inscripciones Cerradas', momentText: 'Final', pilarType: 'Cierre de Carrito', purpose: 'Informar que el tiempo y los cupos se agotaron.', objective: 'Mantener la integridad de la oferta.', content: '', isGenerated: false },
+    { id: 'wl14', name: 'Bienvenida', momentText: 'Bienvenida', pilarType: 'Onboarding', purpose: 'Dar la bienvenida oficial a la nueva comunidad de alumnos.', objective: 'Bienvenida a las nuevas alumnas.', content: '', isGenerated: false }
 ];
 
 // Obtener todos los lanzamientos del usuario
