@@ -1,6 +1,5 @@
-
 import React, { useState, useRef } from 'react';
-import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight } from 'lucide-react';
+import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const ChatSimulator: React.FC<{ messages: any[] }> = ({ messages }) => {
@@ -18,16 +17,16 @@ const ChatSimulator: React.FC<{ messages: any[] }> = ({ messages }) => {
 
     return (
         <div id="psd-chat-simulator-container" className="bg-[#0b141a] rounded-xl overflow-hidden border border-gray-800 flex flex-col h-auto font-sans text-sm shadow-xl transition-all duration-500 ease-in-out">
-            <div id="psd-chat-header" className="bg-[#202c33] p-3 flex items-center gap-3 border-b border-gray-700">
-                <div className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold">
+            <div id="psd-chat-header" className="bg-[#202c33] p-3 flex items-center gap-3 border-b border-gray-700 shrink-0">
+                <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-black font-black text-lg">
                     A
                 </div>
                 <div>
-                    <p className="text-white font-bold text-lg">Ariana Zamora</p>
-                    <p className="text-sm text-gray-400">en línea</p>
+                    <p className="text-white font-bold text-lg leading-tight">Ariana Zamora</p>
+                    <p className="text-xs text-emerald-400 font-medium">en línea</p>
                 </div>
             </div>
-            <div id="psd-chat-body" className="p-4 space-y-3 bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-opacity-10 bg-repeat">
+            <div id="psd-chat-body" className="p-4 space-y-3 bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-opacity-10 bg-repeat max-h-[400px] overflow-y-auto custom-scrollbar">
                 {messages.map((msg, i) => (
                     <div key={i} id={`psd-chat-message-${i}`} className={`flex ${msg.role === 'user' ? 'justify-start' : 'justify-end'} animate-in slide-in-from-bottom-2 fade-in duration-300`} style={{animationDelay: `${i * 150}ms`}}>
                         <div className={`max-w-[85%] p-2.5 rounded-lg shadow-sm text-lg whitespace-pre-wrap ${msg.role === 'user' ? 'bg-[#202c33] text-white rounded-tl-none' : 'bg-[#005c4b] text-[#e9edef] rounded-tr-none'}`}>
@@ -41,14 +40,16 @@ const ChatSimulator: React.FC<{ messages: any[] }> = ({ messages }) => {
                             ) : (
                                 renderWhatsAppText(msg.text)
                             )}
-                            <span className="block text-[9px] text-right opacity-60 mt-1">10:0{i} AM</span>
+                            <span className="block text-[9px] text-right opacity-60 mt-1">10:0{i} AM ✓✓</span>
                         </div>
                     </div>
                 ))}
             </div>
-            <div id="psd-chat-footer" className="p-3 bg-[#202c33] border-t border-gray-700 flex gap-2">
+            <div id="psd-chat-footer" className="p-3 bg-[#202c33] border-t border-gray-700 flex gap-2 shrink-0">
                 <div className="flex-1 bg-[#2a3942] rounded-lg h-8"></div>
-                <div className="w-8 h-8 bg-[#00a884] rounded-full"></div>
+                <div className="w-8 h-8 bg-[#00a884] rounded-full flex items-center justify-center text-white">
+                    <MessageCircle className="w-4 h-4 fill-current" />
+                </div>
             </div>
         </div>
     );
@@ -59,7 +60,6 @@ interface ProjectStrategy_WhatsAppProps {
     activeWaScript: number;
     setActiveWaScript: (idx: number) => void;
     onUpgrade: () => void;
-    // */ Actualización: Prop isLocked para el sistema de bloqueo persuasivo - 12/06/2024 11:00
     isLocked?: boolean;
     projectId?: string;
 }
@@ -243,7 +243,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
             <div id="psd-whatsapp-grid" className="grid lg:grid-cols-12 gap-8 relative">
                 
-                <div id="psd-whatsapp-list-col" className="lg:col-span-4 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col">
+                <div id="psd-whatsapp-list-col" className="lg:col-span-4 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-2xl">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50">
                             <Calendar className="w-6 h-6" />
@@ -253,7 +253,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                         </div>
                     </div>
 
-                    <div className="space-y-3 flex-1 pr-2">
+                    <div className="space-y-3 flex-1 pr-2 overflow-y-auto custom-scrollbar">
                         {currentData.map((script: any, idx: number) => {
                             return (
                                 <div 
@@ -292,7 +292,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                     </div>
                 </div>
 
-                <div id="psd-whatsapp-simulator-col" className="lg:col-span-8 bg-black/40 border border-gray-800 rounded-2xl p-6 flex flex-col relative overflow-hidden h-full">
+                <div id="psd-whatsapp-simulator-col" className="lg:col-span-8 bg-black/40 border border-gray-800 rounded-2xl p-6 flex flex-col relative overflow-hidden h-full shadow-2xl">
                     
                     <div className="relative z-10 flex flex-col gap-6 mb-6">
                         <div className="bg-green-900/10 border border-green-500/20 p-8 rounded-xl space-y-8">
@@ -310,11 +310,10 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                 </p>
                             </div>
 
-                            <div>
-                                <h5 className="text-green-400 font-bold text-2xl uppercase tracking-wider mb-2 flex items-center gap-3">
-                                    <Brain className="w-6 h-6" /> ¿Cuál es el objetivo del mensaje?
-                                </h5>
-                                <p className="text-gray-300 text-xl leading-relaxed font-light">
+                            <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4">
+                                <Info className="w-6 h-6 text-emerald-400 shrink-0" />
+                                <p className="text-gray-300 text-base leading-relaxed">
+                                    <span className="font-bold text-emerald-200 block mb-1">Propósito Estratégico:</span>
                                     {activeItem?.objective}
                                 </p>
                             </div>
@@ -349,49 +348,59 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                     </div>
 
                     {/* ÁREA DE SIMULADOR Y COPIADO CON BLOQUEO SELECTIVO */}
-                    <div className="relative flex flex-col h-full gap-6">
+                    <div className="relative flex-1 flex flex-col gap-6">
                         
-                        <div className={`flex flex-col gap-6 transition-all duration-500 ${isLocked && activeWaScript > 0 ? 'locked-blur' : ''}`}>
-                            <div className="border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
-                                <ChatSimulator messages={processedMessages} />
-                            </div>
-
-                            <div className="flex flex-col gap-3">
-                                <button 
-                                    onClick={() => handleCopy(processedMessages[0]?.text || '')}
-                                    className="w-full py-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-black text-lg shadow-lg shadow-orange-900/20 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 transform active:scale-[0.98]"
-                                >
-                                    <Copy className="w-5 h-5" /> Copiar para WhatsApp
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* OVERLAY DE BLOQUEO SOBRE EL SIMULADOR */}
+                        {/* Bloqueo Persuasivo */}
                         {isLocked && activeWaScript > 0 && (
                             <div className="absolute inset-0 z-30 flex items-center justify-center p-6">
                                 <div className="bg-[#111] border-2 border-emerald-500/30 rounded-[3rem] p-10 shadow-[0_20px_60px_rgba(16,185,129,0.3)] text-center space-y-6 animate-in zoom-in-95 duration-700 w-full max-w-md">
                                     <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20 shadow-lg">
-                                        <Lock className="w-8 h-8" />
+                                        <Lock className="w-8 h-8 text-emerald-500" />
                                     </div>
                                     <div className="space-y-2">
-                                        <h4 className="text-2xl font-black text-white leading-tight">Contenido Protegido</h4>
-                                        <p className="text-gray-400 text-base leading-relaxed font-medium">
-                                            Debes activar el generador inteligente para ver el guión persuasivo de este momento.
-                                        </p>
+                                        <h4 className="text-2xl font-bold text-white mb-2">Mensaje bloqueado</h4>
+                                        <p className="text-gray-400 text-sm mb-6">Para desbloquear los 14 mensajes del lanzamiento meteórico debes completar tu estrategia.</p>
                                     </div>
                                     <button 
                                         onClick={() => navigate(`/dashboard/whatsapp-launch/create?projectId=${projectId}`)}
-                                        className="w-full py-5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg shadow-xl shadow-emerald-900/30 flex items-center justify-center gap-3 transition-all hover:scale-[1.03] active:scale-95 group"
+                                        className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2 transform active:scale-[0.98] group"
                                     >
-                                        <Wand2 className="w-6 h-6 group-hover:rotate-12 transition-transform" /> 
-                                        Generar Secuencia
+                                        <Wand2 className="w-4 h-4 group-hover:rotate-12 transition-transform" /> 
+                                        Generar Lanzamiento Completo
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     </button>
                                 </div>
                             </div>
                         )}
+
+                        <div className={`flex-1 flex flex-col gap-6 transition-all duration-500 ${isLocked && activeWaScript > 0 ? 'locked-blur' : ''}`}>
+                            <div className="border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
+                                <ChatSimulator messages={processedMessages} />
+                            </div>
+
+                            <div className="flex gap-4">
+                                <button 
+                                    onClick={() => handleCopy(processedMessages[0]?.text || '')}
+                                    className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-lg shadow-lg shadow-emerald-900/20 hover:scale-[1.01] transition-all flex items-center justify-center gap-2 transform active:scale-[0.98]"
+                                >
+                                    <Copy className="w-5 h-5" /> Copiar Mensaje
+                                </button>
+                                <button 
+                                    onClick={() => navigate(`/dashboard/whatsapp-launch/editor/${projectId}`)}
+                                    className="p-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl transition-all"
+                                    title="Editar Script"
+                                >
+                                    <PenTool className="w-6 h-6" />
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
+            
+            {/* FOOTER INFORMATIVO */}
+            <div className="max-w-[70em] mx-auto text-center pt-12 border-t border-white/5 opacity-40">
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500">Sistema de Lanzamiento WhatsApp v2.9 — Motor Meteórico</p>
             </div>
         </div>
     );

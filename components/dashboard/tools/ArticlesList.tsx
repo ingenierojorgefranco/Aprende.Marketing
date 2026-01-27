@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Article, User } from '../../../types';
-import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus, Briefcase } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { UpgradeModal } from '../UpgradeModal';
@@ -222,7 +222,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                         </div>
                         {article.status === 'scheduled' && (
                             <span className="text-[10px] text-orange-400 bg-orange-900/20 px-2 py-1 rounded border border-orange-900/30 font-black uppercase tracking-widest flex items-center gap-1">
-                                <Clock className="w-3 h-3" /> Prog.
+                                <Clock className="w-3 h-3" /> Para hoy
                             </span>
                         )}
                         {article.status === 'published' && (
@@ -246,18 +246,33 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                     
                     <div className="space-y-4 mt-auto pt-6 border-t border-white/5">
                         {article.pageId ? (
-                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
-                                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
-                                    <Globe className="w-3.5 h-3.5" />
+                            <div className="flex flex-col gap-3">
+                                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
+                                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                        <Briefcase className="w-3.5 h-3.5" />
+                                    </div>
+                                    <a 
+                                        href="/dashboard/projects"
+                                        target="_blank"
+                                        rel="noopener noreferrer" 
+                                        className="hover:text-[#FF5A1F] transition-colors"
+                                    >
+                                        Proyecto: {article.pageName || "General"}
+                                    </a>
                                 </div>
-                                <a 
-                                    href={landingUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer" 
-                                    className="hover:text-[#FF5A1F] transition-colors"
-                                >
-                                    Proyecto: {article.pageName || "Landing Page"}
-                                </a>
+                                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
+                                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                        <Globe className="w-3.5 h-3.5" />
+                                    </div>
+                                    <a 
+                                        href={landingUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer" 
+                                        className="hover:text-[#FF5A1F] transition-colors"
+                                    >
+                                        LandingPage: {article.pageName || "Landing Page"}
+                                    </a>
+                                </div>
                             </div>
                         ) : (
                             <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-600">

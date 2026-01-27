@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Lead, EmailSequence } from '../../../types';
 import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye, Trash2 } from 'lucide-react';
 import { api } from '../../../services/api';
 /* */ /* Actualización: Importación de useNavigate para manejar redirección - 24/06/2024 15:15 */
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 /* Fin de actualización - 24/06/2024 15:15 */
 
 export const EmailMarketing: React.FC = () => {
@@ -282,9 +281,13 @@ export const EmailMarketing: React.FC = () => {
                             <div key={seq.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 p-8 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col shadow-2xl relative overflow-hidden">
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="flex-1">
-                                        <h3 className="text-2xl font-black text-white group-hover:text-[#FF5A1F] transition-colors leading-tight mb-2">
-                                            {seq.projectName}
-                                        </h3>
+                                        <Link 
+                                            to={`/dashboard/projects/${seq.projectId}/strategy`}
+                                            target="_blank"
+                                            className="text-2xl font-black text-white hover:text-[#FF5A1F] transition-colors leading-tight mb-2 block"
+                                        >
+                                            Proyecto: {seq.projectName}
+                                        </Link>
                                         <div className="flex flex-col gap-2">
                                             <div className="flex items-center gap-3">
                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${seq.status === 'activa' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>

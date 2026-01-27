@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useNavigate, useParams, useOutletContext, useSearchParams } from 'react-router-dom';
 import { 
@@ -34,6 +33,24 @@ import { LandingPage, User, Plan, EmailSequence, Article } from '../../../types'
 const iconMap: any = {
     BookOpen, Sparkles, Users, MessageCircle, Target
 };
+
+// Estructura estática de los 14 momentos para visualización persuasiva
+const WHATSAPP_LAUNCH_MOMENTS = [
+    { id: 'wl1', name: 'Confirmación de Fecha', momentText: 'Día -7', objective: 'Generar expectativa y agendar al lead.', pilarType: 'Expectativa' },
+    { id: 'wl2', name: 'Historia de Autoridad', momentText: 'Día -5', objective: 'Crear conexión emocional con la experta.', pilarType: 'Autoridad' },
+    { id: 'wl3', name: 'Temario y Promesa', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Valor / Curiosidad' },
+    { id: 'wl4', name: 'Adelanto (3 Errores)', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Valor Preventivo' },
+    { id: 'wl5', name: '¡Hoy es el gran día!', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Urgencia Matutina' },
+    { id: 'wl6', name: 'Cuenta Regresiva (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Preparación' },
+    { id: 'wl7', name: '¡Estamos en Vivo!', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acción Inmediata' },
+    { id: 'wl8', name: 'Oferta Abierta', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Lanzamiento' },
+    { id: 'wl9', name: 'Bonos de Acción Rápida', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Escasez de Bonus' },
+    { id: 'wl10', name: 'Tutorial de Pago', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Facilitación' },
+    { id: 'wl11', name: 'Certificado y Garantía', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Seguridad' },
+    { id: 'wl12', name: 'Últimos Cupos', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Escasez Final' },
+    { id: 'wl13', name: 'Inscripciones Cerradas', momentText: 'Final', objective: 'Mantener la integridad de la oferta.', pilarType: 'Cierre de Carrito' },
+    { id: 'wl14', name: 'Bienvenida', momentText: 'Bienvenida', objective: 'Bienvenida a las nuevas alumnas.', pilarType: 'Onboarding' }
+];
 
 interface DashboardContext {
     user: User;
@@ -147,14 +164,28 @@ export const ProjectStrategyDashboard: React.FC = () => {
             }
 
             // Lógica de prioridad para WhatsApp Launch: DB > Strategy JSON
+            // Se rellena siempre hasta 14 para mantener la visualización persuasiva
+            let final14 = WHATSAPP_LAUNCH_MOMENTS.map(moment => ({ ...moment, content: '', isGenerated: false }));
+
             if (waLaunchDb && waLaunchDb.messages) {
-                setResolvedWhatsAppLaunch(waLaunchDb.messages);
-                // Si existe en DB y tiene al menos un mensaje generado real, desbloqueamos
-                const hasGeneratedMessages = waLaunchDb.messages.some((m: any) => m.isGenerated && m.content && m.content.trim() !== '');
-                setIsLaunchLocked(!hasGeneratedMessages);
-            } else if (strategy && strategy.modules && strategy.modules.whatsappLaunch) {
-                setResolvedWhatsAppLaunch(strategy.modules.whatsappLaunch);
-                // Si solo viene del JSON inicial de la estrategia, marcamos como bloqueado para invitar a generarlo en DB
+                // Si existe en DB, mezclamos sus mensajes reales con la estructura de 14
+                const dbMessages = waLaunchDb.messages;
+                final14 = final14.map(moment => {
+                    const match = dbMessages.find((m: any) => m.id === moment.id);
+                    return match ? { ...moment, ...match } : moment;
+                });
+                
+                setResolvedWhatsAppLaunch(final14);
+                // Si al menos un mensaje (fuera del primero) está generado, desbloqueamos la vista
+                const hasGeneratedRest = dbMessages.some((m: any) => m.id !== 'wl1' && m.isGenerated);
+                setIsLaunchLocked(!hasGeneratedRest);
+            } else {
+                // Si no hay en DB, usamos el primero de la estrategia (si existe) y bloqueamos el resto
+                if (strategy && strategy.modules && strategy.modules.whatsappLaunch && strategy.modules.whatsappLaunch.length > 0) {
+                    const firstStrategyMsg = strategy.modules.whatsappLaunch[0];
+                    final14[0] = { ...final14[0], ...firstStrategyMsg, isGenerated: true };
+                }
+                setResolvedWhatsAppLaunch(final14);
                 setIsLaunchLocked(true);
             }
 

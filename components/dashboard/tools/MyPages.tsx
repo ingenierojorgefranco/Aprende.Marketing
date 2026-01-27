@@ -224,9 +224,10 @@ export const MyPages: React.FC = () => {
                                                 <Briefcase className="w-4 h-4 text-gray-500" />
                                                 <Link 
                                                     to={page.projectId ? `/dashboard/projects/${page.projectId}/strategy` : "/dashboard/projects"}
+                                                    target="_blank"
                                                     className="text-base font-medium text-gray-400 truncate hover:text-[#FF5A1F] transition-colors"
                                                 >
-                                                    {page.projectName || 'Sin Proyecto'}
+                                                    Proyecto: {page.projectName || 'Sin Proyecto'}
                                                 </Link>
                                             </div>
                                         </div>
