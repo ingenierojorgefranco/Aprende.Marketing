@@ -1,9 +1,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, DestinationType, ThankYouPageConfig } from '../../../types';
+import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, DestinationType, ThankYouPageConfig, Project } from '../../../types';
 import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift, AlertTriangle, Book, ShoppingBag, XCircle } from 'lucide-react';
 import { LivePage } from '../../LivePage';
 import { useLocation } from 'react-router-dom';
+import { api } from '../../../services/api';
 
 // --- UI COMPONENTS EXTRACTED ---
 
@@ -208,6 +209,9 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const [content, setContent] = useState<GeneratedPageContent>(initialContent);
   const [pageName, setPageName] = useState(page.name);
   const [niche, setNiche] = useState(page.niche);
+  const [subdomain, setSubdomain] = useState(page.subdomain);
+  const [linkedProjectId, setLinkedProjectId] = useState(page.projectId || '');
+  const [userProjects, setUserProjects] = useState<Project[]>([]);
   
   const location = useLocation();
   const getInitialTab = () => {
@@ -227,6 +231,11 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? null : section);
   };
+
+  // Carga de proyectos disponibles
+  useEffect(() => {
+    api.getProjects().then(setUserProjects).catch(err => console.error("Error cargando proyectos", err));
+  }, []);
 
   // URL calculation
   const baseSlug = page.subdomain ? page.subdomain.split('.')[0] : page.id;
@@ -434,7 +443,9 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       name: pageName,
       niche: niche,
       content,
-      isPublished: publishState
+      isPublished: publishState,
+      subdomain: subdomain,
+      projectId: linkedProjectId || undefined
     });
     
     setSaving(false);
@@ -630,7 +641,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                 <RichTextArea value={content.hero.headline} onChange={(e) => updateNestedField('hero', 'headline', e.target.value)} />
                             </div>
 
-                            {/* 3. Subheadline */}
+                            {/* 3. Subtítulo Persuasivo */}
                             <div>
                                 <Label>3. Subtítulo Persuasivo</Label>
                                 <RichTextArea value={content.hero.subheadline} onChange={(e) => updateNestedField('hero', 'subheadline', e.target.value)} />
@@ -986,7 +997,46 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                   {/* === TAB: SETTINGS === */}
                   {activeTab === 'settings' && (
                       <div className="space-y-6 animate-in slide-in-from-left-2 duration-200 p-2">
-                           <div className="bg-black p-4 rounded-xl border border-gray-800"><h3 className="text-white font-bold mb-4 flex items-center gap-2"><Settings className="w-4 h-4 text-primary" /> General</h3><div className="space-y-4"><div><Label>Nombre del Proyecto</Label><Input value={pageName} onChange={(e) => setPageName(e.target.value)} /></div><div><Label>Nicho</Label><Input value={niche} onChange={(e) => setNiche(e.target.value)} /></div><div><Label>Audiencia Objetivo</Label><Input value={content.targetAudience || ''} onChange={(e) => setContent({...content, targetAudience: e.target.value})} /></div></div></div>
+                           <div className="bg-black p-4 rounded-xl border border-gray-800">
+                               <h3 className="text-white font-bold mb-4 flex items-center gap-2"><Settings className="w-4 h-4 text-primary" /> General</h3>
+                               <div className="space-y-4">
+                                   <div><Label>Nombre de la Página</Label><Input value={pageName} onChange={(e) => setPageName(e.target.value)} /></div>
+                                   <div><Label>Nicho</Label><Input value={niche} onChange={(e) => setNiche(e.target.value)} /></div>
+                                   <div><Label>Audiencia Objetivo</Label><Input value={content.targetAudience || ''} onChange={(e) => setContent({...content, targetAudience: e.target.value})} /></div>
+                                   
+                                   {/* Vinculación de Proyecto */}
+                                   <div className="pt-2">
+                                       <Label>Proyecto Vinculado</Label>
+                                       <select 
+                                           value={linkedProjectId} 
+                                           onChange={(e) => setLinkedProjectId(e.target.value)}
+                                           className="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:border-primary outline-none transition appearance-none cursor-pointer"
+                                       >
+                                           <option value="">-- Sin Vincular --</option>
+                                           {userProjects.map(p => (
+                                               <option key={p.id} value={p.id}>{p.name}</option>
+                                           ))}
+                                       </select>
+                                   </div>
+
+                                   {/* Edición de Subdominio/Slug */}
+                                   <div className="pt-2">
+                                       <Label>Slug de la página (Subdominio)</Label>
+                                       <div className="relative group">
+                                           <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                                           <Input 
+                                               value={subdomain} 
+                                               onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))}
+                                               className="pl-10"
+                                               placeholder="ej: mi-landing-increible"
+                                           />
+                                       </div>
+                                       <p className="text-[10px] text-gray-500 mt-2 italic px-1">
+                                           * Tu URL final será: <span className="text-primary font-bold">{subdomain}.generatorlanding.com</span>
+                                       </p>
+                                   </div>
+                               </div>
+                           </div>
                            <div className="bg-black p-4 rounded-xl border border-gray-800"><h3 className="text-white font-bold mb-4 flex items-center gap-2"><Target className="w-4 h-4 text-primary" /> Destino (CTA)</h3><div className="flex flex-wrap gap-2 mb-4"><button onClick={() => updateDestination('type', 'form')} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition ${content.destination?.type === 'form' ? 'bg-primary text-white border-primary' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}><FileText className="w-3 h-3" /> Form</button><button onClick={() => updateDestination('type', 'whatsapp')} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition ${content.destination?.type === 'whatsapp' ? 'bg-green-600 text-white border-green-600' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}><MessageCircle className="w-3 h-3" /> WhatsApp</button><button onClick={() => updateDestination('type', 'external_url')} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition ${content.destination?.type === 'external_url' ? 'bg-purple-600 text-white border-purple-600' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}><LinkIcon className="w-3 h-3" /> Link</button></div><div className="space-y-4 border-t border-gray-800 pt-4">{content.destination?.type === 'whatsapp' && (<><div><Label>Número WhatsApp</Label><Input value={content.destination.whatsappPhone || ''} onChange={(e) => updateDestination('whatsappPhone', e.target.value)} placeholder="+57 300 123 4567" /></div><div><Label>Mensaje Inicial</Label><Input value={content.destination.whatsappMessage || ''} onChange={(e) => updateDestination('whatsappMessage', e.target.value)} placeholder="Hola..." /></div></>)}{content.destination?.type === 'external_url' && (<div><Label>URL de Destino</Label><Input value={content.destination.url || ''} onChange={(e) => updateDestination('url', e.target.value)} placeholder="https://..." /></div>)}{content.destination?.type === 'form' && (<div className="text-xs text-gray-500 bg-gray-900 p-3 rounded border border-gray-800 italic">* Se capturarán leads en el CRM.</div>)}</div></div>
                       </div>
                   )}

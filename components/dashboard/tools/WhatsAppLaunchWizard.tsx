@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { 
     Smartphone, Briefcase, ChevronRight, ArrowLeft, 
     Zap, Loader2, Sparkles, Wand2, Copy, 
@@ -12,6 +11,7 @@ import { Project, User, WhatsAppLaunch, WhatsAppLaunchMessage } from '../../../t
 export const WhatsAppLaunchWizard: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const { launchId } = useParams() as { launchId?: string };
     const urlProjectId = searchParams.get('projectId');
     
     const [step, setStep] = useState(0); // 0: Select Project, 1: Edit
@@ -24,14 +24,35 @@ export const WhatsAppLaunchWizard: React.FC = () => {
     const [saveIndicator, setSaveIndicator] = useState(false);
 
     useEffect(() => {
-        const loadProjects = async () => {
+        const loadInitialData = async () => {
             setLoading(true);
             try {
-                const data = await api.getProjects();
-                setProjects(data);
+                const projectsData = await api.getProjects();
+                setProjects(projectsData);
+
+                // Si viene un launchId directo (EDICIÓN DESDE MANAGER)
+                if (launchId) {
+                    const allLaunches = await api.getWhatsAppLaunches();
+                    const currentLaunch = allLaunches.find(l => l.id === launchId);
+                    
+                    if (currentLaunch) {
+                        const proj = projectsData.find(p => p.id === currentLaunch.projectId);
+                        if (proj) setSelectedProject(proj);
+                        
+                        setActiveLaunch(currentLaunch);
+                        setStep(1);
+                        setLoading(false);
+                        return;
+                    }
+                }
+
+                // Si viene de un proyecto específico (CREACIÓN DESDE PROYECTO)
                 if (urlProjectId) {
-                    const proj = data.find(p => p.id === urlProjectId);
-                    if (proj) handleProjectSelect(proj);
+                    const proj = projectsData.find(p => p.id === urlProjectId);
+                    if (proj) {
+                        handleProjectSelect(proj);
+                        return;
+                    }
                 }
             } catch (e) {
                 console.error(e);
@@ -39,8 +60,8 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                 setLoading(false);
             }
         };
-        loadProjects();
-    }, [urlProjectId]);
+        loadInitialData();
+    }, [launchId, urlProjectId]);
 
     const handleProjectSelect = async (project: Project) => {
         setSelectedProject(project);
@@ -136,10 +157,10 @@ export const WhatsAppLaunchWizard: React.FC = () => {
             <div className="bg-emerald-500/10 p-8 text-center border-b border-emerald-500/10 shrink-0 relative">
                 {step > 0 && (
                     <button 
-                        onClick={() => { setStep(0); setSelectedProject(null); setActiveLaunch(null); }}
+                        onClick={() => { setStep(0); setSelectedProject(null); setActiveLaunch(null); navigate('/dashboard/whatsapp-launch'); }}
                         className="absolute left-8 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-800 text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/5 group"
                     >
-                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Cambiar Proyecto
+                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver
                     </button>
                 )}
                 
@@ -245,7 +266,7 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                                     <button 
                                         onClick={handleCopy}
                                         disabled={!activeLaunch.messages[activeMsgIdx]?.content}
-                                        className="px-10 py-4 bg-white/5 border border-white/10 hover:bg-emerald-500 hover:text-black rounded-xl text-white font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 disabled:opacity-30"
+                                        className="px-10 py-4 bg-white/5 border border-white/10 hover:bg-emerald-500 hover:text-black rounded-xl text-white font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-30"
                                     >
                                         <Copy className="w-4 h-4" /> Copiar para WhatsApp
                                     </button>

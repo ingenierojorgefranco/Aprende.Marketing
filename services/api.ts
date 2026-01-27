@@ -469,7 +469,8 @@ export const api = {
             niche: page.niche,
             content: page.content,
             isPublished: page.isPublished,
-            projectId: page.projectId
+            projectId: page.projectId,
+            subdomain: page.subdomain
         })
     });
     clearCache('pages');
@@ -742,7 +743,7 @@ export const api = {
         if (isMockMode) return Promise.resolve([...localArticles]);
         if (apiCache.articles) return apiCache.articles;
 
-        const articles = await fetchWithFallback('/articles', { headers: getAuthHeaders() });
+        const articles = await fetchWithFallback('/articles', { method: 'GET', headers: getAuthHeaders() });
         const mapped = articles.map((a: any) => ({
             id: a.id.toString(),
             pageId: a.page_id ? a.page_id.toString() : undefined,
@@ -1151,8 +1152,8 @@ export const api = {
     getPublicPlans: async (): Promise<Plan[]> => {
         if (isMockMode) {
             return Promise.resolve([
-                { id: 'starter', name: 'Starter', slug: 'starter', description: '...', priceMonthly: 0, currency: 'EUR', limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, maxDomains: 1, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } }, uiFeatures: ['...'], isActive: true, isRecommended: false },
-                { id: 'pro', name: 'Pro', slug: 'pro', description: '...', priceMonthly: 19.99, currency: 'EUR', limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, maxDomains: 3, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } }, uiFeatures: ['...'], isActive: true, isRecommended: true }
+                { id: 'starter', name: 'Starter', slug: 'starter', description: '...', priceMonthly: 0, currency: 'EUR', limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, maxArticles: 2, maxDomains: 1, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } }, uiFeatures: ['...'], isActive: true, isRecommended: false },
+                { id: 'pro', name: 'Pro', slug: 'pro', description: '...', priceMonthly: 19.99, currency: 'EUR', limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, maxArticles: 20, maxDomains: 3, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } }, uiFeatures: ['...'], isActive: true, isRecommended: true }
             ]);
         }
         if (apiCache.publicPlans) return apiCache.publicPlans;

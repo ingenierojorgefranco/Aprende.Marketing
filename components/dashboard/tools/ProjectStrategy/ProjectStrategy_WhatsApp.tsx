@@ -240,7 +240,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                         </div>
                     </div>
 
-                    <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-2 max-h-[1000px]">
+                    <div className="space-y-3 flex-1 pr-2">
                         {currentData.map((script: any, idx: number) => (
                             <div 
                                 key={script.id} 
@@ -279,23 +279,26 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
                 <div id="psd-whatsapp-simulator-col" className="lg:col-span-8 bg-black/40 border border-gray-800 rounded-2xl p-6 flex flex-col relative overflow-hidden h-full">
                     <div className="relative z-10 flex flex-col h-full gap-6">
-                        {/* Cabecera de Identificación del Mensaje en el Simulador */}
-                        <div className="flex items-center gap-3 mb-2 border-b border-white/5 pb-6">
-                            <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-lg shadow-blue-500/20">
-                                {activeWaScript + 1}
+                        <div className="bg-green-900/10 border border-green-500/20 p-8 rounded-xl space-y-8">
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-6 h-6 rounded-full bg-green-500 text-black flex items-center justify-center text-[10px] font-black shrink-0">
+                                        {activeWaScript + 1}
+                                    </div>
+                                    <h5 className="text-green-400 font-bold text-2xl uppercase tracking-wider">
+                                        Mensaje {activeWaScript + 1}
+                                    </h5>
+                                </div>
+                                <p className="text-gray-300 text-xl leading-relaxed font-light">
+                                    {getMessageDisplayName(activeWaScript, activeItem.name || activeItem.title)}
+                                </p>
                             </div>
-                            <div>
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 block mb-1">Mensaje {activeWaScript + 1}</span>
-                                <h4 className="text-xl font-bold text-white leading-tight">{getMessageDisplayName(activeWaScript, activeItem.name || activeItem.title)}</h4>
-                            </div>
-                        </div>
 
-                        <div className="bg-green-900/10 border border-green-500/20 p-6 rounded-xl space-y-6">
                             <div>
                                 <h5 className="text-green-400 font-bold text-2xl uppercase tracking-wider mb-2 flex items-center gap-3">
                                     <Brain className="w-6 h-6" /> ¿Cuál es el objetivo del mensaje?
                                 </h5>
-                                <p className="text-gray-300 text-xl leading-relaxed">
+                                <p className="text-gray-300 text-xl leading-relaxed font-light">
                                     {activeItem?.objective}
                                 </p>
                             </div>

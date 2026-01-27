@@ -1,3 +1,4 @@
+
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
@@ -144,7 +145,7 @@ router.post('/pages', authMiddleware, async (req, res) => {
 });
 
 router.put('/pages/:id', authMiddleware, async (req, res) => {
-  const { content, isPublished, name, niche, projectId } = req.body;
+  const { content, isPublished, name, niche, projectId, subdomain } = req.body;
   try {
     const [check] = await pool.query('SELECT id FROM landing_pages WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
     if (check.length === 0) return res.status(403).json({ error: 'No autorizado' });
@@ -153,8 +154,8 @@ router.put('/pages/:id', authMiddleware, async (req, res) => {
     if (tyPage) { delete content.thankYouPage; }
 
     await pool.query(
-      'UPDATE landing_pages SET content = ?, thankyoupage_json = ?, is_published = ?, name = COALESCE(?, name), niche = COALESCE(?, niche), project_id = COALESCE(?, project_id) WHERE id = ?',
-      [JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null, isPublished, name, niche, projectId !== undefined ? projectId : null, req.params.id]
+      'UPDATE landing_pages SET content = ?, thankyoupage_json = ?, is_published = ?, name = COALESCE(?, name), niche = COALESCE(?, niche), project_id = COALESCE(?, project_id), subdomain = COALESCE(?, subdomain) WHERE id = ?',
+      [JSON.stringify(content), tyPage ? JSON.stringify(tyPage) : null, isPublished, name, niche, projectId !== undefined ? projectId : null, subdomain, req.params.id]
     );
     res.json({ message: 'Actualizado' });
   } catch (e) { res.status(500).json({ error: e.message }); }

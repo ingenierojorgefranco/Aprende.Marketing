@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WhatsAppLaunch } from '../../../types';
 import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers } from 'lucide-react';
@@ -131,7 +130,7 @@ export const WhatsAppLaunchManager: React.FC = () => {
 
                                 <div className="flex flex-col gap-3 mt-10">
                                     <button 
-                                        onClick={() => navigate(`/dashboard/whatsapp-launch/create?projectId=${launch.projectId}`)}
+                                        onClick={() => navigate(`/dashboard/whatsapp-launch/editor/${launch.id}`)}
                                         className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg"
                                     >
                                         <Edit3 className="w-5 h-5" /> Gestionar Mensajes

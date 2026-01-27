@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Routes,
@@ -378,6 +377,7 @@ const App: React.FC = () => {
           {/* ////////// Actualización: Registro de rutas para WhatsApp Lanzamientos - 10/06/2025 10:00 ////////// */}
           <Route path="whatsapp-launch" element={<WhatsAppLaunchManager />} />
           <Route path="whatsapp-launch/create" element={<WhatsAppLaunchWizard />} />
+          <Route path="whatsapp-launch/editor/:launchId" element={<WhatsAppLaunchWizard />} />
           {/* ////////// Fin de actualización - 10/06/2025 10:00 ////////// */}
 
           {/* ////////// Actualización de ruta CopySell Pro para usar el nuevo componente - 18/06/2024 10:40 ////////// */}
