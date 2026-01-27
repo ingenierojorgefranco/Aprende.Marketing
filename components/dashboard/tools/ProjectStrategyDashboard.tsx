@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useNavigate, useParams, useOutletContext, useSearchParams } from 'react-router-dom';
 import { 
@@ -58,6 +59,9 @@ export const ProjectStrategyDashboard: React.FC = () => {
     
     // Nuevo estado para los mensajes de WhatsApp resueltos (Estrategia vs DB)
     const [resolvedWhatsAppLaunch, setResolvedWhatsAppLaunch] = useState<any[]>([]);
+    
+    // */ Actualización: Estado para controlar el bloqueo persuasivo de la secuencia de WhatsApp - 12/06/2024 11:00
+    const [isLaunchLocked, setIsLaunchLocked] = useState(true);
     
     // */ Actualización: Sincronización de la sección activa con el parámetro de URL ?section= - 24/05/2024 20:20
     const [searchParams, setSearchParams] = useSearchParams();
@@ -145,8 +149,13 @@ export const ProjectStrategyDashboard: React.FC = () => {
             // Lógica de prioridad para WhatsApp Launch: DB > Strategy JSON
             if (waLaunchDb && waLaunchDb.messages) {
                 setResolvedWhatsAppLaunch(waLaunchDb.messages);
+                // Si existe en DB y tiene al menos un mensaje generado real, desbloqueamos
+                const hasGeneratedMessages = waLaunchDb.messages.some((m: any) => m.isGenerated && m.content && m.content.trim() !== '');
+                setIsLaunchLocked(!hasGeneratedMessages);
             } else if (strategy && strategy.modules && strategy.modules.whatsappLaunch) {
                 setResolvedWhatsAppLaunch(strategy.modules.whatsappLaunch);
+                // Si solo viene del JSON inicial de la estrategia, marcamos como bloqueado para invitar a generarlo en DB
+                setIsLaunchLocked(true);
             }
 
             const projectPages = Array.isArray(pages) ? pages.filter(p => String(p.projectId) === String(id) || (strategy && p.name === strategy.meta?.projectName)) : [];
@@ -522,6 +531,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                     activeWaScript={activeWaScript}
                                     setActiveWaScript={setActiveWaScript}
                                     onUpgrade={() => setShowUpgradeModal(true)}
+                                    isLocked={isLaunchLocked}
+                                    projectId={id}
                                 />
                             </div>
                         )}

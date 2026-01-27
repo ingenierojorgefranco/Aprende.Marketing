@@ -234,19 +234,7 @@ const generateFullStrategy = async (projectId) => {
         Genera una secuencia completa de 3 mensajes para un lanzamiento de WhatsApp Flow / Meteórico. Cada mensaje debe ser persuasivo, usar emojis y formato negrita de WhatsApp.
         Los 3 momentos son:
         1. wl1: Confirmación de Fecha (Día -7).
-        2. wl2: Historia de Autoridad (Día -5).
-        3. wl3: Temario y Promesa (Día -3).
-        4. wl4: Adelanto (3 Errores) (Día -1).
-        5. wl5: ¡Hoy es el gran día! (Día Clase AM).
-        6. wl6: Cuenta Regresiva (T-4h) (Día Clase PM).
-        7. wl7: ¡Estamos en Vivo! (Día Clase Link).
-        8. wl8: Oferta Abierta (Beca 75%) (Post-Clase).
-        9. wl9: Bonos de Acción Rápida (Urgencia 1).
-        10. wl10: Tutorial de Pago (Soporte).
-        11. wl11: Certificado y Garantía (Garantía).
-        12. wl12: Últimos Cupos / Apertura Grupo (Cierre).
-        13. wl13: Inscripciones Cerradas (Final).
-        14. wl14: Bienvenida y Próximos Pasos (Bienvenida).
+
 
 
 
@@ -666,97 +654,6 @@ const generateFullStrategy = async (projectId) => {
           "moment": "Día -7",
           "objective": "Generar expectativa y agendar al lead.",
           "messages": [{"role": "agent", "text": "¡Hola! 🎉 Soy el encargado de tu formación. Solo paso para confirmarte que ya tenemos fecha oficial para nuestra clase maestra de **[PRODUCT_NAME]**. Será el próximo domingo. ¿Ya lo anotaste en tu calendario?"}]
-        },
-        {
-          "id": "wl2",
-          "name": "Historia de Autoridad",
-          "moment": "Día -5",
-          "objective": "Crear conexión emocional con la experta.",
-          "messages": [{"role": "agent", "text": "Mucha gente me pregunta por qué hago esto... 🧐 La verdad es que hace unos años yo estaba igual que tú: con muchas ganas pero sin un método claro. Todo cambió cuando entendí que en **[NICHE]** no gana el que más trabaja, sino el que tiene la mejor estrategia."}]
-        },
-        {
-          "id": "wl3",
-          "name": "Temario y Promesa",
-          "moment": "Día -3",
-          "objective": "Elevar el valor percibido de la clase.",
-          "messages": [{"role": "agent", "text": "¡Atención! 🚀 Este es el mapa de lo que aprenderás en la clase gratuita: \n1. Cómo identificar tu mercado. \n2. El error #1 que te hace perder dinero. \n3. El sistema para automatizar tus ventas. \nNo es una clase más, es un **plan de acción**."}]
-        },
-        {
-          "id": "wl4",
-          "name": "Adelanto (3 Errores)",
-          "moment": "Día -1",
-          "objective": "Entregar valor previo para generar compromiso.",
-          "messages": [{"role": "agent", "text": "⚠️ Solo por estar en este grupo, te adelanto esto: La mayoría falla por estas 3 razones: \n1️⃣ Falta de constancia. \n2️⃣ No conocer a su avatar. \n3️⃣ Miedo a la tecnología. \nMañana en la clase te diré cómo eliminar estos bloqueos para siempre."}]
-        },
-        {
-          "id": "wl5",
-          "name": "¡Hoy es el gran día!",
-          "moment": "Día Clase (AM)",
-          "objective": "Recordatorio matutino.",
-          "messages": [{"role": "agent", "text": "🔥 ¡LLEGÓ EL DÍA! Hoy a las 8:00 PM (hora local) nos vemos en vivo. Prepara lápiz y papel porque la información que voy a soltar no se repetirá. ¡Nos vemos en unas horas!"}]
-        },
-        {
-          "id": "wl6",
-          "name": "Cuenta Regresiva (T-4h)",
-          "moment": "Día Clase (PM)",
-          "objective": "Instrucciones de preparación.",
-          "messages": [{"role": "agent", "text": "⏳ Faltan solo 4 horas. Asegúrate de tener buena conexión a internet y estar en un lugar tranquilo. ¿Lista para dar el siguiente paso?"}]
-        },
-        {
-          "id": "wl7",
-          "name": "¡Estamos en Vivo!",
-          "moment": "Día Clase (Link)",
-          "objective": "Acceso directo a YouTube.",
-          "messages": [{"role": "agent", "text": "🔴 **ESTAMOS EN VIVO**. No esperes más, entra ahora por este link exclusivo para el grupo: [LINK_CLASE]. ¡Te espero dentro!"}]
-        },
-        {
-          "id": "wl8",
-          "name": "Oferta Abierta (Beca 75%)",
-          "moment": "Post-Clase",
-          "objective": "Apertura de inscripciones.",
-          "messages": [{"role": "agent", "text": "¡Increíble la clase de hoy! 🎉 Como les prometí, las inscripciones para **[PRODUCT_NAME]** están abiertas con una **Beca del 75%** de descuento. Solo para las primeras personas que tomen acción ahora mismo."}]
-        },
-        {
-          "id": "wl9",
-          "name": "Bonos de Acción Rápida",
-          "moment": "Urgencia 1",
-          "objective": "Presión por los regalos exclusivos.",
-          "messages": [{"role": "agent", "text": "¡Atención! 🎁 Los bonos de acción rápida (Asesoría VIP y el Pack Premium) están volando. Si quieres asegurarlos, debes inscribirte antes de medianoche."}]
-        },
-        {
-          "id": "wl10",
-          "name": "Tutorial de Pago",
-          "moment": "Soporte",
-          "objective": "Eliminar fricción técnica en el checkout.",
-          "messages": [{"role": "agent", "text": "He visto que algunos tienen dudas con el pago. 💳 Es muy sencillo: entras al link, eliges tu moneda y método de pago local. Aquí te dejo una captura de cómo hacerlo. ¡Cualquier duda, escríbeme!"}]
-        },
-        {
-          "id": "wl11",
-          "name": "Certificado y Garantía",
-          "moment": "Garantía",
-          "objective": "Seguridad y aval profesional.",
-          "messages": [{"role": "agent", "text": "Recuerda que tu inversión está protegida por nuestra **Garantía de 7 días**. 🛡️ Si entras y sientes que no es para ti, te devolvemos el dinero sin preguntas. Cero riesgo para ti."}]
-        },
-        {
-          "id": "wl12",
-          "name": "Últimos Cupos / Apertura Grupo",
-          "moment": "Cierre",
-          "objective": "Escasez máxima y resolución de dudas.",
-          "messages": [{"role": "agent", "text": "⚠️ **ULTIMA HORA**: Solo nos quedan 7 cupos con el precio de beca. En cuanto se llenen, el link dejará de funcionar automáticamente. ¿Vas a dejar pasar esta oportunidad?"}]
-        },
-        {
-          "id": "wl13",
-          "name": "Inscripciones Cerradas",
-          "moment": "Final",
-          "objective": "Mantener la integridad de la oferta.",
-          "messages": [{"role": "agent", "text": "🛑 Las inscripciones han cerrado oficialmente. Gracias a todos por su interés. ¡Felicidades a las nuevas alumnas, iniciamos mañana!"}]
-        },
-        {
-          "id": "wl14",
-          "name": "Bienvenida y Próximos Pasos",
-          "moment": "Bienvenida",
-          "objective": "Bienvenida a las nuevas alumnas.",
-          "messages": [{"role": "agent", "text": "¡Bienvenida a la familia! 🎉 Ya debes tener el acceso en tu correo. Entra ahora al grupo privado de alumnas para que no te pierdas la primera sesión de inducción."}]
         }
     ]
   }
