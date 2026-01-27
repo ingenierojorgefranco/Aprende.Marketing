@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useNavigate, useParams, useOutletContext, useSearchParams } from 'react-router-dom';
 import { 
@@ -57,6 +56,9 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
     const [globalDomainCount, setGlobalDomainCount] = useState(0); 
     
+    // Nuevo estado para los mensajes de WhatsApp resueltos (Estrategia vs DB)
+    const [resolvedWhatsAppLaunch, setResolvedWhatsAppLaunch] = useState<any[]>([]);
+    
     // */ Actualización: Sincronización de la sección activa con el parámetro de URL ?section= - 24/05/2024 20:20
     const [searchParams, setSearchParams] = useSearchParams();
     const activeSection = searchParams.get('section') || 'summary';
@@ -107,13 +109,14 @@ export const ProjectStrategyDashboard: React.FC = () => {
         if (!id) return;
         setLoading(true);
         try {
-            const [strategy, projectDetails, pages, plansData, sequences, articles] = await Promise.all([
+            const [strategy, projectDetails, pages, plansData, sequences, articles, waLaunchDb] = await Promise.all([
                 api.getProjectStrategy(id).catch(e => { console.error("Strategy load fail", e); return null; }),
                 api.getProjectById(id).catch(e => { console.error("Project details load fail", e); return null; }),
                 api.getPages().catch(e => { console.error("Pages load fail", e); return []; }),
                 api.getPublicPlans().catch(e => { console.error("Plans load fail", e); return []; }),
                 api.getEmailSequences().catch(e => { console.error("Sequences load fail", e); return []; }),
-                api.getArticles().catch(e => { console.error("Articles load fail", e); return []; })
+                api.getArticles().catch(e => { console.error("Articles load fail", e); return []; }),
+                api.getWhatsAppLaunchByProject(id).catch(() => null)
             ]);
 
             if (projectDetails) {
@@ -137,6 +140,13 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 setStrategyData(strategy);
             } else {
                 setStrategyData(null);
+            }
+
+            // Lógica de prioridad para WhatsApp Launch: DB > Strategy JSON
+            if (waLaunchDb && waLaunchDb.messages) {
+                setResolvedWhatsAppLaunch(waLaunchDb.messages);
+            } else if (strategy && strategy.modules && strategy.modules.whatsappLaunch) {
+                setResolvedWhatsAppLaunch(strategy.modules.whatsappLaunch);
             }
 
             const projectPages = Array.isArray(pages) ? pages.filter(p => String(p.projectId) === String(id) || (strategy && p.name === strategy.meta?.projectName)) : [];
@@ -508,7 +518,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                         {activeSection === 'whatsapp' && (
                             <div className="animate-in fade-in slide-in-from-right-4 duration-500">
                                 <ProjectStrategy_WhatsApp 
-                                    whatsappLaunch={strategyData.modules.whatsappLaunch}
+                                    whatsappLaunch={resolvedWhatsAppLaunch}
                                     activeWaScript={activeWaScript}
                                     setActiveWaScript={setActiveWaScript}
                                     onUpgrade={() => setShowUpgradeModal(true)}

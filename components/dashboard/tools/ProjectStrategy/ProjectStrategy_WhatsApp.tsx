@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon } from 'lucide-react';
 
@@ -102,17 +101,27 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const currentData = whatsappLaunch;
     const activeItem = currentData[activeWaScript] || currentData[0];
 
-    // Lógica dinámica para reemplazar fechas en el mensaje si existe el placeholder
-    const processedMessages = activeItem?.messages?.map((m: any) => {
+    // Lógica dinámica para normalizar y reemplazar fechas en el mensaje
+    let displayMessages: any[] = [];
+    if (activeItem) {
+        if (activeItem.messages && Array.isArray(activeItem.messages)) {
+            displayMessages = activeItem.messages;
+        } else if (activeItem.content) {
+            displayMessages = [{ role: 'agent', text: activeItem.content }];
+        }
+    }
+
+    const processedMessages = displayMessages.map((m: any) => {
+        let text = m.text || '';
         if (launchDate) {
             const classDate = getCalculatedDate(launchDate, 4);
-            return {
-                ...m,
-                text: m.text.replace('[FECHA_CLASE]', classDate)
-            };
+            text = text.replace('[FECHA_CLASE]', classDate);
         }
-        return m;
-    }) || [];
+        return {
+            ...m,
+            text: text
+        };
+    });
 
     const handleCopy = (text: string) => {
         navigator.clipboard.writeText(text);
