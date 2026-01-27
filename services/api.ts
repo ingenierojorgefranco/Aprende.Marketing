@@ -1,4 +1,3 @@
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES, MOCK_MASTER_STRATEGY } from "./mockData";
 import { ProjectMasterStrategy } from "./strategySchema";
@@ -534,16 +533,20 @@ export const api = {
         method: 'GET',
         headers: getAuthHeaders()
     });
-    const mapped = projects.map((p: any) => ({
-        ...p,
-        id: String(p.id),
-        painPoints: safeParseJsonList(p.pain_points),
-        keyBenefits: safeParseJsonList(p.key_benefits),
-        affiliateLinks: safeParseJsonList(p.affiliate_links),
-        strategy_json: safeJsonParse(p.strategy_json, 'proj.masterStrategy'),
-        isMaster: true,
-        createdAt: new Date(p.created_at)
-    }));
+    const mapped = projects.map((p: any) => {
+        const strategyObj = safeJsonParse(p.strategy_json, 'proj.masterStrategy');
+        return {
+            ...p,
+            id: String(p.id),
+            painPoints: safeParseJsonList(p.pain_points),
+            keyBenefits: safeParseJsonList(p.key_benefits),
+            affiliateLinks: safeParseJsonList(p.affiliate_links),
+            strategy_json: strategyObj,
+            shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
+            isMaster: true,
+            createdAt: new Date(p.created_at)
+        };
+    });
     apiCache.masterLibrary = mapped;
     return mapped;
   },
@@ -1462,7 +1465,8 @@ export const api = {
             projectId: String(l.project_id),
             projectName: l.project_name,
             createdAt: new Date(l.created_at),
-            messages: typeof l.data_json === 'string' ? JSON.parse(l.data_json) : (l.data_json || [])
+            messages: typeof l.data_json === 'string' ? JSON.parse(l.data_json) : (l.data_json || []),
+            launchDate: l.launch_date ? new Date(l.launch_date) : undefined
         }));
         apiCache.waLaunches = mapped;
         return mapped;
@@ -1478,7 +1482,8 @@ export const api = {
                 projectId: String(l.project_id),
                 projectName: l.project_name,
                 createdAt: new Date(l.created_at),
-                messages: typeof l.data_json === 'string' ? JSON.parse(l.data_json) : (l.data_json || [])
+                messages: typeof l.data_json === 'string' ? JSON.parse(l.data_json) : (l.data_json || []),
+                launchDate: l.launch_date ? new Date(l.launch_date) : undefined
             };
         } catch (e) {
             return null;
@@ -1503,6 +1508,10 @@ export const api = {
         if (payload.messages) {
             (payload as any).data_json = JSON.stringify(payload.messages);
             delete payload.messages;
+        }
+        if (payload.launchDate) {
+            (payload as any).launch_date = typeof payload.launchDate === 'string' ? payload.launchDate : (payload.launchDate as Date).toISOString().split('T')[0];
+            delete payload.launchDate;
         }
         await fetchWithFallback(`/whatsapp-launch/launches/${launchId}`, {
             method: 'PUT',

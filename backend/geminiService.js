@@ -196,6 +196,8 @@ const generateFullStrategy = async (projectId) => {
         
         const step1Prompt = `Eres un Estratega Senior de Marketing Digital. Tu misión es generar el ADN de marketing, 3 perfiles de Avatar extremadamente detallados y la psicología profunda del consumidor para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}".
 
+        Genera también un campo 'shortDescription' dentro de 'meta' que sea un resumen persuasivo de 1 a 2 frases destacando la transformación principal del producto para ser mostrado en tarjetas de interfaz.
+
         INSTRUCCIONES PARA LOS 3 AVATARES (OBLIGATORIO):
         Genera perfiles diferenciados y profundos para estos 3 tipos de cliente:
         1. AVATAR 1 (El Emprendedor Activo): Alguien con energía que busca escalar un negocio o empezar uno nuevo con decisión.
@@ -254,6 +256,7 @@ const generateFullStrategy = async (projectId) => {
         {
           "meta": {
             "projectName": "${productName}",
+            "shortDescription": "Resumen persuasivo de 1-2 frases destacando la transformación",
             "niche": "${niche}",
             "productType": "Digital Product",
             "objective": "Direct Sales",
@@ -336,7 +339,7 @@ const generateFullStrategy = async (projectId) => {
                 "Describe el sistema de acompañamiento o garantía que anula por completo el miedo al fracaso.",
                 "Explica el proceso de transformación rápida que saca al cliente de su estancamiento actual.",
                 "Propón cómo el éxito obtenido con este producto mejora el estatus o la relación familiar del cliente.",
-                "Describe por qué este método es disruptivo, escalable y superior a lo tradicional.",
+                "Describe por qué este método es disruptivo, escalable and superior a lo tradicional.",
                 "Explica la autoridad, certificación o respaldo que valida la promesa y genera confianza absoluta."
             ],
             awarenessStages: {
@@ -538,7 +541,7 @@ const generateFullStrategy = async (projectId) => {
                 bodyPreview: "Hola [Nombre], entiendo perfectamente esa sensación de darlo todo en el salón y llegar a casa sintiendo que el esfuerzo no se refleja en tu cuenta bancaria. El problema no eres tú, es el modelo..."
             },
             {
-                id: 3,
+                id: 2,
                 day: "Día 2",
                 subject: "📈 Cómo Maria pasó de 0 a $2,000/mes con cejas",
                 type: "Prueba Social",
@@ -546,7 +549,7 @@ const generateFullStrategy = async (projectId) => {
                 bodyPreview: "Hola [Nombre], hoy quiero contarte la historia de una de mis alumnas que, como tú, tenía miedo de empezar de cero. Maria aplicó el método Brows360 y en solo 4 semanas logró..."
             },
             {
-                id: 4,
+                id: 3,
                 day: "Día 3",
                 subject: "💎 La verdad sobre el Microblading (y por qué otros fallan)",
                 type: "Mecanismo Único",
@@ -554,7 +557,7 @@ const generateFullStrategy = async (projectId) => {
                 bodyPreview: "Hola [Nombre], ¿sabes por qué muchas esteticistas no logran resultados naturales? La clave está en el visajismo digital. Hoy te revelo el secreto técnico detrás de las cejas perfectas..."
             },
             {
-                id: 5,
+                id: 4,
                 day: "Día 4",
                 subject: "🚀 ¡INSCRIPCIONES ABIERTAS! Domina la Certificación Pro",
                 type: "Lanzamiento / Oferta",
@@ -562,7 +565,7 @@ const generateFullStrategy = async (projectId) => {
                 bodyPreview: "Hola [Nombre], llegó el momento que estabas esperando. Las puertas de la Certificación Expert Microblading están oficialmente abiertas. Esto es todo lo que recibirás al entrar hoy..."
             },
             {
-                id: 6,
+                id: 5,
                 day: "Día 5",
                 subject: "⏳ Tus 3 Bonos Exclusivos expiran en pocas horas...",
                 type: "Escasez / Valor",
@@ -570,7 +573,7 @@ const generateFullStrategy = async (projectId) => {
                 bodyPreview: "Hola [Nombre], no quiero que te quedes fuera de los beneficios extra. El Kit de Pigmentos Orgánicos y la Asesoría VIP solo estarán disponibles para quienes se inscriban antes de medianoche..."
             },
             {
-                id: 7,
+                id: 6,
                 day: "Día 6",
                 subject: "⚠️ ÚLTIMA LLAMADA: Tu futuro profesional empieza hoy",
                 type: "Cierre / Urgencia",

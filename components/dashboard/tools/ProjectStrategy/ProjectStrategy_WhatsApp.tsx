@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../../../../services/api';
 
 const ChatSimulator: React.FC<{ messages: any[] }> = ({ messages }) => {
     const renderWhatsAppText = (text: string) => {
@@ -69,11 +71,38 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 }) => {
     const navigate = useNavigate();
     const [launchDate, setLaunchDate] = useState<string>('');
+    const [launchId, setLaunchId] = useState<string | null>(null);
     const [sentMessages, setSentMessages] = useState<Set<number>>(new Set());
     const [imageUrls, setImageUrls] = useState<Record<number, string>>({
         0: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=800&q=80'
     });
     const dateInputRef = useRef<HTMLInputElement>(null);
+
+    ////////// Actualización: Sincronización inicial y restricción por plan/proyecto - 12/06/2024 12:00 //////////
+    useEffect(() => {
+        const loadLaunchConfig = async () => {
+            if (!projectId) return;
+            try {
+                const launch = await api.getWhatsAppLaunchByProject(projectId);
+                if (launch) {
+                    setLaunchId(launch.id);
+                    if (launch.launchDate) {
+                        const dateOnly = typeof launch.launchDate === 'string' 
+                            ? launch.launchDate.split('T')[0] 
+                            : launch.launchDate.toISOString().split('T')[0];
+                        setLaunchDate(dateOnly);
+                    }
+                } else if (isLocked) {
+                    // Si no hay configuración activa y está bloqueado, sugerimos upgrade o creación
+                    onUpgrade();
+                }
+            } catch (e) {
+                console.error("Error cargando configuración de lanzamiento", e);
+            }
+        };
+        loadLaunchConfig();
+    }, [projectId, isLocked]);
+    ////////// Fin de actualización - 12/06/2024 12:00 //////////
 
     const formatLongDate = (dateStr: string) => {
         if (!dateStr) return '';
@@ -165,6 +194,20 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         }
     };
 
+    ////////// Actualización: Persistencia de la fecha de lanzamiento - 12/06/2024 12:15 //////////
+    const handleLaunchDateChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newDate = e.target.value;
+        setLaunchDate(newDate);
+        if (launchId) {
+            try {
+                await api.updateWhatsAppLaunch(launchId, { launchDate: newDate });
+            } catch (error) {
+                console.error("Error persistiendo fecha de lanzamiento", error);
+            }
+        }
+    };
+    ////////// Fin de actualización - 12/06/2024 12:15 //////////
+
     return (
         <div id="psd-whatsapp-section" className="pt-8">
             <style>{`
@@ -234,7 +277,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                         ref={dateInputRef}
                         type="date" 
                         value={launchDate}
-                        onChange={(e) => setLaunchDate(e.target.value)}
+                        onChange={handleLaunchDateChange}
                         className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-green-500 outline-none transition-all font-bold cursor-pointer"
                         style={{ colorScheme: 'dark' }}
                     />

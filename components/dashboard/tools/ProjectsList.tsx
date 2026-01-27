@@ -236,20 +236,20 @@ export const ProjectsList: React.FC = () => {
                                                 {project.mainGoal || "General"}
                                             </div>
                                         )}
-                                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div className="flex gap-2">
                                             <button 
                                                 onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/projects/edit/${project.id}`); }}
-                                                className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
-                                                title="Editar"
+                                                className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
                                             >
                                                 <Edit2 className="w-4 h-4" />
+                                                <span className="text-xs font-bold">Editar</span>
                                             </button>
                                             <button 
                                                 onClick={(e) => handleDelete(project.id, e)}
-                                                className="p-2.5 bg-red-900/20 hover:bg-red-500 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
-                                                title="Eliminar"
+                                                className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-red-50 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
                                             >
                                                 <Trash2 className="w-4 h-4" />
+                                                <span className="text-xs font-bold">Borrar</span>
                                             </button>
                                         </div>
                                     </div>
@@ -265,16 +265,10 @@ export const ProjectsList: React.FC = () => {
                                             disabled={generatingId === project.id}
                                             className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98] ${project.isMaster ? 'bg-yellow-600 hover:bg-yellow-500 text-black shadow-yellow-900/20' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-[#FF5A1F]/20'}`}
                                         >
-                                            <Zap className="w-4 h-4 fill-current" /> Abrir Centro de Mando
+                                            <Zap className="w-4 h-4 fill-current" /> Ver Estrategia de Proyecto
                                         </button>
 
-                                        <div className="flex items-center justify-between pt-2">
-                                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
-                                                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5">
-                                                    <LinkIcon className="w-3.5 h-3.5" /> 
-                                                </div>
-                                                <span>{project.affiliateLinks?.length || 0} Enlaces</span>
-                                            </div>
+                                        <div className="flex items-center justify-end pt-2">
                                             <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
                                                 <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5">
                                                     <Calendar className="w-3.5 h-3.5" /> 
@@ -379,7 +373,7 @@ export const ProjectsList: React.FC = () => {
                         
                         <div className="p-8 md:p-12 space-y-8 flex-1 overflow-y-auto">
                             <div className="flex flex-col items-center text-center space-y-6">
-                                <div className="w-20 h-20 bg-yellow-500/10 text-yellow-500 rounded-3xl flex items-center justify-center border border-yellow-500/20 shadow-lg shadow-yellow-900/10 animate-pulse">
+                                <div className="w-20 h-20 bg-yellow-500/10 text-yellow-500 rounded-3xl flex items-center justify-center mx-auto border border-yellow-500/20 shadow-lg shadow-yellow-900/10 animate-pulse">
                                     <Crown className="w-10 h-10" />
                                 </div>
                                 <div className="space-y-2">
@@ -388,7 +382,7 @@ export const ProjectsList: React.FC = () => {
                                 </div>
                                 <p className="text-gray-400 text-lg leading-relaxed font-medium">
                                     Estás a punto de adquirir el ADN estratégico completo para <span className="text-white font-bold">"{selectedMasterProject.name}"</span>. 
-                                    Este activo incluye avatares, guiones de venta, copys para email y estructura web de alta conversión.
+                                    Este activo digital incluye avatares, guiones de venta, copys para email y estructura web de alta conversión.
                                 </p>
                             </div>
 

@@ -86,9 +86,9 @@ router.post('/launches', authMiddleware, async (req, res) => {
     }
 });
 
-// Actualizar lanzamiento (Nombre, Status o JSON de mensajes)
+// Actualizar lanzamiento (Nombre, Status, JSON de mensajes o Fecha)
 router.put('/launches/:id', authMiddleware, async (req, res) => {
-    const { name, status, data_json } = req.body;
+    const { name, status, data_json, launch_date } = req.body;
     try {
         const [check] = await pool.query('SELECT id FROM whatsapp_lanzamientos WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
         if (check.length === 0) return res.status(403).json({ error: 'No autorizado' });
@@ -97,9 +97,10 @@ router.put('/launches/:id', authMiddleware, async (req, res) => {
             `UPDATE whatsapp_lanzamientos SET 
                 name = COALESCE(?, name),
                 status = COALESCE(?, status),
-                data_json = COALESCE(?, data_json)
+                data_json = COALESCE(?, data_json),
+                launch_date = COALESCE(?, launch_date)
              WHERE id = ?`,
-            [name, status, data_json, req.params.id]
+            [name, status, data_json, launch_date, req.params.id]
         );
         res.json({ success: true });
     } catch (e) {

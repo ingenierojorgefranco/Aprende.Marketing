@@ -1,4 +1,3 @@
-
 ////////// Actualización: Definición de tipos para el Feed de Noticias del Dashboard - 24/05/2024 16:45 //////////
 export interface DashboardNews {
     id: string;
@@ -55,6 +54,7 @@ export interface WhatsAppLaunch {
   status: 'activa' | 'borrador';
   createdAt: Date;
   messages: WhatsAppLaunchMessage[]; // Inmerso en data_json
+  launchDate?: Date | string; // Añadido: Fecha de lanzamiento persistente
 }
 ////////// Fin de actualización - 10/06/2025 11:00 //////////
 

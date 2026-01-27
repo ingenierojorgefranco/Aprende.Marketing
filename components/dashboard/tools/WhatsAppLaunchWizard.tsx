@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, useParams, useOutletContext } from 'react-router-dom';
 import { 
@@ -11,7 +10,7 @@ import { api } from '../../../services/api';
 import { Project, User, WhatsAppLaunch, WhatsAppLaunchMessage } from '../../../types';
 
 // Professional WhatsApp Chat Simulator Component
-const ChatSimulator: React.FC<{ text: string; senderName: string }> = ({ text, senderName }) => {
+const ChatSimulator: React.FC<{ text: string; senderName: string; onMessageChange?: (text: string) => void }> = ({ text, senderName, onMessageChange }) => {
     const renderWhatsAppText = (raw: string) => {
         if (!raw) return null;
         const parts = raw.split(/(\*[^\*]+\*)/g);
@@ -36,9 +35,14 @@ const ChatSimulator: React.FC<{ text: string; senderName: string }> = ({ text, s
             </div>
             <div className="flex-1 p-6 space-y-4 overflow-y-auto custom-scrollbar bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-opacity-10 bg-repeat">
                 <div className="flex justify-start">
-                    <div className="max-w-[90%] p-4 rounded-2xl shadow-xl text-lg whitespace-pre-wrap bg-[#005c4b] text-[#e9edef] rounded-tl-none relative border border-emerald-800/30">
+                    <div 
+                        contentEditable={true}
+                        suppressContentEditableWarning={true}
+                        onBlur={(e) => onMessageChange?.(e.currentTarget.innerText)}
+                        className="max-w-[90%] p-4 rounded-2xl shadow-xl text-lg whitespace-pre-wrap bg-[#005c4b] focus:bg-[#004d3f] text-[#e9edef] rounded-tl-none relative border border-emerald-800/30 outline-none transition-colors cursor-text"
+                    >
                         {renderWhatsAppText(text)}
-                        <span className="block text-[10px] text-right opacity-60 mt-2 font-mono">10:45 AM ✓✓</span>
+                        <span contentEditable={false} className="block text-[10px] text-right opacity-60 mt-2 font-mono">10:45 AM ✓✓</span>
                     </div>
                 </div>
             </div>
@@ -295,16 +299,11 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                                             </button>
                                         </div>
 
-                                        <ChatSimulator text={activeLaunch.messages[activeMsgIdx].content} senderName={user.name} />
-
-                                        <div className="space-y-4">
-                                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Contenido Editable (WhatsApp Format)</label>
-                                            <textarea 
-                                                value={activeLaunch.messages[activeMsgIdx].content}
-                                                onChange={(e) => handleUpdateMessage(activeMsgIdx, 'content', e.target.value)}
-                                                className="w-full bg-black border border-white/10 rounded-2xl p-6 text-gray-200 font-sans text-lg focus:border-emerald-500/50 outline-none transition-all resize-none h-40 custom-scrollbar"
-                                            />
-                                        </div>
+                                        <ChatSimulator 
+                                            text={activeLaunch.messages[activeMsgIdx].content} 
+                                            senderName={user.name} 
+                                            onMessageChange={(newText) => handleUpdateMessage(activeMsgIdx, 'content', newText)}
+                                        />
 
                                         <div className="flex justify-center pt-4">
                                             <button 

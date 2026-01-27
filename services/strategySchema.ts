@@ -1,4 +1,3 @@
-
 import { BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
 
 /* */ /* Actualización: Enriquecimiento de la interfaz ProjectMasterStrategy con campos de profundidad psicológica: manifestación diaria, razón emocional y etapas de consciencia - 15/06/2024 19:00 */
@@ -6,6 +5,7 @@ import { BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
 export interface ProjectMasterStrategy {
     meta: {
         projectName: string;
+        shortDescription?: string; // Nuevo: Descripción corta persuasiva para las tarjetas
         createdAt: string;
         niche: string;
         productType: string;
@@ -93,6 +93,7 @@ export interface ProjectMasterStrategy {
 export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
     meta: {
         projectName: "",
+        shortDescription: "",
         createdAt: new Date().toLocaleDateString(),
         niche: "",
         productType: "",

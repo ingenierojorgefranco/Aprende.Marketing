@@ -264,6 +264,7 @@ const initDb = async () => {
             name VARCHAR(255) NOT NULL,
             status VARCHAR(50) DEFAULT 'borrador',
             data_json LONGTEXT, -- Almacena el array de los 14 momentos inmersos
+            launch_date DATE, -- Añadido: Fecha de lanzamiento persistente
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -436,6 +437,11 @@ const initDb = async () => {
 
         // NEW: PROJECT ID IN LANDING PAGES
         await addColumnSafe(connection, 'landing_pages', "project_id INT NULL");
+
+        ////////// Migración para WhatsApp Lanzamientos: Fecha de inicio persistente //////////
+        await addColumnSafe(connection, 'whatsapp_lanzamientos', "launch_date DATE");
+        ////////// Fin de migración //////////
+
         try {
             // Attempt to add FK. If it fails (exists), ignore.
             await connection.query(`ALTER TABLE landing_pages ADD CONSTRAINT fk_landing_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL`);
