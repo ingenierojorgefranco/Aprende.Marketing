@@ -1,3 +1,4 @@
+
 ////////// Actualización: Definición de tipos para el Feed de Noticias del Dashboard - 24/05/2024 16:45 //////////
 export interface DashboardNews {
     id: string;
@@ -88,6 +89,7 @@ export interface PlanLimits {
   maxLandings: number;
   maxDomains: number; // Nuevo límite de dominios
   maxArticles?: number; // Added optional
+  maxEmailSequences?: number; // Nuevo límite: Cantidad de secuencias de email permitidas
   features: PlanFeatures;
 }
 
@@ -144,6 +146,7 @@ export interface UserUsageStats {
     projects: number;
     landings: number;
     articles: number;
+    emailSequences?: number; // Consumo de secuencias de email
 }
 
 // --- CRM TYPES ---

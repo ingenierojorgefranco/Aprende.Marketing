@@ -56,10 +56,20 @@ router.get('/users/:id/stats', async (req, res) => {
             FROM usage_logs 
             WHERE user_id = ? 
               AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-              AND YEAR(CURRENT_DATE()) = YEAR(created_at)
+              AND YEAR(created_at) = YEAR(CURRENT_DATE())
             GROUP BY resource_type
         `, [id]);
-        const usage = { projects: 0, landings: 0, articles: 0 };
+        
+        // También contamos el total histórico de secuencias para este usuario
+        const [emailSeqs] = await pool.query('SELECT COUNT(*) as count FROM email_sequences WHERE user_id = ?', [id]);
+
+        const usage = { 
+            projects: 0, 
+            landings: 0, 
+            articles: 0,
+            emailSequences: emailSeqs[0].count 
+        };
+
         usageRows.forEach(row => {
             if (row.resource_type === 'project') usage.projects = row.count;
             if (row.resource_type === 'landing') usage.landings = row.count;
