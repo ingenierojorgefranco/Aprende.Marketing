@@ -23,32 +23,6 @@ router.post('/login', (req, res) => {
 });
 
 // ======================================================
-//  QUOTA HELPERS
-// ======================================================
-
-const checkMonthlyQuota = async (userId, resourceType, limit) => {
-    const [user] = await pool.query('SELECT role FROM users WHERE id = ?', [userId]);
-    if (user[0] && user[0].role === 'admin') return true;
-
-    // Para secuencias de email, contamos el total histórico activo por usuario
-    if (resourceType === 'email_sequence') {
-        const [rows] = await pool.query('SELECT COUNT(*) as count FROM email_sequences WHERE user_id = ?', [userId]);
-        return rows[0].count < limit;
-    }
-
-    const [rows] = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM usage_logs 
-        WHERE user_id = ? 
-          AND resource_type = ? 
-          AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(created_at) = YEAR(CURRENT_DATE())
-    `, [userId, resourceType]);
-
-    return rows[0].count < (limit || 0);
-};
-
-// ======================================================
 //  STRIPE CHECKOUT
 // ======================================================
 
@@ -106,7 +80,7 @@ router.post('/email/sequences', authMiddleware, async (req, res) => {
     if (!projectId) return res.status(400).json({ error: "Falta ID de proyecto" });
 
     try {
-        // 1. Verificar si ya existe (no consume cupo nuevo si es el mismo proyecto)
+        // Verificar si ya existe
         const [existing] = await pool.query(
             'SELECT id FROM email_sequences WHERE user_id = ? AND project_id = ? LIMIT 1',
             [req.user.id, projectId]
@@ -116,20 +90,7 @@ router.post('/email/sequences', authMiddleware, async (req, res) => {
             return res.json({ id: existing[0].id, isNew: false });
         }
 
-        // 2. Verificar Límites del Plan
-        const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
-        const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : { maxEmailSequences: 1 };
-        
-        const hasQuota = await checkMonthlyQuota(req.user.id, 'email_sequence', limits.maxEmailSequences || 1);
-        
-        if (!hasQuota) {
-            return res.status(403).json({ 
-                error: `Has alcanzado el límite de ${limits.maxEmailSequences} secuencias de tu plan.`,
-                limitReached: true 
-            });
-        }
-
-        // 3. Crear nueva
+        // Crear nueva
         const [result] = await pool.query(
             'INSERT INTO email_sequences (user_id, project_id, name, status) VALUES (?, ?, ?, "borrador")',
             [req.user.id, projectId, name || 'Secuencia Nueva']

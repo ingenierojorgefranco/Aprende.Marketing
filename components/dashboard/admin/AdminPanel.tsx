@@ -2,30 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { User, PlanLimits, Plan, UserUsageStats } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout, Mail } from 'lucide-react';
+import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout } from 'lucide-react';
 
 ////////// Actualización: Implementación de Lazy Load para el componente de auditoría - 05/06/2025 21:30 //////////
 const UserContentModal = React.lazy(() => import('./UserContentModal'));
 ////////// Fin de actualización - 05/06/2025 21:30 //////////
 
-// Actualización: Definición de límites por defecto para corregir error de referencia en edición de usuario - 12/06/2024 18:30
-const DEFAULT_LIMITS: PlanLimits = {
-    planName: 'starter',
-    maxProjects: 1,
-    maxLandings: 2,
-    maxArticles: 2,
-    maxDomains: 1,
-    maxEmailSequences: 1,
-    features: {
-        whatsappBot: false,
-        blogGenerator: false,
-        emailMarketing: false,
-        removeBranding: false,
-        emailStrategy: false,
-        evergreenStrategy: false
-    }
-};
-
+// FIX: Added missing Input component definition
 const Input = ({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
     <input className={`w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:border-primary outline-none transition ${className || ''}`} {...props} />
 );
@@ -115,8 +98,21 @@ export const AdminPanel: React.FC = () => {
 
     const handleEditClick = (user: User) => {
         setEditingUser(user);
-        // Fix: DEFAULT_LIMITS is now defined above to avoid ReferenceError
-        setTempPlanLimits(JSON.parse(JSON.stringify(user.planLimits || { ...DEFAULT_LIMITS })));
+        setTempPlanLimits(JSON.parse(JSON.stringify(user.planLimits || {
+            planName: 'starter',
+            maxProjects: 1,
+            maxLandings: 3,
+            maxDomains: 1,
+            maxArticles: 2,
+            features: {
+                whatsappBot: false,
+                blogGenerator: false,
+                emailMarketing: false,
+                removeBranding: false,
+                emailStrategy: false,
+                evergreenStrategy: false
+            }
+        })));
         setActiveTab('profile'); // Reset tab
         setUserStats(null); // Clear previous stats
         setPaymentHistory([]);
@@ -139,8 +135,8 @@ export const AdminPanel: React.FC = () => {
             // Lazy load payments
             setLoadingPayments(true);
             try {
-                const history = await api.getUserPayments(editingUser.id);
-                setPaymentHistory(history);
+                const payments = await api.getUserPayments(editingUser.id);
+                setPaymentHistory(payments);
             } catch (e) {
                 console.error("Failed to load payments", e);
             } finally {
@@ -195,7 +191,6 @@ export const AdminPanel: React.FC = () => {
             maxLandings: plan.limitsConfig.maxLandings,
             maxDomains: plan.limitsConfig.maxDomains || 1,
             maxArticles: plan.limitsConfig.maxArticles || 0,
-            maxEmailSequences: plan.limitsConfig.maxEmailSequences || 1,
             features: { ...plan.limitsConfig.features }
         });
     };
@@ -214,7 +209,7 @@ export const AdminPanel: React.FC = () => {
     };
 
     // Helper for Usage Bar
-    const UsageBar = ({ label, current, max, icon: Icon }: { label: string, current: number, max: number, icon?: any }) => {
+    const UsageBar = ({ label, current, max }: { label: string, current: number, max: number }) => {
         const percent = max > 0 ? Math.min(100, (current / max) * 100) : 0;
         let color = 'bg-green-500';
         if (percent > 60) color = 'bg-yellow-500';
@@ -223,7 +218,7 @@ export const AdminPanel: React.FC = () => {
         return (
             <div className="mb-4">
                 <div className="flex justify-between text-xs text-gray-400 mb-1">
-                    <span className="flex items-center gap-1">{Icon && <Icon className="w-3 h-3"/>} {label}</span>
+                    <span>{label}</span>
                     <span className="font-mono">{current} / {max}</span>
                 </div>
                 <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
@@ -413,7 +408,7 @@ export const AdminPanel: React.FC = () => {
                     <div 
                         ////////// Actualización: Evitar propagación - 28/05/2025 15:30 //////////
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]"
+                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]"
                     >
                         <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-850 shrink-0">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -455,6 +450,28 @@ export const AdminPanel: React.FC = () => {
                                                     type="email" 
                                                     value={editingUser.email}
                                                     onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
+                                                    className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Fecha Nacimiento</label>
+                                                <input 
+                                                    type="date" 
+                                                    value={editingUser.birthDate ? new Date(editingUser.birthDate).toISOString().split('T')[0] : ''}
+                                                    onChange={(e) => setEditingUser({...editingUser, birthDate: e.target.value})}
+                                                    className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
+                                                    style={{ colorScheme: 'dark' }} 
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Avatar URL</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={editingUser.avatarUrl || ''}
+                                                    onChange={(e) => setEditingUser({...editingUser, avatarUrl: e.target.value})}
+                                                    placeholder="https://..."
                                                     className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
                                                 />
                                             </div>
@@ -554,13 +571,39 @@ export const AdminPanel: React.FC = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Secuencias Email</label>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Artículos SEO</label>
                                             <input 
                                                 type="number" 
-                                                value={tempPlanLimits.maxEmailSequences || 0}
-                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxEmailSequences: parseInt(e.target.value) || 0})}
+                                                value={tempPlanLimits.maxArticles || 0}
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxArticles: parseInt(e.target.value) || 0})}
                                                 className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
                                             />
+                                        </div>
+                                    </div>
+
+                                    {/* Features Toggles */}
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-4 tracking-widest">Funcionalidades (Feature Flags)</label>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {Object.entries(tempPlanLimits.features).map(([key, value]) => (
+                                                <label key={key} className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${value ? 'bg-green-900/10 border-green-500/30' : 'bg-black border-gray-800 hover:border-gray-700'}`}>
+                                                    <div className={`w-10 h-5 rounded-full relative transition-colors ${value ? 'bg-green-600' : 'bg-gray-700'}`}>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            className="hidden"
+                                                            checked={value}
+                                                            onChange={(e) => setTempPlanLimits({
+                                                                ...tempPlanLimits, 
+                                                                features: { ...tempPlanLimits.features, [key]: e.target.checked }
+                                                            })}
+                                                        />
+                                                        <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-transform shadow-md ${value ? 'left-6' : 'left-1'}`}></div>
+                                                    </div>
+                                                    <span className={`text-sm font-medium transition-colors ${value ? 'text-green-300' : 'text-gray-400 group-hover:text-gray-200'}`}>
+                                                        {getFeatureLabel(key)}
+                                                    </span>
+                                                </label>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
@@ -591,12 +634,6 @@ export const AdminPanel: React.FC = () => {
                                                 label="Artículos Escritos" 
                                                 current={userStats.articles} 
                                                 max={tempPlanLimits.maxArticles || 2} 
-                                            />
-                                            <UsageBar 
-                                                label="Secuencias Email" 
-                                                current={userStats.emailSequences || 0} 
-                                                max={tempPlanLimits.maxEmailSequences || 0} 
-                                                icon={Mail}
                                             />
                                             
                                             <div className="pt-4 border-t border-gray-700 flex justify-end">
