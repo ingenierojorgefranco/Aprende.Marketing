@@ -27,7 +27,7 @@ import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
 import { ProjectMasterStrategy } from '../../../services/strategySchema';
 import { MOCK_MASTER_STRATEGY } from '../../../services/mockData';
-import { LandingPage, User, Plan, EmailSequence, Article } from '../../../types';
+import { LandingPage, User, Plan, EmailSequence, Article, EmailMessage } from '../../../types';
 
 // --- ICONS MAPPING FOR DYNAMIC DATA ---
 const iconMap: any = {
@@ -71,6 +71,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [generating, setGenerating] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [linkedSequences, setLinkedSequences] = useState<EmailSequence[]>([]);
+    const [realEmailMessages, setRealEmailMessages] = useState<EmailMessage[]>([]);
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
     const [globalDomainCount, setGlobalDomainCount] = useState(0); 
     
@@ -194,6 +195,12 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
             const projectSeqs = Array.isArray(sequences) ? sequences.filter(s => String(s.projectId) === String(id)) : [];
             setLinkedSequences(projectSeqs);
+            
+            let realMessages: EmailMessage[] = [];
+            if (projectSeqs.length > 0) {
+                realMessages = await api.getSequenceMessages(projectSeqs[0].id);
+            }
+            setRealEmailMessages(realMessages);
 
             const projectArts = Array.isArray(articles) ? articles.filter(a => projectPages.some(p => String(p.id) === String(a.pageId))) : [];
             setLinkedArticles(projectArts);
@@ -534,6 +541,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                         onUpgrade={() => setShowUpgradeModal(true)}
                                         planLimits={user.planLimits}
                                         nextPlan={nextPlan}
+                                        realMessages={realEmailMessages}
                                     />
                                 )}
                             </div>

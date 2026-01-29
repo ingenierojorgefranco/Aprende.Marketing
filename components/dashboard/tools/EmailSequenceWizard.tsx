@@ -7,10 +7,10 @@ import {
     Zap, Loader2, Info, Sparkles, Plus, 
     Check, Calendar, LayoutTemplate, X, Wand2, Lock,
     ChevronDown, ChevronUp, Settings2, Edit3, ShieldCheck, AlertTriangle,
-    Lightbulb, CheckCircle2, User as UserIcon, Copy, Save
+    Lightbulb, CheckCircle2, User as UserIcon, Copy, Save, Target, Globe, Link as LinkIcon, ExternalLink
 } from 'lucide-react';
 import { api } from '../../../services/api';
-import { Project, User, Plan, EmailMessage } from '../../../types';
+import { Project, User, Plan, EmailMessage, LandingPage } from '../../../types';
 import { ProjectMasterStrategy } from '../../../services/strategySchema';
 
 interface DashboardContext {
@@ -34,6 +34,7 @@ export const EmailSequenceWizard: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [activeEmailIdx, setActiveEmailIdx] = useState(0);
     const [nextPlan, setNextPlan] = useState<Plan | null>(null);
+    const [userPages, setUserPages] = useState<LandingPage[]>([]);
 
     /* */ /* Actualización: Estado para manejar la edición de la estructura de correos y descripción estratégica de valor - 24/05/2024 21:15 */
     const [editableEmails, setEditableEmails] = useState<EmailMessage[]>([]);
@@ -61,11 +62,13 @@ export const EmailSequenceWizard: React.FC = () => {
         const loadInitialData = async () => {
             setLoading(true);
             try {
-                const [projectsData, plansData] = await Promise.all([
+                const [projectsData, plansData, pagesData] = await Promise.all([
                     api.getProjects(),
-                    api.getPublicPlans().catch(() => [])
+                    api.getPublicPlans().catch(() => []),
+                    api.getPages().catch(() => [])
                 ]);
                 setProjects(projectsData);
+                setUserPages(pagesData);
 
                 const currentPlanName = user.planLimits?.planName || 'starter';
                 const sortedPlans = Array.isArray(plansData) ? [...plansData].sort((a, b) => a.priceMonthly - b.priceMonthly) : [];
@@ -99,7 +102,18 @@ export const EmailSequenceWizard: React.FC = () => {
         try {
             // CARGA INTELIGENTE: Extraemos la estrategia directamente del JSON del proyecto
             const strategyData = project.strategy_json;
-            if (strategyData) {
+            
+            // Verificamos si ya existe una secuencia en la base de datos
+            const allSequences = await api.getEmailSequences();
+            const existingSeq = allSequences.find(s => String(s.projectId) === String(project.id));
+            
+            if (existingSeq) {
+                // Si existe, cargamos los mensajes reales para el editor
+                const realMessages = await api.getSequenceMessages(existingSeq.id);
+                setEditableEmails(realMessages);
+                if (strategyData) setStrategy(strategyData);
+            } else if (strategyData) {
+                // Si no existe, usamos la plantilla de la Estrategia Maestra
                 setStrategy(strategyData);
                 const nurtureEmails = strategyData.modules?.emails?.nurture || [];
                 
@@ -112,12 +126,12 @@ export const EmailSequenceWizard: React.FC = () => {
                     pilarType: email.type || '',
                     purpose: email.objective || '',
                     contentHtml: '',
-                    isGenerated: false
+                    isGenerated: false,
+                    redirectType: 'landing',
+                    redirectUrl: ''
                 }));
                 setEditableEmails(mappedMessages);
             }
-            
-            // ELIMINACIÓN DE AUTO-GUARDADO INICIAL: No llamamos a la API de creación aquí
             
             if (urlDay) {
                 const dayIdx = parseInt(urlDay);
@@ -210,14 +224,15 @@ export const EmailSequenceWizard: React.FC = () => {
             
             const email = currentMessages[activeEmailIdx];
             const avatarName = strategy?.avatars[0]?.name.split(' ')[0] || "amiga";
+            const targetUrl = email.redirectUrl || 'https://google.com';
             
             // Generamos un ejemplo de texto persuasivo con HTML (colores y enlaces)
-            let generatedBody = `Hola ${avatarName},<br><br>Tal como te lo prometí, aquí tienes la llave para empezar tu transformación. Entiendo que hoy en día es difícil encontrar un camino claro en ${selectedProject?.niche}, pero estoy aquí para decirte que existe una <span style="color: #FF5A1F; font-weight: bold;">solución directa</span>.<br><br>He preparado este material pensando exclusivamente en resolver ese sentimiento de estancamiento que me comentaste. No se trata solo de aprender una técnica, sino de dominar un negocio que te brinde la libertad que mereces.<br><br><a href="https://google.com" style="color: #FF5A1F; text-decoration: underline; font-weight: bold;">[Haz clic aquí para ver la guía en Google]</a><br><br>Haz clic en el enlace de abajo para acceder ahora mismo.<br><br>Espero que lo disfrutes,<br>${user.name}`;
+            let generatedBody = `Hola ${avatarName},<br><br>Tal como te lo prometí, aquí tienes la llave para empezar tu transformación. Entiendo que hoy en día es difícil encontrar un camino claro en ${selectedProject?.niche}, pero estoy aquí para decirte que existe una <span style="color: #FF5A1F; font-weight: bold;">solución directa</span>.<br><br>He preparado este material pensando exclusivamente en resolver ese sentimiento de estancamiento que me comentaste. No se trata solo de aprender una técnica, sino de dominar un negocio que te brinde la libertad que mereces.<br><br><a href="${targetUrl}" style="color: #FF5A1F; text-decoration: underline; font-weight: bold;">[Haz clic aquí para acceder ahora mismo]</a><br><br>Haz clic en el enlace de abajo para acceder ahora mismo.<br><br>Espero que lo disfrutes,<br>${user.name}`;
 
             if (email.pilarType === 'Agitación del Dolor') {
-                generatedBody = `Hola ${avatarName},<br><br>¿Alguna vez has sentido que trabajas 10 horas al día y al final del mes tu cuenta bancaria sigue igual? Ese nudo en el estómago es real y no es tu culpa, es el vehículo que estás usando.<br><br>Muchas personas en ${selectedProject?.niche} cometen el error de competir por precio en lugar de por valor. Mañana te mostraré cómo <span style="color: #FF5A1F; font-weight: bold;">romper ese ciclo para siempre</span>.<br><br><a href="https://google.com" style="color: #FF5A1F; text-decoration: underline; font-weight: bold;">[Consulta la guía de ayuda aquí en Google]</a><br><br>Un abrazo,<br>${user.name}`;
+                generatedBody = `Hola ${avatarName},<br><br>¿Alguna vez has sentido que trabajas 10 horas al día y al final del mes tu cuenta bancaria sigue igual? Ese nudo en el estómago es real y no es tu culpa, es el vehículo que estás usando.<br><br>Muchas personas en ${selectedProject?.niche} cometen el error de competir por precio en lugar de por valor. Mañana te mostraré cómo <span style="color: #FF5A1F; font-weight: bold;">romper ese ciclo para siempre</span>.<br><br><a href="${targetUrl}" style="color: #FF5A1F; text-decoration: underline; font-weight: bold;">[Consulta la guía de ayuda aquí]</a><br><br>Un abrazo,<br>${user.name}`;
             } else if (email.pilarType === 'Prueba Social') {
-                generatedBody = `Hola ${avatarName},<br><br>Hoy quiero contarte la historia de una de mis alumnas que estaba exactamente donde tú estás hoy. Tenía miedo de fracasar y no sabía por dónde empezar.<br><br>Después de aplicar el método que te he estado compartiendo, logró sus <span style="color: #10B981; font-weight: bold;">primeros $500 extras</span> en menos de 15 días. Si ella pudo, tú también puedes.<br><br><a href="https://google.com" style="color: #FF5A1F; text-decoration: underline; font-weight: bold;">[Mira más resultados aquí en Google]</a><br><br>Mañana te contaré el secreto técnico detrás de este éxito.<br><br>Saludos,<br>${user.name}`;
+                generatedBody = `Hola ${avatarName},<br><br>Hoy quiero contarte la historia de una de mis alumnas que estaba exactamente donde tú estás hoy. Tenía miedo de fracasar y no sabía por dónde empezar.<br><br>Después de aplicar el método que te he estado compartiendo, logró sus <span style="color: #10B981; font-weight: bold;">primeros $500 extras</span> en menos de 15 días. Si ella pudo, tú también puedes.<br><br><a href="${targetUrl}" style="color: #FF5A1F; text-decoration: underline; font-weight: bold;">[Mira más resultados aquí]</a><br><br>Mañana te contaré el secreto técnico detrás de este éxito.<br><br>Saludos,<br>${user.name}`;
             }
 
             const newEmails = [...currentMessages];
@@ -601,11 +616,107 @@ export const EmailSequenceWizard: React.FC = () => {
                                                                 <Zap className="w-5 h-5 text-[#FF5A1F]" /> Propósito Estratégico del Día
                                                             </label>
                                                             <textarea 
-                                                                rows={6}
+                                                                rows={4}
                                                                 value={editableEmails[activeEmailIdx].purpose}
                                                                 onChange={(e) => handleUpdateEmail(activeEmailIdx, 'purpose', e.target.value)}
-                                                                className="w-full bg-black/60 border border-white/10 rounded-[2rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/10 transition-all shadow-inner resize-none"
+                                                                className="w-full bg-black/60 border border-white/10 rounded-[2.5rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/10 transition-all shadow-inner resize-none mb-6"
                                                             />
+                                                        </div>
+
+                                                        {/* ¿Dónde dirigir a tu audiencia? Selector */}
+                                                        <div className="space-y-4">
+                                                            <label className="block text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                                                <Target className="w-5 h-5 text-[#FF5A1F]" /> ¿Dónde dirigir a tu audiencia?
+                                                            </label>
+                                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                                <div 
+                                                                    onClick={() => handleUpdateEmail(activeEmailIdx, 'redirectType', 'landing')}
+                                                                    className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${editableEmails[activeEmailIdx].redirectType === 'landing' ? 'bg-blue-600/10 border-blue-500 shadow-lg shadow-blue-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
+                                                                >
+                                                                    <div className={`p-4 rounded-2xl transition-colors ${editableEmails[activeEmailIdx].redirectType === 'landing' ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-500'}`}>
+                                                                        <Globe className="w-8 h-8" />
+                                                                    </div>
+                                                                    <div>
+                                                                        <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${editableEmails[activeEmailIdx].redirectType === 'landing' ? 'text-white' : 'text-gray-400'}`}>Landing Page</h4>
+                                                                        <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Envía el tráfico a una de tus páginas internas creadas.</p>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <div 
+                                                                    onClick={() => handleUpdateEmail(activeEmailIdx, 'redirectType', 'hotlink')}
+                                                                    className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${editableEmails[activeEmailIdx].redirectType === 'hotlink' ? 'bg-[#FF5A1F]/10 border-[#FF5A1F] shadow-lg shadow-orange-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
+                                                                >
+                                                                    <div className={`p-4 rounded-2xl transition-colors ${editableEmails[activeEmailIdx].redirectType === 'hotlink' ? 'bg-[#FF5A1F] text-white' : 'bg-white/5 text-gray-500'}`}>
+                                                                        <LinkIcon className="w-8 h-8" />
+                                                                    </div>
+                                                                    <div>
+                                                                        <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${editableEmails[activeEmailIdx].redirectType === 'hotlink' ? 'text-white' : 'text-gray-400'}`}>Hotlink Proyecto</h4>
+                                                                        <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Usa directamente tus enlaces de afiliado de Hotmart.</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div 
+                                                                    onClick={() => handleUpdateEmail(activeEmailIdx, 'redirectType', 'external')}
+                                                                    className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${editableEmails[activeEmailIdx].redirectType === 'external' ? 'bg-purple-600/10 border-purple-500 shadow-lg shadow-purple-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
+                                                                >
+                                                                    <div className={`p-4 rounded-2xl transition-colors ${editableEmails[activeEmailIdx].redirectType === 'external' ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-500'}`}>
+                                                                        <ExternalLink className="w-8 h-8" />
+                                                                    </div>
+                                                                    <div>
+                                                                        <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${editableEmails[activeEmailIdx].redirectType === 'external' ? 'text-white' : 'text-gray-400'}`}>Link Externo</h4>
+                                                                        <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Cualquier otra página web externa que desees promocionar.</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div className="mt-4">
+                                                                {editableEmails[activeEmailIdx].redirectType === 'landing' && (
+                                                                    <div className="animate-in fade-in slide-in-from-top-2">
+                                                                        <select
+                                                                            value={userPages.find(p => (p.customDomain ? `https://${p.customDomain}` : `https://${p.subdomain}`) === editableEmails[activeEmailIdx].redirectUrl)?.id || ''}
+                                                                            onChange={(e) => {
+                                                                                const page = userPages.find(p => p.id === e.target.value);
+                                                                                if (page) {
+                                                                                    handleUpdateEmail(activeEmailIdx, 'redirectUrl', page.customDomain ? `https://${page.customDomain}` : `https://${page.subdomain}`);
+                                                                                }
+                                                                            }}
+                                                                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
+                                                                        >
+                                                                            <option value="" disabled>-- Selecciona una Landing Page --</option>
+                                                                            {userPages.map(p => (
+                                                                                <option key={p.id} value={p.id}>{p.name}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                    </div>
+                                                                )}
+
+                                                                {editableEmails[activeEmailIdx].redirectType === 'external' && (
+                                                                    <div className="animate-in fade-in slide-in-from-top-2">
+                                                                        <input
+                                                                            type="text"
+                                                                            value={editableEmails[activeEmailIdx].redirectUrl || ''}
+                                                                            onChange={(e) => handleUpdateEmail(activeEmailIdx, 'redirectUrl', e.target.value)}
+                                                                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
+                                                                            placeholder="https://ejemplo.com/tu-enlace"
+                                                                        />
+                                                                    </div>
+                                                                )}
+                                                                
+                                                                {editableEmails[activeEmailIdx].redirectType === 'hotlink' && (
+                                                                    <div className="animate-in fade-in slide-in-from-top-2">
+                                                                        <select
+                                                                            value={editableEmails[activeEmailIdx].redirectUrl || ''}
+                                                                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition appearance-none cursor-pointer"
+                                                                            onChange={(e) => handleUpdateEmail(activeEmailIdx, 'redirectUrl', e.target.value)}
+                                                                        >
+                                                                            <option value="">-- Elige un Hotlink --</option>
+                                                                            {selectedProject?.affiliateLinks.map((link, i) => (
+                                                                                <option key={i} value={link.url}>{link.label}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>

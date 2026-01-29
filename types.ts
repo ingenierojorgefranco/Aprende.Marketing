@@ -31,6 +31,8 @@ export interface EmailMessage {
   purpose: string;
   contentHtml: string;
   isGenerated: boolean;
+  redirectType?: 'landing' | 'hotlink' | 'external';
+  redirectUrl?: string;
 }
 /* Fin de actualización - 24/06/2024 16:20 */
 
