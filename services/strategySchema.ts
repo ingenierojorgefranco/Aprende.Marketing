@@ -5,7 +5,6 @@ import { BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
 export interface ProjectMasterStrategy {
     meta: {
         projectName: string;
-        shortDescription?: string; // Nuevo: Descripción corta persuasiva para las tarjetas
         createdAt: string;
         niche: string;
         productType: string;
@@ -48,6 +47,11 @@ export interface ProjectMasterStrategy {
             buyingReasons: Array<{ title: string; description: string }>;
             strategistConclusion: string;
         };
+        // Nuevo objeto para estrategia de conversión independiente
+        conversionStrategy: {
+            mainFocus: Array<{ label: string; description: string }>;
+            tacticalNote: string;
+        };
         psychographicProfile?: {
             ageRange: string;
             interests: string;
@@ -76,15 +80,7 @@ export interface ProjectMasterStrategy {
             evergreen: Array<any>;
         };
         whatsapp: Array<any>;
-        ////////// Actualización: Nueva Secuencia de Lanzamiento de WhatsApp de 14 días - 01/01/2026 10:00 //////////
-        whatsappLaunch?: Array<{
-            id: string;
-            name: string;
-            moment: string;
-            objective: string;
-            messages: Array<{ role: 'agent' | 'user'; text: string }>;
-        }>;
-        ////////// Fin de actualización //////////
+        whatsappLaunch?: Array<any>;
     };
 }
 /* Fin de actualización - 15/06/2024 19:00 */
@@ -93,7 +89,6 @@ export interface ProjectMasterStrategy {
 export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
     meta: {
         projectName: "",
-        shortDescription: "",
         createdAt: new Date().toLocaleDateString(),
         niche: "",
         productType: "",
@@ -122,6 +117,10 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
             buyingReasons: [],
             strategistConclusion: ""
         },
+        conversionStrategy: {
+            mainFocus: [],
+            tacticalNote: ""
+        },
         psychographicProfile: {
             ageRange: "",
             interests: "",
@@ -137,7 +136,6 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
         },
         content: [],
         emails: { nurture: [], evergreen: [] },
-        whatsapp: [],
-        whatsappLaunch: []
+        whatsapp: []
     }
 };
