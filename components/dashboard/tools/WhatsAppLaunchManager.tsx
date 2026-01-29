@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WhatsAppLaunch, User } from '../../../types';
 import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers, Crown } from 'lucide-react';
@@ -8,7 +7,7 @@ import { UpgradeModal } from '../UpgradeModal';
 
 export const WhatsAppLaunchManager: React.FC = () => {
     const navigate = useNavigate();
-    const { user } = useOutletContext() as { user: User };
+    const { user, isSimulating } = useOutletContext() as { user: User, isSimulating: boolean };
     const [launches, setLaunches] = useState<WhatsAppLaunch[]>([]);
     const [loading, setLoading] = useState(true);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -40,10 +39,11 @@ export const WhatsAppLaunchManager: React.FC = () => {
         }
     };
 
-    // Lógica de límites
+    // Lógica de límites respetando simulación
+    const isRealAdmin = user.role === 'admin' && !isSimulating;
     const maxLaunches = user.planLimits?.maxWhatsAppLaunches || 1;
     const currentCount = launches.length;
-    const isAtLimit = user.role !== 'admin' && currentCount >= maxLaunches;
+    const isAtLimit = !isRealAdmin && currentCount >= maxLaunches;
     const usagePercent = Math.min(100, (currentCount / maxLaunches) * 100);
 
     const handleCreateNew = () => {
@@ -82,12 +82,12 @@ export const WhatsAppLaunchManager: React.FC = () => {
                             <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-inner">
                                 <div className="flex justify-between items-center mb-3 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
                                     <span>Lanzamientos Activos</span>
-                                    <span className="text-white">{currentCount} / {user.role === 'admin' ? '∞' : maxLaunches}</span>
+                                    <span className="text-white">{currentCount} / {isRealAdmin ? '∞' : maxLaunches}</span>
                                 </div>
-                                <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
+                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
                                     <div 
                                         className={`h-full bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.6)] transition-all duration-[1500ms] ease-out`} 
-                                        style={{ width: `${user.role === 'admin' ? 100 : usagePercent}%` }}
+                                        style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}
                                     ></div>
                                 </div>
                             </div>

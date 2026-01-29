@@ -1,5 +1,5 @@
-import React from 'react';
-import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan } from '../../../../types';
 
@@ -20,6 +20,33 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     emailData, avatars, activeEmail, setActiveEmail, onUpgrade, features, planLimits, nextPlan
 }) => {
     const navigate = useNavigate();
+
+    // Estados locales para permitir el refinamiento estratégico antes de la generación
+    const [localSubject, setLocalSubject] = useState('');
+    const [localPilar, setLocalPilar] = useState('');
+    const [localPurpose, setLocalPurpose] = useState('');
+    const [isTypeLocked, setIsTypeLocked] = useState(true);
+
+    const emailTypes = [
+        'Entrega de Valor', 
+        'Agitación del Dolor', 
+        'Prueba Social', 
+        'Mecanismo Único', 
+        'Lanzamiento', 
+        'Escasez', 
+        'Cierre'
+    ];
+
+    // Sincronizar estados locales cuando cambia el correo activo en la lista
+    useEffect(() => {
+        if (emailData && emailData[activeEmail]) {
+            const current = emailData[activeEmail];
+            setLocalSubject(current.subject || '');
+            setLocalPilar(current.type || '');
+            setLocalPurpose(current.objective || '');
+            setIsTypeLocked(true);
+        }
+    }, [activeEmail, emailData]);
 
     return (
         <div id="psd-email-section" className="pt-8">
@@ -102,58 +129,99 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     </div>
                 </div>
 
-                {/* RIGHT: DETAIL PANEL */}
-                <div id="psd-email-detail-card" className="bg-black/40 border border-gray-800 rounded-2xl p-8 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl">
-                    <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
-                        <Mail className="w-32 h-32 text-yellow-500" />
-                    </div>
-
-                    <div className="relative z-10 flex flex-col h-full">
-                        <div className="mb-8">
-                            <div className="flex items-center justify-between mb-4">
-                                <span className="bg-yellow-900/20 text-yellow-400 border border-yellow-900/50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                                    {emailData[activeEmail].type}
-                                </span>
-                                <span className="text-gray-500 text-xs font-mono">{emailData[activeEmail].day}</span>
-                            </div>
-                            
-                            <h3 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">{emailData[activeEmail].subject}</h3>
+                {/* RIGHT: CONFIGURACIÓN ESTRATÉGICA (Transformado al estilo GeneratorLanding) */}
+                <div id="psd-email-detail-card" className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl group/form relative overflow-hidden flex-1 min-h-[600px]">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/50"></div>
+                    
+                    <div className="relative z-10 space-y-12 animate-in fade-in duration-500 h-full flex flex-col">
+                        <div className="flex items-center justify-between">
+                            <span className="bg-yellow-900/20 text-yellow-400 border border-yellow-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
+                                Configurando: {localPilar || 'Nutrición'}
+                            </span>
+                            <span className="text-white text-lg font-black uppercase tracking-widest">Correo del Día {activeEmail + 1}</span>
                         </div>
 
-                        <div className="bg-yellow-900/10 border border-yellow-500/20 p-6 rounded-xl mb-8">
-                            <div className="flex gap-4">
-                                <div className="p-2 bg-yellow-500/20 rounded-lg h-fit"><Info className="w-5 h-5 text-yellow-200" /></div>
+                        <div className="flex-1 space-y-10">
+                            <div className="flex items-center gap-4 mb-2">
+                                <div className="p-3 bg-yellow-500/10 rounded-2xl text-yellow-400">
+                                    <Lightbulb className="w-8 h-8" />
+                                </div>
                                 <div>
-                                    <span className="text-yellow-200 font-bold block mb-1">Lógica Persuasiva</span>
-                                    <p className="text-gray-300 text-base font-light leading-relaxed">
-                                        {emailData[activeEmail].objective}
-                                    </p>
+                                    <h4 className="text-2xl font-black text-white tracking-tight">Estrategia de Correo Electrónico: Día No {activeEmail + 1}</h4>
+                                    <p className="text-sm text-white font-bold uppercase tracking-widest mt-4 leading-relaxed">Refina la instrucción estratégica antes de que la IA redacte el contenido completo.</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-10">
+                                {/* Campo Asunto */}
+                                <div className="space-y-3">
+                                    <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                        <Edit3 className="w-5 h-5 text-[#FF5A1F]" /> Asunto Sugerido
+                                    </label>
+                                    <div className="relative">
+                                        <textarea 
+                                            rows={2}
+                                            value={localSubject}
+                                            onChange={(e) => setLocalSubject(e.target.value)}
+                                            className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-xl outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/10 transition-all shadow-inner resize-none leading-relaxed"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Pilar Estratégico */}
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                            <Settings2 className="w-5 h-5 text-[#FF5A1F]" /> Pilar Estratégico (Tipo)
+                                        </label>
+                                        <button 
+                                            onClick={() => setIsTypeLocked(!isTypeLocked)}
+                                            className="text-xs font-black text-[#FF5A1F] uppercase tracking-widest hover:underline px-3 py-1 bg-[#FF5A1F]/10 rounded-lg border border-[#FF5A1F]/20 transition-all"
+                                        >
+                                            {isTypeLocked ? 'Cambiar' : 'Bloquear'}
+                                        </button>
+                                    </div>
+                                    <div className="relative">
+                                        <select 
+                                            disabled={isTypeLocked}
+                                            value={localPilar}
+                                            onChange={(e) => setLocalPilar(e.target.value)}
+                                            className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none transition-all shadow-inner appearance-none cursor-pointer ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-yellow-500/50 ring-2 ring-yellow-500/10'}`}
+                                        >
+                                            {emailTypes.map(t => (
+                                                <option key={t} value={t}>{t}</option>
+                                            ))}
+                                        </select>
+                                        {!isTypeLocked && (
+                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                <ChevronDown className="w-6 h-6 text-yellow-500" />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Propósito del Día */}
+                                <div className="space-y-3">
+                                    <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                        <Zap className="w-5 h-5 text-[#FF5A1F]" /> Propósito Estratégico del Día
+                                    </label>
+                                    <textarea 
+                                        rows={4}
+                                        value={localPurpose}
+                                        onChange={(e) => setLocalPurpose(e.target.value)}
+                                        className="w-full bg-black/60 border border-white/10 rounded-[2rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/10 transition-all shadow-inner resize-none"
+                                    />
                                 </div>
                             </div>
                         </div>
-                        
-                        <div className="bg-white text-gray-900 rounded-xl p-8 shadow-2xl relative overflow-hidden font-serif leading-relaxed text-lg flex-1 border-2 border-gray-200">
-                            <div className="border-b border-gray-200 pb-4 mb-6 text-sm text-gray-500 font-sans">
-                                <p><strong>De:</strong> Tu Nombre &lt;info@tuempresa.com&gt;</p>
-                                <p><strong>Para:</strong> {avatars[0].name}</p>
-                            </div>
 
-                            <p className="mb-4 font-bold">Hola {avatars[0].name.split(' ')[0]},</p>
-                            <p className="mb-6">{emailData[activeEmail].bodyPreview}</p>
-                            
-                            <div className="my-8 p-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg text-center text-gray-500 text-sm italic">
-                                [... El sistema redactará el cuerpo completo basado en tu avatar ...]
-                            </div>
-
-                            <p>Atentamente,<br/>Tu Equipo.</p>
-                        </div>
-
-                        <div className="mt-8 pt-8 border-t border-gray-800">
+                        <div className="pt-6 shrink-0">
                             <button 
                                 onClick={() => navigate('/dashboard/email')} 
-                                className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg hover:scale-[1.02] bg-yellow-600 hover:bg-yellow-500 text-black shadow-yellow-900/20"
+                                className="w-full py-6 rounded-[2cm] bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#D94A1E] hover:to-orange-600 text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95"
                             >
-                                <Wand2 className="w-6 h-6" /> Redactar Secuencia con IA
+                                <Wand2 className="w-7 h-7 fill-current" /> Redactar Secuencia con IA
+                                <ArrowRight className="w-5 h-5" />
                             </button>
                         </div>
                     </div>
@@ -162,3 +230,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         </div>
     );
 };
+
+// Componente auxiliar local para iconos de configuración
+const Settings2 = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+);
