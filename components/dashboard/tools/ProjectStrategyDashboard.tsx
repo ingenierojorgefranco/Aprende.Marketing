@@ -136,11 +136,11 @@ export const ProjectStrategyDashboard: React.FC = () => {
                         if (match) {
                             return {
                                 ...moment,
-                                name: match.name || moment.name,
-                                purpose: match.purpose || match.objective || moment.purpose,
-                                pilarType: match.pilarType || moment.pilarType,
-                                content: match.messages?.[0]?.text || match.content || '',
-                                isGenerated: !!(match.messages?.[0]?.text || match.content)
+                                name: (match as any).name || moment.name,
+                                purpose: (match as any).purpose || (match as any).objective || moment.purpose,
+                                pilarType: (match as any).pilarType || moment.pilarType,
+                                content: (match as any).messages?.[0]?.text || (match as any).content || '',
+                                isGenerated: !!((match as any).messages?.[0]?.text || (match as any).content)
                             };
                         }
                         return moment;
