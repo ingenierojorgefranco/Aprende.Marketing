@@ -10,7 +10,6 @@ import {
 import { ProjectStrategy_Header } from './ProjectStrategy/ProjectStrategy_Header';
 import { ProjectStrategy_Sidebar } from './ProjectStrategy/ProjectStrategy_Sidebar';
 
-////////// Actualización: Carga Dinámica (Lazy Load) de Bloques Pesados de Estrategia - 05/06/2025 21:30 //////////
 const ProjectStrategy_Summary = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Summary').then(m => ({ default: m.ProjectStrategy_Summary })));
 const ProjectStrategy_AvatarDiagnosis = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_AvatarDiagnosis').then(m => ({ default: m.ProjectStrategy_AvatarDiagnosis })));
 const ProjectStrategy_Psychology = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Psychology').then(m => ({ default: m.ProjectStrategy_Psychology })));
@@ -21,49 +20,37 @@ const ProjectStrategy_Content = React.lazy(() => import('./ProjectStrategy/Proje
 const ProjectStrategy_Email = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Email').then(m => ({ default: m.ProjectStrategy_Email })));
 const ProjectStrategy_Evergreen = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Evergreen').then(m => ({ default: m.ProjectStrategy_Evergreen })));
 const ProjectStrategy_WhatsApp = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_WhatsApp').then(m => ({ default: m.ProjectStrategy_WhatsApp })));
-////////// Fin de actualización - 05/06/2025 21:30 //////////
 
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
 import { ProjectMasterStrategy } from '../../../services/strategySchema';
-import { MOCK_MASTER_STRATEGY } from '../../../services/mockData';
 import { LandingPage, User, Plan, EmailSequence, Article, EmailMessage } from '../../../types';
 
-// --- ICONS MAPPING FOR DYNAMIC DATA ---
 const iconMap: any = {
     BookOpen, Sparkles, Users, MessageCircle, Target
 };
 
-// Estructura estática de los 14 momentos para visualización persuasiva
 const WHATSAPP_LAUNCH_MOMENTS = [
-    { id: 'wl1', name: 'Confirmación de Fecha', momentText: 'Día -7', objective: 'Generar expectativa y agendar al lead.', pilarType: 'Expectativa' },
-    { id: 'wl2', name: 'Historia de Autoridad', momentText: 'Día -5', objective: 'Crear conexión emocional con la experta.', pilarType: 'Autoridad' },
-    { id: 'wl3', name: 'Temario y Promesa', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Valor / Curiosidad' },
-    { id: 'wl4', name: 'Adelanto (3 Errores)', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Valor Preventivo' },
-    { id: 'wl5', name: '¡Hoy es el gran día!', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Urgencia Matutina' },
-    { id: 'wl6', name: 'Cuenta Regresiva (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Preparación' },
-    { id: 'wl7', name: '¡Estamos en Vivo!', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acción Inmediata' },
-    { id: 'wl8', name: 'Oferta Abierta', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Lanzamiento' },
-    { id: 'wl9', name: 'Bonos de Acción Rápida', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Escasez de Bonus' },
-    { id: 'wl10', name: 'Tutorial de Pago', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Facilitación' },
-    { id: 'wl11', name: 'Certificado y Garantía', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Seguridad' },
-    { id: 'wl12', name: 'Últimos Cupos', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Escasez Final' },
-    { id: 'wl13', name: 'Inscripciones Cerradas', momentText: 'Final', objective: 'Mantener la integridad de la oferta.', pilarType: 'Cierre de Carrito' },
-    { id: 'wl14', name: 'Bienvenida', momentText: 'Bienvenida', objective: 'Bienvenida a las nuevas alumnas.', pilarType: 'Onboarding' }
+    { id: 'wl1', name: 'Confirmación de Fecha', momentText: 'Día -7', objective: 'Generar expectativa y agendar al lead.', pilarType: 'Expectativa', purpose: 'Confirmar la fecha oficial de la clase y asegurar que lo agenden.' },
+    { id: 'wl2', name: 'Historia de Autoridad', momentText: 'Día -5', objective: 'Crear conexión emocional con la experta.', pilarType: 'Autoridad', purpose: 'Narrar brevemente la historia de éxito del experto para generar confianza.' },
+    { id: 'wl3', name: 'Temario y Promesa', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Valor / Curiosidad', purpose: 'Listar los 3 puntos clave que se aprenderán en la clase.' },
+    { id: 'wl4', name: 'Adelanto (3 Errores)', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Valor Preventivo', purpose: 'Identificar 3 errores comunes que el lead está cometiendo hoy.' },
+    { id: 'wl5', name: '¡Hoy es el gran día!', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Urgencia Matutina', purpose: 'Anunciar que hoy es la clase y recordar los horarios.' },
+    { id: 'wl6', name: 'Cuenta Regresiva (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Preparación', purpose: 'Indicar que busquen libreta, café y un lugar tranquilo.' },
+    { id: 'wl7', name: '¡Estamos en Vivo!', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acción Inmediata', purpose: 'Entregar el enlace directo a la transmisión.' },
+    { id: 'wl8', name: 'Oferta Abierta', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Lanzamiento', purpose: 'Anunciar la apertura de inscripciones con el descuento máximo.' },
+    { id: 'wl9', name: 'Bonos de Acción Rápida', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Escasez de Bonus', purpose: 'Mencionar los regalos extra para los primeros en comprar.' },
+    { id: 'wl10', name: 'Tutorial de Pago', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Facilitación', purpose: 'Explicar cómo realizar la compra paso a paso.' },
+    { id: 'wl11', name: 'Certificado y Garantía', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Seguridad', purpose: 'Destacar la garantía de 7 días y el aval profesional.' },
+    { id: 'wl12', name: 'Últimos Cupos', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Escasez Final', purpose: 'Notificar que los cupos con descuento se están terminando.' },
+    { id: 'wl13', name: 'Inscripciones Cerradas', momentText: 'Final', objective: 'Mantener la integridad de la oferta.', pilarType: 'Cierre de Carrito', purpose: 'Informar que el tiempo y los cupos se agotaron.' },
+    { id: 'wl14', name: 'Bienvenida', momentText: 'Bienvenida', objective: 'Bienvenida a las nuevas alumnas.', pilarType: 'Onboarding', purpose: 'Dar la bienvenida oficial a la nueva comunidad de alumnos.' }
 ];
-
-interface DashboardContext {
-    user: User;
-    pageCount: number;
-    articleCount: number;
-}
 
 export const ProjectStrategyDashboard: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams() as { id: string };
-    
-    // Get Global Context Data (User Limits & Current Usage)
-    const { user, pageCount, articleCount } = useOutletContext() as DashboardContext;
+    const { user, pageCount, articleCount } = useOutletContext() as any;
 
     const [strategyData, setStrategyData] = useState<ProjectMasterStrategy | null>(null);
     const [projectDescription, setProjectDescription] = useState<string>('');
@@ -74,51 +61,25 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [realEmailMessages, setRealEmailMessages] = useState<EmailMessage[]>([]);
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
     const [globalDomainCount, setGlobalDomainCount] = useState(0); 
-    
-    // Nuevo estado para los mensajes de WhatsApp resueltos (Estrategia vs DB)
     const [resolvedWhatsAppLaunch, setResolvedWhatsAppLaunch] = useState<any[]>([]);
-    
-    // */ Actualización: Estado para controlar el bloqueo persuasivo de la secuencia de WhatsApp - 12/06/2024 11:00
     const [isLaunchLocked, setIsLaunchLocked] = useState(true);
     
-    // */ Actualización: Sincronización de la sección activa con el parámetro de URL ?section= - 24/05/2024 20:20
     const [searchParams, setSearchParams] = useSearchParams();
     const activeSection = searchParams.get('section') || 'summary';
     const setActiveSection = (id: string) => setSearchParams({ section: id });
 
-    // */ Actualización: Efecto de scroll automático para anclas específicas tras recarga - 24/05/2024 20:35
-    useEffect(() => {
-        if (window.location.hash === '#web-system-anchor') {
-            const timer = setTimeout(() => {
-                const element = document.getElementById('web-system-anchor');
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
-                }
-            }, 800); // Pequeño delay para permitir que el contenido lazy se posicione
-            return () => clearTimeout(timer);
-        }
-    }, [activeSection]);
-
-    // Dynamic Plan Logic
     const [nextPlan, setNextPlan] = useState<Plan | null>(null);
-
-    // INTERACTIVE STATES
     const [activeWaScript, setActiveWaScript] = useState(0);
     const [activeEmail, setActiveEmail] = useState(0);
     const [activeArticle, setActiveArticle] = useState(0);
     const [selectedArticles, setSelectedArticles] = useState<number[]>([0]); 
     const [activeHeaderItem, setActiveHeaderItem] = useState<string | null>(null);
     const [activeEvergreenEmail, setActiveEvergreenEmail] = useState(0); 
-    
-    // LANDING PAGE SELECTION STATE
     const [selectedLpTab, setSelectedLpTab] = useState<string | null>(null);
     const [selectedTyTab, setSelectedTyTab] = useState<string | null>(null);
-
-    // MODAL STATE
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [showVideoModal, setShowVideoModal] = useState(false);
 
-    // FLOATING TOOLTIP STATE
     const [tooltipState, setTooltipState] = useState<{ visible: boolean; x: number; y: number; content: string[] }>({
         visible: false,
         x: 0,
@@ -126,7 +87,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
         content: []
     });
 
-    // --- LOAD STRATEGY, PAGES & PLANS DATA ---
     const loadData = async () => {
         if (!id) return;
         setLoading(true);
@@ -141,18 +101,9 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 api.getWhatsAppLaunchByProject(id).catch(() => null)
             ]);
 
-            if (projectDetails) {
-                setProjectDescription(projectDetails.description || '');
-            }
+            if (projectDetails) setProjectDescription(projectDetails.description || '');
 
-            const isStrategyValid = strategy && 
-                                   strategy.meta && 
-                                   strategy.meta.insights && 
-                                   strategy.avatars && 
-                                   strategy.psychology && 
-                                   strategy.modules;
-
-            if (isStrategyValid) {
+            if (strategy && strategy.meta && strategy.meta.insights && strategy.avatars && strategy.psychology && strategy.modules) {
                 if (strategy.meta.insights.overview?.items) {
                     strategy.meta.insights.overview.items = strategy.meta.insights.overview.items.map((item: any) => ({
                         ...item,
@@ -164,73 +115,71 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 setStrategyData(null);
             }
 
-            // Lógica de prioridad para WhatsApp Launch: DB > Strategy JSON
-            // Se rellena siempre hasta 14 para mantener la visualización persuasiva
+            // Mapeo Dinámico de WhatsApp Launch
             let final14 = WHATSAPP_LAUNCH_MOMENTS.map(moment => ({ ...moment, content: '', isGenerated: false }));
-
+            
+            // Prioridad: 1. DB (Mensajes generados) | 2. Strategy JSON (Sugerencias IA)
             if (waLaunchDb && waLaunchDb.messages) {
-                // Si existe en DB, mezclamos sus mensajes reales con la estructura de 14
                 const dbMessages = waLaunchDb.messages;
                 final14 = final14.map(moment => {
                     const match = dbMessages.find((m: any) => m.id === moment.id);
                     return match ? { ...moment, ...match } : moment;
                 });
-                
                 setResolvedWhatsAppLaunch(final14);
-                // Si al menos un mensaje (fuera del primero) está generado, desbloqueamos la vista
                 const hasGeneratedRest = dbMessages.some((m: any) => m.id !== 'wl1' && m.isGenerated);
                 setIsLaunchLocked(!hasGeneratedRest);
             } else {
-                // Si no hay en DB, usamos el primero de la estrategia (si existe) y bloqueamos el resto
                 if (strategy && strategy.modules && strategy.modules.whatsappLaunch && strategy.modules.whatsappLaunch.length > 0) {
-                    const firstStrategyMsg = strategy.modules.whatsappLaunch[0];
-                    final14[0] = { ...final14[0], ...firstStrategyMsg, isGenerated: true };
+                    const strategyMsgs = strategy.modules.whatsappLaunch;
+                    final14 = final14.map(moment => {
+                        const match = strategyMsgs.find((m: any) => m.id === moment.id);
+                        if (match) {
+                            return {
+                                ...moment,
+                                name: (match as any).name || moment.name,
+                                purpose: (match as any).purpose || (match as any).objective || moment.purpose,
+                                pilarType: (match as any).pilarType || moment.pilarType,
+                                content: (match as any).messages?.[0]?.text || (match as any).content || '',
+                                isGenerated: !!((match as any).messages?.[0]?.text || (match as any).content)
+                            };
+                        }
+                        return moment;
+                    });
                 }
                 setResolvedWhatsAppLaunch(final14);
                 setIsLaunchLocked(true);
             }
 
-            const projectPages = Array.isArray(pages) ? pages.filter(p => String(p.projectId) === String(id) || (strategy && p.name === strategy.meta?.projectName)) : [];
+            const projectPages = Array.isArray(pages) ? pages.filter(p => String(p.projectId) === String(id)) : [];
             setLinkedPages(projectPages);
 
             const projectSeqs = Array.isArray(sequences) ? sequences.filter(s => String(s.projectId) === String(id)) : [];
             setLinkedSequences(projectSeqs);
             
-            let realMessages: EmailMessage[] = [];
             if (projectSeqs.length > 0) {
-                realMessages = await api.getSequenceMessages(projectSeqs[0].id);
+                const realMessages = await api.getSequenceMessages(projectSeqs[0].id);
+                setRealEmailMessages(realMessages);
             }
-            setRealEmailMessages(realMessages);
 
             const projectArts = Array.isArray(articles) ? articles.filter(a => projectPages.some(p => String(p.id) === String(a.pageId))) : [];
             setLinkedArticles(projectArts);
 
-            const domains = Array.isArray(pages) ? pages.filter(p => !!p.customDomain).length : 0;
-            setGlobalDomainCount(domains);
+            setGlobalDomainCount(Array.isArray(pages) ? pages.filter(p => !!p.customDomain).length : 0);
 
             const currentPlanName = user.planLimits?.planName || 'starter';
             const sortedPlans = Array.isArray(plansData) ? [...plansData].sort((a, b) => a.priceMonthly - b.priceMonthly) : [];
             const currentIndex = sortedPlans.findIndex(p => p.slug === currentPlanName);
-            
-            if (currentIndex !== -1 && currentIndex < sortedPlans.length - 1) {
-                setNextPlan(sortedPlans[currentIndex + 1]);
-            } else {
-                setNextPlan(null); 
-            }
+            if (currentIndex !== -1 && currentIndex < sortedPlans.length - 1) setNextPlan(sortedPlans[currentIndex + 1]);
 
         } catch (error: any) {
-            console.error("[StrategyDashboard Error] Fatal load failure:", error.message);
+            console.error("[StrategyDashboard Error]:", error.message);
             setStrategyData(null);
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        if (id) {
-            loadData();
-        }
-    }, [id, user.planLimits]);
+    useEffect(() => { if (id) loadData(); }, [id, user.planLimits]);
 
     const handleGenerateStrategy = async () => {
         setGenerating(true);
@@ -238,343 +187,95 @@ export const ProjectStrategyDashboard: React.FC = () => {
             await api.generateProjectStrategyFull(id);
             await loadData();
         } catch (e: any) {
-            alert(`Error generando estrategia: ${e.message}`);
+            alert(`Error: ${e.message}`);
         } finally {
             setGenerating(false);
         }
     };
 
-    // --- CHART DATA GENERATION LOGIC ---
     const chartData = useMemo(() => {
         if (!strategyData || !strategyData.meta || !strategyData.meta.projection) return [];
-        
-        const monthNamesFull = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        const monthNamesShort = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        const names = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        const fullNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         const today = new Date();
-        const currentMonthIdx = today.getMonth(); 
-        const currentYear = today.getFullYear();
-
-        const baseData = strategyData.meta.projection;
-
-        return baseData.map((income, i) => {
-            const monthIndex = (currentMonthIdx + i) % 12;
-            const yearOffset = Math.floor((currentMonthIdx + i) / 12);
-            const year = currentYear + yearOffset;
-            
-            const monthNameShort = monthNamesShort[monthIndex];
-            const fullDate = `${monthNamesFull[monthIndex]} de ${year}`;
-            
+        const start = today.getMonth();
+        return strategyData.meta.projection.map((income, i) => {
+            const idx = (start + i) % 12;
+            const year = today.getFullYear() + Math.floor((start + i) / 12);
             return {
-                month: monthNameShort, 
+                month: names[idx], 
                 income: income || 0,
-                fullDate: fullDate 
+                fullDate: `${fullNames[idx]} de ${year}`
             };
         });
     }, [strategyData]);
 
     const handleTooltipHover = (e: React.MouseEvent, content: string[]) => {
-        setTooltipState({
-            visible: true,
-            x: e.clientX + 15,
-            y: e.clientY + 15,
-            content
-        });
+        setTooltipState({ visible: true, x: e.clientX + 15, y: e.clientY + 15, content });
     };
 
-    const handleTooltipLeave = () => {
-        setTooltipState(prev => ({ ...prev, visible: false }));
-    };
+    const handleTooltipLeave = () => setTooltipState(prev => ({ ...prev, visible: false }));
 
     const toggleArticleSelection = (index: number) => {
-        if (selectedArticles.includes(index)) {
-            setSelectedArticles(prev => prev.filter(i => i !== index));
-        } else {
-            const maxArticles = user.planLimits?.maxArticles || 2;
-            if (selectedArticles.length < maxArticles) {
-                setSelectedArticles(prev => [...prev, index]);
-            } else {
-                alert(`Tu plan permite seleccionar máximo ${maxArticles} artículos. Desmarca uno para agregar otro o actualiza tu plan.`);
-                setShowUpgradeModal(true);
-            }
-        }
+        if (selectedArticles.includes(index)) setSelectedArticles(prev => prev.filter(i => i !== index));
+        else if (selectedArticles.length < (user.planLimits?.maxArticles || 2)) setSelectedArticles(prev => [...prev, index]);
+        else { alert("Límite de artículos alcanzado."); setShowUpgradeModal(true); }
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center text-white">
-                <div className="text-center">
-                    <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
-                    <p className="text-gray-400">Cargando estrategia personalizada...</p>
-                </div>
+    if (loading) return (
+        <div className="min-h-screen bg-black flex items-center justify-center">
+            <div className="text-center">
+                <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-gray-400">Cargando estrategia...</p>
             </div>
-        );
-    }
+        </div>
+    );
 
-    if (!strategyData || !strategyData.meta) {
-        return (
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-6 animate-in fade-in">
-                <div className="w-24 h-24 bg-blue-900/20 rounded-full flex items-center justify-center mb-8 border border-blue-500/20 shadow-2xl shadow-blue-500/10">
-                    <Rocket className="w-12 h-12 text-blue-500" />
-                </div>
-                <h2 className="text-3xl md:text-4xl font-black mb-4 text-center">Datos incompletos or corruptos</h2>
-                <p className="text-gray-400 text-lg max-w-xl text-center mb-10 leading-relaxed font-light">
-                    No hemos podido cargar la estrategia de este proyecto correctamente. Esto puede deberse a un error en la generación previa o datos truncados por la IA. 
-                    <br/><br/>
-                    <span className="text-blue-400 font-bold">La mejor solución es volver a generar la estrategia ahora mismo.</span>
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-4">
-                    <button 
-                        onClick={handleGenerateStrategy} 
-                        disabled={generating}
-                        className="group relative px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl font-black text-xl shadow-2xl shadow-blue-900/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-4 disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {generating ? (
-                            <>
-                                <Loader2 className="w-6 h-6 animate-spin" />
-                                Generando...
-                            </>
-                        ) : (
-                            <>
-                                <RefreshCw className="w-6 h-6" />
-                                Regenerar Estrategia
-                            </>
-                        )}
-                    </button>
-
-                    <button 
-                        onClick={() => navigate('/dashboard/projects')}
-                        className="px-10 py-5 bg-gray-900 hover:bg-gray-800 text-gray-300 border border-gray-800 rounded-2xl font-bold transition-all"
-                    >
-                        Cancelar
-                    </button>
-                </div>
-                
-                <div className="mt-12 flex items-center gap-3 text-gray-500 text-sm">
-                    <AlertTriangle className="w-4 h-4 text-yellow-600" />
-                    <span>Esto consumirá un crédito de generación de tu plan actual.</span>
-                </div>
-            </div>
-        );
-    }
+    if (!strategyData) return (
+        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 animate-in fade-in">
+            <h2 className="text-3xl font-black mb-4 text-center">Datos incompletos</h2>
+            <button onClick={handleGenerateStrategy} disabled={generating} className="px-10 py-5 bg-primary text-white rounded-2xl font-black text-xl flex items-center gap-4">
+                {generating ? <Loader2 className="animate-spin" /> : <RefreshCw />} Regenerar Estrategia
+            </button>
+        </div>
+    );
 
     return (
         <div id="psd-page-root" className="min-h-screen bg-black text-gray-200 pb-20 font-sans relative">
-            
-            <UpgradeModal 
-                isOpen={showUpgradeModal} 
-                onClose={() => setShowUpgradeModal(false)} 
-                reason="Desbloquea la generación ilimitada de contenido y funcionalidades PRO."
-            />
-
+            <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} currentPlan={user.planLimits?.planName} />
             {showVideoModal && (
-                <div id="psd-video-modal-overlay" className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
-                    <div id="psd-video-modal-container" className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
-                        <button id="psd-video-modal-close-btn" onClick={() => setShowVideoModal(false)} className="absolute top-4 right-4 text-white z-10 bg-gray-800 p-2 rounded-full hover:bg-gray-700">
-                            <X className="w-6 h-6"/>
-                        </button>
-                        <div id="psd-video-modal-iframe-container" className="aspect-video w-full">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
-                                title="Estrategia Explicada" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
+                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in">
+                    <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+                        <button onClick={() => setShowVideoModal(false)} className="absolute top-4 right-4 text-white z-10 bg-gray-800 p-2 rounded-full"><X /></button>
+                        <iframe className="aspect-video w-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" allowFullScreen></iframe>
                     </div>
                 </div>
             )}
 
             {tooltipState.visible && (
-                <div 
-                    id="psd-tooltip-container"
-                    className="fixed z-[100] w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700 p-5 rounded-2xl shadow-2xl pointer-events-none transition-opacity duration-150 animate-in fade-in zoom-in-95"
-                    style={{ top: tooltipState.y, left: tooltipState.x }}
-                >
-                    <div id="psd-tooltip-header" className="flex items-center gap-2 mb-3 border-b border-gray-700/50 pb-2">
-                        <Sparkles className="w-4 h-4 text-blue-400" />
-                        <span className="text-xs font-bold uppercase tracking-wider text-blue-100">Detalle Estratégico</span>
-                    </div>
-                    <div id="psd-tooltip-content" className="space-y-2 text-sm text-gray-300 leading-relaxed">
-                        {tooltipState.content.map((text, i) => (
-                            <p key={i}>{text}</p>
-                        ))}
-                    </div>
+                <div className="fixed z-[100] w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700 p-5 rounded-2xl shadow-2xl pointer-events-none" style={{ top: tooltipState.y, left: tooltipState.x }}>
+                    {tooltipState.content.map((text, i) => <p key={i} className="text-sm text-gray-300">{text}</p>)}
                 </div>
             )}
 
-            <ProjectStrategy_Header 
-                projectName={strategyData.meta?.projectName || "Proyecto"} 
-                onBack={() => navigate('/dashboard/projects')} 
-            />
+            <ProjectStrategy_Header projectName={strategyData.meta?.projectName || "Proyecto"} onBack={() => navigate('/dashboard/projects')} />
 
-            {/* */ /* Actualización: Reestructuración del grid al estilo Academia con sidebar sticky top-6 - 24/05/2024 21:15 */ }
-            <div id="psd-modular-container" className="max-w-full mx-auto py-6 px-0 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-8 relative">
-                
+            <div className="max-w-full mx-auto py-6 px-0 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-8 relative">
                 <div className="lg:col-span-3">
-                    <ProjectStrategy_Sidebar 
-                        activeSection={activeSection}
-                        onSectionChange={(id) => {
-                            setActiveSection(id);
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }}
-                    />
+                    <ProjectStrategy_Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
                 </div>
-
-                <div id="psd-content-viewer" className="lg:col-span-9 min-w-0">
-                    <Suspense fallback={
-                        <div className="h-96 flex flex-col items-center justify-center text-gray-500 gap-4 animate-pulse">
-                            <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                            <p className="font-bold uppercase tracking-widest text-xs italic">Cargando Módulo Estratégico...</p>
-                        </div>
-                    }>
-                        {activeSection === 'summary' && (
-                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                <ProjectStrategy_Summary 
-                                    strategyData={strategyData} 
-                                    description={projectDescription}
-                                    activeHeaderItem={activeHeaderItem} 
-                                    setActiveHeaderItem={setActiveHeaderItem}
-                                    handleTooltipHover={handleTooltipHover}
-                                    handleTooltipLeave={handleTooltipLeave}
-                                />
-                            </div>
-                        )}
-
-                        {activeSection === 'growth' && (
-                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                <ProjectStrategy_BusinessGrowth 
-                                    chartData={chartData} 
-                                    onOpenVideo={() => setShowVideoModal(true)} 
-                                    commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)}
-                                />
-                            </div>
-                        )}
-
-                        {activeSection === 'blueprint' && (
-                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                <ProjectStrategy_Blueprint 
-                                    handleTooltipHover={handleTooltipHover} 
-                                    handleTooltipLeave={handleTooltipLeave} 
-                                    onOpenVideo={() => setShowVideoModal(true)} 
-                                />
-                            </div>
-                        )}
-
-                        {activeSection === 'avatar' && (
-                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                {strategyData.avatars && (
-                                    <ProjectStrategy_AvatarDiagnosis 
-                                        avatars={strategyData.avatars} 
-                                        psychology={strategyData.psychology} 
-                                        benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items}
-                                    />
-                                )}
-                            </div>
-                        )}
-
-                        {activeSection === 'psychology' && (
-                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                {strategyData.psychology && (
-                                    <ProjectStrategy_Psychology 
-                                        psychology={strategyData.psychology} 
-                                        benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items}
-                                    />
-                                )}
-                            </div>
-                        )}
-
-                        {activeSection === 'web' && (
-                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                <ProjectStrategy_WebSystem 
-                                    projectId={id}
-                                    lpTabsData={strategyData.modules.web.landingPageTabs}
-                                    tyTabsData={strategyData.modules.web.thankYouPageTabs}
-                                    selectedLpTab={selectedLpTab}
-                                    setSelectedLpTab={setSelectedLpTab}
-                                    selectedTyTab={selectedTyTab}
-                                    setSelectedTyTab={setSelectedTyTab}
-                                    handleTooltipHover={handleTooltipHover}
-                                    handleTooltipLeave={handleTooltipLeave}
-                                    linkedPages={linkedPages}
-                                    onEditPage={(pageId) => navigate(`/dashboard/editor/${pageId}`)}
-                                    pageCount={pageCount}
-                                    domainCount={globalDomainCount}
-                                    planLimits={user.planLimits}
-                                    onUpgrade={() => setShowUpgradeModal(true)}
-                                    nextPlan={nextPlan}
-                                />
-                            </div>
-                        )}
-
-                        {activeSection === 'content' && (
-                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                {strategyData.modules?.content && (
-                                    <ProjectStrategy_Content 
-                                        contentData={strategyData.modules.content}
-                                        activeArticle={activeArticle}
-                                        setActiveArticle={setActiveArticle}
-                                        selectedArticles={selectedArticles}
-                                        toggleArticleSelection={toggleArticleSelection}
-                                        handleTooltipHover={handleTooltipHover}
-                                        handleTooltipLeave={handleTooltipLeave}
-                                        articleCount={articleCount}
-                                        planLimits={user.planLimits}
-                                        onUpgrade={() => setShowUpgradeModal(true)}
-                                        nextPlan={nextPlan}
-                                        linkedArticles={linkedArticles}
-                                    />
-                                )}
-                            </div>
-                        )}
-
-                        {activeSection === 'email' && (
-                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                {strategyData.modules?.emails?.nurture && (
-                                    <ProjectStrategy_Email 
-                                        emailData={strategyData.modules.emails.nurture}
-                                        avatars={strategyData.avatars}
-                                        activeEmail={activeEmail}
-                                        setActiveEmail={setActiveEmail}
-                                        features={user.planLimits?.features}
-                                        onUpgrade={() => setShowUpgradeModal(true)}
-                                        planLimits={user.planLimits}
-                                        nextPlan={nextPlan}
-                                        realMessages={realEmailMessages}
-                                    />
-                                )}
-                            </div>
-                        )}
-
-                        {activeSection === 'evergreen' && (
-                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                <ProjectStrategy_Evergreen 
-                                    evergreenData={strategyData.modules.emails.evergreen}
-                                    avatars={strategyData.avatars}
-                                    activeEvergreenEmail={activeEvergreenEmail}
-                                    setActiveEvergreenEmail={setActiveEvergreenEmail}
-                                    features={user.planLimits?.features}
-                                    onUpgrade={() => setShowUpgradeModal(true)}
-                                    planLimits={user.planLimits}
-                                    nextPlan={nextPlan}
-                                    linkedArticles={linkedArticles}
-                                />
-                            </div>
-                        )}
-
-                        {activeSection === 'whatsapp' && (
-                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                <ProjectStrategy_WhatsApp 
-                                    whatsappLaunch={resolvedWhatsAppLaunch}
-                                    activeWaScript={activeWaScript}
-                                    setActiveWaScript={setActiveWaScript}
-                                    onUpgrade={() => setShowUpgradeModal(true)}
-                                    isLocked={isLaunchLocked}
-                                    projectId={id}
-                                />
-                            </div>
-                        )}
+                <div className="lg:col-span-9 min-w-0">
+                    <Suspense fallback={<div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>}>
+                        {activeSection === 'summary' && <ProjectStrategy_Summary strategyData={strategyData} description={projectDescription} activeHeaderItem={activeHeaderItem} setActiveHeaderItem={setActiveHeaderItem} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
+                        {activeSection === 'growth' && <ProjectStrategy_BusinessGrowth chartData={chartData} onOpenVideo={() => setShowVideoModal(true)} commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)} />}
+                        {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onOpenVideo={() => setShowVideoModal(true)} />}
+                        {activeSection === 'avatar' && <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items} />}
+                        {activeSection === 'psychology' && <ProjectStrategy_Psychology psychology={strategyData.psychology} benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items} />}
+                        {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules.web.landingPageTabs} tyTabsData={strategyData.modules.web.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} linkedPages={linkedPages} onEditPage={(pid) => navigate(`/dashboard/editor/${pid}`)} pageCount={pageCount} domainCount={globalDomainCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} />}
+                        {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={articleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
+                        {activeSection === 'email' && <ProjectStrategy_Email emailData={strategyData.modules.emails.nurture} avatars={strategyData.avatars} activeEmail={activeEmail} setActiveEmail={setActiveEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} realMessages={realEmailMessages} />}
+                        {activeSection === 'evergreen' && <ProjectStrategy_Evergreen evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
+                        {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp whatsappLaunch={resolvedWhatsAppLaunch} activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} isLocked={isLaunchLocked} projectId={id} />}
                     </Suspense>
                 </div>
             </div>
