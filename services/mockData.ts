@@ -18,6 +18,8 @@ export const MOCK_USER: User = {
       maxProjects: 10,
       maxLandings: 50,
       maxDomains: 5,
+      maxArticles: 20,
+      maxEmailSequences: 10,
       features: {
           whatsappBot: true,
           blogGenerator: true,
@@ -832,6 +834,7 @@ const MICROBLADING_CONTENT: GeneratedPageContent = {
       step1Warning: "Importante: Verifica tu bandeja de SPAM o Promociones.",
       step1Subject: "Busca el asunto: \"Acceso a tu Clase...\"",
       
+      // Step 2
       step2Title: "Grupo VIP + Regalo",
       step2Desc: "Únete al grupo de WhatsApp para recibir la mentoría y tu regalo de bienvenida.",
       step2Badge: "¡Acción Requerida!",

@@ -104,6 +104,7 @@ export const AdminPanel: React.FC = () => {
             maxLandings: 3,
             maxDomains: 1,
             maxArticles: 2,
+            maxEmailSequences: 1,
             features: {
                 whatsappBot: false,
                 blogGenerator: false,
@@ -191,6 +192,7 @@ export const AdminPanel: React.FC = () => {
             maxLandings: plan.limitsConfig.maxLandings,
             maxDomains: plan.limitsConfig.maxDomains || 1,
             maxArticles: plan.limitsConfig.maxArticles || 0,
+            maxEmailSequences: plan.limitsConfig.maxEmailSequences || 1,
             features: { ...plan.limitsConfig.features }
         });
     };
@@ -401,12 +403,10 @@ export const AdminPanel: React.FC = () => {
             {/* Edit User Modal */}
             {editingUser && tempPlanLimits && (
                 <div 
-                    ////////// Actualización: Cierre al hacer clic en fondo - 28/05/2025 15:30 //////////
                     onClick={() => setEditingUser(null)}
                     className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
                 >
                     <div 
-                        ////////// Actualización: Evitar propagación - 28/05/2025 15:30 //////////
                         onClick={(e) => e.stopPropagation()}
                         className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]"
                     >
@@ -579,6 +579,15 @@ export const AdminPanel: React.FC = () => {
                                                 className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
                                             />
                                         </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Secuencias Email</label>
+                                            <input 
+                                                type="number" 
+                                                value={tempPlanLimits.maxEmailSequences || 0}
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxEmailSequences: parseInt(e.target.value) || 0})}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
+                                            />
+                                        </div>
                                     </div>
 
                                     {/* Features Toggles */}
@@ -711,12 +720,10 @@ export const AdminPanel: React.FC = () => {
             {/* Delete Confirmation */}
             {showDeleteConfirm && (
                 <div 
-                    ////////// Actualización: Cierre al hacer clic en fondo - 28/05/2025 15:30 //////////
                     onClick={() => setShowDeleteConfirm(null)}
                     className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
                 >
                     <div 
-                        ////////// Actualización: Evitar propagación - 28/05/2025 15:30 //////////
                         onClick={(e) => e.stopPropagation()}
                         className="bg-gray-900 border border-red-900/50 p-6 rounded-xl max-w-sm w-full text-center"
                     >
@@ -725,7 +732,6 @@ export const AdminPanel: React.FC = () => {
                         <p className="text-gray-400 text-sm mb-6">Esta acción borrará permanentemente al usuario y todos sus datos.</p>
                         <div className="flex justify-center gap-3">
                             <button onClick={() => setShowDeleteConfirm(null)} className="px-4 py-2 border border-gray-700 rounded text-gray-300">Cancelar</button>
-                            {/* FIX: Uso de referencia a función para evitar ejecución inmediata en onClick - 24/05/2025 10:30 */}
                             <button onClick={() => handleDeleteUser(showDeleteConfirm!)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-bold">Sí, Eliminar</button>
                         </div>
                     </div>

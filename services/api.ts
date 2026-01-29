@@ -1,3 +1,4 @@
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES, MOCK_MASTER_STRATEGY } from "./mockData";
 import { ProjectMasterStrategy } from "./strategySchema";
@@ -1155,8 +1156,46 @@ export const api = {
     getPublicPlans: async (): Promise<Plan[]> => {
         if (isMockMode) {
             return Promise.resolve([
-                { id: 'starter', name: 'Starter', slug: 'starter', description: '...', priceMonthly: 0, currency: 'EUR', limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, maxArticles: 2, maxDomains: 1, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } }, uiFeatures: ['...'], isActive: true, isRecommended: false },
-                { id: 'pro', name: 'Pro', slug: 'pro', description: '...', priceMonthly: 19.99, currency: 'EUR', limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, maxArticles: 20, maxDomains: 3, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } }, uiFeatures: ['...'], isActive: true, isRecommended: true }
+                { 
+                  id: 'starter', 
+                  name: 'Starter', 
+                  slug: 'starter', 
+                  description: '...', 
+                  priceMonthly: 0, 
+                  currency: 'EUR', 
+                  limitsConfig: { 
+                    planName: 'starter', 
+                    maxProjects: 1, 
+                    maxLandings: 3, 
+                    maxArticles: 2, 
+                    maxDomains: 1, 
+                    maxEmailSequences: 1,
+                    features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } 
+                  }, 
+                  uiFeatures: ['...'], 
+                  isActive: true, 
+                  isRecommended: false 
+                },
+                { 
+                  id: 'pro', 
+                  name: 'Pro', 
+                  slug: 'pro', 
+                  description: '...', 
+                  priceMonthly: 19.99, 
+                  currency: 'EUR', 
+                  limitsConfig: { 
+                    planName: 'pro', 
+                    maxProjects: 5, 
+                    maxLandings: 20, 
+                    maxArticles: 20, 
+                    maxDomains: 3, 
+                    maxEmailSequences: 5,
+                    features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } 
+                  }, 
+                  uiFeatures: ['...'], 
+                  isActive: true, 
+                  isRecommended: true 
+                }
             ]);
         }
         if (apiCache.publicPlans) return apiCache.publicPlans;

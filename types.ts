@@ -1,3 +1,4 @@
+
 ////////// Actualización: Definición de tipos para el Feed de Noticias del Dashboard - 24/05/2024 16:45 //////////
 export interface DashboardNews {
     id: string;
@@ -87,7 +88,8 @@ export interface PlanLimits {
   maxProjects: number;
   maxLandings: number;
   maxDomains: number; // Nuevo límite de dominios
-  maxArticles?: number; // Added optional
+  maxArticles: number; // Actualizado a obligatorio
+  maxEmailSequences: number; // Nuevo límite solicitado
   features: PlanFeatures;
 }
 
