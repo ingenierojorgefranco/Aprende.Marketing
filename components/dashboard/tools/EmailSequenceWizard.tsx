@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 /* */ /* Actualización: Importación de useSearchParams para soporte de Deep Linking - 25/05/2024 18:15 */
 import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
@@ -762,7 +763,7 @@ export const EmailSequenceWizard: React.FC = () => {
                                                                                     }}
                                                                                 >
                                                                                     <option value="">-- Elige un Hotlink --</option>
-                                                                                    {selectedProject?.affiliateLinks.map((link, i) => (
+                                                                                    {selectedProject?.affiliateLinks?.map((link, i) => (
                                                                                         <option key={i} value={link.url}>{link.label}</option>
                                                                                     ))}
                                                                                     <option value="ADD_NEW" className="text-[#FF5A1F] font-bold">+ Añadir nuevo Hotlink</option>
