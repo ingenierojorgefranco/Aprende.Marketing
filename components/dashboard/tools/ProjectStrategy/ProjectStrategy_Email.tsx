@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -89,7 +90,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             const apiField = field === 'contentHtml' ? 'content_html' : (field === 'isGenerated' ? 'is_generated' : field);
             await api.updateEmailMessage(currentReal.id, { [apiField]: value } as any);
             // Actualización local para feedback visual inmediato si el dashboard no recarga
-            (currentReal as any)[field] = value;
+            currentReal[field as keyof EmailMessage] = value as any;
         } catch (e) {
             console.error(e);
         }
