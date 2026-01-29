@@ -10,7 +10,7 @@ import {
     Lightbulb, CheckCircle2, User as UserIcon, Copy, Save, Target, Globe, Link as LinkIcon, ExternalLink
 } from 'lucide-react';
 import { api } from '../../../services/api';
-import { Project, User, Plan, EmailMessage, LandingPage } from '../../../types';
+import { Project, User, Plan, EmailMessage, LandingPage, AffiliateLink } from '../../../types';
 import { ProjectMasterStrategy } from '../../../services/strategySchema';
 
 interface DashboardContext {
@@ -35,6 +35,12 @@ export const EmailSequenceWizard: React.FC = () => {
     const [activeEmailIdx, setActiveEmailIdx] = useState(0);
     const [nextPlan, setNextPlan] = useState<Plan | null>(null);
     const [userPages, setUserPages] = useState<LandingPage[]>([]);
+
+    // Estados para la creación de nuevos hotlinks integrada
+    const [isAddingNewLink, setIsAddingNewLink] = useState(false);
+    const [newLinkLabel, setNewLinkLabel] = useState('');
+    const [newLinkUrl, setNewLinkUrl] = useState('');
+    const [savingNewLink, setSavingNewLink] = useState(false);
 
     /* */ /* Actualización: Estado para manejar la edición de la estructura de correos y descripción estratégica de valor - 24/05/2024 21:15 */
     const [editableEmails, setEditableEmails] = useState<EmailMessage[]>([]);
@@ -100,26 +106,29 @@ export const EmailSequenceWizard: React.FC = () => {
         setSelectedProject(project);
         setLoading(true);
         try {
-            // CARGA INTELIGENTE: Extraemos la estrategia directamente del JSON del proyecto
             const strategyData = project.strategy_json;
-            
-            // Verificamos si ya existe una secuencia en la base de datos
             const allSequences = await api.getEmailSequences();
             const existingSeq = allSequences.find(s => String(s.projectId) === String(project.id));
             
+            const hasLinks = project.affiliateLinks && project.affiliateLinks.length > 0;
+            const defaultHotlink = hasLinks ? project.affiliateLinks[0].url : '';
+
             if (existingSeq) {
-                // Si existe, cargamos los mensajes reales para el editor
                 const realMessages = await api.getSequenceMessages(existingSeq.id);
-                setEditableEmails(realMessages);
+                // Si los mensajes no tienen link definido y el proyecto tiene links, asignamos el primero por defecto
+                const messagesWithDefaults = realMessages.map(m => ({
+                    ...m,
+                    redirectType: m.redirectType || (hasLinks ? 'hotlink' : 'landing'),
+                    redirectUrl: m.redirectUrl || defaultHotlink
+                }));
+                setEditableEmails(messagesWithDefaults);
                 if (strategyData) setStrategy(strategyData);
             } else if (strategyData) {
-                // Si no existe, usamos la plantilla de la Estrategia Maestra
                 setStrategy(strategyData);
                 const nurtureEmails = strategyData.modules?.emails?.nurture || [];
                 
-                // RESPETO A LA ESTRATEGIA MAESTRA: Poblamos los campos con los datos definidos por la IA
                 const mappedMessages: EmailMessage[] = nurtureEmails.map((email: any, idx: number) => ({
-                    id: `temp-${idx}`, // ID temporal para PERSISTENCIA DIFERIDA
+                    id: `temp-${idx}`,
                     sequenceId: '', 
                     dayIndex: idx,
                     subject: email.subject || '',
@@ -127,8 +136,8 @@ export const EmailSequenceWizard: React.FC = () => {
                     purpose: email.objective || '',
                     contentHtml: '',
                     isGenerated: false,
-                    redirectType: 'landing',
-                    redirectUrl: ''
+                    redirectType: hasLinks ? 'hotlink' : 'landing',
+                    redirectUrl: defaultHotlink
                 }));
                 setEditableEmails(mappedMessages);
             }
@@ -148,20 +157,16 @@ export const EmailSequenceWizard: React.FC = () => {
         }
     };
 
-    /* */ /* Actualización: Lógica de auto-guardado asíncrono en base de datos - 24/05/2024 22:30 */
     const handleUpdateEmail = async (index: number, field: string, value: any) => {
         const newEmails = [...editableEmails];
         (newEmails[index] as any)[field] = value;
         setEditableEmails(newEmails);
         
         const message = newEmails[index];
-        
-        // PERSISTENCIA DIFERIDA: Si el ID es temporal, no guardamos en BD hasta una acción explícita
         if (message.id.startsWith('temp-')) return;
 
         setShowSaveIndicator(true);
         try {
-            /* */ /* Actualización: Corrección de nombres de campos (contentHtml -> content_html, isGenerated -> is_generated) para asegurar la persistencia en el backend - 24/06/2024 16:50 */
             const apiField = field === 'contentHtml' ? 'content_html' : (field === 'isGenerated' ? 'is_generated' : field);
             await api.updateEmailMessage(message.id, { [apiField]: value } as any);
             setTimeout(() => setShowSaveIndicator(false), 2000);
@@ -170,7 +175,6 @@ export const EmailSequenceWizard: React.FC = () => {
         }
     };
 
-    /* Actualización: Función de intercambio (swap) de tipos de correo con persistencia - 24/05/2024 16:45 */
     const handleTypeSwap = async (newType: string) => {
         const otherIdx = editableEmails.findIndex((e, i) => i !== activeEmailIdx && e.pilarType === newType);
         const currentType = editableEmails[activeEmailIdx].pilarType;
@@ -193,18 +197,40 @@ export const EmailSequenceWizard: React.FC = () => {
         setTimeout(() => setShowSaveIndicator(false), 2000);
     };
 
-    /* */ /* Actualización: Función para generar correo individual con inclusión de etiquetas HTML para estilos y enlace a Google - 24/05/2024 21:15 */
+    const handleAddNewHotlink = async () => {
+        if (!selectedProject || !newLinkLabel || !newLinkUrl) return;
+        setSavingNewLink(true);
+        try {
+            const newLink: AffiliateLink = { label: newLinkLabel, url: newLinkUrl };
+            const updatedLinks = [...(selectedProject.affiliateLinks || []), newLink];
+            
+            await api.updateProject(selectedProject.id, {
+                ...selectedProject,
+                affiliateLinks: updatedLinks
+            } as any);
+
+            setSelectedProject({ ...selectedProject, affiliateLinks: updatedLinks });
+            handleUpdateEmail(activeEmailIdx, 'redirectUrl', newLinkUrl);
+            
+            setIsAddingNewLink(false);
+            setNewLinkLabel('');
+            setNewLinkUrl('');
+        } catch (e) {
+            alert("Error al guardar el nuevo link.");
+        } finally {
+            setSavingNewLink(false);
+        }
+    };
+
     const handleGenerateSingleEmail = async () => {
         setIsGeneratingEmail(true);
         try {
             let currentMessages = [...editableEmails];
             
-            // PERSISTENCIA DIFERIDA: Si es la primera acción explícita, creamos la secuencia en BD
             if (currentMessages[activeEmailIdx].id.startsWith('temp-') && selectedProject) {
                 const seqInfo = await api.createEmailSequence(selectedProject.id, `Secuencia: ${selectedProject.name}`);
                 const realMessages = await api.getSequenceMessages(seqInfo.id);
                 
-                // Sincronizamos la Estrategia Maestra y cambios locales con los registros reales de la BD
                 for (let i = 0; i < realMessages.length; i++) {
                     await api.updateEmailMessage(realMessages[i].id, {
                         subject: currentMessages[i].subject,
@@ -219,14 +245,12 @@ export const EmailSequenceWizard: React.FC = () => {
                 setEditableEmails(currentMessages);
             }
 
-            // Simulamos la generación del copy por parte de la IA
             await new Promise(resolve => setTimeout(resolve, 2500));
             
             const email = currentMessages[activeEmailIdx];
             const avatarName = strategy?.avatars[0]?.name.split(' ')[0] || "amiga";
             const targetUrl = email.redirectUrl || 'https://google.com';
             
-            // Generamos un ejemplo de texto persuasivo con HTML (colores y enlaces)
             let generatedBody = `Hola ${avatarName},<br><br>Tal como te lo prometí, aquí tienes la llave para empezar tu transformación. Entiendo que hoy en día es difícil encontrar un camino claro en ${selectedProject?.niche}, pero estoy aquí para decirte que existe una <span style="color: #FF5A1F; font-weight: bold;">solución directa</span>.<br><br>He preparado este material pensando exclusivamente en resolver ese sentimiento de estancamiento que me comentaste. No se trata solo de aprender una técnica, sino de dominar un negocio que te brinde la libertad que mereces.<br><br><a href="${targetUrl}" style="color: #FF5A1F; text-decoration: underline; font-weight: bold;">[Haz clic aquí para acceder ahora mismo]</a><br><br>Haz clic en el enlace de abajo para acceder ahora mismo.<br><br>Espero que lo disfrutes,<br>${user.name}`;
 
             if (email.pilarType === 'Agitación del Dolor') {
@@ -239,7 +263,6 @@ export const EmailSequenceWizard: React.FC = () => {
             newEmails[activeEmailIdx].isGenerated = true;
             newEmails[activeEmailIdx].contentHtml = generatedBody;
             
-            /* */ /* Actualización: Sincronización de llaves de API (content_html, is_generated) para profesionalizar la persistencia tras generación - 24/06/2024 16:50 */
             await api.updateEmailMessage(newEmails[activeEmailIdx].id, { 
                 content_html: generatedBody, 
                 is_generated: true 
@@ -255,7 +278,6 @@ export const EmailSequenceWizard: React.FC = () => {
         }
     };
 
-    /* */ /* Actualización: Funcionalidad de copiado exclusivo del contenido (sin asunto), centrado y estilizado en azul claro para Systeme.io - 24/05/2024 22:30 */
     const handleCopyEmail = () => {
         const email = editableEmails[activeEmailIdx];
         const htmlContent = `<div>${email.contentHtml}</div>`;
@@ -284,6 +306,7 @@ export const EmailSequenceWizard: React.FC = () => {
     }
 
     const containerWidth = (step >= 1 && strategy) ? 'max-w-[1400px]' : 'max-w-5xl';
+    const currentEmail = editableEmails[activeEmailIdx];
 
     return (
         <div className={`${containerWidth} mx-auto bg-gray-900 rounded-[3rem] shadow-2xl border border-white/5 overflow-hidden min-h-[600px] flex flex-col relative animate-in fade-in duration-500 transition-all`}>
@@ -299,7 +322,6 @@ export const EmailSequenceWizard: React.FC = () => {
             )}
 
             <div className="bg-[#FF5A1F]/10 p-8 text-center border-b border-[#FF5A1F]/10 shrink-0 relative">
-                {/* */ /* Actualización: Lógica dinámica para el botón Volver según el contexto de la URL - 25/06/2024 10:15 */ }
                 {step > 0 && selectedProject && (
                     <button 
                         onClick={() => { 
@@ -317,7 +339,6 @@ export const EmailSequenceWizard: React.FC = () => {
                         {urlProjectId ? 'Ver otra Secuencia' : 'Cambiar Proyecto'}
                     </button>
                 )}
-                {/* Fin de actualización - 25/06/2024 10:15 */}
                 
                 <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
                     <Mail className="w-8 h-8 text-[#FF5A1F]" />
@@ -369,7 +390,6 @@ export const EmailSequenceWizard: React.FC = () => {
                                             </div>
                                             <div className="flex-1 mb-10">
                                                 <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
-                                                {/* Eliminación de truncamiento en descripción de proyecto para mostrar texto completo - 06/03/2025 15:30 */ }
                                                 <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p>
                                             </div>
                                             <button 
@@ -380,7 +400,6 @@ export const EmailSequenceWizard: React.FC = () => {
                                             </button>
                                         </div>
                                     ))}
-                                    {/* */ /* Actualización: Incorporación de la tarjeta "Crear un nuevo proyecto" para unificar la experiencia con otros generadores - 27/05/2024 20:30 */ }
                                     <button 
                                         onClick={() => navigate('/dashboard/projects/create')}
                                         className="p-10 bg-transparent border-2 border-dashed border-gray-800 rounded-[3rem] hover:border-gray-600 hover:text-white transition-all text-gray-500 group flex flex-col items-center justify-center gap-6 shadow-2xl min-h-[400px]"
@@ -424,7 +443,6 @@ export const EmailSequenceWizard: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* */ /* Actualización: Eliminación de scroll interno en la lista de secuencia para visualización completa de tabs - 25/06/2024 11:30 */ }
                                 <div className="space-y-4 flex-1 pr-2">
                                     {editableEmails.map((email, idx) => (
                                         <div 
@@ -462,13 +480,10 @@ export const EmailSequenceWizard: React.FC = () => {
                                         </div>
                                     )}
 
-                                    {/* */ /* Actualización: Sincronización de ID mock y validación de existencia de mensajes para evitar error 'isGenerated' de undefined - 20/05/2024 10:15 */ }
-                                    {/* VISOR CONDICIONAL */}
                                     {editableEmails.length > 0 && editableEmails[activeEmailIdx] ? (
                                         editableEmails[activeEmailIdx].isGenerated ? (
                                             <div className="flex-1 flex flex-col space-y-8 animate-in slide-in-from-bottom-4 duration-500">
                                                 <div className="flex justify-between items-center bg-gray-800/30 p-4 rounded-2xl border border-white/5">
-                                                    {/* */ /* Actualización: Eliminación de etiqueta verde y reposicionamiento del enlace de edición en blanco - 25/06/2024 11:30 */ }
                                                     <button 
                                                         onClick={() => handleUpdateEmail(activeEmailIdx, 'isGenerated', false)}
                                                         className="text-[10px] font-black text-white uppercase tracking-widest hover:underline transition-all"
@@ -489,7 +504,6 @@ export const EmailSequenceWizard: React.FC = () => {
                                                     </div>
 
                                                     <div className="p-8 md:p-10 space-y-6 flex-1 flex flex-col">
-                                                        {/* Campos de Cabecera */}
                                                         <div className="space-y-3 text-sm border-b border-gray-100 pb-6">
                                                             <div className="flex items-center gap-2">
                                                                 <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px]">De:</span>
@@ -516,7 +530,6 @@ export const EmailSequenceWizard: React.FC = () => {
                                                             </div>
                                                         </div>
 
-                                                        {/* Cuerpo del Correo Editable con fondo gris clarito y paddings */}
                                                         <div className="flex-1 pt-4">
                                                             <div 
                                                                 contentEditable
@@ -539,7 +552,6 @@ export const EmailSequenceWizard: React.FC = () => {
                                                 </div>
                                             </div>
                                         ) : (
-                                            /* CONFIGURACIÓN ESTRATÉGICA (SI NO SE HA GENERADO) */
                                             <div className="relative z-10 space-y-12 animate-in fade-in duration-500 flex-1 flex flex-col">
                                                 <div className="flex items-center justify-between">
                                                     <span className="bg-yellow-900/20 text-yellow-400 border border-yellow-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
@@ -548,7 +560,6 @@ export const EmailSequenceWizard: React.FC = () => {
                                                     <span className="text-white text-lg font-black uppercase tracking-widest">Correo del Día {activeEmailIdx + 1}</span>
                                                 </div>
 
-                                                {/* FORMULARIO DE INSTRUCCIONES */}
                                                 <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl group/form relative overflow-hidden flex-1">
                                                     <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/50"></div>
                                                     
@@ -563,7 +574,6 @@ export const EmailSequenceWizard: React.FC = () => {
                                                     </div>
 
                                                     <div className="space-y-10">
-                                                        {/* Campo Asunto */}
                                                         <div className="space-y-3">
                                                             <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
                                                                 <Edit3 className="w-5 h-5 text-[#FF5A1F]" /> Asunto Sugerido
@@ -578,7 +588,6 @@ export const EmailSequenceWizard: React.FC = () => {
                                                             </div>
                                                         </div>
 
-                                                        {/* Tipo de Correo con Swap Logic */}
                                                         <div className="space-y-3">
                                                             <div className="flex justify-between items-center">
                                                                 <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
@@ -610,7 +619,6 @@ export const EmailSequenceWizard: React.FC = () => {
                                                             </div>
                                                         </div>
 
-                                                        {/* Campo Propósito */}
                                                         <div className="space-y-3">
                                                             <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
                                                                 <Zap className="w-5 h-5 text-[#FF5A1F]" /> Propósito Estratégico del Día
@@ -623,7 +631,6 @@ export const EmailSequenceWizard: React.FC = () => {
                                                             />
                                                         </div>
 
-                                                        {/* ¿Dónde dirigir a tu audiencia? Selector */}
                                                         <div className="space-y-4">
                                                             <label className="block text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
                                                                 <Target className="w-5 h-5 text-[#FF5A1F]" /> ¿Dónde dirigir a tu audiencia?
@@ -703,17 +710,70 @@ export const EmailSequenceWizard: React.FC = () => {
                                                                 )}
                                                                 
                                                                 {editableEmails[activeEmailIdx].redirectType === 'hotlink' && (
-                                                                    <div className="animate-in fade-in slide-in-from-top-2">
-                                                                        <select
-                                                                            value={editableEmails[activeEmailIdx].redirectUrl || ''}
-                                                                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition appearance-none cursor-pointer"
-                                                                            onChange={(e) => handleUpdateEmail(activeEmailIdx, 'redirectUrl', e.target.value)}
-                                                                        >
-                                                                            <option value="">-- Elige un Hotlink --</option>
-                                                                            {selectedProject?.affiliateLinks.map((link, i) => (
-                                                                                <option key={i} value={link.url}>{link.label}</option>
-                                                                            ))}
-                                                                        </select>
+                                                                    <div className="animate-in fade-in slide-in-from-top-2 space-y-4">
+                                                                        {isAddingNewLink ? (
+                                                                            <div className="p-6 bg-black border border-white/10 rounded-2xl space-y-4 shadow-xl">
+                                                                                <div className="flex justify-between items-center mb-2">
+                                                                                    <h5 className="text-white font-bold text-sm">Nuevo Hotlink para Proyecto</h5>
+                                                                                    <button onClick={() => setIsAddingNewLink(false)} className="text-gray-500 hover:text-white"><X className="w-4 h-4"/></button>
+                                                                                </div>
+                                                                                <div className="grid grid-cols-2 gap-4">
+                                                                                    <div className="space-y-1">
+                                                                                        <label className="text-[10px] text-gray-500 font-black uppercase">Nombre del Enlace</label>
+                                                                                        <input 
+                                                                                            type="text" 
+                                                                                            value={newLinkLabel}
+                                                                                            onChange={e => setNewLinkLabel(e.target.value)}
+                                                                                            className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-white text-sm focus:border-[#FF5A1F] outline-none"
+                                                                                            placeholder="Ej: Checkout Pro"
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="space-y-1">
+                                                                                        <label className="text-[10px] text-gray-500 font-black uppercase">URL Hotmart</label>
+                                                                                        <input 
+                                                                                            type="text" 
+                                                                                            value={newLinkUrl}
+                                                                                            onChange={e => setNewLinkUrl(e.target.value)}
+                                                                                            className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-emerald-400 text-sm focus:border-[#FF5A1F] outline-none"
+                                                                                            placeholder="https://go.hotmart.com/..."
+                                                                                        />
+                                                                                    </div>
+                                                                                </div>
+                                                                                <button 
+                                                                                    onClick={handleAddNewHotlink}
+                                                                                    disabled={savingNewLink || !newLinkLabel || !newLinkUrl}
+                                                                                    className="w-full py-3 bg-[#FF5A1F] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#D94A1E] transition flex items-center justify-center gap-2"
+                                                                                >
+                                                                                    {savingNewLink ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
+                                                                                    Guardar en el Proyecto
+                                                                                </button>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className={`relative ${!editableEmails[activeEmailIdx].redirectUrl ? 'ring-2 ring-red-500/50 rounded-xl' : ''}`}>
+                                                                                <select
+                                                                                    value={editableEmails[activeEmailIdx].redirectUrl || ''}
+                                                                                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition appearance-none cursor-pointer"
+                                                                                    onChange={(e) => {
+                                                                                        if (e.target.value === 'ADD_NEW') {
+                                                                                            setIsAddingNewLink(true);
+                                                                                        } else {
+                                                                                            handleUpdateEmail(activeEmailIdx, 'redirectUrl', e.target.value);
+                                                                                        }
+                                                                                    }}
+                                                                                >
+                                                                                    <option value="">-- Elige un Hotlink --</option>
+                                                                                    {selectedProject?.affiliateLinks.map((link, i) => (
+                                                                                        <option key={i} value={link.url}>{link.label}</option>
+                                                                                    ))}
+                                                                                    <option value="ADD_NEW" className="text-[#FF5A1F] font-bold">+ Añadir nuevo Hotlink</option>
+                                                                                </select>
+                                                                                {!editableEmails[activeEmailIdx].redirectUrl && (
+                                                                                    <div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse">
+                                                                                        <AlertTriangle className="w-3 h-3" /> Link de destino obligatorio
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -724,9 +784,11 @@ export const EmailSequenceWizard: React.FC = () => {
                                                 <div className="pb-6">
                                                     <button 
                                                         onClick={handleGenerateSingleEmail}
-                                                        className="w-full py-6 rounded-[2cm] bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#D94A1E] hover:to-orange-600 text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95"
+                                                        disabled={isGeneratingEmail || !editableEmails[activeEmailIdx].redirectUrl}
+                                                        className={`w-full py-6 rounded-[2cm] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95 font-black text-lg uppercase tracking-[0.2em] ${!editableEmails[activeEmailIdx].redirectUrl ? 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-50' : 'bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#D94A1E] hover:to-orange-600 text-white shadow-[#FF5A1F]/20'}`}
                                                     >
-                                                        <Wand2 className="w-7 h-7 fill-current" /> Generar Correo el Día No {activeEmailIdx + 1}
+                                                        <Wand2 className="w-7 h-7 fill-current" /> 
+                                                        {!editableEmails[activeEmailIdx].redirectUrl ? 'Define un link para continuar' : `Generar Correo el Día No ${activeEmailIdx + 1}`}
                                                     </button>
                                                 </div>
                                             </div>
