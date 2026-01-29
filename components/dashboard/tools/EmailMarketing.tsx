@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Lead, EmailSequence } from '../../../types';
+import { Lead, EmailSequence, User } from '../../../types';
 import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye, Trash2 } from 'lucide-react';
 import { api } from '../../../services/api';
 /* */ /* Actualización: Importación de useNavigate para manejar redirección - 24/06/2024 15:15 */
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useOutletContext } from 'react-router-dom';
 /* Fin de actualización - 24/06/2024 15:15 */
 
 export const EmailMarketing: React.FC = () => {
@@ -11,6 +11,8 @@ export const EmailMarketing: React.FC = () => {
   
   /* */ /* Actualización: Inicialización de navigate - 24/06/2024 15:15 */
   const navigate = useNavigate();
+  const { user } = useOutletContext() as { user: User };
+  const maxSequences = user.planLimits?.maxEmailSequences || 5;
   /* Fin de actualización - 24/06/2024 15:15 */
 
   const [activeTab, setActiveTab] = useState<'sequence' | 'leads' | 'config'>('sequence');
@@ -212,10 +214,10 @@ export const EmailMarketing: React.FC = () => {
                       <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-inner">
                           <div className="flex justify-between items-center mb-3 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
                               <span>Secuencias Creadas</span>
-                              <span className="text-white">{sequences.length} / 5</span>
+                              <span className="text-white">{sequences.length} / {maxSequences}</span>
                           </div>
                           <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
-                              <div className="h-full bg-[#FF5A1F] rounded-full shadow-[0_0_15px_rgba(255,90,31,0.6)] transition-all duration-[1500ms] ease-out" style={{ width: `${(sequences.length / 5) * 100}%` }}></div>
+                              <div className="h-full bg-[#FF5A1F] rounded-full shadow-[0_0_15px_rgba(255,90,31,0.6)] transition-all duration-[1500ms] ease-out" style={{ width: `${(sequences.length / maxSequences) * 100}%` }}></div>
                           </div>
                       </div>
                   </div>

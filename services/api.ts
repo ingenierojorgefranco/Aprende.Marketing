@@ -842,6 +842,7 @@ export const api = {
                 slug: article.slug,
                 description: article.description,
                 content_html: article.contentHtml,
+                // Corregido: se usa featuredImage para coincidir con la interfaz Partial<Article>
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
@@ -1170,6 +1171,7 @@ export const api = {
                     maxArticles: 2, 
                     maxDomains: 1, 
                     maxEmailSequences: 1,
+                    maxWhatsAppLaunches: 1, // Propiedad añadida para corregir error de tipo
                     features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } 
                   }, 
                   uiFeatures: ['...'], 
@@ -1190,6 +1192,7 @@ export const api = {
                     maxArticles: 20, 
                     maxDomains: 3, 
                     maxEmailSequences: 5,
+                    maxWhatsAppLaunches: 5, // Propiedad añadida para corregir error de tipo
                     features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } 
                   }, 
                   uiFeatures: ['...'], 

@@ -90,6 +90,7 @@ export interface PlanLimits {
   maxDomains: number; // Nuevo límite de dominios
   maxArticles: number; // Actualizado a obligatorio
   maxEmailSequences: number; // Nuevo límite solicitado
+  maxWhatsAppLaunches: number; // Nuevo límite añadido para control de cuotas
   features: PlanFeatures;
 }
 

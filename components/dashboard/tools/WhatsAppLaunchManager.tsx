@@ -1,13 +1,17 @@
+
 import React, { useState, useEffect } from 'react';
-import { WhatsAppLaunch } from '../../../types';
-import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers } from 'lucide-react';
+import { WhatsAppLaunch, User } from '../../../types';
+import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers, Crown } from 'lucide-react';
 import { api } from '../../../services/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
+import { UpgradeModal } from '../UpgradeModal';
 
 export const WhatsAppLaunchManager: React.FC = () => {
     const navigate = useNavigate();
+    const { user } = useOutletContext() as { user: User };
     const [launches, setLaunches] = useState<WhatsAppLaunch[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
     useEffect(() => {
         loadLaunches();
@@ -36,8 +40,29 @@ export const WhatsAppLaunchManager: React.FC = () => {
         }
     };
 
+    // Lógica de límites
+    const maxLaunches = user.planLimits?.maxWhatsAppLaunches || 1;
+    const currentCount = launches.length;
+    const isAtLimit = user.role !== 'admin' && currentCount >= maxLaunches;
+    const usagePercent = Math.min(100, (currentCount / maxLaunches) * 100);
+
+    const handleCreateNew = () => {
+        if (isAtLimit) {
+            setShowUpgradeModal(true);
+            return;
+        }
+        navigate('/dashboard/whatsapp-launch/create');
+    };
+
     return (
         <div className="space-y-10 animate-in fade-in duration-500 pb-20">
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => setShowUpgradeModal(false)} 
+                currentPlan={user.planLimits?.planName}
+                reason={`Has alcanzado el límite de ${maxLaunches} lanzamientos de tu plan.`}
+            />
+
             {/* HEADER */}
             <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-white/5 shadow-2xl">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
@@ -57,22 +82,34 @@ export const WhatsAppLaunchManager: React.FC = () => {
                             <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-inner">
                                 <div className="flex justify-between items-center mb-3 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
                                     <span>Lanzamientos Activos</span>
-                                    <span className="text-white">{launches.length} / 5</span>
+                                    <span className="text-white">{currentCount} / {user.role === 'admin' ? '∞' : maxLaunches}</span>
                                 </div>
                                 <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
-                                    <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.6)] transition-all duration-[1500ms] ease-out" style={{ width: `${(launches.length / 5) * 100}%` }}></div>
+                                    <div 
+                                        className={`h-full bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.6)] transition-all duration-[1500ms] ease-out`} 
+                                        style={{ width: `${user.role === 'admin' ? 100 : usagePercent}%` }}
+                                    ></div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div className="shrink-0 flex flex-col gap-4 w-full md:w-auto min-w-[280px]">
-                        <button 
-                            onClick={() => navigate('/dashboard/whatsapp-launch/create')}
-                            className="w-full px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
-                        >
-                            <Plus className="w-4 h-4" /> Nuevo Lanzamiento
-                        </button>
+                        {isAtLimit ? (
+                            <button 
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="w-full px-8 py-4 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98]"
+                            >
+                                <Crown className="w-4 h-4 fill-current" /> Límite Alcanzado: Subir a PRO
+                            </button>
+                        ) : (
+                            <button 
+                                onClick={handleCreateNew}
+                                className="w-full px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
+                            >
+                                <Plus className="w-4 h-4" /> Nuevo Lanzamiento
+                            </button>
+                        )}
                         <button className="w-full px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-3">
                             <PlayCircle className="w-4 h-4" /> Tutorial Estrategia
                         </button>
@@ -151,7 +188,7 @@ export const WhatsAppLaunchManager: React.FC = () => {
                             </p>
                         </div>
                         <button 
-                            onClick={() => navigate('/dashboard/whatsapp-launch/create')}
+                            onClick={handleCreateNew}
                             className="px-12 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg uppercase tracking-widest rounded-2xl transition-all shadow-2xl shadow-emerald-900/20 transform hover:scale-105 active:scale-95"
                         >
                             Crear mi primer lanzamiento

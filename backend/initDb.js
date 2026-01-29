@@ -491,6 +491,9 @@ const initDb = async () => {
                         maxProjects: 1,
                         maxLandings: 2, 
                         maxArticles: 2, 
+                        maxDomains: 1, 
+                        maxEmailSequences: 1,
+                        maxWhatsAppLaunches: 1,
                         features: { 
                             whatsappBot: false, 
                             blogGenerator: false, 
@@ -514,6 +517,9 @@ const initDb = async () => {
                         maxProjects: 5,
                         maxLandings: 20,
                         maxArticles: 20,
+                        maxDomains: 3, 
+                        maxEmailSequences: 5,
+                        maxWhatsAppLaunches: 5,
                         features: { 
                             whatsappBot: true, 
                             blogGenerator: true, 
@@ -537,6 +543,9 @@ const initDb = async () => {
                         maxProjects: 100,
                         maxLandings: 500,
                         maxArticles: 500,
+                        maxDomains: 10, 
+                        maxEmailSequences: 50,
+                        maxWhatsAppLaunches: 50,
                         features: { 
                             whatsappBot: true, 
                             blogGenerator: true, 
