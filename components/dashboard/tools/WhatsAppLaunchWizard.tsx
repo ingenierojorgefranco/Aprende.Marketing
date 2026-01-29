@@ -9,6 +9,24 @@ import {
 import { api } from '../../../services/api';
 import { Project, User, WhatsAppLaunch, WhatsAppLaunchMessage } from '../../../types';
 
+// Estructura estática de los 14 momentos para visualización persuasiva local
+const WHATSAPP_LAUNCH_MOMENTS = [
+    { id: 'wl1', name: 'Confirmación de Fecha', momentText: 'Día -7', objective: 'Generar expectativa y agendar al lead.', pilarType: 'Expectativa', purpose: 'Confirmar la fecha oficial de la clase y asegurar que lo agenden.' },
+    { id: 'wl2', name: 'Historia de Autoridad', momentText: 'Día -5', objective: 'Crear conexión emocional con la experta.', pilarType: 'Autoridad', purpose: 'Narrar brevemente la historia de éxito del experto para generar confianza.' },
+    { id: 'wl3', name: 'Temario y Promesa', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Valor / Curiosidad', purpose: 'Listar los 3 puntos clave que se aprenderán en la clase.' },
+    { id: 'wl4', name: 'Adelanto (3 Errores)', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Valor Preventivo', purpose: 'Identificar 3 errores comunes que el lead está cometiendo hoy.' },
+    { id: 'wl5', name: '¡Hoy es el gran día!', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Urgencia Matutina', purpose: 'Anunciar que hoy es la clase y recordar los horarios.' },
+    { id: 'wl6', name: 'Cuenta Regresiva (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Preparación', purpose: 'Indicar que busquen libreta, café y un lugar tranquilo.' },
+    { id: 'wl7', name: '¡Estamos en Vivo!', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acción Inmediata', purpose: 'Entregar el enlace directo a la transmisión.' },
+    { id: 'wl8', name: 'Oferta Abierta', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Lanzamiento', purpose: 'Anunciar la apertura de inscripciones con el descuento máximo.' },
+    { id: 'wl9', name: 'Bonos de Acción Rápida', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Escasez de Bonus', purpose: 'Mencionar los regalos extra para los primeros en comprar.' },
+    { id: 'wl10', name: 'Tutorial de Pago', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Facilitación', purpose: 'Explicar cómo realizar la compra paso a paso.' },
+    { id: 'wl11', name: 'Certificado y Garantía', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Seguridad', purpose: 'Destacar la garantía de 7 días y el aval profesional.' },
+    { id: 'wl12', name: 'Últimos Cupos', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Escasez Final', purpose: 'Notificar que los cupos con descuento se están terminando.' },
+    { id: 'wl13', name: 'Inscripciones Cerradas', momentText: 'Final', objective: 'Mantener la integridad de la oferta.', pilarType: 'Cierre de Carrito', purpose: 'Informar que el tiempo y los cupos se agotaron.' },
+    { id: 'wl14', name: 'Bienvenida', momentText: 'Bienvenida', objective: 'Bienvenida a las nuevas alumnas.', pilarType: 'Onboarding', purpose: 'Dar la bienvenida oficial a la nueva comunidad de alumnos.' }
+];
+
 // Professional WhatsApp Chat Simulator Component
 const ChatSimulator: React.FC<{ text: string; senderName: string; onMessageChange?: (text: string) => void }> = ({ text, senderName, onMessageChange }) => {
     const renderWhatsAppText = (raw: string) => {
@@ -134,9 +152,33 @@ export const WhatsAppLaunchWizard: React.FC = () => {
         setSelectedProject(project);
         setLoading(true);
         try {
-            await api.createWhatsAppLaunch(project.id, `Lanzamiento: ${project.name}`);
-            const launchData = await api.getWhatsAppLaunchByProject(project.id);
-            setActiveLaunch(launchData);
+            // PERSISTENCIA DIFERIDA: No creamos en BD inmediatamente.
+            // Cargamos desde la Estrategia Maestra del proyecto si existe.
+            const strategy = project.strategy_json;
+            const strategyMessages = strategy?.modules?.whatsappLaunch || [];
+            
+            // Mapeamos los 14 momentos integrando los textos de la estrategia si existen
+            const localMessages: WhatsAppLaunchMessage[] = WHATSAPP_LAUNCH_MOMENTS.map((moment) => {
+                const match = strategyMessages.find((m: any) => m.id === moment.id);
+                return {
+                    ...moment,
+                    content: match?.messages?.[0]?.text || match?.content || '',
+                    isGenerated: !!(match?.messages?.[0]?.text || match?.content)
+                };
+            });
+
+            const tempLaunch: WhatsAppLaunch = {
+                id: `temp-${project.id}`, // ID Temporal
+                userId: user.id,
+                projectId: project.id,
+                projectName: project.name,
+                name: `Lanzamiento: ${project.name}`,
+                status: 'borrador',
+                createdAt: new Date(),
+                messages: localMessages
+            };
+
+            setActiveLaunch(tempLaunch);
             setStep(1);
         } catch (e) {
             console.error(e);
@@ -152,6 +194,10 @@ export const WhatsAppLaunchWizard: React.FC = () => {
         (newMessages[index] as any)[field] = value;
         const updatedLaunch = { ...activeLaunch, messages: newMessages };
         setActiveLaunch(updatedLaunch);
+
+        // Si el ID es temporal, solo actualizamos el estado local
+        if (activeLaunch.id.startsWith('temp-')) return;
+
         setSaveIndicator(true);
         try {
             await api.updateWhatsAppLaunch(activeLaunch.id, { messages: newMessages });
@@ -162,11 +208,23 @@ export const WhatsAppLaunchWizard: React.FC = () => {
     };
 
     const handleGenerate = async () => {
-        if (!activeLaunch) return;
+        if (!activeLaunch || !selectedProject) return;
         setGenerating(true);
         try {
+            let currentLaunch = { ...activeLaunch };
+
+            // PERSISTENCIA DIFERIDA: Si es la primera acción de escritura, creamos el registro real
+            if (currentLaunch.id.startsWith('temp-')) {
+                const res = await api.createWhatsAppLaunch(selectedProject.id, `Lanzamiento: ${selectedProject.name}`);
+                const realLaunch = await api.getWhatsAppLaunchByProject(selectedProject.id);
+                if (realLaunch) {
+                    currentLaunch = realLaunch;
+                    setActiveLaunch(realLaunch);
+                }
+            }
+
             await new Promise(r => setTimeout(r, 2500));
-            const msg = activeLaunch.messages[activeMsgIdx];
+            const msg = currentLaunch.messages[activeMsgIdx];
             const pName = selectedProject?.productName || "nuestro programa";
             
             let content = `*${msg.name}* (Momento: ${msg.momentText})\n\n¡Hola! 🎉 Soy el encargado de tu formación. Solo paso para confirmarte que ya tenemos fecha oficial para nuestra clase maestra de *${pName}*. Será el próximo domingo. ¿Ya lo anotaste en tu calendario?`;
@@ -174,8 +232,13 @@ export const WhatsAppLaunchWizard: React.FC = () => {
             if (msg.id === 'wl7') content = `🔴 *ESTAMOS EN VIVO*\n\nNo esperes más, entra ahora por este link exclusivo para el grupo: [LINK_CLASE]. ¡Te espero dentro! 🚀`;
             else if (msg.id === 'wl8') content = `¡Increíble la clase de hoy! 🎉\n\nComo les prometí, las inscripciones para *${pName}* están abiertas con una *Beca del 75%* de descuento. Solo para las primeras personas que tomen acción ahora mismo.`;
 
-            await handleUpdateMessage(activeMsgIdx, 'content', content);
-            await handleUpdateMessage(activeMsgIdx, 'isGenerated', true);
+            // Usamos el ID real obtenido arriba para persistir el mensaje generado
+            const newMessages = [...currentLaunch.messages];
+            newMessages[activeMsgIdx].content = content;
+            newMessages[activeMsgIdx].isGenerated = true;
+            
+            setActiveLaunch({ ...currentLaunch, messages: newMessages });
+            await api.updateWhatsAppLaunch(currentLaunch.id, { messages: newMessages });
         } catch (e) {
             alert("Error de generación con IA");
         } finally {
@@ -266,7 +329,7 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                                         onClick={() => setActiveMsgIdx(idx)}
                                         className={`p-5 rounded-2xl border transition-all cursor-pointer flex items-center gap-4 ${activeMsgIdx === idx ? 'bg-emerald-900/10 border-emerald-500/40 shadow-xl shadow-emerald-900/30 translate-x-2' : 'bg-black/40 border-white/5 hover:border-white/10'}`}
                                     >
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${activeMsgIdx === idx ? 'bg-emerald-500 text-black' : 'bg-gray-800 text-gray-500'}`}>
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${activeMsgIdx === idx ? 'bg-emerald-500 text-black' : 'bg-gray-800 text-gray-400'}`}>
                                             {idx + 1}
                                         </div>
                                         <div className="flex-1 min-w-0">

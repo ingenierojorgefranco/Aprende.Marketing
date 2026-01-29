@@ -97,18 +97,27 @@ export const EmailSequenceWizard: React.FC = () => {
         setSelectedProject(project);
         setLoading(true);
         try {
-            // 1. Crear o recuperar secuencia en el backend
-            const seqInfo = await api.createEmailSequence(project.id, `Secuencia: ${project.name}`);
-            
-            // 2. Obtener los 7 mensajes
-            const messages = await api.getSequenceMessages(seqInfo.id);
-            setEditableEmails(messages);
-            
-            // 3. Cargar estrategia para contexto
-            const strategyData = await api.getProjectStrategy(project.id);
+            // CARGA INTELIGENTE: Extraemos la estrategia directamente del JSON del proyecto
+            const strategyData = project.strategy_json;
             if (strategyData) {
                 setStrategy(strategyData);
+                const nurtureEmails = strategyData.modules?.emails?.nurture || [];
+                
+                // RESPETO A LA ESTRATEGIA MAESTRA: Poblamos los campos con los datos definidos por la IA
+                const mappedMessages: EmailMessage[] = nurtureEmails.map((email: any, idx: number) => ({
+                    id: `temp-${idx}`, // ID temporal para PERSISTENCIA DIFERIDA
+                    sequenceId: '', 
+                    dayIndex: idx,
+                    subject: email.subject || '',
+                    pilarType: email.type || '',
+                    purpose: email.objective || '',
+                    contentHtml: '',
+                    isGenerated: false
+                }));
+                setEditableEmails(mappedMessages);
             }
+            
+            // ELIMINACIÓN DE AUTO-GUARDADO INICIAL: No llamamos a la API de creación aquí
             
             if (urlDay) {
                 const dayIdx = parseInt(urlDay);
@@ -120,7 +129,6 @@ export const EmailSequenceWizard: React.FC = () => {
             setStep(1);
         } catch (e) {
             console.error("Error cargando secuencia vinculada", e);
-            alert("Error al inicializar la secuencia en el servidor.");
         } finally {
             setLoading(false);
         }
@@ -133,6 +141,10 @@ export const EmailSequenceWizard: React.FC = () => {
         setEditableEmails(newEmails);
         
         const message = newEmails[index];
+        
+        // PERSISTENCIA DIFERIDA: Si el ID es temporal, no guardamos en BD hasta una acción explícita
+        if (message.id.startsWith('temp-')) return;
+
         setShowSaveIndicator(true);
         try {
             /* */ /* Actualización: Corrección de nombres de campos (contentHtml -> content_html, isGenerated -> is_generated) para asegurar la persistencia en el backend - 24/06/2024 16:50 */
@@ -152,10 +164,14 @@ export const EmailSequenceWizard: React.FC = () => {
         const newEmails = [...editableEmails];
         if (otherIdx !== -1) {
             newEmails[otherIdx].pilarType = currentType;
-            await api.updateEmailMessage(newEmails[otherIdx].id, { pilarType: currentType } as any);
+            if (!newEmails[otherIdx].id.startsWith('temp-')) {
+                await api.updateEmailMessage(newEmails[otherIdx].id, { pilarType: currentType } as any);
+            }
         }
         newEmails[activeEmailIdx].pilarType = newType;
-        await api.updateEmailMessage(newEmails[activeEmailIdx].id, { pilarType: newType } as any);
+        if (!newEmails[activeEmailIdx].id.startsWith('temp-')) {
+            await api.updateEmailMessage(newEmails[activeEmailIdx].id, { pilarType: newType } as any);
+        }
         
         setEditableEmails(newEmails);
         setIsTypeLocked(true);
@@ -167,10 +183,32 @@ export const EmailSequenceWizard: React.FC = () => {
     const handleGenerateSingleEmail = async () => {
         setIsGeneratingEmail(true);
         try {
+            let currentMessages = [...editableEmails];
+            
+            // PERSISTENCIA DIFERIDA: Si es la primera acción explícita, creamos la secuencia en BD
+            if (currentMessages[activeEmailIdx].id.startsWith('temp-') && selectedProject) {
+                const seqInfo = await api.createEmailSequence(selectedProject.id, `Secuencia: ${selectedProject.name}`);
+                const realMessages = await api.getSequenceMessages(seqInfo.id);
+                
+                // Sincronizamos la Estrategia Maestra y cambios locales con los registros reales de la BD
+                for (let i = 0; i < realMessages.length; i++) {
+                    await api.updateEmailMessage(realMessages[i].id, {
+                        subject: currentMessages[i].subject,
+                        pilar_type: currentMessages[i].pilarType,
+                        purpose: currentMessages[i].purpose
+                    } as any);
+                    realMessages[i].subject = currentMessages[i].subject;
+                    realMessages[i].pilarType = currentMessages[i].pilarType;
+                    realMessages[i].purpose = currentMessages[i].purpose;
+                }
+                currentMessages = realMessages;
+                setEditableEmails(currentMessages);
+            }
+
             // Simulamos la generación del copy por parte de la IA
             await new Promise(resolve => setTimeout(resolve, 2500));
             
-            const email = editableEmails[activeEmailIdx];
+            const email = currentMessages[activeEmailIdx];
             const avatarName = strategy?.avatars[0]?.name.split(' ')[0] || "amiga";
             
             // Generamos un ejemplo de texto persuasivo con HTML (colores y enlaces)
@@ -182,7 +220,7 @@ export const EmailSequenceWizard: React.FC = () => {
                 generatedBody = `Hola ${avatarName},<br><br>Hoy quiero contarte la historia de una de mis alumnas que estaba exactamente donde tú estás hoy. Tenía miedo de fracasar y no sabía por dónde empezar.<br><br>Después de aplicar el método que te he estado compartiendo, logró sus <span style="color: #10B981; font-weight: bold;">primeros $500 extras</span> en menos de 15 días. Si ella pudo, tú también puedes.<br><br><a href="https://google.com" style="color: #FF5A1F; text-decoration: underline; font-weight: bold;">[Mira más resultados aquí en Google]</a><br><br>Mañana te contaré el secreto técnico detrás de este éxito.<br><br>Saludos,<br>${user.name}`;
             }
 
-            const newEmails = [...editableEmails];
+            const newEmails = [...currentMessages];
             newEmails[activeEmailIdx].isGenerated = true;
             newEmails[activeEmailIdx].contentHtml = generatedBody;
             
@@ -487,7 +525,7 @@ export const EmailSequenceWizard: React.FC = () => {
                                             </div>
                                         ) : (
                                             /* CONFIGURACIÓN ESTRATÉGICA (SI NO SE HA GENERADO) */
-                                            <div className="relative z-10 space-y-12 animate-in fade-in duration-500">
+                                            <div className="relative z-10 space-y-12 animate-in fade-in duration-500 flex-1 flex flex-col">
                                                 <div className="flex items-center justify-between">
                                                     <span className="bg-yellow-900/20 text-yellow-400 border border-yellow-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
                                                         Configurando: {editableEmails[activeEmailIdx].pilarType || 'Nutrición'}
@@ -496,7 +534,7 @@ export const EmailSequenceWizard: React.FC = () => {
                                                 </div>
 
                                                 {/* FORMULARIO DE INSTRUCCIONES */}
-                                                <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl group/form relative overflow-hidden">
+                                                <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl group/form relative overflow-hidden flex-1">
                                                     <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/50"></div>
                                                     
                                                     <div className="flex items-center gap-4 mb-10">
