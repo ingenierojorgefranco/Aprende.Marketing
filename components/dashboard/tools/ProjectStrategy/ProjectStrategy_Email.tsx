@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle } from 'lucide-react';
+import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, EmailMessage, LandingPage, AffiliateLink } from '../../../../types';
 import { api } from '../../../../services/api';
@@ -161,7 +161,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         </div>
                     </div>
 
-                    <div className="space-y-4 flex-1 overflow-y-auto max-h-[600px] custom-scrollbar pr-2">
+                    <div className="space-y-4 flex-1 pr-2">
                         {emailData.map((email: any, idx: number) => {
                             const isDayGenerated = realMessages.some(m => m.dayIndex === idx && m.isGenerated);
                             return (
@@ -189,7 +189,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 </div>
 
                 {/* RIGHT: CONFIGURATION / CONTENT */}
-                <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden flex-1 min-h-[600px]">
+                <div className="bg-[#0B0B0B] border border-gray-800 rounded-[3rem] p-10 shadow-xl relative overflow-hidden flex-1 min-h-[600px]">
                     <div className={`absolute top-0 left-0 w-1 h-full ${isCurrentGenerated ? 'bg-emerald-500/50' : 'bg-yellow-500/50'}`}></div>
                     
                     {isCurrentGenerated ? (
@@ -206,74 +206,241 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         </div>
                     ) : (
                         <div className="relative z-10 space-y-10 animate-in fade-in duration-500 h-full flex flex-col">
-                            <h4 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-                                <Lightbulb className="w-8 h-8 text-yellow-400" /> Correo Día {activeEmail + 1}
-                            </h4>
+                            <div className="flex items-center justify-between">
+                                <span className="bg-yellow-900/20 text-yellow-400 border border-yellow-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
+                                    Configurando: {localPilar || 'Nutrición'}
+                                </span>
+                                <span className="text-white text-lg font-black uppercase tracking-widest">Correo del Día {activeEmail + 1}</span>
+                            </div>
 
-                            <div className="space-y-6">
-                                <div>
-                                    <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2 mb-2"><Edit3 className="w-5 h-5 text-[#FF5A1F]" /> Asunto</label>
-                                    <textarea rows={2} value={localSubject} onChange={(e) => setLocalSubject(e.target.value)} className="w-full bg-black/60 border border-white/10 rounded-2xl p-4 text-white font-bold text-xl outline-none focus:border-yellow-500/50 resize-none leading-relaxed" />
+                            <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden flex-1">
+                                <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/50"></div>
+                                
+                                <div className="flex items-center gap-4 mb-10">
+                                    <div className="p-3 bg-yellow-500/10 rounded-2xl text-yellow-400">
+                                        <Lightbulb className="w-8 h-8" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-2xl font-black text-white tracking-tight">Estrategia de Correo Electrónico: Día No {activeEmail + 1}</h4>
+                                        <p className="text-sm text-white font-bold uppercase tracking-widest mt-4 leading-relaxed">Nuestra inteligencia Artificial generará tu correo electrónico teniendo en cuenta la siguiente información.</p>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2 mb-2"><Target className="w-5 h-5 text-[#FF5A1F]" /> Redirección de Audiencia</label>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                        <div onClick={() => handleUpdateMessage('redirectType', 'landing')} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center gap-3 ${currentMsg?.redirectType === 'landing' ? 'bg-blue-600/10 border-blue-500' : 'bg-black border-white/5 hover:border-white/10'}`}>
-                                            <Globe className={`w-6 h-6 ${currentMsg?.redirectType === 'landing' ? 'text-blue-500' : 'text-gray-500'}`} />
-                                            <span className="text-[10px] font-black text-white uppercase">Landing</span>
-                                        </div>
-                                        <div onClick={() => handleUpdateMessage('redirectType', 'hotlink')} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center gap-3 ${currentMsg?.redirectType === 'hotlink' ? 'bg-[#FF5A1F]/10 border-[#FF5A1F]' : 'bg-black border-white/5 hover:border-white/10'}`}>
-                                            <LinkIcon className={`w-6 h-6 ${currentMsg?.redirectType === 'hotlink' ? 'text-[#FF5A1F]' : 'text-gray-500'}`} />
-                                            <span className="text-[10px] font-black text-white uppercase">Hotlink</span>
-                                        </div>
-                                        <div onClick={() => handleUpdateMessage('redirectType', 'external')} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center gap-3 ${currentMsg?.redirectType === 'external' ? 'bg-purple-600/10 border-purple-500' : 'bg-black border-white/5 hover:border-white/10'}`}>
-                                            <ExternalLink className={`w-6 h-6 ${currentMsg?.redirectType === 'external' ? 'text-purple-500' : 'text-gray-500'}`} />
-                                            <span className="text-[10px] font-black text-white uppercase">Externo</span>
+                                <div className="space-y-10">
+                                    <div className="space-y-3">
+                                        <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                            <Edit3 className="w-5 h-5 text-[#FF5A1F]" /> Asunto Sugerido
+                                        </label>
+                                        <div className="relative">
+                                            <textarea 
+                                                rows={2}
+                                                value={localSubject}
+                                                onChange={(e) => setLocalSubject(e.target.value)}
+                                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-xl outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/10 transition-all shadow-inner resize-none leading-relaxed"
+                                            />
                                         </div>
                                     </div>
 
-                                    {currentMsg?.redirectType === 'landing' && (
-                                        <select value={userPages.find(p => (p.customDomain ? `https://${p.customDomain}` : `https://${p.subdomain}`) === currentMsg.redirectUrl)?.id || ''} onChange={(e) => {
-                                            const page = userPages.find(p => p.id === e.target.value);
-                                            if (page) handleUpdateMessage('redirectUrl', page.customDomain ? `https://${page.customDomain}` : `https://${page.subdomain}`);
-                                        }} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-blue-500 appearance-none cursor-pointer">
-                                            <option value="">-- Selecciona una Landing --</option>
-                                            {userPages.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                                        </select>
-                                    )}
-
-                                    {currentMsg?.redirectType === 'hotlink' && (
-                                        <div className="space-y-4">
-                                            {isAddingNewLink ? (
-                                                <div className="p-4 bg-black border border-white/10 rounded-xl space-y-3">
-                                                    <div className="flex justify-between items-center"><span className="text-[10px] text-white font-black uppercase">Nuevo Hotlink</span><button onClick={() => setIsAddingNewLink(false)}><X className="w-4 h-4 text-gray-500"/></button></div>
-                                                    <input value={newLinkLabel} onChange={e => setNewLinkLabel(e.target.value)} placeholder="Etiqueta..." className="w-full bg-gray-900 border border-white/5 rounded-lg px-3 py-2 text-xs text-white" />
-                                                    <input value={newLinkUrl} onChange={e => setNewLinkUrl(e.target.value)} placeholder="URL..." className="w-full bg-gray-900 border border-white/5 rounded-lg px-3 py-2 text-xs text-emerald-400" />
-                                                    <button onClick={handleAddNewHotlink} disabled={savingNewLink} className="w-full py-2 bg-[#FF5A1F] text-white font-black text-[10px] uppercase tracking-widest rounded-lg">{savingNewLink ? "Guardando..." : "Guardar"}</button>
-                                                </div>
-                                            ) : (
-                                                <div className="relative">
-                                                    <select value={currentMsg.redirectUrl || ''} onChange={(e) => { if (e.target.value === 'ADD_NEW') setIsAddingNewLink(true); else handleUpdateMessage('redirectUrl', e.target.value); }} className={`w-full bg-black border rounded-xl px-4 py-3 text-white text-sm outline-none appearance-none cursor-pointer ${!currentMsg.redirectUrl ? 'border-red-500/50' : 'border-white/10 focus:border-[#FF5A1F]'}`}>
-                                                        <option value="">-- Selecciona un Hotlink --</option>
-                                                        {projectLinks.map((l, i) => <option key={i} value={l.url}>{l.label}</option>)}
-                                                        <option value="ADD_NEW" className="text-[#FF5A1F] font-bold">+ Crear nuevo Hotlink</option>
-                                                    </select>
-                                                    {!currentMsg.redirectUrl && <p className="text-[9px] text-red-500 font-bold uppercase mt-1 animate-pulse">Link de destino obligatorio</p>}
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between items-center">
+                                            <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                                <Settings2 className="w-5 h-5 text-[#FF5A1F]" /> Pilar Estratégico (Tipo)
+                                            </label>
+                                            <button 
+                                                onClick={() => setIsTypeLocked(!isTypeLocked)}
+                                                className="text-xs font-black text-[#FF5A1F] uppercase tracking-widest hover:underline px-3 py-1 bg-[#FF5A1F]/10 rounded-lg border border-[#FF5A1F]/20 transition-all"
+                                            >
+                                                {isTypeLocked ? 'Cambiar' : 'Bloquear'}
+                                            </button>
+                                        </div>
+                                        <div className="relative">
+                                            <select 
+                                                disabled={isTypeLocked}
+                                                value={localPilar}
+                                                onChange={(e) => setLocalPilar(e.target.value)}
+                                                className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none transition-all shadow-inner appearance-none cursor-pointer ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-yellow-500/50 ring-2 ring-yellow-500/10'}`}
+                                            >
+                                                {emailTypes.map(t => (
+                                                    <option key={t} value={t}>{t}</option>
+                                                ))}
+                                            </select>
+                                            {!isTypeLocked && (
+                                                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                    <ChevronDown className="w-6 h-6 text-yellow-500" />
                                                 </div>
                                             )}
                                         </div>
-                                    )}
+                                    </div>
 
-                                    {currentMsg?.redirectType === 'external' && (
-                                        <input value={currentMsg.redirectUrl || ''} onChange={(e) => handleUpdateMessage('redirectUrl', e.target.value)} placeholder="https://..." className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-purple-500" />
-                                    )}
+                                    <div className="space-y-3">
+                                        <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                            <Zap className="w-5 h-5 text-[#FF5A1F]" /> Propósito Estratégico del Día
+                                        </label>
+                                        <textarea 
+                                            rows={4}
+                                            value={localPurpose}
+                                            onChange={(e) => setLocalPurpose(e.target.value)}
+                                            className="w-full bg-black/60 border border-white/10 rounded-[2.5rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/10 transition-all shadow-inner resize-none mb-6"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className="block text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                            <Target className="w-5 h-5 text-[#FF5A1F]" /> ¿Dónde dirigir a tu audiencia?
+                                        </label>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div 
+                                                onClick={() => handleUpdateMessage('redirectType', 'landing')}
+                                                className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${currentMsg?.redirectType === 'landing' ? 'bg-blue-600/10 border-blue-500 shadow-lg shadow-blue-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
+                                            >
+                                                <div className={`p-4 rounded-2xl transition-colors ${currentMsg?.redirectType === 'landing' ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-500'}`}>
+                                                    <Globe className="w-8 h-8" />
+                                                </div>
+                                                <div>
+                                                    <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${currentMsg?.redirectType === 'landing' ? 'text-white' : 'text-gray-400'}`}>Landing Page</h4>
+                                                    <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Envía el tráfico a una de tus páginas internas creadas.</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div 
+                                                onClick={() => handleUpdateMessage('redirectType', 'hotlink')}
+                                                className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${currentMsg?.redirectType === 'hotlink' ? 'bg-[#FF5A1F]/10 border-[#FF5A1F] shadow-lg shadow-orange-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
+                                            >
+                                                <div className={`p-4 rounded-2xl transition-colors ${currentMsg?.redirectType === 'hotlink' ? 'bg-[#FF5A1F] text-white' : 'bg-white/5 text-gray-500'}`}>
+                                                    <LinkIcon className="w-8 h-8" />
+                                                </div>
+                                                <div>
+                                                    <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${currentMsg?.redirectType === 'hotlink' ? 'text-white' : 'text-gray-400'}`}>Hotlink Proyecto</h4>
+                                                    <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Usa directamente tus enlaces de afiliado de Hotmart.</p>
+                                                </div>
+                                            </div>
+
+                                            <div 
+                                                onClick={() => handleUpdateMessage('redirectType', 'external')}
+                                                className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${currentMsg?.redirectType === 'external' ? 'bg-purple-600/10 border-purple-500 shadow-lg shadow-purple-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
+                                            >
+                                                <div className={`p-4 rounded-2xl transition-colors ${currentMsg?.redirectType === 'external' ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-500'}`}>
+                                                    <ExternalLink className="w-8 h-8" />
+                                                </div>
+                                                <div>
+                                                    <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${currentMsg?.redirectType === 'external' ? 'text-white' : 'text-gray-400'}`}>Link Externo</h4>
+                                                    <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Cualquier otra página web externa que desees promocionar.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="mt-4">
+                                            {currentMsg?.redirectType === 'landing' && (
+                                                <div className="animate-in fade-in slide-in-from-top-2">
+                                                    <select
+                                                        value={userPages.find(p => (p.customDomain ? `https://${p.customDomain}` : `https://${p.subdomain}`) === currentMsg.redirectUrl)?.id || ''}
+                                                        onChange={(e) => {
+                                                            const page = userPages.find(p => p.id === e.target.value);
+                                                            if (page) handleUpdateMessage('redirectUrl', page.customDomain ? `https://${page.customDomain}` : `https://${page.subdomain}`);
+                                                        }}
+                                                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-blue-500 appearance-none cursor-pointer"
+                                                    >
+                                                        <option value="" disabled>-- Selecciona una Landing Page --</option>
+                                                        {userPages.map(p => (
+                                                            <option key={p.id} value={p.id}>{p.name}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            )}
+
+                                            {currentMsg?.redirectType === 'external' && (
+                                                <div className="animate-in fade-in slide-in-from-top-2">
+                                                    <input
+                                                        type="text"
+                                                        value={currentMsg.redirectUrl || ''}
+                                                        onChange={(e) => handleUpdateMessage('redirectUrl', e.target.value)}
+                                                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
+                                                        placeholder="https://ejemplo.com/tu-enlace"
+                                                    />
+                                                </div>
+                                            )}
+                                            
+                                            {currentMsg?.redirectType === 'hotlink' && (
+                                                <div className="animate-in fade-in slide-in-from-top-2 space-y-4">
+                                                    {isAddingNewLink ? (
+                                                        <div className="p-6 bg-black border border-white/10 rounded-2xl space-y-4 shadow-xl">
+                                                            <div className="flex justify-between items-center mb-2">
+                                                                <h5 className="text-white font-bold text-sm">Nuevo Hotlink para Proyecto</h5>
+                                                                <button onClick={() => setIsAddingNewLink(false)}><X className="w-4 h-4 text-gray-500"/></button>
+                                                            </div>
+                                                            <div className="grid grid-cols-2 gap-4">
+                                                                <div className="space-y-1">
+                                                                    <label className="text-[10px] text-gray-500 font-black uppercase">Nombre del Enlace</label>
+                                                                    <input 
+                                                                        type="text" 
+                                                                        value={newLinkLabel}
+                                                                        onChange={e => setNewLinkLabel(e.target.value)}
+                                                                        className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-white text-sm focus:border-[#FF5A1F] outline-none"
+                                                                        placeholder="Ej: Checkout Pro"
+                                                                    />
+                                                                </div>
+                                                                <div className="space-y-1">
+                                                                    <label className="text-[10px] text-gray-500 font-black uppercase">URL Hotmart</label>
+                                                                    <input 
+                                                                        type="text" 
+                                                                        value={newLinkUrl}
+                                                                        onChange={e => setNewLinkUrl(e.target.value)}
+                                                                        className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-emerald-400 text-sm focus:border-[#FF5A1F] outline-none"
+                                                                        placeholder="https://go.hotmart.com/..."
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <button 
+                                                                onClick={handleAddNewHotlink}
+                                                                disabled={savingNewLink}
+                                                                className="w-full py-3 bg-[#FF5A1F] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#D94A1E] transition flex items-center justify-center gap-2"
+                                                            >
+                                                                {savingNewLink ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
+                                                                Guardar en el Proyecto
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <div className={`relative ${!currentMsg.redirectUrl ? 'ring-2 ring-red-500/50 rounded-xl' : ''}`}>
+                                                            <select
+                                                                value={currentMsg.redirectUrl || ''}
+                                                                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition appearance-none cursor-pointer"
+                                                                onChange={(e) => {
+                                                                    if (e.target.value === 'ADD_NEW') {
+                                                                        setIsAddingNewLink(true);
+                                                                    } else {
+                                                                        handleUpdateMessage('redirectUrl', e.target.value);
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <option value="">-- Elige un Hotlink --</option>
+                                                                {projectLinks.map((link, i) => (
+                                                                    <option key={i} value={link.url}>{link.label}</option>
+                                                                ))}
+                                                                <option value="ADD_NEW" className="text-[#FF5A1F] font-bold">+ Añadir nuevo Hotlink</option>
+                                                            </select>
+                                                            {!currentMsg.redirectUrl && (
+                                                                <div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse">
+                                                                    <AlertTriangle className="w-3 h-3" /> Link de destino obligatorio
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-8 pb-6">
+                                    <button 
+                                        onClick={() => navigate(`/dashboard/email/create?projectId=${projectId}&day=${activeEmail}`)}
+                                        disabled={!currentMsg?.redirectUrl}
+                                        className={`w-full py-6 rounded-[2cm] bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#D94A1E] hover:to-orange-600 text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95 shadow-[#FF5A1F]/20 ${!currentMsg?.redirectUrl ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                                    >
+                                        <Wand2 className="w-7 h-7 fill-current" /> Redactar con IA <ArrowRight className="w-5 h-5" />
+                                    </button>
                                 </div>
                             </div>
-
-                            <button onClick={() => navigate(`/dashboard/email/create?projectId=${projectId}&day=${activeEmail}`)} disabled={!currentMsg?.redirectUrl} className={`w-full py-6 rounded-[2cm] bg-gradient-to-r from-[#FF5A1F] to-orange-500 text-white font-black text-lg uppercase tracking-widest shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95 ${!currentMsg?.redirectUrl ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
-                                <Wand2 className="w-7 h-7" /> Redactar con IA <ArrowRight className="w-5 h-5" />
-                            </button>
                         </div>
                     )}
                 </div>
