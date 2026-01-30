@@ -30,6 +30,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [localPurpose, setLocalPurpose] = useState('');
     const [isTypeLocked, setIsTypeLocked] = useState(true);
 
+    // Estados locales para interactividad inmediata de redirección
+    const [localRedirectType, setLocalRedirectType] = useState<'landing' | 'hotlink' | 'external' | undefined>(undefined);
+    const [localRedirectUrl, setLocalRedirectUrl] = useState<string | undefined>(undefined);
+
     // Estados para redirección
     const [userPages, setUserPages] = useState<LandingPage[]>([]);
     const [projectLinks, setProjectLinks] = useState<AffiliateLink[]>([]);
@@ -73,15 +77,23 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             setLocalSubject(currentReal.subject || '');
             setLocalPilar(currentReal.pilarType || '');
             setLocalPurpose(currentReal.purpose || '');
+            setLocalRedirectType(currentReal.redirectType);
+            setLocalRedirectUrl(currentReal.redirectUrl);
         } else if (currentStatic) {
             setLocalSubject(currentStatic.subject || '');
             setLocalPilar(currentStatic.type || '');
             setLocalPurpose(currentStatic.objective || '');
+            setLocalRedirectType(undefined);
+            setLocalRedirectUrl(undefined);
         }
         setIsTypeLocked(true);
     }, [activeEmail, emailData, realMessages]);
 
     const handleUpdateMessage = async (field: string, value: any) => {
+        // Actualización optimista del estado local para interactividad inmediata
+        if (field === 'redirectType') setLocalRedirectType(value);
+        if (field === 'redirectUrl') setLocalRedirectUrl(value);
+
         const currentReal = realMessages.find(m => m.dayIndex === activeEmail);
         if (!currentReal) return;
 
@@ -154,8 +166,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             </div>
 
             <div className="grid lg:grid-cols-12 gap-8">
-                {/* LEFT: EMAIL LIST (Ocupa 4 de 12 columnas) */}
-                <div className="lg:col-span-4 bg-gray-900 p-6 rounded-2xl border border-gray-800 flex flex-col h-full shadow-xl">
+                {/* LEFT: EMAIL LIST (Ocupa 5 de 12 columnas) */}
+                <div className="lg:col-span-5 bg-gray-900 p-6 rounded-2xl border border-gray-800 flex flex-col h-full shadow-xl">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-yellow-900/30 rounded-lg text-yellow-400 border border-yellow-900/50"><Mail className="w-6 h-6" /></div>
                         <div>
@@ -190,8 +202,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     </div>
                 </div>
 
-                {/* RIGHT: CONFIGURATION / CONTENT (Ocupa 8 de 12 columnas) */}
-                <div className="lg:col-span-8 bg-[#0B0B0B] border border-gray-800 rounded-[3rem] p-10 shadow-xl relative overflow-hidden flex-1 min-h-[600px]">
+                {/* RIGHT: CONFIGURATION / CONTENT (Ocupa 7 de 12 columnas) */}
+                <div className="lg:col-span-7 bg-[#0B0B0B] border border-gray-800 rounded-[3rem] p-10 shadow-xl relative overflow-hidden flex-1 min-h-[600px]">
                     <div className={`absolute top-0 left-0 w-1 h-full ${isCurrentGenerated ? 'bg-emerald-500/50' : 'bg-yellow-500/50'}`}></div>
                     
                     {isCurrentGenerated ? (
@@ -199,7 +211,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             <div className="flex justify-between items-center bg-emerald-900/20 text-emerald-400 border border-emerald-500/20 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
                                 GENERADO: DÍA {activeEmail + 1}
                             </div>
-                            <div className="bg-white rounded-[2rem] shadow-2xl p-10 flex-1 overflow-y-auto font-serif text-xl leading-[1.8] text-gray-900">
+                            <div className="bg-white rounded-[2.5rem] shadow-2xl p-10 flex-1 overflow-y-auto font-serif text-xl leading-[1.8] text-gray-900">
                                 <div dangerouslySetInnerHTML={{ __html: currentRealContent }} />
                             </div>
                             <button onClick={handleCopyEmail} className="w-full py-6 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-black text-lg uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-4">
@@ -293,49 +305,49 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div 
                                                 onClick={() => handleUpdateMessage('redirectType', 'landing')}
-                                                className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${currentMsg?.redirectType === 'landing' ? 'bg-blue-600/10 border-blue-500 shadow-lg shadow-blue-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
+                                                className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${localRedirectType === 'landing' ? 'bg-blue-600/10 border-blue-500 shadow-lg shadow-blue-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
                                             >
-                                                <div className={`p-4 rounded-2xl transition-colors ${currentMsg?.redirectType === 'landing' ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-500'}`}>
+                                                <div className={`p-4 rounded-2xl transition-colors ${localRedirectType === 'landing' ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-500'}`}>
                                                     <Globe className="w-8 h-8" />
                                                 </div>
                                                 <div>
-                                                    <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${currentMsg?.redirectType === 'landing' ? 'text-white' : 'text-gray-400'}`}>Landing Page</h4>
+                                                    <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${localRedirectType === 'landing' ? 'text-white' : 'text-gray-400'}`}>Landing Page</h4>
                                                     <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Envía el tráfico a una de tus páginas internas creadas.</p>
                                                 </div>
                                             </div>
                                             
                                             <div 
                                                 onClick={() => handleUpdateMessage('redirectType', 'hotlink')}
-                                                className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${currentMsg?.redirectType === 'hotlink' ? 'bg-[#FF5A1F]/10 border-[#FF5A1F] shadow-lg shadow-orange-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
+                                                className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${localRedirectType === 'hotlink' ? 'bg-[#FF5A1F]/10 border-[#FF5A1F] shadow-lg shadow-orange-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
                                             >
-                                                <div className={`p-4 rounded-2xl transition-colors ${currentMsg?.redirectType === 'hotlink' ? 'bg-[#FF5A1F] text-white' : 'bg-white/5 text-gray-500'}`}>
+                                                <div className={`p-4 rounded-2xl transition-colors ${localRedirectType === 'hotlink' ? 'bg-[#FF5A1F] text-white' : 'bg-white/5 text-gray-500'}`}>
                                                     <LinkIcon className="w-8 h-8" />
                                                 </div>
                                                 <div>
-                                                    <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${currentMsg?.redirectType === 'hotlink' ? 'text-white' : 'text-gray-400'}`}>Hotlink Proyecto</h4>
+                                                    <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${localRedirectType === 'hotlink' ? 'text-white' : 'text-gray-400'}`}>Hotlink Proyecto</h4>
                                                     <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Usa directamente tus enlaces de afiliado de Hotmart.</p>
                                                 </div>
                                             </div>
 
                                             <div 
                                                 onClick={() => handleUpdateMessage('redirectType', 'external')}
-                                                className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${currentMsg?.redirectType === 'external' ? 'bg-purple-600/10 border-purple-500 shadow-lg shadow-purple-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
+                                                className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${localRedirectType === 'external' ? 'bg-purple-600/10 border-purple-500 shadow-lg shadow-purple-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}
                                             >
-                                                <div className={`p-4 rounded-2xl transition-colors ${currentMsg?.redirectType === 'external' ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-500'}`}>
+                                                <div className={`p-4 rounded-2xl transition-colors ${localRedirectType === 'external' ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-500'}`}>
                                                     <ExternalLink className="w-8 h-8" />
                                                 </div>
                                                 <div>
-                                                    <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${currentMsg?.redirectType === 'external' ? 'text-white' : 'text-gray-400'}`}>Link Externo</h4>
+                                                    <h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${localRedirectType === 'external' ? 'text-white' : 'text-gray-400'}`}>Link Externo</h4>
                                                     <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Cualquier otra página web externa que desees promocionar.</p>
                                                 </div>
                                             </div>
                                         </div>
                                         
                                         <div className="mt-4">
-                                            {currentMsg?.redirectType === 'landing' && (
+                                            {localRedirectType === 'landing' && (
                                                 <div className="animate-in fade-in slide-in-from-top-2">
                                                     <select
-                                                        value={userPages.find(p => (p.customDomain ? `https://${p.customDomain}` : `https://${p.subdomain}`) === currentMsg.redirectUrl)?.id || ''}
+                                                        value={userPages.find(p => (p.customDomain ? `https://${p.customDomain}` : `https://${p.subdomain}`) === localRedirectUrl)?.id || ''}
                                                         onChange={(e) => {
                                                             const page = userPages.find(p => p.id === e.target.value);
                                                             if (page) handleUpdateMessage('redirectUrl', page.customDomain ? `https://${page.customDomain}` : `https://${page.subdomain}`);
@@ -350,11 +362,11 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                 </div>
                                             )}
 
-                                            {currentMsg?.redirectType === 'external' && (
+                                            {localRedirectType === 'external' && (
                                                 <div className="animate-in fade-in slide-in-from-top-2">
                                                     <input
                                                         type="text"
-                                                        value={currentMsg.redirectUrl || ''}
+                                                        value={localRedirectUrl || ''}
                                                         onChange={(e) => handleUpdateMessage('redirectUrl', e.target.value)}
                                                         className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition"
                                                         placeholder="https://ejemplo.com/tu-enlace"
@@ -362,7 +374,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                 </div>
                                             )}
                                             
-                                            {currentMsg?.redirectType === 'hotlink' && (
+                                            {localRedirectType === 'hotlink' && (
                                                 <div className="animate-in fade-in slide-in-from-top-2 space-y-4">
                                                     {isAddingNewLink ? (
                                                         <div className="p-6 bg-black border border-white/10 rounded-2xl space-y-4 shadow-xl">
@@ -402,9 +414,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                             </button>
                                                         </div>
                                                     ) : (
-                                                        <div className={`relative ${!currentMsg.redirectUrl ? 'ring-2 ring-red-500/50 rounded-xl' : ''}`}>
+                                                        <div className={`relative ${!localRedirectUrl ? 'ring-2 ring-red-500/50 rounded-xl' : ''}`}>
                                                             <select
-                                                                value={currentMsg.redirectUrl || ''}
+                                                                value={localRedirectUrl || ''}
                                                                 className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition appearance-none cursor-pointer"
                                                                 onChange={(e) => {
                                                                     if (e.target.value === 'ADD_NEW') {
@@ -420,7 +432,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                                 ))}
                                                                 <option value="ADD_NEW" className="text-[#FF5A1F] font-bold">+ Añadir nuevo Hotlink</option>
                                                             </select>
-                                                            {!currentMsg.redirectUrl && (
+                                                            {!localRedirectUrl && (
                                                                 <div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse">
                                                                     <AlertTriangle className="w-3 h-3" /> Link de destino obligatorio
                                                                 </div>
@@ -436,8 +448,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                 <div className="mt-8 pb-6">
                                     <button 
                                         onClick={() => navigate(`/dashboard/email/create?projectId=${projectId}&day=${activeEmail}`)}
-                                        disabled={!currentMsg?.redirectUrl}
-                                        className={`w-full py-6 rounded-[2cm] bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#D94A1E] hover:to-orange-600 text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95 shadow-[#FF5A1F]/20 ${!currentMsg?.redirectUrl ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                                        disabled={!localRedirectUrl}
+                                        className={`w-full py-6 rounded-[2cm] bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#D94A1E] hover:to-orange-600 text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95 shadow-[#FF5A1F]/20 ${!localRedirectUrl ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
                                     >
                                         <Wand2 className="w-7 h-7 fill-current" /> Redactar con IA <ArrowRight className="w-5 h-5" />
                                     </button>

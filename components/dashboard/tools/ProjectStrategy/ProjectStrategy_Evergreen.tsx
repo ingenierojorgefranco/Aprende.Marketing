@@ -98,8 +98,8 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
             {/* CUADRÍCULA DE 12 COLUMNAS: LISTA + VISTA PREVIA */}
             <div id="psd-evergreen-grid" className="grid lg:grid-cols-12 gap-8 max-w-[85em] mx-auto">
                 
-                {/* COLUMNA IZQUIERDA: LISTADO DE CORREOS (Ocupa 4 de 12) */}
-                <div id="psd-evergreen-list-col" className="lg:col-span-4 bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col h-full">
+                {/* COLUMNA IZQUIERDA: LISTADO DE CORREOS (Ocupa 5 de 12) */}
+                <div id="psd-evergreen-list-col" className="lg:col-span-5 bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col h-full">
                     <div className="flex items-center gap-4 mb-10">
                         <div className="p-3 bg-orange-900/30 rounded-2xl text-orange-400 border border-orange-900/50">
                             <Mail className="w-7 h-7" />
@@ -138,8 +138,8 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     </div>
                 </div>
 
-                {/* COLUMNA DERECHA: VISTA PREVIA DEL CORREO (Ocupa 8 de 12) */}
-                <div id="psd-evergreen-preview-col" className="lg:col-span-8 bg-[#0b0b0b] border border-gray-800 rounded-[3rem] p-10 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl">
+                {/* COLUMNA DERECHA: VISTA PREVIA DEL CORREO (Ocupa 7 de 12) */}
+                <div id="psd-evergreen-preview-col" className="lg:col-span-7 bg-[#0b0b0b] border border-gray-800 rounded-[3rem] p-10 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl">
                     <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
                         <Calendar className="w-40 h-40 text-orange-500" />
                     </div>
