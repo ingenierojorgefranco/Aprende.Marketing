@@ -90,6 +90,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             await api.updateEmailMessage(currentReal.id, { [apiField]: value } as any);
             // Actualización local para feedback visual inmediato si el dashboard no recarga
             (currentReal as any)[field] = value;
+            // Forzamos un re-render local si es necesario para el estado activo de las tarjetas
+            setActiveEmail(activeEmail);
         } catch (e) {
             console.error(e);
         }
@@ -151,9 +153,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 </h3>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-8">
-                {/* LEFT: EMAIL LIST */}
-                <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 flex flex-col h-full shadow-xl">
+            <div className="grid lg:grid-cols-12 gap-8">
+                {/* LEFT: EMAIL LIST (Ocupa 4 de 12 columnas) */}
+                <div className="lg:col-span-4 bg-gray-900 p-6 rounded-2xl border border-gray-800 flex flex-col h-full shadow-xl">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-yellow-900/30 rounded-lg text-yellow-400 border border-yellow-900/50"><Mail className="w-6 h-6" /></div>
                         <div>
@@ -174,9 +176,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${isDayGenerated ? 'bg-emerald-500 text-black' : (activeEmail === idx ? 'bg-yellow-500 text-black' : 'bg-gray-800 text-gray-400')}`}>
                                             {idx + 1}
                                         </div>
-                                        <div>
+                                        <div className="min-w-0 flex-1">
                                             <span className={`text-xs font-bold uppercase tracking-wider block mb-1 ${isDayGenerated ? 'text-emerald-400' : 'text-gray-500'}`}>{email.day}</span>
-                                            <h4 className={`text-lg font-bold leading-tight truncate ${isDayGenerated ? 'text-white' : (activeEmail === idx ? 'text-yellow-200' : 'text-gray-300')}`}>{email.subject}</h4>
+                                            <h4 className={`text-lg font-bold leading-tight whitespace-normal break-words ${isDayGenerated ? 'text-white' : (activeEmail === idx ? 'text-yellow-200' : 'text-gray-300')}`}>{email.subject}</h4>
                                         </div>
                                     </div>
                                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isDayGenerated ? 'border-emerald-500 bg-emerald-500' : (activeEmail === idx ? 'border-yellow-500 bg-yellow-500' : 'border-gray-600')}`}>
@@ -188,8 +190,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     </div>
                 </div>
 
-                {/* RIGHT: CONFIGURATION / CONTENT */}
-                <div className="bg-[#0B0B0B] border border-gray-800 rounded-[3rem] p-10 shadow-xl relative overflow-hidden flex-1 min-h-[600px]">
+                {/* RIGHT: CONFIGURATION / CONTENT (Ocupa 8 de 12 columnas) */}
+                <div className="lg:col-span-8 bg-[#0B0B0B] border border-gray-800 rounded-[3rem] p-10 shadow-xl relative overflow-hidden flex-1 min-h-[600px]">
                     <div className={`absolute top-0 left-0 w-1 h-full ${isCurrentGenerated ? 'bg-emerald-500/50' : 'bg-yellow-500/50'}`}></div>
                     
                     {isCurrentGenerated ? (

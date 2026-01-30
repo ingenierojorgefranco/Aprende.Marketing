@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2 } from 'lucide-react';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../../services/api';
 
-const ChatSimulator: React.FC<{ messages: any[] }> = ({ messages }) => {
+const ChatSimulator: React.FC<{ messages: any[]; senderName?: string }> = ({ messages, senderName }) => {
     const renderWhatsAppText = (text: string) => {
         if (!text) return null;
         // Divide el texto por fragmentos encerrados en asteriscos: *texto*
@@ -20,10 +20,10 @@ const ChatSimulator: React.FC<{ messages: any[] }> = ({ messages }) => {
         <div id="psd-chat-simulator-container" className="bg-[#0b141a] rounded-xl overflow-hidden border border-gray-800 flex flex-col h-auto font-sans text-sm shadow-xl transition-all duration-500 ease-in-out">
             <div id="psd-chat-header" className="bg-[#202c33] p-3 flex items-center gap-3 border-b border-gray-700 shrink-0">
                 <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-black font-black text-lg">
-                    A
+                    {senderName ? senderName.charAt(0).toUpperCase() : 'A'}
                 </div>
                 <div>
-                    <p className="text-white font-bold text-lg leading-tight">Ariana Zamora</p>
+                    <p className="text-white font-bold text-lg leading-tight">{senderName || 'Ariana Zamora'}</p>
                     <p className="text-xs text-emerald-400 font-medium">en línea</p>
                 </div>
             </div>
@@ -69,13 +69,32 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     whatsappLaunch = [], activeWaScript, setActiveWaScript, onUpgrade, isLocked = true, projectId
 }) => {
     const navigate = useNavigate();
+    const { user } = useOutletContext() as any;
     const [launchDate, setLaunchDate] = useState<string>('');
     const [launchId, setLaunchId] = useState<string | null>(null);
     const [sentMessages, setSentMessages] = useState<Set<number>>(new Set());
     const [imageUrls, setImageUrls] = useState<Record<number, string>>({
         0: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=800&q=80'
     });
+    const [isTypeLocked, setIsTypeLocked] = useState(true);
     const dateInputRef = useRef<HTMLInputElement>(null);
+
+    const waTypes = [
+        'Expectativa', 
+        'Autoridad', 
+        'Valor / Curiosidad', 
+        'Valor Preventivo', 
+        'Urgencia Matutina', 
+        'Preparación', 
+        'Acción Inmediata',
+        'Lanzamiento',
+        'Escasez de Bonus',
+        'Facilitación',
+        'Seguridad',
+        'Escasez Final',
+        'Cierre de Carrito',
+        'Onboarding'
+    ];
 
     useEffect(() => {
         const loadLaunchConfig = async () => {
@@ -152,6 +171,23 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         };
     });
 
+    const handleUpdateMessage = async (index: number, field: string, value: any) => {
+        if (!projectId) return;
+        try {
+            const launch = await api.getWhatsAppLaunchByProject(projectId);
+            if (launch) {
+                const newMessages = [...launch.messages];
+                (newMessages[index] as any)[field] = value;
+                await api.updateWhatsAppLaunch(launch.id, { messages: newMessages });
+                // Actualizar la vista local (opcionalmente podrías recargar los datos)
+                whatsappLaunch[index][field] = value;
+                setActiveWaScript(activeWaScript); 
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
     const handleCopy = (text: string) => {
         navigator.clipboard.writeText(text);
         alert("Mensaje copiado para WhatsApp");
@@ -198,6 +234,11 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 console.error("Error persistiendo fecha de lanzamiento", error);
             }
         }
+    };
+
+    const handleGenerate = async () => {
+        if (!projectId) return;
+        navigate(`/dashboard/whatsapp-launch/create?projectId=${projectId}`);
     };
 
     return (
@@ -323,67 +364,63 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
                 <div id="psd-whatsapp-simulator-col" className="lg:col-span-8 bg-black/40 border border-gray-800 rounded-2xl p-6 flex flex-col relative overflow-hidden h-full shadow-2xl">
                     
-                    <div className="relative z-10 flex flex-col gap-6 mb-6">
-                        <div className="bg-green-900/10 border border-green-500/20 p-8 rounded-xl space-y-8">
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-6 h-6 rounded-full bg-green-500 text-black flex items-center justify-center text-[10px] font-black shrink-0">
-                                        {activeWaScript + 1}
-                                    </div>
-                                    <h5 className="text-green-400 font-bold text-2xl uppercase tracking-wider">
-                                        Mensaje {activeWaScript + 1}
-                                    </h5>
-                                </div>
-                                <p className="text-gray-300 text-xl leading-relaxed font-light">
-                                    {getMessageDisplayName(activeWaScript, activeItem.name || activeItem.title)}
-                                </p>
-                            </div>
-
-                            <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4">
-                                <Info className="w-6 h-6 text-emerald-400 shrink-0" />
-                                <p className="text-gray-300 text-base leading-relaxed">
-                                    <span className="font-bold text-emerald-200 block mb-1">Propósito Estratégico:</span>
-                                    {activeItem?.purpose || activeItem?.objective}
-                                </p>
-                            </div>
-
-                            <div className="pt-6 border-t border-white/10">
-                                <label className="block text-xs font-black text-blue-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
-                                    <ImageIcon className="w-4 h-4" /> URL de Imagen Adjunta (Opcional)
-                                </label>
-                                <input 
-                                    type="text" 
-                                    value={imageUrls[activeWaScript] || ''}
-                                    onChange={(e) => handleImageUrlChange(e.target.value)}
-                                    placeholder="Pega la URL de la imagen que enviarás con este mensaje..."
-                                    className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm focus:border-blue-500 outline-none transition-all"
-                                />
-                            </div>
-
-                            {imageUrls[activeWaScript] && (
-                                <div className="space-y-4 animate-in zoom-in-95 duration-300">
-                                    <div className="relative aspect-video max-w-sm mx-auto rounded-2xl overflow-hidden border border-white/10 shadow-xl">
-                                        <img src={imageUrls[activeWaScript]} alt="Adjunto" className="w-full h-full object-cover" />
-                                    </div>
-                                    <button 
-                                        onClick={() => window.open(imageUrls[activeWaScript], '_blank')}
-                                        className="w-full py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold flex items-center justify-center gap-2 border border-white/10 transition-all"
-                                    >
-                                        <Download className="w-4 h-4" /> Descargar Imagen Adjunta
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* ÁREA DE SIMULADOR Y COPIADO */}
                     <div className="relative flex-1 flex flex-col gap-6">
                         
                         <div className={`flex-1 flex flex-col gap-6 transition-all duration-500`}>
                             {activeItem.isGenerated ? (
                                 <>
+                                    <div className="relative z-10 flex flex-col gap-6 mb-6">
+                                        <div className="bg-green-900/10 border border-green-500/20 p-8 rounded-xl space-y-8">
+                                            <div className="space-y-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-6 h-6 rounded-full bg-green-500 text-black flex items-center justify-center text-[10px] font-black shrink-0">
+                                                        {activeWaScript + 1}
+                                                    </div>
+                                                    <h5 className="text-green-400 font-bold text-2xl uppercase tracking-wider">
+                                                        {getMessageDisplayName(activeWaScript, activeItem.name || activeItem.title)}
+                                                    </h5>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4">
+                                                <Info className="w-6 h-6 text-emerald-400 shrink-0" />
+                                                <p className="text-gray-300 text-base leading-relaxed">
+                                                    <span className="font-bold text-emerald-200 block mb-1">Propósito Estratégico:</span>
+                                                    {activeItem?.purpose || activeItem?.objective}
+                                                </p>
+                                            </div>
+
+                                            <div className="pt-6 border-t border-white/10">
+                                                <label className="block text-xs font-black text-blue-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                                                    <ImageIcon className="w-4 h-4" /> URL de Imagen Adjunta (Opcional)
+                                                </label>
+                                                <input 
+                                                    type="text" 
+                                                    value={imageUrls[activeWaScript] || ''}
+                                                    onChange={(e) => handleImageUrlChange(e.target.value)}
+                                                    placeholder="Pega la URL de la imagen que enviarás con este mensaje..."
+                                                    className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm focus:border-blue-500 outline-none transition-all"
+                                                />
+                                            </div>
+
+                                            {imageUrls[activeWaScript] && (
+                                                <div className="space-y-4 animate-in zoom-in-95 duration-300">
+                                                    <div className="relative aspect-video max-w-sm mx-auto rounded-2xl overflow-hidden border border-white/10 shadow-xl">
+                                                        <img src={imageUrls[activeWaScript]} alt="Adjunto" className="w-full h-full object-cover" />
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => window.open(imageUrls[activeWaScript], '_blank')}
+                                                        className="w-full py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold flex items-center justify-center gap-2 border border-white/10 transition-all"
+                                                    >
+                                                        <Download className="w-4 h-4" /> Descargar Imagen Adjunta
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
                                     <div className="border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
-                                        <ChatSimulator messages={processedMessages} />
+                                        <ChatSimulator messages={processedMessages} senderName={user?.name} />
                                     </div>
 
                                     <div className="flex gap-4">
@@ -394,7 +431,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                             <Copy className="w-5 h-5" /> Copiar Mensaje
                                         </button>
                                         <button 
-                                            onClick={() => navigate(`/dashboard/whatsapp-launch/editor/${projectId}`)}
+                                            onClick={() => navigate(`/dashboard/whatsapp-launch/editor/${launchId}`)}
                                             className="p-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl transition-all"
                                             title="Editar Script"
                                         >
@@ -404,6 +441,13 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                 </>
                             ) : (
                                 <div className="space-y-12 animate-in fade-in duration-500 flex-1 flex flex-col">
+                                    <div className="flex items-center justify-between">
+                                        <span className="bg-emerald-900/20 text-emerald-400 border border-emerald-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
+                                            Pilar: {activeItem.pilarType}
+                                        </span>
+                                        <span className="text-white text-lg font-black uppercase tracking-widest italic">{activeItem.momentText}</span>
+                                    </div>
+
                                     <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden flex-1">
                                         <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/50"></div>
                                         
@@ -420,36 +464,67 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         <div className="space-y-10">
                                             <div className="space-y-3">
                                                 <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
-                                                    Pilar Estratégico: <span className="text-emerald-400">{activeItem.pilarType}</span>
-                                                </label>
-                                            </div>
-
-                                            <div className="space-y-3">
-                                                <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
-                                                    <Brain className="w-5 h-5 text-emerald-500" /> Propósito Estratégico
-                                                </label>
-                                                <div className="w-full bg-black/60 border border-white/10 rounded-[2rem] p-6 text-gray-300 text-lg font-light leading-relaxed">
-                                                    {activeItem.purpose || activeItem.objective}
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-3">
-                                                <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
                                                     <PenTool className="w-5 h-5 text-emerald-500" /> Título Sugerido
                                                 </label>
-                                                <div className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-xl">
-                                                    {activeItem.name || activeItem.title}
+                                                <input 
+                                                    type="text"
+                                                    value={activeItem.name || activeItem.title}
+                                                    onChange={(e) => handleUpdateMessage(activeWaScript, 'name', e.target.value)}
+                                                    className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-xl outline-none focus:border-emerald-500/50 transition-all shadow-inner"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <div className="flex justify-between items-center">
+                                                    <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                                        <Settings2 className="w-5 h-5 text-emerald-500" /> Pilar Estratégico (Tipo)
+                                                    </label>
+                                                    <button 
+                                                        onClick={() => setIsTypeLocked(!isTypeLocked)}
+                                                        className="text-xs font-black text-emerald-400 uppercase tracking-widest hover:underline px-3 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/20 transition-all"
+                                                    >
+                                                        {isTypeLocked ? 'Desbloquear' : 'Bloquear'}
+                                                    </button>
                                                 </div>
+                                                <div className="relative">
+                                                    <select 
+                                                        disabled={isTypeLocked}
+                                                        value={activeItem.pilarType}
+                                                        onChange={(e) => handleUpdateMessage(activeWaScript, 'pilarType', e.target.value)}
+                                                        className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none transition-all shadow-inner appearance-none cursor-pointer ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50 ring-2 ring-emerald-500/10'}`}
+                                                    >
+                                                        {waTypes.map(t => (
+                                                            <option key={t} value={t}>{t}</option>
+                                                        ))}
+                                                    </select>
+                                                    {!isTypeLocked && (
+                                                        <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                            <ChevronDown className="w-6 h-6 text-emerald-500" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                                    <Brain className="w-5 h-5 text-emerald-500" /> Propósito Estratégico del Momento
+                                                </label>
+                                                <textarea 
+                                                    rows={4}
+                                                    value={activeItem.purpose || activeItem.objective}
+                                                    onChange={(e) => handleUpdateMessage(activeWaScript, 'purpose', e.target.value)}
+                                                    className="w-full bg-black/60 border border-white/10 rounded-[2.5rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none focus:border-emerald-500/50 transition-all shadow-inner resize-none"
+                                                />
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="pb-6">
                                         <button 
-                                            onClick={() => navigate(`/dashboard/whatsapp-launch/create?projectId=${projectId}`)}
+                                            onClick={handleGenerate}
                                             className="w-full py-6 rounded-[2cm] bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95 shadow-emerald-900/30"
                                         >
-                                            <Wand2 className="w-7 h-7 fill-current" /> Generar Mensaje con IA
+                                            <Wand2 className="w-7 h-7 fill-current" /> Generar Mensaje No {activeWaScript + 1} con IA
                                         </button>
                                     </div>
                                 </div>

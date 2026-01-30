@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, Article } from '../../../../types';
@@ -95,11 +95,11 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 </div>
             </div>
 
-            {/* CUADRÍCULA DE 2 COLUMNAS: LISTA + VISTA PREVIA */}
-            <div id="psd-evergreen-grid" className="grid lg:grid-cols-2 gap-8 max-w-[85em] mx-auto">
+            {/* CUADRÍCULA DE 12 COLUMNAS: LISTA + VISTA PREVIA */}
+            <div id="psd-evergreen-grid" className="grid lg:grid-cols-12 gap-8 max-w-[85em] mx-auto">
                 
-                {/* COLUMNA IZQUIERDA: LISTADO DE CORREOS */}
-                <div id="psd-evergreen-list-col" className="bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col h-full">
+                {/* COLUMNA IZQUIERDA: LISTADO DE CORREOS (Ocupa 4 de 12) */}
+                <div id="psd-evergreen-list-col" className="lg:col-span-4 bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col h-full">
                     <div className="flex items-center gap-4 mb-10">
                         <div className="p-3 bg-orange-900/30 rounded-2xl text-orange-400 border border-orange-900/50">
                             <Mail className="w-7 h-7" />
@@ -113,19 +113,19 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     <div className="space-y-4 overflow-y-auto max-h-[600px] custom-scrollbar pr-2">
                         {dynamicSequence.map((email, idx) => (
                             <div 
-                                key={email.id}
+                                key={email.id} 
                                 onClick={() => setActiveEvergreenEmail(idx)}
                                 className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer flex items-center justify-between gap-5 ${activeEvergreenEmail === idx ? 'bg-orange-900/10 border-orange-500/30 shadow-xl' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xs font-black shrink-0 transition-colors ${activeEvergreenEmail === idx ? 'bg-orange-500 text-white' : 'bg-gray-800 text-gray-500'}`}>
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xs font-black shrink-0 transition-colors ${activeEvergreenEmail === idx ? 'bg-orange-500 text-white' : 'bg-gray-800 text-gray-400'}`}>
                                         {email.day.split(' ')[1]}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className={`text-[11px] font-black uppercase tracking-widest mb-1 ${activeEvergreenEmail === idx ? 'text-orange-400' : 'text-gray-600'}`}>
                                             {email.day}
                                         </p>
-                                        <h5 className={`font-bold text-lg leading-tight truncate ${activeEvergreenEmail === idx ? 'text-white' : 'text-gray-400'}`}>
+                                        <h5 className={`font-bold text-lg leading-tight whitespace-normal break-words ${activeEvergreenEmail === idx ? 'text-white' : 'text-gray-400'}`}>
                                             {email.subject}
                                         </h5>
                                     </div>
@@ -138,8 +138,8 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     </div>
                 </div>
 
-                {/* COLUMNA DERECHA: VISTA PREVIA DEL CORREO */}
-                <div id="psd-evergreen-preview-col" className="bg-[#0b0b0b] border border-gray-800 rounded-[3rem] p-10 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl">
+                {/* COLUMNA DERECHA: VISTA PREVIA DEL CORREO (Ocupa 8 de 12) */}
+                <div id="psd-evergreen-preview-col" className="lg:col-span-8 bg-[#0b0b0b] border border-gray-800 rounded-[3rem] p-10 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl">
                     <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
                         <Calendar className="w-40 h-40 text-orange-500" />
                     </div>
