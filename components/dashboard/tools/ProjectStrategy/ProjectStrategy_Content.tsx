@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PlanLimits, Plan, LandingPage, Article } from '../../../../types';
 import { ContentGenerator } from '../ContentGenerator';
@@ -30,6 +30,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const navigate = useNavigate();
     const { id: projectId } = useParams() as { id: string };
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
 
     // Lógica de Paginación
@@ -74,6 +75,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const maxArticles = planLimits?.maxArticles || 2;
     // Bypass del límite si estamos en modo Mock
     const isAtLimit = !isRealAdmin && !api.isUsingMockData() && articleCount >= maxArticles;
+
+    const usagePercent = Math.min(100, (articleCount / maxArticles) * 100);
+    let progressColor = "bg-green-500";
+    if (usagePercent > 50) progressColor = "bg-yellow-500";
+    if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
     return (
         <div className="space-y-16">
@@ -271,7 +277,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     </button>
                                 ) : (
                                     <button 
-                                        onClick={() => setShowGeneratorModal(true)} 
+                                        onClick={() => setShowConfirmModal(true)} 
                                         disabled={selectedArticles.length === 0}
                                         className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg ${selectedArticles.length === 0 ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50 grayscale' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]'}`}
                                     >
@@ -283,6 +289,42 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     </div>
                 </div>
             </div>
+
+            {/* --- MODAL DE CONFIRMACIÓN ESTRATÉGICA --- */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300" onClick={() => setShowConfirmModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-purple-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-rose-500"></div>
+                        <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto">
+                            <div className="flex flex-col items-center text-center space-y-6">
+                                <div className="w-20 h-20 bg-purple-500/10 text-purple-400 rounded-3xl flex items-center justify-center mx-auto border border-purple-500/20 shadow-lg shadow-purple-900/10 animate-pulse">
+                                    <Sparkles className="w-10 h-10" />
+                                </div>
+                                <div className="space-y-2">
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Protocolo de Redacción</h3>
+                                    <p className="text-purple-400 font-black uppercase tracking-[0.2em] text-[10px]">Asistente de Contenidos Estratégicos</p>
+                                </div>
+                                <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                    Estás a punto de activar la IA para redactar un artículo SEO profesional. Esta acción consumirá <span className="text-white font-bold">1 crédito</span> de tu plan <span className="text-purple-400 font-bold capitalize">{planLimits?.planName || 'Starter'}</span>.
+                                </p>
+                            </div>
+                            <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Consumo de Artículos</span>
+                                    <span className="text-white font-bold text-sm">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
+                                </div>
+                                <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden p-0.5 border border-white/5">
+                                    <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(168,85,247,0.5)]`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
+                            <button onClick={() => { setShowConfirmModal(false); setShowGeneratorModal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-rose-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-purple-900/20 transform hover:scale-105 active:scale-95 transition-all">Confirmar y Redactar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* MODAL GENERADOR DE CONTENIDOS */}
             {showGeneratorModal && (
