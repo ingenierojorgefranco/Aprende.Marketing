@@ -371,8 +371,7 @@ const generateFullStrategy = async (projectId) => {
                 title: "Promesa de Valor (Hero Section)",
                 type: 'hero',
                 h1: "Domina el Arte del Microblading y Genera Ingresos Propios de Alto Valor",
-                h2: "La oportunidad perfecta para emprendedoras del sector belleza que buscan independencia financiera sin trucos ni promesas vacías.",
-                strategyText: "Este titular conecta directamente con el deseo de generar ingresos propios, filtrando a las personas que buscan resultados fáciles y atrayendo a las que valoran el autoempleo de calidad."
+                h2: "La oportunidad perfecta para emprendedoras del sector belleza que buscan independencia financiera sin trucos ni promesas vacías."
             },
             pain: {
                 label: "2. Dolores",
@@ -386,8 +385,7 @@ const generateFullStrategy = async (projectId) => {
                     "Te apasiona la estética pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.",
                     "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.",
                     "Te detiene el miedo a las promesas vacías de internet que no enseñan nada realmente útil para tu futuro."
-                ],
-                strategyText: "Al mencionar detalladamente estos 7 dolores, validamos el sentimiento del usuario y nos diferenciamos como una opción seria que entiende su realidad."
+                ]
             },
             benefits: {
                 label: "3. Beneficios",
@@ -401,8 +399,7 @@ const generateFullStrategy = async (projectId) => {
                     { title: "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable.", desc: "Te enseñamos a escalar tu talento y construir un negocio sólido." },
                     { title: "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa.", desc: "Toma el control total de tu carrera profesional y financiera." },
                     { title: "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real.", desc: "Educación de élite diseñada para resultados inmediatos en el mercado." }
-                ],
-                strategyText: "Enfocamos los beneficios en la libertad y la calidad técnica para satisfacer la necesidad de autoempleo genuino del avatar."
+                ]
             }
         },
         thankYouPageTabs: {
@@ -413,8 +410,7 @@ const generateFullStrategy = async (projectId) => {
                 content: {
                     h1: "¡Bienvenida al inicio de tu independencia financiera!",
                     h2: "Has tomado la mejor decisión para tu carrera en el sector de la belleza."
-                },
-                strategyText: "Reforzamos la idea de 'independencia' para mantener la motivación del avatar en su punto más alto."
+                }
             },
             action: {
                 label: "2. Siguiente Paso",
@@ -423,8 +419,7 @@ const generateFullStrategy = async (projectId) => {
                 content: {
                     h1: "Conéctate a nuestro WhatsApp Estratégico",
                     h2: "Es el canal principal donde resolveremos tus dudas y entregaremos el material de estudio."
-                },
-                strategyText: "Aprovechamos que el usuario consume contenido en WhatsApp para asegurar la entrada a la comunidad."
+                }
             },
             magnet: {
                 label: "3. Lead Magnet",
@@ -433,8 +428,7 @@ const generateFullStrategy = async (projectId) => {
                 content: {
                     h1: "Descarga tu Plan de Negocios en Estética",
                     h2: "El primer paso práctico para empezar a ofrecer servicios de alto valor."
-                },
-                strategyText: "Entregamos valor inmediato que ataca la parálisis por análisis del avatar principiante."
+                }
             }
         },
 

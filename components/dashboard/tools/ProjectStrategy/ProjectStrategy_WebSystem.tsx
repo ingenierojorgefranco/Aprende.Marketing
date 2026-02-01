@@ -298,9 +298,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     <div className="p-3 bg-blue-500/20 rounded-2xl text-blue-400 shrink-0 shadow-lg"><Info className="w-6 h-6" /></div>
                                     <div>
                                         <h5 className="text-white font-black text-lg mb-2">Estrategia de Captura</h5>
-                                        <p className="text-gray-400 text-base leading-relaxed italic">
-                                            {lpTabsData && selectedLpTab ? lpTabsData[selectedLpTab].strategyText : 'Analizando inteligencia de mercado...'}
-                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -387,9 +384,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400 shrink-0 shadow-lg"><Info className="w-6 h-6" /></div>
                                     <div>
                                         <h5 className="text-white font-black text-lg mb-2">Estrategia de Retención</h5>
-                                        <p className="text-gray-400 text-base leading-relaxed italic">
-                                            {tyTabsData && selectedTyTab ? tyTabsData[selectedTyTab].strategyText : 'Calculando ruta de conversión...'}
-                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -438,7 +432,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     Generar mis Páginas ahora con IA
                                     <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
                                 </button>
-                                <p className="text-center text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] mt-8">Arquitectura semántica garantizada para Hotmart®</p>
+                            
                             </>
                         )}
                     </div>

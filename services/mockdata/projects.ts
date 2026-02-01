@@ -148,8 +148,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     title: "Promesa de Valor (Hero Section)",
                     type: 'hero',
                     h1: "Domina el Arte del Microblading y Genera Ingresos Propios de Alto Valor",
-                    h2: "La oportunidad perfecta para emprendedoras del sector belleza que buscan independencia financiera sin trucos ni promesas vacías.",
-                    strategyText: "Este titular conecta directamente con el deseo de generar ingresos propios, filtrando a las personas que buscan resultados fáciles y atrayendo a las que valoran el autoempleo de calidad."
+                    h2: "La oportunidad perfecta para emprendedoras del sector belleza que buscan independencia financiera sin trucos ni promesas vacías."
                 },
                 pain: {
                     label: "2. Dolores",
@@ -163,8 +162,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                         "Te apasiona la estética pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.",
                         "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.",
                         "Te detiene el miedo a las promesas vacías de internet que no enseñan nada realmente útil para tu futuro."
-                    ],
-                    strategyText: "Al mencionar detalladamente estos 7 dolores, validamos el sentimiento del usuario y nos diferenciamos como una opción seria que entiende su realidad."
+                    ]
                 },
                 benefits: {
                     label: "3. Beneficios",
@@ -178,8 +176,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                         { title: "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable.", desc: "Te enseñamos a escalar tu talento y construir un negocio sólido." },
                         { title: "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa.", desc: "Toma el control total de tu carrera profesional y financiera." },
                         { title: "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real.", desc: "Educación de élite diseñada para resultados inmediatos en el mercado." }
-                    ],
-                    strategyText: "Enfocamos los beneficios en la libertad y la calidad técnica para satisfacer la necesidad de autoempleo genuino del avatar."
+                    ]
                 }
             },
             thankYouPageTabs: {
@@ -190,8 +187,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     content: {
                         h1: "¡Bienvenida al inicio de tu independencia financiera!",
                         h2: "Has tomado la mejor decisión para tu carrera en el sector de la belleza."
-                    },
-                    strategyText: "Reforzamos la idea de 'independencia' para mantener la motivación del avatar en su punto más alto."
+                    }
                 },
                 action: {
                     label: "2. Siguiente Paso",
@@ -200,8 +196,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     content: {
                         h1: "Conéctate a nuestro WhatsApp Estratégico",
                         h2: "Es el canal principal donde resolveremos tus dudas y entregaremos el material de estudio."
-                    },
-                    strategyText: "Aprovechamos que el usuario consume contenido en WhatsApp para asegurar la entrada a la comunidad."
+                    }
                 },
                 magnet: {
                     label: "3. Lead Magnet",
@@ -210,8 +205,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     content: {
                         h1: "Descarga tu Plan de Negocios en Estética",
                         h2: "El primer paso práctico para empezar a ofrecer servicios de alto valor."
-                    },
-                    strategyText: "Entregamos valor inmediato que ataca la parálisis por análisis del avatar principiante."
+                    }
                 }
             }
         },
@@ -428,7 +422,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 id: "wl9",
                 name: "Bonos de Acción Rápida",
                 moment: "Urgencia 1",
-                objective: "Bonos de Acción Rápida: Presionar éticamente mediante la pérdida inminente de regalos exclusivos, forzando una decisión de compra rápida.",
+                objective: "Bonos de Acción Rápida: Presionar éticamente mediante la pérdida inminente de los regalos exclusivos, forzando una decisión de compra rápida.",
                 messages: [{ role: 'agent', text: "*✨ ¡Gracias hermosas por estar en la clase de hoy! 🙋‍♀️💕*\nDe corazón espero que hayas disfrutado, aprendido y descubierto lo maravilloso que puede ser el mundo del microblading.\n📹 Quiero contarte que la grabación de la clase la vamos a compartir en este mismo grupo, para que puedas repasarla las veces que quieras.\n*Y ahora quiero darte una noticia especial:*\n👉 Las inscripciones al curso completo de Especialista en Microblading de Cejas 2.0 ya están abiertas.\nSu valor normal es de *200 Dólares* , pero por lanzamiento exclusivo para quienes participaron hoy, *queda en solo 47 Dólares* . 🎉\n_*En este curso vas a tener acceso a:*_\n• 💎 Las técnicas paso a paso explicadas en detalle.\n• 🎥 Clases grabadas + prácticas para que avances a tu ritmo.\n• 🎁 Bonos exclusivos (guía de pigmentos, plantillas de práctica y acceso a comunidad privada).\nEsta es tu oportunidad de dar el siguiente paso y empezar a transformar tu futuro con una habilidad rentable y apasionante.\n*Aquí puedes ver todos los detalles del programa con el descuento del 75%*\n👉 https://hotm.art/microblading-web-beca\nDe nuevo, gracias por confiar en mí.\nEstoy muy feliz de acompañarte en este camino. 💖\n— Ariana Zamora ✨" }]
             },
             {
@@ -449,7 +443,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 id: "wl12",
                 name: "Últimos Cupos / Apertura Grupo",
                 moment: "Cierre",
-                objective: "Últimos Cupos: Notificar la escasez real de plazas para movilizar a los indecisos que necesitan un último empujón antes del cierre.",
+                objective: "Últimos Cupos: Notificar la escasez real de plazas para movilizar a los indicisos que necesitan un último empujón antes del cierre.",
                 messages: [{ role: 'agent', text: "*🚨 INSCRIPCIONES CERRADAS 🚨*\n*El precio especial de lanzamiento (200 USD → 47 USD) ya ha finalizado. ❌*\n• Oficialmente, esta oportunidad no está disponible más…\n• Sabemos que muchas personas querían entrar, pero el tiempo y los cupos se agotaron.\n• Si no alcanzaste, puedes escribirme por interno y veremos si es posible habilitarte un cupo extra con el descuento.\n⚠ ️ Eso sí, no puedo garantizar porque los cupos estaban limitados.\nHoy cerramos esta etapa con un grupo maravilloso de nuevas futuras especialistas en microblading que ya están dentro.\n*Si te quedaste por fuera, recuerda: las oportunidades no esperan. 💎*" }]
             },
             {
