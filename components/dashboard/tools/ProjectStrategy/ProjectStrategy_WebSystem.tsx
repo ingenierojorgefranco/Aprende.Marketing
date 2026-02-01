@@ -291,16 +291,8 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 </div>
                             </div>
 
-                            {/* Inteligencia de Conversión LP */}
-                            <div className="bg-blue-900/10 border border-blue-500/20 rounded-[2rem] p-8 relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none group-hover:scale-110 transition-transform"><Lightbulb className="w-12 h-12 text-blue-400" /></div>
-                                <div className="flex gap-5 items-start">
-                                    <div className="p-3 bg-blue-500/20 rounded-2xl text-blue-400 shrink-0 shadow-lg"><Info className="w-6 h-6" /></div>
-                                    <div>
-                                        <h5 className="text-white font-black text-lg mb-2">Estrategia de Captura</h5>
-                                    </div>
-                                </div>
-                            </div>
+
+
                         </div>
 
                         {/* CONECTOR FLOW (1 Col) */}
@@ -377,21 +369,15 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 </div>
                             </div>
 
-                            {/* Inteligencia de Conversión TY */}
-                            <div className="bg-emerald-900/10 border border-emerald-500/20 rounded-[2rem] p-8 relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none group-hover:scale-110 transition-transform"><Sparkles className="w-12 h-12 text-emerald-400" /></div>
-                                <div className="flex gap-5 items-start">
-                                    <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400 shrink-0 shadow-lg"><Info className="w-6 h-6" /></div>
-                                    <div>
-                                        <h5 className="text-white font-black text-lg mb-2">Estrategia de Retención</h5>
-                                    </div>
-                                </div>
-                            </div>
+ 
+
+
                         </div>
 
                     </div>
 
                     {/* BOTÓN DE ACCIÓN O BLOQUE DE ÉXITO FINAL */}
+                    <div id="web-system-anchor">
                     <div className="max-w-4xl mx-auto w-full pt-10">
                         {linkedPages.length > 0 ? (
                             <div id="web-system-anchor" className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[3rem] p-10 md:p-12 shadow-[0_20px_50px_rgba(16,185,129,0.1)] flex flex-col items-center text-center animate-in zoom-in-95 duration-700 relative overflow-hidden">
@@ -426,7 +412,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <>
                                 <button 
                                     onClick={() => setShowConfirmModal(true)}
-                                    className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-[0_20px_50px_rgba(255,90,31,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-[1.02] active:scale-95 group"
+                                    className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-[0_20px_50px_rgba(255,90,31,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-102 active:scale-95 group"
                                 >
                                     <PenTool className="w-8 h-8 group-hover:rotate-12 transition-transform" /> 
                                     Generar mis Páginas ahora con IA

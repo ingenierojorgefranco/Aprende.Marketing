@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../../../services/geminiService';
 import { api } from '../../../services/api';
-import { Article, Project, LandingPage, User } from '../../../types';
+import { Article, Project, LandingPage, User, AffiliateLink } from '../../../types';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick, X, CheckCircle, Target, Wand2, PenTool, Eye } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
@@ -42,12 +41,12 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const navigate = useNavigate();
   const { user, articleCount, isSimulating } = useOutletContext() as DashboardContext;
   
-  // --- ESTADOS DE GENERACIÓN ESTILO LANDING ---
+  // --- ESTADOS DE GENERACIÓN ---
   const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
   const [progress, setProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [savedArticleResult, setSavedArticleResult] = useState<Article | null>(null);
-  // --------------------------------------------
+  // -----------------------------
 
   // Limit Check State
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -86,6 +85,13 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const [saveLogs, setSaveLogs] = useState<string[]>([]);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 
+  // Estados para creación de Hotlinks integrada
+  const [projectLinks, setProjectLinks] = useState<AffiliateLink[]>([]);
+  const [isAddingNewLink, setIsAddingNewLink] = useState(false);
+  const [newLinkLabel, setNewLinkLabel] = useState('');
+  const [newLinkUrl, setNewLinkUrl] = useState('');
+  const [savingNewLink, setSavingNewLink] = useState(false);
+
   // Limit Check Effect
   useEffect(() => {
       const isRealAdmin = user.role === 'admin' && !isSimulating;
@@ -117,6 +123,16 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     };
     fetchContext();
   }, []);
+
+  // Sincronizar links cuando cambia el proyecto seleccionado
+  useEffect(() => {
+    if (selectedProject) {
+        const proj = userProjects.find(p => p.id === selectedProject);
+        if (proj) {
+            setProjectLinks(proj.affiliateLinks || []);
+        }
+    }
+  }, [selectedProject, userProjects]);
 
   // Pre-fill effect for Modal usage
   useEffect(() => {
@@ -222,6 +238,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
               destinationType: initialRedirect,
               destinationUrl: hasHotlinks ? proj.affiliateLinks[0].url : '',
           }));
+          setCtaLink(hasHotlinks ? proj.affiliateLinks[0].url : '');
       }
       setStep(1);
   };
@@ -504,6 +521,30 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         const url = page.customDomain ? `https://${page.customDomain}` : `https://${page.subdomain}`;
         setCtaLink(url);
     }
+  };
+
+  const handleAddNewHotlink = async () => {
+      if (!selectedProject || !newLinkLabel || !newLinkUrl) return;
+      setSavingNewLink(true);
+      try {
+          const proj = userProjects.find(p => p.id === selectedProject);
+          if (proj) {
+              const updatedLinks = [...(proj.affiliateLinks || []), { label: newLinkLabel, url: newLinkUrl }];
+              await api.updateProject(proj.id, { ...proj, affiliateLinks: updatedLinks } as any);
+              
+              // Actualizar localmente el estado de los proyectos para que el select se refresque
+              setUserProjects(prev => prev.map(p => p.id === proj.id ? { ...p, affiliateLinks: updatedLinks } : p));
+              setProjectLinks(updatedLinks);
+              setCtaLink(newLinkUrl);
+              setIsAddingNewLink(false);
+              setNewLinkLabel('');
+              setNewLinkUrl('');
+          }
+      } catch (e) {
+          alert("Error al guardar el nuevo Hotlink.");
+      } finally {
+          setSavingNewLink(false);
+      }
   };
 
   const [formData, setFormData] = useState({
@@ -1002,16 +1043,70 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                                     )}
                                     
                                     {redirectType === 'hotlink' && (
-                                        <div className="animate-in fade-in slide-in-from-top-2">
-                                            <select
-                                                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition appearance-none cursor-pointer"
-                                                onChange={(e) => setCtaLink(e.target.value)}
-                                            >
-                                                <option value="">-- Elige un Hotlink --</option>
-                                                {userProjects.find(p => p.id === selectedProject)?.affiliateLinks.map((link, i) => (
-                                                    <option key={i} value={link.url}>{link.label}</option>
-                                                ))}
-                                            </select>
+                                        <div className="animate-in fade-in slide-in-from-top-2 space-y-4">
+                                            {isAddingNewLink ? (
+                                                <div className="p-6 bg-black border border-white/10 rounded-2xl space-y-4 shadow-xl">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <h5 className="text-white font-bold text-sm">Nuevo Hotlink para Proyecto</h5>
+                                                        <button onClick={() => setIsAddingNewLink(false)}><X className="w-4 h-4 text-gray-500"/></button>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div className="space-y-1">
+                                                            <label className="text-[10px] text-gray-500 font-black uppercase">Nombre del Enlace</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={newLinkLabel}
+                                                                onChange={e => setNewLinkLabel(e.target.value)}
+                                                                className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-white text-sm focus:border-[#FF5A1F] outline-none"
+                                                                placeholder="Ej: Checkout Pro"
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <label className="text-[10px] text-gray-500 font-black uppercase">URL Hotmart</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={newLinkUrl}
+                                                                onChange={e => setNewLinkUrl(e.target.value)}
+                                                                className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-emerald-400 text-sm focus:border-[#FF5A1F] outline-none"
+                                                                placeholder="https://go.hotmart.com/..."
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <button 
+                                                        onClick={handleAddNewHotlink}
+                                                        disabled={savingNewLink || !newLinkLabel || !newLinkUrl}
+                                                        className="w-full py-3 bg-[#FF5A1F] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#D94A1E] transition flex items-center justify-center gap-2"
+                                                    >
+                                                        {savingNewLink ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
+                                                        Guardar en el Proyecto
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className={`relative ${!ctaLink ? 'ring-2 ring-red-500/50 rounded-xl' : ''}`}>
+                                                    <select
+                                                        value={ctaLink || ''}
+                                                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition appearance-none cursor-pointer"
+                                                        onChange={(e) => {
+                                                            if (e.target.value === 'ADD_NEW') {
+                                                                setIsAddingNewLink(true);
+                                                            } else {
+                                                                setCtaLink(e.target.value);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <option value="">-- Elige un Hotlink --</option>
+                                                        {(projectLinks || []).map((link, i) => (
+                                                            <option key={i} value={link.url}>{link.label}</option>
+                                                        ))}
+                                                        <option value="ADD_NEW" className="text-[#FF5A1F] font-bold">+ Añadir nuevo Hotlink</option>
+                                                    </select>
+                                                    {!ctaLink && (
+                                                        <div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse">
+                                                            <AlertTriangle className="w-3 h-3" /> Link de destino obligatorio
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -1019,8 +1114,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
                             <button
                                 onClick={handleManualGenerateOutline}
-                                disabled={loading}
-                                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest"
+                                disabled={loading || !ctaLink}
+                                className={`w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest ${(!ctaLink) ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
                             >
                                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <PenTool className="w-5 h-5" />}
                                 Generar Artículo Completo con IA
