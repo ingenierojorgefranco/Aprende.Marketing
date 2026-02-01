@@ -301,16 +301,15 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     <Sparkles className="w-10 h-10" />
                                 </div>
                                 <div className="space-y-2">
-                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Protocolo de Redacción</h3>
-                                    <p className="text-purple-400 font-black uppercase tracking-[0.2em] text-[10px]">Asistente de Contenidos Estratégicos</p>
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirma si deseas generar un nuevo artículo</h3>
                                 </div>
                                 <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                                    Estás a punto de activar la IA para redactar un artículo SEO profesional. Esta acción consumirá <span className="text-white font-bold">1 crédito</span> de tu plan <span className="text-purple-400 font-bold capitalize">{planLimits?.planName || 'Starter'}</span>.
+                                    Redactar un nuevo artículo de blog consumirá créditos de tu plan. Confirma a continuación si deseas generar el articulo de blog que has seleccionado en tu plan <span className="text-purple-400 font-bold capitalize">{planLimits?.planName || 'Starter'}</span>.
                                 </p>
                             </div>
                             <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner">
                                 <div className="flex justify-between items-center mb-3">
-                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Consumo de Artículos</span>
+                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Número de Artículos en tu plan <span className="capitalize">{planLimits?.planName || 'Starter'}</span></span>
                                     <span className="text-white font-bold text-sm">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                                 </div>
                                 <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden p-0.5 border border-white/5">

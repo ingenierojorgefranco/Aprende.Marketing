@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2 } from 'lucide-react';
+import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, EmailMessage, LandingPage, AffiliateLink } from '../../../../types';
 import { api } from '../../../../services/api';
@@ -16,10 +16,12 @@ interface ProjectStrategy_EmailProps {
     planLimits?: PlanLimits;
     nextPlan?: Plan | null;
     realMessages?: EmailMessage[];
+    isSimulating?: boolean;
+    sequenceCount?: number;
 }
 
 export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
-    emailData, avatars, activeEmail, setActiveEmail, onUpgrade, features, planLimits, nextPlan, realMessages = []
+    emailData, avatars, activeEmail, setActiveEmail, onUpgrade, features, planLimits, nextPlan, realMessages = [], isSimulating = false, sequenceCount = 0
 }) => {
     const navigate = useNavigate();
     const { id: projectId } = useParams() as { id: string };
@@ -29,6 +31,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [localPilar, setLocalPilar] = useState('');
     const [localPurpose, setLocalPurpose] = useState('');
     const [isTypeLocked, setIsTypeLocked] = useState(true);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     // Estados locales para interactividad inmediata de redirección
     const [localRedirectType, setLocalRedirectType] = useState<'landing' | 'hotlink' | 'external' | undefined>(undefined);
@@ -147,6 +150,19 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             alert("Copiado como texto plano.");
         });
     };
+
+    const handleStartWriting = () => {
+        setShowConfirmModal(false);
+        navigate(`/dashboard/email/create?projectId=${projectId}&day=${activeEmail}`);
+    };
+
+    // Lógica de límites
+    const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
+    const maxSequences = planLimits?.maxEmailSequences || 5;
+    const usagePercent = Math.min(100, (sequenceCount / maxSequences) * 100);
+    let progressColor = "bg-green-500";
+    if (usagePercent > 50) progressColor = "bg-yellow-500";
+    if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
     const currentMsg = realMessages.find(m => m.dayIndex === activeEmail);
     const isCurrentGenerated = !!currentMsg?.isGenerated;
@@ -447,7 +463,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
                                 <div className="mt-8 pb-6">
                                     <button 
-                                        onClick={() => navigate(`/dashboard/email/create?projectId=${projectId}&day=${activeEmail}`)}
+                                        onClick={() => setShowConfirmModal(true)}
                                         disabled={!localRedirectUrl}
                                         className={`w-full py-6 rounded-[2cm] bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#D94A1E] hover:to-orange-600 text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95 shadow-[#FF5A1F]/20 ${!localRedirectUrl ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
                                     >
@@ -459,6 +475,41 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     )}
                 </div>
             </div>
+
+            {/* --- MODAL DE CONFIRMACIÓN ESTRATÉGICA --- */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300" onClick={() => setShowConfirmModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-blue-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+                        <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto">
+                            <div className="flex flex-col items-center text-center space-y-6">
+                                <div className="w-20 h-20 bg-blue-500/10 text-blue-400 rounded-3xl flex items-center justify-center mx-auto border border-blue-500/20 shadow-lg shadow-blue-900/10 animate-pulse">
+                                    <Sparkles className="w-10 h-10" />
+                                </div>
+                                <div className="space-y-2">
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirma si deseas generar tu secuencia</h3>
+                                </div>
+                                <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                    Redactar una nueva secuencia de email consumirá créditos de tu plan. Confirma a continuación si deseas generar la secuencia de email que has seleccionado en tu plan <span className="text-blue-400 font-bold capitalize">{planLimits?.planName || 'Starter'}</span>.
+                                </p>
+                            </div>
+                            <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Número de Secuencias en tu plan <span className="capitalize">{planLimits?.planName || 'Starter'}</span></span>
+                                    <span className="text-white font-bold text-sm">{sequenceCount} / {isRealAdmin ? '∞' : maxSequences}</span>
+                                </div>
+                                <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden p-0.5 border border-white/5">
+                                    <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]`} style={{ width: `${isRealAdmin ? (sequenceCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
+                            <button onClick={handleStartWriting} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-900/20 transform hover:scale-105 active:scale-95 transition-all">Confirmar y Redactar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

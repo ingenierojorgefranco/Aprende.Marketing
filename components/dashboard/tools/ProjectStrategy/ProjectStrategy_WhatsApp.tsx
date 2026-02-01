@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2 } from 'lucide-react';
+import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2, Crown, X } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../../services/api';
+import { PlanLimits } from '../../../../types';
 
 const ChatSimulator: React.FC<{ messages: any[]; senderName?: string }> = ({ messages, senderName }) => {
     const renderWhatsAppText = (text: string) => {
@@ -63,10 +64,13 @@ interface ProjectStrategy_WhatsAppProps {
     onUpgrade: () => void;
     isLocked?: boolean;
     projectId?: string;
+    isSimulating?: boolean;
+    planLimits?: PlanLimits;
+    launchCount?: number;
 }
 
 export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> = ({
-    whatsappLaunch = [], activeWaScript, setActiveWaScript, onUpgrade, isLocked = true, projectId
+    whatsappLaunch = [], activeWaScript, setActiveWaScript, onUpgrade, isLocked = true, projectId, isSimulating = false, planLimits, launchCount = 0
 }) => {
     const navigate = useNavigate();
     const { user } = useOutletContext() as any;
@@ -77,6 +81,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         0: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=800&q=80'
     });
     const [isTypeLocked, setIsTypeLocked] = useState(true);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const dateInputRef = useRef<HTMLInputElement>(null);
 
     const waTypes = [
@@ -237,9 +242,18 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     };
 
     const handleGenerate = async () => {
+        setShowConfirmModal(false);
         if (!projectId) return;
         navigate(`/dashboard/whatsapp-launch/create?projectId=${projectId}`);
     };
+
+    // Lógica de límites
+    const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
+    const maxLaunches = planLimits?.maxWhatsAppLaunches || 1;
+    const usagePercent = Math.min(100, (launchCount / maxLaunches) * 100);
+    let progressColor = "bg-green-500";
+    if (usagePercent > 50) progressColor = "bg-yellow-500";
+    if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
     return (
         <div id="psd-whatsapp-section" className="pt-8">
@@ -521,7 +535,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
                                     <div className="pb-6">
                                         <button 
-                                            onClick={handleGenerate}
+                                            onClick={() => setShowConfirmModal(true)}
                                             className="w-full py-6 rounded-[2cm] bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.02] active:scale-95 shadow-emerald-900/30"
                                         >
                                             <Wand2 className="w-7 h-7 fill-current" /> Generar Mensaje No {activeWaScript + 1} con IA
@@ -533,6 +547,41 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                     </div>
                 </div>
             </div>
+
+            {/* --- MODAL DE CONFIRMACIÓN ESTRATÉGICA --- */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300" onClick={() => setShowConfirmModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-green-500"></div>
+                        <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto">
+                            <div className="flex flex-col items-center text-center space-y-6">
+                                <div className="w-20 h-20 bg-emerald-500/10 text-emerald-400 rounded-3xl flex items-center justify-center mx-auto border border-emerald-500/20 shadow-lg shadow-emerald-900/10 animate-pulse">
+                                    <Sparkles className="w-10 h-10" />
+                                </div>
+                                <div className="space-y-2">
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirma si deseas generar un nuevo lanzamiento</h3>
+                                </div>
+                                <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                    Generar un nuevo lanzamiento de WhatsApp consumirá créditos de tu plan. Confirma a continuación si deseas generar el lanzamiento de WhatsApp que has seleccionado en tu plan <span className="text-emerald-400 font-bold capitalize">{planLimits?.planName || 'Starter'}</span>.
+                                </p>
+                            </div>
+                            <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Número de Lanzamientos en tu plan <span className="capitalize">{planLimits?.planName || 'Starter'}</span></span>
+                                    <span className="text-white font-bold text-sm">{launchCount} / {isRealAdmin ? '∞' : maxLaunches}</span>
+                                </div>
+                                <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden p-0.5 border border-white/5">
+                                    <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(16,185,129,0.5)]`} style={{ width: `${isRealAdmin ? (launchCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
+                            <button onClick={handleGenerate} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-900/20 transform hover:scale-105 active:scale-95 transition-all">Confirmar y Generar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             
             {/* FOOTER INFORMATIVO */}
             <div className="max-w-[70em] mx-auto text-center pt-12 border-t border-white/5 opacity-40">

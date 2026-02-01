@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 // FIX: Added missing XCircle to lucide-react imports
-import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, PlayCircle, MousePointer2, Zap, ArrowDown, XCircle } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Lightbulb, Info, Sparkles, AlignLeft, Gift, AlertTriangle, ArrowRight, Play, PenTool, ExternalLink, X, Eye, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, PlayCircle, MousePointer2, Zap, ArrowDown, XCircle, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
 import { Generator } from '../Generator';
@@ -23,17 +23,19 @@ interface ProjectStrategy_WebSystemProps {
     planLimits?: PlanLimits;
     onUpgrade?: () => void;
     nextPlan?: Plan | null;
+    isSimulating?: boolean;
 }
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
     projectId, lpTabsData, tyTabsData,
     selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, handleTooltipHover, handleTooltipLeave, linkedPages, onEditPage,
-    pageCount = 0, domainCount = 0, planLimits, onUpgrade, nextPlan
+    pageCount = 0, domainCount = 0, planLimits, onUpgrade, nextPlan, isSimulating = false
 }) => {
     const navigate = useNavigate();
     // FIX: Added missing state showPagesModal to control the multiple pages modal visibility
     const [showPagesModal, setShowPagesModal] = useState(false);
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     // Default to first tabs if null
     React.useEffect(() => {
@@ -68,6 +70,14 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         window.location.replace(currentUrl.toString());
         window.location.reload();
     };
+
+    // Lógica de límites
+    const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
+    const maxLandings = planLimits?.maxLandings || 3;
+    const usagePercent = Math.min(100, (pageCount / maxLandings) * 100);
+    let progressColor = "bg-green-500";
+    if (usagePercent > 50) progressColor = "bg-yellow-500";
+    if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
     const renderBrowserMockup = (content: React.ReactNode, isDark = false) => (
         <div className={`w-full ${isDark ? 'bg-[#0b0b0b]' : 'bg-white'} rounded-2xl shadow-2xl overflow-hidden border ${isDark ? 'border-gray-800' : 'border-gray-200'} flex flex-col group/mockup transition-all duration-500 hover:shadow-primary/10`}>
@@ -421,7 +431,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         ) : (
                             <>
                                 <button 
-                                    onClick={() => setShowGeneratorModal(true)}
+                                    onClick={() => setShowConfirmModal(true)}
                                     className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-[0_20px_50px_rgba(255,90,31,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-[1.02] active:scale-95 group"
                                 >
                                     <PenTool className="w-8 h-8 group-hover:rotate-12 transition-transform" /> 
@@ -434,6 +444,41 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     </div>
                 </div>
             </div>
+
+            {/* --- MODAL DE CONFIRMACIÓN ESTRATÉGICA --- */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300" onClick={() => setShowConfirmModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-blue-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-500"></div>
+                        <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto">
+                            <div className="flex flex-col items-center text-center space-y-6">
+                                <div className="w-20 h-20 bg-blue-500/10 text-blue-400 rounded-3xl flex items-center justify-center mx-auto border border-blue-500/20 shadow-lg shadow-blue-900/10 animate-pulse">
+                                    <Sparkles className="w-10 h-10" />
+                                </div>
+                                <div className="space-y-2">
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirma si deseas generar tus páginas</h3>
+                                </div>
+                                <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                    Generar nuevas páginas de venta consumirá créditos de tu plan. Confirma a continuación si deseas generar las páginas que has seleccionado en tu plan <span className="text-blue-400 font-bold capitalize">{planLimits?.planName || 'Starter'}</span>.
+                                </p>
+                            </div>
+                            <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Número de Páginas en tu plan <span className="capitalize">{planLimits?.planName || 'Starter'}</span></span>
+                                    <span className="text-white font-bold text-sm">{pageCount} / {isRealAdmin ? '∞' : maxLandings}</span>
+                                </div>
+                                <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden p-0.5 border border-white/5">
+                                    <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]`} style={{ width: `${isRealAdmin ? (pageCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
+                            <button onClick={() => { setShowConfirmModal(false); setShowGeneratorModal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-900/20 transform hover:scale-105 active:scale-95 transition-all">Confirmar y Generar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             
             {/* --- MULTIPLE PAGES MODAL (Para edición rápida) --- */}
             {/* FIX: showPagesModal is now correctly defined via useState */}

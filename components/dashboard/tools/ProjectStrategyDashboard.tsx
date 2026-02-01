@@ -24,7 +24,7 @@ const ProjectStrategy_WhatsApp = React.lazy(() => import('./ProjectStrategy/Proj
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
 import { ProjectMasterStrategy } from '../../../services/strategySchema';
-import { LandingPage, User, Plan, EmailSequence, Article, EmailMessage } from '../../../types';
+import { LandingPage, User, Plan, EmailSequence, Article, EmailMessage, WhatsAppLaunch } from '../../../types';
 
 const iconMap: any = {
     BookOpen, Sparkles, Users, MessageCircle, Target
@@ -50,7 +50,7 @@ const WHATSAPP_LAUNCH_MOMENTS = [
 export const ProjectStrategyDashboard: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams() as { id: string };
-    const { user, pageCount, articleCount } = useOutletContext() as any;
+    const { user, pageCount, articleCount, isSimulating } = useOutletContext() as any;
 
     const [strategyData, setStrategyData] = useState<ProjectMasterStrategy | null>(null);
     const [projectDescription, setProjectDescription] = useState<string>('');
@@ -63,6 +63,10 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [globalDomainCount, setGlobalDomainCount] = useState(0); 
     const [resolvedWhatsAppLaunch, setResolvedWhatsAppLaunch] = useState<any[]>([]);
     const [isLaunchLocked, setIsLaunchLocked] = useState(true);
+    
+    // Conteos globales para límites
+    const [globalEmailSequenceCount, setGlobalEmailSequenceCount] = useState(0);
+    const [globalWhatsAppLaunchCount, setGlobalWhatsAppLaunchCount] = useState(0);
     
     const [searchParams, setSearchParams] = useSearchParams();
     const activeSection = searchParams.get('section') || 'summary';
@@ -91,15 +95,19 @@ export const ProjectStrategyDashboard: React.FC = () => {
         if (!id) return;
         setLoading(true);
         try {
-            const [strategy, projectDetails, pages, plansData, sequences, articles, waLaunchDb] = await Promise.all([
+            const [strategy, projectDetails, pages, plansData, sequences, articles, waLaunchDb, allWaLaunches] = await Promise.all([
                 api.getProjectStrategy(id).catch(e => { console.error("Strategy load fail", e); return null; }),
                 api.getProjectById(id).catch(e => { console.error("Project details load fail", e); return null; }),
                 api.getPages().catch(e => { console.error("Pages load fail", e); return []; }),
                 api.getPublicPlans().catch(e => { console.error("Plans load fail", e); return []; }),
                 api.getEmailSequences().catch(e => { console.error("Sequences load fail", e); return []; }),
                 api.getArticles().catch(e => { console.error("Articles load fail", e); return []; }),
-                api.getWhatsAppLaunchByProject(id).catch(() => null)
+                api.getWhatsAppLaunchByProject(id).catch(() => null),
+                api.getWhatsAppLaunches().catch(() => [])
             ]);
+
+            setGlobalEmailSequenceCount(sequences.length);
+            setGlobalWhatsAppLaunchCount(allWaLaunches.length);
 
             if (projectDetails) setProjectDescription(projectDetails.description || '');
 
@@ -244,7 +252,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
         <div id="psd-page-root" className="min-h-screen bg-black text-gray-200 pb-20 font-sans relative">
             <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} currentPlan={user.planLimits?.planName} />
             {showVideoModal && (
-                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in">
+                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in">
                     <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
                         <button onClick={() => setShowVideoModal(false)} className="absolute top-4 right-4 text-white z-10 bg-gray-800 p-2 rounded-full"><X /></button>
                         <iframe className="aspect-video w-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" allowFullScreen></iframe>
@@ -271,11 +279,11 @@ export const ProjectStrategyDashboard: React.FC = () => {
                         {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onOpenVideo={() => setShowVideoModal(true)} />}
                         {activeSection === 'avatar' && <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items} />}
                         {activeSection === 'psychology' && <ProjectStrategy_Psychology psychology={strategyData.psychology} benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items} />}
-                        {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules.web.landingPageTabs} tyTabsData={strategyData.modules.web.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} linkedPages={linkedPages} onEditPage={(pid) => navigate(`/dashboard/editor/${pid}`)} pageCount={pageCount} domainCount={globalDomainCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} />}
-                        {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={articleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
-                        {activeSection === 'email' && <ProjectStrategy_Email emailData={strategyData.modules.emails.nurture} avatars={strategyData.avatars} activeEmail={activeEmail} setActiveEmail={setActiveEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} realMessages={realEmailMessages} />}
+                        {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules.web.landingPageTabs} tyTabsData={strategyData.modules.web.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} linkedPages={linkedPages} onEditPage={(pid) => navigate(`/dashboard/editor/${pid}`)} pageCount={pageCount} domainCount={globalDomainCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
+                        {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={articleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} linkedArticles={linkedArticles} isSimulating={isSimulating} />}
+                        {activeSection === 'email' && <ProjectStrategy_Email emailData={strategyData.modules.emails.nurture} avatars={strategyData.avatars} activeEmail={activeEmail} setActiveEmail={setActiveEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} realMessages={realEmailMessages} isSimulating={isSimulating} sequenceCount={globalEmailSequenceCount} />}
                         {activeSection === 'evergreen' && <ProjectStrategy_Evergreen evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
-                        {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp whatsappLaunch={resolvedWhatsAppLaunch} activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} isLocked={isLaunchLocked} projectId={id} />}
+                        {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp whatsappLaunch={resolvedWhatsAppLaunch} activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} isLocked={isLaunchLocked} projectId={id} isSimulating={isSimulating} planLimits={user.planLimits} launchCount={globalWhatsAppLaunchCount} />}
                     </Suspense>
                 </div>
             </div>
