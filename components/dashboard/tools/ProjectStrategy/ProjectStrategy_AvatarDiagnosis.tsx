@@ -156,7 +156,58 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                 </div>
 
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                                    {/* Motivations & Strategy */}
+                                    {/* Pains & Solutions List (Now Left) */}
+                                    <div className="grid grid-cols-1 gap-6">
+                                        <div className="bg-rose-500/[0.03] border-l-4 border-rose-500/20 p-8 rounded-r-[2.5rem] hover:bg-rose-500/[0.06] transition-colors group/card">
+                                            <div className="flex items-center gap-4 mb-5">
+                                                <div className="p-3 bg-rose-500/20 rounded-2xl text-rose-400 shadow-lg group-hover/card:scale-110 transition-transform"><AlertTriangle className="w-6 h-6" /></div>
+                                                <p className="text-sm font-black text-rose-400 uppercase tracking-[0.2em]">Punto de Dolor Agudo</p>
+                                            </div>
+                                            <p className="text-gray-200 text-xl leading-relaxed font-medium mb-4">{avatar.pain}</p>
+                                            
+                                            {/* */ /* Actualización: Inclusión del bloque de Manifestación Diaria del Dolor para humanizar el copy de anuncios - 15/06/2024 19:35 */ }
+                                            {avatar.daily_manifestation && (
+                                                <div className="bg-black/40 p-4 rounded-2xl border border-white/5 mt-4 flex gap-3">
+                                                    <Clock className="w-4 h-4 text-rose-300 shrink-0 mt-0.5" />
+                                                    <p className="text-white text-xl leading-relaxed font-light">
+                                                        <span className="font-bold text-rose-200 uppercase text-[10px] tracking-widest block mb-1">Manifestación Diaria</span>
+                                                        "{avatar.daily_manifestation}"
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {/* Fin de actualización - 15/06/2024 19:35 */}
+                                        </div>
+
+                                        <div className="bg-emerald-500/[0.03] border-l-4 border-emerald-500/20 p-8 rounded-r-[2.5rem] hover:bg-emerald-500/[0.06] transition-colors group/card">
+                                            <div className="flex items-center gap-4 mb-5">
+                                                <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400 shadow-lg group-hover/card:scale-110 transition-transform"><Rocket className="w-6 h-6" /></div>
+                                                <p className="text-sm font-black text-emerald-400 uppercase tracking-[0.2em]">Transformación Deseada</p>
+                                            </div>
+                                            <p className="text-gray-200 text-xl leading-relaxed font-medium mb-4">{avatar.desire}</p>
+                                            
+                                            {/* */ /* Actualización: Inclusión del bloque de Razón Emocional (Para Qué) para elevar el deseo en la landing page - 15/06/2024 19:40 */ }
+                                            {avatar.emotional_reason && (
+                                                <div className="bg-black/40 p-4 rounded-2xl border border-white/5 mt-4 flex gap-3">
+                                                    <Heart className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
+                                                    <p className="text-white text-xl leading-relaxed font-light">
+                                                        <span className="font-bold text-rose-200 uppercase text-[10px] tracking-widest block mb-1">Para Qué Emocional</span>
+                                                        "{avatar.emotional_reason}"
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {/* Fin de actualización - 15/06/2024 19:40 */}
+                                        </div>
+
+                                        <div className="bg-blue-500/[0.03] border-l-4 border-blue-500/20 p-8 rounded-r-[2.5rem] hover:bg-blue-500/[0.06] transition-colors group/card">
+                                            <div className="flex items-center gap-4 mb-5">
+                                                <div className="p-3 bg-blue-500/20 rounded-2xl text-blue-400 shadow-lg group-hover/card:scale-110 transition-transform"><Lock className="w-6 h-6" /></div>
+                                                <p className="text-sm font-black text-blue-400 uppercase tracking-[0.2em]">Barrera de Venta (Objeción)</p>
+                                            </div>
+                                            <p className="text-gray-200 text-xl leading-relaxed font-medium">{avatar.objection}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Motivations & Strategy (Now Right) */}
                                     <div className="space-y-12">
                                         <div>
                                             <h5 className="text-xs font-black text-white/50 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
@@ -186,59 +237,8 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                             </div>
                                             <div>
                                                 <p className={`text-sm font-black uppercase tracking-[0.2em] mb-2 ${role.color}`}>{role.label}</p>
-                                                <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light" dangerouslySetInnerHTML={{ __html: role.desc }}></p>
+                                                <p className="text-white text-xl leading-relaxed font-light" dangerouslySetInnerHTML={{ __html: role.desc }}></p>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Pains & Solutions List */}
-                                    <div className="grid grid-cols-1 gap-6">
-                                        <div className="bg-rose-500/[0.03] border-l-4 border-rose-500/20 p-8 rounded-r-[2.5rem] hover:bg-rose-500/[0.06] transition-colors group/card">
-                                            <div className="flex items-center gap-4 mb-5">
-                                                <div className="p-3 bg-rose-500/20 rounded-2xl text-rose-400 shadow-lg group-hover/card:scale-110 transition-transform"><AlertTriangle className="w-6 h-6" /></div>
-                                                <p className="text-sm font-black text-rose-400 uppercase tracking-[0.2em]">Punto de Dolor Agudo</p>
-                                            </div>
-                                            <p className="text-gray-200 text-xl leading-relaxed font-medium mb-4">{avatar.pain}</p>
-                                            
-                                            {/* */ /* Actualización: Inclusión del bloque de Manifestación Diaria del Dolor para humanizar el copy de anuncios - 15/06/2024 19:35 */ }
-                                            {avatar.daily_manifestation && (
-                                                <div className="bg-black/40 p-4 rounded-2xl border border-white/5 mt-4 flex gap-3">
-                                                    <Clock className="w-4 h-4 text-rose-300 shrink-0 mt-0.5" />
-                                                    <p className="text-gray-400 text-base italic leading-relaxed">
-                                                        <span className="font-bold text-rose-200 uppercase text-[10px] tracking-widest block mb-1">Manifestación Diaria</span>
-                                                        "{avatar.daily_manifestation}"
-                                                    </p>
-                                                </div>
-                                            )}
-                                            {/* Fin de actualización - 15/06/2024 19:35 */}
-                                        </div>
-
-                                        <div className="bg-emerald-500/[0.03] border-l-4 border-emerald-500/20 p-8 rounded-r-[2.5rem] hover:bg-emerald-500/[0.06] transition-colors group/card">
-                                            <div className="flex items-center gap-4 mb-5">
-                                                <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400 shadow-lg group-hover/card:scale-110 transition-transform"><Rocket className="w-6 h-6" /></div>
-                                                <p className="text-sm font-black text-emerald-400 uppercase tracking-[0.2em]">Transformación Deseada</p>
-                                            </div>
-                                            <p className="text-gray-200 text-xl leading-relaxed font-medium mb-4">{avatar.desire}</p>
-                                            
-                                            {/* */ /* Actualización: Inclusión del bloque de Razón Emocional (Para Qué) para elevar el deseo en la landing page - 15/06/2024 19:40 */ }
-                                            {avatar.emotional_reason && (
-                                                <div className="bg-black/40 p-4 rounded-2xl border border-white/5 mt-4 flex gap-3">
-                                                    <Heart className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
-                                                    <p className="text-gray-400 text-base italic leading-relaxed">
-                                                        <span className="font-bold text-rose-200 uppercase text-[10px] tracking-widest block mb-1">Para Qué Emocional</span>
-                                                        "{avatar.emotional_reason}"
-                                                    </p>
-                                                </div>
-                                            )}
-                                            {/* Fin de actualización - 15/06/2024 19:40 */}
-                                        </div>
-
-                                        <div className="bg-blue-500/[0.03] border-l-4 border-blue-500/20 p-8 rounded-r-[2.5rem] hover:bg-blue-500/[0.06] transition-colors group/card">
-                                            <div className="flex items-center gap-4 mb-5">
-                                                <div className="p-3 bg-blue-500/20 rounded-2xl text-blue-400 shadow-lg group-hover/card:scale-110 transition-transform"><Lock className="w-6 h-6" /></div>
-                                                <p className="text-sm font-black text-blue-400 uppercase tracking-[0.2em]">Barrera de Venta (Objeción)</p>
-                                            </div>
-                                            <p className="text-gray-200 text-xl leading-relaxed font-medium">{avatar.objection}</p>
                                         </div>
                                     </div>
                                 </div>

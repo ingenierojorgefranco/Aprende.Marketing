@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Layers, ArrowRight, ArrowDown, PlayCircle, Clapperboard, Globe, CheckCircle2, Users, MessageCircle, FileText, MonitorPlay, ShoppingCart, Zap, RefreshCw, Sparkles, Rocket, X, AlertTriangle, BarChart3, ListChecks, Brain, Target, Lightbulb, TrendingUp, ShieldCheck, Mail, BookOpen } from 'lucide-react';
 
-////////// Actualización: Sistema Educativo Profundo "Más Detalles" - 01/01/2026 12:45 //////////
 const ACQUISITION_STEPS = [
     { 
         icon: Clapperboard, 
@@ -10,12 +9,8 @@ const ACQUISITION_STEPS = [
         description: (
             <div className="space-y-4">
                 <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué hace el sistema:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Define los mensajes clave y sugiere ideas de contenido.</p>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Llamar la atención de personas interesadas y llevarlas a tu página.</p>
+                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-white text-xl leading-relaxed">Captar la atención de desconocidos y dirigirlos hacia el inicio de tu embudo de ventas.</p>
                 </div>
             </div>
         ),
@@ -53,16 +48,8 @@ const ACQUISITION_STEPS = [
         description: (
             <div className="space-y-4">
                 <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué hace el sistema:</p>
-                    <ul className="list-disc list-inside space-y-1 text-gray-300 text-base">
-                        <li>Título principal</li>
-                        <li>Dolores y beneficios</li>
-                        <li>Llamado a la acción</li>
-                    </ul>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Convertir visitas en contactos reales (leads).</p>
+                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-white text-xl leading-relaxed">Convertir el tráfico frío en contactos calificados capturando sus datos de contacto.</p>
                 </div>
             </div>
         ),
@@ -100,20 +87,8 @@ const ACQUISITION_STEPS = [
         description: (
             <div className="space-y-4">
                 <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué ocurre aquí:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Confirmamos el registro y guiamos al usuario al siguiente paso.</p>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué crea el sistema:</p>
-                    <ul className="list-disc list-inside space-y-1 text-gray-300 text-base">
-                        <li>Mensaje de confirmación</li>
-                        <li>Instrucciones claras</li>
-                        <li>Enlace a WhatsApp o contenido</li>
-                    </ul>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Evitar que el lead se enfríe.</p>
+                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-white text-xl leading-relaxed">Confirmar el registro exitoso y guiar al lead inmediatamente hacia el canal de entrega o comunidad.</p>
                 </div>
             </div>
         ),
@@ -151,20 +126,8 @@ const ACQUISITION_STEPS = [
         description: (
             <div className="space-y-4">
                 <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué ocurre aquí:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">El lead entra a un entorno más cercano y controlado.</p>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué crea el sistema:</p>
-                    <ul className="list-disc list-inside space-y-1 text-gray-300 text-base">
-                        <li>Mensaje de bienvenida</li>
-                        <li>Reglas del grupo</li>
-                        <li>Mensajes de valor</li>
-                    </ul>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Generar confianza y cercanía.</p>
+                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-white text-xl leading-relaxed">Nutrir a los prospectos en un entorno controlado para generar confianza y prueba social colectiva.</p>
                 </div>
             </div>
         ),
@@ -202,20 +165,8 @@ const ACQUISITION_STEPS = [
         description: (
             <div className="space-y-4">
                 <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué ocurre aquí:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Se resuelven dudas personales antes de la compra.</p>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué crea el sistema:</p>
-                    <ul className="list-disc list-inside space-y-1 text-gray-300 text-base">
-                        <li>Mensajes base</li>
-                        <li>Respuestas a objeciones</li>
-                        <li>Guiones de cierre</li>
-                    </ul>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Acompañar la decisión sin presión.</p>
+                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-white text-xl leading-relaxed">Resolver dudas específicas de forma personalizada para eliminar barreras finales de compra.</p>
                 </div>
             </div>
         ),
@@ -253,16 +204,8 @@ const ACQUISITION_STEPS = [
         description: (
             <div className="space-y-4">
                 <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué crea el sistema:</p>
-                    <ul className="list-disc list-inside space-y-1 text-gray-300 text-base">
-                        <li>Estructura del contenido</li>
-                        <li>Mensaje de entrega</li>
-                        <li>Secuencia de introducción</li>
-                    </ul>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Demostrar valor real antes de vender.</p>
+                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-white text-xl leading-relaxed">Entregar valor masivo de forma gratuita para activar la reciprocidad y demostrar autoridad técnica.</p>
                 </div>
             </div>
         ),
@@ -280,7 +223,7 @@ const ACQUISITION_STEPS = [
                 },
                 {
                     title: "Creando el Deseo de Más",
-                    content: "Un buen Lead Magnet deja al usuario 'con hambre'. Resuelve el 'qué' pero deja espacio para el 'cómo' (que es tu producto de pago). Debe actuar como el capítulo 1 de una novela que no puedes dejar de leer."
+                    content: "Un buen Lead Magnet leaves al usuario 'con hambre'. Resuelve el 'qué' pero deja espacio para el 'cómo' (que es tu producto de pago). Debe actuar como el capítulo 1 de una novela que no puedes dejar de leer."
                 }
             ],
             metricsExplanation: "Si nadie descarga tu regalo, el título es aburrido. Si lo descargan pero nadie compra después, el contenido no está alineado con lo que vendes.",
@@ -300,12 +243,8 @@ const ACQUISITION_STEPS = [
         description: (
             <div className="space-y-4">
                 <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué hace el sistema:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Redacta correos persuasivos para calentar al lead y generar deseo.</p>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Mantener el interés vivo y preparar al prospecto para la oferta.</p>
+                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-white text-xl leading-relaxed">Recuperar la atención de los leads y educarlos mediante una secuencia lógica de persuasión.</p>
                 </div>
             </div>
         ),
@@ -339,12 +278,8 @@ const ACQUISITION_STEPS = [
         description: (
             <div className="space-y-4">
                 <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué hace el sistema:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Genera contenidos optimizados que educan sobre el problema y tu solución.</p>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Posicionarte como experto y atraer tráfico orgánico.</p>
+                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-white text-xl leading-relaxed">Generar tráfico orgánico recurrente y posicionar tu marca como referente inagotable de conocimiento.</p>
                 </div>
             </div>
         ),
@@ -378,12 +313,8 @@ const ACQUISITION_STEPS = [
         description: (
             <div className="space-y-4">
                 <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué hace el sistema:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Genera la secuencia de mensajes meteóricos para vender en grupo.</p>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Generar un pico de facturación masiva en poco tiempo.</p>
+                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-white text-xl leading-relaxed">Concentrar la demanda y generar una explosión de ventas mediante la escasez y urgencia grupal.</p>
                 </div>
             </div>
         ),
@@ -417,20 +348,8 @@ const ACQUISITION_STEPS = [
         description: (
             <div className="space-y-4">
                 <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué ocurre aquí:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Se presenta la oferta completa al prospecto.</p>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué crea el sistema:</p>
-                    <ul className="list-disc list-inside space-y-1 text-gray-300 text-base">
-                        <li>Argumentos de venta</li>
-                        <li>Beneficios y Bonus</li>
-                        <li>Llamados a la acción</li>
-                    </ul>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Convertir interés en compra final.</p>
+                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-white text-xl leading-relaxed">Presentar la oferta de forma irresistible y facilitar la transición hacia el pago final.</p>
                 </div>
             </div>
         ),
@@ -468,12 +387,8 @@ const ACQUISITION_STEPS = [
         description: (
             <div className="space-y-4">
                 <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué ocurre aquí:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">El cliente realiza el pago de forma segura.</p>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Cerrar la venta sin fricciones técnicas.</p>
+                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-white text-xl leading-relaxed">Finalizar la transacción económica de forma segura, rápida y sin fricciones técnicas.</p>
                 </div>
             </div>
         ),
@@ -669,7 +584,7 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
         <div id={`psd-flow-card-${step}-container`} className="group relative flex flex-col h-full">
             <div 
                 id={`psd-flow-card-${step}-content`}
-                className="bg-gray-900/80 backdrop-blur-sm border border-gray-800 p-8 rounded-[2.5rem] flex flex-col items-center text-center relative z-10 hover:border-emerald-500/50 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(16,185,129,0.15)] h-full"
+                className="bg-gray-900/80 backdrop-blur-sm border border-gray-800 p-8 rounded-[2.5rem] flex flex-col items-center text-center relative z-10 hover:border-emerald-500/50 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_20px_60px_rgba(16,185,129,0.15)] h-full min-h-[380px] max-w-[95%] mx-auto"
             >
                 {/* Step Number Badge */}
                 <div className="absolute -top-5 -right-5 w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 border-4 border-black rounded-2xl flex items-center justify-center text-xl font-black text-white shadow-2xl z-20 group-hover:rotate-12 transition-transform">
@@ -680,7 +595,7 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
                     <Icon className="w-10 h-10 text-gray-400 group-hover:text-emerald-400 transition-colors" />
                 </div>
 
-                <h4 className="text-white font-black text-2xl mb-1 tracking-tight">{title}</h4>
+                <h4 className="text-white font-black text-2xl mb-6 tracking-tight">{title}</h4>
                 <p className="text-[11px] text-emerald-400 font-black uppercase tracking-[0.2em] mb-8 bg-emerald-500/10 px-5 py-2 rounded-full leading-tight border border-emerald-500/20 w-full">
                     {subtitle}
                 </p>
@@ -692,7 +607,7 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
                 <button 
                     id={`psd-flow-card-${step}-tactical-btn`}
                     onClick={(e) => { e.stopPropagation(); onOpenMasterclass(stepData); }}
-                    className="mt-10 w-full flex items-center justify-center gap-2 text-xs font-black text-white transition-all z-20 relative px-6 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-emerald-500 hover:text-black hover:border-emerald-400 shadow-lg"
+                    className="mt-10 w-full flex items-center justify-center gap-2 text-lg font-black text-white transition-all z-20 relative px-6 py-4 rounded-xl bg-[#FF5A1F] border border-[#FF5A1F] hover:bg-[#D94A1E] shadow-lg shadow-[#FF5A1F]/20"
                 >
                     <Sparkles className="w-4 h-4" /> Más Detalles
                 </button>
@@ -701,22 +616,22 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
             {!isLastItem && (
                 <>
                     {!isLastInRow && (
-                        <div id={`psd-flow-card-${step}-arrow-right`} className="hidden lg:flex absolute top-1/2 -right-12 w-12 items-center justify-center z-0 text-emerald-500/30 animate-pulse">
-                            <ArrowRight className="w-10 h-10" />
+                        <div id={`psd-flow-card-${step}-arrow-right`} className="hidden lg:flex absolute top-1/2 -right-12 w-12 items-center justify-center z-0 text-[#FF5A1F] animate-pulse">
+                            <ArrowRight className="w-10 h-10" strokeWidth={3} />
                         </div>
                     )}
                     {isEndOfRowDesktop && (
                         <div id={`psd-flow-card-${step}-arrow-snake`} className="hidden lg:block absolute top-full right-1/2 w-[calc(100%+4rem)] h-32 pointer-events-none z-0">
-                           <div className="absolute right-[-1px] top-0 h-16 w-0.5 bg-gradient-to-b from-emerald-500/30 to-emerald-500/10 animate-pulse"></div>
-                           <div className="absolute right-0 top-16 left-0 h-0.5 bg-gradient-to-r from-emerald-500/10 via-emerald-500/30 to-emerald-500/10"></div>
-                           <div className="absolute left-[-1px] top-16 h-16 w-0.5 bg-gradient-to-b from-emerald-500/10 to-emerald-500/30 animate-pulse"></div>
-                            <div className="absolute left-[-0.65rem] bottom-[-0.6rem] text-emerald-500/40">
-                                <ArrowDown className="w-6 h-6" />
+                           <div className="absolute right-[-1px] top-0 h-16 w-0.5 bg-gradient-to-b from-[#FF5A1F]/50 to-[#FF5A1F]/10 animate-pulse"></div>
+                           <div className="absolute right-0 top-16 left-0 h-0.5 bg-gradient-to-r from-[#FF5A1F]/10 via-[#FF5A1F]/50 to-[#FF5A1F]/10"></div>
+                           <div className="absolute left-[-1px] top-16 h-16 w-0.5 bg-gradient-to-b from-[#FF5A1F]/10 to-[#FF5A1F]/50 animate-pulse"></div>
+                            <div className="absolute left-[-0.65rem] bottom-[-0.6rem] text-[#FF5A1F]">
+                                <ArrowDown className="w-6 h-6" strokeWidth={3} />
                             </div>
                         </div>
                     )}
-                    <div id={`psd-flow-card-${step}-arrow-down`} className="lg:hidden flex justify-center py-6 text-emerald-500/30 animate-pulse">
-                        <ArrowDown className="w-10 h-10" />
+                    <div id={`psd-flow-card-${step}-arrow-down`} className="lg:hidden flex justify-center py-6 text-[#FF5A1F] animate-pulse">
+                        <ArrowDown className="w-10 h-10" strokeWidth={3} />
                     </div>
                 </>
             )}

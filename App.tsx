@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Routes,
@@ -43,7 +44,6 @@ import { Editor } from "./components/dashboard/editor/Editor";
 
 // Dashboard Tools
 import { Generator } from "./components/dashboard/tools/Generator";
-import { WhatsAppCRM } from "./components/dashboard/tools/WhatsAppCRM";
 import { EmailMarketing } from "./components/dashboard/tools/EmailMarketing";
 /* */ /* Actualización: Importación del nuevo asistente de secuencias de email - 24/06/2024 15:15 */
 import { EmailSequenceWizard } from "./components/dashboard/tools/EmailSequenceWizard";
@@ -60,9 +60,6 @@ import { ProjectWizard } from "./components/dashboard/tools/ProjectWizard";
 import { ProjectsList } from "./components/dashboard/tools/ProjectsList";
 import { MyPages } from "./components/dashboard/tools/MyPages";
 import { ProjectStrategyDashboard } from "./components/dashboard/tools/ProjectStrategyDashboard";
-////////// Importación de CopySell Pro - 18/06/2024 10:35 //////////
-import { CopySellPro } from "./components/dashboard/tools/CopySellPro";
-////////// Fin de actualización - 18/06/2024 10:35 //////////
 
 // Dashboard CRM
 import { CRM_Layout } from "./components/dashboard/crm/CRM_Layout";
@@ -368,7 +365,6 @@ const App: React.FC = () => {
           <Route path="articles/edit/:id" element={<ContentGenerator onSave={handleArticleSave} />} />
 
           {/* HERRAMIENTAS ADICIONALES */}
-          <Route path="whatsapp" element={<WhatsAppCRM />} />
           <Route path="email" element={<EmailMarketing />} />
           {/* */ /* Actualización: Registro de la ruta para el asistente de secuencias - 24/06/2024 15:15 */ }
           <Route path="email/create" element={<EmailSequenceWizard />} />
@@ -380,9 +376,6 @@ const App: React.FC = () => {
           <Route path="whatsapp-launch/editor/:launchId" element={<WhatsAppLaunchWizard />} />
           {/* ////////// Fin de actualización - 10/06/2025 10:00 ////////// */}
 
-          {/* ////////// Actualización de ruta CopySell Pro para usar el nuevo componente - 18/06/2024 10:40 ////////// */}
-          <Route path="copy-pro" element={<CopySellPro />} />
-          {/* ////////// Fin de actualización - 18/06/2024 10:40 ////////// */}
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

@@ -51,7 +51,8 @@ router.get('/launches/by-project/:projectId', authMiddleware, async (req, res) =
              WHERE wl.user_id = ? AND wl.project_id = ? LIMIT 1`,
             [req.user.id, req.params.projectId]
         );
-        if (rows.length === 0) return res.status(404).json({ error: 'No encontrado' });
+        // Cambio estratégico: Si no existe, devolvemos null con 200 OK para evitar error 404 en consola
+        if (rows.length === 0) return res.json(null);
         res.json(rows[0]);
     } catch (e) {
         res.status(500).json({ error: e.message });

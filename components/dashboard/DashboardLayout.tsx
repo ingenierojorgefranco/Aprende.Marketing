@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, Suspense, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
 import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket, Smartphone } from 'lucide-react';
@@ -66,13 +66,6 @@ export const DashboardLayout = ({
     
     // Categoría: CRM
     if (pathname.startsWith('/dashboard/crm')) return 'crm';
-    
-    // Categoría: Herramientas Pro
-    const toolsPrefixes = [
-        '/dashboard/whatsapp',
-        '/dashboard/copy-pro'
-    ];
-    if (toolsPrefixes.some(prefix => pathname.startsWith(prefix))) return 'tools';
     
     return null;
   };
@@ -213,11 +206,6 @@ export const DashboardLayout = ({
             { label: 'Email Marketing', path: '/dashboard/email', icon: Mail },
             ////////// Actualización: Opción de WhatsApp Lanzamientos en el menú lateral - 10/06/2025 10:00 //////////
             { label: 'WhatsApp Lanzamientos', path: '/dashboard/whatsapp-launch', icon: Smartphone }
-          ]
-        },
-        { id: 'tools', label: 'Herramientas Pro', icon: Wrench, subItems: [
-            { label: 'WhatsApp CRM', path: '/dashboard/whatsapp', icon: MessageSquare },
-            { label: 'CopySell AI', path: '/dashboard/copy-pro', icon: PenTool }
           ]
         }
       ];
