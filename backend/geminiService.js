@@ -205,6 +205,13 @@ const generateFullStrategy = async (projectId) => {
             targetAudienceSummary: Resumen de quién es el comprador ideal.
             targetAgeRange: El rango de edad más probable (ej: '25 a 40 años').
 
+        projection: Genera un array de 12 números (Mes 1 al 12). La IA DEBE calcular cada mes siguiendo esta fórmula: Ganancia = (Leads Estimados * 0.03) * (Precio * %Comisión). 
+            Etapa 1 (Mes 1-2): Leads bajos (1-10/mes). 
+            Etapa 2 (Mes 3-5): Leads moderados (10-50/mes). 
+            Etapa 3 (Mes 6-12): Leads en escalamiento (200+ /mes). 
+            Asegúrate de que la curva sea logarítmica y realista según el nicho.
+
+
 
         INSTRUCCIONES PARA LOS 3 AVATARES (OBLIGATORIO):
         Genera perfiles diferenciados y profundos para estos 3 tipos de cliente:
@@ -270,7 +277,11 @@ const generateFullStrategy = async (projectId) => {
             "objective": "Direct Sales",
             "price": ${fullPrice || 0},
             "commissionRate": ${commissionRate || 0},
-            "projection": [0, 100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000],
+
+            
+            "projection": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+
             "summary": {
                 "primaryObjective": "string",
                 "systemAction": "string",
