@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Project, LandingPage, User } from '../../../../types';
 import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, ChevronLeft, Loader2, AlertTriangle, ExternalLink, X, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Step1InputsProps {
   userProjects: Project[];
@@ -34,6 +35,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
   user, articleCount, setShowUpgradeModal, isSimulating,
   isPreFilled = false
 }) => {
+  const navigate = useNavigate();
   /* Actualización: Implementación del Selector de Página Estratégico interceptando el flujo de creación para forzar la vinculación de activos antes de proceder con la IA - 25/05/2024 10:00 */
   const [selectionMode, setSelectionMode] = useState<'choice' | 'ia'>('choice');
   const [isPreparing, setIsPreparing] = useState(false);
@@ -50,17 +52,20 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
   const activeProject = userProjects.find(p => p.id === selectedProject);
   const recommendations = activeProject?.strategy_json?.modules?.content || [];
 
+  // Filtrado de páginas que pertenecen exclusivamente al proyecto seleccionado
+  const filteredProjectPages = userPages.filter(p => String(p.projectId) === String(selectedProject));
+
   // Cálculos de paginación
   const totalPages = Math.ceil(recommendations.length / itemsPerPage);
   const paginatedRecommendations = recommendations.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   /* Actualización: Auto-disparo del selector si es un flujo pre-llenado desde estrategia - 11/03/2025 11:45 */
   useEffect(() => {
-    if (isPreFilled && !hasAutoOpened && userPages.length > 0) {
+    if (isPreFilled && !hasAutoOpened && filteredProjectPages.length > 0) {
       setHasAutoOpened(true);
       handleInitiateAction('ia');
     }
-  }, [isPreFilled, userPages, hasAutoOpened]);
+  }, [isPreFilled, filteredProjectPages, hasAutoOpened]);
 
   /* Actualización: Función para interceptar el inicio de la acción y abrir el selector de página estratégica - 25/05/2024 10:10 */
   const handleInitiateAction = (action: 'ia' | 'manual') => {
@@ -197,12 +202,12 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
               </div>
 
               <div className="p-8 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
-                {userPages.length > 0 ? (
-                  userPages.map((page) => (
+                {filteredProjectPages.length > 0 ? (
+                  filteredProjectPages.map((page) => (
                     <div 
                       key={page.id}
-                      onClick={() => handlePageSelect(page.id)}
                       className="group w-full flex items-center justify-between p-5 bg-black border border-white/5 rounded-2xl hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all cursor-pointer"
+                      onClick={() => handlePageSelect(page.id)}
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-[#FF5A1F] group-hover:bg-[#FF5A1F]/10 transition-all shadow-inner">
@@ -211,7 +216,13 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
                         <span className="text-white font-bold text-lg group-hover:text-[#FF5A1F] transition-colors">{page.name}</span>
                       </div>
                       
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handlePageSelect(page.id); }}
+                          className="px-5 py-2 bg-[#FF5A1F] text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#D94A1E] transition-all shadow-lg shadow-[#FF5A1F]/20"
+                        >
+                          Seleccionar
+                        </button>
                         <a 
                           href={page.subdomain ? `https://${page.subdomain}` : '#'} 
                           target="_blank" 
@@ -222,19 +233,35 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
                         >
                           <ExternalLink className="w-4 h-4" />
                         </a>
-                        <ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-[#FF5A1F] transition-all" />
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="py-12 text-center border border-dashed border-white/10 rounded-3xl bg-white/5">
-                    <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">No tienes páginas creadas para este proyecto.</p>
+                  <div className="py-12 px-8 text-center border border-dashed border-white/10 rounded-3xl bg-white/5 space-y-6">
+                    <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto text-gray-500">
+                        <AlertTriangle className="w-8 h-8" />
+                    </div>
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-sm leading-relaxed">Aún no tienes una página de captura para tu proyecto</p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                        <button 
+                            onClick={() => navigate(`/dashboard/projects/${selectedProject}/strategy?section=web#web-system-anchor`)}
+                            className="px-8 py-3 bg-[#FF5A1F] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#D94A1E] transition-all shadow-lg shadow-[#FF5A1F]/20"
+                        >
+                            Crear Página
+                        </button>
+                        <button 
+                            onClick={() => setShowPageSelector(false)}
+                            className="px-8 py-3 bg-white/5 text-gray-400 font-black text-xs uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all border border-white/5"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
                   </div>
                 )}
               </div>
               
               <div className="p-8 bg-black/40 border-t border-white/5 flex justify-end">
-                <button onClick={() => setShowPageSelector(false)} className="px-6 py-2 text-gray-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-all">Cancelar</button>
+                <button onClick={() => setShowPageSelector(false)} className="px-6 py-2 text-gray-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-all">Cerrar</button>
               </div>
             </div>
           </div>

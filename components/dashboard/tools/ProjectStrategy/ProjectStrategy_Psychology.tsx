@@ -28,10 +28,10 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                 </div>
                 
                 <h3 id="psd-psychology-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
-                    Ingeniería de Persuasión: <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-500">Miedos y Soluciones</span>
+                    ¿Cómo persuadimos tus clientes?
                 </h3>
 
-                <div className="grid md:grid-cols-2 gap-10 text-gray-300 text-[1.4rem] leading-[1.8] font-light">
+                <div className="grid md:grid-cols-2 gap-10 text-white text-[1.4rem] leading-[1.8] font-light">
                     <p className="border-l-4 border-orange-500/30 pl-8 py-2">
                         Comprar no es un acto racional, es un acto emocional que luego se justifica con lógica. Por eso, nuestra estrategia no vende características técnicas, vende la solución al dolor que no deja dormir a tu cliente.
                     </p>
@@ -64,17 +64,17 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
             {/* --- SECCIÓN DE TÍTULO PARA EL ESPEJO --- */}
             <div className="max-w-[70em] mx-auto text-left mb-10 px-4 md:px-0">
                 <h4 className="text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">
-                    Dolores vs Beneficios <span className="text-gray-500 font-light">(estructura clara y poderosa)</span>
+                    Dolores vs Beneficios
                 </h4>
                 <div className="space-y-4">
-                    <p className="text-gray-400 text-lg md:text-xl font-light leading-relaxed border-l-4 border-orange-500/30 pl-8 py-2">
+                    <p className="text-white text-[1.4rem] leading-[1.8] font-light border-l-4 border-orange-500/30 pl-8 py-2">
                         Aquí es donde la persuasión ocurre de verdad. Cada dolor detectado tiene un beneficio específico que lo neutraliza.
                     </p>
                 </div>
             </div>
             
             {/* --- SISTEMA DE ESPEJO: DOLOR VS SOLUCIÓN --- */}
-            <div id="psd-mirror-container" className="max-w-[85em] mx-auto">
+            <div id="psd-mirror-container" className="max-w-[70em] mx-auto">
                 <div className="space-y-10">
                     
                     {/* Headers del espejo (Grid para mantener alineación) */}
@@ -104,7 +104,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                 <div className="relative group/mirror">
                                     <div className="bg-gray-900/40 border border-gray-800 group-hover/mirror:border-rose-500/30 p-8 rounded-[2rem] transition-all duration-500 h-full flex items-center shadow-xl relative overflow-hidden">
                                         <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-500 opacity-20 group-hover/mirror:opacity-100 transition-opacity"></div>
-                                        <p className="text-gray-300 text-lg md:text-xl leading-relaxed font-normal italic">
+                                        <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-normal">
                                             "{pain}"
                                         </p>
                                     </div>
@@ -118,11 +118,11 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                             <Check className="w-5 h-5 text-emerald-400" />
                                         </div>
                                         <div className="flex flex-col gap-2">
-                                            <p className="text-emerald-50 text-lg md:text-xl leading-relaxed font-bold">
+                                            <p className="text-emerald-50 text-[1.4rem] leading-[1.8] font-bold">
                                                 {benefit ? benefit.title : (psychology.solutions[i] || "Transformación estratégica")}
                                             </p>
                                             {benefit?.desc && (
-                                                <p className="text-emerald-200/70 text-base leading-relaxed font-light italic">
+                                                <p className="text-emerald-200/70 text-[1.4rem] leading-[1.8] font-light italic">
                                                     {benefit.desc}
                                                 </p>
                                             )}
@@ -137,7 +137,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
 
             {/* */ /* Actualización: Matriz de objeciones detallada para FAQ y Cierre de Ventas - 15/06/2024 20:05 */ }
             {psychology.buyingPsychology?.notBuyingReasons && (
-                <div className="max-w-[85em] mx-auto pt-20">
+                <div className="max-w-[70em] mx-auto pt-20">
                     <div className="bg-black/60 rounded-[4rem] p-10 md:p-20 border border-white/5 relative overflow-hidden shadow-2xl">
                         <h5 className="text-2xl font-black text-white mb-10 flex items-center gap-3">
                             <ShieldAlert className="w-6 h-6 text-orange-500" /> Matriz de Objeciones Detallada
@@ -149,12 +149,12 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                     <div className="space-y-6">
                                         <div>
                                             <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Respuesta Corta (Chat)</p>
-                                            <p className="text-gray-300 text-base leading-relaxed">{reason.description}</p>
+                                            <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light">{reason.description}</p>
                                         </div>
                                         {reason.detail && (
                                             <div className="pt-4 border-t border-white/5">
                                                 <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Explicación Detallada (FAQ)</p>
-                                                <p className="text-gray-400 text-sm leading-relaxed italic">"{reason.detail}"</p>
+                                                <p className="text-gray-400 text-[1.4rem] leading-[1.8] font-light italic">"{reason.detail}"</p>
                                             </div>
                                         )}
                                     </div>

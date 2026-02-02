@@ -29,34 +29,6 @@ interface ProjectStrategy_AvatarDiagnosisProps {
 }
 
 export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDiagnosisProps> = ({ avatars, psychology, benefitsItems }) => {
-    // Roles estratégicos definidos
-    const roles = [
-        { 
-            label: "Estrategia de Atracción", 
-            desc: "Diseñada para captar la atención inmediata y generar curiosidad. <br/> <span class='font-bold text-white'>Se utiliza para:</span> Títulos principales (H1), Anuncios, Video de Ventas (VSL) y Mensaje principal de la Landing Page.", 
-            icon: Magnet, 
-            color: "text-amber-400", 
-            bg: "bg-amber-500/10",
-            border: "border-amber-500/20"
-        },
-        { 
-            label: "Estrategia de Autoridad", 
-            desc: "Base para Emails de Lógica y casos de éxito.", 
-            icon: Shield, 
-            color: "text-amber-400", 
-            bg: "bg-amber-500/10",
-            border: "border-amber-500/20"
-        },
-        { 
-            label: "Estrategia de Cierre", 
-            desc: "Base para Scripts de WhatsApp y manejo de objeciones.", 
-            icon: MessageSquare, 
-            color: "text-amber-400", 
-            bg: "bg-amber-500/10",
-            border: "border-amber-500/20"
-        }
-    ];
-
     const getAvatarRoleBadge = (idx: number) => {
         const badges = [
             { label: "Avatar Principal — Perfil de Atracción", gradient: "from-pink-600 to-rose-600" },
@@ -117,7 +89,6 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
             {/* --- LISTA DE AVATARES --- */}
             <div id="psd-avatars-list" className="space-y-16 max-w-[85em] mx-auto">
                 {avatars.map((avatar: any, idx: number) => {
-                    const role = roles[idx] || roles[0];
                     const isMain = idx === 0;
 
                     return (
@@ -197,14 +168,6 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                             )}
                                             {/* Fin de actualización - 15/06/2024 19:40 */}
                                         </div>
-
-                                        <div className="bg-blue-500/[0.03] border-l-4 border-blue-500/20 p-8 rounded-r-[2.5rem] hover:bg-blue-500/[0.06] transition-colors group/card">
-                                            <div className="flex items-center gap-4 mb-5">
-                                                <div className="p-3 bg-blue-500/20 rounded-2xl text-blue-400 shadow-lg group-hover/card:scale-110 transition-transform"><Lock className="w-6 h-6" /></div>
-                                                <p className="text-sm font-black text-blue-400 uppercase tracking-[0.2em]">Barrera de Venta (Objeción)</p>
-                                            </div>
-                                            <p className="text-gray-200 text-xl leading-relaxed font-medium">{avatar.objection}</p>
-                                        </div>
                                     </div>
 
                                     {/* Motivations & Strategy (Now Right) */}
@@ -231,13 +194,13 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                             </div>
                                         </div>
 
-                                        <div className={`p-8 rounded-[2rem] border-l-4 ${role.bg} ${role.border} flex gap-6 items-start hover:scale-[1.02] transition-transform`}>
-                                            <div className={`p-4 rounded-2xl bg-black/60 ${role.color} shrink-0 shadow-2xl`}>
-                                                <role.icon className="w-8 h-8" />
+                                        <div className="p-8 rounded-[2rem] border-l-4 bg-blue-500/10 border-blue-500/20 flex gap-6 items-start hover:scale-[1.02] transition-transform">
+                                            <div className="p-4 rounded-2xl bg-black/60 text-blue-400 shrink-0 shadow-2xl">
+                                                <Lock className="w-8 h-8" />
                                             </div>
                                             <div>
-                                                <p className={`text-sm font-black uppercase tracking-[0.2em] mb-2 ${role.color}`}>{role.label}</p>
-                                                <p className="text-white text-xl leading-relaxed font-light" dangerouslySetInnerHTML={{ __html: role.desc }}></p>
+                                                <p className="text-sm font-black uppercase tracking-[0.2em] mb-2 text-blue-400">Barrera de Venta (Objeción)</p>
+                                                <p className="text-white text-xl leading-relaxed font-light">{avatar.objection}</p>
                                             </div>
                                         </div>
                                     </div>

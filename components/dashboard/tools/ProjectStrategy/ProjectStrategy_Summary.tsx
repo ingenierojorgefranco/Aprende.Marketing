@@ -108,10 +108,10 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                 
                 <div className="grid md:grid-cols-2 gap-10 text-white text-[1.3rem] leading-[2.5rem] font-light">
                     <p className="border-l-4 border-indigo-500 pl-8 py-2">
-                        Hemos diseñado un sistema de ventas completo para este producto, pensado para atraer personas interesadas, guiarlas paso a paso y convertirlas en clientas.
+                        Hemos diseñado un sistema estratégico de ventas completo para tu producto digital, el cual se encuentra pensado en atraer personas interesadas, guiarlas paso a paso y convertirlas en tus potenciales clientes.
                     </p>
                     <p className="border-l-4 border-purple-500 pl-8 py-2">
-                        Para lograrlo, utilizamos inteligencia artificial que analiza el mercado y tu oferta, automatizando gran parte del proceso estratégico y ahorrándote tiempo en tareas complejas.
+                        Para lograrlo, nuestra inteligencia artificial ha analizado a fondo tu mercado y oferta, automatizando gran parte del proceso estratégico y ahorrándote tiempo en tareas complejas.
                     </p>
                 </div>
             </div>
@@ -123,7 +123,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
                     <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
                         <iframe 
                             className="w-full h-full"
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
+                            src="https://www.youtube.com/watch?v=A_dcakdMBow" 
                             title="Explicación Estratégica del Sistema" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowFullScreen

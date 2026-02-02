@@ -27,7 +27,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                 { id: 'growth', label: 'Proyección de Ingresos', icon: TrendingUp, module: "FUNDAMENTOS", description: "Escalabilidad año 1" },
                 { id: 'blueprint', label: 'Mapa de Ruta', icon: Map, module: "FUNDAMENTOS", description: "Flujo del cliente" },
                 { id: 'avatar', label: 'Diagnóstico de Avatar', icon: UserSearch, module: "FUNDAMENTOS", description: "Perfil psicológico" },
-                { id: 'psychology', label: 'Miedos y Soluciones', icon: Brain, module: "FUNDAMENTOS", description: "Ingeniería de persuasión" },
+                { id: 'psychology', label: 'Dolores vs Beneficios', icon: Brain, module: "FUNDAMENTOS", description: "Ingeniería de persuasión" },
             ]
         },
         {
