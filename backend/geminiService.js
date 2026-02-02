@@ -206,9 +206,19 @@ const generateFullStrategy = async (projectId) => {
             targetAgeRange: El rango de edad más probable (ej: '25 a 40 años').
 
         projection: Genera un array de 12 números (Mes 1 al 12). La IA DEBE calcular cada mes siguiendo esta fórmula: Ganancia = (Leads Estimados * 0.03) * (Precio * %Comisión). 
-            Etapa 1 (Mes 1-2): Leads bajos (1-10/mes). 
-            Etapa 2 (Mes 3-5): Leads moderados (10-50/mes). 
-            Etapa 3 (Mes 6-12): Leads en escalamiento (200+ /mes). 
+            Etapa 1 (Mes 1): Leads bajos (1-2/mes). 
+            Etapa 2 (Mes 2): Mes anterior + Leads bajos (1-2/mes). 
+            Etapa 2 (Mes 3): Mes anterior + Leads moderados (2-5/mes). 
+            Etapa 2 (Mes 4): Mes anterior + Leads moderados (5-10/mes). 
+            Etapa 2 (Mes 5): Mes anterior + Leads moderados (10-20/mes). 
+            Etapa 3 (Mes 6): Mes anterior + Leads moderados (20-30/mes). 
+            Etapa 3 (Mes 7): Mes anterior + Leads moderados (20-30/mes).
+            Etapa 3 (Mes 8): Mes anterior + Leads moderados (30-40/mes).
+            Etapa 3 (Mes 9): Mes anterior + Leads moderados (30-40/mes). 
+            Etapa 3 (Mes 10): Mes anterior + Leads moderados (40-50/mes). 
+            Etapa 3 (Mes 11): Mes anterior + Leads moderados (40-50/mes). 
+            Etapa 3 (Mes 12): Mes anterior + Leads moderados (40-50/mes).
+
             Asegúrate de que la curva sea logarítmica y realista según el nicho.
 
 
