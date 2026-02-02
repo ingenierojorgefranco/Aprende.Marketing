@@ -12,6 +12,14 @@ export interface ProjectMasterStrategy {
         price: number;
         commissionRate: number;
         projection: number[];
+        shortDescription?: string;
+        summary?: {
+            primaryObjective: string;
+            systemAction: string;
+            salesMethod: string;
+            targetAudienceSummary: string;
+            targetAgeRange: string;
+        };
         insights: {
             overview: { title: string; items: any[] };
             niche: { title: string; description: string };

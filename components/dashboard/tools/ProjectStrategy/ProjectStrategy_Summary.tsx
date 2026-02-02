@@ -19,6 +19,7 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
     const price = strategyData.meta.price || 0;
     const commissionRate = strategyData.meta.commissionRate || 0;
     const netCommission = price * commissionRate;
+    const summary = strategyData.meta.summary;
     
     // Lista unificada de 10 puntos en el orden exacto solicitado
     const orderedCards = [
@@ -38,35 +39,35 @@ export const ProjectStrategy_Summary: React.FC<ProjectStrategy_SummaryProps> = (
         },
         {
             label: "Objetivo principal",
-            value: overviewItems[4]?.value || "Maximizar conversiones en automático",
+            value: summary?.primaryObjective || overviewItems[4]?.value || "Maximizar conversiones en automático",
             icon: Target,
             color: "text-indigo-400",
             border: "border-indigo-500/20"
         },
         {
             label: "Qué hace el sistema por ti",
-            value: "Crea las páginas, mensajes y contenidos necesarios",
+            value: summary?.systemAction || "Crea las páginas, mensajes y contenidos necesarios",
             icon: Rocket,
             color: "text-orange-400",
             border: "border-orange-500/20"
         },
         {
             label: "¿Cómo se vende?",
-            value: "Embudo automático con página + guía PDF + WhatsApp",
+            value: summary?.salesMethod || "Embudo automático con página + guía PDF + WhatsApp",
             icon: MessageCircle,
             color: "text-green-400",
             border: "border-green-500/20"
         },
         {
             label: "Para quién es",
-            value: "Mujeres que quieren aprender microblading y generar ingresos",
+            value: summary?.targetAudienceSummary || "Mujeres que quieren aprender microblading y generar ingresos",
             icon: Users,
             color: "text-blue-400",
             border: "border-blue-500/20"
         },
         {
             label: "Edades de tu Público objetivo",
-            value: "Mujeres entre 22 y 38 años",
+            value: summary?.targetAgeRange || "Mujeres entre 22 y 38 años",
             icon: Users,
             color: "text-blue-400",
             border: "border-blue-500/20"

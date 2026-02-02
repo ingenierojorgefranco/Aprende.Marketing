@@ -198,6 +198,14 @@ const generateFullStrategy = async (projectId) => {
 
         Genera también un campo 'shortDescription' dentro de 'meta' que sea un resumen persuasivo de 1 a 2 frases destacando la transformación principal del producto para ser mostrado en tarjetas de interfaz.
 
+        Genera un objeto 'summary' dentro de 'meta' con información coherente al nicho:
+            primaryObjective: El objetivo final (ej: 'Venta directa', 'Cierre por chat').
+            systemAction: Qué automatiza la plataforma para este producto específico.
+            salesMethod: El flujo del embudo (ej: 'Anuncios -> Landing -> WhatsApp').
+            targetAudienceSummary: Resumen de quién es el comprador ideal.
+            targetAgeRange: El rango de edad más probable (ej: '25 a 40 años').
+
+
         INSTRUCCIONES PARA LOS 3 AVATARES (OBLIGATORIO):
         Genera perfiles diferenciados y profundos para estos 3 tipos de cliente:
         1. AVATAR 1 (El Emprendedor Activo): Alguien con energía que busca escalar un negocio o empezar uno nuevo con decisión.
@@ -263,6 +271,13 @@ const generateFullStrategy = async (projectId) => {
             "price": ${fullPrice || 0},
             "commissionRate": ${commissionRate || 0},
             "projection": [0, 100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000],
+            "summary": {
+                "primaryObjective": "string",
+                "systemAction": "string",
+                "salesMethod": "string",
+                "targetAudienceSummary": "string",
+                "targetAgeRange": "string"
+            },
             "insights": {
                 "overview": { 
                     "title": "Estrategia General", 
