@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useNavigate, useParams, useOutletContext, useSearchParams } from 'react-router-dom';
 import { 
@@ -25,28 +24,11 @@ const ProjectStrategy_WhatsApp = React.lazy(() => import('./ProjectStrategy/Proj
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
 import { ProjectMasterStrategy } from '../../../services/strategySchema';
-import { LandingPage, User, Plan, EmailSequence, Article, EmailMessage, WhatsAppLaunch } from '../../../types';
+import { User, Plan } from '../../../types';
 
 const iconMap: any = {
     BookOpen, Sparkles, Users, MessageCircle, Target
 };
-
-const WHATSAPP_LAUNCH_MOMENTS = [
-    { id: 'wl1', name: 'Confirmación de Fecha', momentText: 'Día -7', objective: 'Generar expectativa y agendar al lead.', pilarType: 'Expectativa', purpose: 'Confirmar la fecha oficial de la clase y asegurar que lo agenden.' },
-    { id: 'wl2', name: 'Historia de Autoridad', momentText: 'Día -5', objective: 'Crear conexión emocional con la experta.', pilarType: 'Autoridad', purpose: 'Narrar brevemente la historia de éxito del experto para generar confianza.' },
-    { id: 'wl3', name: 'Temario y Promesa', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Valor / Curiosidad', purpose: 'Listar los 3 puntos clave que se aprenderán en la clase.' },
-    { id: 'wl4', name: 'Adelanto (3 Errores)', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Valor Preventivo', purpose: 'Identificar 3 errores comunes que el lead está cometiendo hoy.' },
-    { id: 'wl5', name: '¡Hoy es el gran día!', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Urgencia Matutina', purpose: 'Anunciar que hoy es la clase y recordar los horarios.' },
-    { id: 'wl6', name: 'Cuenta Regresiva (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Preparación', purpose: 'Indicar que busquen libreta, café y un lugar tranquilo.' },
-    { id: 'wl7', name: '¡Estamos en Vivo!', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acción Inmediata', purpose: 'Entregar el enlace directo a la transmisión.' },
-    { id: 'wl8', name: 'Oferta Abierta', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Lanzamiento', purpose: 'Anunciar la apertura de inscripciones con el descuento máximo.' },
-    { id: 'wl9', name: 'Bonos de Acción Rápida', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Escasez de Bonus', purpose: 'Mencionar los regalos extra para los primeros en comprar.' },
-    { id: 'wl10', name: 'Tutorial de Pago', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Facilitación', purpose: 'Explicar cómo realizar la compra paso a paso.' },
-    { id: 'wl11', name: 'Certificado y Garantía', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Seguridad', purpose: 'Destacar la garantía de 7 días y el aval profesional.' },
-    { id: 'wl12', name: 'Últimos Cupos', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Escasez Final', purpose: 'Notificar que los cupos con descuento se están terminando.' },
-    { id: 'wl13', name: 'Inscripciones Cerradas', momentText: 'Final', objective: 'Mantener la integridad de la oferta.', pilarType: 'Cierre de Carrito', purpose: 'Informar que el tiempo y los cupos se agotaron.' },
-    { id: 'wl14', name: 'Bienvenida', momentText: 'Bienvenida', objective: 'Bienvenida a las nuevas alumnas.', pilarType: 'Onboarding', purpose: 'Dar la bienvenida oficial a la nueva comunidad de alumnos.' }
-];
 
 export const ProjectStrategyDashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -58,20 +40,9 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
     
-    // Estados para carga Lazy
-    const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
-    const [linkedSequences, setLinkedSequences] = useState<EmailSequence[]>([]);
-    const [realEmailMessages, setRealEmailMessages] = useState<EmailMessage[]>([]);
-    const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
-    const [resolvedWhatsAppLaunch, setResolvedWhatsAppLaunch] = useState<any[]>([]);
-    const [isLaunchLocked, setIsLaunchLocked] = useState(true);
-    const [globalDomainCount, setGlobalDomainCount] = useState(0); 
-    const [globalEmailSequenceCount, setGlobalEmailSequenceCount] = useState(0);
-    const [globalWhatsAppLaunchCount, setGlobalWhatsAppLaunchCount] = useState(0);
-    
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams, useSetSearchParams] = useSearchParams();
     const activeSection = searchParams.get('section') || 'summary';
-    const setActiveSection = (id: string) => setSearchParams({ section: id });
+    const setActiveSection = (id: string) => useSetSearchParams({ section: id });
 
     const [nextPlan, setNextPlan] = useState<Plan | null>(null);
     const [activeWaScript, setActiveWaScript] = useState(0);
@@ -126,87 +97,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
             setLoading(false);
         }
     };
-
-    // --- CARGA LAZY POR SECCIÓN ---
-    useEffect(() => {
-        const loadSectionSpecificData = async () => {
-            if (!id || !activeSection) return;
-            
-            try {
-                // Lógica de carga según sección
-                if (activeSection === 'web') {
-                    const pages = await api.getPages();
-                    const projectPages = pages.filter(p => String(p.projectId) === String(id));
-                    setLinkedPages(projectPages);
-                    setGlobalDomainCount(pages.filter(p => !!p.customDomain).length);
-                }
-
-                if (activeSection === 'content') {
-                    const [pages, articles] = await Promise.all([api.getPages(), api.getArticles()]);
-                    const projectPages = pages.filter(p => String(p.projectId) === String(id));
-                    const projectArts = articles.filter(a => projectPages.some(p => String(p.id) === String(a.pageId)));
-                    setLinkedPages(projectPages);
-                    setLinkedArticles(projectArts);
-                }
-
-                if (activeSection === 'email') {
-                    const sequences = await api.getEmailSequences();
-                    const projectSeqs = sequences.filter(s => String(s.projectId) === String(id));
-                    setLinkedSequences(projectSeqs);
-                    setGlobalEmailSequenceCount(sequences.length);
-                    if (projectSeqs.length > 0) {
-                        const realMessages = await api.getSequenceMessages(projectSeqs[0].id);
-                        setRealEmailMessages(realMessages);
-                    }
-                }
-
-                if (activeSection === 'evergreen') {
-                    const [pages, articles] = await Promise.all([api.getPages(), api.getArticles()]);
-                    const projectPages = pages.filter(p => String(p.projectId) === String(id));
-                    const projectArts = articles.filter(a => projectPages.some(p => String(p.id) === String(a.pageId)));
-                    setLinkedArticles(projectArts);
-                }
-
-                if (activeSection === 'whatsapp') {
-                    const [waLaunchDb, allWaLaunches] = await Promise.all([
-                        api.getWhatsAppLaunchByProject(id),
-                        api.getWhatsAppLaunches()
-                    ]);
-                    setGlobalWhatsAppLaunchCount(allWaLaunches.length);
-
-                    let final14 = WHATSAPP_LAUNCH_MOMENTS.map(moment => ({ ...moment, content: '', isGenerated: false }));
-                    if (waLaunchDb && waLaunchDb.messages) {
-                        const dbMessages = waLaunchDb.messages;
-                        final14 = final14.map(moment => {
-                            const match = dbMessages.find((m: any) => m.id === moment.id);
-                            return match ? { ...moment, ...match } : moment;
-                        });
-                        const hasGeneratedRest = dbMessages.some((m: any) => m.id !== 'wl1' && m.isGenerated);
-                        setIsLaunchLocked(!hasGeneratedRest);
-                    } else if (strategyData?.modules?.whatsappLaunch) {
-                        const strategyMsgs = strategyData.modules.whatsappLaunch;
-                        final14 = final14.map(moment => {
-                            const match = strategyMsgs.find((m: any) => m.id === moment.id);
-                            if (match) {
-                                return {
-                                    ...moment,
-                                    content: (match as any).messages?.[0]?.text || (match as any).content || '',
-                                    isGenerated: !!((match as any).messages?.[0]?.text || (match as any).content)
-                                };
-                            }
-                            return moment;
-                        });
-                        setIsLaunchLocked(true);
-                    }
-                    setResolvedWhatsAppLaunch(final14);
-                }
-            } catch (e) {
-                console.error(`[Lazy Load Error] Section: ${activeSection}`, e);
-            }
-        };
-
-        loadSectionSpecificData();
-    }, [id, activeSection, strategyData]);
 
     useEffect(() => { loadCoreData(); }, [id, user.planLimits]);
 
@@ -300,11 +190,11 @@ export const ProjectStrategyDashboard: React.FC = () => {
                         {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onOpenVideo={() => setShowVideoModal(true)} />}
                         {activeSection === 'avatar' && <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items} />}
                         {activeSection === 'psychology' && <ProjectStrategy_Psychology psychology={strategyData.psychology} benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items} />}
-                        {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules.web.landingPageTabs} tyTabsData={strategyData.modules.web.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} linkedPages={linkedPages} onEditPage={(pid) => navigate(`/dashboard/editor/${pid}`)} pageCount={globalPageCount} domainCount={globalDomainCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
-                        {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} linkedArticles={linkedArticles} isSimulating={isSimulating} />}
-                        {activeSection === 'email' && <ProjectStrategy_Email emailData={strategyData.modules.emails.nurture} avatars={strategyData.avatars} activeEmail={activeEmail} setActiveEmail={setActiveEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} realMessages={realEmailMessages} isSimulating={isSimulating} sequenceCount={globalEmailSequenceCount} />}
-                        {activeSection === 'evergreen' && <ProjectStrategy_Evergreen evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
-                        {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp whatsappLaunch={resolvedWhatsAppLaunch} activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} isLocked={isLaunchLocked} projectId={id} isSimulating={isSimulating} planLimits={user.planLimits} launchCount={globalWhatsAppLaunchCount} />}
+                        {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules.web.landingPageTabs} tyTabsData={strategyData.modules.web.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onEditPage={(pid) => navigate(`/dashboard/editor/${pid}`)} pageCount={globalPageCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
+                        {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
+                        {activeSection === 'email' && <ProjectStrategy_Email emailData={strategyData.modules.emails.nurture} avatars={strategyData.avatars} activeEmail={activeEmail} setActiveEmail={setActiveEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} isSimulating={isSimulating} />}
+                        {activeSection === 'evergreen' && <ProjectStrategy_Evergreen evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} />}
+                        {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} projectId={id} isSimulating={isSimulating} planLimits={user.planLimits} strategyData={strategyData} />}
                     </Suspense>
                 </div>
             </div>

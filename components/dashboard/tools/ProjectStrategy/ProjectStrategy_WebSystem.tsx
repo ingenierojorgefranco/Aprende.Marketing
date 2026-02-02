@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
 import { Generator } from '../Generator';
@@ -15,10 +15,8 @@ interface ProjectStrategy_WebSystemProps {
     setSelectedTyTab: (tab: string | null) => void;
     handleTooltipHover: (e: React.MouseEvent, content: string[]) => void;
     handleTooltipLeave: () => void;
-    linkedPages: LandingPage[];
     onEditPage: (id: string) => void;
     pageCount?: number;
-    domainCount?: number;
     planLimits?: PlanLimits;
     onUpgrade?: () => void;
     nextPlan?: Plan | null;
@@ -27,14 +25,17 @@ interface ProjectStrategy_WebSystemProps {
 
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
     projectId, lpTabsData, tyTabsData,
-    selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, linkedPages, onEditPage,
+    selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, onEditPage,
     pageCount = 0, planLimits, isSimulating = false
 }) => {
     const [showPagesModal, setShowPagesModal] = useState(false);
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
+    const [loadingLocal, setLoadingLocal] = useState(false);
+    const [domainCount, setDomainCount] = useState(0);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (!selectedLpTab && lpTabsData) {
             const firstKey = Object.keys(lpTabsData)[0];
             if (firstKey) setSelectedLpTab(firstKey);
@@ -44,6 +45,24 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             if (firstKey) setSelectedTyTab(firstKey);
         }
     }, [lpTabsData, tyTabsData, selectedLpTab, selectedTyTab, setSelectedLpTab, setSelectedTyTab]);
+
+    useEffect(() => {
+        const loadLocalData = async () => {
+            if (!projectId) return;
+            setLoadingLocal(true);
+            try {
+                const pages = await api.getPages();
+                const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
+                setLinkedPages(projectPages);
+                setDomainCount(pages.filter(p => !!p.customDomain).length);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoadingLocal(false);
+            }
+        };
+        loadLocalData();
+    }, [projectId]);
 
     const handlePageGenerated = async (page: LandingPage) => {
         try {
@@ -117,7 +136,21 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 <div className="flex flex-col gap-16 max-w-[85em] mx-auto pb-20">
                     <div className="grid grid-cols-1 xl:grid-cols-11 gap-8 items-stretch relative">
                         <div className="xl:col-span-5 space-y-8 flex flex-col h-full">
-                            <div className="flex items-center justify-between"><div className="flex items-center gap-3"><div className="p-3 bg-blue-500/10 rounded-2xl text-blue-400"><Globe className="w-6 h-6" /></div><div><h4 className="text-2xl font-black text-white">Página de Captura</h4></div></div>{linkedPages.length > 0 && (<button onClick={() => setShowPagesModal(true)} className="p-2.5 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white rounded-xl border border-blue-500/20 transition-all flex items-center gap-2 text-xs font-bold"><Layout className="w-4 h-4" /> Ver Páginas</button>)}</div>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-400">
+                                        <Globe className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-2xl font-black text-white">Página de Captura</h4>
+                                    </div>
+                                </div>
+                                {loadingLocal ? <Loader2 className="w-5 h-5 animate-spin text-blue-400" /> : linkedPages.length > 0 && (
+                                    <button onClick={() => setShowPagesModal(true)} className="p-2.5 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white rounded-xl border border-blue-500/20 transition-all flex items-center gap-2 text-xs font-bold">
+                                        <Layout className="w-4 h-4" /> Ver Páginas
+                                    </button>
+                                )}
+                            </div>
                             <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative"><div className="flex-1 space-y-8"><div className="flex flex-wrap gap-2">{lpTabsData && Object.keys(lpTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedLpTab(tabKey)} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${selectedLpTab === tabKey ? 'bg-blue-600 text-white border-blue-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{lpTabsData[tabKey].label}</button>))}</div>{renderBrowserMockup(renderLpContent(selectedLpTab || ''))}</div></div>
                         </div>
 
@@ -130,7 +163,9 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     </div>
 
                     <div id="web-system-anchor" className="max-w-4xl mx-auto w-full pt-10">
-                        {linkedPages.length > 0 ? (
+                        {loadingLocal ? (
+                            <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
+                        ) : linkedPages.length > 0 ? (
                             <div className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[3rem] p-10 shadow-xl flex flex-col items-center text-center animate-in zoom-in-95">
                                 <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-6" />
                                 <h3 className="text-3xl font-black text-white mb-10">¡Página generada correctamente!</h3>
