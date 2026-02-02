@@ -13,7 +13,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
         objective: "Venta Directa (Crash Strategy)",
         price: 200,
         commissionRate: 0.65,
-        projection: [0, 0, 0, 116.81, 233.62, 584.05, 817.67, 1168.10, 1401.72, 600, 2102.58, 2336.20],
+        projection: [0, 0, 116.81, 233.62, 467.24, 700.86, 934.48, 1284.91, 1635.34, 1985.77, 2336.20, 2803.44],
         insights: {
             overview: {
                 title: "Estrategia para vender en automático",

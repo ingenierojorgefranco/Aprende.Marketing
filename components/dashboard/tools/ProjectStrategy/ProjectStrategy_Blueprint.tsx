@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, ArrowRight, ArrowDown, PlayCircle, Clapperboard, Globe, CheckCircle2, Users, MessageCircle, FileText, MonitorPlay, ShoppingCart, Zap, RefreshCw, Sparkles, Rocket, X, AlertTriangle, BarChart3, ListChecks, Brain, Target, Lightbulb, TrendingUp, ShieldCheck } from 'lucide-react';
+import { Layers, ArrowRight, ArrowDown, PlayCircle, Clapperboard, Globe, CheckCircle2, Users, MessageCircle, FileText, MonitorPlay, ShoppingCart, Zap, RefreshCw, Sparkles, Rocket, X, AlertTriangle, BarChart3, ListChecks, Brain, Target, Lightbulb, TrendingUp, ShieldCheck, Mail, BookOpen } from 'lucide-react';
 
 ////////// Actualización: Sistema Educativo Profundo "Más Detalles" - 01/01/2026 12:45 //////////
 const ACQUISITION_STEPS = [
@@ -221,7 +221,7 @@ const ACQUISITION_STEPS = [
         ),
         masterclass: {
             importance: "Para productos de ticket medio/alto, el humano compra a humano. Resolver una duda específica por chat puede salvar el 50% de tus ventas caídas.",
-            question: "¿Cómo cerrar ventas por Mensaje Directo?",
+            question: "¿Cómo cerrar ventas por Message Directo?",
             article: [
                 {
                     title: "La Venta Consultiva",
@@ -294,8 +294,125 @@ const ACQUISITION_STEPS = [
         }
     },
     { 
+        icon: Mail, 
+        title: "7. Email Marketing", 
+        subtitle: "Secuencia de nutrición y venta por correo.", 
+        description: (
+            <div className="space-y-4">
+                <div>
+                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué hace el sistema:</p>
+                    <p className="text-gray-300 text-base leading-relaxed">Redacta correos persuasivos para calentar al lead y generar deseo.</p>
+                </div>
+                <div>
+                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-gray-300 text-base leading-relaxed">Mantener el interés vivo y preparar al prospecto para la oferta.</p>
+                </div>
+            </div>
+        ),
+        masterclass: {
+            importance: "El email marketing es el canal con mayor retorno de inversión. Te permite estar presente en la bandeja de entrada de tu cliente de forma personal y profesional.",
+            question: "¿Por qué el Email Marketing es clave?",
+            article: [
+                {
+                    title: "El Activo Más Valioso: Tu Lista",
+                    content: "A diferencia de las redes sociales, tu lista de correos te pertenece. El email marketing te permite automatizar la educación de tu prospecto sin depender de algoritmos externos cambiantes."
+                },
+                {
+                    title: "Secuencias de Adoctrinamiento",
+                    content: "El sistema diseña correos que no solo venden, sino que educan. Cada correo es una oportunidad para demostrar tu expertise y derribar una barrera mental del cliente antes de que llegue a la página de venta."
+                }
+            ],
+            metricsExplanation: "Mide cuántas personas abren tus correos y cuántas hacen clic en tus enlaces para ajustar la persuasión.",
+            metrics: [
+                { name: "Open Rate", why: "Indica si tus asuntos son atractivos y generan curiosidad." },
+                { name: "CTR en Email", why: "Mide el interés real en la propuesta de valor enviada." }
+            ],
+            mistakes: ["Enviar solo ofertas agresivas.", "No personalizar el nombre del lead.", "Tener un diseño demasiado cargado que va a spam."],
+            benefits: ["Automatización total de la relación con el cliente.", "Costo de envío prácticamente nulo.", "Alta tasa de conversión en cierres masivos."],
+            checklist: ["Configurar la secuencia de bienvenida (Día 0).", "Asegurar que el link de desuscripción sea visible.", "Realizar una prueba de envío para verificar formato."]
+        }
+    },
+    { 
+        icon: BookOpen, 
+        title: "8. Artículos de Blog", 
+        subtitle: "Contenido educativo para generar autoridad.", 
+        description: (
+            <div className="space-y-4">
+                <div>
+                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué hace el sistema:</p>
+                    <p className="text-gray-300 text-base leading-relaxed">Genera contenidos optimizados que educan sobre el problema y tu solución.</p>
+                </div>
+                <div>
+                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-gray-300 text-base leading-relaxed">Posicionarte como experto y atraer tráfico orgánico.</p>
+                </div>
+            </div>
+        ),
+        masterclass: {
+            importance: "El contenido es la base de la autoridad. Un blog activo le dice a Google y a tus clientes que eres un referente serio en tu industria.",
+            question: "¿Cómo ayudan los artículos de blog a vender?",
+            article: [
+                {
+                    title: "Educación Pre-Venta",
+                    content: "Un cliente educado es un cliente más fácil de cerrar. Los artículos resuelven dudas lógicas, permitiendo que el prospecto llegue a la fase de compra con mucha más confianza."
+                },
+                {
+                    title: "SEO y Tráfico Gratis",
+                    content: "Al escribir sobre temas que la gente ya está buscando, atraes visitas cualificadas sin gastar un dólar en anuncios. El sistema optimiza estos textos para ser encontrados."
+                }
+            ],
+            metricsExplanation: "Debes mirar qué temas generan más interés para escalar tu estrategia.",
+            metrics: [
+                { name: "Tiempo en Página", why: "Indica si el contenido es realmente valioso y se consume." },
+                { name: "Sesiones Orgánicas", why: "Mide el flujo de personas nuevas que te descubren." }
+            ],
+            mistakes: ["Escribir contenido irrelevante para el avatar.", "No poner llamados a la acción claros.", "Textos difíciles de leer en dispositivos móviles."],
+            benefits: ["Construcción de marca a largo plazo.", "Generación de tráfico recurrente y gratuito.", "Eliminación de objeciones mediante la educación."],
+            checklist: ["Publicar 1 artículo semanal sobre un dolor del avatar.", "Insertar botones de registro en medio del texto.", "Compartir el artículo en grupos y redes sociales."]
+        }
+    },
+    { 
+        icon: RefreshCw, 
+        title: "9. Lanzamiento por Whatsapp", 
+        subtitle: "Estrategia de cierre masivo en grupos.", 
+        description: (
+            <div className="space-y-4">
+                <div>
+                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué hace el sistema:</p>
+                    <p className="text-gray-300 text-base leading-relaxed">Genera la secuencia de mensajes meteóricos para vender en grupo.</p>
+                </div>
+                <div>
+                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-gray-300 text-base leading-relaxed">Generar un pico de facturación masiva en poco tiempo.</p>
+                </div>
+            </div>
+        ),
+        masterclass: {
+            importance: "El lanzamiento por WhatsApp es la forma más rápida y efectiva de generar ingresos significativos concentrados en pocos días aprovechando la urgencia.",
+            question: "¿Cómo funciona un Lanzamiento por WhatsApp?",
+            article: [
+                {
+                    title: "El Poder de la Anticipación",
+                    content: "Un lanzamiento no es un evento aislado; es una construcción de deseo. Mediante una secuencia probada, el sistema prepara la mente del lead para el momento exacto de la apertura de inscripciones."
+                },
+                {
+                    title: "Disparadores Mentales de Grupo",
+                    content: "Ver a otros interesados activa la prueba social. El sistema te ayuda a moderar y guiar la conversación para que el deseo de uno se convierta en la compra de muchos."
+                }
+            ],
+            metricsExplanation: "El éxito se mide por el volumen de ventas en relación al número de personas en el grupo.",
+            metrics: [
+                { name: "Tasa de Cierre Grupal", why: "Porcentaje de miembros del grupo que compran la oferta." },
+                { name: "Velocidad de Venta", why: "Indica qué tan fuerte fue la urgencia generada." }
+            ],
+            mistakes: ["No calentar el grupo antes de abrir carrito.", "Ser demasiado robótico o frío en las respuestas.", "No hacer seguimiento a quienes no compraron al final."],
+            benefits: ["Alta rentabilidad en periodos cortos.", "Feedback directo y masivo de tu mercado.", "Aumento exponencial de la autoridad de marca."],
+            checklist: ["Revisar los 14 mensajes del asistente de lanzamientos.", "Configurar el cronómetro de urgencia en la página.", "Tener el enlace de checkout listo y verificado."]
+        }
+    },
+    { 
         icon: MonitorPlay, 
-        title: "7. Página de Venta", 
+        title: "10. Página de Venta", 
         subtitle: "Carta de ventas (VSL o texto)", 
         description: (
             <div className="space-y-4">
@@ -345,55 +462,8 @@ const ACQUISITION_STEPS = [
         }
     },
     { 
-        icon: RefreshCw, 
-        title: "8. Nutrición de Prospectos", 
-        subtitle: "Email, Blog y WhatsApp", 
-        description: (
-            <div className="space-y-4">
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Qué crea el sistema:</p>
-                    <ul className="list-disc list-inside space-y-1 text-gray-300 text-base">
-                        <li>Correos automáticos</li>
-                        <li>Artículos educativos</li>
-                        <li>Mensajes de seguimiento</li>
-                    </ul>
-                </div>
-                <div>
-                    <p className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-gray-300 text-base leading-relaxed">Vender incluso si no compró al inicio.</p>
-                </div>
-            </div>
-        ),
-        masterclass: {
-            importance: "La mayoría de la gente no compra al primer impacto. El 80% de las ventas ocurren entre el 5º y el 12º contacto con la marca.",
-            question: "¿Qué es la Nutrición de Prospectos?",
-            article: [
-                {
-                    title: "La Siembra de la Venta",
-                    content: "Nutrir prospectos (Nurturing) es el proceso de educar al lead a lo largo del tiempo. No todo el mundo está listo para comprar hoy, pero si te mantienes en su mente con valor, cuando estén listos, te elegirán a ti. Es una maratón, no un sprint."
-                },
-                {
-                    title: "El Sistema 'Evergreen'",
-                    content: "Mediante emails y artículos automáticos, el sistema mantiene el interés vivo. Cada mensaje debe derribar una pequeña objeción diferente: falta de dinero, falta de tiempo, miedo al fracaso. Día a día, vas minando sus dudas."
-                },
-                {
-                    title: "Omnicanalidad Estratégica",
-                    content: "No te limites al email. El sistema te propone publicar en tu blog y enviar recordatorios por WhatsApp. Estar presente en múltiples canales aumenta la confianza y la autoridad de tu marca exponencialmente."
-                }
-            ],
-            metricsExplanation: "Si tus correos no se abren, tus asuntos son aburridos. Si se abren pero no hay clics, el contenido no genera suficiente curiosidad o deseo.",
-            metrics: [
-                { name: "Open Rate (Tasa de Apertura)", why: "Mide la efectividad de tus títulos y asuntos de correo." },
-                { name: "Click Rate (CTR)", why: "Mide el interés real en lo que estás proponiendo." }
-            ],
-            mistakes: ["Enviar correos solo de venta sin dar nada de valor.", "No automatizar; intentar hacerlo todo manual.", "Usar un tono demasiado comercial o agresivo."],
-            benefits: ["Generación de ventas constantes a largo plazo.", "Aumento del valor del tiempo de vida del cliente (LTV).", "Creación de una comunidad de seguidores fieles."],
-            checklist: ["Programar una secuencia de 7 días de emails educativos.", "Publicar 1 artículo de blog semanal sobre un dolor del cliente.", "Hacer seguimiento manual a los carritos abandonados cada 24h."]
-        }
-    },
-    { 
         icon: ShoppingCart, 
-        title: "9. Checkout", 
+        title: "11. Checkout", 
         subtitle: "Pasarela de Pago", 
         description: (
             <div className="space-y-4">
@@ -592,7 +662,7 @@ interface FlowCardProps {
 
 const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, description, step, onOpenMasterclass, stepData }) => {
     const isLastInRow = step % 2 === 0;
-    const isLastItem = step === 9;
+    const isLastItem = step === 11;
     const isEndOfRowDesktop = step % 2 === 0;
 
     return (
@@ -672,14 +742,7 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                 <h3 id="psd-blueprint-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
                     ¿Cómo funcionará tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">estrategia de ventas?</span>
                 </h3>
-                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
-                    <p className="border-l-4 border-emerald-500 pl-8 py-2">
-                        No vendemos al azar ni dependemos de la suerte. Tu sistema está diseñado para acompañar al cliente paso a paso, desde que descubre el problema hasta que toma la decisión de compra con confianza.
-                    </p>
-                    <p className="border-l-4 border-teal-500 pl-8 py-2">
-                        A continuación, puedes ver el recorrido completo que seguirá cada persona interesada en tu producto. Todas estas piezas son creadas automáticamente por el sistema.
-                    </p>
-                </div>
+                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light"><p className="border-l-4 border-emerald-500 pl-8 py-2">No vendemos al azar ni dependemos de la suerte. Tu sistema está diseñado para acompañar al cliente paso a paso, desde que descubre el problema hasta que toma la decisión de compra con confianza.</p><p className="border-l-4 border-teal-500 pl-8 py-2">A continuación, puedes ver el recorrido completo que seguirá cada persona interesada en tu producto. Todas estas piezas son creadas automáticamente por el sistema.</p></div>
             </div>
 
             {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}

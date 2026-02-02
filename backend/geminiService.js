@@ -205,7 +205,10 @@ const generateFullStrategy = async (projectId) => {
             targetAudienceSummary: Resumen de quién es el comprador ideal.
             targetAgeRange: El rango de edad más probable (ej: '25 a 40 años').
 
-        projection: Genera un array de 12 números (Mes 1 al 12). La IA DEBE calcular cada mes siguiendo esta fórmula: Ganancia = (Leads Estimados * 0.03) * (Precio * %Comisión). 
+        projection: Genera un array de 12 números (Mes 1 al 12). La IA DEBE calcular cada mes siguiendo esta fórmula: 
+    
+            REGLA MATEMÁTICA PARA PROYECCIÓN: 1. Calcula Ventas Reales = Math.floor(Leads Estimados * 0.05). 2. Si Ventas Reales es menor a 1, la ganancia de ese mes DEBE ser 0 (no se puede ganar dinero sin una venta completa). 3. Ganancia Final = Ventas Reales * (Precio * %Comisión).
+
             Etapa 1 (Mes 1): Leads bajos (1-2/mes). 
             Etapa 2 (Mes 2): Mes anterior + Leads bajos (1-2/mes). 
             Etapa 2 (Mes 3): Mes anterior + Leads moderados (2-5/mes). 

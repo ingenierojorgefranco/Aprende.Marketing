@@ -14,9 +14,9 @@ const CustomTooltip = ({ active, payload, label, commissionValue, fullData }: an
         const income = data.income;
         const sales = commissionValue > 0 ? Math.floor(income / commissionValue) : 0;
         
-        // Lógica de cálculo inverso basada en el 3% de tasa de cierre aprobada
+        // Lógica de cálculo inverso basada en el 5% de tasa de cierre aprobada
         // Leads = Ganancia / (TasaCierre * ValorComision)
-        const leads = (commissionValue > 0) ? Math.ceil(income / (0.03 * commissionValue)) : 0;
+        const leads = (commissionValue > 0) ? Math.ceil(income / (0.05 * commissionValue)) : 0;
 
         return (
             <div id="psd-tooltip-chart" className="bg-gray-900/95 backdrop-blur-xl border border-gray-700 p-6 rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] min-w-[240px] animate-in fade-in zoom-in-95 duration-200">
@@ -106,7 +106,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                 <h5 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
                                     Retorno de Inversión Estimado (Año 1)
                                 </h5>
-                                <p className="text-gray-300 text-sm leading-[1.8] font-light mt-1">Cálculo basado en una tasa de cierre promedio del 3% en WhatsApp.</p>
+                                <p className="text-gray-300 text-sm leading-[1.8] font-light mt-1">Cálculo basado en una tasa de cierre promedio del 5% en WhatsApp.</p>
                             </div>
                             
                             <div className="flex gap-4">
@@ -265,7 +265,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                             <Check className="w-5 h-5 text-emerald-500" /> Ganancia por venta: $120 USD
                                         </div>
                                         <div className="flex items-center gap-3 text-white text-xl leading-relaxed font-light">
-                                            <Check className="w-5 h-5 text-emerald-500" /> Tasa de cierre estimada: 3% en WhatsApp
+                                            <Check className="w-5 h-5 text-emerald-500" /> Tasa de cierre estimada: 5% en WhatsApp
                                         </div>
                                     </div>
                                 </div>
@@ -277,7 +277,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     </div>
                                     <div className="bg-black/40 border border-gray-700 rounded-2xl text-center p-5">
                                         <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mb-2">Tasa de Cierre WA</p>
-                                        <p className="text-white font-black text-3xl">3%</p>
+                                        <p className="text-white font-black text-3xl">5%</p>
                                     </div>
                                 </div>
                             </div>
