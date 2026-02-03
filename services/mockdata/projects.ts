@@ -110,20 +110,6 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
             stage2_solution: "Sabe que el Microblading Hiperrealista es la técnica mejor pagada y más demandada.",
             stage3_barrier: "Miedo a no tener acompañamiento práctico y desconfianza en la educación online básica."
         },
-        buyingPsychology: {
-            notBuyingReasons: [
-                { title: "Duda de la factibilidad", description: "Teme que su falta de experiencia previa sea un impedimento real para aprender una técnica tan compleja.", detail: "Cree que necesita ser dibujante profesional para tener éxito." },
-                { title: "Falta de claridad", description: "No visualiza cómo pasará de su situación actual a generar ingresos reales de forma segura.", detail: "Le preocupa no saber cómo montar el estudio físico." },
-                { title: "Riesgo percibido", description: "Siente que puede perder la inversión en el curso si no logra dominar la pluma manual (tébori).", detail: "Teme arruinar la cara de alguien y enfrentar problemas legales." }
-            ],
-            buyingReasons: [
-                { title: "Siente Seguridad", description: "Percibe que el acompañamiento paso a paso minimiza cualquier riesgo de error técnico." },
-                { title: "Percibe Autoridad", description: "Nota que la metodología está avalada por years de práctica y miles de alumnas exitosas." },
-                { title: "Visualiza el Éxito", description: "Se ve logrando independencia financiera y manejando su propio estudio de belleza." },
-                { title: "Respaldo Total", description: "Siente que la comunidad and el soporte resolverán cualquier duda en tiempo real." }
-            ],
-            strategistConclusion: "El mensaje se enfocará en seguridad, respaldo, práctica real y resultados. Evitaremos promesas exageradas para generar confianza genuina atacando su principal miedo: la desconfianza en la formación online tradicional."
-        },
         conversionStrategy: {
             mainFocus: [
                 { label: "Mensaje Directo", description: "Empatía sin rodeos sobre la inestabilidad económica y el miedo técnico." },
@@ -300,7 +286,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     bodyPreview: "Hola [Nombre], entiendo perfectamente esa sensación de darlo todo..."
                 },
                 {
-                    id: 3,
+                    id: 2,
                     day: "Día 2",
                     subject: "📈 Cómo Maria pasó de 0 a $2,000/mes con cejas",
                     type: "Prueba Social",
@@ -308,7 +294,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     bodyPreview: "Hola [Nombre], hoy quiero contarte la historia de una de mis alumnas..."
                 },
                 {
-                    id: 4,
+                    id: 3,
                     day: "Día 3",
                     subject: "💎 La verdad sobre el Microblading (y por qué otros fallan)",
                     type: "Mecanismo Único",
@@ -316,7 +302,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     bodyPreview: "Hola [Nombre], ¿sabes por qué muchas esteticistas no logran resultados?"
                 },
                 {
-                    id: 5,
+                    id: 4,
                     day: "Día 4",
                     subject: "🚀 ¡INSCRIPCIONES ABIERTAS! Domina la Certificación Pro",
                     type: "Lanzamiento / Oferta",
@@ -324,7 +310,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     bodyPreview: "Hola [Nombre], llegó el momento. Las puertas están abiertas..."
                 },
                 {
-                    id: 6,
+                    id: 5,
                     day: "Día 5",
                     subject: "⏳ Tus 3 Bonos Exclusivos expiran en pocas horas...",
                     type: "Escasez / Valor",
@@ -332,7 +318,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     bodyPreview: "Hola [Nombre], no quiero que te quedes fuera de los bonos..."
                 },
                 {
-                    id: 7,
+                    id: 6,
                     day: "Día 6",
                     subject: "⚠️ ÚLTIMA LLAMADA: Tu futuro profesional empieza hoy",
                     type: "Cierre / Urgencia",
@@ -374,7 +360,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 name: "Historia de Autoridad",
                 moment: "Día -5",
                 objective: "Historia de Autoridad: Conectar emocionalmente mediante el storytelling, mostrando el camino del experto para generar confianza y deseo por el método.",
-                messages: [{ role: 'agent', text: "*📣 Hola, un placer presentarme con ustedes 🙋‍♀️✨*\nMi nombre es _*Ariana Zamora*_ , micropigmentadora, cosmetóloga y especialista en cejas. \n* Llevo más de 10 años trabajando en la estética. Un camino que empezó con muchas dudas, miedos y sacrificios… pero también con un sueño: vivir de lo que amo y tener la libertad de crear mi propio futuro.\n* Todo lo que logré fue gracias al microblading, y ahora quiero compartir contigo lo que aprendí en el camino. 💕\nEste viernes *26 de Septiembre de 2025* te voy a entregar mucho más que teoría:\n✨ Te enseñaré nuevas técnicas que te abrirán los ojos sobre lo que realmente es el microblading.\n✨ Te contaré los secretos y tips que descubrí con la experiencia (los mismos que me ayudaron a crecer).\nQuiero que sepas que voy a darlo todo para guiarte, porque mi objetivo es que tú también descubras el potencial que tienes en este mundo.\nEstoy feliz de acompañarte y quiero que seas la próxima historia de éxito." }]
+                messages: [{ role: 'agent', text: "*📣 Hola, un placer presentarme con ustedes 🙋‍♀️✨*\nMi nombre es _*Ariana Zamora*_ , micropigmentadora, cosmetóloga y especialista en cejas. \n* Livel más de 10 años trabajando en la estética. Un camino que empezó con muchas dudas, miedos y sacrificios… pero también con un sueño: vivir de lo que amo y tener la libertad de crear mi propio futuro.\n* Todo lo que logré fue gracias al microblading, y ahora quiero compartir contigo lo que aprendí en el camino. 💕\nEste viernes *26 de Septiembre de 2025* te voy a entregar mucho más que teoría:\n✨ Te enseñaré nuevas técnicas que te abrirán los ojos sobre lo que realmente es el microblading.\n✨ Te contaré los secretos y tips que descubrí con la experiencia (los mismos que me ayudaron a crecer).\nQuiero que sepas que voy a darlo todo para guiarte, porque mi objetivo es que tú también descubras el potencial que tienes en este mundo.\nEstoy feliz de acompañarte y quiero que seas la próxima historia de éxito." }]
             },
             {
                 id: "wl3",
@@ -388,7 +374,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 name: "Adelanto (3 Errores)",
                 moment: "Día -1",
                 objective: "Adelanto (3 Errores): Aportar valor real antes de la clase identificando errores comunes, posicionando la clase como la solución para evitarlos.",
-                messages: [{ role: 'agent', text: "*📣 Hola chicas, ya estamos a un solo día de nuestra clase gratuita de microblading 🙋‍♀️✨*\nAntes de vernos mañana, quiero regalarles un pequeño adelanto de lo que vamos a trabajar juntas. 💖\nHoy les voy a contar los _3 errores más comunes que cometen las personas_ cuando empiezan en microblading (y cómo tú los puedes evitar):\n❌ Pensar que solo se necesita buen pulso y práctica.\n❌ Usar cualquier pigmento o material sin entender su calidad ni compatibilidad.\n❌ Creer que con videos sueltos de internet se puede aprender toda la técnica.\nMañana te voy a mostrar cómo evitar cada uno de estos errores y, además, te enseñaré en vivo el proceso completo, los pigmentos y materiales profesionales que usamos, y te compartiré tips que aprendí en mis más de 10 años de experiencia.\n• Estoy preparando algo muy especial para ti, así que no te lo puedes perder por nada. 🌟\n• Nos vemos mañana viernes a las 8:00 p.m. (hora Colombia/México) – 10:00 p.m. (hora Argentina/Chile).\n• Te espero con toda mi energía y ganas de compartir lo mejor que tengo contigo.\n💖 Ariana Zamora ✨" }]
+                messages: [{ role: 'agent', text: "*📣 Hola chicas, ya estamos a un solo día de nuestra clase gratuita de microblading 🙋‍♀️✨*\nAntes de vernos mañana, quiero regalarles un pequeño adelanto de lo que vamos a trabajar juntas. 💖\nHoy les voy a contar los _3 errores más comunes que cometen las personas_ cuando empiezan en microblading (y cómo tú los puedes evitar):\n❌ Pensar que solo se necesita buen pulso y práctica.\n❌ Usar cualquier pigmento o material sin entender su calidad ni compatibilidad.\n❌ Creer que con videos sueltos de internet se puede aprender toda la técnica.\nMañana te voy a mostrar cómo evitar cada uno de estos errores y, además, te enseñará en vivo el proceso completo, los pigmentos y materiales profesionales que usamos, y te compartiré tips que aprendí en mis más de 10 años de experiencia.\n• Estoy preparando algo muy especial para ti, así que no te lo puedes perder por nada. 🌟\n• Nos vemos mañana viernes a las 8:00 p.m. (hora Colombia/México) – 10:00 p.m. (hora Argentina/Chile).\n• Te espero con toda mi energía y ganas de compartir lo mejor que tengo contigo.\n💖 Ariana Zamora ✨" }]
             },
             {
                 id: "wl5",

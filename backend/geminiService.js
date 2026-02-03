@@ -386,20 +386,6 @@ const generateFullStrategy = async (projectId) => {
                 stage2_solution: "Analiza la percepción del avatar sobre las soluciones existentes y por qué esta es la ideal.",
                 stage3_barrier: "Analiza la barrera mental o duda técnica específica que impide al avatar comprar ahora mismo."
             },
-            buyingPsychology: {
-                notBuyingReasons: [
-                    { title: "Define la objeción lógica número 1 del avatar", description: "Describe por qué siente esta duda", detail: "Explicación técnica para rebatirla" },
-                    { title: "Define la objeción lógica número 2 del avatar", description: "Describe por qué siente esta duda", detail: "Explicación técnica para rebatirla" },
-                    { title: "Define la objeción lógica número 3 del avatar", description: "Describe por qué siente esta duda", detail: "Explicación técnica para rebatirla" }
-                ],
-                buyingReasons: [
-                    { title: "Define el motivador emocional 1", description: "Explica cómo este factor impulsa la decisión de compra" },
-                    { title: "Define el motivador emocional 2", description: "Explica cómo este factor impulsa la decisión de compra" },
-                    { title: "Define el motivador emocional 3", description: "Explica cómo este factor impulsa la decisión de compra" },
-                    { title: "Define el motivador emocional 4", description: "Explica cómo este factor impulsa la decisión de compra" }
-                ],
-                strategistConclusion: "Redacta una conclusion de estratega sobre el ángulo de venta maestro que debe seguir todo el copy."
-            },
     }
 
 

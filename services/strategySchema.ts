@@ -50,11 +50,6 @@ export interface ProjectMasterStrategy {
             stage2_solution: string;
             stage3_barrier: string;
         };
-        buyingPsychology: {
-            notBuyingReasons: Array<{ title: string; description: string; detail?: string }>;
-            buyingReasons: Array<{ title: string; description: string }>;
-            strategistConclusion: string;
-        };
         // Nuevo objeto para estrategia de conversión independiente
         conversionStrategy: {
             mainFocus: Array<{ label: string; description: string }>;
@@ -119,11 +114,6 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
             stage1_pain: "",
             stage2_solution: "",
             stage3_barrier: ""
-        },
-        buyingPsychology: {
-            notBuyingReasons: [],
-            buyingReasons: [],
-            strategistConclusion: ""
         },
         conversionStrategy: {
             mainFocus: [],

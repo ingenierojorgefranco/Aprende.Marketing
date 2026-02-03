@@ -1,3 +1,4 @@
+// Actualización: Corrección de importación de React y sincronización de interfaz con ProjectMasterStrategy - 08/01/2026
 import React from 'react';
 import { Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, Layout, Mail, MessageSquare, FileText, MousePointer2, Sparkles, Zap, ShieldAlert, XCircle, PlayCircle, Target, Users } from 'lucide-react';
 
@@ -10,8 +11,17 @@ interface ProjectStrategy_PsychologyProps {
             stage2_solution: string;
             stage3_barrier: string;
         };
-        buyingPsychology?: {
-            notBuyingReasons: Array<{ title: string; description: string; detail?: string }>;
+        // Se añade conversionStrategy para coincidir con el esquema global
+        conversionStrategy: {
+            mainFocus: Array<{ label: string; description: string }>;
+            tacticalNote: string;
+        };
+        psychographicProfile?: {
+            ageRange: string;
+            interests: string;
+            primaryDesire: string;
+            digitalBehavior: string;
+            mainBarrier: string;
         };
     };
     benefitsItems?: Array<{ title: string; desc: string }>;
@@ -134,37 +144,6 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                     })}
                 </div>
             </div>
-
-            {/* */ /* Actualización: Matriz de objeciones detallada para FAQ y Cierre de Ventas - 15/06/2024 20:05 */ }
-            {psychology.buyingPsychology?.notBuyingReasons && (
-                <div className="max-w-[70em] mx-auto pt-20">
-                    <div className="bg-black/60 rounded-[4rem] p-10 md:p-20 border border-white/5 relative overflow-hidden shadow-2xl">
-                        <h5 className="text-2xl font-black text-white mb-10 flex items-center gap-3">
-                            <ShieldAlert className="w-6 h-6 text-orange-500" /> Matriz de Objeciones Detallada
-                        </h5>
-                        <div className="grid md:grid-cols-2 gap-8">
-                            {psychology.buyingPsychology.notBuyingReasons.map((reason, idx) => (
-                                <div key={idx} className="bg-gray-900/80 border border-gray-800 p-8 rounded-[2.5rem] hover:border-orange-500/30 transition-all">
-                                    <h6 className="text-orange-400 font-bold text-xl mb-4">{reason.title}</h6>
-                                    <div className="space-y-6">
-                                        <div>
-                                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Respuesta Corta (Chat)</p>
-                                            <p className="text-gray-300 text-[1.4rem] leading-[1.8] font-light">{reason.description}</p>
-                                        </div>
-                                        {reason.detail && (
-                                            <div className="pt-4 border-t border-white/5">
-                                                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Explicación Detallada (FAQ)</p>
-                                                <p className="text-gray-400 text-[1.4rem] leading-[1.8] font-light italic">"{reason.detail}"</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-            {/* Fin de actualización - 15/06/2024 20:05 */}
 
             <div className="mt-20 pt-10 border-t border-white/5 flex items-center justify-center gap-4 text-gray-500 text-sm font-medium tracking-wide relative z-10">
                 <Check className="w-5 h-5 text-emerald-500" />

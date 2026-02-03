@@ -12,11 +12,9 @@ interface ProjectStrategy_AvatarDiagnosisProps {
             stage2_solution: string;
             stage3_barrier: string;
         };
-        buyingPsychology: {
-            // Actualización: Se añade detail opcional para coincidir con ProjectMasterStrategy - 08/06/2025
-            notBuyingReasons: Array<{ title: string; description: string; detail?: string }>;
-            buyingReasons: Array<{ title: string; description: string }>;
-            strategistConclusion: string;
+        conversionStrategy: {
+            mainFocus: Array<{ label: string; description: string }>;
+            tacticalNote: string;
         };
         psychographicProfile?: {
             ageRange: string;
