@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2 } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
 import { Generator } from '../Generator';
 import { api } from '../../../../services/api';
+import { UpgradeModal } from '../UpgradeModal';
 
 interface ProjectStrategy_WebSystemProps {
     projectId: string;
@@ -26,11 +28,12 @@ interface ProjectStrategy_WebSystemProps {
 export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps> = ({ 
     projectId, lpTabsData, tyTabsData,
     selectedLpTab, setSelectedLpTab, selectedTyTab, setSelectedTyTab, onEditPage,
-    pageCount = 0, planLimits, isSimulating = false
+    pageCount = 0, planLimits, isSimulating = false, onUpgrade
 }) => {
     const [showPagesModal, setShowPagesModal] = useState(false);
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showDomainModal, setShowDomainModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [domainCount, setDomainCount] = useState(0);
@@ -84,6 +87,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
     const maxLandings = planLimits?.maxLandings || 3;
+    const maxDomains = planLimits?.maxDomains || 1;
     const usagePercent = Math.min(100, (pageCount / maxLandings) * 100);
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";
@@ -129,8 +133,11 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             <div className="space-y-24">
                 <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                     <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg"><Monitor className="w-5 h-5" /> Web Blueprint</div>
-                    <h3 className="text-5xl md:text-6xl font-black text-white leading-tight italic">Plano Maestro de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Sistema</span></h3>
-                    <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light"><p className="border-l-4 border-blue-500 pl-8 py-2">No diseñamos sitios web, construimos embudos psicológicos.</p><p className="border-l-4 border-cyan-500 pl-8 py-2">Cada bloque visual ha sido redactado por la IA.</p></div>
+                    <h3 className="text-5xl md:text-6xl font-black text-white leading-tight italic">Crea tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Pagina de Captura y Convierte Clientes en Automático</span></h3>
+                    <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
+                        <p className="border-l-4 border-blue-500 pl-8 py-2">Esta sección es el motor principal de tu prospección. Hemos configurado cada bloque para que el visitante sienta la necesidad de registrarse de inmediato.</p>
+                        <p className="border-l-4 border-cyan-500 pl-8 py-2">El puente de agradecimiento es donde ocurre la magia de la redirección. Aquí aseguramos que el lead no se pierda y llegue directo a tu canal de ventas.</p>
+                    </div>
                 </div>
 
                 <div className="flex flex-col gap-16 max-w-[85em] mx-auto pb-20">
@@ -151,14 +158,26 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                     </button>
                                 )}
                             </div>
-                            <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative"><div className="flex-1 space-y-8"><div className="flex flex-wrap gap-2">{lpTabsData && Object.keys(lpTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedLpTab(tabKey)} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${selectedLpTab === tabKey ? 'bg-blue-600 text-white border-blue-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{lpTabsData[tabKey].label}</button>))}</div>{renderBrowserMockup(renderLpContent(selectedLpTab || ''))}</div></div>
+                            <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative">
+                                <div className="flex-1 space-y-8">
+                                    <p className="text-gray-400 text-sm font-medium leading-relaxed italic">Utiliza estos bloques diseñados por la IA para proyectar autoridad instantánea.</p>
+                                    <div className="flex flex-wrap gap-2">{lpTabsData && Object.keys(lpTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedLpTab(tabKey)} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${selectedLpTab === tabKey ? 'bg-blue-600 text-white border-blue-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{lpTabsData[tabKey].label}</button>))}</div>
+                                    {renderBrowserMockup(renderLpContent(selectedLpTab || ''))}
+                                </div>
+                            </div>
                         </div>
 
                         <div className="xl:col-span-1 flex flex-col items-center justify-center gap-4 py-8"><div className="hidden xl:flex flex-col items-center gap-4"><div className="h-24 w-px bg-gradient-to-b from-blue-500 to-emerald-500"></div><div className="w-14 h-14 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-lg"><ArrowRight className="w-8 h-8" /></div><div className="h-24 w-px bg-gradient-to-b from-emerald-500 to-emerald-700"></div></div></div>
 
                         <div className="xl:col-span-5 space-y-8 flex flex-col h-full">
                             <div className="flex items-center gap-3"><div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400"><CheckCircle2 className="w-6 h-6" /></div><h4 className="text-2xl font-black text-white">Página de Gracias</h4></div>
-                            <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative"><div className="flex-1 space-y-8"><div className="flex flex-wrap gap-2">{tyTabsData && Object.keys(tyTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedTyTab(tabKey)} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${selectedTyTab === tabKey ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{tyTabsData[tabKey].label}</button>))}</div>{renderBrowserMockup(renderTyContent(selectedTyTab || ''), true)}</div></div>
+                            <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative">
+                                <div className="flex-1 space-y-8">
+                                    <p className="text-gray-400 text-sm font-medium leading-relaxed italic">Sigue el flujo estratégico para aumentar la tasa de apertura de tus mensajes.</p>
+                                    <div className="flex flex-wrap gap-2">{tyTabsData && Object.keys(tyTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedTyTab(tabKey)} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${selectedTyTab === tabKey ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{tyTabsData[tabKey].label}</button>))}</div>
+                                    {renderBrowserMockup(renderTyContent(selectedTyTab || ''), true)}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -168,10 +187,12 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         ) : linkedPages.length > 0 ? (
                             <div className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[3rem] p-10 shadow-xl flex flex-col items-center text-center animate-in zoom-in-95">
                                 <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-6" />
-                                <h3 className="text-3xl font-black text-white mb-10">¡Página generada correctamente!</h3>
-                                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
-                                    <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-3">Ver Página</a>
-                                    <button onClick={() => onEditPage(linkedPages[0].id)} className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl shadow-xl">Editar Diseño</button>
+                                <h3 className="text-3xl font-black text-white mb-4">¡Tu Sistema de Ventas está 100% Activo!</h3>
+                                <p className="text-gray-400 text-lg font-medium leading-relaxed mb-10 max-w-2xl">Todas las configuraciones técnicas, enlaces de seguimiento y formularios de captura han sido verificados. Tu embudo está listo para procesar visitantes y convertirlos en prospectos de alta calidad.</p>
+                                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg">
+                                    <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página</a>
+                                    <button onClick={() => onEditPage(linkedPages[0].id)} className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all">Editar Diseño</button>
+                                    <button onClick={() => setShowDomainModal(true)} className="flex-1 bg-blue-600 text-white font-black py-4 px-6 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-2"><Globe className="w-5 h-5" /> Dominio</button>
                                 </div>
                             </div>
                         ) : (
@@ -216,6 +237,44 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in" onClick={handleCloseAndReload}>
                     <div className="w-full max-w-[1200px] h-[95vh] rounded-[3rem] shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
                         <Generator onPageGenerated={handlePageGenerated} embeddedProjectId={projectId} onClose={handleCloseAndReload} />
+                    </div>
+                </div>
+            )}
+
+            {showDomainModal && (
+                <div 
+                    onClick={() => setShowDomainModal(false)}
+                    className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl p-6 relative animate-in zoom-in-95"
+                    >
+                        <button onClick={() => setShowDomainModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-white p-1 rounded-full hover:bg-gray-800 transition">
+                            <X className="w-5 h-5" />
+                        </button>
+                        <div className="text-center mb-6">
+                            <div className="w-16 h-16 bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20 shadow-lg shadow-blue-500/10">
+                                <Globe className="w-8 h-8 text-blue-500" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-white mb-2">Dominios Personalizados</h2>
+                            <p className="text-gray-400 text-sm leading-relaxed">Personaliza tu enlace como www.tuempresa.com. Esto aumenta la confianza y tus ventas.</p>
+                        </div>
+                        <div className="space-y-6">
+                            <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
+                                <div className="flex items-start gap-3 mb-2"><CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5" /><p className="text-sm text-gray-300">Certificado SSL Seguro Incluido</p></div>
+                                <div className="flex items-start gap-3"><CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5" /><p className="text-sm text-gray-300">Servidores de Alta Velocidad</p></div>
+                            </div>
+                            <div className="text-center"><p className="text-xs text-blue-300 font-bold bg-blue-900/20 py-1.5 px-3 rounded-full inline-block border border-blue-500/20">ℹ️ En tu plan actual puedes añadir {maxDomains} dominios</p></div>
+                            {(domainCount >= maxDomains && !isRealAdmin) ? (
+                                <div className="space-y-3">
+                                    <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-xl flex items-center gap-3"><AlertTriangle className="w-6 h-6 text-red-500 shrink-0" /><p className="text-sm text-red-200">Límite de dominios alcanzado.</p></div>
+                                    <button onClick={() => { setShowDomainModal(false); onUpgrade && onUpgrade(); }} className="w-full py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-bold border border-yellow-400/20">Actualizar Plan</button>
+                                </div>
+                            ) : (
+                                <a href={`https://wa.me/573000000000?text=Hola, quiero configurar un dominio personalizado para mi proyecto ID: ${projectId}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg flex items-center justify-center gap-2 transition-transform hover:scale-[1.02]"><MessageCircle className="w-5 h-5" /> Quiero configurar mi dominio</a>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
