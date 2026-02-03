@@ -92,7 +92,7 @@ export const ProjectStrategy_Testimonials: React.FC = () => {
       {/* GRID DE WHATSAPP CHATS */}
       <div className="max-w-[85em] mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-4">
-          {dynamicTestimonials.map((chat, i) => (
+          {dynamicTestimonials.map((chat: any, i: number) => (
             <div key={i} className="bg-[#E5DDD5] rounded-[2.5rem] md:rounded-[3.5rem] border-[8px] md:border-[12px] border-[#0B0B0B] overflow-hidden shadow-2xl relative h-[600px] md:h-[700px] flex flex-col group hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_rgba(0,0,0,0.3)]">
               {/* WhatsApp Header */}
               <div className="bg-[#075E54] p-4 md:p-6 flex items-center justify-between text-white shrink-0">

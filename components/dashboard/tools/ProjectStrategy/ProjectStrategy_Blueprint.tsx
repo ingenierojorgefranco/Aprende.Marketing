@@ -249,12 +249,12 @@ const ACQUISITION_STEPS = [
             </div>
         ),
         masterclass: {
-            importance: "El email marketing es el canal con mayor retorno de inversión. Te permite estar presente en la bandeja de entrada de tu cliente de forma personal y profesional.",
+            importance: "El email marketing es the canal con mayor retorno de inversión. Te permite estar presente en la bandeja de entrada de tu cliente de forma personal y profesional.",
             question: "¿Por qué el Email Marketing es clave?",
             article: [
                 {
                     title: "El Activo Más Valioso: Tu Lista",
-                    content: "A diferencia de las redes sociales, tu lista de correos te pertenece. El email marketing te permite automatizar la educación de tu prospecto sin depender de algoritmos externos cambiantes."
+                    content: "A diferencia de las redes sociales, tu lista de correos te pertenece. El email marketing te permite automatizar the educación de tu prospecto sin depender de algoritmos externos cambiantes."
                 },
                 {
                     title: "Secuencias de Adoctrinamiento",
@@ -267,8 +267,8 @@ const ACQUISITION_STEPS = [
                 { name: "CTR en Email", why: "Mide el interés real en la propuesta de valor enviada." }
             ],
             mistakes: ["Enviar solo ofertas agresivas.", "No personalizar el nombre del lead.", "Tener un diseño demasiado cargado que va a spam."],
-            benefits: ["Automatización total de la relación con el cliente.", "Costo de envío prácticamente nulo.", "Alta tasa de conversión en cierres masivos."],
-            checklist: ["Configurar la secuencia de bienvenida (Día 0).", "Asegurar que el link de desuscripción sea visible.", "Realizar una prueba de envío para verificar formato."]
+            benefits: ["Automatización total de the relación con el cliente.", "Costo de envío prácticamente nulo.", "Alta tasa de conversión en cierres masivos."],
+            checklist: ["Configurar the secuencia de bienvenida (Día 0).", "Asegurar que el link de desuscripción sea visible.", "Realizar una prueba de envío para verificar formato."]
         }
     },
     { 
@@ -284,16 +284,16 @@ const ACQUISITION_STEPS = [
             </div>
         ),
         masterclass: {
-            importance: "El contenido es la base de la autoridad. Un blog activo le dice a Google y a tus clientes que eres un referente serio en tu industria.",
+            importance: "El contenido es the base de the autoridad. Un blog activo le dice a Google y a tus clientes que eres un referente serio en tu industria.",
             question: "¿Cómo ayudan los artículos de blog a vender?",
             article: [
                 {
                     title: "Educación Pre-Venta",
-                    content: "Un cliente educado es un cliente más fácil de cerrar. Los artículos resuelven dudas lógicas, permitiendo que el prospecto llegue a la fase de compra con mucha más confianza."
+                    content: "Un cliente educado es un cliente más fácil de cerrar. Los artículos resuelven dudas lógicas, permitiendo que el prospecto llegue a the fase de compra con mucha más confianza."
                 },
                 {
                     title: "SEO y Tráfico Gratis",
-                    content: "Al escribir sobre temas que la gente ya está buscando, atraes visitas cualificadas sin gastar un dólar en anuncios. El sistema optimiza estos textos para ser encontrados."
+                    content: "Al escribir sobre temas que the gente ya está buscando, atraes visitas cualificadas sin gastar un dólar en anuncios. El sistema optimiza estos textos para ser encontrados."
                 }
             ],
             metricsExplanation: "Debes mirar qué temas generan más interés para escalar tu estrategia.",
@@ -301,8 +301,8 @@ const ACQUISITION_STEPS = [
                 { name: "Tiempo en Página", why: "Indica si el contenido es realmente valioso y se consume." },
                 { name: "Sesiones Orgánicas", why: "Mide el flujo de personas nuevas que te descubren." }
             ],
-            mistakes: ["Escribir contenido irrelevante para el avatar.", "No poner llamados a la acción claros.", "Textos difíciles de leer en dispositivos móviles."],
-            benefits: ["Construcción de marca a largo plazo.", "Generación de tráfico recurrente y gratuito.", "Eliminación de objeciones mediante la educación."],
+            mistakes: ["Escribir contenido irrelevante para el avatar.", "No poner llamados a the acción claros.", "Textos difíciles de leer en dispositivos móviles."],
+            benefits: ["Construcción de marca a largo plazo.", "Generación de tráfico recurrente y gratuito.", "Eliminación de objeciones mediante the educación."],
             checklist: ["Publicar 1 artículo semanal sobre un dolor del avatar.", "Insertar botones de registro en medio del texto.", "Compartir el artículo en grupos y redes sociales."]
         }
     },
@@ -314,31 +314,31 @@ const ACQUISITION_STEPS = [
             <div className="space-y-4">
                 <div>
                     <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Concentrar la demanda y generar una explosión de ventas mediante la escasez y urgencia grupal.</p>
+                    <p className="text-white text-xl leading-relaxed">Concentrar the demanda y generar una explosión de ventas mediante the escasez y urgencia grupal.</p>
                 </div>
             </div>
         ),
         masterclass: {
-            importance: "El lanzamiento por WhatsApp es la forma más rápida y efectiva de generar ingresos significativos concentrados en pocos días aprovechando la urgencia.",
+            importance: "El lanzamiento por WhatsApp es the forma más rápida y efectiva de generar ingresos significativos concentrados en pocos días aprovechando the urgencia.",
             question: "¿Cómo funciona un Lanzamiento por WhatsApp?",
             article: [
                 {
-                    title: "El Poder de la Anticipación",
-                    content: "Un lanzamiento no es un evento aislado; es una construcción de deseo. Mediante una secuencia probada, el sistema prepara la mente del lead para el momento exacto de la apertura de inscripciones."
+                    title: "El Poder de the Anticipación",
+                    content: "Un lanzamiento no es un evento aislado; es una construcción de deseo. Mediante una secuencia probada, el sistema prepara the mente del lead para el momento exacto de the apertura de inscripciones."
                 },
                 {
                     title: "Disparadores Mentales de Grupo",
-                    content: "Ver a otros interesados activa la prueba social. El sistema te ayuda a moderar y guiar la conversación para que el deseo de uno se convierta en la compra de muchos."
+                    content: "Ver a otros interesados activa the prueba social. El sistema te ayuda a moderar y guiar the conversación para que el deseo de uno se convierta en the compra de muchos."
                 }
             ],
             metricsExplanation: "El éxito se mide por el volumen de ventas en relación al número de personas en el grupo.",
             metrics: [
-                { name: "Tasa de Cierre Grupal", why: "Porcentaje de miembros del grupo que compran la oferta." },
-                { name: "Velocidad de Venta", why: "Indica qué tan fuerte fue la urgencia generada." }
+                { name: "Tasa de Cierre Grupal", why: "Porcentaje de miembros del grupo que compran the oferta." },
+                { name: "Velocidad de Venta", why: "Indica qué tan fuerte fue the urgencia generada." }
             ],
-            mistakes: ["No calentar el grupo antes de abrir carrito.", "Ser demasiado robótico o frío en las respuestas.", "No hacer seguimiento a quienes no compraron al final."],
-            benefits: ["Alta rentabilidad en periodos cortos.", "Feedback directo y masivo de tu mercado.", "Aumento exponencial de la autoridad de marca."],
-            checklist: ["Revisar los 14 mensajes del asistente de lanzamientos.", "Configurar el cronómetro de urgencia en la página.", "Tener el enlace de checkout listo y verificado."]
+            mistakes: ["No calentar el grupo antes de abrir carrito.", "Ser demasiado robótico o frío en the respuestas.", "No hacer seguimiento a quienes no compraron al final."],
+            benefits: ["Alta rentabilidad en periodos cortos.", "Feedback directo y masivo de tu mercado.", "Aumento exponencial de the autoridad de marca."],
+            checklist: ["Revisar los 14 mensajes del asistente de lanzamientos.", "Configurar el cronómetro de urgencia en the página.", "Tener el enlace de checkout listo y verificado."]
         }
     },
     { 
@@ -349,7 +349,7 @@ const ACQUISITION_STEPS = [
             <div className="space-y-4">
                 <div>
                     <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Presentar la oferta de forma irresistible y facilitar la transición hacia el pago final.</p>
+                    <p className="text-white text-xl leading-relaxed">Presentar the oferta de forma irresistible y facilitar the transición hacia el pago final.</p>
                 </div>
             </div>
         ),
@@ -359,7 +359,7 @@ const ACQUISITION_STEPS = [
             article: [
                 {
                     title: "El Argumento Final",
-                    content: "La página de ventas es donde ocurre la magia. Aquí no explicamos 'qué' es el producto, sino 'cómo' va a cambiar la vida del usuario. Usamos copywriting agresivo pero ético para mostrar que el costo de no comprar es mayor que el precio del curso."
+                    content: "The página de ventas es donde ocurre the magia. Aquí no explicamos 'qué' es el producto, sino 'cómo' va a cambiar the vida del usuario. Usamos copywriting agresivo pero ético para mostrar que el costo de no comprar es mayor que el precio del curso."
                 },
                 {
                     title: "Bonus y Escasez",
@@ -367,7 +367,7 @@ const ACQUISITION_STEPS = [
                 },
                 {
                     title: "Eliminación Total del Riesgo",
-                    content: "La garantía es el elemento más ignorado y más importante. Debemos prometer que si no hay resultados, no hay costo. Esto transfiere el riesgo de los hombros del cliente a los tuyos, facilitando el 'sí'."
+                    content: "The garantía es el elemento más ignorado y más importante. Debemos prometer que si no hay resultados, no hay costo. Esto transfiere el riesgo de los hombros del cliente a los tuyos, facilitando el 'sí'."
                 }
             ],
             metricsExplanation: "Esta página es tu examen final. Si el tráfico llega aquí pero no hay clics en el botón de pago, tu oferta no es lo suficientemente irresistible o el precio no está justificado.",
@@ -377,7 +377,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["Esconder el precio hasta el final del todo.", "No incluir una sección de preguntas frecuentes.", "No mostrar testimonios de alumnos reales."],
             benefits: ["Automatización total del proceso de cierre de ventas.", "Escalabilidad ilimitada de tu negocio digital.", "Estandarización de tu mensaje de ventas perfecto."],
-            checklist: ["Incluir un sección de 'Bonos de Acción Rápida'.", "Mostrar sellos de garantía de 7 o 15 días claramente.", "Verificar que el botón de pago funcione en todas las divisas."]
+            checklist: ["Incluir un sección de 'Bonos de Acción Rápida'.", "Mostrar sellos de garantía de 7 o 15 días claramente.", "Verificar que el botón de pago funcione en todas the divisas."]
         }
     },
     { 
@@ -388,7 +388,7 @@ const ACQUISITION_STEPS = [
             <div className="space-y-4">
                 <div>
                     <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Finalizar la transacción económica de forma segura, rápida y sin fricciones técnicas.</p>
+                    <p className="text-white text-xl leading-relaxed">Finalizar the transacción económica de forma segura, rápida y sin fricciones técnicas.</p>
                 </div>
             </div>
         ),
@@ -397,24 +397,24 @@ const ACQUISITION_STEPS = [
             question: "¿Cómo funciona un Checkout de alta conversión?",
             article: [
                 {
-                    title: "La Barrera Final",
+                    title: "The Barrera Final",
                     content: "El checkout es el momento de mayor tensión psicológica. El usuario está a punto de desprenderse de su dinero. Por eso, el diseño debe ser profesional, intuitivo y seguro."
                 },
                 {
                     title: "Ventas Adicionales (Order Bumps)",
-                    content: "El momento en que alguien saca la tarjeta es el mejor momento para ofrecer algo más. Un Order Bump es una oferta pequeña complementaria que se añade con un solo clic. Puede aumentar tus ganancias por cliente hasta en un 30% instantáneamente."
+                    content: "El momento en que alguien saca the tarjeta es el mejor momento para ofrecer algo más. Un Order Bump es una oferta pequeña complementaria que se añade con un solo clic. Puede aumentar tus ganancias por cliente hasta en un 30% instantáneamente."
                 },
                 {
                     title: "Recuperación de Carritos",
                     content: "Mucha gente llega al checkout pero no termina el pago por falta de saldo, duda final o distracción. Un sistema de recuperación automático enviará un recordatorio para 'salvar' esa venta que ya estaba casi ganada."
                 }
             ],
-            metricsExplanation: "Esta es la métrica de la verdad. Si tienes muchos carritos iniciados pero pocos pagos, tu checkout tiene errores, el precio es confuso o faltan métodos de pago locales.",
+            metricsExplanation: "Esta es the métrica de the verdad. Si tienes muchos carritos iniciados pero pocos pagos, tu checkout tiene errores, el precio es confuso o faltan métodos de pago locales.",
             metrics: [
                 { name: "Abandonment Rate", why: "Porcentaje de personas que se van sin pagar." },
-                { name: "Tasa de Apertura", why: "Mide si las pasarelas de pago están funcionando bien." }
+                { name: "Tasa de Apertura", why: "Mide si the pasarelas de pago están funcionando bien." }
             ],
-            mistakes: ["Pedir demasiados datos personales innecesarios.", "No ofrecer pagos en cuotas o tarjetas locales.", "No tener soporte por chat en vivo en la página de pago."],
+            mistakes: ["Pedir demasiados datos personales innecesarios.", "No ofrecer pagos en cuotas o tarjetas locales.", "No tener soporte por chat en vivo en the página de pago."],
             benefits: ["Cierre de ventas sin intervención humana directa.", "Incremento del ticket promedio mediante ofertas extra.", "Gestión profesional de facturación y acceso al curso."],
             checklist: ["Asegurar que el botón de soporte sea visible en el checkout.", "Configurar el Order Bump con un producto de bajo costo.", "Verificar que el email de bienvenida llegue en menos de 1 minuto."]
         }
@@ -596,7 +596,7 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
                 </div>
 
                 <h4 className="text-white font-black text-2xl mb-6 tracking-tight">{title}</h4>
-                <p className="text-[11px] text-emerald-400 font-black uppercase tracking-[0.2em] mb-8 bg-emerald-500/10 px-5 py-2 rounded-full leading-tight border border-emerald-500/20 w-full">
+                <p className="text-xl leading-relaxed text-emerald-400 font-bold mb-8 w-full">
                     {subtitle}
                 </p>
                 
@@ -609,7 +609,7 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
                     onClick={(e) => { e.stopPropagation(); onOpenMasterclass(stepData); }}
                     className="mt-10 w-full flex items-center justify-center gap-2 text-lg font-black text-white transition-all z-20 relative px-6 py-4 rounded-xl bg-[#FF5A1F] border border-[#FF5A1F] hover:bg-[#D94A1E] shadow-lg shadow-[#FF5A1F]/20"
                 >
-                    <Sparkles className="w-4 h-4" /> Más Detalles
+                    <Sparkles className="w-4 h-4" /> Más Información
                 </button>
             </div>
 
@@ -657,7 +657,10 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                 <h3 id="psd-blueprint-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
                     ¿Cómo funcionará tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">estrategia de ventas?</span>
                 </h3>
-                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light"><p className="border-l-4 border-emerald-500 pl-8 py-2">No vendemos al azar ni dependemos de la suerte. Tu sistema está diseñado para acompañar al cliente paso a paso, desde que descubre el problema hasta que toma la decisión de compra con confianza.</p><p className="border-l-4 border-teal-500 pl-8 py-2">A continuación, puedes ver el recorrido completo que seguirá cada persona interesada en tu producto. Todas estas piezas son creadas automáticamente por el sistema.</p></div>
+                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
+                    <p className="border-l-4 border-emerald-500 pl-8 py-2">Nuestro sistema de ventas no depende de la suerte. Nuestra estrategia está diseñada para atraer clientes interesados en tu producto digital y llevarlos paso a paso hasta que tomen the decisión de compra con confianza.</p>
+                    <p className="border-l-4 border-teal-500 pl-8 py-2">A continuación encontrarás the estrategia de Marketing Digital más ganandora del mercado, the cual contiene todos los elementos para atraer, seducir y coonvertir clientes.</p>
+                </div>
             </div>
 
             {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
@@ -717,9 +720,9 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                                 <div className="w-16 h-16 bg-emerald-500 text-white rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
                                     <Rocket className="w-8 h-8" />
                                 </div>
-                                <h4 className="text-3xl font-black text-white leading-tight">Tu Ecosistema de Ventas 24/7</h4>
+                                <h4 className="text-3xl font-black text-white leading-tight">Tu Estrategia de Marketing Digital 24/7</h4>
                                 <p className="text-gray-300 text-xl font-light leading-relaxed">
-                                    Este sistema no depende de una sola acción ni de un solo canal. Funciona como un <span className="text-emerald-400 font-bold">ecosistema completo</span> que trabaja por ti todos los días. Tú no necesitas dominar marketing, copywriting o automatizaciones. El sistema se encarga de la estructura. <span className="text-white font-bold">Tú decides cuánto quieres crecer.</span>
+                                    Nuestro sistema no depende de una sola acción ni de un solo canal. Funciona como un ecosistema completo que trabaja por ti todos los días. Tú no necesitas dominar marketing, copywriting o automatizaciones. Nuestro sistema se encargará de que cuentes con todas the herramientas necesarias para obtener grandes resultados en menos tiempo.
                                 </p>
                             </div>
                         </div>
