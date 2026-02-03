@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../../../services/geminiService';
 import { api } from '../../../services/api';
 import { Article, Project, LandingPage, User, AffiliateLink } from '../../../types';
@@ -91,12 +91,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const [newLinkUrl, setNewLinkUrl] = useState('');
   const [savingNewLink, setSavingNewLink] = useState(false);
 
-  // Filtrar páginas por proyecto seleccionado
-  const filteredPages = useMemo(() => {
-    if (!selectedProject) return [];
-    return userPages.filter(p => String(p.projectId) === String(selectedProject));
-  }, [userPages, selectedProject]);
-
   // Limit Check Effect
   useEffect(() => {
       const isRealAdmin = user.role === 'admin' && !isSimulating;
@@ -118,19 +112,16 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         setUserProjects(projects || []);
         const landingPages = pages || [];
         setUserPages(landingPages);
+
+        if (landingPages.length === 1 && !selectedPageId) {
+            setSelectedPageId(landingPages[0].id);
+        }
       } catch (e) {
         console.error("Failed to load context data", e);
       }
     };
     fetchContext();
   }, []);
-
-  // Auto-selección de página si solo hay una para el proyecto
-  useEffect(() => {
-    if (selectedProject && filteredPages.length === 1 && !selectedPageId) {
-      setSelectedPageId(filteredPages[0].id);
-    }
-  }, [filteredPages, selectedPageId, selectedProject]);
 
   // Sincronizar links cuando cambia el proyecto seleccionado
   useEffect(() => {
@@ -555,7 +546,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                 {step === 1 && (
                 <Step1Inputs 
                     userProjects={userProjects} selectedProject={selectedProject} onSelectProject={handleProjectSelect}
-                    userPages={filteredPages} selectedPageId={selectedPageId} onSelectPage={setSelectedPageId}
+                    userPages={userPages} selectedPageId={selectedPageId} onSelectPage={setSelectedPageId}
                     topic={topic} setTopic={setTopic} objective={objective} setObjective={setObjective}
                     keyword={keyword} setKeyword={setKeyword} onGenerate={() => { setIsAiGeneratedFlow(false); setStep(2); }}
                     onSelectRecommendation={handleSelectRecommendation} loading={loading} onBack={() => setStep(0)}
@@ -569,7 +560,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
                             <div className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col p-10 text-center space-y-8">
                                 <div className="w-20 h-20 bg-blue-500/20 text-blue-500 rounded-3xl flex items-center justify-center mx-auto border border-blue-500/30"><AlertTriangle className="w-10 h-10" /></div>
-                                <div className="space-y-4"><h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¿Estás seguro de generar este artículo?</h3><p className="text-white text-lg leading-relaxed font-medium">Vas a consumir créditos al momento de crearlo.</p><div className="mt-8 p-6 bg-black/40 border border-white/10 rounded-[2rem] shadow-inner text-left"><div className="flex justify-between items-center mb-3"><span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span><span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span></div><div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden shadow-inner p-0.5"><div className={`h-full transition-all duration-1000 ease-out rounded-full ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div></div></div></div>
+                                <div className="space-y-4"><h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¿Estás seguro de generar este artículo?</h3><p className="text-white text-lg leading-relaxed font-medium">Vas a consumir créditos al momento de crearlo.</p><div className="mt-8 p-6 bg-black/40 border border-white/10 rounded-[2rem] shadow-inner text-left"><div className="flex justify-between items-center mb-3"><span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span><span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span></div><div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner p-0.5"><div className={`h-full transition-all duration-1000 ease-out rounded-full ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div></div></div></div>
                                 <div className="flex flex-col gap-3 pt-4">{!isAtLimit ? (<><button onClick={executeManualGenerateOutline} className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest transform active:scale-[0.98]">Sí, Generar Ahora</button><button onClick={() => setShowManualConfirm(false)} className="w-full py-5 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-2xl transition-all text-xs uppercase tracking-widest">Cancelar</button></>) : (<button onClick={() => { setShowManualConfirm(false); setShowUpgradeModal(true); }} className="w-full py-5 bg-gradient-to-r from-[#FF5A1F] to-orange-600 text-white font-black rounded-2xl transition-all shadow-lg uppercase text-sm tracking-widest">Actualizar Plan</button>)}</div>
                             </div>
                         </div>
@@ -578,14 +569,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                     <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700 border-dashed mb-6"><label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2 flex items-center gap-2"><Briefcase className="w-3.5 h-3.5 text-[#FF5A1F]" /> Proyecto Seleccionado</label><div className="flex items-center justify-between bg-black border border-[#FF5A1F]/20 rounded-xl px-4 py-3"><div className="flex items-center gap-3"><div className="w-5 h-5 text-[#FF5A1F]"><CheckCircle className="w-full h-full"/></div><span className="text-white font-bold">{userProjects.find(p => p.id === selectedProject)?.name || 'Proyecto'}</span></div></div></div>
                     <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700 border-dashed mb-6">
                         <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2 flex items-center gap-2"><Globe className="w-3.5 h-3.5 text-blue-400" /> Landing Page Seleccionada</label>
-                        <div className="flex items-center justify-between bg-black border border-blue-500/20 rounded-xl px-4 py-3"><div className="flex items-center gap-3"><div className="w-5 h-5 text-blue-400"><CheckCircle className="w-full h-full"/></div><span className="text-white font-bold">{filteredPages.find(p => p.id === selectedPageId)?.name || 'Sin seleccionar'}</span></div><button onClick={() => setIsPageSelectorOpen(true)} className="text-xs text-gray-500 hover:text-white underline transition">Cambiar</button></div>
+                        <div className="flex items-center justify-between bg-black border border-blue-500/20 rounded-xl px-4 py-3"><div className="flex items-center gap-3"><div className="w-5 h-5 text-blue-400"><CheckCircle className="w-full h-full"/></div><span className="text-white font-bold">{userPages.find(p => p.id === selectedPageId)?.name || 'Sin seleccionar'}</span></div><button onClick={() => setIsPageSelectorOpen(true)} className="text-xs text-gray-500 hover:text-white underline transition">Cambiar</button></div>
                     </div>
                     {isPageSelectorOpen && (
                         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsPageSelectorOpen(false)}>
                             <div className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative" onClick={e => e.stopPropagation()}>
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600"></div>
                                 <div className="p-8 md:p-10 border-b border-white/5 flex justify-between items-start"><div className="space-y-4"><h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight italic leading-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500 flex items-center gap-3"><Globe className="w-6 h-6 text-[#FF5A1F]" /> Cambiar Landing Page</h3><p className="text-gray-200 text-sm md:text-base leading-relaxed font-medium mt-4">Selecciona la página a la cual deseas vincular este contenido.</p></div><button onClick={() => setIsPageSelectorOpen(false)} className="text-gray-500 hover:text-white transition p-2 hover:bg-white/5 rounded-full"><X className="w-6 h-6" /></button></div>
-                                <div className="p-8 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">{filteredPages.map((page) => (<div key={page.id} onClick={() => { setSelectedPageId(page.id); setIsPageSelectorOpen(false); }} className="group w-full flex items-center justify-between p-5 bg-black border border-white/5 rounded-2xl hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all cursor-pointer"><div className="flex items-center gap-4"><div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-[#FF5A1F] group-hover:bg-[#FF5A1F]/10 transition-all shadow-inner"><Globe className="w-5 h-5" /></div><span className="text-white font-bold text-lg group-hover:text-[#FF5A1F] transition-colors">{page.name}</span></div><ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-[#FF5A1F] transition-all" /></div>))}</div>
+                                <div className="p-8 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">{userPages.map((page) => (<div key={page.id} onClick={() => { setSelectedPageId(page.id); setIsPageSelectorOpen(false); }} className="group w-full flex items-center justify-between p-5 bg-black border border-white/5 rounded-2xl hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all cursor-pointer"><div className="flex items-center gap-4"><div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-[#FF5A1F] group-hover:bg-[#FF5A1F]/10 transition-all shadow-inner"><Globe className="w-5 h-5" /></div><span className="text-white font-bold text-lg group-hover:text-[#FF5A1F] transition-colors">{page.name}</span></div><ChevronRight className="w-5 h-5 text-gray-700 group-hover:text-[#FF5A1F] transition-all" /></div>))}</div>
                             </div>
                         </div>
                     )}
@@ -603,14 +594,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                                     <div onClick={() => setRedirectType('external')} className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'external' ? 'bg-purple-600/10 border-purple-500 shadow-lg shadow-purple-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}><div className={`p-4 rounded-2xl transition-colors ${redirectType === 'external' ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-500'}`}><ExternalLink className="w-8 h-8" /></div><div><h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'external' ? 'text-white' : 'text-gray-400'}`}>Link Externo</h4><p className="text-[10px] text-gray-500 font-medium leading-relaxed">Cualquier otra página web externa.</p></div></div>
                                 </div>
                                 <div className="mt-4">
-                                    {redirectType === 'landing' && (<div className="animate-in fade-in slide-in-from-top-2"><select value={selectedPageId} onChange={(e) => handlePageRedirectSelect(e.target.value)} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"><option value="" disabled>-- Selecciona una Landing Page --</option>{filteredPages.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}</select></div>)}
+                                    {redirectType === 'landing' && (<div className="animate-in fade-in slide-in-from-top-2"><select value={selectedPageId} onChange={(e) => handlePageRedirectSelect(e.target.value)} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"><option value="" disabled>-- Selecciona una Landing Page --</option>{userPages.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}</select></div>)}
                                     {redirectType === 'external' && (<div className="animate-in fade-in slide-in-from-top-2"><input type="text" value={ctaLink} onChange={(e) => setCtaLink(e.target.value)} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition" placeholder="https://ejemplo.com/tu-enlace" /></div>)}
                                     {redirectType === 'hotlink' && (
                                         <div className="animate-in fade-in slide-in-from-top-2 space-y-4">
                                             {isAddingNewLink ? (
                                                 <div className="p-6 bg-black border border-white/10 rounded-2xl space-y-4 shadow-xl"><div className="flex justify-between items-center mb-2"><h5 className="text-white font-bold text-sm">Nuevo Hotlink para Proyecto</h5><button onClick={() => setIsAddingNewLink(false)}><X className="w-4 h-4 text-gray-500"/></button></div><div className="grid grid-cols-2 gap-4"><div className="space-y-1"><label className="text-[10px] text-gray-500 font-black uppercase">Nombre del Enlace</label><input type="text" value={newLinkLabel} onChange={e => setNewLinkLabel(e.target.value)} className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-white text-sm focus:border-[#FF5A1F] outline-none" placeholder="Ej: Checkout Pro" /></div><div className="space-y-1"><label className="text-[10px] text-gray-500 font-black uppercase">URL Hotmart</label><input type="text" value={newLinkUrl} onChange={e => setNewLinkUrl(e.target.value)} className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-emerald-400 text-sm focus:border-[#FF5A1F] outline-none" placeholder="https://go.hotmart.com/..." /></div></div><button onClick={handleAddNewHotlink} disabled={savingNewLink || !newLinkLabel || !newLinkUrl} className="w-full py-3 bg-[#FF5A1F] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#D94A1E] transition flex items-center justify-center gap-2">{savingNewLink ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>} Guardar en el Proyecto</button></div>
                                             ) : (
-                                                <div className={`relative ${!ctaLink ? 'ring-2 ring-red-500/50 rounded-xl' : ''}`}><select value={ctaLink || ''} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] appearance-none cursor-pointer" onChange={(e) => { if (e.target.value === 'ADD_NEW') { setIsAddingNewLink(true); } else { setCtaLink(e.target.value); } }}><option value="">-- Elige un Hotlink --</option>{(projectLinks || []).map((link, i) => (<option key={i} value={link.url}>{link.label}</option>))}<option value="ADD_NEW" className="text-[#FF5A1F] font-bold">+ Añadir nuevo Hotlink</option></select>{!ctaLink && (<div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse"><AlertTriangle className="w-3 h-3" /> Link de destino obligatorio</div>)}</div>
+                                                <div className={`relative ${!ctaLink ? 'ring-2 ring-red-500/50 rounded-xl' : ''}`}><select value={ctaLink || ''} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition appearance-none cursor-pointer" onChange={(e) => { if (e.target.value === 'ADD_NEW') { setIsAddingNewLink(true); } else { setCtaLink(e.target.value); } }}><option value="">-- Elige un Hotlink --</option>{(projectLinks || []).map((link, i) => (<option key={i} value={link.url}>{link.label}</option>))}<option value="ADD_NEW" className="text-[#FF5A1F] font-bold">+ Añadir nuevo Hotlink</option></select>{!ctaLink && (<div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse"><AlertTriangle className="w-3 h-3" /> Link de destino obligatorio</div>)}</div>
                                             )}
                                         </div>
                                     )}
@@ -623,8 +614,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                 )}
 
                 {step === 3 && <Step2Titles titleIdeas={titleIdeas} onSelectTitle={handleSelectTitle} onBack={() => setStep(2)} loading={loading} />}
-                {step === 4 && <Step3Outline outline={outline} setOutline={setOutline} ctaLink={ctaLink} setCtaLink={setCtaLink} onGenerate={handleGenerateArticle} onBack={() => setStep(3)} loading={loading} userPages={filteredPages} selectedPageId={selectedPageId} onSelectPage={setSelectedPageId} />}
-                {step === 5 && <Step4Editor articleContent={articleContent} setArticleContent={setArticleContent} selectedTitle={selectedTitle} articleTitle={articleTitle} setArticleTitle={setArticleTitle} slug={slug} setSlug={setSlug} selectedPageId={selectedPageId} setSelectedPageId={setSelectedPageId} userPages={filteredPages} status={status} setStatus={setStatus} publishDate={publishDate} setPublishDate={setPublishDate} featuredImage={featuredImage} setFeaturedImage={setFeaturedImage} keyword={keyword} setKeyword={setKeyword} seoScore={seoScore} setSeoScore={setSeoScore} metaDescription={metaDescription} setMetaDescription={setMetaDescription} onSave={handleSaveArticle} saving={saveStatus === 'saving'} onBack={() => editArticleId ? navigate('/dashboard/articles') : setStep(4)} isEditing={!!editArticleId} />}
+                {step === 4 && <Step3Outline outline={outline} setOutline={setOutline} ctaLink={ctaLink} setCtaLink={setCtaLink} onGenerate={handleGenerateArticle} onBack={() => setStep(3)} loading={loading} userPages={userPages} selectedPageId={selectedPageId} onSelectPage={setSelectedPageId} />}
+                {step === 5 && <Step4Editor articleContent={articleContent} setArticleContent={setArticleContent} selectedTitle={selectedTitle} articleTitle={articleTitle} setArticleTitle={setArticleTitle} slug={slug} setSlug={setSlug} selectedPageId={selectedPageId} setSelectedPageId={setSelectedPageId} userPages={userPages} status={status} setStatus={setStatus} publishDate={publishDate} setPublishDate={setPublishDate} featuredImage={featuredImage} setFeaturedImage={setFeaturedImage} keyword={keyword} setKeyword={setKeyword} seoScore={seoScore} setSeoScore={setSeoScore} metaDescription={metaDescription} setMetaDescription={setMetaDescription} onSave={handleSaveArticle} saving={saveStatus === 'saving'} onBack={() => editArticleId ? navigate('/dashboard/articles') : setStep(4)} isEditing={!!editArticleId} />}
                 <SaveLogModal isOpen={isLogModalOpen} saveStatus={saveStatus} saveLogs={saveLogs} onClose={() => setIsLogModalOpen(false)} onRetry={handleSaveArticle} />
             </>
         )}
