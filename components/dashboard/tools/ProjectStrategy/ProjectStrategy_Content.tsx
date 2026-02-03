@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, ChevronLeft, ChevronRight, TrendingUp, Loader2 } from 'lucide-react';
+import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, CheckCircle2, ChevronLeft, ChevronRight, TrendingUp, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PlanLimits, Plan, LandingPage, Article } from '../../../../types';
 import { ContentGenerator } from '../ContentGenerator';
