@@ -2,7 +2,7 @@ import React from 'react';
 import { 
     LayoutDashboard, TrendingUp, Map, UserSearch, 
     Globe, FileText, Mail, Calendar, MessageCircle,
-    ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity
+    ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity, MessageSquare
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -28,6 +28,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                 { id: 'blueprint', label: 'Mapa de Ruta', icon: Map, module: "FUNDAMENTOS", description: "Flujo del cliente" },
                 { id: 'avatar', label: 'Diagnóstico de Avatar', icon: UserSearch, module: "FUNDAMENTOS", description: "Perfil psicológico" },
                 { id: 'psychology', label: 'Dolores vs Beneficios', icon: Brain, module: "FUNDAMENTOS", description: "Ingeniería de persuasión" },
+                { id: 'testimonials', label: 'Testimonios de Éxito', icon: MessageSquare, module: "FUNDAMENTOS", description: "Prueba social validada" },
             ]
         },
         {

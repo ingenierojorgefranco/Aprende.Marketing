@@ -84,6 +84,12 @@ export interface ProjectMasterStrategy {
         };
         whatsapp: Array<any>;
         whatsappLaunch?: Array<any>;
+        ////////// Actualización: Integración de testimonios dinámicos en la estrategia - 08/01/2026 //////////
+        testimonials?: Array<{
+            name: string;
+            text: string;
+        }>;
+        ////////// Fin de actualización //////////
     };
 }
 /* Fin de actualización - 15/06/2024 19:00 */
@@ -134,6 +140,7 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
         },
         content: [],
         emails: { nurture: [], evergreen: [] },
-        whatsapp: []
+        whatsapp: [],
+        testimonials: []
     }
 };

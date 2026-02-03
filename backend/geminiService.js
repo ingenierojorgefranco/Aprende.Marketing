@@ -260,6 +260,15 @@ const generateFullStrategy = async (projectId) => {
                 objective: establece el objetivo del correo (Con base en la explicacion anterior que te di de cada tipo de correo) hazlo bien explicado como instruccion para que luego la ia sepa como construir el correo electronico completo,
                 bodyPreview: "Hola [Nombre], y un preview del texto que llevaria el correo al inicio segun su tipo y objetivo, la idea es mostrar el primer parrafo y luego colocas al final ... para que se sepa que se debe generar completo el correo"
 
+
+        INSTRUCCIONES PARA TESTIMONIOS testimonials (OBLIGATORIO):
+        Genera exactamente 3 testimonios. 
+        - Debes usar los nombres exactos de los 3 AVATARES generados arriba.
+        - El texto de cada testimonio debe narrar en primera persona cómo el producto solucionó el "pain" (dolor) específico que definiste para ese avatar.
+        - Lenguaje natural, corto (máximo 25 palabras) y con tono de mensaje de agradecimiento.
+
+
+
         INSTRUCCIONES PARA SECUENCIA DE LANZAMIENTO WHATSAPP whatsappLaunch (OBLIGATORIO):
         Genera una secuencia completa de 3 mensajes para un lanzamiento de WhatsApp Flow / Meteórico. Cada mensaje debe ser persuasivo, usar emojis y formato negrita de WhatsApp.
         Los 3 momentos son:
@@ -315,7 +324,7 @@ const generateFullStrategy = async (projectId) => {
           "avatars": [
             {
               "id": 1,
-              "name": "Nombre Realista",
+              "name": "Nombre Realista Latino del Avatar 1",
               "archetype": "Emprendedor Activo",
               "age": "Rango de edad",
               "quote": "Frase que define su mentalidad",
@@ -330,7 +339,7 @@ const generateFullStrategy = async (projectId) => {
             },
             {
               "id": 2,
-              "name": "Nombre Realista",
+              "name": "Nombre Realista Latino del Avatar 2",
               "archetype": "Escéptico con Miedo",
               "age": "Rango de edad",
               "quote": "Frase de duda o desconfianza",
@@ -345,7 +354,7 @@ const generateFullStrategy = async (projectId) => {
             },
             {
               "id": 3,
-              "name": "Nombre Realista",
+              "name": "Nombre Realista Latino del Avatar 3",
               "archetype": "Persona buscando Reinvención",
               "age": "Rango de edad",
               "quote": "Frase de cansancio y esperanza",
@@ -677,6 +686,9 @@ const generateFullStrategy = async (projectId) => {
           "objective": "Generar expectativa y agendar al lead.",
           "messages": [{"role": "agent", "text": "¡Hola! 🎉 Soy el encargado de tu formación. Solo paso para confirmarte que ya tenemos fecha oficial para nuestra clase maestra de **[PRODUCT_NAME]**. Será el próximo domingo. ¿Ya lo anotaste en tu calendario?"}]
         }
+    ],
+    "testimonials": [
+        { "name": "Nombre de la persona", "text": "Texto del testimonio" }
     ]
   }
 }
@@ -730,7 +742,8 @@ const generateFullStrategy = async (projectId) => {
                 content: step1Data.content,
                 emails: step1Data.emails,
                 whatsapp: step1Data.whatsapp,
-                whatsappLaunch: step1Data.whatsappLaunch
+                whatsappLaunch: step1Data.whatsappLaunch,
+                testimonials: step1Data.modules.testimonials
             } 
         };
 

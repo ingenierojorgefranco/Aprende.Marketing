@@ -446,7 +446,23 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 objective: "Onboarding: Dar la bienvenida oficial a los nuevos alumnos, reduciendo el remordimiento de compra y guiándolos al primer paso del curso.",
                 messages: [{ role: 'agent', text: "¡Bienvenida al equipo! 🎉 Revisa tu correo para el acceso al área de miembros. Mañana iniciamos el Módulo 1." }]
             }
+        ],
+        ////////// Actualización: Testimonios Mock para validar la interfaz - 08/01/2026 //////////
+        testimonials: [
+            { 
+              name: "Maria G.", 
+              text: "¡Chicos! No puedo creerlo. Lancé mi primera landing page con la IA ayer y ya tengo 15 registros. El copywriting es brutal, parece escrito por un experto de años."
+            },
+            { 
+              name: "Juan P.", 
+              text: "Por fin una herramienta que entiende lo que necesitamos. He generado mi web de ventas en segundos y los textos son mejores que los que yo hacía en horas."
+            },
+            { 
+              name: "Ana S.", 
+              text: "Increíble cómo optimizó mis artículos para SEO. Estoy empezando a recibir tráfico orgánico desde Google sin gastar ni un dólar en anuncios."
+            }
         ]
+        ////////// Fin de actualización //////////
     }
 };
 

@@ -1,4 +1,3 @@
-
 // Refactorización: Creación de servicio para contenido de landing pages - 22/05/2024 14:30
 import { callGeminiBackend, PREDEFINED_LOGOS } from "./base";
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../../types";
@@ -58,6 +57,12 @@ export const generateLandingPageContent = async (
           ? `- Beneficios Clave (USA ESTOS 6 PUNTOS EXACTAMENTE): ${extractedBenefits.slice(0, 6).join(", ")}` 
           : "";
 
+      // 4. Extraer Testimonios de la Estrategia Maestra - 08/01/2026
+      let testimonialsText = "";
+      if (pStrategy?.modules?.testimonials && pStrategy.modules.testimonials.length > 0) {
+          testimonialsText = `- Testimonios OBLIGATORIOS (USA ESTOS DATOS): ${JSON.stringify(pStrategy.modules.testimonials)}`;
+      }
+
       projectStrategy = `
       CONTEXTO ESTRATÉGICO DEL PROYECTO (ORDEN DE PRIORIDAD MÁXIMA):
       - Nombre del Producto: "${pName}"
@@ -65,9 +70,10 @@ export const generateLandingPageContent = async (
       ${mandatoryHeadlines}
       ${painsText}
       ${benefitsText}
+      ${testimonialsText}
       - Descripción del Proyecto: ${pDesc}.
       
-      REGLA OBLIGATORIA: Si te he proporcionado los Títulos (h1, h2), Dolores y Beneficios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
+      REGLA OBLIGATORIA: Si te he proporcionado los Títulos (h1, h2), Dolores, Beneficios y Testimonios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
       `;
   }
 
@@ -104,7 +110,7 @@ export const generateLandingPageContent = async (
 
   Instrucciones de contenido:
   1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
-  2. Testimonios: 3 testimonios cortos y realistas.
+  2. Testimonios: 3 testimonios cortos y realistas (usa los del proyecto si se proporcionaron).
   3. Intro: Qué es el producto. Genera 'items' (3 bullets).
   4. Beneficios: Lista detallada (usa los proporcionados en el contexto si existen).
   5. Lo que aprenderás: 4-6 puntos clave (basados en dolores si existen).
