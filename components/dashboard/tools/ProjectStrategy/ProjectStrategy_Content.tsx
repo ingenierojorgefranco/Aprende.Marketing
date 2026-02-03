@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { PlanLimits, Plan, LandingPage, Article } from '../../../../types';
 import { ContentGenerator } from '../ContentGenerator';
 import { api } from '../../../../services/api';
+import { UpgradeModal } from '../../UpgradeModal';
 
 interface ProjectStrategy_ContentProps {
     contentData: any[];
@@ -217,7 +218,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto">
                             <div className="flex flex-col items-center text-center space-y-6">
                                 <div className="w-20 h-20 bg-purple-500/10 text-purple-400 rounded-3xl flex items-center justify-center mx-auto border border-purple-500/20 shadow-lg shadow-purple-900/10 animate-pulse"><Sparkles className="w-10 h-10" /></div>
-                                <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirma si deseas generar un nuevo artículo</h3>
+                                <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirma la generación</h3>
                                 <p className="text-gray-400 text-lg leading-relaxed font-medium">Redactar un nuevo artículo de blog consumirá créditos de tu plan. Confirma a continuación si deseas generar el articulo de blog que has seleccionado en tu plan <span className="text-purple-400 font-bold capitalize">{planLimits?.planName || 'Starter'}</span>.</p>
                             </div>
                             <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner">

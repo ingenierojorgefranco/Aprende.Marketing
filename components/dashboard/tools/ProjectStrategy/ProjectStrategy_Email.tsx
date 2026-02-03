@@ -3,6 +3,7 @@ import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2,
 import { useNavigate, useParams } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, EmailMessage, LandingPage, AffiliateLink, EmailSequence } from '../../../../types';
 import { api } from '../../../../services/api';
+import { UpgradeModal } from '../../UpgradeModal';
 
 interface ProjectStrategy_EmailProps {
     emailData: any[];
@@ -218,7 +219,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
             {showConfirmModal && (
                 <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowConfirmModal(false)}>
-                    <div className="bg-[#0B0B0B] border border-blue-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                    <div className="bg-[#0B0B0B] border border-blue-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
                         <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto text-center">
                             <div className="w-20 h-20 bg-blue-500/10 text-blue-400 rounded-3xl flex items-center justify-center mx-auto border border-blue-500/20 shadow-lg animate-pulse"><Sparkles className="w-10 h-10" /></div>

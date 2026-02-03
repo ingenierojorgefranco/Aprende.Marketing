@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
 import { Generator } from '../Generator';
 import { api } from '../../../../services/api';
-import { UpgradeModal } from '../UpgradeModal';
+import { UpgradeModal } from '../../UpgradeModal';
 
 interface ProjectStrategy_WebSystemProps {
     projectId: string;
