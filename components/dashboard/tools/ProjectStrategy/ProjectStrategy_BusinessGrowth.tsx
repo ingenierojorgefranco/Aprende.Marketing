@@ -6,6 +6,7 @@ interface ProjectStrategy_BusinessGrowthProps {
     chartData: any[];
     onOpenVideo: () => void;
     commissionValue: number;
+    commissionRate: number;
 }
 
 const CustomTooltip = ({ active, payload, label, commissionValue, fullData }: any) => {
@@ -50,7 +51,7 @@ const CustomTooltip = ({ active, payload, label, commissionValue, fullData }: an
     return null;
 };
 
-export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGrowthProps> = ({ chartData, onOpenVideo, commissionValue }) => {
+export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGrowthProps> = ({ chartData, onOpenVideo, commissionValue, commissionRate }) => {
     return (
         <div id="psd-business-growth-section" className="space-y-16 pt-8">
             
@@ -64,7 +65,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                 
                 <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
                     <p className="border-l-4 border-emerald-500 pl-8 py-2">
-                        Este sistema está diseñado para ayudarte a construir un negocio de ingresos progresivos utilizando contenido inteligente y automatización masiva. No es una fórmula de dinero fácil ni resultados inmediatos.
+                        Nuestro sistema está diseñado para ayudarte a construir un negocio digital que te permita generar ingresos progresivos utilizando contenido inteligente y automatización masiva. Sin embargo, no es una fórmula mágica ni resultados inmediatos.
                     </p>
                     <div className="space-y-8">
                         <p className="border-l-4 border-teal-500 pl-8 py-2">
@@ -186,9 +187,9 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     color: "text-blue-400",
                                     bg: "bg-blue-500/10",
                                     items: [
-                                        "El sistema crea de forma automática las páginas de ventas, guiones persuasivos, secuencias de correos y los artículos de blog optimizados para Google.",
+                                        "Nuestro sistema creará de forma automática tus guiones de videos, páginas de ventas, secuencias de correos y los artículos de blog optimizados para atraer personas interesadas en tu producto digital.",
                                         "Publicas tus contenidos en redes sociales como YouTube, Instagram, Facebook y Tik Tok para atraer a tus primeros visitantes.",
-                                        "Los leads empiezan a llegar a tu ecosistema, consumen tu regalo de bienvenida y se unen a tu comunidad de WhatsApp."
+                                        "Personas interesadas empezarán a llegar a tu página de captura, se registrarán para tener acceso a tu LeadMagnet y unirán a tu comunidad de WhatsApp."
                                     ],
                                     objective: "Objetivo: Construir tu activo digital para atraer clientes"
                                 },
@@ -199,9 +200,9 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     color: "text-emerald-400",
                                     bg: "bg-emerald-500/10",
                                     items: [
-                                        "Tus artículos de blog y videos en redes sociales ganan autoridad en los algoritmos, atrayendo tráfico orgánico cualificado sin costo adicional.",
-                                        "La audiencia interactúa con tus embudos inteligentes y comienza a solicitar información personalizada a través de tu canal de WhatsApp.",
-                                        "Se ejecutan los primeros cierres de venta reales gracias a la confianza generada por tu ecosistema de contenidos y el seguimiento persuasivo."
+                                        "Tus artículos de blog y videos en redes sociales ganarán autoridad en los algoritmos con el tiempo, atrayendo nuevo tráfico orgánico cualificado sin costo adicional.",
+                                        "La audiencia que ya se ha registrado en tu pagina de captura recibirá correos electrónicos masivos y contenidos de alto valor que compartirás a través de Whatsapp, esto generará confianza e interés por parte de tus comunidad.",
+                                        "Realizarás tus primeros cierres de venta reales gracias a la confianza generada por tu ecosistema de contenidos, el seguimiento persuasivo y nuestra estrategia de Lanzamientos que ejecutaremos vía Whatsapp."
                                     ],
                                     objective: "Objetivo: validar que tu estrategia digital funciona y genera resultados"
                                 },
@@ -212,9 +213,9 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     color: "text-amber-400",
                                     bg: "bg-amber-500/10",
                                     items: [
-                                        "Tu biblioteca de contenidos se condensa como un activo digital que educa, persuade y vende por ti las 24 horas del día de forma incansable.",
-                                        "El flujo de prospectos interesados se estabiliza y crece exponencialmente, permitiéndote predecir tus resultados y comisiones con mayor precisión.",
-                                        "El sistema alcanza su punto de madurez operativa, generando ingresos recurrentes y permitiéndote escalar tu negocio al siguiente nivel de facturación."
+                                        "A Larzo plazo tanto los Reels, como los videos Largos, Articulos de Blog y todos los contenidos educativos que compartas se convertirán en un activo digital que educa, persuade y vende por ti las 24 horas del día de forma incansable.",
+                                        "El número de prospectos interesados en obtener más información sobre tu producto digital se estabiliza y crece exponencialmente, permitiéndote predecir tus resultados y comisiones con mayor precisión.",
+                                        "Tu sistema alcanza su punto de madurez operativa, generando ingresos recurrentes y permitiéndote escalar tu negocio al siguiente nivel gracias a los contenidos generados y las estrategias de lanzamientos operativas."
                                     ],
                                     objective: "Objetivo: ingresos más predecibles"
                                 }
@@ -267,6 +268,9 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                         <div className="flex items-center gap-3 text-white text-xl leading-relaxed font-light">
                                             <Check className="w-5 h-5 text-emerald-500" /> Tasa de cierre estimada: 5% en WhatsApp
                                         </div>
+                                        <div className="flex items-center gap-3 text-white text-xl leading-relaxed font-light">
+                                            <Check className="w-5 h-5 text-emerald-500" /> Tu comisión por Venta: {Math.round(commissionRate * 100)}%
+                                        </div>
                                     </div>
                                 </div>
 
@@ -285,7 +289,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                             {/* Panel: Tabla de Escala Centrado */}
                             <div className="bg-gray-800/40 rounded-[2.5rem] border border-gray-700 p-8 shadow-inner w-full max-w-2xl">
                                 <h5 className="text-white font-bold mb-6 flex items-center justify-center gap-2">
-                                    <ArrowUpRight className="w-5 h-5 text-emerald-400" /> Ejemplo práctico de Escala
+                                    <ArrowUpRight className="w-5 h-5 text-emerald-400" /> Mientras más leads tengas en tu sistema, mayor será tu probabilidad de generar altos ingresos.
                                 </h5>
                                 
                                 <div className="space-y-4">
