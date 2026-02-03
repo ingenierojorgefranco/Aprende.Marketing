@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Project, LandingPage, User } from '../../../../types';
-import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, ChevronLeft, Loader2, AlertTriangle, ExternalLink, X, Zap } from 'lucide-react';
+import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, ChevronLeft, Loader2, AlertTriangle, ExternalLink, X, Zap, Rocket } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Step1InputsProps {
   userProjects: Project[];
@@ -36,6 +37,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
   isPreFilled = false,
   onClose
 }) => {
+  const navigate = useNavigate();
   /* Actualización: Implementación del Selector de Página Estratégico interceptando el flujo de creación para forzar la vinculación de activos antes de proceder con la IA - 25/05/2024 10:00 */
   const [selectionMode, setSelectionMode] = useState<'choice' | 'ia'>('choice');
   const [isPreparing, setIsPreparing] = useState(false);
@@ -232,8 +234,20 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
                     </div>
                   ))
                 ) : (
-                  <div className="py-12 text-center border border-dashed border-white/10 rounded-3xl bg-white/5">
-                    <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">No tienes páginas creadas para este proyecto.</p>
+                  <div className="py-16 px-8 text-center border border-dashed border-[#FF5A1F]/30 rounded-[2.5rem] bg-[#FF5A1F]/5 flex flex-col items-center gap-6 animate-in zoom-in-95 duration-500">
+                    <div className="w-16 h-16 bg-[#FF5A1F]/10 rounded-2xl flex items-center justify-center text-[#FF5A1F] shadow-lg border border-[#FF5A1F]/20">
+                      <Rocket className="w-8 h-8" />
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="text-white font-black text-xl uppercase tracking-tight">Aún no tienes una Página de Captura Creada</h4>
+                      <p className="text-gray-400 text-sm font-medium leading-relaxed max-w-xs mx-auto">Para crear un artículo de Blog antes tienes que crear tu página de captura, haz clic en crear mi Página de Captura para crearla.</p>
+                    </div>
+                    <button 
+                      onClick={() => navigate(`/dashboard/projects/${selectedProject}/strategy?section=web`)}
+                      className="px-8 py-4 bg-gradient-to-r from-[#FF5A1F] to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-black text-sm uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 transform hover:scale-[1.03] active:scale-95 flex items-center gap-3"
+                    >
+                      <Plus className="w-4 h-4" /> Crear mi Página de Captura
+                    </button>
                   </div>
                 )}
               </div>
