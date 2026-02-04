@@ -678,7 +678,8 @@ export const api = {
                     return { ...page, content: { ...page.content, testimonials: testimonials.map((t: any) => ({
                         name: t.name,
                         text: t.text,
-                        rating: 5
+                        rating: 5,
+                        image: t.image
                     })) }};
                 }
                 return page;
@@ -704,7 +705,8 @@ export const api = {
             const updatedContent = { ...page.content, testimonials: testimonials.map(t => ({
                 name: t.name,
                 text: t.text,
-                rating: 5 
+                rating: 5,
+                image: t.image
             }))};
             await api.updatePage({ ...page, content: updatedContent });
         }
@@ -1224,7 +1226,7 @@ export const api = {
                     maxArticles: 2, 
                     maxDomains: 1, 
                     maxEmailSequences: 1,
-                    maxWhatsAppLaunches: 1, // Propiedad añadida para corregir error de tipo
+                    maxWhatsAppLaunches: 1, 
                     features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } 
                   }, 
                   uiFeatures: ['...'], 
@@ -1245,7 +1247,7 @@ export const api = {
                     maxArticles: 20, 
                     maxDomains: 3, 
                     maxEmailSequences: 5,
-                    maxWhatsAppLaunches: 5, // Propiedad añadida para corregir error de tipo
+                    maxWhatsAppLaunches: 5, 
                     features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } 
                   }, 
                   uiFeatures: ['...'], 
@@ -1549,7 +1551,6 @@ export const api = {
         clearCache('emailSequences');
     },
 
-    ////////// Actualización: Métodos de API para WhatsApp Lanzamientos (Tabla Única con JSON) - 10/06/2025 11:00 //////////
     getWhatsAppLaunches: async (): Promise<WhatsAppLaunch[]> => {
         if (isMockMode) return [];
         if (apiCache.waLaunches) return apiCache.waLaunches;
@@ -1598,7 +1599,6 @@ export const api = {
 
     updateWhatsAppLaunch: async (launchId: string, data: Partial<WhatsAppLaunch>) => {
         if (isMockMode) return Promise.resolve();
-        // Convertimos el objeto de mensajes a string si viene en la petición
         const payload = { ...data };
         if (payload.messages) {
             (payload as any).data_json = JSON.stringify(payload.messages);
@@ -1621,7 +1621,6 @@ export const api = {
         await fetchWithFallback(`/whatsapp-launch/launches/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
         clearCache('waLaunches');
     },
-    ////////// Fin de actualización - 10/06/2025 11:00 //////////
 
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,
     setLastGeneratedTitles: (titles: any[]) => { apiCache.lastGeneratedTitles = titles; }
