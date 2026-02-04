@@ -1,9 +1,15 @@
-import React from 'react';
-import { Phone, MoreVertical, Send, Smile, Star, MessageSquare, Zap, PlayCircle } from 'lucide-react';
-import { useOutletContext } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Phone, MoreVertical, Send, Smile, Star, MessageSquare, Zap, PlayCircle, Save, X, Loader2 } from 'lucide-react';
+import { useOutletContext, useParams } from 'react-router-dom';
+import { api } from '../../../../services/api';
 
 export const ProjectStrategy_Testimonials: React.FC = () => {
   const { strategyData } = useOutletContext() as any;
+  const { id: projectId } = useParams() as { id: string };
+
+  const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  const [tempText, setTempText] = useState("");
+  const [saving, setSaving] = useState(false);
 
   // Mensajes de respuesta del experto (Fijos)
   const expertReplies = [
@@ -47,6 +53,39 @@ export const ProjectStrategy_Testimonials: React.FC = () => {
           reply: expertReplies[2]
         }
       ];
+
+  const handleStartEdit = (idx: number, text: string) => {
+    setEditingIdx(idx);
+    setTempText(text);
+  };
+
+  const handleSave = async () => {
+    if (editingIdx === null || !projectId) return;
+    setSaving(true);
+    try {
+        const updatedTestimonials = [...dynamicTestimonials];
+        updatedTestimonials[editingIdx].msg = tempText;
+        
+        // Mapear de vuelta al formato de la estrategia (sin imágenes ni respuestas de experto)
+        const testimonialsToSave = updatedTestimonials.map(t => ({
+            name: t.name,
+            text: t.msg
+        }));
+
+        await api.updateProjectTestimonials(projectId, testimonialsToSave);
+        
+        // Actualizar localmente la estrategia inyectada
+        if (strategyData?.modules) {
+            strategyData.modules.testimonials = testimonialsToSave;
+        }
+
+        setEditingIdx(null);
+    } catch (e) {
+        alert("Error al guardar el testimonio.");
+    } finally {
+        setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-16">
@@ -93,7 +132,7 @@ export const ProjectStrategy_Testimonials: React.FC = () => {
       <div className="max-w-[85em] mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-4">
           {dynamicTestimonials.map((chat: any, i: number) => (
-            <div key={i} className="bg-[#E5DDD5] rounded-[2.5rem] md:rounded-[3.5rem] border-[8px] md:border-[12px] border-[#0B0B0B] overflow-hidden shadow-2xl relative h-[600px] md:h-[700px] flex flex-col group hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_rgba(0,0,0,0.3)]">
+            <div key={i} className="bg-[#E5DDD5] rounded-[2.5rem] md:rounded-[3.5rem] border-[8px] md:border-[12px] border-[#0B0B0B] overflow-hidden shadow-2xl relative h-auto min-h-[600px] flex flex-col group hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_rgba(0,0,0,0.3)]">
               {/* WhatsApp Header */}
               <div className="bg-[#075E54] p-4 md:p-6 flex items-center justify-between text-white shrink-0">
                 <div className="flex items-center gap-3 md:gap-4">
@@ -112,11 +151,34 @@ export const ProjectStrategy_Testimonials: React.FC = () => {
               </div>
 
               {/* Chat Body */}
-              <div className="flex-1 p-4 md:p-6 space-y-6 md:space-y-8 overflow-y-auto custom-scrollbar bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-repeat bg-opacity-10">
+              <div className="flex-1 p-4 md:p-6 space-y-6 md:space-y-8 overflow-visible bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-repeat bg-opacity-10">
                 <div className="flex justify-start animate-in slide-in-from-left-6 duration-700">
-                  <div className="bg-white p-3 md:p-5 rounded-2xl md:rounded-3xl rounded-tl-none shadow-sm max-w-[90%] relative border border-gray-100">
-                    <p className="text-sm md:text-[1.1rem] text-[#0B0B0B] leading-relaxed font-medium">{chat.msg}</p>
-                    <span className="text-[8px] md:text-[10px] text-gray-400 block text-right mt-2 md:mt-3 font-bold uppercase">10:45 AM</span>
+                  <div 
+                    onClick={() => editingIdx === null && handleStartEdit(i, chat.msg)}
+                    className={`bg-white p-3 md:p-5 rounded-2xl md:rounded-3xl rounded-tl-none shadow-sm max-w-[90%] relative border border-gray-100 ${editingIdx === null ? 'cursor-pointer hover:bg-gray-50 transition-colors' : ''}`}
+                  >
+                    {editingIdx === i ? (
+                        <div className="space-y-3">
+                            <textarea 
+                                autoFocus
+                                value={tempText}
+                                onChange={(e) => setTempText(e.target.value)}
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2 text-sm md:text-[1.1rem] text-[#0B0B0B] outline-none focus:ring-2 focus:ring-[#075E54]/20 min-h-[100px] resize-none"
+                            />
+                            <div className="flex gap-2 justify-end">
+                                <button onClick={() => setEditingIdx(null)} disabled={saving} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition"><X className="w-4 h-4" /></button>
+                                <button onClick={handleSave} disabled={saving} className="bg-[#075E54] text-white px-4 py-1 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-[#054d44] transition">
+                                    {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />} Guardar
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            <p className="text-sm md:text-[1.1rem] text-[#0B0B0B] leading-relaxed font-medium">{chat.msg}</p>
+                            <span className="text-[8px] md:text-[10px] text-gray-400 block text-right mt-2 md:mt-3 font-bold uppercase">10:45 AM</span>
+                            <div className="absolute -top-6 left-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[#075E54] text-white text-[9px] font-black uppercase px-2 py-0.5 rounded">Clic para editar testimonio</div>
+                        </>
+                    )}
                   </div>
                 </div>
 

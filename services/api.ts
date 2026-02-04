@@ -1,4 +1,3 @@
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES, MOCK_MASTER_STRATEGY } from "./mockData";
 import { ProjectMasterStrategy } from "./strategySchema";
@@ -658,6 +657,51 @@ export const api = {
         clearCache('userUsageStats');
         clearCache('masterStrategies', id);
     },
+
+    updateProjectTestimonials: async (projectId: string, testimonials: any[]): Promise<void> => {
+        if (isMockMode) {
+            const project = localProjects.find(p => p.id === projectId);
+            if (!project) return;
+            const strategy = project.strategy_json || { modules: { testimonials: [] } };
+            if (!strategy.modules) strategy.modules = {};
+            strategy.modules.testimonials = testimonials;
+            project.strategy_json = strategy;
+            
+            localPages = localPages.map(page => {
+                if (String(page.projectId) === String(projectId)) {
+                    return { ...page, content: { ...page.content, testimonials: testimonials.map((t: any) => ({
+                        name: t.name,
+                        text: t.text,
+                        rating: 5
+                    })) }};
+                }
+                return page;
+            });
+            return;
+        }
+
+        const project = await api.getProjectById(projectId);
+        if (!project) throw new Error("Proyecto no encontrado");
+        
+        const strategy = project.strategy_json || { modules: { testimonials: [] } };
+        if (!strategy.modules) strategy.modules = {};
+        strategy.modules.testimonials = testimonials;
+        
+        await api.updateProject(projectId, { ...project, strategy_json: strategy } as any);
+
+        const allPages = await api.getPages();
+        const linkedPages = allPages.filter(p => String(p.projectId) === String(projectId));
+        
+        for (const page of linkedPages) {
+            const updatedContent = { ...page.content, testimonials: testimonials.map(t => ({
+                name: t.name,
+                text: t.text,
+                rating: 5 
+            }))};
+            await api.updatePage({ ...page, content: updatedContent });
+        }
+        clearCache('masterStrategies', projectId);
+    },
   
     analyzeSite: async (url: string): Promise<{ productName: string, description: string, niche: string }> => {
         if (isMockMode) {
@@ -801,7 +845,7 @@ export const api = {
   
     saveArticle: async (article: Omit<Article, 'id' | 'createdAt'>): Promise<Article> => {
         if (isMockMode) {
-            const newArticle: Article = { ...article, id: `mock-art-${Date.now()}`, createdAt: new Date() };
+            const newArticle: Article = { ...article, id: `mock-art-${Date.now()}`, createdAt: new Date() } as any;
             localArticles.unshift(newArticle);
             return Promise.resolve(newArticle);
         }
@@ -825,7 +869,7 @@ export const api = {
         });
         clearCache('articles');
         clearCache('userUsageStats');
-        return { ...article, id: saved.id.toString(), createdAt: new Date() };
+        return { ...article, id: saved.id.toString(), createdAt: new Date() } as any;
     },
   
     updateArticle: async (id: string, article: Partial<Article>): Promise<void> => {

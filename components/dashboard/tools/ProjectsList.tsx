@@ -158,36 +158,43 @@ export const ProjectsList: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-3 shrink-0 w-full md:w-auto">
-                        {isAtLimit ? (
-                            <button
-                                onClick={() => setShowUpgradeModal(true)}
-                                className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20"
-                            >
-                                <span className="relative z-10 flex items-center justify-center gap-2">
-                                    <Crown className="w-5 h-5 fill-current" /> 
-                                    Límite Alcanzado: Subir a PRO
-                                </span>
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => navigate('/dashboard/projects/create')}
-                                className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:-translate-y-1"
-                            >
-                                <span className="relative z-10 flex items-center justify-center gap-2">
-                                    <Plus className="w-5 h-5" /> 
-                                    Nuevo Proyecto
-                                </span>
-                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                            </button>
-                        )}
-                        
-                        <button 
-                            onClick={() => setShowVideoModal(true)}
-                            className="px-8 py-3 bg-transparent border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
-                        >
-                            <PlayCircle className="w-4 h-4" /> ¿Cómo funciona?
-                        </button>
+                    <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
+                        {/* Contenedor de Video */}
+                        <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/A_dcakdMBow?controls=0" 
+                                title="Tutorial Gestión de Proyectos" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+
+                        {/* Botones centrados debajo del video */}
+                        <div className="flex flex-col gap-3">
+                            {isAtLimit ? (
+                                <button
+                                    onClick={() => setShowUpgradeModal(true)}
+                                    className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
+                                >
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                        <Crown className="w-5 h-5 fill-current" /> 
+                                        Límite Alcanzado: Subir a PRO
+                                    </span>
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => navigate('/dashboard/projects/create')}
+                                    className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:-translate-y-1 w-full"
+                                >
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                        <Plus className="w-5 h-5" /> 
+                                        Nuevo Proyecto
+                                    </span>
+                                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -433,7 +440,7 @@ export const ProjectsList: React.FC = () => {
                             ) : (
                                 <button 
                                     onClick={handleConfirmUnlock}
-                                    className="flex-1 py-5 rounded-2xl bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-widest shadow-xl shadow-yellow-900/20 transform hover:scale-105 active:scale-95 transition-all"
+                                    className="flex-1 py-5 rounded-2xl bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-yellow-900/20 transform hover:scale-105 active:scale-95 transition-all"
                                 >
                                     Sí, desbloquear ahora
                                 </button>
@@ -459,7 +466,7 @@ export const ProjectsList: React.FC = () => {
                                 <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Estrategia de Nichos
                             </h3>
                             <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                                <X className="w-6 h-6"/>
+                                <X className="w-5 h-5"/>
                             </button>
                         </div>
                         <div className="aspect-video w-full">

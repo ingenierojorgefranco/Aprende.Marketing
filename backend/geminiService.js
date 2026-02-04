@@ -743,7 +743,7 @@ const generateFullStrategy = async (projectId) => {
                 emails: step1Data.emails,
                 whatsapp: step1Data.whatsapp,
                 whatsappLaunch: step1Data.whatsappLaunch,
-                testimonials: step1Data.modules.testimonials
+                testimonials: step1Data.testimonials
             } 
         };
 

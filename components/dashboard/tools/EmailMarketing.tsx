@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Lead, EmailSequence, User } from '../../../types';
-import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye, Trash2 } from 'lucide-react';
+import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye, Trash2, Crown } from 'lucide-react';
 import { api } from '../../../services/api';
 /* */ /* Actualización: Importación de useNavigate para manejar redirección - 24/06/2024 15:15 */
 import { useNavigate, Link, useOutletContext } from 'react-router-dom';
@@ -194,7 +194,6 @@ export const EmailMarketing: React.FC = () => {
     <div className="space-y-10 animate-in fade-in duration-500 pb-20">
       
       {/* HEADER DE SECCIÓN */}
-      {/* */ /* Actualización: Reorganización del Header: Barra de límites a la izquierda con estilo premium, y botones de acción movidos a la derecha bajo el contador - 25/05/2024 18:15 */ }
       <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-white/5 shadow-2xl">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF5A1F]/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
           <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
@@ -216,28 +215,37 @@ export const EmailMarketing: React.FC = () => {
                               <span>Secuencias Creadas</span>
                               <span className="text-white">{sequences.length} / {maxSequences}</span>
                           </div>
-                          <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
+                          <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
                               <div className="h-full bg-[#FF5A1F] rounded-full shadow-[0_0_15px_rgba(255,90,31,0.6)] transition-all duration-[1500ms] ease-out" style={{ width: `${(sequences.length / maxSequences) * 100}%` }}></div>
                           </div>
                       </div>
                   </div>
               </div>
 
-              <div className="shrink-0 flex flex-col gap-4 w-full md:w-auto min-w-[280px]">
-                  <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/5 shadow-inner text-center">
+              <div className="shrink-0 flex flex-col gap-6 w-full md:w-[400px]">
+                  {/* Contenedor de Video */}
+                  <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+                      <iframe 
+                          className="w-full h-full"
+                          src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0" 
+                          title="Tutorial Email Marketing" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowFullScreen
+                      ></iframe>
+                  </div>
+
+                  <div className="bg-black/40 backdrop-blur-md rounded-2xl p-4 border border-white/5 shadow-inner text-center">
                       <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Prospectos Totales</p>
                       <p className="text-3xl font-black text-white">{leads.length}</p>
                   </div>
 
+                  {/* Botones centrados debajo del video */}
                   <div className="flex flex-col gap-3">
                       <button 
                         onClick={() => navigate('/dashboard/email/create')}
                         className="w-full px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
                       >
                         <Plus className="w-4 h-4" /> Crear Nueva Secuencia
-                      </button>
-                      <button className="w-full px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-3">
-                        <PlayCircle className="w-4 h-4" /> ¿Cómo funciona?
                       </button>
                   </div>
               </div>
@@ -546,7 +554,7 @@ export const EmailMarketing: React.FC = () => {
                                     className="flex-1 bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none transition"
                                 />
                                 <button 
-                                    onClick={handleCreateTag}
+                                    onClick={handleCreateTag} 
                                     disabled={isCreatingTag || !newTagName.trim() || !systemeIoKey}
                                     className="p-3.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl transition shadow-lg disabled:opacity-30 disabled:cursor-not-allowed"
                                 >

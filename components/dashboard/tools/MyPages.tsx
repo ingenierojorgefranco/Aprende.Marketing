@@ -150,36 +150,43 @@ export const MyPages: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-4 shrink-0 w-full md:w-auto">
-                        {isAtLimit ? (
-                            <button
-                                onClick={() => setShowUpgradeModal(true)}
-                                className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20"
-                            >
-                                <span className="relative z-10 flex items-center justify-center gap-2">
-                                    <Crown className="w-5 h-5 fill-current" /> 
-                                    Límite Alcanzado: Subir a PRO
-                                </span>
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => navigate("/dashboard/generator")}
-                                className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-primary hover:bg-indigo-600 text-white shadow-primary/25 hover:-translate-y-1"
-                            >
-                                <span className="relative z-10 flex items-center justify-center gap-2">
-                                    <Zap className="w-5 h-5 fill-current" /> 
-                                    Crear Nueva Página
-                                </span>
-                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                            </button>
-                        )}
-                        
-                        <button 
-                            onClick={() => setShowVideoModal(true)}
-                            className="px-8 py-3 bg-transparent border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
-                        >
-                            <PlayCircle className="w-4 h-4" /> ¿Cómo funciona?
-                        </button>
+                    <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
+                        {/* Contenedor de Video */}
+                        <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0" 
+                                title="Tutorial Páginas de Captura" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+
+                        {/* Botones centrados debajo del video */}
+                        <div className="flex flex-col gap-3">
+                            {isAtLimit ? (
+                                <button
+                                    onClick={() => setShowUpgradeModal(true)}
+                                    className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
+                                >
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                        <Crown className="w-5 h-5 fill-current" /> 
+                                        Límite Alcanzado: Subir a PRO
+                                    </span>
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => navigate("/dashboard/generator")}
+                                    className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-primary hover:bg-indigo-600 text-white shadow-primary/25 hover:-translate-y-1 w-full"
+                                >
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                        <Zap className="w-5 h-5 fill-current" /> 
+                                        Crear Nueva Página
+                                    </span>
+                                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -297,12 +304,10 @@ export const MyPages: React.FC = () => {
 
             {showVideoModal && (
                 <div 
-                    ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
                     onClick={() => setShowVideoModal(false)}
                     className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
                 >
                     <div 
-                        ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
                         onClick={(e) => e.stopPropagation()}
                         className="relative w-full max-w-4xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800"
                     >
@@ -334,12 +339,10 @@ export const MyPages: React.FC = () => {
 
             {showDomainModal && selectedPageForDomain && (
                 <div 
-                    ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
                     onClick={closeDomainModal}
                     className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
                 >
                     <div 
-                        ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
                         onClick={(e) => e.stopPropagation()}
                         className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl p-6 relative animate-in zoom-in-95"
                     >
@@ -402,12 +405,10 @@ export const MyPages: React.FC = () => {
 
             {pageToDelete && (
                 <div 
-                    ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
                     onClick={() => setPageToDelete(null)}
                     className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
                 >
                     <div 
-                        ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
                         onClick={(e) => e.stopPropagation()}
                         className="bg-gray-900 border border-gray-700 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200"
                     >

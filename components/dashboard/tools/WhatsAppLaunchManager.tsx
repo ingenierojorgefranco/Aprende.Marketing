@@ -94,25 +94,36 @@ export const WhatsAppLaunchManager: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="shrink-0 flex flex-col gap-4 w-full md:w-auto min-w-[280px]">
-                        {isAtLimit ? (
-                            <button 
-                                onClick={() => setShowUpgradeModal(true)}
-                                className="w-full px-8 py-4 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98]"
-                            >
-                                <Crown className="w-4 h-4 fill-current" /> Límite Alcanzado: Subir a PRO
-                            </button>
-                        ) : (
-                            <button 
-                                onClick={handleCreateNew}
-                                className="w-full px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
-                            >
-                                <Plus className="w-4 h-4" /> Nuevo Lanzamiento
-                            </button>
-                        )}
-                        <button className="w-full px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-3">
-                            <PlayCircle className="w-4 h-4" /> Tutorial Estrategia
-                        </button>
+                    <div className="shrink-0 flex flex-col gap-6 w-full md:w-[400px]">
+                        {/* Contenedor de Video */}
+                        <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0" 
+                                title="Tutorial WhatsApp Lanzamientos" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+
+                        {/* Botones centrados debajo del video */}
+                        <div className="flex flex-col gap-3">
+                            {isAtLimit ? (
+                                <button 
+                                    onClick={() => setShowUpgradeModal(true)}
+                                    className="w-full px-8 py-4 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98]"
+                                >
+                                    <Crown className="w-4 h-4 fill-current" /> Límite Alcanzado: Subir a PRO
+                                </button>
+                            ) : (
+                                <button 
+                                    onClick={handleCreateNew}
+                                    className="w-full px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
+                                >
+                                    <Plus className="w-4 h-4" /> Nuevo Lanzamiento
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

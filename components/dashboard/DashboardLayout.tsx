@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
@@ -92,7 +91,7 @@ export const DashboardLayout = ({
   /* Fin de actualización - 22/05/2024 11:30 */
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+  const [expandedMenu, setExpandedMenu] = useState<string | null>('sistema');
   const [courseItems, setCourseItems] = useState<{ label: string; path: string; icon: any }[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
