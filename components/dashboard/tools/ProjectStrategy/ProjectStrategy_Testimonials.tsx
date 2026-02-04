@@ -131,10 +131,11 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
         const updatedTestimonials = [...dynamicTestimonials];
         updatedTestimonials[editingIdx].msg = tempText;
         
+        // Mapeamos los datos finales a guardar, asegurando que la imagen persista
         const testimonialsToSave = updatedTestimonials.map((t, idx) => ({
             name: t.name,
             text: t.msg,
-            image: t.img // Persistimos la imagen actual
+            image: t.img // Persistimos la imagen actual que puede ser la detectada o la elegida
         }));
 
         await api.updateProjectTestimonials(projectId, testimonialsToSave);
@@ -193,14 +194,15 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
       setSelectorOpenIdx(null);
       
       // PERSISTENCIA INMEDIATA: Guardamos la elección de imagen en la base de datos
-      if (!projectId) return;
+      if (!projectId || !strategyData?.modules?.testimonials) return;
       try {
-          const testimonialsToSave = strategyData.modules.testimonials.map((t: any, i: number) => {
+          const currentData = [...strategyData.modules.testimonials];
+          const testimonialsToSave = currentData.map((t: any, i: number) => {
+              const baseImg = customAvatars[i] || t.image || "";
               if (i === testimonialIdx) {
                   return { ...t, image: imgUrl };
               }
-              // Mantener imagen previa si ya existía en customAvatars o t.image
-              return { ...t, image: customAvatars[i] || t.image };
+              return { ...t, image: baseImg };
           });
 
           await api.updateProjectTestimonials(projectId, testimonialsToSave);

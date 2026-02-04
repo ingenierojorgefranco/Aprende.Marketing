@@ -67,7 +67,7 @@ export const WhatsAppTestimonials: React.FC<WhatsAppTestimonialsProps> = ({
             const closing = closingPhrases[i % closingPhrases.length];
 
             return (
-              <div key={i} className="bg-[#E5DDD5] rounded-[2.5rem] md:rounded-[3.5rem] border-[8px] md:border-[12px] border-[#0B0B0B] overflow-hidden shadow-2xl relative h-[550px] md:h-[600px] flex flex-col group hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_rgba(0,0,0,0.3)]">
+              <div key={i} className="bg-[#E5DDD5] rounded-[2.5rem] md:rounded-[3.5rem] border-[8px] md:border-[12px] border-[#0B0B0B] overflow-hidden shadow-2xl relative h-auto flex flex-col group hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_rgba(0,0,0,0.3)]">
                 {/* WhatsApp Header */}
                 <div className="bg-[#075E54] p-4 md:p-5 flex items-center justify-between text-white shrink-0">
                   <div className="flex items-center gap-3 md:gap-4">
@@ -86,7 +86,7 @@ export const WhatsAppTestimonials: React.FC<WhatsAppTestimonialsProps> = ({
                 </div>
 
                 {/* Chat Body */}
-                <div className="flex-1 p-4 space-y-4 md:space-y-4 overflow-y-auto custom-scrollbar bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-repeat bg-opacity-10">
+                <div className="p-4 space-y-4 md:space-y-4 bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-repeat bg-opacity-10">
                   {/* Client Message */}
                   <div className="flex justify-start animate-in slide-in-from-left-6 duration-700">
                     <div className="bg-white p-3 md:p-4 rounded-2xl md:rounded-3xl rounded-tl-none shadow-sm max-w-[90%] relative border border-gray-100">

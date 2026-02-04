@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2 } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -130,6 +130,7 @@ export const ProjectWizard: React.FC = () => {
     const [fullPrice, setFullPrice] = useState<number>(0);
     const [commissionValue, setCommissionValue] = useState<number>(0);
     const [leadMagnetType, setLeadMagnetType] = useState('Ebook / Guía PDF');
+    const [leadMagnetUrl, setLeadMagnetUrl] = useState('');
     const [salesPageUrl, setSalesPageUrl] = useState('');
     const [isMaster, setIsMaster] = useState(false);
     
@@ -193,6 +194,7 @@ export const ProjectWizard: React.FC = () => {
                     setCommissionValue(proj.commissionRate * proj.fullPrice);
                 }
                 setLeadMagnetType(proj.leadMagnetType || 'Ebook / Guía PDF');
+                setLeadMagnetUrl(proj.leadMagnetUrl || '');
                 setSalesPageUrl(proj.salesPageUrl || '');
                 setNiche(proj.niche || '');
                 setTargetAudience(proj.targetAudience || '');
@@ -252,6 +254,7 @@ export const ProjectWizard: React.FC = () => {
             fullPrice,
             commissionRate: fullPrice > 0 ? commissionValue / fullPrice : 0,
             leadMagnetType,
+            leadMagnetUrl,
             salesPageUrl,
             niche: niche || name, 
             targetAudience: targetAudience || '',
@@ -452,13 +455,25 @@ export const ProjectWizard: React.FC = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Tono de Comunicación</label>
-                                <select value={brandTone} onChange={e => setBrandTone(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all appearance-none cursor-pointer">
-                                    <option value="Amigable y Cercano">Amigable y Cercano</option>
-                                    <option value="Profesional y Serio">Profesional y Serio</option>
-                                    <option value="Agresivo y Urgente">Agresivo y Urgente</option>
-                                    <option value="Inspirador y Aspiracional">Inspirador y Aspiracional</option>
+                                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Lead Magnet (Regalo)</label>
+                                <select value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all appearance-none cursor-pointer mb-4">
+                                    <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
+                                    <option value="Clase Gratis / VSL">Clase Gratis / VSL</option>
+                                    <option value="Masterclass en Vivo">Masterclass en Vivo</option>
+                                    <option value="Plantilla / Checklist">Plantilla / Checklist</option>
                                 </select>
+                                {leadMagnetType && (
+                                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Enlace de la {leadMagnetType}</label>
+                                        <input 
+                                            type="text" 
+                                            value={leadMagnetUrl} 
+                                            onChange={(e) => setLeadMagnetUrl(e.target.value)} 
+                                            className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-blue-400 focus:border-primary outline-none transition-all placeholder:text-gray-700" 
+                                            placeholder="https://..." 
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -485,16 +500,14 @@ export const ProjectWizard: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Lead Magnet (Regalo)</label>
-                                    <select value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all">
-                                        <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
-                                        <option value="Clase Gratis / VSL">Clase Gratis / VSL</option>
-                                        <option value="Masterclass en Vivo">Masterclass en Vivo</option>
-                                        <option value="Plantilla / Checklist">Plantilla / Checklist</option>
-                                    </select>
-                                </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Tono de Comunicación</label>
+                                <select value={brandTone} onChange={e => setBrandTone(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all appearance-none cursor-pointer">
+                                    <option value="Amigable y Cercano">Amigable y Cercano</option>
+                                    <option value="Profesional y Serio">Profesional y Serio</option>
+                                    <option value="Agresivo y Urgente">Agresivo y Urgente</option>
+                                    <option value="Inspirador y Aspiracional">Inspirador y Aspiracional</option>
+                                </select>
                             </div>
                         </div>
                     )}
@@ -505,6 +518,22 @@ export const ProjectWizard: React.FC = () => {
                                 <p className="text-xs text-gray-500 mt-1">Configura tus enlaces de Hotmart para los botones de tu web.</p>
                             </div>
                             <div className="space-y-4">
+                                {leadMagnetUrl && (
+                                    <div className="flex gap-3 p-4 bg-emerald-950/20 rounded-2xl border border-emerald-500/30 group relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 p-2 opacity-20"><Crown className="w-12 h-12 text-emerald-500" /></div>
+                                        <div className="flex-1 space-y-3">
+                                            <div>
+                                                <label className="block text-[10px] font-black text-emerald-500 uppercase mb-1 tracking-widest">LeadMagnet (Configurado en Paso 1)</label>
+                                                <p className="text-white font-bold text-sm uppercase">{leadMagnetType}</p>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">URL del Regalo</label>
+                                                <p className="text-emerald-400 text-xs font-mono truncate">{leadMagnetUrl}</p>
+                                            </div>
+                                        </div>
+                                        <div className="self-center p-2 bg-emerald-500/10 rounded-xl"><CheckCircle2 className="w-5 h-5 text-emerald-500" /></div>
+                                    </div>
+                                )}
                                 {affiliateLinks.map((link, idx) => (
                                     <div key={idx} className="flex gap-3 p-4 bg-black rounded-2xl border border-gray-800 group hover:border-gray-700 transition-colors">
                                         <div className="flex-1 space-y-3">

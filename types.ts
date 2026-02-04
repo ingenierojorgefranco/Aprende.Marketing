@@ -1,4 +1,6 @@
 
+
+
 ////////// Actualización: Definición de tipos para el Feed de Noticias del Dashboard - 24/05/2024 16:45 //////////
 export interface DashboardNews {
     id: string;
@@ -480,6 +482,7 @@ export interface Project {
   fullPrice?: number;
   commissionRate?: number;
   leadMagnetType?: string;
+  leadMagnetUrl?: string; // */ Se añade para almacenar el enlace del regalo - 11/03/2025 15:45
 
   // Strategy Assets
   mainGoal: string; // "Venta Directa"

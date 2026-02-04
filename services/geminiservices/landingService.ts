@@ -85,7 +85,7 @@ export const generateLandingPageContent = async (
     "navLinks": [{"label": "string", "href": "string"}],
     "testimonialTitle": "string",
     "hero": { "headline": "string", "subheadline": "string", "ctaText": "string" },
-    "testimonials": [{"name": "string", "text": "string", "rating": number}],
+    "testimonials": [{"name": "string", "text": "string", "rating": number, "image": "string"}],
     "intro": { "title": "string", "description": "string", "items": [{"title": "string", "description": "string"}] },
     "benefits": { "title": "string", "items": [{"title": "string", "description": "string"}] },
     "whatYouWillLearn": { "title": "string", "items": ["string"] },
@@ -110,7 +110,7 @@ export const generateLandingPageContent = async (
 
   Instrucciones de contenido:
   1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
-  2. Testimonios: 3 testimonios cortos y realistas (usa los del proyecto si se proporcionaron).
+  2. Testimonios: 3 testimonios cortos y realistas (usa los del proyecto si se proporcionaron, incluyendo su 'image' URL si existe).
   3. Intro: Qué es el producto. Genera 'items' (3 bullets).
   4. Beneficios: Lista detallada (usa los proporcionados en el contexto si existen).
   5. Lo que aprenderás: 4-6 puntos clave (basados en dolores si existen).
@@ -148,6 +148,7 @@ export const generateLandingPageContent = async (
         if (!content.hero.socialProofCount) content.hero.socialProofCount = "+1000";
         if (!content.hero.videoTitle) content.hero.videoTitle = "Clase Exclusiva";
         if (!content.hero.videoDuration) content.hero.videoDuration = "45 Minutos";
+        if (!content.hero.videoUrl) content.hero.videoUrl = "";
         if (!content.hero.spotsLeft) content.hero.spotsLeft = "¡Cupos Limitados!";
         if (!content.testimonialSubtitle) content.testimonialSubtitle = "Resultados reales de alumnos";
         if (!content.closingOfferText) content.closingOfferText = "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder.";
@@ -196,6 +197,16 @@ export const generateLandingPageContent = async (
                 content.whatYouWillLearn.items = rawPains.slice(0, 6).map((p: any) => String(p));
                 content.whatYouWillLearn.title = "¿Te sientes identificado con alguna de estas situaciones?";
                 content.whatYouWillLearn.icon = "AlertTriangle";
+            }
+
+            // SINCRO FORZADA DE TESTIMONIOS: Si la estrategia tiene testimonios, los copiamos íntegros a la landing
+            if (pStrategy?.modules?.testimonials && pStrategy.modules.testimonials.length > 0) {
+                content.testimonials = pStrategy.modules.testimonials.slice(0, 3).map((t: any) => ({
+                    name: String(t.name || ""),
+                    text: String(t.text || ""),
+                    rating: 5,
+                    image: String(t.image || "")
+                }));
             }
         }
 
