@@ -4,8 +4,13 @@ import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { callGeminiBackend, Type } from '../../../../services/geminiService';
 
-export const ProjectStrategy_Testimonials: React.FC = () => {
-  const { strategyData } = useOutletContext() as any;
+interface TestimonialsProps {
+  strategyData?: any;
+}
+
+export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ strategyData: propStrategyData }) => {
+  const context = useOutletContext() as any;
+  const strategyData = propStrategyData || context.strategyData;
   const { id: projectId } = useParams() as { id: string };
 
   const [editingIdx, setEditingIdx] = useState<number | null>(null);

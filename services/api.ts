@@ -708,6 +708,7 @@ export const api = {
             }))};
             await api.updatePage({ ...page, content: updatedContent });
         }
+        clearCache('projectDetails', projectId);
         clearCache('masterStrategies', projectId);
     },
   
