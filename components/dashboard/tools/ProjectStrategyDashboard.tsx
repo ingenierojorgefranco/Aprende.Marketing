@@ -18,6 +18,7 @@ const ProjectStrategy_BusinessGrowth = React.lazy(() => import('./ProjectStrateg
 const ProjectStrategy_Blueprint = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Blueprint').then(m => ({ default: m.ProjectStrategy_Blueprint }))) as React.FC<any>;
 const ProjectStrategy_WebSystem = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_WebSystem').then(m => ({ default: m.ProjectStrategy_WebSystem }))) as React.FC<any>;
 const ProjectStrategy_Content = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Content').then(m => ({ default: m.ProjectStrategy_Content }))) as React.FC<any>;
+const ProjectStrategy_Hooks = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Hooks').then(m => ({ default: m.ProjectStrategy_Hooks }))) as React.FC<any>;
 const ProjectStrategy_Email = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Email').then(m => ({ default: m.ProjectStrategy_Email }))) as React.FC<any>;
 const ProjectStrategy_Evergreen = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_Evergreen').then(m => ({ default: m.ProjectStrategy_Evergreen }))) as React.FC<any>;
 const ProjectStrategy_WhatsApp = React.lazy(() => import('./ProjectStrategy/ProjectStrategy_WhatsApp').then(m => ({ default: m.ProjectStrategy_WhatsApp }))) as React.FC<any>;
@@ -50,6 +51,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [activeWaScript, setActiveWaScript] = useState(0);
     const [activeEmail, setActiveEmail] = useState(0);
     const [activeArticle, setActiveArticle] = useState(0);
+    const [activeHook, setActiveHook] = useState(0);
     const [selectedArticles, setSelectedArticles] = useState<number[]>([0]); 
     const [activeHeaderItem, setActiveHeaderItem] = useState<string | null>(null);
     const [activeEvergreenEmail, setActiveEvergreenEmail] = useState(0); 
@@ -192,6 +194,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                         {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onOpenVideo={() => setShowVideoModal(true)} />}
                         {activeSection === 'avatar' && <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items} />}
                         {activeSection === 'psychology' && <ProjectStrategy_Psychology psychology={strategyData.psychology} benefitsItems={strategyData.modules.web.landingPageTabs.benefits.items} />}
+                        {activeSection === 'hooks' && <ProjectStrategy_Hooks strategyData={strategyData} activeHook={activeHook} setActiveHook={setActiveHook} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
                         {activeSection === 'testimonials' && <ProjectStrategy_Testimonials strategyData={strategyData} />}
                         {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules.web.landingPageTabs} tyTabsData={strategyData.modules.web.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onEditPage={(pid: string) => navigate(`/dashboard/editor/${pid}`)} pageCount={globalPageCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
                         {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}

@@ -33,6 +33,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
         {
             module: "¿Qué creará nuestro sistema por ti?",
             items: [
+                { id: 'hooks', label: 'Hooks de Atracción', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
                 { id: 'testimonials', label: 'Testimonios de Éxito', icon: MessageSquare, module: "FUNDAMENTOS", description: "Prueba social validada" },
                 { id: 'web', label: 'Genera tu Página de Captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
                 { id: 'content', label: 'Generar Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },

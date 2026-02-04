@@ -78,6 +78,11 @@ export interface ProjectMasterStrategy {
             objective: string;
             strategy: string;
         }>;
+        hooks?: Array<{
+            id: number;
+            question: string;
+            strategy: string;
+        }>;
         emails: {
             nurture: Array<any>;
             evergreen: Array<any>;
@@ -140,6 +145,7 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
             thankYouPageTabs: {}
         },
         content: [],
+        hooks: [],
         emails: { nurture: [], evergreen: [] },
         whatsapp: [],
         testimonials: []
