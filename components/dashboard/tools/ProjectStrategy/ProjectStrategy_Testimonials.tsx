@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Phone, MoreVertical, Send, Smile, Star, MessageSquare, Zap, PlayCircle, Save, X, Loader2, Sparkles, AlertTriangle, ArrowRight, Wand2 } from 'lucide-react';
+// Added PenTool to the imports from lucide-react
+import { Phone, MoreVertical, Send, Smile, Star, MessageSquare, Zap, PlayCircle, Save, X, Loader2, Sparkles, AlertTriangle, ArrowRight, Wand2, Check, PenTool } from 'lucide-react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { callGeminiBackend, Type } from '../../../../services/geminiService';
@@ -19,6 +20,10 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
   const [isGeneratingIA, setIsGeneratingIA] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
 
+  // Nuevo estado para la selección manual de avatares
+  const [customAvatars, setCustomAvatars] = useState<Record<number, string>>({});
+  const [selectorOpenIdx, setSelectorOpenIdx] = useState<number | null>(null);
+
   // Mensajes de respuesta del experto (Fijos)
   const expertReplies = [
     "¡Qué increíble resultado! 🎉 Ese es el poder de la IA cuando tiene la estrategia correcta detrás. ¡A seguir escalando ese proyecto! 🚀",
@@ -26,24 +31,66 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
     "¡Esa es la meta! El tráfico gratis es el más rentable de todos. Sigue así, el sistema seguirá trabajando para ti. 💎"
   ];
 
-  // Imágenes de avatar para el chat (Fijas)
-  const avatarImages = [
-    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
+  // Bibliotecas de imágenes por género (Definidas por el ingeniero)
+  const maleAvatars = [
+    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop",
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop",
-    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop"
+    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop"
   ];
+
+  const femaleAvatars = [
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
+    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop",
+    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop"
+  ];
+
+  const allAvatarOptions = [...femaleAvatars, ...maleAvatars];
+
+  // Función inteligente de detección de género basada en el nombre
+  const detectGender = (name: string): 'male' | 'female' => {
+    const n = name.toLowerCase().trim();
+    // Patrones comunes de nombres femeninos en español/inglés
+    if (n.endsWith('a') || n.endsWith('ia') || n.endsWith('ita') || n.endsWith('na') || n.endsWith('ra') || n.endsWith('sa') || n.endsWith('th') || n.endsWith('ly')) {
+      return 'female';
+    }
+    return 'male';
+  };
 
   // Verificación de existencia de testimonios estratégicos
   const hasTestimonials = strategyData?.modules?.testimonials && strategyData.modules.testimonials.length >= 3;
 
-  // Datos dinámicos fusionados con la estructura estética original
+  // Lógica de asignación dinámica de imágenes por género
+  let maleIdx = 0;
+  let femaleIdx = 0;
+
   const dynamicTestimonials = hasTestimonials
-    ? strategyData.modules.testimonials.slice(0, 3).map((t: any, i: number) => ({
-        name: t.name,
-        img: avatarImages[i],
-        msg: t.text,
-        reply: expertReplies[i]
-      }))
+    ? strategyData.modules.testimonials.slice(0, 3).map((t: any, i: number) => {
+        // Si el usuario seleccionó uno manualmente, lo usamos. Si no, detección automática.
+        if (customAvatars[i]) {
+            return {
+                name: t.name,
+                img: customAvatars[i],
+                msg: t.text,
+                reply: expertReplies[i]
+            };
+        }
+
+        const gender = detectGender(t.name);
+        let img = "";
+        if (gender === 'female') {
+          img = femaleAvatars[femaleIdx % femaleAvatars.length];
+          femaleIdx++;
+        } else {
+          img = maleAvatars[maleIdx % maleAvatars.length];
+          maleIdx++;
+        }
+        return {
+          name: t.name,
+          img,
+          msg: t.text,
+          reply: expertReplies[i]
+        };
+      })
     : [];
 
   const handleStartEdit = (idx: number, text: string) => {
@@ -114,6 +161,11 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
     }
   };
 
+  const selectAvatar = (testimonialIdx: number, imgUrl: string) => {
+      setCustomAvatars(prev => ({ ...prev, [testimonialIdx]: imgUrl }));
+      setSelectorOpenIdx(null);
+  };
+
   return (
     <div className="space-y-16">
       {/* CABECERA ESTRATÉGICA */}
@@ -173,12 +225,42 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
         ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-4">
             {dynamicTestimonials.map((chat: any, i: number) => (
-                <div key={i} className="bg-[#E5DDD5] rounded-[2.5rem] md:rounded-[3.5rem] border-[8px] md:border-[12px] border-[#0B0B0B] overflow-hidden shadow-2xl relative h-auto min-h-[600px] flex flex-col group hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_rgba(0,0,0,0.3)]">
+                <div key={i} className="bg-[#E5DDD5] rounded-[2.5rem] md:rounded-[3.5rem] border-[8px] md:border-[12px] border-[#0B0B0B] overflow-visible shadow-2xl relative h-auto min-h-[600px] flex flex-col group transition-all duration-500 shadow-[0_30px_60px_rgba(0,0,0,0.3)]">
                 {/* WhatsApp Header */}
-                <div className="bg-[#075E54] p-4 md:p-6 flex items-center justify-between text-white shrink-0">
+                <div className="bg-[#075E54] p-4 md:p-6 flex items-center justify-between text-white shrink-0 relative z-30">
                     <div className="flex items-center gap-3 md:gap-4">
-                    <div className="w-10 md:w-14 h-10 md:h-14 rounded-full border-2 border-white/20 overflow-hidden shadow-md">
+                    <div 
+                        onClick={() => setSelectorOpenIdx(selectorOpenIdx === i ? null : i)}
+                        className="w-10 md:w-14 h-10 md:h-14 rounded-full border-2 border-white/20 overflow-hidden shadow-md cursor-pointer hover:border-emerald-300 transition-all relative group/avatar"
+                    >
                         <img src={chat.img} alt={chat.name} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+                            <PenTool className="w-4 h-4 text-white" />
+                        </div>
+
+                        {/* PANEL SELECTOR DE AVATAR */}
+                        {selectorOpenIdx === i && (
+                            <div 
+                                onClick={(e) => e.stopPropagation()}
+                                className="absolute top-full left-0 mt-4 bg-[#111] border border-white/10 rounded-[2rem] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-[100] animate-in zoom-in-95 duration-200 min-w-[180px]"
+                            >
+                                <div className="flex justify-between items-center mb-3 px-2">
+                                    <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Elegir Avatar</span>
+                                    <X className="w-3 h-3 text-gray-500 cursor-pointer" onClick={() => setSelectorOpenIdx(null)} />
+                                </div>
+                                <div className="grid grid-cols-3 gap-3">
+                                    {allAvatarOptions.map((opt, optIdx) => (
+                                        <button 
+                                            key={optIdx} 
+                                            onClick={() => selectAvatar(i, opt)}
+                                            className={`w-10 h-10 rounded-full border-2 transition-all hover:scale-110 overflow-hidden ${chat.img === opt ? 'border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'border-white/10 hover:border-white/30'}`}
+                                        >
+                                            <img src={opt} className="w-full h-full object-cover" />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <div>
                         <h4 className="font-black text-base md:text-lg leading-tight">{chat.name}</h4>
