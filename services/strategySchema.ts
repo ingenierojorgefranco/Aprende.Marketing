@@ -88,6 +88,7 @@ export interface ProjectMasterStrategy {
         testimonials?: Array<{
             name: string;
             text: string;
+            image?: string;
         }>;
         ////////// Fin de actualización //////////
     };
