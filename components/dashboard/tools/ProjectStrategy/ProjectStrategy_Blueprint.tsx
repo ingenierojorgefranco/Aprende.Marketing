@@ -38,7 +38,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["Intentar vender directamente en el anuncio.", "No usar subtítulos en los videos.", "Usar ganchos que no conectan con el dolor."],
             benefits: ["Aumento inmediato en el flujo de visitas.", "Reducción drástica en el costo de adquisición.", "Posicionamiento de autoridad desde el primer segundo."],
-            checklist: ["Publicar entre 2 y 4 Reels diarios con ganchos directos.", "Montar campañas de tráfico directo a la Landing Page.", "Responder los primeros 50 comentarios para activar el algoritmo."]
+            articleChecklist: ["Publicar entre 2 y 4 Reels diarios con ganchos directos.", "Montar campañas de tráfico directo a la Landing Page.", "Responder los primeros 50 comentarios para activar el algoritmo."]
         }
     },
     { 
@@ -77,7 +77,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["Poner demasiados campos en el formulario.", "Usar imágenes que no guardan relación con la oferta.", "No optimizar para dispositivos móviles."],
             benefits: ["Captación de clientes incluso mientras duermes.", "Filtrado automático de curiosos vs interesados.", "Construcción de una base de datos propia y valiosa."],
-            checklist: ["Verificar que el formulario konekte con el CRM.", "Optimizar el peso de las imágenes para carga rápida.", "Realizar una prueba de registro desde un teléfono Android e iPhone."]
+            articleChecklist: ["Verificar que el formulario konekte con el CRM.", "Optimizar el peso de las imágenes para carga rápida.", "Realizar una prueba de registro desde un teléfono Android e iPhone."]
         }
     },
     { 
@@ -116,7 +116,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["No dar una instrucción clara de qué hacer.", "Página aburrida que parece un error del sistema.", "Tener enlaces externos que sacan al usuario del flujo."],
             benefits: ["Aumento de la retención del lead en los primeros minutos.", "Migración del usuario a canales de comunicación directa.", "Generación de micro-compromisos que facilitan la venta."],
-            checklist: ["Incluir un botón gigante que diga 'HAGA CLIC AQUÍ PARA ACCEDER'.", "Añadir un aviso de revisar la carpeta de SPAM.", "Configurar el píxel para marcar la conversión final de registro."]
+            articleChecklist: ["Incluir un botón gigante que diga 'HAGA CLIC AQUÍ PARA ACCEDER'.", "Añadir un aviso de revisar la carpeta de SPAM.", "Configurar el píxel para marcar la conversión final de registro."]
         }
     },
     { 
@@ -155,7 +155,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["Dejar el grupo abierto a spam externo.", "No interactuar ni dar la bienvenida.", "Publicar solo enlaces de venta sin valor previo."],
             benefits: ["Control total de la atención de tus prospectos.", "Generación masiva de prueba social automática.", "Reducción del costo de seguimiento manual."],
-            checklist: ["Cerrar el grupo para que solo administradores envíen mensajes.", "Publicar un mensaje de bienvenida fijo en la descripción.", "Programar 3 contenidos de valor semanales (Tips, Historias, Resultados)."]
+            articleChecklist: ["Cerrar el grupo para que solo administradores envíen mensajes.", "Publicar un mensaje de bienvenida fijo en la descripción.", "Programar 3 contenidos de valor semanales (Tips, Historias, Resultados)."]
         }
     },
     { 
@@ -194,7 +194,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["Tardar más de 4 horas en responder.", "Hablar como un bot sin empatía.", "No preguntar por el problema real del cliente."],
             benefits: ["Aumento radical en el porcentaje de cierre final.", "Creación de relaciones de largo plazo con los clientes.", "Detección de problemas en el embudo gracias al feedback directo."],
-            checklist: ["Configurar respuestas rápidas en WhatsApp Business.", "Tener el enlace de pago siempre copiado en el portapapeles.", "Usar notas de voz de máximo 30 segundos para resolver dudas."]
+            articleChecklist: ["Configurar respuestas rápidas en WhatsApp Business.", "Tener el enlace de pago siempre copiado en el portapapeles.", "Usar notas de voz de máximo 30 segundos para resolver dudas."]
         }
     },
     { 
@@ -233,7 +233,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["Entregar contenido mediocre solo por cumplir.", "Hacer un PDF demasiado largo que nadie lee.", "No poner enlaces de compra dentro del regalo."],
             benefits: ["Posicionamiento instantáneo como experto en la materia.", "Filtrado de leads cualificados por interés temático.", "Activación automática del gatillo mental de reciprocidad."],
-            checklist: ["Crear un título magnético que prometa un resultado rápido.", "Añadir enlaces de WhatsApp al final del documento.", "Asegurar que el diseño sea limpio y fácil de leer en móviles."]
+            articleChecklist: ["Crear un título magnético que prometa un resultado rápido.", "Añadir enlaces de WhatsApp al final del documento.", "Asegurar que el diseño sea limpio y fácil de leer en móviles."]
         }
     },
     { 
@@ -268,7 +268,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["Enviar solo ofertas agresivas.", "No personalizar el nombre del lead.", "Tener un diseño demasiado cargado que va a spam."],
             benefits: ["Automatización total de the relación con el cliente.", "Costo de envío prácticamente nulo.", "Alta tasa de conversión en cierres masivos."],
-            checklist: ["Configurar the secuencia de bienvenida (Día 0).", "Asegurar que el link de desuscripción sea visible.", "Realizar una prueba de envío para verificar formato."]
+            articleChecklist: ["Configurar the secuencia de bienvenida (Día 0).", "Asegurar que el link de desuscripción sea visible.", "Realizar una prueba de envío para verificar formato."]
         }
     },
     { 
@@ -303,7 +303,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["Escribir contenido irrelevante para el avatar.", "No poner llamados a the acción claros.", "Textos difíciles de leer en dispositivos móviles."],
             benefits: ["Construcción de marca a largo plazo.", "Generación de tráfico recurrente y gratuito.", "Eliminación de objeciones mediante the educación."],
-            checklist: ["Publicar 1 artículo semanal sobre un dolor del avatar.", "Insertar botones de registro en medio del texto.", "Compartir el artículo en grupos y redes sociales."]
+            articleChecklist: ["Publicar 1 artículo semanal sobre un dolor del avatar.", "Insertar botones de registro en medio del texto.", "Compartir el artículo en grupos y redes sociales."]
         }
     },
     { 
@@ -338,7 +338,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["No calentar el grupo antes de abrir carrito.", "Ser demasiado robótico o frío en the respuestas.", "No hacer seguimiento a quienes no compraron al final."],
             benefits: ["Alta rentabilidad en periodos cortos.", "Feedback directo y masivo de tu mercado.", "Aumento exponencial de the autoridad de marca."],
-            checklist: ["Revisar los 14 mensajes del asistente de lanzamientos.", "Configurar el cronómetro de urgencia en the página.", "Tener el enlace de checkout listo y verificado."]
+            articleChecklist: ["Revisar los 14 mensajes del asistente de lanzamientos.", "Configurar el cronómetro de urgencia en the página.", "Tener el enlace de checkout listo y verificado."]
         }
     },
     { 
@@ -377,7 +377,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["Esconder el precio hasta el final del todo.", "No incluir una sección de preguntas frecuentes.", "No mostrar testimonios de alumnos reales."],
             benefits: ["Automatización total del proceso de cierre de ventas.", "Escalabilidad ilimitada de tu negocio digital.", "Estandarización de tu mensaje de ventas perfecto."],
-            checklist: ["Incluir un sección de 'Bonos de Acción Rápida'.", "Mostrar sellos de garantía de 7 o 15 días claramente.", "Verificar que el botón de pago funcione en todas the divisas."]
+            articleChecklist: ["Incluir un sección de 'Bonos de Acción Rápida'.", "Mostrar sellos de garantía de 7 o 15 días claramente.", "Verificar que el botón de pago funcione en todas the divisas."]
         }
     },
     { 
@@ -416,7 +416,7 @@ const ACQUISITION_STEPS = [
             ],
             mistakes: ["Pedir demasiados datos personales innecesarios.", "No ofrecer pagos en cuotas o tarjetas locales.", "No tener soporte por chat en vivo en the página de pago."],
             benefits: ["Cierre de ventas sin intervención humana directa.", "Incremento del ticket promedio mediante ofertas extra.", "Gestión profesional de facturación y acceso al curso."],
-            checklist: ["Asegurar que el botón de soporte sea visible en el checkout.", "Configurar el Order Bump con un producto de bajo costo.", "Verificar que el email de bienvenida llegue en menos de 1 minuto."]
+            articleChecklist: ["Asegurar que el botón de soporte sea visible en el checkout.", "Configurar el Order Bump con un producto de bajo costo.", "Verificar que el email de bienvenida llegue en menos de 1 minuto."]
         }
     }
 ];
@@ -539,7 +539,7 @@ const TacticalModal: React.FC<TacticalModalProps> = ({ step, onClose }) => {
                             <ListChecks className="w-5 h-5 text-emerald-400" /> Checklist de Implementación Inmediata
                         </h4>
                         <div className="grid md:grid-cols-1 gap-4 relative z-10">
-                            {step.masterclass.checklist.map((c: string, i: number) => (
+                            {step.masterclass.articleChecklist.map((c: string, i: number) => (
                                 <div key={i} className="flex items-center gap-4 p-5 bg-black/60 rounded-2xl border border-white/5 group hover:border-emerald-500/40 transition-all">
                                     <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold group-hover:bg-emerald-500 group-hover:text-black transition-all shadow-lg shadow-emerald-900/10">
                                         <CheckCircle2 className="w-5 h-5" />
@@ -647,6 +647,7 @@ interface ProjectStrategy_BlueprintProps {
 
 export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps> = ({ onOpenVideo }) => {
     const [selectedMasterclass, setSelectedMasterclass] = useState<any | null>(null);
+    const [showVideoModal, setShowVideoModal] = useState(false);
 
     return (
         <div id="psd-blueprint-container" className="space-y-12">
@@ -657,27 +658,22 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                 <h3 id="psd-blueprint-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
                     ¿Cómo funcionará tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">estrategia de ventas?</span>
                 </h3>
-                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
-                    <p className="border-l-4 border-emerald-500 pl-8 py-2">Nuestro sistema de ventas no depende de la suerte. Nuestra estrategia está diseñada para atraer clientes interesados en tu producto digital y llevarlos paso a paso hasta que tomen the decisión de compra con confianza.</p>
-                    <p className="border-l-4 border-teal-500 pl-8 py-2">A continuación encontrarás the estrategia de Marketing Digital más ganandora del mercado, the cual contiene todos los elementos para atraer, seducir y coonvertir clientes.</p>
-                </div>
-            </div>
-
-            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
-            <div id="psd-blueprint-video-block" className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
-                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
-                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
-                        <iframe 
-                            className="w-full h-full"
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
-                            title="Explicación del Mapa de Ruta" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
-                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
-                            <PlayCircle className="w-5 h-5 text-indigo-400" />
-                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo de Estrategia</span>
+                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-xl leading-relaxed font-light">
+                    <p className="flex-1 border-l-4 border-emerald-500 pl-8 py-2">Nuestro sistema de ventas no depende de la suerte. Nuestra estrategia está diseñada para atraer clientes interesados en tu producto digital y llevarlos paso a paso hasta que tomen the decisión de compra con confianza.</p>
+                    <div className="hidden md:block w-px h-24 bg-teal-500/30"></div>
+                    <div 
+                        onClick={() => setShowVideoModal(true)}
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                    >
+                        <img 
+                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                        alt="Video Thumbnail"
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                <PlayCircle className="w-10 h-10 text-emerald-400" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -738,6 +734,37 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                     step={selectedMasterclass} 
                     onClose={() => setSelectedMasterclass(null)} 
                 />
+            )}
+
+            {/* MODAL DE VIDEO */}
+            {showVideoModal && (
+                <div 
+                    onClick={() => setShowVideoModal(false)}
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+                    >
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Mapa de Ruta Estratégico
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Tutorial Blueprint" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

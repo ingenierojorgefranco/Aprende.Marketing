@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
 import { Generator } from '../Generator';
@@ -33,6 +33,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showDomainModal, setShowDomainModal] = useState(false);
+    const [showVideoModal, setShowVideoModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [domainCount, setDomainCount] = useState(0);
@@ -133,9 +134,27 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                     <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg"><Monitor className="w-5 h-5" /> Web Blueprint</div>
                     <h3 className="text-5xl md:text-6xl font-black text-white leading-tight italic">Crea tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Pagina de Captura y Convierte Clientes en Automático</span></h3>
-                    <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
-                        <p className="border-l-4 border-blue-500 pl-8 py-2">Esta sección es el motor principal de tu prospección. Hemos configurado cada bloque para que el visitante sienta la necesidad de registrarse de inmediato.</p>
-                        <p className="border-l-4 border-cyan-500 pl-8 py-2">El puente de agradecimiento es donde ocurre la magia de la redirección. Aquí aseguramos que el lead no se pierda y llegue directo a tu canal de ventas.</p>
+                    
+                    <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
+                        <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">
+                            Esta sección es el motor principal de tu prospección. Hemos configurado cada bloque para que el visitante sienta la necesidad de registrarse de inmediato.
+                        </p>
+                        <div className="hidden md:block w-px h-24 bg-cyan-500/30"></div>
+                        <div 
+                            onClick={() => setShowVideoModal(true)}
+                            className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                        >
+                            <img 
+                            src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                            alt="Video Thumbnail"
+                            className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                    <PlayCircle className="w-10 h-10 text-blue-400" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -236,6 +255,36 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in" onClick={handleCloseAndReload}>
                     <div className="w-full max-w-[1200px] h-[95vh] rounded-[3rem] shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
                         <Generator onPageGenerated={handlePageGenerated} embeddedProjectId={projectId} onClose={handleCloseAndReload} />
+                    </div>
+                </div>
+            )}
+
+            {showVideoModal && (
+                <div 
+                    onClick={() => setShowVideoModal(false)}
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+                    >
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Sistema Web
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Tutorial Web" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
                     </div>
                 </div>
             )}

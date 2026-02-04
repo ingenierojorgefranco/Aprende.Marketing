@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool } from 'lucide-react';
+import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, Article } from '../../../../types';
 
@@ -21,6 +21,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan, linkedArticles = []
 }) => {
     const navigate = useNavigate();
+    const [showVideoModal, setShowVideoModal] = useState(false);
 
     // Si no hay artículos, mostramos el estado vacío con invitación a generar contenido
     if (linkedArticles.length === 0) {
@@ -33,9 +34,28 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
                         Secuencia de Autoridad <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">(Evergreen)</span>
                     </h3>
-                    <p className="text-gray-300 text-xl font-light border-l-4 border-orange-500 pl-8 py-2">
-                        Esta secuencia se construye automáticamente a partir de los artículos que generes en la sección "Contenido". Cada artículo se transforma en un punto de contacto para nutrir a tu audiencia.
-                    </p>
+                    
+                    <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
+                        <p className="flex-1 border-l-4 border-orange-500 pl-8 py-2">
+                            Esta secuencia se construye automáticamente a partir de los artículos que generes en la sección "Contenido". Cada artículo se transforma en un punto de contacto para nutrir a tu audiencia.
+                        </p>
+                        <div className="hidden md:block w-px h-24 bg-blue-500/30"></div>
+                        <div 
+                            onClick={() => setShowVideoModal(true)}
+                            className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                        >
+                            <img 
+                            src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                            alt="Video Thumbnail"
+                            className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                    <PlayCircle className="w-10 h-10 text-orange-400" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="bg-[#111] p-16 rounded-[3rem] border border-white/5 text-center space-y-8 shadow-2xl relative overflow-hidden">
@@ -58,6 +78,37 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         Ir a Generar Contenidos <ArrowRight className="w-5 h-5" />
                     </button>
                 </div>
+                
+                {/* MODAL DE VIDEO */}
+                {showVideoModal && (
+                    <div 
+                        onClick={() => setShowVideoModal(false)}
+                        className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+                    >
+                        <div 
+                            onClick={(e) => e.stopPropagation()}
+                            className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+                        >
+                            <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                                <h3 className="font-bold text-white flex items-center gap-2">
+                                    <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Secuencias Evergreen
+                                </h3>
+                                <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                    <X className="w-6 h-6"/>
+                                </button>
+                            </div>
+                            <div className="aspect-video w-full">
+                                <iframe 
+                                    className="w-full h-full"
+                                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                    title="Tutorial Evergreen" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowFullScreen
+                                ></iframe>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
@@ -85,13 +136,27 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
                     Tu Estrategia <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">Evergreen de 30 Días</span>
                 </h3>
-                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
-                    <p className="border-l-4 border-blue-500 pl-8 py-2">
+                
+                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
+                    <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">
                         Tienes {linkedArticles.length} artículos vinculados. El sistema ha programado estos correos para enviarse a partir del Día 8, manteniendo tu oferta presente sin ser invasivo.
                     </p>
-                    <p className="border-l-4 border-orange-500 pl-8 py-2">
-                        Cada clic hacia tu blog no solo educa al prospecto, sino que aumenta el deseo de adquirir tu solución profesional definitiva.
-                    </p>
+                    <div className="hidden md:block w-px h-24 bg-orange-500/30"></div>
+                    <div 
+                        onClick={() => setShowVideoModal(true)}
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                    >
+                        <img 
+                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                        alt="Video Thumbnail"
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                <PlayCircle className="w-10 h-10 text-orange-400" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -195,6 +260,37 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     </div>
                 </div>
             </div>
+
+            {/* MODAL DE VIDEO */}
+            {showVideoModal && (
+                <div 
+                    onClick={() => setShowVideoModal(false)}
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+                    >
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Secuencias Evergreen
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Tutorial Evergreen" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                    </div>
+                </div>
+            )}
             
             {/* FOOTER INFORMATIVO */}
             <div className="max-w-[70em] mx-auto text-center pt-12 border-t border-white/5 opacity-40">

@@ -31,6 +31,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const { id: projectId } = useParams() as { id: string };
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showVideoModal, setShowVideoModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
@@ -99,30 +100,24 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     Contenido SEO que <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-rose-400">crearemos automáticamente</span>
                 </h3>
                 
-                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
-                    <p className="border-l-4 border-purple-500 pl-8 py-2">
+                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
+                    <p className="flex-1 border-l-4 border-purple-500 pl-8 py-2">
                         Los activos digitales son la clave de la libertad financiera. No basta con pagar anuncios; necesitas crear una red de contenidos que trabajen por ti 24/7.
                     </p>
-                    <p className="border-l-4 border-rose-500 pl-8 py-2">
-                        Como tu estratega, he diseñado este plan de contenidos SEO para posicionarte como la única autoridad lógica en tu nicho y atraer tráfico gratuito de alta calidad.
-                    </p>
-                </div>
-            </div>
-
-            <div id="psd-content-video-block" className="max-w-[70em] mx-auto px-4 md:px-0">
-                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
-                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
-                        <iframe 
-                            className="w-full h-full"
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
-                            title="Estrategia de Contenidos Automáticos" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
-                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
-                            <PlayCircle className="w-5 h-5 text-indigo-400" />
-                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo de Contenidos</span>
+                    <div className="hidden md:block w-px h-24 bg-rose-500/30"></div>
+                    <div 
+                        onClick={() => setShowVideoModal(true)}
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                    >
+                        <img 
+                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                        alt="Video Thumbnail"
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                <PlayCircle className="w-10 h-10 text-purple-400" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -248,6 +243,37 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 handleCloseAndReload();
                             }}
                         />
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL DE VIDEO */}
+            {showVideoModal && (
+                <div 
+                    onClick={() => setShowVideoModal(false)}
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+                    >
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Estrategia de Contenidos
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Tutorial Contenidos" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
                     </div>
                 </div>
             )}

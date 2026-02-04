@@ -600,7 +600,11 @@ export const api = {
   },
 
   getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy | null> => {
-      if (isMockMode) return Promise.resolve(MOCK_MASTER_STRATEGY);
+      if (isMockMode) {
+          const proj = localProjects.find(p => p.id === id);
+          if (proj && proj.strategy_json) return Promise.resolve(proj.strategy_json as ProjectMasterStrategy);
+          return Promise.resolve(MOCK_MASTER_STRATEGY);
+      }
       if (apiCache.masterStrategies[id]) return apiCache.masterStrategies[id];
       try {
           const project = await api.getProjectById(id);
@@ -634,6 +638,8 @@ export const api = {
     updateProject: async (id: string, project: Omit<Project, 'id' | 'createdAt'>): Promise<void> => {
         if (isMockMode) {
             localProjects = localProjects.map(p => p.id === id ? { ...project, id, createdAt: p.createdAt } : p);
+            clearCache('projectDetails', id);
+            clearCache('masterStrategies', id);
             return Promise.resolve();
         }
         await fetchWithFallback(`/projects/${id}`, {
@@ -677,6 +683,8 @@ export const api = {
                 }
                 return page;
             });
+            clearCache('projectDetails', projectId);
+            clearCache('masterStrategies', projectId);
             return;
         }
 

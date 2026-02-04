@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Phone, MoreVertical, Send, Smile, Star, MessageSquare, Zap, PlayCircle, Save, X, Loader2 } from 'lucide-react';
+import { Phone, MoreVertical, Send, Smile, Star, MessageSquare, Zap, PlayCircle, Save, X, Loader2, Sparkles, AlertTriangle, ArrowRight, Wand2 } from 'lucide-react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
+import { callGeminiBackend, Type } from '../../../../services/geminiService';
 
 export const ProjectStrategy_Testimonials: React.FC = () => {
   const { strategyData } = useOutletContext() as any;
@@ -10,12 +11,14 @@ export const ProjectStrategy_Testimonials: React.FC = () => {
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [tempText, setTempText] = useState("");
   const [saving, setSaving] = useState(false);
+  const [isGeneratingIA, setIsGeneratingIA] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   // Mensajes de respuesta del experto (Fijos)
   const expertReplies = [
-    "¡Qué increíble Maria! 🎉 Ese es el poder de la IA cuando tiene la estrategia correcta detrás. ¡A seguir escalando ese proyecto! 🚀",
-    "Exacto Juan, la velocidad es la clave en Hotmart. Me alegra mucho que te esté ahorrando tanto tiempo. ¡A por más ventas! 💰",
-    "¡Esa es la meta Ana! El tráfico gratis es el más rentable de todos. Sigue así, el sistema seguirá trabajando para ti. 💎"
+    "¡Qué increíble resultado! 🎉 Ese es el poder de la IA cuando tiene la estrategia correcta detrás. ¡A seguir escalando ese proyecto! 🚀",
+    "Exacto, la velocidad es la clave en Hotmart. Me alegra mucho que te esté ahorrando tanto tiempo. ¡A por más ventas! 💰",
+    "¡Esa es la meta! El tráfico gratis es el más rentable de todos. Sigue así, el sistema seguirá trabajando para ti. 💎"
   ];
 
   // Imágenes de avatar para el chat (Fijas)
@@ -25,34 +28,18 @@ export const ProjectStrategy_Testimonials: React.FC = () => {
     "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop"
   ];
 
+  // Verificación de existencia de testimonios estratégicos
+  const hasTestimonials = strategyData?.modules?.testimonials && strategyData.modules.testimonials.length >= 3;
+
   // Datos dinámicos fusionados con la estructura estética original
-  const dynamicTestimonials = strategyData?.modules?.testimonials && strategyData.modules.testimonials.length >= 3 
+  const dynamicTestimonials = hasTestimonials
     ? strategyData.modules.testimonials.slice(0, 3).map((t: any, i: number) => ({
         name: t.name,
         img: avatarImages[i],
         msg: t.text,
         reply: expertReplies[i]
       }))
-    : [
-        { 
-          name: "Maria G.", 
-          img: avatarImages[0], 
-          msg: "¡Chicos! No puedo creerlo. Lancé mi primera landing page con la IA ayer y ya tengo 15 registros. El copywriting es brutal, parece escrito por un experto de años.",
-          reply: expertReplies[0]
-        },
-        { 
-          name: "Juan P.", 
-          img: avatarImages[1], 
-          msg: "Por fin una herramienta que entiende lo que necesitamos. He generado mi web de ventas en segundos y los textos son mejores que los que yo hacía en horas.",
-          reply: expertReplies[1]
-        },
-        { 
-          name: "Ana S.", 
-          img: avatarImages[2], 
-          msg: "Increíble cómo optimizó mis artículos para SEO. Estoy empezando a recibir tráfico orgánico desde Google sin gastar ni un dólar en anuncios.",
-          reply: expertReplies[2]
-        }
-      ];
+    : [];
 
   const handleStartEdit = (idx: number, text: string) => {
     setEditingIdx(idx);
@@ -66,7 +53,6 @@ export const ProjectStrategy_Testimonials: React.FC = () => {
         const updatedTestimonials = [...dynamicTestimonials];
         updatedTestimonials[editingIdx].msg = tempText;
         
-        // Mapear de vuelta al formato de la estrategia (sin imágenes ni respuestas de experto)
         const testimonialsToSave = updatedTestimonials.map(t => ({
             name: t.name,
             text: t.msg
@@ -74,7 +60,6 @@ export const ProjectStrategy_Testimonials: React.FC = () => {
 
         await api.updateProjectTestimonials(projectId, testimonialsToSave);
         
-        // Actualizar localmente la estrategia inyectada
         if (strategyData?.modules) {
             strategyData.modules.testimonials = testimonialsToSave;
         }
@@ -84,6 +69,43 @@ export const ProjectStrategy_Testimonials: React.FC = () => {
         alert("Error al guardar el testimonio.");
     } finally {
         setSaving(false);
+    }
+  };
+
+  const handleGenerateWithIA = async () => {
+    if (!projectId || !strategyData?.avatars) return;
+    setIsGeneratingIA(true);
+    try {
+        const avatars = strategyData.avatars.slice(0, 3);
+        const avatarInfo = avatars.map((a: any) => `- Nombre: ${a.name}, Dolor: ${a.pain}`).join('\n');
+        
+        const prompt = `Actúa como un experto en Copywriting y Prueba Social Estratégica. 
+        Tengo un proyecto de venta de un producto digital y necesito generar exactamente 3 testimonios cortos para mi Landing Page.
+        
+        BASADO EN ESTOS 3 AVATARES DE MI PROYECTO:
+        ${avatarInfo}
+        
+        REGLAS PARA LOS TESTIMONIOS:
+        1. Deben usar los nombres exactos de los avatares.
+        2. El texto debe narrar en primera persona cómo el producto resolvió su dolor específico.
+        3. El tono debe ser de un mensaje de WhatsApp de agradecimiento natural y entusiasta.
+        4. Máximo 25 palabras por testimonio.
+        5. Devuelve EXCLUSIVAMENTE un array JSON con esta estructura: [{"name": "string", "text": "string"}]`;
+
+        const response = await callGeminiBackend(prompt, null, true, "gemini-3-flash-preview");
+        if (response.text) {
+            const generated = JSON.parse(response.text.trim());
+            if (Array.isArray(generated) && generated.length >= 3) {
+                await api.updateProjectTestimonials(projectId, generated.slice(0, 3));
+                // Forzar recarga ligera para ver los nuevos datos
+                window.location.reload();
+            }
+        }
+    } catch (e) {
+        console.error("IA Generation error", e);
+        alert("Error al generar testimonios con IA. Intenta de nuevo.");
+    } finally {
+        setIsGeneratingIA(false);
     }
   };
 
@@ -98,108 +120,154 @@ export const ProjectStrategy_Testimonials: React.FC = () => {
           Testimonios de Éxito
         </h3>
         
-        <div className="grid md:grid-cols-2 gap-10 text-white text-[1.3rem] leading-[2.5rem] font-light">
-          <p className="border-l-4 border-emerald-500 pl-8 py-2">
+        <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
+          <p className="flex-1 border-l-4 border-emerald-500 pl-8 py-2">
             La prueba social es el gatillo mental más potente para cerrar ventas. Cuando tus prospectos ven que otros ya están logrando resultados, su miedo al fracaso desaparece.
           </p>
-          <p className="border-l-4 border-teal-500 pl-8 py-2">
-            Utiliza estos testimonios reales de nuestra comunidad como referencia para entender el impacto que tendrá tu sistema una vez esté 100% operativo en el mercado.
-          </p>
-        </div>
-      </div>
-
-      {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
-      <div className="max-w-[70em] mx-auto px-4 md:px-0">
-        <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-emerald-500/20">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-600 opacity-30"></div>
-          <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
-            <iframe 
-              className="w-full h-full"
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
-              title="Estrategia de Prueba Social" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowFullScreen
-            ></iframe>
-            <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
-              <PlayCircle className="w-5 h-5 text-emerald-400" />
-              <span className="text-white text-xs font-black uppercase tracking-widest">Video: El Poder de los Testimonios</span>
-            </div>
+          <div className="hidden md:block w-px h-24 bg-emerald-500/30"></div>
+          <div 
+            onClick={() => setShowVideoModal(true)}
+            className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+          >
+              <img 
+                src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                alt="Video Thumbnail"
+                className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                      <PlayCircle className="w-10 h-10 text-emerald-400" />
+                  </div>
+              </div>
           </div>
         </div>
       </div>
 
-      {/* GRID DE WHATSAPP CHATS */}
+      {/* GRID DE WHATSAPP CHATS O ESTADO VACÍO */}
       <div className="max-w-[85em] mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-4">
-          {dynamicTestimonials.map((chat: any, i: number) => (
-            <div key={i} className="bg-[#E5DDD5] rounded-[2.5rem] md:rounded-[3.5rem] border-[8px] md:border-[12px] border-[#0B0B0B] overflow-hidden shadow-2xl relative h-auto min-h-[600px] flex flex-col group hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_rgba(0,0,0,0.3)]">
-              {/* WhatsApp Header */}
-              <div className="bg-[#075E54] p-4 md:p-6 flex items-center justify-between text-white shrink-0">
-                <div className="flex items-center gap-3 md:gap-4">
-                  <div className="w-10 md:w-14 h-10 md:h-14 rounded-full border-2 border-white/20 overflow-hidden shadow-md">
-                    <img src={chat.img} alt={chat.name} className="w-full h-full object-cover" />
-                  </div>
-                  <div>
-                    <h4 className="font-black text-base md:text-lg leading-tight">{chat.name}</h4>
-                    <p className="text-[10px] md:text-xs opacity-80 font-medium">En línea</p>
-                  </div>
+        {!hasTestimonials ? (
+            <div className="bg-[#111] p-16 rounded-[3rem] border border-dashed border-emerald-500/30 text-center space-y-8 animate-in zoom-in-95 duration-700 shadow-2xl">
+                <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center text-emerald-500 mx-auto border border-emerald-500/20 shadow-lg">
+                    <AlertTriangle className="w-10 h-10" />
                 </div>
-                <div className="flex gap-3 md:gap-4 opacity-70">
-                  <Phone className="w-5 md:w-6 h-5 md:h-6" />
-                  <MoreVertical className="w-5 md:w-6 h-5 md:h-6" />
+                <div className="max-w-xl mx-auto">
+                    <h4 className="text-3xl font-black text-white uppercase tracking-tight mb-4">No se generaron testimonios</h4>
+                    <p className="text-gray-400 text-lg font-medium leading-relaxed">
+                        Los testimonios estratégicos no se crearon correctamente durante la fase inicial. Necesitamos generarlos ahora basados en los avatares de tu proyecto para que tu Landing Page sea persuasiva.
+                    </p>
                 </div>
-              </div>
-
-              {/* Chat Body */}
-              <div className="flex-1 p-4 md:p-6 space-y-6 md:space-y-8 overflow-visible bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-repeat bg-opacity-10">
-                <div className="flex justify-start animate-in slide-in-from-left-6 duration-700">
-                  <div 
-                    onClick={() => editingIdx === null && handleStartEdit(i, chat.msg)}
-                    className={`bg-white p-3 md:p-5 rounded-2xl md:rounded-3xl rounded-tl-none shadow-sm max-w-[90%] relative border border-gray-100 ${editingIdx === null ? 'cursor-pointer hover:bg-gray-50 transition-colors' : ''}`}
-                  >
-                    {editingIdx === i ? (
-                        <div className="space-y-3">
-                            <textarea 
-                                autoFocus
-                                value={tempText}
-                                onChange={(e) => setTempText(e.target.value)}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2 text-sm md:text-[1.1rem] text-[#0B0B0B] outline-none focus:ring-2 focus:ring-[#075E54]/20 min-h-[100px] resize-none"
-                            />
-                            <div className="flex gap-2 justify-end">
-                                <button onClick={() => setEditingIdx(null)} disabled={saving} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition"><X className="w-4 h-4" /></button>
-                                <button onClick={handleSave} disabled={saving} className="bg-[#075E54] text-white px-4 py-1 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-[#054d44] transition">
-                                    {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />} Guardar
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <>
-                            <p className="text-sm md:text-[1.1rem] text-[#0B0B0B] leading-relaxed font-medium">{chat.msg}</p>
-                            <span className="text-[8px] md:text-[10px] text-gray-400 block text-right mt-2 md:mt-3 font-bold uppercase">10:45 AM</span>
-                            <div className="absolute -top-6 left-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[#075E54] text-white text-[9px] font-black uppercase px-2 py-0.5 rounded">Clic para editar testimonio</div>
-                        </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-end animate-in slide-in-from-right-6 duration-1000 delay-500">
-                  <div className="bg-[#DCF8C6] p-3 md:p-5 rounded-2xl md:rounded-3xl rounded-tr-none shadow-md max-w-[90%] relative border border-green-200">
-                    <p className="text-sm md:text-[1.1rem] text-[#0B0B0B] leading-relaxed font-medium">{chat.reply}</p>
-                    <span className="text-[8px] md:text-[10px] text-green-700 block text-right mt-2 md:mt-3 font-bold uppercase tracking-wider">10:46 AM ✓✓</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Input Bar */}
-              <div className="bg-[#F0F0F0] p-4 md:p-5 flex items-center gap-2 md:gap-3 border-t border-gray-300 shrink-0">
-                <Smile className="w-6 md:w-7 h-6 md:h-7 text-gray-500" />
-                <div className="flex-1 bg-white h-10 md:h-12 rounded-full border border-gray-200 px-4 md:px-6 flex items-center text-xs md:text-sm text-gray-400 italic">Escribe...</div>
-                <div className="w-10 md:w-12 h-10 md:h-12 bg-[#075E54] rounded-full flex items-center justify-center text-white shadow-lg"><Send className="w-5 md:w-6 h-5 md:h-6 fill-current ml-1" /></div>
-              </div>
+                <button 
+                    onClick={handleGenerateWithIA}
+                    disabled={isGeneratingIA}
+                    className="px-12 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xl uppercase tracking-widest rounded-2xl transition-all shadow-2xl shadow-emerald-900/20 flex items-center justify-center gap-4 mx-auto transform hover:scale-[1.05] active:scale-95 disabled:opacity-50 disabled:grayscale"
+                >
+                    {isGeneratingIA ? <Loader2 className="w-6 h-6 animate-spin" /> : <Wand2 className="w-6 h-6" />}
+                    {isGeneratingIA ? "Redactando Testimonios..." : "Regenerar Testimonios con IA"}
+                </button>
             </div>
-          ))}
-        </div>
+        ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-4">
+            {dynamicTestimonials.map((chat: any, i: number) => (
+                <div key={i} className="bg-[#E5DDD5] rounded-[2.5rem] md:rounded-[3.5rem] border-[8px] md:border-[12px] border-[#0B0B0B] overflow-hidden shadow-2xl relative h-auto min-h-[600px] flex flex-col group hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_rgba(0,0,0,0.3)]">
+                {/* WhatsApp Header */}
+                <div className="bg-[#075E54] p-4 md:p-6 flex items-center justify-between text-white shrink-0">
+                    <div className="flex items-center gap-3 md:gap-4">
+                    <div className="w-10 md:w-14 h-10 md:h-14 rounded-full border-2 border-white/20 overflow-hidden shadow-md">
+                        <img src={chat.img} alt={chat.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                        <h4 className="font-black text-base md:text-lg leading-tight">{chat.name}</h4>
+                        <p className="text-[10px] md:text-xs opacity-80 font-medium">En línea</p>
+                    </div>
+                    </div>
+                    <div className="flex gap-3 md:gap-4 opacity-70">
+                    <Phone className="w-5 md:w-6 h-5 md:h-6" />
+                    <MoreVertical className="w-5 md:w-6 h-5 md:h-6" />
+                    </div>
+                </div>
+
+                {/* Chat Body */}
+                <div className="flex-1 p-4 md:p-6 space-y-6 md:space-y-8 overflow-visible bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-repeat bg-opacity-10">
+                    <div className="flex justify-start animate-in slide-in-from-left-6 duration-700">
+                    <div 
+                        onClick={() => editingIdx === null && handleStartEdit(i, chat.msg)}
+                        className={`bg-white p-3 md:p-5 rounded-2xl md:rounded-3xl rounded-tl-none shadow-sm max-w-[90%] relative border border-gray-100 ${editingIdx === null ? 'cursor-pointer hover:bg-gray-50 transition-colors' : ''}`}
+                    >
+                        {editingIdx === i ? (
+                            <div className="space-y-3">
+                                <textarea 
+                                    autoFocus
+                                    value={tempText}
+                                    onChange={(e) => setTempText(e.target.value)}
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2 text-sm md:text-[1.1rem] text-[#0B0B0B] outline-none focus:ring-2 focus:ring-[#075E54]/20 min-h-[100px] resize-none"
+                                />
+                                <div className="flex gap-2 justify-end">
+                                    <button onClick={() => setEditingIdx(null)} disabled={saving} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition"><X className="w-4 h-4" /></button>
+                                    <button onClick={handleSave} disabled={saving} className="bg-[#075E54] text-white px-4 py-1 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-[#054d44] transition">
+                                        {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />} Guardar
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <p className="text-sm md:text-[1.1rem] text-[#0B0B0B] leading-relaxed font-medium">{chat.msg}</p>
+                                <span className="text-[8px] md:text-[10px] text-gray-400 block text-right mt-2 md:mt-3 font-bold uppercase">10:45 AM</span>
+                                <div className="absolute -top-6 left-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[#075E54] text-white text-[9px] font-black uppercase px-2 py-0.5 rounded">Clic para editar testimonio</div>
+                            </>
+                        )}
+                    </div>
+                    </div>
+
+                    <div className="flex justify-end animate-in slide-in-from-right-6 duration-1000 delay-500">
+                    <div className="bg-[#DCF8C6] p-3 md:p-5 rounded-2xl md:rounded-3xl rounded-tr-none shadow-md max-w-[90%] relative border border-green-200">
+                        <p className="text-sm md:text-[1.1rem] text-[#0B0B0B] leading-relaxed font-medium">{chat.reply}</p>
+                        <span className="text-[8px] md:text-[10px] text-green-700 block text-right mt-2 md:mt-3 font-bold uppercase tracking-wider">10:46 AM ✓✓</span>
+                    </div>
+                    </div>
+                </div>
+
+                {/* Input Bar */}
+                <div className="bg-[#F0F0F0] p-4 md:p-5 flex items-center gap-2 md:gap-3 border-t border-gray-300 shrink-0">
+                    <Smile className="w-6 md:w-7 h-6 md:h-7 text-gray-500" />
+                    <div className="flex-1 bg-white h-10 md:h-12 rounded-full border border-gray-200 px-4 md:px-6 flex items-center text-xs md:text-sm text-gray-400 italic">Escribe...</div>
+                    <div className="w-10 md:w-12 h-10 md:h-12 bg-[#075E54] rounded-full flex items-center justify-center text-white shadow-lg"><Send className="w-5 md:w-6 h-5 md:h-6 fill-current ml-1" /></div>
+                </div>
+                </div>
+            ))}
+            </div>
+        )}
       </div>
+
+      {/* MODAL DE VIDEO */}
+      {showVideoModal && (
+          <div 
+              onClick={() => setShowVideoModal(false)}
+              className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+          >
+              <div 
+                  onClick={(e) => e.stopPropagation()}
+                  className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+              >
+                  <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                      <h3 className="font-bold text-white flex items-center gap-2">
+                          <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Estrategia de Testimonios
+                      </h3>
+                      <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                          <X className="w-6 h-6"/>
+                      </button>
+                  </div>
+                  <div className="aspect-video w-full">
+                      <iframe 
+                          className="w-full h-full"
+                          src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                          title="Tutorial Testimonios" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowFullScreen
+                      ></iframe>
+                  </div>
+              </div>
+          </div>
+      )}
 
       {/* FOOTER INFORMATIVO */}
       <div className="max-w-[70em] mx-auto text-center pt-12 border-t border-white/5 opacity-40">

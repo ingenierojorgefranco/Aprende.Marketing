@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, X, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight, Users, Clock, Coffee, Heart, PlayCircle } from 'lucide-react';
 
 interface ProjectStrategy_AvatarDiagnosisProps {
@@ -27,6 +27,8 @@ interface ProjectStrategy_AvatarDiagnosisProps {
 }
 
 export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDiagnosisProps> = ({ avatars, psychology, benefitsItems }) => {
+    const [showVideoModal, setShowVideoModal] = useState(false);
+
     const getAvatarRoleBadge = (idx: number) => {
         const badges = [
             { label: "Avatar Principal — Perfil de Atracción", gradient: "from-pink-600 to-rose-600" },
@@ -54,31 +56,24 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     Descubriendo el ADN de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500">comprador ideal</span>
                 </h3>
                 
-                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
-                    <p className="border-l-4 border-pink-500 pl-8 py-2">
+                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
+                    <p className="flex-1 border-l-4 border-pink-500 pl-8 py-2">
                         El 90% de los embudos fracasan porque el mensaje es demasiado genérico. Aquí tienes los 3 perfiles psicológicos exactos de las personas que realmente comprarán tu producto.
                     </p>
-                    <p className="border-l-4 border-purple-500 pl-8 py-2">
-                        Entender qué les duele y qué sueñan nos permite crear una conexión emocional y racional tan fuerte que sentirán que la única solución lógica es comprar tu oferta.
-                    </p>
-                </div>
-            </div>
-
-            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
-            <div id="psd-avatar-video-block" className="max-w-[70em] mx-auto px-4 md:px-0">
-                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
-                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
-                        <iframe 
-                            className="w-full h-full"
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
-                            title="Análisis del Avatar Ideal" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
-                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
-                            <PlayCircle className="w-5 h-5 text-indigo-400" />
-                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo de Avatar</span>
+                    <div className="hidden md:block w-px h-24 bg-purple-500/30"></div>
+                    <div 
+                        onClick={() => setShowVideoModal(true)}
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                    >
+                        <img 
+                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                        alt="Video Thumbnail"
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                <PlayCircle className="w-10 h-10 text-pink-400" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -134,7 +129,6 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                             </div>
                                             <p className="text-gray-200 text-xl leading-relaxed font-medium mb-4">{avatar.pain}</p>
                                             
-                                            {/* */ /* Actualización: Inclusión del bloque de Manifestación Diaria del Dolor para humanizar el copy de anuncios - 15/06/2024 19:35 */ }
                                             {avatar.daily_manifestation && (
                                                 <div className="bg-black/40 p-4 rounded-2xl border border-white/5 mt-4 flex gap-3">
                                                     <Clock className="w-4 h-4 text-rose-300 shrink-0 mt-0.5" />
@@ -144,7 +138,6 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                                     </p>
                                                 </div>
                                             )}
-                                            {/* Fin de actualización - 15/06/2024 19:35 */}
                                         </div>
 
                                         <div className="bg-emerald-500/[0.03] border-l-4 border-emerald-500/20 p-8 rounded-r-[2.5rem] hover:bg-emerald-500/[0.06] transition-colors group/card">
@@ -154,7 +147,6 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                             </div>
                                             <p className="text-gray-200 text-xl leading-relaxed font-medium mb-4">{avatar.desire}</p>
                                             
-                                            {/* */ /* Actualización: Inclusión del bloque de Razón Emocional (Para Qué) para elevar el deseo en la landing page - 15/06/2024 19:40 */ }
                                             {avatar.emotional_reason && (
                                                 <div className="bg-black/40 p-4 rounded-2xl border border-white/5 mt-4 flex gap-3">
                                                     <Heart className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
@@ -164,7 +156,6 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                                                     </p>
                                                 </div>
                                             )}
-                                            {/* Fin de actualización - 15/06/2024 19:40 */}
                                         </div>
                                     </div>
 
@@ -208,6 +199,37 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     );
                 })}
             </div>
+
+            {/* MODAL DE VIDEO */}
+            {showVideoModal && (
+                <div 
+                    onClick={() => setShowVideoModal(false)}
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+                    >
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Diagnóstico de Avatar
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Tutorial Avatar" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

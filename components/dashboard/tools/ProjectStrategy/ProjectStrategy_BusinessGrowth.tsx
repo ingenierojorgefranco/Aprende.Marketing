@@ -1,5 +1,5 @@
-import React from 'react';
-import { TrendingUp, PlayCircle, Calendar, Sparkles, DollarSign, ArrowUpRight, Users, Clock, Zap, Check, AlertTriangle, Cpu, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { TrendingUp, PlayCircle, Calendar, Sparkles, DollarSign, ArrowUpRight, Users, Clock, Zap, Check, AlertTriangle, Cpu, ArrowRight, X } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 
 interface ProjectStrategy_BusinessGrowthProps {
@@ -51,7 +51,9 @@ const CustomTooltip = ({ active, payload, label, commissionValue, fullData }: an
     return null;
 };
 
-export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGrowthProps> = ({ chartData, onOpenVideo, commissionValue, commissionRate }) => {
+export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGrowthProps> = ({ chartData, commissionValue, commissionRate }) => {
+    const [showVideoModal, setShowVideoModal] = useState(false);
+
     return (
         <div id="psd-business-growth-section" className="space-y-16 pt-8">
             
@@ -63,33 +65,24 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                     ¿Cuánto podrías ganar con nuestra estrategia?
                 </h3>
                 
-                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
-                    <p className="border-l-4 border-emerald-500 pl-8 py-2">
+                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-xl leading-relaxed font-light">
+                    <p className="flex-1 border-l-4 border-emerald-500 pl-8 py-2">
                         Nuestro sistema está diseñado para ayudarte a construir un negocio digital que te permita generar ingresos progresivos utilizando contenido inteligente y automatización masiva. Sin embargo, no es una fórmula mágica ni resultados inmediatos.
                     </p>
-                    <div className="space-y-8">
-                        <p className="border-l-4 border-teal-500 pl-8 py-2">
-                            Recuerda que los resultados son tu responsabilidad y dependen enteramente de tu trabajo constante, la correcta aplicación del método y el tiempo que le dediques al proyecto.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
-            <div id="psd-growth-video-block" className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
-                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
-                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
-                        <iframe 
-                            className="w-full h-full"
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
-                            title="Explicación de la Proyección de Ingresos" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
-                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
-                            <PlayCircle className="w-5 h-5 text-indigo-400" />
-                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo de Proyección</span>
+                    <div className="hidden md:block w-px h-24 bg-teal-500/30"></div>
+                    <div 
+                        onClick={() => setShowVideoModal(true)}
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                    >
+                        <img 
+                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                        alt="Video Thumbnail"
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                <PlayCircle className="w-10 h-10 text-emerald-400" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -339,6 +332,37 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                     </div>
                 </div>
             </div>
+
+            {/* MODAL DE VIDEO */}
+            {showVideoModal && (
+                <div 
+                    onClick={() => setShowVideoModal(false)}
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+                    >
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Proyección de Ingresos
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Tutorial Proyección" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

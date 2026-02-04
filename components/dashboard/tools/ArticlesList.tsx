@@ -132,15 +132,21 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
               </div>
 
               <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
-                  {/* Contenedor de Video */}
-                  <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
-                      <iframe 
-                          className="w-full h-full"
-                          src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0" 
-                          title="Tutorial Contenidos SEO" 
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                          allowFullScreen
-                      ></iframe>
+                  {/* Contenedor de Video Interactivo */}
+                  <div 
+                      onClick={() => setShowVideoModal(true)}
+                      className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                  >
+                      <img 
+                          src="https://img.youtube.com/vi/A_dcakdMBow/maxresdefault.jpg" 
+                          alt="Video Tutorial"
+                          className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                              <PlayCircle className="w-10 h-10 text-purple-400" />
+                          </div>
+                      </div>
                   </div>
 
                   {/* Botones centrados debajo del video */}
@@ -342,7 +348,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       {/* VIDEO MODAL */}
       {showVideoModal && (
           <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={() => setShowVideoModal(false)}>
-              <div className="relative w-full max-w-4xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800" onClick={e => e.stopPropagation()}>
+              <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800" onClick={e => e.stopPropagation()}>
                   <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
                       <h3 className="font-bold text-white flex items-center gap-2">
                           <PlayCircle className="w-5 h-5 text-purple-500" /> Tutorial: Estrategia de Contenidos SEO

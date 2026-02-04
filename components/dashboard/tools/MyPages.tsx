@@ -151,15 +151,21 @@ export const MyPages: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
-                        {/* Contenedor de Video */}
-                        <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0" 
-                                title="Tutorial Páginas de Captura" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
+                        {/* Contenedor de Video Interactivo */}
+                        <div 
+                            onClick={() => setShowVideoModal(true)}
+                            className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                        >
+                            <img 
+                                src="https://img.youtube.com/vi/A_dcakdMBow/maxresdefault.jpg" 
+                                alt="Video Tutorial"
+                                className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                    <PlayCircle className="w-10 h-10 text-primary" />
+                                </div>
+                            </div>
                         </div>
 
                         {/* Botones centrados debajo del video */}
@@ -278,7 +284,7 @@ export const MyPages: React.FC = () => {
                                             <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 border border-white/5 bg-white/5 rounded-xl text-gray-500 hover:bg-white/10 hover:text-white flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest">
                                                 <LayoutTemplate className="w-3.5 h-3.5" /> Ver Online
                                             </a>
-                                            <button onClick={() => handleTogglePublish(page)} className={`flex-1 py-3 border rounded-xl flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest ${page.isPublished ? "border-orange-500/20 text-orange-500/80 hover:bg-orange-500/10" : "border-emerald-500/20 text-emerald-500/80 hover:bg-emerald-500/10"}`}>
+                                            <button onClick={() => handleTogglePublish(page)} className={`flex-1 py-3 border rounded-xl flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest ${page.isPublished ? "border-orange-500/20 text-orange-500/80 hover:bg-orange-500/10" : "border-emerald-500/20 text-emerald-400/80 hover:bg-emerald-500/10"}`}>
                                                 <Globe className="w-3.5 h-3.5" /> {page.isPublished ? "Pausar" : "Publicar"}
                                             </button>
                                         </div>
@@ -309,14 +315,14 @@ export const MyPages: React.FC = () => {
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
-                        className="relative w-full max-w-4xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800"
+                        className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800"
                     >
                         <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
                             <h3 className="font-bold text-white flex items-center gap-2">
                                 <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Creación de Páginas
                             </h3>
                             <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                                <X className="w-6 h-6"/>
+                                <X className="w-5 h-5"/>
                             </button>
                         </div>
                         <div className="aspect-video w-full">
@@ -386,7 +392,7 @@ export const MyPages: React.FC = () => {
                             <div className="space-y-6">
                                 <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
                                     <div className="flex items-start gap-3 mb-2"><CheckCircle className="w-4 h-4 text-green-500 mt-0.5" /><p className="text-sm text-gray-300">Certificado SSL (Candado Seguro) Incluido</p></div>
-                                    <div className="flex items-start gap-3"><CheckCircle className="w-4 h-4 text-green-500 mt-0.5" /><p className="text-sm text-gray-300">Servidores CDN de Alta Velocidad</p></div>
+                                    <div className="flex items-start gap-3"><CheckCircle className="w-4 h-4 text-green-500 mt-0.5" /><p className="text-sm text-gray-300">Servidores de Alta Velocidad</p></div>
                                 </div>
                                 <div className="text-center"><p className="text-xs text-blue-300 font-bold bg-blue-900/20 py-1.5 px-3 rounded-full inline-block border border-blue-500/20">ℹ️ En tu plan actual puedes añadir {maxDomains} dominios</p></div>
                                 {(currentDomainsCount >= maxDomains && !isRealAdmin) ? (

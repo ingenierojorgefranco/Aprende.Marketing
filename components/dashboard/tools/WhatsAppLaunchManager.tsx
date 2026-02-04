@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { WhatsAppLaunch, User } from '../../../types';
-import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers, Crown } from 'lucide-react';
+import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers, Crown, X } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { UpgradeModal } from '../UpgradeModal';
@@ -11,6 +11,7 @@ export const WhatsAppLaunchManager: React.FC = () => {
     const [launches, setLaunches] = useState<WhatsAppLaunch[]>([]);
     const [loading, setLoading] = useState(true);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [showVideoModal, setShowVideoModal] = useState(false);
 
     useEffect(() => {
         loadLaunches();
@@ -95,15 +96,21 @@ export const WhatsAppLaunchManager: React.FC = () => {
                     </div>
 
                     <div className="shrink-0 flex flex-col gap-6 w-full md:w-[400px]">
-                        {/* Contenedor de Video */}
-                        <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0" 
-                                title="Tutorial WhatsApp Lanzamientos" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
+                        {/* Contenedor de Video Interactivo */}
+                        <div 
+                            onClick={() => setShowVideoModal(true)}
+                            className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                        >
+                            <img 
+                                src="https://img.youtube.com/vi/A_dcakdMBow/maxresdefault.jpg" 
+                                alt="Video Tutorial"
+                                className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                    <PlayCircle className="w-10 h-10 text-emerald-400" />
+                                </div>
+                            </div>
                         </div>
 
                         {/* Botones centrados debajo del video */}
@@ -113,7 +120,7 @@ export const WhatsAppLaunchManager: React.FC = () => {
                                     onClick={() => setShowUpgradeModal(true)}
                                     className="w-full px-8 py-4 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98]"
                                 >
-                                    <Crown className="w-4 h-4 fill-current" /> Límite Alcanzado: Subir a PRO
+                                    <Crown className="w-5 h-5 fill-current" /> Límite Alcanzado: Subir a PRO
                                 </button>
                             ) : (
                                 <button 
@@ -207,6 +214,35 @@ export const WhatsAppLaunchManager: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {showVideoModal && (
+                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: WhatsApp Lanzamientos
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-5 h-5"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Tutorial WhatsApp Lanzamientos" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                        <div className="p-6 bg-gray-900">
+                            <p className="text-gray-300 text-sm leading-relaxed">
+                                Descubre cómo ejecutar lanzamientos masivos en grupos de WhatsApp utilizando nuestra secuencia probada de 14 momentos estratégicos.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,6 +1,5 @@
-// Actualización: Corrección de importación de React y sincronización de interfaz con ProjectMasterStrategy - 08/01/2026
-import React from 'react';
-import { Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, Layout, Mail, MessageSquare, FileText, MousePointer2, Sparkles, Zap, ShieldAlert, XCircle, PlayCircle, Target, Users } from 'lucide-react';
+import React, { useState } from 'react';
+import { Flame, AlertTriangle, Rocket, ArrowRight, Brain, Check, Layout, Mail, MessageSquare, FileText, MousePointer2, Sparkles, Zap, ShieldAlert, XCircle, PlayCircle, Target, Users, X } from 'lucide-react';
 
 interface ProjectStrategy_PsychologyProps {
     psychology: {
@@ -11,7 +10,6 @@ interface ProjectStrategy_PsychologyProps {
             stage2_solution: string;
             stage3_barrier: string;
         };
-        // Se añade conversionStrategy para coincidir con el esquema global
         conversionStrategy: {
             mainFocus: Array<{ label: string; description: string }>;
             tacticalNote: string;
@@ -28,6 +26,8 @@ interface ProjectStrategy_PsychologyProps {
 }
 
 export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProps> = ({ psychology, benefitsItems }) => {
+    const [showVideoModal, setShowVideoModal] = useState(false);
+
     return (
         <div id="psd-psychology-section" className="space-y-16">
             
@@ -41,31 +41,24 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                     ¿Cómo persuadimos tus clientes?
                 </h3>
 
-                <div className="grid md:grid-cols-2 gap-10 text-white text-[1.4rem] leading-[1.8] font-light">
-                    <p className="border-l-4 border-orange-500/30 pl-8 py-2">
+                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
+                    <p className="flex-1 border-l-4 border-orange-500/30 pl-8 py-2">
                         Comprar no es un acto racional, es un acto emocional que luego se justifica con lógica. Por eso, nuestra estrategia no vende características técnicas, vende la solución al dolor que no deja dormir a tu cliente.
                     </p>
-                    <p className="border-l-4 border-rose-500/30 pl-8 py-2">
-                        Hemos analizado los miedos, inseguridades y objeciones más comunes de tu audiencia para convertirlos en argumentos de venta irrefutables. El objetivo es reducir la fricción mental y que la compra se sienta como el paso más natural y seguro del mundo.
-                    </p>
-                </div>
-            </div>
-
-            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
-            <div id="psd-psychology-video-block" className="max-w-[70em] mx-auto px-4 md:px-0">
-                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
-                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
-                        <iframe 
-                            className="w-full h-full"
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
-                            title="Ingeniería de Persuasión" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
-                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
-                            <PlayCircle className="w-5 h-5 text-indigo-400" />
-                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo de Persuasión</span>
+                    <div className="hidden md:block w-px h-24 bg-rose-500/30"></div>
+                    <div 
+                        onClick={() => setShowVideoModal(true)}
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                    >
+                        <img 
+                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                        alt="Video Thumbnail"
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                <PlayCircle className="w-10 h-10 text-orange-400" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -144,6 +137,37 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                     })}
                 </div>
             </div>
+
+            {/* MODAL DE VIDEO */}
+            {showVideoModal && (
+                <div 
+                    onClick={() => setShowVideoModal(false)}
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+                    >
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Psicología de Ventas
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Tutorial Psicología" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="mt-20 pt-10 border-t border-white/5 flex items-center justify-center gap-4 text-gray-500 text-sm font-medium tracking-wide relative z-10">
                 <Check className="w-5 h-5 text-emerald-500" />

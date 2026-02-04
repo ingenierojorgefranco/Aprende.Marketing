@@ -37,6 +37,7 @@ export const EmailMarketing: React.FC = () => {
   const [modalStep, setModalStep] = useState<'selection' | 'success'>('selection');
   const [newTagName, setNewTagName] = useState('');
   const [isCreatingTag, setIsCreatingTag] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -223,15 +224,21 @@ export const EmailMarketing: React.FC = () => {
               </div>
 
               <div className="shrink-0 flex flex-col gap-6 w-full md:w-[400px]">
-                  {/* Contenedor de Video */}
-                  <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
-                      <iframe 
-                          className="w-full h-full"
-                          src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0" 
-                          title="Tutorial Email Marketing" 
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                          allowFullScreen
-                      ></iframe>
+                  {/* Contenedor de Video Interactivo */}
+                  <div 
+                      onClick={() => setShowVideoModal(true)}
+                      className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                  >
+                      <img 
+                          src="https://img.youtube.com/vi/A_dcakdMBow/maxresdefault.jpg" 
+                          alt="Video Tutorial"
+                          className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                              <PlayCircle className="w-10 h-10 text-[#FF5A1F]" />
+                          </div>
+                      </div>
                   </div>
 
                   <div className="bg-black/40 backdrop-blur-md rounded-2xl p-4 border border-white/5 shadow-inner text-center">
@@ -294,7 +301,7 @@ export const EmailMarketing: React.FC = () => {
                                         <Link 
                                             to={`/dashboard/projects/${seq.projectId}/strategy`}
                                             target="_blank"
-                                            className="text-2xl font-black text-white hover:text-[#FF5A1F] transition-colors leading-tight mb-2 block"
+                                            className="text-2xl font-black text-white hover:text-[#FF5A1F] transition-colors leading-tight block"
                                         >
                                             Proyecto: {seq.projectName}
                                         </Link>
@@ -680,6 +687,35 @@ export const EmailMarketing: React.FC = () => {
                   )}
               </div>
           </div>
+      )}
+
+      {showVideoModal && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+            <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+                <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                    <h3 className="font-bold text-white flex items-center gap-2">
+                        <PlayCircle className="w-5 h-5 text-[#FF5A1F]" /> Tutorial: Email Marketing
+                    </h3>
+                    <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                        <X className="w-5 h-5"/>
+                    </button>
+                </div>
+                <div className="aspect-video w-full">
+                    <iframe 
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                        title="Tutorial Email Marketing" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowFullScreen
+                    ></iframe>
+                </div>
+                <div className="p-6 bg-gray-900">
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                        Aprende a sincronizar tus leads con Systeme.io y crear secuencias automáticas que nutran a tus prospectos hasta convertirlos en clientes.
+                    </p>
+                </div>
+            </div>
+        </div>
       )}
     </div>
   );

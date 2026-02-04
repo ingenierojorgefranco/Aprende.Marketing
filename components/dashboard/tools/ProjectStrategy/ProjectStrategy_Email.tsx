@@ -36,6 +36,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [localPurpose, setLocalPurpose] = useState('');
     const [isTypeLocked, setIsTypeLocked] = useState(true);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showVideoModal, setShowVideoModal] = useState(false);
 
     // Estados locales para interactividad inmediata de redirección
     const [localRedirectType, setLocalRedirectType] = useState<'landing' | 'hotlink' | 'external' | undefined>(undefined);
@@ -168,6 +169,28 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg"><Sparkles className="w-5 h-5" /> Correos Electrónicos Automáticos</div>
                 <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">Secuencia de Nutrición <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-400">(7 Días)</span></h3>
+                
+                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
+                    <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">
+                        La comunicación por email es el canal con mayor retorno de inversión. Te permite estar presente en la bandeja de entrada de tu cliente de forma personal y profesional.
+                    </p>
+                    <div className="hidden md:block w-px h-24 bg-yellow-500/30"></div>
+                    <div 
+                        onClick={() => setShowVideoModal(true)}
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                    >
+                        <img 
+                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                        alt="Video Thumbnail"
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                <PlayCircle className="w-10 h-10 text-blue-400" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {loadingLocal ? (
@@ -228,6 +251,37 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left"><div className="flex justify-between items-center mb-3"><span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Secuencias en tu plan</span><span className="text-white font-bold text-sm">{sequenceCount} / {isRealAdmin ? '∞' : maxSequences}</span></div><div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden p-0.5 border border-white/5"><div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]`} style={{ width: `${isRealAdmin ? (sequenceCount > 0 ? 100 : 0) : usagePercent}%` }}></div></div></div>
                         </div>
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4"><button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest">No, cancelar</button><button onClick={handleStartWriting} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl transform hover:scale-105 transition-all">Confirmar y Redactar</button></div>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL DE VIDEO */}
+            {showVideoModal && (
+                <div 
+                    onClick={() => setShowVideoModal(false)}
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+                    >
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Secuencias de Email
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Tutorial Email" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
                     </div>
                 </div>
             )}
