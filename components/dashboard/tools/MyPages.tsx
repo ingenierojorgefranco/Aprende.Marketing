@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext, Link } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { LandingPage, User } from '../../../types';
-import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase } from 'lucide-react';
+import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface DashboardContext {
@@ -24,6 +24,9 @@ export const MyPages: React.FC = () => {
     const [showVideoModal, setShowVideoModal] = useState(false);
     const [showDomainModal, setShowDomainModal] = useState(false);
     const [selectedPageForDomain, setSelectedPageForDomain] = useState<LandingPage | null>(null);
+    
+    // Accordion State
+    const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
 
     useEffect(() => {
         loadPages();
@@ -69,6 +72,7 @@ export const MyPages: React.FC = () => {
     const openDomainModal = (page: LandingPage) => {
         setSelectedPageForDomain(page);
         setShowDomainModal(true);
+        setActiveAccordion(null);
     };
 
     const closeDomainModal = () => {
@@ -350,61 +354,189 @@ export const MyPages: React.FC = () => {
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl p-6 relative animate-in zoom-in-95"
+                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl p-8 relative animate-in zoom-in-95 flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar"
                     >
                         <button onClick={closeDomainModal} className="absolute top-4 right-4 text-gray-500 hover:text-white p-1 rounded-full hover:bg-gray-800 transition">
                             <X className="w-5 h-5" />
                         </button>
-                        <div className="text-center mb-6">
-                            {selectedPageForDomain.customDomain ? (
-                                <div className="w-16 h-16 bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/20 shadow-lg shadow-green-500/10">
-                                    <CheckCircle className="w-8 h-8 text-green-500" />
-                                </div>
-                            ) : (
-                                <div className="w-16 h-16 bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20 shadow-lg shadow-blue-500/10">
-                                    <Globe className="w-8 h-8 text-blue-500" />
-                                </div>
-                            )}
-                            <h2 className="text-2xl font-bold text-white mb-2">
-                                {selectedPageForDomain.customDomain ? "Esta web tiene dominio" : "Dominios Personalizados"}
-                            </h2>
-                            <p className="text-gray-400 text-sm leading-relaxed">
-                                {selectedPageForDomain.customDomain 
-                                    ? "Tu página ya está conectada y accesible." 
-                                    : "Personaliza tu enlace como www.tuempresa.com. Esto aumenta la confianza y tus ventas."
-                                }
+                        
+                        <div className="text-center mb-8">
+                            <div className="w-20 h-20 bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/20 shadow-lg shadow-blue-500/10">
+                                <Globe className="w-10 h-10 text-blue-500" />
+                            </div>
+                            <h2 className="text-3xl font-bold text-white mb-3">Asigna tu Dominio Personalizado</h2>
+                            <p className="text-gray-400 text-lg leading-relaxed max-w-xl mx-auto">
+                                Conecta tu propio dominio (.com, .net, etc.) para profesionalizar tu marca, aumentar la confianza de tus clientes y disparar tus conversiones.
                             </p>
                         </div>
-                        {selectedPageForDomain.customDomain ? (
-                            <div className="space-y-4">
-                                <div className="bg-black/40 border border-green-500/30 rounded-xl p-4 text-center">
-                                    <p className="text-xs text-green-500 font-bold uppercase tracking-wider mb-1">Dominio Configurado</p>
-                                    <a href={`https://${selectedPageForDomain.customDomain}`} target="_blank" rel="noopener noreferrer" className="text-xl font-bold text-white hover:text-green-400 transition hover:underline">
-                                        {selectedPageForDomain.customDomain}
-                                    </a>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <a href={`https://${selectedPageForDomain.customDomain}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3 rounded-lg bg-green-600 hover:bg-green-500 text-white font-bold transition shadow-lg shadow-green-900/20"><ExternalLink className="w-4 h-4" /> Visitar</a>
-                                    <a href={`https://wa.me/573000000000?text=Hola, necesito soporte para cambiar el dominio de mi página ID: ${selectedPageForDomain.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3 rounded-lg border border-gray-600 hover:bg-gray-800 text-gray-300 hover:text-white font-medium transition"><Settings className="w-4 h-4" /> Soporte</a>
-                                </div>
+
+                        {/* Video Tutorial Integrado */}
+                        <div className="mb-8 bg-black/40 border border-white/5 rounded-3xl p-6">
+                            <p className="text-white font-bold mb-4 flex items-center justify-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-primary" /> Mira el video completo para configurar tu dominio
+                            </p>
+                            <div className="aspect-video w-full bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                                <iframe 
+                                    className="w-full h-full"
+                                    src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                                    title="Tutorial Configuración de Dominio" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowFullScreen
+                                ></iframe>
                             </div>
-                        ) : (
-                            <div className="space-y-6">
-                                <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
-                                    <div className="flex items-start gap-3 mb-2"><CheckCircle className="w-4 h-4 text-green-500 mt-0.5" /><p className="text-sm text-gray-300">Certificado SSL (Candado Seguro) Incluido</p></div>
-                                    <div className="flex items-start gap-3"><CheckCircle className="w-4 h-4 text-green-500 mt-0.5" /><p className="text-sm text-gray-300">Servidores de Alta Velocidad</p></div>
-                                </div>
-                                <div className="text-center"><p className="text-xs text-blue-300 font-bold bg-blue-900/20 py-1.5 px-3 rounded-full inline-block border border-blue-500/20">ℹ️ En tu plan actual puedes añadir {maxDomains} dominios</p></div>
-                                {(currentDomainsCount >= maxDomains && !isRealAdmin) ? (
-                                    <div className="space-y-3">
-                                        <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-xl flex items-center gap-3"><AlertTriangle className="w-6 h-6 text-red-500 shrink-0" /><p className="text-sm text-red-200">Has alcanzado el límite de dominios de tu plan.</p></div>
-                                        <button onClick={() => setShowUpgradeModal(true)} className="w-full py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-bold border border-yellow-400/20">Actualizar Plan</button>
+                        </div>
+
+                        {/* Sistema de Acordeón */}
+                        <div className="space-y-4 mb-8">
+                            {/* Nivel 1: Comprar Dominio */}
+                            <div className="border border-gray-800 rounded-2xl overflow-hidden">
+                                <button 
+                                    onClick={() => setActiveAccordion(activeAccordion === 1 ? null : 1)}
+                                    className="w-full flex items-center justify-between p-5 bg-gray-850 hover:bg-gray-800 transition text-left"
+                                >
+                                    <span className="font-bold text-white flex items-center gap-3">
+                                        <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-xs font-black">1</div>
+                                        Comprar Dominio
+                                    </span>
+                                    {activeAccordion === 1 ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                                </button>
+                                {activeAccordion === 1 && (
+                                    <div className="p-6 bg-black/30 border-t border-gray-800 animate-in slide-in-from-top-2 text-center">
+                                        <p className="text-gray-300 text-lg leading-relaxed mb-6">
+                                            Si aún no tienes un dominio, te recomendamos comprarlo en <a href="https://name.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-bold">Name.com</a>. Es una de las plataformas más estables y fáciles de configurar con nuestro sistema.
+                                        </p>
+                                        <a 
+                                            href="https://www.name.com" 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-3 px-10 py-4 bg-primary hover:bg-indigo-600 text-white font-black rounded-2xl transition-all shadow-lg shadow-primary/20 transform hover:scale-105 active:scale-95 mb-4"
+                                        >
+                                            Comprar en Name.com <ExternalLink className="w-5 h-5" />
+                                        </a>
                                     </div>
-                                ) : (
-                                    <a href={`https://wa.me/573000000000?text=Hola, quiero configurar un dominio personalizado para mi página ID: ${selectedPageForDomain.id}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 transition-transform hover:scale-[1.02]"><MessageCircle className="w-5 h-5" /> Quiero configurar mi dominio</a>
                                 )}
                             </div>
-                        )}
+
+                            {/* Nivel 2: Registros DNS */}
+                            <div className="border border-gray-800 rounded-2xl overflow-hidden">
+                                <button 
+                                    onClick={() => setActiveAccordion(activeAccordion === 2 ? null : 2)}
+                                    className="w-full flex items-center justify-between p-5 bg-gray-850 hover:bg-gray-800 transition text-left"
+                                >
+                                    <span className="font-bold text-white flex items-center gap-3">
+                                        <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-xs font-black">2</div>
+                                        Configurar Registros DNS
+                                    </span>
+                                    {activeAccordion === 2 ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                                </button>
+                                {activeAccordion === 2 && (
+                                    <div className="p-6 bg-black/30 border-t border-gray-800 animate-in slide-in-from-top-2">
+                                        <p className="text-gray-300 text-lg mb-8 font-bold">Accede al panel de tu proveedor de dominio (Name.com, GoDaddy, etc.) y añade estos registros exactamente:</p>
+                                        
+                                        <div className="overflow-hidden border border-gray-800 rounded-xl shadow-lg">
+                                            <table className="w-full text-base text-left">
+                                                <thead className="bg-gray-800 text-gray-300 font-black uppercase tracking-widest">
+                                                    <tr>
+                                                        <th className="p-4">Tipo</th>
+                                                        <th className="p-4">Nombre / Host</th>
+                                                        <th className="p-4">Valor / Destino</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-800 text-gray-400 font-mono">
+                                                    <tr className="bg-black/40">
+                                                        <td className="p-4 font-bold text-blue-400">A</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">151.101.1.195</td>
+                                                    </tr>
+                                                    <tr className="bg-black/20">
+                                                        <td className="p-4 font-bold text-blue-400">A</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">151.101.65.195</td>
+                                                    </tr>
+                                                    <tr className="bg-black/40">
+                                                        <td className="p-4 font-bold text-blue-400">A</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">151.101.129.195</td>
+                                                    </tr>
+                                                    <tr className="bg-black/20">
+                                                        <td className="p-4 font-bold text-blue-400">A</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">151.101.193.195</td>
+                                                    </tr>
+                                                    <tr className="bg-black/40">
+                                                        <td className="p-4 font-bold text-purple-400">AAAA</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">2a04:4e42::403</td>
+                                                    </tr>
+                                                    <tr className="bg-black/20">
+                                                        <td className="p-4 font-bold text-purple-400">AAAA</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">2a04:4e42:200::403</td>
+                                                    </tr>
+                                                    <tr className="bg-black/40">
+                                                        <td className="p-4 font-bold text-purple-400">AAAA</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">2a04:4e42:400::403</td>
+                                                    </tr>
+                                                    <tr className="bg-black/20">
+                                                        <td className="p-4 font-bold text-purple-400">AAAA</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">2a04:4e42:600::403</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Nivel 3: Finalizar */}
+                            <div className="border border-gray-800 rounded-2xl overflow-hidden">
+                                <button 
+                                    onClick={() => setActiveAccordion(activeAccordion === 3 ? null : 3)}
+                                    className="w-full flex items-center justify-between p-5 bg-gray-850 hover:bg-gray-800 transition text-left"
+                                >
+                                    <span className="font-bold text-white flex items-center gap-3">
+                                        <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-xs font-black">3</div>
+                                        Finalizar Configuración
+                                    </span>
+                                    {activeAccordion === 3 ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                                </button>
+                                {activeAccordion === 3 && (
+                                    <div className="p-8 bg-black/30 border-t border-gray-800 animate-in slide-in-from-top-2 text-center">
+                                        <p className="text-gray-300 text-lg leading-relaxed mb-8">
+                                            Una vez realizados los cambios en tu proveedor, la propagación puede tardar entre 1 y 24 horas. Para finalizar, haz clic en el botón de abajo para que nuestro equipo técnico active tu certificado de seguridad SSL y finalice la vinculación.
+                                        </p>
+                                        <a 
+                                            href={`https://wa.me/573146270784?text=${encodeURIComponent("Hola, me gustaria configurar un nombre de dominio a mi pagina web en www.aprende.marketing")}`}
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            className="inline-flex items-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-emerald-900/30 transition-all transform hover:scale-105 active:scale-95 mb-4"
+                                        >
+                                            <MessageCircle className="w-6 h-6" /> Quiero configurar mi dominio
+                                        </a>
+                                        <p className="text-center text-[10px] text-gray-600 font-bold uppercase tracking-[0.3em] mt-4">
+                                            Activación técnica inmediata vía soporte
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Botón WhatsApp Final Fuera del Acordeón para Accesibilidad */}
+                        <div className="mt-auto">
+                            <a 
+                                href={`https://wa.me/573146270784?text=${encodeURIComponent("Hola, me gustaria configurar un nombre de dominio a mi pagina web en www.aprende.marketing")}`}
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="w-full py-5 rounded-[2rem] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-lg shadow-xl shadow-blue-900/30 flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02] active:scale-95 mb-4"
+                            >
+                                <MessageCircle className="w-6 h-6" /> Quiero configurar mi dominio
+                            </a>
+                            <p className="text-center text-[10px] text-gray-600 font-bold uppercase tracking-[0.3em]">
+                                Activación técnica inmediata vía soporte
+                            </p>
+                        </div>
                     </div>
                 </div>
             )}

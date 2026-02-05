@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2 } from 'lucide-react';
@@ -129,7 +130,7 @@ export const ProjectWizard: React.FC = () => {
     
     const [fullPrice, setFullPrice] = useState<number>(0);
     const [commissionValue, setCommissionValue] = useState<number>(0);
-    const [leadMagnetType, setLeadMagnetType] = useState('Ebook / Guía PDF');
+    const [leadMagnetType, setLeadMagnetType] = useState('');
     const [leadMagnetUrl, setLeadMagnetUrl] = useState('');
     const [salesPageUrl, setSalesPageUrl] = useState('');
     const [isMaster, setIsMaster] = useState(false);
@@ -139,6 +140,8 @@ export const ProjectWizard: React.FC = () => {
     const [mainGoal, setMainGoal] = useState('Venta Directa');
     const [painPoints, setPainPoints] = useState<string[]>([]);
     const [keyBenefits, setKeyBenefits] = useState<string[]>([]);
+    
+    const [errors, setErrors] = useState<Record<string, string>>({});
     
     const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([
         { label: 'Hotlink Principal Precio Full', url: '' },
@@ -193,7 +196,7 @@ export const ProjectWizard: React.FC = () => {
                 if (proj.commissionRate && proj.fullPrice) {
                     setCommissionValue(proj.commissionRate * proj.fullPrice);
                 }
-                setLeadMagnetType(proj.leadMagnetType || 'Ebook / Guía PDF');
+                setLeadMagnetType(proj.leadMagnetType || '');
                 setLeadMagnetUrl(proj.leadMagnetUrl || '');
                 setSalesPageUrl(proj.salesPageUrl || '');
                 setNiche(proj.niche || '');
@@ -201,7 +204,7 @@ export const ProjectWizard: React.FC = () => {
                 setMainGoal(proj.mainGoal || 'Venta Directa');
                 setPainPoints(proj.painPoints || []);
                 setKeyBenefits(proj.keyBenefits || []);
-                setAffiliateLinks(proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks : [
+                setAffiliateLinks(affiliateLinks && affiliateLinks.length > 0 ? affiliateLinks : [
                     { label: 'Hotlink Principal Precio Full', url: '' },
                     { label: 'Hotlink con Descuento', url: '' }
                 ]);
@@ -240,6 +243,23 @@ export const ProjectWizard: React.FC = () => {
         } finally {
             setAnalyzing(false);
         }
+    };
+
+    const nextStep = () => {
+        if (step === 1) {
+            const newErrors: Record<string, string> = {};
+            if (!name.trim()) newErrors.name = "Este campo es obligatorio para que la IA genere tu estrategia";
+            if (!productName.trim()) newErrors.productName = "Este campo es obligatorio para que la IA genere tu estrategia";
+            if (!leadMagnetType) newErrors.leadMagnetType = "Este campo es obligatorio para que la IA genere tu estrategia";
+            if (leadMagnetType && !leadMagnetUrl.trim()) newErrors.leadMagnetUrl = "Este campo es obligatorio para que la IA genere tu estrategia";
+            
+            if (Object.keys(newErrors).length > 0) {
+                setErrors(newErrors);
+                return;
+            }
+        }
+        setErrors({});
+        setStep(step + 1);
     };
 
     const saveProject = async () => {
@@ -439,11 +459,13 @@ export const ProjectWizard: React.FC = () => {
                             <div className="grid md:grid-cols-2 gap-6 pt-4">
                                 <div>
                                     <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Nombre del Proyecto</label>
-                                    <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" placeholder="Ej: Lanzamiento Uñas Pro" />
+                                    <input type="text" value={name} onChange={e => setName(e.target.value)} className={`w-full bg-black border ${errors.name ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700`} placeholder="Ej: Lanzamiento Uñas Pro" />
+                                    {errors.name && <p className="text-red-500 text-xs mt-2 font-medium">{errors.name}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Nombre del Producto</label>
-                                    <input type="text" value={productName} onChange={e => setProductName(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" placeholder="Ej: Masterclass Uñas Perfectas" />
+                                    <input type="text" value={productName} onChange={e => setProductName(e.target.value)} className={`w-full bg-black border ${errors.productName ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700`} placeholder="Ej: Masterclass Uñas Perfectas" />
+                                    {errors.productName && <p className="text-red-500 text-xs mt-2 font-medium">{errors.productName}</p>}
                                 </div>
                             </div>
                             <div>
@@ -456,12 +478,14 @@ export const ProjectWizard: React.FC = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Lead Magnet (Regalo)</label>
-                                <select value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all appearance-none cursor-pointer mb-4">
+                                <select value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)} className={`w-full bg-black border ${errors.leadMagnetType ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all appearance-none cursor-pointer mb-4`}>
+                                    <option value="">Selecciona tu Lead Magnet</option>
                                     <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
                                     <option value="Clase Gratis / VSL">Clase Gratis / VSL</option>
                                     <option value="Masterclass en Vivo">Masterclass en Vivo</option>
                                     <option value="Plantilla / Checklist">Plantilla / Checklist</option>
                                 </select>
+                                {errors.leadMagnetType && <p className="text-red-500 text-xs mt-0 mb-4 font-medium">{errors.leadMagnetType}</p>}
                                 {leadMagnetType && (
                                     <div className="animate-in fade-in slide-in-from-top-2 duration-300">
                                         <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Enlace de la {leadMagnetType}</label>
@@ -469,9 +493,10 @@ export const ProjectWizard: React.FC = () => {
                                             type="text" 
                                             value={leadMagnetUrl} 
                                             onChange={(e) => setLeadMagnetUrl(e.target.value)} 
-                                            className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-blue-400 focus:border-primary outline-none transition-all placeholder:text-gray-700" 
+                                            className={`w-full bg-black border ${errors.leadMagnetUrl ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-blue-400 focus:border-primary outline-none transition-all placeholder:text-gray-700`} 
                                             placeholder="https://..." 
                                         />
+                                        {errors.leadMagnetUrl && <p className="text-red-500 text-xs mt-2 font-medium">{errors.leadMagnetUrl}</p>}
                                     </div>
                                 )}
                             </div>
@@ -556,7 +581,7 @@ export const ProjectWizard: React.FC = () => {
                 </div>
                 <div className="bg-gray-800/30 p-6 border-t border-gray-800 flex justify-between items-center">
                     {step > 1 ? <button onClick={() => setStep(step - 1)} className="px-6 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-bold transition flex items-center gap-2 shadow-md"><ArrowLeft className="w-4 h-4" /> Anterior</button> : <div />}
-                    {step < 3 ? <button onClick={() => setStep(step + 1)} className="px-8 py-3 rounded-xl bg-primary hover:bg-indigo-600 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-primary/20">Siguiente <ArrowRight className="w-4 h-4" /></button> : <button onClick={saveProject} disabled={loading} className="px-10 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-green-900/20 transform hover:scale-[1.02] active:scale-95">{loading ? <Loader2 className="w-5 h-5 animate-spin"/> : <Save className="w-5 h-5"/>}{id ? 'Actualizar Proyecto' : 'Finalizar y Generar con IA'}</button>}
+                    {step < 3 ? <button onClick={nextStep} className="px-8 py-3 rounded-xl bg-primary hover:bg-indigo-600 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-primary/20">Siguiente <ArrowRight className="w-4 h-4" /></button> : <button onClick={saveProject} disabled={loading} className="px-10 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-green-900/20 transform hover:scale-[1.02] active:scale-95">{loading ? <Loader2 className="w-5 h-5 animate-spin"/> : <Save className="w-5 h-5"/>}{id ? 'Actualizar Proyecto' : 'Finalizar y Generar con IA'}</button>}
                 </div>
             </div>
         </div>

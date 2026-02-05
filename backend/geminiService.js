@@ -209,22 +209,26 @@ const generateFullStrategy = async (projectId) => {
 
         projection: Genera un array de 12 números (Mes 1 al 12). La IA DEBE calcular cada mes siguiendo esta fórmula: 
     
-            REGLA MATEMÁTICA PARA PROYECCIÓN: 1. Calcula Ventas Reales = Math.floor(Leads Estimados * 0.05). 2. Si Ventas Reales es menor a 1, la ganancia de ese mes DEBE ser 0 (no se puede ganar dinero sin una venta completa). 3. Ganancia Final = Ventas Reales * (Precio * %Comisión).
+            REGLA MATEMÁTICA PARA PROYECCIÓN: 1. 
+            
+            Calcula Ventas Reales = Math.floor(Leads Estimados * 0.05). 
+            
+            2. Si Ventas Reales es menor a 1, la ganancia de ese mes DEBE ser 0 (no se puede ganar dinero sin una venta completa). 
+            
+            3. Ganancia Final = Ventas Reales * (Precio * %Comisión).
 
-            Etapa 1 (Mes 1): Leads bajos (1-2/mes). 
-            Etapa 2 (Mes 2): Mes anterior + Leads bajos (1-2/mes). 
-            Etapa 2 (Mes 3): Mes anterior + Leads moderados (2-5/mes). 
-            Etapa 2 (Mes 4): Mes anterior + Leads moderados (5-10/mes). 
-            Etapa 2 (Mes 5): Mes anterior + Leads moderados (10-20/mes). 
-            Etapa 3 (Mes 6): Mes anterior + Leads moderados (20-30/mes). 
-            Etapa 3 (Mes 7): Mes anterior + Leads moderados (20-30/mes).
-            Etapa 3 (Mes 8): Mes anterior + Leads moderados (30-40/mes).
-            Etapa 3 (Mes 9): Mes anterior + Leads moderados (30-40/mes). 
-            Etapa 3 (Mes 10): Mes anterior + Leads moderados (40-50/mes). 
-            Etapa 3 (Mes 11): Mes anterior + Leads moderados (40-50/mes). 
-            Etapa 3 (Mes 12): Mes anterior + Leads moderados (40-50/mes).
-
-            Asegúrate de que la curva sea logarítmica y realista según el nicho.
+            Etapa 1 (Mes 1): Leads bajos (1 a 2 Leads /mes obligatorio). 
+            Etapa 2 (Mes 2): Mes anterior + (1 a 2 Leads /mes obligatorio). 
+            Etapa 2 (Mes 3): Mes anterior + (2 a 5 Leads /mes obligatorio). 
+            Etapa 2 (Mes 4): Mes anterior + (5 a 10 Leads /mes obligatorio). 
+            Etapa 2 (Mes 5): Mes anterior + (10 a 20 Leads /mes obligatorio). 
+            Etapa 3 (Mes 6): Mes anterior + (20 a 30 Leads /mes obligatorio). 
+            Etapa 3 (Mes 7): Mes anterior + (30 a 40 Leads /mes obligatorio).
+            Etapa 3 (Mes 8): Mes anterior + (40 a 50 Leads /mes obligatorio).
+            Etapa 3 (Mes 9): Mes anterior + (50 a 70 Leads /mes obligatorio). 
+            Etapa 3 (Mes 10): Mes anterior + (70 a 80 Leads /mes obligatorio). 
+            Etapa 3 (Mes 11): Mes anterior + (80 a 90 Leads/mes obligatorio). 
+            Etapa 3 (Mes 12): Mes anterior + (90 a 100 Leads /mes obligatorio).
 
 
 
