@@ -133,12 +133,12 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             <div className="space-y-24">
                 <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                     <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg"><Monitor className="w-5 h-5" /> Web Blueprint</div>
-                    <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight italic">Crea tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Pagina de Captura y Convierte Clientes en Automático</span></h3>
+                    <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl" style={{
+                        lineHeight: '1.1em'
+                    }}>Activa tu Página de Captura<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400"> y atrae clientes en automático</span></h3>
                     
                     <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
-                        <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">
-                            Esta sección es el motor principal de tu prospección. Hemos configurado cada bloque para que el visitante sienta la necesidad de registrarse de inmediato.
-                        </p>
+                        <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">Nuestra Inteligencia Artificial creará por ti, tu página web de Captura Perfecta (LandingPage) para que tus visitantes interesados en tu producto digital sientan la necesidad de registrarse de inmediato</p>
                         <div className="hidden md:block w-px h-24 bg-cyan-500/30"></div>
                         <div 
                             onClick={() => setShowVideoModal(true)}
@@ -178,7 +178,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             </div>
                             <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative">
                                 <div className="flex-1 space-y-8">
-                                    <p className="text-gray-400 text-sm font-medium leading-relaxed italic">Utiliza estos bloques diseñados por la IA para proyectar autoridad instantánea.</p>
+                                    <p className="text-gray-400 font-medium italic text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página web 100% profesional enfocada en los dolores, necesidades y beneficios de tus potenciales clientes. <br/><br/>Haz clic en los elementos para más detalles.</p>
                                     <div className="flex flex-wrap gap-2">{lpTabsData && Object.keys(lpTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedLpTab(tabKey)} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${selectedLpTab === tabKey ? 'bg-blue-600 text-white border-blue-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{lpTabsData[tabKey].label}</button>))}</div>
                                     {renderBrowserMockup(renderLpContent(selectedLpTab || ''))}
                                 </div>
@@ -273,7 +273,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Sistema Web
                             </h3>
                             <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                                <X className="w-5 h-5"/>
+                                <X className="w-6 h-6"/>
                             </button>
                         </div>
                         <div className="aspect-video w-full">
@@ -292,7 +292,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             {showDomainModal && (
                 <div 
                     onClick={() => setShowDomainModal(false)}
-                    className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+                    className="fixed inset-0 z-250 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}

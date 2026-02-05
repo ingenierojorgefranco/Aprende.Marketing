@@ -104,7 +104,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                     href={`/admin/lp/${linkedLanding.subdomain.split('.')[0]}#dolores`} 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest"
+                                    className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-lg shadow-[#FF5A1F]/20 transition-all text-xs font-black uppercase tracking-widest"
                                 >
                                     <Globe className="w-3.5 h-3.5" /> Ver en mi Landing Page <ArrowRight className="w-3.5 h-3.5" />
                                 </a>
@@ -120,7 +120,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                     href={`/admin/lp/${linkedLanding.subdomain.split('.')[0]}#beneficios`} 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest"
+                                    className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-lg shadow-[#FF5A1F]/20 transition-all text-xs font-black uppercase tracking-widest"
                                 >
                                     <Globe className="w-3.5 h-3.5" /> Ver en mi Landing Page <ArrowRight className="w-3.5 h-3.5" />
                                 </a>

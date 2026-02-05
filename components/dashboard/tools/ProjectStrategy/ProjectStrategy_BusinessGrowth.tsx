@@ -9,6 +9,10 @@ interface ProjectStrategy_BusinessGrowthProps {
     commissionRate: number;
 }
 
+const formatValue = (val: number) => {
+    return Math.floor(val).toLocaleString('es-ES');
+};
+
 const CustomTooltip = ({ active, payload, label, commissionValue, fullData }: any) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
@@ -31,17 +35,17 @@ const CustomTooltip = ({ active, payload, label, commissionValue, fullData }: an
                     <div className="flex justify-between items-center">
                         <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Leads Necesarios:</p>
                         <p className="text-blue-400 font-black text-xl flex items-center gap-1">
-                            <Users className="w-3 h-3" /> {leads}
+                            <Users className="w-3 h-3" /> {formatValue(leads)}
                         </p>
                     </div>
                     <div className="flex justify-between items-center">
                         <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Ventas:</p>
-                        <p className="text-white font-black text-xl">{sales}</p>
+                        <p className="text-white font-black text-xl">{formatValue(sales)}</p>
                     </div>
                     <div className="pt-2 border-t border-gray-800 flex justify-between items-end">
                         <div>
                             <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-1">Ganancia Estimada:</p>
-                            <p className="text-emerald-400 font-black text-2xl leading-none">${Math.floor(income).toLocaleString('es-ES')} USD</p>
+                            <p className="text-emerald-400 font-black text-2xl leading-none">${formatValue(income)} USD</p>
                         </div>
                     </div>
                 </div>
@@ -71,13 +75,10 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                     ¿Cuánto podrías ganar con nuestra estrategia?
                 </h3>
                 
-                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-xl leading-relaxed font-light">
-                    <div className="flex-1 border-l-4 border-emerald-500 pl-8 py-2 space-y-4">
+                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light pt-[10px]">
+                    <div className="flex-1 border-l-4 border-emerald-500 pl-8 py-2">
                         <p>
-                            Nuestro sistema está diseñado para ayudarte a construir un negocio digital que te permita generar ingresos progresivos utilizando contenido inteligente y automatización masiva. Sin embargo, no es una fórmula mágica ni resultados inmediatos.
-                        </p>
-                        <p>
-                            Requiere tiempo y dedicación, si verdaderamente quieres tener resultados planteate desarrollar este modelo de negocios por mínimo 1 año.
+                            Nuestro sistema está diseñado para ayudarte a construir un negocio digital que te permita generar ingresos progresivos. Sin embargo, no es una fórmula mágica, requiere tiempo y dedicación, si quieres tener resultados plantéate desarrollar tu estrategia por mínimo 1 año.
                         </p>
                     </div>
                     <div className="hidden md:block w-px h-24 bg-teal-500/30"></div>
@@ -108,10 +109,10 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                     <div className="relative z-10 h-[450px] w-full mb-12">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
                             <div>
-                                <h5 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                                <h4 className="text-[2rem] font-black text-white tracking-tight flex items-center gap-3">
                                     Retorno de Inversión Estimado (Año 1)
-                                </h5>
-                                <p className="text-gray-300 text-sm leading-[1.8] font-light mt-1">Cálculo basado en una tasa de cierre promedio del 5% en WhatsApp.</p>
+                                </h4>
+                                <p className="text-gray-300 text-[1.2rem] leading-[1.8] font-light mt-1 pt-[10px]">Cálculo basado en una tasa de cierre promedio del 5% en WhatsApp.</p>
                             </div>
                             
                             <div className="flex gap-4">
@@ -119,7 +120,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     <div className="p-4 bg-emerald-500/20 rounded-2xl text-emerald-400 shadow-lg shadow-emerald-500/10"><DollarSign className="w-8 h-8"/></div>
                                     <div>
                                         <p className="text-xs text-gray-500 font-black uppercase tracking-[0.2em] mb-1">Meta de ingresos</p>
-                                        <p className="text-white font-black text-3xl md:text-4xl tracking-tighter leading-none">${Math.floor(totalIncome).toLocaleString('es-ES')} USD</p>
+                                        <p className="text-white font-black text-3xl md:text-4xl tracking-tighter leading-none">${formatValue(totalIncome)} USD</p>
                                     </div>
                                 </div>
                             </div>
@@ -142,7 +143,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     dy={10}
                                 />
                                 <YAxis 
-                                    tickFormatter={(value) => `$${Math.floor(value).toLocaleString('es-ES')} USD`}
+                                    tickFormatter={(value) => `$${formatValue(value)} USD`}
                                     tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 'bold' }} 
                                     axisLine={false}
                                     tickLine={false}
@@ -181,7 +182,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
 
                     {/* --- ROADMAP DE EJECUCIÓN (PASO A PASO) --- */}
                     <div className="relative z-10 pt-20 border-t border-white/5 mb-16 px-4 mt-80">
-                        <h4 className="text-2xl font-black text-white mb-10 text-center uppercase tracking-widest opacity-80">Cómo se generan los ingresos (paso a paso)</h4>
+                        <h4 className="text-[2rem] font-black text-white mb-10 text-center uppercase tracking-widest opacity-80">Cómo se generan los ingresos (paso a paso)</h4>
                         <div className="flex flex-col gap-10">
                             {[
                                 {
@@ -230,10 +231,10 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                             <phase.icon className="w-8 h-8" />
                                         </div>
                                         <div>
-                                            {phase.subtitle && <p className="text-gray-500 text-lg font-medium mt-1">{phase.subtitle}</p>}
-                                            <h5 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">{phase.title}</h5>
+                                            {phase.subtitle && <p className="text-gray-500 text-[1.2rem] font-medium mt-1 pt-[10px]">{phase.subtitle}</p>}
+                                            <h5 className="text-[2rem] font-black text-white tracking-tight leading-tight">{phase.title}</h5>
                                         </div>
-                                        <div className={`md:ml-auto px-6 py-2 rounded-full border border-white/10 h-fit ${phase.color} text-xl font-light leading-relaxed`}>
+                                        <div className={`md:ml-auto px-6 py-2 rounded-full border border-white/10 h-fit ${phase.color} text-[1.2rem] font-light leading-relaxed pt-[10px]`}>
                                             {phase.objective}
                                         </div>
                                     </div>
@@ -243,7 +244,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                                 <div className={`p-1.5 rounded-full ${phase.bg} ${phase.color} shrink-0 mt-0.5 group-hover/point:scale-110 transition-transform`}>
                                                     <Check className="w-4 h-4" />
                                                 </div>
-                                                <span className="text-white text-xl leading-relaxed font-light">{item}</span>
+                                                <span className="text-white text-[1.2rem] leading-relaxed font-light">{item}</span>
                                             </li>
                                         ))}
                                     </ul>
@@ -261,15 +262,15 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black uppercase tracking-widest mb-4">
                                         Tu Objetivo principal siempre será atraer Leads Interesados
                                     </div>
-                                    <h4 className="text-4xl font-black text-white leading-tight">Proyección de ingresos <br/> (estimación basada en tu comisión)</h4>
-                                    <div className="space-y-3 mt-8 flex flex-col items-center">
-                                        <div className="flex items-center gap-3 text-white text-xl leading-relaxed font-light">
-                                            <Check className="w-5 h-5 text-emerald-500" /> Tu Ganancia neta por venta: ${commissionValue.toFixed(2)} USD
+                                    <h4 className="text-[2rem] font-black text-white leading-tight">Proyección de ingresos <br/> (estimación basada en tu comisión)</h4>
+                                    <div className="space-y-3 mt-8 flex flex-col items-center text-[1.2rem] pt-[10px]">
+                                        <div className="flex items-center gap-3 text-white leading-relaxed font-light">
+                                            <Check className="w-5 h-5 text-emerald-500" /> Tu Ganancia neta por venta: ${formatValue(commissionValue)} USD
                                         </div>
-                                        <div className="flex items-center gap-3 text-white text-xl leading-relaxed font-light">
+                                        <div className="flex items-center gap-3 text-white leading-relaxed font-light">
                                             <Check className="w-5 h-5 text-emerald-500" /> Tasa de cierre objetivo: 5% en WhatsApp
                                         </div>
-                                        <div className="flex items-center gap-3 text-white text-xl leading-relaxed font-light">
+                                        <div className="flex items-center gap-3 text-white leading-relaxed font-light">
                                             <Check className="w-5 h-5 text-emerald-500" /> Porcentaje de comisión: {Math.round(commissionRate * 100)}%
                                         </div>
                                     </div>
@@ -278,7 +279,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                 <div className="grid grid-cols-2 gap-4 w-full max-w-md">
                                     <div className="bg-black/40 border border-emerald-500/30 rounded-2xl text-center p-5">
                                         <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mb-2">Ganancia Neta / Venta</p>
-                                        <p className="text-emerald-400 font-black text-3xl">${commissionValue.toFixed(2)}</p>
+                                        <p className="text-emerald-400 font-black text-3xl">${formatValue(commissionValue)}</p>
                                     </div>
                                     <div className="bg-black/40 border border-gray-700 rounded-2xl text-center p-5">
                                         <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mb-2">Tasa de Cierre WA</p>
@@ -289,7 +290,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
 
                             {/* Panel: Tabla de Escala Dinámica (AÑADIDOS 500 Y 1000 LEADS) */}
                             <div className="bg-gray-800/40 rounded-[2.5rem] border border-gray-700 p-8 shadow-inner w-full max-w-2xl">
-                                <h5 className="text-white font-bold mb-6 flex items-center justify-center gap-2">
+                                <h5 className="text-white text-[1.2rem] font-bold mb-6 flex items-center justify-center gap-2 pt-[10px]">
                                     <ArrowUpRight className="w-5 h-5 text-emerald-400" /> Mientras más leads tengas en tu sistema, mayor será tu probabilidad de generar altos ingresos.
                                 </h5>
                                 
@@ -297,23 +298,22 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     {leadScenarios.map((leads, i) => {
                                         const sales = Math.floor(leads * 0.05);
                                         const incomeValue = sales * commissionValue;
-                                        const incomeFormatted = Math.floor(incomeValue).toLocaleString('es-ES');
                                         
                                         return (
                                             <div key={i} className="flex items-center justify-between p-5 rounded-2xl bg-black/20 border border-transparent hover:border-emerald-500/30 hover:bg-black/40 transition-all group">
                                                 <div className="text-left">
                                                     <p className="text-xs text-gray-500 font-black uppercase tracking-widest mb-1">Atrayendo</p>
                                                     <p className="text-white font-black text-xl flex items-center gap-2">
-                                                        <Users className="w-5 h-5 text-blue-400" /> {leads} Leads
+                                                        <Users className="w-5 h-5 text-blue-400" /> {formatValue(leads)} Leads
                                                     </p>
                                                 </div>
                                                 <div className="flex flex-col items-center">
-                                                    <p className="text-[10px] text-gray-500 font-black uppercase mb-1">{sales} {sales === 1 ? 'venta' : 'ventas'}</p>
+                                                    <p className="text-[10px] text-gray-500 font-black uppercase mb-1">{formatValue(sales)} {sales === 1 ? 'venta' : 'ventas'}</p>
                                                     <ArrowRight className="w-6 h-6 text-gray-600 group-hover:text-emerald-500 transition-colors" />
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-xs text-gray-500 font-black uppercase tracking-widest mb-1">Ganancia aprox.</p>
-                                                    <p className="text-emerald-400 font-black text-2xl tracking-tighter leading-none">${incomeFormatted} USD</p>
+                                                    <p className="text-emerald-400 font-black text-2xl tracking-tighter leading-none">${formatValue(incomeValue)} USD</p>
                                                 </div>
                                             </div>
                                         );
@@ -335,7 +335,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                     <div className="flex flex-col items-center justify-center gap-8 pt-10 border-t border-white/5 relative z-10">
                         <div className="flex items-center gap-5 text-center">
                             <div className="p-3 bg-white/5 rounded-full shrink-0"><Sparkles className="w-6 h-6 text-yellow-500" /></div>
-                            <p className="max-w-3xl leading-relaxed italic text-white text-2xl font-medium border-l-4 border-emerald-500/30 pl-8 py-2 text-left">
+                            <p className="max-w-3xl leading-relaxed italic text-white text-[1.2rem] font-medium border-l-4 border-emerald-500/30 pl-8 py-2 text-left pt-[10px]">
                                 Los ingresos crecen de forma acumulativa a medida que el contenido gana autoridad y visibilidad. Este modelo premia la constancia, no la urgencia.
                             </p>
                         </div>

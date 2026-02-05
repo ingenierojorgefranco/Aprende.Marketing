@@ -6,14 +6,8 @@ const ACQUISITION_STEPS = [
         icon: Clapperboard, 
         title: "1. Atracción de Audiencia", 
         subtitle: "Canales: Reels, anuncios en Instagram, Facebook o Google", 
-        description: (
-            <div className="space-y-4">
-                <div>
-                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Captar la atención de desconocidos y dirigirlos hacia el inicio de tu embudo de ventas.</p>
-                </div>
-            </div>
-        ),
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        description: "Captar la atención de desconocidos y dirigirlos hacia el inicio de tu embudo de ventas.",
         masterclass: {
             importance: "La visibilidad es la gasolina de tu negocio; sin ojos en tu oferta, no hay crecimiento posible.",
             question: "¿Qué es la atracción de audiencia?",
@@ -43,16 +37,10 @@ const ACQUISITION_STEPS = [
     },
     { 
         icon: Globe, 
-        title: "2. Landing Page", 
-        subtitle: "Visitante deja sus datos para recibir el contenido gratuito.", 
-        description: (
-            <div className="space-y-4">
-                <div>
-                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Convertir el tráfico frío en contactos calificados capturando sus datos de contacto.</p>
-                </div>
-            </div>
-        ),
+        title: "2. Página de Captura (Landing Page)", 
+        subtitle: "El Visitante ingresa a tu página de captura y se registra dejando sus datos para recibir el contenido gratuito (LeadMagnet).", 
+        videoUrl: "https://www.youtube.com/embed/SChXl9k5r6E",
+        description: "Convertir el tráfico frío en contactos calificados capturando sus datos de contacto.",
         masterclass: {
             importance: "Tu local comercial abierto 24/7; la primera impresión que define si el cliente se queda o se va.",
             question: "¿Qué es una Landing Page?",
@@ -83,15 +71,9 @@ const ACQUISITION_STEPS = [
     { 
         icon: CheckCircle2, 
         title: "3. Página de Gracias", 
-        subtitle: "Instrucciones inmediatas tras el registro.", 
-        description: (
-            <div className="space-y-4">
-                <div>
-                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Confirmar el registro exitoso y guiar al lead inmediatamente hacia el canal de entrega o comunidad.</p>
-                </div>
-            </div>
-        ),
+        subtitle: "Agradecimiento e instrucciones al Grupo de Whatsapp", 
+        videoUrl: "https://www.youtube.com/embed/A_dcakdMBow",
+        description: "Confirmar el registro exitoso y posteriormente guiar al lead hacia tu comunidad privada.",
         masterclass: {
             importance: "El momento de mayor atención de un lead es justo después de registrarse. Si no le das una instrucción clara, lo pierdes para siempre.",
             question: "¿Por qué es vital la Página de Gracias?",
@@ -123,14 +105,8 @@ const ACQUISITION_STEPS = [
         icon: Users, 
         title: "4. Comunidad", 
         subtitle: "Grupo de WhatsApp", 
-        description: (
-            <div className="space-y-4">
-                <div>
-                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Nutrir a los prospectos en un entorno controlado para generar confianza y prueba social colectiva.</p>
-                </div>
-            </div>
-        ),
+        videoUrl: "https://www.youtube.com/embed/YpS8Vf9e7hA",
+        description: "Nutrir a los prospectos en un entorno controlado para generar confianza y prueba social colectiva.",
         masterclass: {
             importance: "La venta es un proceso de confianza. El grupo de WhatsApp humaniza tu oferta y crea un sentido de pertenencia y prueba social inmediata.",
             question: "¿Qué es una Comunidad en WhatsApp?",
@@ -162,14 +138,8 @@ const ACQUISITION_STEPS = [
         icon: MessageCircle, 
         title: "5. Message Directo", 
         subtitle: "Conversación 1 a 1", 
-        description: (
-            <div className="space-y-4">
-                <div>
-                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Resolver dudas específicas de forma personalizada para eliminar barreras finales de compra.</p>
-                </div>
-            </div>
-        ),
+        videoUrl: "https://www.youtube.com/embed/8vY_566sP1s",
+        description: "Resolver dudas específicas de forma personalizada para eliminar barreras finales de compra.",
         masterclass: {
             importance: "Para productos de ticket medio/alto, el humano compra a humano. Resolver una duda específica por chat puede salvar el 50% de tus ventas caídas.",
             question: "¿Cómo cerrar ventas por Message Directo?",
@@ -180,7 +150,7 @@ const ACQUISITION_STEPS = [
                 },
                 {
                     title: "El Poder de la Nota de Voz",
-                    content: "Nada genera más confianza que escuchar una voz real. El sistema te sugiere cuándo enviar un audio para humanizar el proceso. La voz transmite seguridad y profesionalismo, algo que el texto plano a veces no logra."
+                    content: "Nada genera más confianza que escuchar una voz real. El sistema te sugiere cuándo enviar un audio para humanizar el proceso. La voz transmite seguridad y profesionalismo, algo que el profesional a veces no logra."
                 },
                 {
                     title: "Manejo Proactivo de Objeciones",
@@ -201,14 +171,8 @@ const ACQUISITION_STEPS = [
         icon: FileText, 
         title: "6. Lead Magnet", 
         subtitle: "Contenido gratuito (PDF o Clase)", 
-        description: (
-            <div className="space-y-4">
-                <div>
-                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Entregar valor masivo de forma gratuita para activar la reciprocidad y demostrar autoridad técnica.</p>
-                </div>
-            </div>
-        ),
+        videoUrl: "https://www.youtube.com/embed/rP0v7v9S1aE",
+        description: "Entregar valor masivo de forma gratuita para activar la reciprocidad y demostrar autoridad técnica.",
         masterclass: {
             importance: "El sesgo de reciprocidad dicta que cuando das algo valioso gratis, la persona se siente inclinada a devolver el favor (comprando).",
             question: "¿Qué es un Lead Magnet?",
@@ -240,14 +204,8 @@ const ACQUISITION_STEPS = [
         icon: Mail, 
         title: "7. Email Marketing", 
         subtitle: "Secuencia de nutrición y venta por correo.", 
-        description: (
-            <div className="space-y-4">
-                <div>
-                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Recuperar la atención de los leads y educarlos mediante una secuencia lógica de persuasión.</p>
-                </div>
-            </div>
-        ),
+        videoUrl: "https://www.youtube.com/embed/uXWyP8H6R70",
+        description: "Recuperar the atención de los leads y educarlos mediante una secuencia lógica de persuasión.",
         masterclass: {
             importance: "El email marketing es the canal con mayor retorno de inversión. Te permite estar presente en la bandeja de entrada de tu cliente de forma personal y profesional.",
             question: "¿Por qué el Email Marketing es clave?",
@@ -275,14 +233,8 @@ const ACQUISITION_STEPS = [
         icon: BookOpen, 
         title: "8. Artículos de Blog", 
         subtitle: "Contenido educativo para generar autoridad.", 
-        description: (
-            <div className="space-y-4">
-                <div>
-                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Generar tráfico orgánico recurrente y posicionar tu marca como referente inagotable de conocimiento.</p>
-                </div>
-            </div>
-        ),
+        videoUrl: "https://www.youtube.com/embed/h_Y2E9O9M6k",
+        description: "Generar tráfico orgánico recurrente y posicionar tu marca como referente inagotable de conocimiento.",
         masterclass: {
             importance: "El contenido es the base de the autoridad. Un blog activo le dice a Google y a tus clientes que eres un referente serio en tu industria.",
             question: "¿Cómo ayudan los artículos de blog a vender?",
@@ -310,14 +262,8 @@ const ACQUISITION_STEPS = [
         icon: RefreshCw, 
         title: "9. Lanzamiento por Whatsapp", 
         subtitle: "Estrategia de cierre masivo en grupos.", 
-        description: (
-            <div className="space-y-4">
-                <div>
-                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Concentrar the demanda y generar una explosión de ventas mediante the escasez y urgencia grupal.</p>
-                </div>
-            </div>
-        ),
+        videoUrl: "https://www.youtube.com/embed/w7pYhp4Vpfw",
+        description: "Concentrar the demanda y generar una explosión de ventas mediante the escasez y urgencia grupal.",
         masterclass: {
             importance: "El lanzamiento por WhatsApp es the forma más rápida y efectiva de generar ingresos significativos concentrados en pocos días aprovechando the urgencia.",
             question: "¿Cómo funciona un Lanzamiento por WhatsApp?",
@@ -345,14 +291,8 @@ const ACQUISITION_STEPS = [
         icon: MonitorPlay, 
         title: "10. Página de Venta", 
         subtitle: "Carta de ventas (VSL o texto)", 
-        description: (
-            <div className="space-y-4">
-                <div>
-                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Presentar the oferta de forma irresistible y facilitar the transición hacia el pago final.</p>
-                </div>
-            </div>
-        ),
+        videoUrl: "https://www.youtube.com/embed/jNQXAC9IVRw",
+        description: "Presentar the oferta de forma irresistible y facilitar the transición hacia el pago final.",
         masterclass: {
             importance: "Es el clímax del embudo. Aquí se justifica racionalmente el deseo emocional. Debe ser impecable, clara y eliminar cualquier riesgo percibido.",
             question: "¿Qué es una Carta de Ventas (VSL)?",
@@ -384,14 +324,8 @@ const ACQUISITION_STEPS = [
         icon: ShoppingCart, 
         title: "11. Checkout", 
         subtitle: "Pasarela de Pago", 
-        description: (
-            <div className="space-y-4">
-                <div>
-                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
-                    <p className="text-white text-xl leading-relaxed">Finalizar the transacción económica de forma segura, rápida y sin fricciones técnicas.</p>
-                </div>
-            </div>
-        ),
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        description: "Finalizar the transacción económica de forma segura, rápida y sin fricciones técnicas.",
         masterclass: {
             importance: "Es el punto más crítico. Cualquier duda técnica aquí se traduce en dinero perdido. Debe ser rápido, intuitivo y dar seguridad absoluta.",
             question: "¿Cómo funciona un Checkout de alta conversión?",
@@ -430,7 +364,7 @@ const TacticalModal: React.FC<TacticalModalProps> = ({ step, onClose }) => {
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">
             <div className="absolute inset-0 cursor-pointer" onClick={onClose}></div>
-            <div className="relative w-full max-w-5xl bg-gray-900 border border-emerald-500/30 rounded-[3rem] shadow-[0_0_80px_rgba(16,185,129,0.15)] overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-500">
+            <div className="relative w-full max-w-5xl bg-[#0b0b0b] border border-emerald-500/30 rounded-[3rem] shadow-[0_0_80px_rgba(16,185,129,0.15)] overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-500">
                 {/* Header Neon Emerald */}
                 <div className="p-8 border-b border-white/10 flex justify-between items-start bg-gradient-to-r from-emerald-950/30 to-black shrink-0">
                     <div className="flex gap-6 items-center">
@@ -439,7 +373,7 @@ const TacticalModal: React.FC<TacticalModalProps> = ({ step, onClose }) => {
                         </div>
                         <div>
                             <h3 className="text-3xl font-black text-white tracking-tight">{step.title}</h3>
-                            <p className="text-emerald-400 text-sm font-black uppercase tracking-[0.15em] mt-1 opacity-90">{step.masterclass.importance}</p>
+                            <p className="text-emerald-400 text-sm font-black uppercase tracking-[0.15em] mt-1 opacity-90">{step.description}</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-3 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white rounded-full transition-all">
@@ -447,107 +381,17 @@ const TacticalModal: React.FC<TacticalModalProps> = ({ step, onClose }) => {
                     </button>
                 </div>
 
-                {/* Content Area */}
-                <div className="flex-1 overflow-y-auto p-10 space-y-16 custom-scrollbar bg-[#050505]/50">
-                    
-                    {/* Articulo Educativo */}
-                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                        <div className="space-y-4">
-                            <h4 className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-sm border-l-4 border-emerald-500/30 pl-4 py-1">
-                                <Brain className="w-5 h-5" /> Fundamento Estratégico
-                            </h4>
-                            <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">{step.masterclass.question}</h2>
-                        </div>
-                        
-                        <div className="grid gap-12 max-w-4xl">
-                            {step.masterclass.article.map((block: any, i: number) => (
-                                <div key={i} className="space-y-4">
-                                    <h5 className="text-2xl font-black text-emerald-300/90 tracking-tight">{block.title}</h5>
-                                    <p className="text-gray-300 text-xl leading-relaxed font-light font-sans">
-                                        {block.content}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Métricas Explicadas */}
-                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-[2.5rem] p-10 space-y-8 shadow-2xl">
-                         <div className="space-y-2">
-                            <h4 className="flex items-center gap-3 text-blue-400 font-black uppercase tracking-widest text-sm">
-                                <BarChart3 className="w-5 h-5" /> Métricas de Éxito & Control
-                            </h4>
-                            <p className="text-gray-400 text-lg leading-relaxed max-w-3xl">
-                                {step.masterclass.metricsExplanation}
-                            </p>
-                         </div>
-                         <div className="grid md:grid-cols-2 gap-6">
-                            {step.masterclass.metrics.map((m: any, i: number) => (
-                                <div key={i} className="p-6 bg-black/40 rounded-2xl border border-white/5 group hover:border-blue-500/30 transition-all">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <TrendingUp className="w-4 h-4 text-blue-500" />
-                                        <p className="text-white font-black text-base">{m.name}</p>
-                                    </div>
-                                    <p className="text-gray-400 text-sm leading-relaxed">{m.why}</p>
-                                </div>
-                            ))}
-                         </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-10">
-                        {/* Errores Fatales */}
-                        <div className="bg-red-500/5 border border-red-500/20 rounded-[2.5rem] p-10 space-y-8">
-                            <h4 className="flex items-center gap-3 text-red-400 font-black uppercase tracking-widest text-sm">
-                                <AlertTriangle className="w-5 h-5" /> Errores Fatales a Evitar
-                            </h4>
-                            <ul className="space-y-6">
-                                {step.masterclass.mistakes.map((m: string, i: number) => (
-                                    <li key={i} className="flex items-start gap-4 text-gray-300 text-lg leading-snug group">
-                                        <div className="w-6 h-6 rounded-full bg-red-900/30 text-red-500 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
-                                            <X className="w-4 h-4" /> 
-                                        </div>
-                                        {m}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Beneficios y Éxito */}
-                        <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-[2.5rem] p-10 space-y-8">
-                            <h4 className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-sm">
-                                <ShieldCheck className="w-5 h-5" /> Beneficios y Éxito
-                            </h4>
-                            <ul className="space-y-6">
-                                {step.masterclass.benefits.map((b: string, i: number) => (
-                                    <li key={i} className="flex items-start gap-4 text-gray-300 text-lg leading-snug group">
-                                        <div className="w-6 h-6 rounded-full bg-emerald-900/30 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
-                                            <CheckCircle2 className="w-4 h-4" /> 
-                                        </div>
-                                        {b}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-
-                    {/* Checklist de Implementación */}
-                    <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 space-y-8 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-8 opacity-5">
-                            <ListChecks className="w-40 h-40 text-white" />
-                        </div>
-                        <h4 className="flex items-center gap-3 text-white font-black uppercase tracking-widest text-sm relative z-10">
-                            <ListChecks className="w-5 h-5 text-emerald-400" /> Checklist de Implementación Inmediata
-                        </h4>
-                        <div className="grid md:grid-cols-1 gap-4 relative z-10">
-                            {step.masterclass.articleChecklist.map((c: string, i: number) => (
-                                <div key={i} className="flex items-center gap-4 p-5 bg-black/60 rounded-2xl border border-white/5 group hover:border-emerald-500/40 transition-all">
-                                    <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold group-hover:bg-emerald-500 group-hover:text-black transition-all shadow-lg shadow-emerald-900/10">
-                                        <CheckCircle2 className="w-5 h-5" />
-                                    </div>
-                                    <span className="text-gray-200 text-xl font-medium tracking-tight">{c}</span>
-                                </div>
-                            ))}
-                        </div>
+                {/* Content Area Rediseñada con Video */}
+                <div className="flex-1 overflow-y-auto p-10 space-y-8 custom-scrollbar bg-[#050505]/50">
+                    {/* Reproductor de Video */}
+                    <div className="w-full aspect-video rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-black relative group">
+                        <iframe 
+                            src={`${step.videoUrl}?rel=0&modestbranding=1&controls=1&showinfo=0`} 
+                            className="w-full h-full" 
+                            title={step.title}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen 
+                        />
                     </div>
                 </div>
 
@@ -569,7 +413,7 @@ interface FlowCardProps {
     icon: any;
     title: string;
     subtitle: string;
-    description: React.ReactNode;
+    description: string;
     step: number;
     onOpenMasterclass: (stepData: any) => void;
     stepData: any;
@@ -601,7 +445,8 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
                 </p>
                 
                 <div className="text-left w-full flex-1">
-                    {description}
+                    <p className="text-emerald-400 font-bold text-xl uppercase tracking-wider mb-2">Objetivo:</p>
+                    <p className="text-white text-xl leading-relaxed">{description}</p>
                 </div>
 
                 <button 
@@ -609,7 +454,11 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
                     onClick={(e) => { e.stopPropagation(); onOpenMasterclass(stepData); }}
                     className="mt-10 w-full flex items-center justify-center gap-2 text-lg font-black text-white transition-all z-20 relative px-6 py-4 rounded-xl bg-[#FF5A1F] border border-[#FF5A1F] hover:bg-[#D94A1E] shadow-lg shadow-[#FF5A1F]/20"
                 >
-                    <Sparkles className="w-4 h-4" /> Más Información
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                            <Sparkles className="w-4 h-4" /> Más Información
+                        </span>
+                    </span>
                 </button>
             </div>
 
@@ -658,7 +507,7 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                 <h3 id="psd-blueprint-title" className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
                     ¿Cómo funcionará tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">estrategia de ventas?</span>
                 </h3>
-                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-xl leading-relaxed font-light">
+                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
                     <p className="flex-1 border-l-4 border-emerald-500 pl-8 py-2">Nuestro sistema de ventas no depende de la suerte. Nuestra estrategia está diseñada para atraer clientes interesados en tu producto digital y llevarlos paso a paso hasta que tomen the decisión de compra con confianza.</p>
                     <div className="hidden md:block w-px h-24 bg-teal-500/30"></div>
                     <div 

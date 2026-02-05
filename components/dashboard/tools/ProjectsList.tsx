@@ -231,7 +231,7 @@ export const ProjectsList: React.FC = () => {
                         {projects.map((project) => (
                             <div 
                                 key={project.id}
-                                onClick={() => navigate(`/dashboard/projects/edit/${project.id}`)}
+                                onClick={() => navigate(`/dashboard/projects/${project.id}/strategy`)}
                                 className={`bg-[#111] rounded-[2.5rem] border transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl ${project.isMaster ? 'border-yellow-500/20 hover:border-yellow-500/40 shadow-yellow-500/5' : 'border-white/5 hover:border-[#FF5A1F]/30'}`}
                             >
                                 <div className={`absolute top-0 left-0 w-full h-1 opacity-80 ${project.isMaster ? 'bg-gradient-to-r from-yellow-400 to-amber-600' : 'bg-gradient-to-r from-[#FF5A1F] to-orange-600'}`}></div>
@@ -240,7 +240,7 @@ export const ProjectsList: React.FC = () => {
                                     <div className="flex justify-between items-start mb-6">
                                         {project.isMaster ? (
                                             <div className="bg-yellow-500/10 text-yellow-500 text-[10px] px-3 py-1.5 rounded-full border border-yellow-500/20 font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg">
-                                                <Crown className="w-3 h-3 fill-current" />
+                                                <CornerCrown className="w-3 h-3 fill-current" />
                                                 Estrategia Maestra
                                             </div>
                                         ) : (
@@ -328,7 +328,7 @@ export const ProjectsList: React.FC = () => {
                                 className="bg-[#0B0B0B] border border-yellow-500/10 rounded-[2.5rem] p-8 hover:border-yellow-500/40 transition-all duration-500 flex flex-col group shadow-2xl relative overflow-hidden"
                             >
                                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover:opacity-[0.08] transition-opacity">
-                                    <Crown className="w-32 h-32 text-yellow-500" />
+                                    <CornerCrown className="w-32 h-32 text-yellow-500" />
                                 </div>
                                 
                                 <div className="flex justify-between items-start mb-8 relative z-10">
@@ -387,7 +387,7 @@ export const ProjectsList: React.FC = () => {
                         <div className="p-8 md:p-12 space-y-8 flex-1 overflow-y-auto">
                             <div className="flex flex-col items-center text-center space-y-6">
                                 <div className="w-20 h-20 bg-yellow-500/10 text-yellow-500 rounded-3xl flex items-center justify-center mx-auto border border-yellow-500/20 shadow-lg shadow-yellow-900/10 animate-pulse">
-                                    <Crown className="w-10 h-10" />
+                                    <CornerCrown className="w-10 h-10" />
                                 </div>
                                 <div className="space-y-2">
                                     <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight italic">Protocolo de Desbloqueo</h3>
@@ -495,3 +495,6 @@ export const ProjectsList: React.FC = () => {
         </div>
     );
 };
+
+// Se renombra localmente para evitar conflicto con la importación principal de lucide-react si existiera
+const CornerCrown = Crown;
