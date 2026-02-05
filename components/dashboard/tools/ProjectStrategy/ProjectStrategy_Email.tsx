@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, EmailMessage, LandingPage, AffiliateLink } from '../../../../types';
@@ -32,10 +32,14 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [localPurpose, setLocalPurpose] = useState('');
     const [isTypeLocked, setIsTypeLocked] = useState(true);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showVideoModal, setShowVideoModal] = useState(false);
 
     // Estados locales para interactividad inmediata de redirección
     const [localRedirectType, setLocalRedirectType] = useState<'landing' | 'hotlink' | 'external' | undefined>(undefined);
     const [localRedirectUrl, setLocalRedirectUrl] = useState<string | undefined>(undefined);
+
+    // Referencia para rastrear el cambio de correo activo y evitar resets accidentales
+    const lastActiveEmailRef = useRef<number>(activeEmail);
 
     // Estados para redirección
     const [userPages, setUserPages] = useState<LandingPage[]>([]);
@@ -71,25 +75,29 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         loadContext();
     }, [projectId]);
 
-    // Sincronizar estados locales cuando cambia el correo activo en la lista
+    // Sincronizar estados locales solo cuando realmente cambiamos de correo
     useEffect(() => {
         const currentReal = realMessages.find(m => m.dayIndex === activeEmail);
         const currentStatic = emailData[activeEmail];
         
-        if (currentReal) {
-            setLocalSubject(currentReal.subject || '');
-            setLocalPilar(currentReal.pilarType || '');
-            setLocalPurpose(currentReal.purpose || '');
-            setLocalRedirectType(currentReal.redirectType);
-            setLocalRedirectUrl(currentReal.redirectUrl);
-        } else if (currentStatic) {
-            setLocalSubject(currentStatic.subject || '');
-            setLocalPilar(currentStatic.type || '');
-            setLocalPurpose(currentStatic.objective || '');
-            setLocalRedirectType(undefined);
-            setLocalRedirectUrl(undefined);
+        // Solo reseteamos los estados locales si el índice del correo ha cambiado
+        if (lastActiveEmailRef.current !== activeEmail || localSubject === '') {
+            if (currentReal) {
+                setLocalSubject(currentReal.subject || '');
+                setLocalPilar(currentReal.pilarType || '');
+                setLocalPurpose(currentReal.purpose || '');
+                setLocalRedirectType(currentReal.redirectType);
+                setLocalRedirectUrl(currentReal.redirectUrl);
+            } else if (currentStatic) {
+                setLocalSubject(currentStatic.subject || '');
+                setLocalPilar(currentStatic.type || '');
+                setLocalPurpose(currentStatic.objective || '');
+                setLocalRedirectType(undefined);
+                setLocalRedirectUrl(undefined);
+            }
+            setIsTypeLocked(true);
+            lastActiveEmailRef.current = activeEmail;
         }
-        setIsTypeLocked(true);
     }, [activeEmail, emailData, realMessages]);
 
     const handleUpdateMessage = async (field: string, value: any) => {
@@ -103,10 +111,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         try {
             const apiField = field === 'contentHtml' ? 'content_html' : (field === 'isGenerated' ? 'is_generated' : field);
             await api.updateEmailMessage(currentReal.id, { [apiField]: value } as any);
-            // Actualización local para feedback visual inmediato si el dashboard no recarga
-            (currentReal as any)[field] = value;
-            // Forzamos un re-render local si es necesario para el estado activo de las tarjetas
-            setActiveEmail(activeEmail);
         } catch (e) {
             console.error(e);
         }
@@ -159,7 +163,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     // Lógica de límites
     const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
     const maxSequences = planLimits?.maxEmailSequences || 5;
-    const usagePercent = Math.min(100, (sequenceCount / maxSequences) * 100);
+    const sequenceUsed = sequenceCount;
+    const usagePercent = Math.min(100, (sequenceUsed / maxSequences) * 100);
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";
     if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
@@ -170,19 +175,41 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
     return (
         <div id="psd-email-section" className="pt-8">
-            {/* --- ENCABEZADO ESTRATÉGICO --- */}
+            {/* --- ENCABEZADO ESTRATÉGICO ACTUALIZADO --- */}
             <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/5">
                     <Sparkles className="w-5 h-5" /> Correos Electrónicos Automáticos
                 </div>
                 
                 <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
-                    Secuencia de Nutrición <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-400">(7 Días)</span>
+                    Email Marketing: <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-400">Secuencia de Conversión (7 Días)</span>
                 </h3>
+
+                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
+                    <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">
+                        Hemos diseñado una secuencia de 7 correos electrónicos estratégicos diseñados para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia.
+                    </p>
+                    <div className="hidden md:block w-px h-24 bg-blue-500/30"></div>
+                    <div 
+                        onClick={() => setShowVideoModal(true)}
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                    >
+                        <img 
+                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                        alt="Video Thumbnail"
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                <PlayCircle className="w-10 h-10 text-blue-400" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div className="grid lg:grid-cols-12 gap-8">
-                {/* LEFT: EMAIL LIST (Ocupa 5 de 12 columnas) */}
+                {/* LEFT: EMAIL LIST */}
                 <div className="lg:col-span-5 bg-gray-900 p-6 rounded-2xl border border-gray-800 flex flex-col h-full shadow-xl">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-yellow-900/30 rounded-lg text-yellow-400 border border-yellow-900/50"><Mail className="w-6 h-6" /></div>
@@ -218,7 +245,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     </div>
                 </div>
 
-                {/* RIGHT: CONFIGURATION / CONTENT (Ocupa 7 de 12 columnas) */}
+                {/* RIGHT: CONFIGURATION / CONTENT */}
                 <div className="lg:col-span-7 bg-[#0B0B0B] border border-gray-800 rounded-[3rem] p-10 shadow-xl relative overflow-hidden flex-1 min-h-[600px]">
                     <div className={`absolute top-0 left-0 w-1 h-full ${isCurrentGenerated ? 'bg-emerald-500/50' : 'bg-yellow-500/50'}`}></div>
                     
@@ -496,16 +523,52 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner">
                                 <div className="flex justify-between items-center mb-3">
                                     <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Número de Secuencias en tu plan <span className="capitalize">{planLimits?.planName || 'Starter'}</span></span>
-                                    <span className="text-white font-bold text-sm">{sequenceCount} / {isRealAdmin ? '∞' : maxSequences}</span>
+                                    <span className="text-white font-bold text-sm">{sequenceUsed} / {isRealAdmin ? '∞' : maxSequences}</span>
                                 </div>
-                                <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden p-0.5 border border-white/5">
-                                    <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]`} style={{ width: `${isRealAdmin ? (sequenceCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                                    <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]`} style={{ width: `${isRealAdmin ? (sequenceUsed > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                 </div>
                             </div>
                         </div>
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
                             <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
-                            <button onClick={handleStartWriting} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-900/20 transform hover:scale-105 active:scale-95 transition-all">Confirmar y Redactar</button>
+                            <button onClick={handleStartWriting} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-purple-900/20 transform hover:scale-105 active:scale-95 transition-all">Confirmar y Redactar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL DE VIDEO TUTORIAL */}
+            {showVideoModal && (
+                <div 
+                    onClick={() => setShowVideoModal(false)}
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+                    >
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Email Marketing Estratégico
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Tutorial Email Marketing" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                        <div className="p-6 bg-gray-900">
+                            <p className="text-gray-300 text-sm leading-relaxed">
+                                Aprende cómo utilizar nuestra inteligencia artificial para redactar secuencias de correos que conviertan prospectos en clientes finales utilizando gatillos mentales probados.
+                            </p>
                         </div>
                     </div>
                 </div>

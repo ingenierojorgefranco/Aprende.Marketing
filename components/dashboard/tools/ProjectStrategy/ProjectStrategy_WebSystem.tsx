@@ -178,8 +178,11 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             </div>
                             <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative">
                                 <div className="flex-1 space-y-8">
-                                    <p className="text-gray-400 font-medium italic text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página web 100% profesional enfocada en los dolores, necesidades y beneficios de tus potenciales clientes. <br/><br/>Haz clic en los elementos para más detalles.</p>
-                                    <div className="flex flex-wrap gap-2">{lpTabsData && Object.keys(lpTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedLpTab(tabKey)} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${selectedLpTab === tabKey ? 'bg-blue-600 text-white border-blue-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{lpTabsData[tabKey].label}</button>))}</div>
+                                    <div className="space-y-4">
+                                        <h5 className="font-bold text-white text-xl">Estructura de tu Página Web</h5>
+                                        <p className="text-white font-medium text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página web 100% profesional enfocada en los dolores, necesidades y beneficios de tus potenciales clientes. <br/><br/>Haz clic en los elementos para más detalles.</p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">{lpTabsData && Object.keys(lpTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedLpTab(tabKey)} className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest border ${selectedLpTab === tabKey ? 'bg-blue-600 text-white border-blue-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{lpTabsData[tabKey].label}</button>))}</div>
                                     {renderBrowserMockup(renderLpContent(selectedLpTab || ''))}
                                 </div>
                             </div>
@@ -191,8 +194,11 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <div className="flex items-center gap-3"><div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400"><CheckCircle2 className="w-6 h-6" /></div><h4 className="text-2xl font-black text-white">Página de Gracias</h4></div>
                             <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative">
                                 <div className="flex-1 space-y-8">
-                                    <p className="text-gray-400 text-sm font-medium leading-relaxed italic">Sigue el flujo estratégico para aumentar la tasa de apertura de tus mensajes.</p>
-                                    <div className="flex flex-wrap gap-2">{tyTabsData && Object.keys(tyTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedTyTab(tabKey)} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${selectedTyTab === tabKey ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{tyTabsData[tabKey].label}</button>))}</div>
+                                    <div className="space-y-4">
+                                        <h5 className="font-bold text-white text-xl">Estructura de tu Página de Gracias</h5>
+                                        <p className="text-white font-medium text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página de gracias persuasiva enfocada en guiar al usuario hacia tu comunidad. <br/><br/>Haz clic en los elementos para más detalles.</p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">{tyTabsData && Object.keys(tyTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedTyTab(tabKey)} className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest border ${selectedTyTab === tabKey ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{tyTabsData[tabKey].label}</button>))}</div>
                                     {renderBrowserMockup(renderTyContent(selectedTyTab || ''), true)}
                                 </div>
                             </div>
