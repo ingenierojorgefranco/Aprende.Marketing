@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // Added PenTool to the imports from lucide-react
-import { Phone, MoreVertical, Send, Smile, Star, MessageSquare, Zap, PlayCircle, Save, X, Loader2, Sparkles, AlertTriangle, ArrowRight, Wand2, Check, PenTool } from 'lucide-react';
+import { Phone, MoreVertical, Send, Smile, Star, MessageSquare, Zap, PlayCircle, Save, X, Loader2, Sparkles, AlertTriangle, ArrowRight, Wand2, Check, PenTool, Globe } from 'lucide-react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { callGeminiBackend, Type } from '../../../../services/geminiService';
@@ -378,12 +378,12 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
                 {linkedLanding && (
                     <div className="flex justify-center mt-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                         <a 
-                            href={`/admin/lp/${linkedLanding.subdomain.split('.')[0]}#seccion-testimonios`}
+                            href={`/admin/lp/${linkedLanding.subdomain.split('.')[0]}#testimonios`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="px-10 py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl uppercase tracking-widest rounded-2xl transition-all shadow-2xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-4 transform hover:scale-[1.05] active:scale-95"
                         >
-                            Ver Testimonios en tu Pagina de Captura <ArrowRight className="w-6 h-6" />
+                            <Globe className="w-5 h-5" /> Ver Testimonios en tu Pagina de Captura <ArrowRight className="w-6 h-6" />
                         </a>
                     </div>
                 )}

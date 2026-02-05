@@ -19,7 +19,7 @@ export const BenefitsModule: React.FC<BenefitsModuleProps> = ({
   ds, 
   isMobilePreview, 
   showSeparator = false,
-  sectionId = "seccion-beneficios",
+  sectionId = "beneficios",
   className = "",
   titleClassName = "",
   subtitleClassName = "",

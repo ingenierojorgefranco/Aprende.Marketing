@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../../types';
 import { ScanFace, Palette, Feather } from 'lucide-react';
@@ -12,7 +11,7 @@ interface IntroModuleProps {
 
 export const IntroModule: React.FC<IntroModuleProps> = ({ content, ds, isMobilePreview }) => {
   return (
-    <section id="seccion-introduccion" className={`py-24 relative overflow-hidden ${ds.intro.sectionBg}`}>
+    <section id="introduccion" className={`py-24 relative overflow-hidden ${ds.intro.sectionBg}`}>
         <div className="w-full max-w-[75em] mx-auto px-6">
             <div className={`grid gap-12 items-center ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-2'}`}>
                 <div id="intro-image-container" className="relative">

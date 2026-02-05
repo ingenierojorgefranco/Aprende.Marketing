@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../../types';
 import { XCircle } from 'lucide-react';
@@ -10,7 +9,7 @@ interface PainPointsModuleProps {
 
 export const PainPointsModule: React.FC<PainPointsModuleProps> = ({ content, ds }) => {
   return (
-    <section id="seccion-dolores" className={`py-16 ${ds.features.sectionBg}`}>
+    <section id="dolores" className={`py-16 ${ds.features.sectionBg}`}>
         <div className="max-w-4xl mx-auto px-6 text-center">
             <h2 className={`text-3xl md:text-4xl font-black mb-4 ${ds.features.titleColor}`}>{content.whatYouWillLearn.title || "¿Es para ti esta clase?"}</h2>
             <p className={`text-xl font-medium mb-12 ${ds.features.descColor}`}>Si te pasa que…</p>

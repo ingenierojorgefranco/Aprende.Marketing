@@ -133,7 +133,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             <div className="space-y-24">
                 <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                     <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg"><Monitor className="w-5 h-5" /> Web Blueprint</div>
-                    <h3 className="text-5xl md:text-6xl font-black text-white leading-tight italic">Crea tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Pagina de Captura y Convierte Clientes en Automático</span></h3>
+                    <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight italic">Crea tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Pagina de Captura y Convierte Clientes en Automático</span></h3>
                     
                     <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
                         <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">
@@ -170,10 +170,10 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                         <h4 className="text-2xl font-black text-white">Página de Captura</h4>
                                     </div>
                                 </div>
-                                {loadingLocal ? <Loader2 className="w-5 h-5 animate-spin text-blue-400" /> : linkedPages.length > 0 && (
-                                    <button onClick={() => setShowPagesModal(true)} className="p-2.5 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white rounded-xl border border-blue-500/20 transition-all flex items-center gap-2 text-xs font-bold">
-                                        <Layout className="w-4 h-4" /> Ver Páginas
-                                    </button>
+                                {loadingLocal && (
+                                    <div className="flex items-center gap-2 px-3 py-1">
+                                        <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+                                    </div>
                                 )}
                             </div>
                             <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative">
@@ -273,7 +273,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Sistema Web
                             </h3>
                             <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                                <X className="w-6 h-6"/>
+                                <X className="w-5 h-5"/>
                             </button>
                         </div>
                         <div className="aspect-video w-full">

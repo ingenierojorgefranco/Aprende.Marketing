@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, DestinationType } from '../../../types';
 import { api } from '../../../services/api';
-import { CheckCircle, Star, MessageCircle, ArrowRight, Lock, ShieldCheck, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Menu, X, DollarSign, FileText, Briefcase, Award, Users, Loader2, PlayCircle } from 'lucide-react';
+import { CheckCircle, Star, MessageCircle, ArrowRight, Lock, ShieldCheck, Facebook, Instagram, Twitter, Mail, Anchor, Sparkles, Menu, X, DollarSign, FileText, Briefcase, Award, Users, Loader2, PlayCircle, Globe } from 'lucide-react';
 import { getIcon, renderRichText } from '../utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -93,20 +92,17 @@ export const Navbar = ({
     const currentTextColor = isScrolled ? ds.nav.stickyText : ds.nav.transparentText;
     const currentBg = isScrolled ? `${ds.nav.stickyBg} ${ds.nav.stickyBorder} border-b` : 'bg-transparent border-b border-white/5';
 
-    let navLinks = [...(content.navLinks || [])];
-    if (!content.navLinks || content.navLinks.length === 0) {
-        navLinks = [
-            { label: 'Descubre', href: '#seccion-introduccion' },
-            { label: 'Beneficios', href: '#seccion-beneficios' },
-            { label: 'Experto', href: '#seccion-instructor' }
-        ];
-    }
+    // Menú establecido como valor establecido (Fijo)
+    const navLinks = [
+        { label: 'Descubre', href: '#introduccion' },
+        { label: 'Beneficios', href: '#beneficios' },
+        { label: 'Testimonios', href: '#testimonios' },
+        { label: 'Experto', href: '#instructor' }
+    ];
 
     if (hasBlogArticles) {
         const blogUrl = basePath !== undefined ? (basePath === '' ? '/blog' : `${basePath}/blog`) : '#';
-        if (!navLinks.some(link => link.label.toLowerCase() === 'blog')) {
-            navLinks.push({ label: 'Blog', href: blogUrl });
-        }
+        navLinks.push({ label: 'Blog', href: blogUrl });
     }
 
     useEffect(() => {
@@ -298,6 +294,13 @@ export const Footer = ({
         }
     };
 
+    // Enlaces fijos para el pie de página
+    const fixedLinks = [
+        { label: 'Qué es', href: '#introduccion' },
+        { label: 'Beneficios', href: '#beneficios' },
+        { label: 'Instructor', href: '#instructor' }
+    ];
+
     return (
         <footer id="footer-section" className={`${ds.footer.bg} ${ds.footer.borderTop} border-t py-16`}>
             <div className="w-full max-w-[75em] mx-auto px-6">
@@ -321,7 +324,7 @@ export const Footer = ({
                     <div>
                         <h5 className={`font-bold mb-4 text-lg ${ds.footer.titleColor}`}>Enlaces</h5>
                         <ul id="footer-links-list" className={`space-y-3 ${ds.footer.textColor}`}>
-                            {content.navLinks ? content.navLinks.map((link, i) => (
+                            {fixedLinks.map((link, i) => (
                                 <li key={i}>
                                     <a 
                                         href={resolveLink(link.href)} 
@@ -331,13 +334,7 @@ export const Footer = ({
                                         {link.label}
                                     </a>
                                 </li>
-                            )) : (
-                                <>
-                                    <li><a href={resolveLink("#seccion-introduccion")} onClick={(e) => handleSmoothScroll(e, "#seccion-introduccion")} className={`transition hover:${ds.footer.linkHover}`}>Qué es</a></li>
-                                    <li><a href={resolveLink("#seccion-beneficios")} onClick={(e) => handleSmoothScroll(e, "#seccion-beneficios")} className={`transition hover:${ds.footer.linkHover}`}>Beneficios</a></li>
-                                    <li><a href={resolveLink("#seccion-instructor")} onClick={(e) => handleSmoothScroll(e, "#seccion-instructor")} className={`transition hover:${ds.footer.linkHover}`}>Instructor</a></li>
-                                </>
-                            )}
+                            ))}
                         </ul>
                     </div>
                     <div>

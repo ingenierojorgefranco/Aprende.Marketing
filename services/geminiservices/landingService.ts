@@ -82,7 +82,6 @@ export const generateLandingPageContent = async (
     "brandName": "string",
     "topTagline": "string",
     "navCta": "string",
-    "navLinks": [{"label": "string", "href": "string"}],
     "testimonialTitle": "string",
     "hero": { "headline": "string", "subheadline": "string", "ctaText": "string" },
     "testimonials": [{"name": "string", "text": "string", "rating": number, "image": "string"}],

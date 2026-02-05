@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedPageContent } from '../../../../types';
 import { Award, Users, Star } from 'lucide-react';
@@ -12,7 +11,7 @@ interface InstructorModuleProps {
 
 export const InstructorModule: React.FC<InstructorModuleProps> = ({ content, ds, isMobilePreview }) => {
   return (
-    <section id="seccion-instructor" className={`py-24 relative overflow-hidden ${ds.instructor.sectionBg}`}>
+    <section id="instructor" className={`py-24 relative overflow-hidden ${ds.instructor.sectionBg}`}>
          <div className={`absolute top-1/2 left-0 md:left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] ${ds.blobOpacity} ${ds.blobColor}`}></div>
          <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
             <div className={`flex flex-col items-center gap-12 ${isMobilePreview ? '' : 'md:flex-row md:gap-20'}`}>

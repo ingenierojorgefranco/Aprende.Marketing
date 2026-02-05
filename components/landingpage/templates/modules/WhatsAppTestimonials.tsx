@@ -49,7 +49,7 @@ export const WhatsAppTestimonials: React.FC<WhatsAppTestimonialsProps> = ({
   ];
 
   return (
-    <section id="seccion-testimonios" className={`py-20 md:py-24 ${ds.testimonials.sectionBg} border-t ${ds.testimonials.sectionBorder} relative overflow-hidden`}>
+    <section id="testimonios" className={`py-20 md:py-24 ${ds.testimonials.sectionBg} border-t ${ds.testimonials.sectionBorder} relative overflow-hidden`}>
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-12 md:mb-16">
           <h2 className={`text-2xl md:text-5xl font-black mb-4 ${ds.testimonials.titleColor}`}>
