@@ -120,7 +120,6 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         subject: `[LECTURA RECOMENDADA] ${article.title}`,
         type: 'Evergreen / Valor',
         objective: 'Construir autoridad de marca enviando tráfico al blog de tu landing page.',
-        bodyPreview: `Hola ${avatars[0]?.name.split(' ')[0] || 'amiga'}, hoy quiero compartir contigo un tema vital que acabamos de publicar en nuestro portal: "${article.title}". Entender esto es fundamental para tu éxito...`,
         articleSlug: article.slug
     }));
 
@@ -234,9 +233,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                 <p>Asunto: {activeEmail.subject}</p>
                             </div>
 
-                            <p className="mb-6">Hola {avatars[0]?.name.split(' ')[0] || 'amiga'},</p>
-                            <p className="mb-8">{activeEmail.bodyPreview}</p>
-                            
+                            <p className="mb-6">Hola {avatars[0]?.name.split(' ')[0] || 'amiga'},</p>                            
                             <div className="my-10 text-center">
                                 <div className="inline-block px-10 py-5 bg-orange-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl pointer-events-none">
                                     Hacer clic para leer el artículo
