@@ -1,12 +1,13 @@
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
-import { PlayCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { PlayCircle } from 'lucide-react';
 import { Navbar, HeroMedia } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { IntroModule } from './modules/IntroModule';
 import { InstructorModule } from './modules/InstructorModule';
 import { FaqModule } from './modules/FaqModule';
+import { PainPointsModule } from './modules/PainPointsModule';
 import { FooterModule } from './modules/FooterModule';
 import { StepsModule } from './modules/StepsModule';
 import { FinalCtaModule } from './modules/FinalCtaModule';
@@ -72,25 +73,6 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                                 </>
                             )}
                         </div>
-                        
-                        <div className="mt-8 pt-6 border-t border-gray-100/10">
-                            <h3 className={`text-xl md:text-2xl font-bold mb-6 flex items-center gap-3 ${ds.features.titleColor}`}>
-                                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center ${ds.features.iconContainer}`}>
-                                    <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-orange-500" />
-                                </div>
-                                {content.whatYouWillLearn.title || "¿Te sientes identificada con alguna de estas situaciones?"}
-                            </h3>
-                            <ul className="space-y-4">
-                                {(content.whatYouWillLearn.items || []).map((item, idx) => (
-                                    <li key={idx} className="flex items-start gap-3 md:gap-4 p-3 hover:bg-black/5 rounded-lg transition-colors group">
-                                        <div className={`mt-0.5 md:mt-1 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform shrink-0 bg-red-500`}>
-                                            <XCircle className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" />
-                                        </div>
-                                        <span className={`text-base md:text-lg leading-snug ${ds.features.descColor}`}>{item}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
                     </div>
                 </div>
                 <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-5 lg:sticky lg:top-24 order-1 lg:order-2'}`}>
@@ -99,6 +81,8 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
              </div>
           </div>
         </header>
+
+        <PainPointsModule content={content} ds={ds} />
 
         <WhatsAppTestimonials 
             testimonials={content.testimonials} 
