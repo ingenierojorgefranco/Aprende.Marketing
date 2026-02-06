@@ -30,7 +30,7 @@ interface ProjectStrategy_PsychologyProps {
             mainBarrier: string;
         };
     };
-    benefitsItems?: Array<{ title: string; desc: string }>;
+    benefitsItems?: Array<{ title: string; desc?: string; description?: string }>;
 }
 
 export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProps> = ({ psychology, benefitsItems = [] }) => {
@@ -131,6 +131,7 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                     {/* Mapeo del espejo por filas relativas */}
                     {psychology.pains.map((pain, i) => {
                         const benefit = (benefitsItems && benefitsItems[i]) ? benefitsItems[i] : null;
+                        const benefitDescription = benefit?.description || benefit?.desc;
                         
                         return (
                             <div key={i} className="relative grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-10 group/row">
@@ -160,9 +161,9 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                             <p className="text-emerald-50 text-[1.4rem] leading-[1.8] font-bold">
                                                 {benefit ? benefit.title : (psychology.solutions[i] || "Transformación estratégica")}
                                             </p>
-                                            {benefit?.desc && (
+                                            {benefitDescription && (
                                                 <p className="text-emerald-200/70 text-[1.4rem] leading-[1.8] font-light italic">
-                                                    {benefit.desc}
+                                                    {benefitDescription}
                                                 </p>
                                             )}
                                         </div>
