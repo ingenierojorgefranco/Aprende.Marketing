@@ -1,13 +1,12 @@
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
-import { User, Target } from 'lucide-react';
+import { User, Target, AlertTriangle, XCircle } from 'lucide-react';
 import { Navbar } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { IntroModule } from './modules/IntroModule';
 import { InstructorModule } from './modules/InstructorModule';
 import { FaqModule } from './modules/FaqModule';
-import { PainPointsModule } from './modules/PainPointsModule';
 import { FooterModule } from './modules/FooterModule';
 import { StepsModule } from './modules/StepsModule';
 import { FinalCtaModule } from './modules/FinalCtaModule';
@@ -71,14 +70,30 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                         </div>
                 </div>
 
-                {/* 4. CTA Block */}
+                {/* 4. Problem Identification Card (Centered) */}
+                <div id="what-you-will-learn-card" className={`w-full max-w-3xl border rounded-xl p-8 text-left shadow-lg ${ds.features.cardBg} ${ds.features.cardBorder}`}>
+                    <h4 className={`font-bold mb-6 flex items-center justify-center gap-2 text-xl ${ds.features.titleColor}`}>
+                        <div className={`w-6 h-6 text-orange-500`}>
+                            <AlertTriangle className="w-full h-full" />
+                        </div>
+                        {content.whatYouWillLearn.title || "¿Te sientes identificada con alguna de estas situaciones?"}
+                    </h4>
+                    <ul className={`grid gap-4 ${isMobilePreview ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                        {(content.whatYouWillLearn.items || []).map((item, i) => (
+                            <li key={i} className={`flex items-start gap-3 text-base ${ds.features.descColor}`}>
+                                <XCircle className={`w-5 h-5 shrink-0 mt-0.5 text-red-500`} />
+                                {item}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                {/* 5. CTA Block */}
                 <div id="hero-cta" className="w-full max-w-md mt-4 animate-in slide-in-from-bottom-4 duration-700">
                     <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} sticky={false} />
                 </div>
             </div>
          </header>
-
-         <PainPointsModule content={content} ds={ds} />
 
          <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
          <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
