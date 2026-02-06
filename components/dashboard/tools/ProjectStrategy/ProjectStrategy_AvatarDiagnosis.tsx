@@ -26,7 +26,7 @@ interface ProjectStrategy_AvatarDiagnosisProps {
     };
 }
 
-export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDiagnosisProps> = ({ avatars, psychology, benefitsItems }) => {
+export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDiagnosisProps> = ({ avatars, psychology, benefitsItems = [] }) => {
     const [showVideoModal, setShowVideoModal] = useState(false);
 
     const getAvatarRoleBadge = (idx: number) => {

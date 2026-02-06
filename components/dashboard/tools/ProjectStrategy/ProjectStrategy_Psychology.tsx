@@ -33,7 +33,7 @@ interface ProjectStrategy_PsychologyProps {
     benefitsItems?: Array<{ title: string; desc: string }>;
 }
 
-export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProps> = ({ psychology, benefitsItems }) => {
+export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProps> = ({ psychology, benefitsItems = [] }) => {
     const { id: projectId } = useParams() as { id: string };
     const [showVideoModal, setShowVideoModal] = useState(false);
     const [linkedLanding, setLinkedLanding] = useState<LandingPage | null>(null);

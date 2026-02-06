@@ -25,8 +25,8 @@ export const BenefitsModule: React.FC<BenefitsModuleProps> = ({
   subtitleClassName = "",
   fallbackSubtitle = "Recibe el arsenal completo de recursos que han llevado a nuestras alumnas a facturar desde su primer mes."
 }) => {
-  const benefits = content.benefits;
-  if (!benefits) return null;
+  const benefits = content?.benefits;
+  if (!benefits || !benefits.items) return null;
 
   return (
     <section id={sectionId} className={`py-24 ${className || ds.features.sectionBg}`}>
