@@ -141,7 +141,15 @@ export const DEFAULT_STRATEGY_TEMPLATE: ProjectMasterStrategy = {
     },
     modules: {
         web: {
-            landingPageTabs: {},
+            landingPageTabs: {
+                hero: {
+                    label: "1. Encabezado",
+                    title: "Promesa de Valor (Hero Section)",
+                    type: 'hero',
+                    h1: "",
+                    h2: ""
+                }
+            },
             thankYouPageTabs: {}
         },
         content: [],

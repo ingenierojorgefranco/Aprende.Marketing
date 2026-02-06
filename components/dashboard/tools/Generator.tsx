@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
@@ -230,7 +229,44 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                   contact: "soporte@sistema-ia.com" 
               },
               thankYouMessage: "¡Felicidades! Tu acceso ha sido generado correctamente.",
-              redirectUrl: "https://aprende.marketing"
+              redirectUrl: "https://aprende.marketing",
+              thankYouPage: {
+                  showSocials: true,
+                  ctaLink: "https://chat.whatsapp.com/demo",
+                  progressBarText: "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO...",
+                  greenBadgeText: "RECIBE TU REGALO 100% GRATIS",
+                  headline: "¡REGISTRO EXITOSO! YA TIENES TU LUGAR ASEGURADO",
+                  subheadline: "Sigue los pasos a continuación para acceder al material exclusivo y unirte a la comunidad.",
+                  step1Title: "Revisa tu Bandeja de Entrada",
+                  step1Desc: "Hemos enviado el enlace de acceso y tus bonos a tu correo electrónico.",
+                  step1Warning: "Nota: Si no lo ves, revisa tu carpeta de Correo No Deseado (SPAM).",
+                  step1Subject: "Asunto: [ACCESO] Tu material de entrenamiento está listo",
+                  step2Title: "Únete a la Comunidad VIP",
+                  step2Desc: "Accede a nuestro grupo de WhatsApp para recibir mentoría en vivo y soporte prioritario.",
+                  step2Badge: "¡ACCIÓN REQUERIDA!",
+                  step2BonusTitle: "Manual de Implementación Rápida",
+                  step2BonusValue: "Valor $27 USD - GRATIS",
+                  offerTopTitle: "SÓLO PARA NUEVOS MIEMBROS",
+                  offerHeadline: "Descarga: \"El Mapa Maestro para Escalar Ventas con IA\"",
+                  offerDescription: "En esta guía te revelamos los 7 pasos exactos para automatizar tu facturación.",
+                  bookTitle: "Mapa Maestro",
+                  bookSubtitle: "SISTEMA IA 2025",
+                  bookFooter: "RECURSO EXCLUSIVO",
+                  offerPriceRegular: "$27.00",
+                  offerPriceFree: "GRATIS",
+                  offerBadge: "OFERTA DE BIENVENIDA",
+                  offerBullets: ["Estrategias probadas", "Gatillos mentales", "Scripts listos"],
+                  ctaButtonText: "UNIRME Y DESCARGAR REGALO",
+                  learningTitle: "Lo que vas a lograr",
+                  learningSubtitle: "Dominarás las herramientas que están cambiando el juego.",
+                  learningItems: [{ title: "Fase 1", description: "Configuración inicial" }, { title: "Fase 2", description: "Escalamiento" }],
+                  socialTitle: "Comunidad Unida",
+                  socialSubtitle: "Personas reales logrando resultados extraordinarios.",
+                  socialCountText: "+5,000 Miembros",
+                  socialItems: [{ name: "Ana P.", location: "CDMX", text: "Excelente soporte." }],
+                  faqTitle: "¿Tienes dudas?",
+                  faqItems: [{ question: "¿Es gratis?", answer: "Sí, por tiempo limitado." }]
+              }
           };
       } else {
           // Producción: Gemini Real

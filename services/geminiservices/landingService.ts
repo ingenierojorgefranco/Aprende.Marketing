@@ -92,7 +92,44 @@ export const generateLandingPageContent = async (
     "instructor": { "name": "string", "bio": "string" },
     "footer": { "copyright": "string", "contact": "string" },
     "thankYouMessage": "string",
-    "redirectUrl": "string"
+    "redirectUrl": "string",
+    "thankYouPage": {
+      "showSocials": boolean,
+      "ctaLink": "string",
+      "progressBarText": "string",
+      "greenBadgeText": "string",
+      "headline": "string",
+      "subheadline": "string",
+      "step1Title": "string",
+      "step1Desc": "string",
+      "step1Warning": "string",
+      "step1Subject": "string",
+      "step2Title": "string",
+      "step2Desc": "string",
+      "step2Badge": "string",
+      "step2BonusTitle": "string",
+      "step2BonusValue": "string",
+      "offerTopTitle": "string",
+      "offerHeadline": "string",
+      "offerDescription": "string",
+      "bookTitle": "string",
+      "bookSubtitle": "string",
+      "bookFooter": "string",
+      "offerPriceRegular": "string",
+      "offerPriceFree": "string",
+      "offerBadge": "string",
+      "offerBullets": ["string"],
+      "ctaButtonText": "string",
+      "learningTitle": "string",
+      "learningSubtitle": "string",
+      "learningItems": [{"title": "string", "description": "string"}],
+      "socialTitle": "string",
+      "socialSubtitle": "string",
+      "socialCountText": "string",
+      "socialItems": [{"name": "string", "location": "string", "text": "string"}],
+      "faqTitle": "string",
+      "faqItems": [{"question": "string", "answer": "string"}]
+    }
   }`;
 
   const prompt = `Actúa como un experto en copywriting y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
@@ -116,6 +153,7 @@ export const generateLandingPageContent = async (
   6. FAQ: 4 preguntas que maten objeciones.
   7. Instructor: Nombre y biografía.
   8. Footer: Copyright y contacto.
+  9. Thank You Page: Genera una configuración completa de página de gracias persuasiva que guíe al usuario hacia el siguiente paso (WhatsApp) y le entregue su regalo prometido (Lead Magnet).
   
   Responde ÚNICAMENTE con el objeto JSON válido.`;
 

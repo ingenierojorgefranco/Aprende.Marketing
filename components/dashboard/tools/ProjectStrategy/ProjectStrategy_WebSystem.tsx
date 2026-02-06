@@ -5,6 +5,7 @@ import { LandingPage, PlanLimits, Plan } from '../../../../types';
 import { Generator } from '../Generator';
 import { api } from '../../../../services/api';
 import { UpgradeModal } from '../../UpgradeModal';
+import { ProjectMasterStrategy } from '../../../../services/strategySchema';
 
 interface ProjectStrategy_WebSystemProps {
     projectId: string;
@@ -37,27 +38,31 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [domainCount, setDomainCount] = useState(0);
+    const [strategy, setStrategy] = useState<ProjectMasterStrategy | null>(null);
 
     useEffect(() => {
-        if (!selectedLpTab && lpTabsData) {
-            const firstKey = Object.keys(lpTabsData)[0];
-            if (firstKey) setSelectedLpTab(firstKey);
+        if (!selectedLpTab) {
+            setSelectedLpTab('hero');
         }
         if (!selectedTyTab && tyTabsData) {
             const firstKey = Object.keys(tyTabsData)[0];
             if (firstKey) setSelectedTyTab(firstKey);
         }
-    }, [lpTabsData, tyTabsData, selectedLpTab, selectedTyTab, setSelectedLpTab, setSelectedTyTab]);
+    }, [tyTabsData, selectedLpTab, selectedTyTab, setSelectedLpTab, setSelectedTyTab]);
 
     useEffect(() => {
         const loadLocalData = async () => {
             if (!projectId) return;
             setLoadingLocal(true);
             try {
-                const pages = await api.getPages();
+                const [pages, strategyData] = await Promise.all([
+                    api.getPages(),
+                    api.getProjectStrategy(projectId)
+                ]);
                 const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
                 setLinkedPages(projectPages);
                 setDomainCount(pages.filter(p => !!p.customDomain).length);
+                setStrategy(strategyData);
             } catch (e) {
                 console.error(e);
             } finally {
@@ -104,16 +109,62 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     );
 
     const renderLpContent = (tabKey: string) => {
-        if (!lpTabsData) return null;
-        const data = lpTabsData[tabKey];
-        if (!data) return null;
-        return (
-            <div className="space-y-6 animate-in fade-in duration-500">
-                {data.type === 'hero' && (<div className="space-y-6"><div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-lg text-[10px] font-black uppercase tracking-widest border border-primary/20">Lead Magnet Activo</div><h4 className="text-gray-900 font-black text-3xl leading-tight">{data.h1}</h4><p className="text-gray-600 text-lg leading-relaxed">{data.h2}</p><div className="h-14 w-full bg-primary rounded-xl shadow-lg flex items-center justify-center text-white font-bold text-lg">RESERVAR MI CUPO</div></div>)}
-                {data.type === 'pain' && (<div className="space-y-4"><h4 className="text-gray-900 font-black text-2xl mb-6">¿Te sientes identificada?</h4><div className="space-y-3">{(data.items || []).map((item: string, i: number) => (<div key={i} className="flex gap-4 items-start p-4 bg-red-50 rounded-2xl border border-red-100"><XCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" /><p className="text-gray-800 text-base leading-snug font-medium">{item}</p></div>))}</div></div>)}
-                {data.type === 'benefits' && (<div className="space-y-4"><h4 className="text-gray-900 font-black text-2xl mb-6">Tu transformación incluye:</h4><div className="space-y-4">{(data.items || []).map((item: any, i: number) => (<div key={i} className="flex gap-4 items-center p-4 bg-emerald-50 rounded-[1.5rem] border border-emerald-100"><CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" /><div><p className="text-gray-900 font-bold text-base leading-tight">{item.title}</p>{item.desc && <p className="text-gray-600 text-xs mt-1">{item.desc}</p>}</div></div>))}</div></div>)}
-            </div>
-        );
+        if (tabKey === 'hero') {
+            const data = lpTabsData?.hero;
+            if (!data) return null;
+            return (
+                <div className="space-y-6 animate-in fade-in duration-500">
+                    <div className="space-y-6">
+                        <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-lg text-[10px] font-black uppercase tracking-widest border border-primary/20">Lead Magnet Activo</div>
+                        <h4 className="text-gray-900 font-black text-3xl leading-tight">{data.h1}</h4>
+                        <p className="text-gray-600 text-lg leading-relaxed">{data.h2}</p>
+                        <div className="h-14 w-full bg-primary rounded-xl shadow-lg flex items-center justify-center text-white font-bold text-lg">RESERVAR MI CUPO</div>
+                    </div>
+                </div>
+            );
+        }
+
+        if (tabKey === 'pain') {
+            const items = strategy?.psychology?.pains || [];
+            return (
+                <div className="space-y-6 animate-in fade-in duration-500">
+                    <div className="space-y-4">
+                        <h4 className="text-gray-900 font-black text-2xl mb-6">¿Te sientes identificada?</h4>
+                        <div className="space-y-3">
+                            {items.map((item: string, i: number) => (
+                                <div key={i} className="flex gap-4 items-start p-4 bg-red-50 rounded-2xl border border-red-100">
+                                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
+                                    <p className="text-gray-800 text-base leading-snug font-medium">{item}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        if (tabKey === 'benefits') {
+            const items = strategy?.psychology?.solutions || [];
+            return (
+                <div className="space-y-6 animate-in fade-in duration-500">
+                    <div className="space-y-4">
+                        <h4 className="text-gray-900 font-black text-2xl mb-6">Tu transformación incluye:</h4>
+                        <div className="space-y-4">
+                            {items.map((title: string, i: number) => (
+                                <div key={i} className="flex gap-4 items-center p-4 bg-emerald-50 rounded-[1.5rem] border border-emerald-100">
+                                    <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
+                                    <div>
+                                        <p className="text-gray-900 font-bold text-base leading-tight">{title}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        return null;
     };
 
     const renderTyContent = (tabKey: string) => {
@@ -127,6 +178,12 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             </div>
         );
     };
+
+    const lpTabs = [
+        { key: 'hero', label: "1. Encabezado" },
+        { key: 'pain', label: "2. Dolores" },
+        { key: 'benefits', label: "3. Beneficios" }
+    ];
 
     return (
         <>
@@ -180,10 +237,20 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <div className="flex-1 space-y-8">
                                     <div className="space-y-4">
                                         <h5 className="font-bold text-white text-xl">Estructura de tu Página Web</h5>
-                                        <p className="text-white font-medium text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página web 100% profesional enfocada en los dolores, necesidades y beneficios de tus potenciales clientes. <br/><br/>Haz clic en los elementos para más detalles.</p>
+                                        <p className="text-white font-light text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página web 100% profesional enfocada en los dolores, necesidades y beneficios de tus potenciales clientes. <br/><br/>Haz clic en los elementos para más detalles.</p>
                                     </div>
-                                    <div className="flex flex-wrap gap-2">{lpTabsData && Object.keys(lpTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedLpTab(tabKey)} className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest border ${selectedLpTab === tabKey ? 'bg-blue-600 text-white border-blue-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{lpTabsData[tabKey].label}</button>))}</div>
-                                    {renderBrowserMockup(renderLpContent(selectedLpTab || ''))}
+                                    <div className="flex flex-wrap gap-2">
+                                        {lpTabs.map(tab => (
+                                            <button 
+                                                key={tab.key} 
+                                                onClick={() => setSelectedLpTab(tab.key)} 
+                                                className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest border ${selectedLpTab === tab.key ? 'bg-blue-600 text-white border-blue-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}
+                                            >
+                                                {tab.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {renderBrowserMockup(renderLpContent(selectedLpTab || 'hero'))}
                                 </div>
                             </div>
                         </div>
@@ -196,7 +263,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <div className="flex-1 space-y-8">
                                     <div className="space-y-4">
                                         <h5 className="font-bold text-white text-xl">Estructura de tu Página de Gracias</h5>
-                                        <p className="text-white font-medium text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página de gracias persuasiva enfocada en guiar al usuario hacia tu comunidad. <br/><br/>Haz clic en los elementos para más detalles.</p>
+                                        <p className="text-white font-light text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página de gracias persuasiva enfocada en guiar al usuario hacia tu comunidad. <br/><br/>Haz clic en los elementos para más detalles.</p>
                                     </div>
                                     <div className="flex flex-wrap gap-2">{tyTabsData && Object.keys(tyTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedTyTab(tabKey)} className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest border ${selectedTyTab === tabKey ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{tyTabsData[tabKey].label}</button>))}</div>
                                     {renderBrowserMockup(renderTyContent(selectedTyTab || ''), true)}

@@ -278,16 +278,17 @@ const generateFullStrategy = async (projectId) => {
         - El texto de cada testimonio debe narrar en primera persona cómo el producto solucionó el "pain" (dolor) específico que definiste para ese avatar.
         - Lenguaje natural, corto (máximo 25 palabras) y con tono de mensaje de agradecimiento.
 
+        En thankYouPageTabs, genera copy persuasivo para 3 momentos:
+            header: Un titular de confirmación inmediata (ej: '¡Lugar Reservado!').
+            action: Una instrucción directa para unirse al grupo de WhatsApp (ej: 'Únete a la comunidad para recibir soporte').
+            magnet: Copy específico para la entrega del Lead Magnet (PDF o Clase) con un titular que genere deseo de consumo inmediato.
+
 
 
         INSTRUCCIONES PARA SECUENCIA DE LANZAMIENTO WHATSAPP whatsappLaunch (OBLIGATORIO):
         Genera una secuencia completa de 3 mensajes para un lanzamiento de WhatsApp Flow / Meteórico. Cada mensaje debe ser persuasivo, usar emojis y formato negrita de WhatsApp.
         Los 3 momentos son:
         1. wl1: Confirmación de Fecha (Día -7).
-
-
-
-
 
 
         Estructura del JSON para whatsappLaunch:
@@ -417,34 +418,6 @@ const generateFullStrategy = async (projectId) => {
                 type: 'hero',
                 h1: "Domina el Arte del Microblading y Genera Ingresos Propios de Alto Valor",
                 h2: "La oportunidad perfecta para emprendedoras del sector belleza que buscan independencia financiera sin trucos ni promesas vacías."
-            },
-            pain: {
-                label: "2. Dolores",
-                title: "Identificación del Problema",
-                type: 'pain',
-                items: [
-                    "Trabajas jornadas agotadoras de más de 10 horas, pero al final del mes tu cuenta bancaria no refleja tu enorme esfuerzo.",
-                    "Sientes un nudo en el estómago por el miedo a cometer un error en el rostro de una clienta y arruinar tu reputación.",
-                    "Has gastado dinero en cursos que solo te dieron teoría aburrida, pero te dejaron sola a la hora de practicar.",
-                    "Ves pasar oportunidades de éxito en Instagram, pero te falta la guía técnica para dar el paso con seguridad.",
-                    "Te apasiona la estética pero no sabes cómo convertir esa pasión en un negocio de autoempleo rentable.",
-                    "Estás cansada de trabajar para otros y deseas fervientemente generar tus propios ingresos premium.",
-                    "Te detiene el miedo a las promesas vacías de internet que no enseñan nada realmente útil para tu futuro."
-                ]
-            },
-            benefits: {
-                label: "3. Beneficios",
-                title: "Oferta Irresistible",
-                type: 'benefits',
-                items: [
-                    { title: "Técnica de alta rentabilidad que permite cobrar lo que realmente vales por menos tiempo de trabajo.", desc: "Maximiza tu tiempo generando servicios de alto impacto económico." },
-                    { title: "Certificación profesional and acompañamiento que eliminan todo temor a cometer errores técnicos.", desc: "Seguridad absoluta respaldada por expertos en micropigmentación." },
-                    { title: "Metodología 100% práctica basada en resultados reales, con soporte paso a paso.", desc: "No más teoría vacía; aprende haciendo con modelos reales." },
-                    { title: "Estrategia probada de captación de clientes en Instagram para llenar tu agenda con seguridad.", desc: "Tu agenda llena desde la primera semana gracias a nuestro método de marketing." },
-                    { title: "Plan de negocio detallado para convertir tu talento en una empresa de estética rentable.", desc: "Te enseñamos a escalar tu talento y construir un negocio sólido." },
-                    { title: "Hoja de ruta para el autoempleo de alto valor, dándote la libertad de ser tu propia jefa.", desc: "Toma el control total de tu carrera profesional y financiera." },
-                    { title: "Formación técnica de primer nivel que cumple lo que promete y te prepara para el éxito real.", desc: "Educación de élite diseñada para resultados inmediatos en el mercado." }
-                ]
             }
         },
         thankYouPageTabs: {
@@ -453,26 +426,26 @@ const generateFullStrategy = async (projectId) => {
                 title: "Mensaje de Éxito",
                 type: 'header',
                 content: {
-                    h1: "¡Bienvenida al inicio de tu independencia financiera!",
-                    h2: "Has tomado la mejor decisión para tu carrera en el sector de la belleza."
+                    h1: "string (Titular de éxito)",
+                    h2: "string (Subtítulo de felicitación)"
                 }
             },
             action: {
                 label: "2. Siguiente Paso",
-                title: "Redirección a Comunidad",
+                title: "Instrucción WhatsApp",
                 type: 'action',
                 content: {
-                    h1: "Conéctate a nuestro WhatsApp Estratégico",
-                    h2: "Es el canal principal donde resolveremos tus dudas y entregaremos el material de estudio."
+                    h1: "string (Llamado a la acción para el grupo)",
+                    h2: "string (Beneficio de estar en el grupo)"
                 }
             },
             magnet: {
                 label: "3. Lead Magnet",
-                title: "Guía de Inicio Rápido",
+                title: "Entrega de Regalo",
                 type: 'magnet',
                 content: {
-                    h1: "Descarga tu Plan de Negocios en Estética",
-                    h2: "El primer paso práctico para empezar a ofrecer servicios de alto valor."
+                    h1: "string (Nombre del regalo)",
+                    h2: "string (Instrucción de descarga o visualización)"
                 }
             }
         },
