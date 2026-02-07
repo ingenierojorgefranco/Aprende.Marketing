@@ -385,12 +385,12 @@ const generateFullStrategy = async (projectId) => {
 
           psychology: {
             pains: [
-                "Dolor 1: Identifica un dolor agudo relacionado con la falta de ingresos o estabilidad en este nicho.",
-                "Dolor 2: Detecta una frustración técnica o de aprendizaje específica que detiene al avatar.",
-                "Dolor 3: Analiza el miedo al fracaso o a la pérdida de tiempo o dinero en este mercado.",
-                "Dolor 4: Describe la sensación de estancamiento profesional o personal del prospecto.",
-                "Dolor 5: Identifica la presión social o familiar que siente el avatar por no tener resultados.",
-                "Dolor 6: Analiza el agotamiento por métodos tradicionales que no funcionan en este sector.",
+                "Identifica un dolor agudo relacionado con la falta de ingresos o estabilidad en este nicho. (Este es el Dolor 1)",
+                "Detecta una frustración técnica o de aprendizaje específica que detiene al avatar.  (Este es el Dolor 2)",
+                "Analiza el miedo al fracaso o a la pérdida de tiempo o dinero en este mercado. (Este es el Dolor 3)",
+                "Describe la sensación de estancamiento profesional o personal del prospecto. (Este es el Dolor 4)",
+                "Identifica la presión social o familiar que siente el avatar por no tener resultados. (Este es el Dolor 5)",
+                "Analiza el agotamiento por métodos tradicionales que no funcionan en este sector. (Este es el Dolor 6)",
             ],
             "solutions": [
             {

@@ -6,7 +6,7 @@ interface ProjectStrategy_AvatarDiagnosisProps {
     benefitsItems?: Array<{ title: string; desc: string }>;
     psychology: {
         pains: string[];
-        solutions: string[];
+        solutions: any[]; // Se cambia de string[] a any[] para soportar el nuevo formato de objetos
         awarenessStages: {
             stage1_pain: string;
             stage2_solution: string;

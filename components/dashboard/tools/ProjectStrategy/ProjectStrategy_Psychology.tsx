@@ -12,7 +12,7 @@ import { LandingPage } from '../../../../types';
 interface ProjectStrategy_PsychologyProps {
     psychology: {
         pains: string[];
-        solutions: string[];
+        solutions: any[]; // Se cambia de string[] a any[] para soportar el nuevo formato de objetos
         awarenessStages: {
             stage1_pain: string;
             stage2_solution: string;
@@ -133,6 +133,11 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                         const benefit = (benefitsItems && benefitsItems[i]) ? benefitsItems[i] : null;
                         const benefitDescription = benefit?.description || benefit?.desc;
                         
+                        // Lógica de extracción de datos del nuevo objeto de solución
+                        const solutionObj = psychology.solutions[i];
+                        const solutionTitle = typeof solutionObj === 'object' ? solutionObj.title : solutionObj;
+                        const solutionDesc = typeof solutionObj === 'object' ? solutionObj.description : null;
+
                         return (
                             <div key={i} className="relative grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-10 group/row">
                                 {/* Flecha Conectora Central (Solo Desktop) */}
@@ -159,11 +164,11 @@ export const ProjectStrategy_Psychology: React.FC<ProjectStrategy_PsychologyProp
                                         </div>
                                         <div className="flex flex-col gap-2">
                                             <p className="text-emerald-50 text-[1.4rem] leading-[1.8] font-bold">
-                                                {benefit ? benefit.title : (psychology.solutions[i] || "Transformación estratégica")}
+                                                {benefit ? benefit.title : (solutionTitle || "Transformación estratégica")}
                                             </p>
-                                            {benefitDescription && (
+                                            {(benefitDescription || solutionDesc) && (
                                                 <p className="text-emerald-200/70 text-[1.4rem] leading-[1.8] font-light italic">
-                                                    {benefitDescription}
+                                                    {benefitDescription || solutionDesc}
                                                 </p>
                                             )}
                                         </div>
