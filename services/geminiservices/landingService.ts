@@ -37,20 +37,24 @@ export const generateLandingPageContent = async (
           ? `- Título Principal OBLIGATORIO (h1): "${pH1}"\n      - Subtítulo OBLIGATORIO (h2): "${pH2}"`
           : "";
 
-      // 2. Extraer Dolores (Pains) - Prioriza campo directo, sino busca en strategy_json - 01/01/2026 13:05
-      let extractedPains: string[] = Array.isArray(projectContext.painPoints) ? projectContext.painPoints.map(p => String(p)) : [];
-      if (extractedPains.length === 0 && pStrategy?.psychology?.pains) {
+      // 2. Extraer Dolores (Pains) - Prioriza strategy_json (Informe Maestro), sino busca en campos básicos - 01/01/2026 13:05
+      let extractedPains: string[] = [];
+      if (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0) {
           extractedPains = pStrategy.psychology.pains.map((p: any) => String(p));
+      } else if (Array.isArray(projectContext.painPoints)) {
+          extractedPains = projectContext.painPoints.map(p => String(p));
       }
       
       const painsText = (extractedPains.length > 0) 
           ? `- Dolores del Cliente (USA ESTOS 6 PUNTOS EXACTAMENTE): ${extractedPains.slice(0, 6).join(", ")}` 
           : "";
 
-      // 3. Extraer Beneficios - Prioriza campo directo, sino busca en strategy_json (títulos de items) - 01/01/2026 13:05
-      let extractedBenefits: string[] = Array.isArray(projectContext.keyBenefits) ? projectContext.keyBenefits.map(b => String(b)) : [];
-      if (extractedBenefits.length === 0 && pStrategy?.modules?.web?.landingPageTabs?.benefits?.items) {
+      // 3. Extraer Beneficios - Prioriza strategy_json (Informe Maestro), sino busca en campos básicos - 01/01/2026 13:05
+      let extractedBenefits: string[] = [];
+      if (pStrategy?.modules?.web?.landingPageTabs?.benefits?.items && pStrategy.modules.web.landingPageTabs.benefits.items.length > 0) {
           extractedBenefits = pStrategy.modules.web.landingPageTabs.benefits.items.map((b: any) => String(b.title));
+      } else if (Array.isArray(projectContext.keyBenefits)) {
+          extractedBenefits = projectContext.keyBenefits.map(b => String(b));
       }
 
       const benefitsText = (extractedBenefits.length > 0) 
@@ -211,10 +215,10 @@ export const generateLandingPageContent = async (
             if (pH1) content.hero.headline = pH1;
             if (pH2) content.hero.subheadline = pH2;
 
-            let rawBenefits = Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : [];
-            if (rawBenefits.length === 0 && pStrategy?.modules?.web?.landingPageTabs?.benefits?.items) {
-                rawBenefits = pStrategy.modules.web.landingPageTabs.benefits.items;
-            }
+            // SOBRESCRITURA DE SEGURIDAD: Invertir prioridad para usar el Informe Maestro (strategy_json) antes que los campos básicos
+            let rawBenefits = (pStrategy?.modules?.web?.landingPageTabs?.benefits?.items && pStrategy.modules.web.landingPageTabs.benefits.items.length > 0)
+                ? pStrategy.modules.web.landingPageTabs.benefits.items 
+                : (Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : []);
 
             if (rawBenefits.length > 0) {
                 content.benefits.items = rawBenefits.slice(0, 6).map((b: any) => ({
@@ -225,10 +229,9 @@ export const generateLandingPageContent = async (
                 }));
             }
 
-            let rawPains = Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : [];
-            if (rawPains.length === 0 && pStrategy?.psychology?.pains) {
-                rawPains = pStrategy.psychology.pains;
-            }
+            let rawPains = (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0)
+                ? pStrategy.psychology.pains
+                : (Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : []);
 
             if (rawPains.length > 0) {
                 content.whatYouWillLearn.items = rawPains.slice(0, 6).map((p: any) => String(p));
