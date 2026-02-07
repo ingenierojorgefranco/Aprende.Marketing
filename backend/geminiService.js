@@ -308,12 +308,12 @@ const generateFullStrategy = async (projectId) => {
             "shortDescription": "Resumen persuasivo de 1-2 frases destacando la transformación",
             "niche": "${niche}",
             "productType": "Digital Product",
-            "objective": "Direct Sales",
+            "objective": "Venta directa del Producto Digital con cierre asistido por WhatsApp, email Marketing y Artículos de Blog",
             "price": ${fullPrice || 0},
             "commissionRate": ${commissionRate || 0},
 
             
-            "projection": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "projection": [0 ventas, 0 ventas, 1 ventas, 2 ventas, 3 ventas, 4 ventas, 5 ventas, 6 ventas, 7 ventas, 8 ventas, 9 ventas, 10 ventas],
 
 
             "summary": {
@@ -385,23 +385,39 @@ const generateFullStrategy = async (projectId) => {
 
           psychology: {
             pains: [
-                "Identifica un dolor agudo relacionado con la falta de ingresos o estabilidad en este nicho.",
-                "Detecta una frustración técnica o de aprendizaje específica que detiene al avatar.",
-                "Analiza el miedo al fracaso o a la pérdida de tiempo o dinero en este mercado.",
-                "Describe la sensación de estancamiento profesional o personal del prospecto.",
-                "Identifica la presión social o familiar que siente el avatar por no tener resultados.",
-                "Analiza el agotamiento por métodos tradicionales que no funcionan en este sector.",
-                "Detecta la desconfianza generalizada en las promesas vacías del mercado actual."
+                "Dolor 1: Identifica un dolor agudo relacionado con la falta de ingresos o estabilidad en este nicho.",
+                "Dolor 2: Detecta una frustración técnica o de aprendizaje específica que detiene al avatar.",
+                "Dolor 3: Analiza el miedo al fracaso o a la pérdida de tiempo o dinero en este mercado.",
+                "Dolor 4: Describe la sensación de estancamiento profesional o personal del prospecto.",
+                "Dolor 5: Identifica la presión social o familiar que siente el avatar por no tener resultados.",
+                "Dolor 6: Analiza el agotamiento por métodos tradicionales que no funcionan en este sector.",
             ],
-            solutions: [
-                "Propón cómo el producto resuelve el dolor financiero o de estabilidad mediante una ventaja técnica clara.",
-                "Explica cómo la metodología elimina la barrera técnica mencionada en el dolor 2 de forma simple.",
-                "Describe el sistema de acompañamiento o garantía que anula por completo el miedo al fracaso.",
-                "Explica el proceso de transformación rápida que saca al cliente de su estancamiento actual.",
-                "Propón cómo el éxito obtenido con este producto mejora el estatus o la relación familiar del cliente.",
-                "Describe por qué este método es disruptivo, escalable and superior a lo tradicional.",
-                "Explica la autoridad, certificación o respaldo que valida la promesa y genera confianza absoluta."
-            ],
+            "solutions": [
+            {
+                "title": "Título corto y potente como Solucion al Dolor 1", 
+                "description": "Descripción persuasiva que explica la transformación del Dolor 1"
+            },
+            {
+                "title": "Título corto y potente como Solucion al Dolor 2", 
+                "description": "Descripción persuasiva que explica la transformación del Dolor 2"
+            },
+            {
+                "title": "Título corto y potente como Solucion al Dolor 3", 
+                "description": "Descripción persuasiva que explica la transformación del Dolor 3"
+            },
+            {
+                "title": "Título corto y potente como Solucion al Dolor 4", 
+                "description": "Descripción persuasiva que explica la transformación del Dolor 4"
+            },
+            {
+                "title": "Título corto y potente como Solucion al Dolor 5", 
+                "description": "Descripción persuasiva que explica la transformación del Dolor 5"
+            },
+            {
+                "title": "Título corto y potente como Solucion al Dolor 6", 
+                "description": "Descripción persuasiva que explica la transformación del Dolor 6"
+            }
+        ],
             awarenessStages: {
                 stage1_pain: "Analiza el nivel de consciencia del avatar sobre su dolor principal en este nicho específico.",
                 stage2_solution: "Analiza la percepción del avatar sobre las soluciones existentes y por qué esta es la ideal.",
@@ -427,7 +443,7 @@ const generateFullStrategy = async (projectId) => {
                 type: 'header',
                 content: {
                     h1: "string (Titular de éxito)",
-                    h2: "string (Subtítulo de felicitación)"
+                    h2: "string (Subtítulo con frase de felicitación por registrarse)"
                 }
             },
             action: {
@@ -435,16 +451,16 @@ const generateFullStrategy = async (projectId) => {
                 title: "Instrucción WhatsApp",
                 type: 'action',
                 content: {
-                    h1: "string (Llamado a la acción para el grupo)",
-                    h2: "string (Beneficio de estar en el grupo)"
+                    h1: "string (añade un Llamado a la acción para ingresar al grupo)",
+                    h2: "string (añade una frase de Beneficio de estar en el grupo)"
                 }
             },
             magnet: {
                 label: "3. Lead Magnet",
-                title: "Entrega de Regalo",
+                title: "Texto de Entrega de un Regalo relacionado con el producto digital y el dolor de la audiencia",
                 type: 'magnet',
                 content: {
-                    h1: "string (Nombre del regalo)",
+                    h1: "string (Nombre del regalo) relacionado con el producto digital y dolor de la audiencia",
                     h2: "string (Instrucción de descarga o visualización)"
                 }
             }
@@ -539,9 +555,9 @@ const generateFullStrategy = async (projectId) => {
         {
                 id: 1,
                 day: "Día 0",
-                subject: "🎁 Tu regalo: Guía de Inicio Rápido en Microblading",
+                subject: "🎁 Titulo altamente persuasivo y motivador con acceso al LeadMagnet definido en el proyecto",
                 type: "Entrega de Valor",
-                objective: "Establecer reciprocidad y cumplir la promesa inmediata entregando el Lead Magnet."
+                objective: "texto de minimo 300 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se invita al usuario a ingresar al leadmagnet"
             },
             {
                 id: 2,
