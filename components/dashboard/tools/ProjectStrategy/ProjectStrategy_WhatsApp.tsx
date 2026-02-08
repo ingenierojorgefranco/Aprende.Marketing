@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2, Crown, X, Loader2 } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
@@ -50,6 +49,7 @@ const ChatSimulator: React.FC<{ messages: any[]; senderName?: string }> = ({ mes
                 {messages.map((msg, i) => (
                     <div key={i} className={`flex ${msg.role === 'user' ? 'justify-start' : 'justify-end'} animate-in slide-in-from-bottom-2 fade-in duration-300`} style={{animationDelay: `${i * 150}ms`}}>
                         <div className={`max-w-[85%] p-2.5 rounded-lg shadow-sm text-lg whitespace-pre-wrap ${msg.role === 'user' ? 'bg-[#202c33] text-white rounded-tl-none' : 'bg-[#005c4b] text-[#e9edef] rounded-tr-none'}`}>
+                            {/* Fix: use msg.text instead of undefined variable 'text' */}
                             {renderWhatsAppText(msg.text)}
                             <span className="block text-[9px] text-right opacity-60 mt-1">10:0{i} AM ✓✓</span>
                         </div>
@@ -246,10 +246,10 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
     // Función para renderizar encabezados de fase en el listado
     const renderPhaseHeader = (index: number) => {
-        if (index === 0) return <div className="mt-6 mb-4 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black uppercase text-gray-400 tracking-widest">Fase 1: Anticipación y Autoridad (Días previos)</div>;
-        if (index === 4) return <div className="mt-8 mb-4 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black uppercase text-gray-400 tracking-widest">Fase 2: El Día del Evento</div>;
-        if (index === 7) return <div className="mt-8 mb-4 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black uppercase text-gray-400 tracking-widest">Fase 3: Apertura y Conversión</div>;
-        if (index === 10) return <div className="mt-8 mb-4 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black uppercase text-gray-400 tracking-widest">Fase 4: Cierre y Escasez</div>;
+        if (index === 0) return <div className="mt-6 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 1: Anticipación y Autoridad (Días previos)</div>;
+        if (index === 4) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 2: El Día del Evento</div>;
+        if (index === 7) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 3: Apertura y Conversión</div>;
+        if (index === 10) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 4: Cierre y Escasez</div>;
         return null;
     };
 
@@ -302,12 +302,18 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         {renderPhaseHeader(idx)}
                                         <div onClick={() => setActiveWaScript(idx)} className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${sentMessages.has(idx) ? 'bg-green-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800')}`}>
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${sentMessages.has(idx) ? 'bg-green-500 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${sentMessages.has(idx) ? 'bg-green-50 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
                                                 <div className="flex-1 min-w-0">
-                                                    <h4 className={`text-lg font-bold leading-tight whitespace-normal ${sentMessages.has(idx) ? 'text-white' : (activeWaScript === idx ? 'text-blue-400' : 'text-gray-300')}`}>{script.name}</h4>
+                                                    <h4 className={`text-lg font-thin leading-relaxed whitespace-normal text-white`}>{script.name}</h4>
                                                 </div>
                                             </div>
-                                            <div onClick={(e) => toggleSent(e, idx)} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${sentMessages.has(idx) ? 'border-green-500 bg-green-500' : 'border-gray-600'}`}>{sentMessages.has(idx) && <Check className="w-4 h-4 text-black font-black" />}</div>
+                                            <div onClick={(e) => toggleSent(e, idx)} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${sentMessages.has(idx) ? 'border-green-500 bg-green-500' : 'border-gray-600'}`}>
+                                                {sentMessages.has(idx) ? (
+                                                    <Check className="w-4 h-4 text-black font-black" />
+                                                ) : (
+                                                    <Check className="w-4 h-4 text-gray-600" />
+                                                )}
+                                            </div>
                                         </div>
                                     </React.Fragment>
                                 ))}
@@ -345,7 +351,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
             {showConfirmModal && (
                 <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowConfirmModal(false)}>
-                    <div className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                    <div className="bg-[#0B0B0B] border border-emerald-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-green-500"></div>
                         <div className="p-8 md:p-10 space-y-8 flex-1 text-center">
                             <div className="w-20 h-20 bg-emerald-500/10 text-emerald-400 rounded-3xl flex items-center justify-center mx-auto border border-emerald-500/20 shadow-lg animate-pulse"><Sparkles className="w-10 h-10" /></div>
