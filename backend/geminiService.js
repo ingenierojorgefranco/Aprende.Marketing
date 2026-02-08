@@ -557,49 +557,49 @@ const generateFullStrategy = async (projectId) => {
                 day: "Día 0",
                 subject: "🎁 Titulo altamente persuasivo y motivador con acceso al LeadMagnet definido en el proyecto",
                 type: "Entrega de Valor",
-                objective: "texto de minimo 300 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se invita al usuario a ingresar al leadmagnet"
+                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se invita al usuario a ingresar al leadmagnet"
             },
             {
                 id: 2,
                 day: "Día 1",
                 subject: "😫 ¿Cansada de trabajar 10h y no ver frutos reales?",
                 type: "Agitación del Dolor",
-                objective: "Conectar emocionalmente con el cansancio sistémico del avatar y la frustración económica."
+                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que busca conectar emocionalmente con el cansancio sistémico del avatar y la frustración económica."
             },
             {
                 id: 2,
                 day: "Día 2",
                 subject: "📈 Cómo Maria pasó de 0 a $2,000/mes con cejas",
                 type: "Prueba Social",
-                objective: "Demostrar factibilidad mediante un caso de éxito real que genere deseo y credibilidad."
+                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se demuestra la factibilidad mediante un caso de éxito real que genere deseo y credibilidad."
             },
             {
                 id: 3,
                 day: "Día 3",
                 subject: "💎 La verdad sobre el Microblading (y por qué otros fallan)",
                 type: "Mecanismo Único",
-                objective: "Explicar la diferenciación del Método Brows360 frente a la competencia genérica."
+                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se explica la diferenciación del curso digital frrente a otros cursos genericos"
             },
             {
                 id: 4,
                 day: "Día 4",
                 subject: "🚀 ¡INSCRIPCIONES ABIERTAS! Domina la Certificación Pro",
                 type: "Lanzamiento / Oferta",
-                objective: "Presentar oficialmente el programa completo con todos los beneficios y abrir inscripciones."
+                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se busca Presentar oficialmente el programa completo con todos los beneficios y abrir inscripciones."
             },
             {
                 id: 5,
                 day: "Día 5",
                 subject: "⏳ Tus 3 Bonos Exclusivos expiran en pocas horas...",
                 type: "Escasez / Valor",
-                objective: "Añadir presión positiva mediante la pérdida inminente de los bonos adicionales."
+                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que Añadir presión positiva mediante la pérdida inminente de los bonos adicionales."
             },
             {
                 id: 6,
                 day: "Día 6",
                 subject: "⚠️ ÚLTIMA LLAMADA: Tu futuro profesional empieza hoy",
                 type: "Cierre / Urgencia",
-                objective: "Llamada final a la acción agresivo pero profesional. Confronta al prospecto con su situación actual vs. su potencial futuro si toma acción hoy."
+                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se hace una Llamada final a la acción agresivo pero profesional. Confronta al prospecto con su situación actual vs. su potencial futuro si toma acción hoy."
             }
       ],
       "evergreen": [

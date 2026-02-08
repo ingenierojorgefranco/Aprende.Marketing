@@ -6,23 +6,30 @@ const { authMiddleware } = require('../authMiddleware');
 const router = express.Router();
 
 /**
- * Inicializador de los 14 momentos estratégicos con pilares y propósitos detallados
+ * Inicializador de los 14 momentos estratégicos con pilares y propósitos detallados según la nueva estructura de 4 fases.
  */
 const DEFAULT_LAUNCH_MESSAGES = [
-    { id: 'wl1', name: 'Confirmación de Fecha', momentText: 'Día -7', pilarType: 'Expectativa', purpose: 'Confirmar la fecha oficial de la clase y asegurar que lo agenden.', objective: 'Generar expectativa y agendar al lead.', content: '', isGenerated: false },
-    { id: 'wl2', name: 'Historia de Autoridad', momentText: 'Día -5', pilarType: 'Autoridad', purpose: 'Narrar brevemente la historia de éxito del experto para generar confianza.', objective: 'Crear conexión emocional con la experta.', content: '', isGenerated: false },
-    { id: 'wl3', name: 'Temario y Promesa', momentText: 'Día -3', pilarType: 'Valor / Curiosidad', purpose: 'Listar los 3 puntos clave que se aprenderán en la clase.', objective: 'Elevar el valor percibido de la clase.', content: '', isGenerated: false },
-    { id: 'wl4', name: 'Adelanto (3 Errores)', momentText: 'Día -1', pilarType: 'Valor Preventivo', purpose: 'Identificar 3 errores comunes que el lead está cometiendo hoy.', objective: 'Entregar valor previo para generar compromiso.', content: '', isGenerated: false },
-    { id: 'wl5', name: '¡Hoy es el gran día!', momentText: 'Día Clase (AM)', pilarType: 'Urgencia Matutina', purpose: 'Anunciar que hoy es la clase y recordar los horarios.', objective: 'Recordatorio matutino.', content: '', isGenerated: false },
-    { id: 'wl6', name: 'Cuenta Regresiva (T-4h)', momentText: 'Día Clase (PM)', pilarType: 'Preparación', purpose: 'Indicar que busquen libreta, café y un lugar tranquilo.', objective: 'Instrucciones de preparación.', content: '', isGenerated: false },
-    { id: 'wl7', name: '¡Estamos en Vivo!', momentText: 'Día Clase (Link)', pilarType: 'Acción Inmediata', purpose: 'Entregar el enlace directo a la transmisión.', objective: 'Acceso directo a la transmisión.', content: '', isGenerated: false },
-    { id: 'wl8', name: 'Oferta Abierta', momentText: 'Post-Clase', pilarType: 'Lanzamiento', purpose: 'Anunciar la apertura de inscripciones con el descuento máximo.', objective: 'Apertura de inscripciones.', content: '', isGenerated: false },
-    { id: 'wl9', name: 'Bonos de Acción Rápida', momentText: 'Urgencia 1', pilarType: 'Escasez de Bonus', purpose: 'Mencionar los regalos extra para los primeros en comprar.', objective: 'Presión por los regalos exclusivos.', content: '', isGenerated: false },
-    { id: 'wl10', name: 'Tutorial de Pago', momentText: 'Soporte', pilarType: 'Facilitación', purpose: 'Explicar cómo realizar la compra paso a paso.', objective: 'Eliminar fricción técnica en el checkout.', content: '', isGenerated: false },
-    { id: 'wl11', name: 'Certificado y Garantía', momentText: 'Garantía', pilarType: 'Seguridad', purpose: 'Destacar la garantía de 7 días y el aval profesional.', objective: 'Seguridad y aval profesional.', content: '', isGenerated: false },
-    { id: 'wl12', name: 'Últimos Cupos', momentText: 'Cierre', pilarType: 'Escasez Final', purpose: 'Notificar que los cupos con descuento se están terminando.', objective: 'Escasez máxima y resolución de dudas.', content: '', isGenerated: false },
-    { id: 'wl13', name: 'Inscripciones Cerradas', momentText: 'Final', pilarType: 'Cierre de Carrito', purpose: 'Informar que el tiempo y los cupos se agotaron.', objective: 'Mantener la integridad de la oferta.', content: '', isGenerated: false },
-    { id: 'wl14', name: 'Bienvenida', momentText: 'Bienvenida', pilarType: 'Onboarding', purpose: 'Dar la bienvenida oficial a la nueva comunidad de alumnos.', objective: 'Bienvenida a las nuevas alumnas.', content: '', isGenerated: false }
+    // FASE 1: Anticipación y Autoridad (Días previos)
+    { id: 'wl1', name: 'Bienvenida y Confirmación de Fecha', momentText: 'Día -7', pilarType: 'Seguridad', purpose: 'Confirmar que están en el lugar correcto, dar las gracias y fijar la fecha/hora del evento en el calendario mental del usuario.', objective: 'Confirmar lugar, dar gracias, fijar fecha/hora.', content: '', isGenerated: false },
+    { id: 'wl2', name: 'Historia de Autoridad (Storytelling)', momentText: 'Día -5', pilarType: 'Empatía y Confianza', purpose: 'Quién es el experto, sus fracasos iniciales y cómo el método que va a enseñar cambió su vida. Humaniza la marca.', objective: 'Conectar emocionalmente con la experta.', content: '', isGenerated: false },
+    { id: 'wl3', name: 'El "Qué" vs el "Cómo" (Curiosidad)', momentText: 'Día -3', pilarType: 'Valor Percibido', purpose: 'Revelar los temas que se verán en la clase. Prometer un secreto o técnica específica que no encontrarán en YouTube.', objective: 'Elevar el valor percibido de la clase.', content: '', isGenerated: false },
+    { id: 'wl4', name: 'Los 3 Errores Fatales', momentText: 'Día -1', pilarType: 'Conciencia del Dolor', purpose: 'Identificar qué están haciendo mal los leads hoy. Esto posiciona al experto como la única solución para dejar de perder tiempo/dinero.', objective: 'Entregar valor previo para generar compromiso.', content: '', isGenerated: false },
+    
+    // FASE 2: El Día del Evento
+    { id: 'wl5', name: 'Recordatorio Matutino', momentText: 'Día Clase (AM)', pilarType: 'Entusiasmo', purpose: '¡Llegó el día!. Confirmar horarios por países para evitar confusiones.', objective: 'Recordatorio matutino.', content: '', isGenerated: false },
+    { id: 'wl6', name: 'Instrucciones de Preparación (T-4h)', momentText: 'Día Clase (PM)', pilarType: 'Compromiso', purpose: 'Pedir que preparen libreta, café y eliminen distracciones. Crea un ritual en torno a la clase.', objective: 'Instrucciones de preparación.', content: '', isGenerated: false },
+    { id: 'wl7', name: '¡Estamos en Vivo! (El Link)', momentText: 'Día Clase (Link)', pilarType: 'Acción Inmediata', purpose: 'Enlace directo a YouTube/Zoom/VSL. Corto, al grano y con muchos emojis de alerta.', objective: 'Acceso directo a la transmisión.', content: '', isGenerated: false },
+    
+    // FASE 3: Apertura y Conversión
+    { id: 'wl8', name: 'Apertura de Carrito y Oferta Irresistible', momentText: 'Post-Clase', pilarType: 'Lanzamiento', purpose: 'Revelar el precio especial de lanzamiento, los bonos y el enlace de Hotmart.', objective: 'Apertura de inscripciones.', content: '', isGenerated: false },
+    { id: 'wl9', name: 'Bonos de Acción Rápida (Urgencia)', momentText: 'Urgencia 1', pilarType: 'Beneficio extra', purpose: 'Regalo extra solo para las primeras X personas que compren en las próximas 2 horas.', objective: 'Presión por los regalos exclusivos.', content: '', isGenerated: false },
+    { id: 'wl10', name: 'Tutorial de Pago y Soporte', momentText: 'Soporte', pilarType: 'Eliminación de Fricción', purpose: 'Explicar cómo pagar (tarjeta, PayPal, efectivo) y dejar el link de contacto directo para dudas.', objective: 'Eliminar fricción técnica en el checkout.', content: '', isGenerated: false },
+    
+    // FASE 4: Cierre y Escasez
+    { id: 'wl11', name: 'Prueba Social Dinámica', momentText: 'Validación', pilarType: 'Validación', purpose: 'Mostrar capturas de pantalla de nuevos alumnos o testimonios rápidos. "Si ellos pudieron, tú también".', objective: 'Validación de resultados.', content: '', isGenerated: false },
+    { id: 'wl12', name: 'Garantía y Seguridad', momentText: 'Garantía', pilarType: 'Riesgo Cero', purpose: 'Recordar los 7 o 15 días de garantía de Hotmart. Derriba el miedo al fraude.', objective: 'Seguridad y aval profesional.', content: '', isGenerated: false },
+    { id: 'wl13', name: 'Última Llamada (Faltan 4 horas)', momentText: 'Cierre', pilarType: 'Escasez Real', purpose: 'El contador llega a cero. Los bonos desaparecen y el precio subirá.', objective: 'Escasez máxima y resolución de dudas.', content: '', isGenerated: false },
+    { id: 'wl14', name: 'Inscripciones Cerradas y Bienvenida', momentText: 'Bienvenida', pilarType: 'Integridad de Marca', purpose: 'Avisar que ya no se puede comprar. Da la bienvenida oficial a los nuevos alumnos (onboarding).', objective: 'Bienvenida a las nuevas alumnas.', content: '', isGenerated: false }
 ];
 
 // Obtener todos los lanzamientos del usuario
@@ -51,7 +58,6 @@ router.get('/launches/by-project/:projectId', authMiddleware, async (req, res) =
              WHERE wl.user_id = ? AND wl.project_id = ? LIMIT 1`,
             [req.user.id, req.params.projectId]
         );
-        // Cambio estratégico: Si no existe, devolvemos null con 200 OK para evitar error 404 en consola
         if (rows.length === 0) return res.json(null);
         res.json(rows[0]);
     } catch (e) {
@@ -65,7 +71,6 @@ router.post('/launches', authMiddleware, async (req, res) => {
     if (!projectId) return res.status(400).json({ error: "Falta ID de proyecto" });
 
     try {
-        // Verificar existencia previa
         const [existing] = await pool.query(
             'SELECT id FROM whatsapp_lanzamientos WHERE user_id = ? AND project_id = ? LIMIT 1',
             [req.user.id, projectId]
@@ -75,7 +80,6 @@ router.post('/launches', authMiddleware, async (req, res) => {
             return res.json({ id: existing[0].id });
         }
 
-        // --- Verificación de Límites ---
         const [userData] = await pool.query('SELECT plan_limits, role FROM users WHERE id = ?', [req.user.id]);
         const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : null;
         
@@ -87,7 +91,6 @@ router.post('/launches', authMiddleware, async (req, res) => {
             }
         }
 
-        // Crear registro inicial con JSON por defecto
         const [result] = await pool.query(
             'INSERT INTO whatsapp_lanzamientos (user_id, project_id, name, status, data_json) VALUES (?, ?, ?, "borrador", ?)',
             [req.user.id, projectId, name || 'Lanzamiento WhatsApp', JSON.stringify(DEFAULT_LAUNCH_MESSAGES)]
@@ -99,7 +102,7 @@ router.post('/launches', authMiddleware, async (req, res) => {
     }
 });
 
-// Actualizar lanzamiento (Nombre, Status, JSON de mensajes o Fecha)
+// Actualizar lanzamiento
 router.put('/launches/:id', authMiddleware, async (req, res) => {
     const { name, status, data_json, launch_date } = req.body;
     try {

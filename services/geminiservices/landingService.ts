@@ -49,16 +49,18 @@ export const generateLandingPageContent = async (
           ? `- Dolores del Cliente (USA ESTOS 6 PUNTOS EXACTAMENTE): ${extractedPains.slice(0, 6).join(", ")}` 
           : "";
 
-      // 3. Extraer Beneficios - Prioriza strategy_json (Informe Maestro), sino busca en campos básicos - 01/01/2026 13:05
-      let extractedBenefits: string[] = [];
-      if (pStrategy?.modules?.web?.landingPageTabs?.benefits?.items && pStrategy.modules.web.landingPageTabs.benefits.items.length > 0) {
-          extractedBenefits = pStrategy.modules.web.landingPageTabs.benefits.items.map((b: any) => String(b.title));
+      // 3. Extraer Beneficios - Prioriza psychology.solutions, sino busca en campos básicos
+      let extractedBenefitsData: any[] = [];
+      if (pStrategy?.psychology?.solutions && pStrategy.psychology.solutions.length > 0) {
+          extractedBenefitsData = pStrategy.psychology.solutions;
+      } else if (pStrategy?.modules?.web?.landingPageTabs?.benefits?.items && pStrategy.modules.web.landingPageTabs.benefits.items.length > 0) {
+          extractedBenefitsData = pStrategy.modules.web.landingPageTabs.benefits.items;
       } else if (Array.isArray(projectContext.keyBenefits)) {
-          extractedBenefits = projectContext.keyBenefits.map(b => String(b));
+          extractedBenefitsData = projectContext.keyBenefits;
       }
 
-      const benefitsText = (extractedBenefits.length > 0) 
-          ? `- Beneficios Clave (USA ESTOS 6 PUNTOS EXACTAMENTE): ${extractedBenefits.slice(0, 6).join(", ")}` 
+      const benefitsText = (extractedBenefitsData.length > 0) 
+          ? `- Beneficios Clave (USA ESTOS 6 PUNTOS EXACTAMENTE, incluye su descripción): ${extractedBenefitsData.slice(0, 6).map(b => typeof b === 'string' ? b : `${b.title}: ${b.description}`).join(" | ")}` 
           : "";
 
       // 4. Extraer Testimonios de la Estrategia Maestra - 08/01/2026
@@ -136,7 +138,7 @@ export const generateLandingPageContent = async (
     }
   }`;
 
-  const prompt = `Actúa como un experto en copywriting y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
+  const prompt = `Actúa como un experto en copywriting and marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
   El objetivo es "${goal}". La audiencia objetivo es "${targetAudience}".
   La oferta es de tipo "${offerType}".
   ${ctaContext}
@@ -215,15 +217,17 @@ export const generateLandingPageContent = async (
             if (pH1) content.hero.headline = pH1;
             if (pH2) content.hero.subheadline = pH2;
 
-            // SOBRESCRITURA DE SEGURIDAD: Invertir prioridad para usar el Informe Maestro (strategy_json) antes que los campos básicos
-            let rawBenefits = (pStrategy?.modules?.web?.landingPageTabs?.benefits?.items && pStrategy.modules.web.landingPageTabs.benefits.items.length > 0)
-                ? pStrategy.modules.web.landingPageTabs.benefits.items 
-                : (Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : []);
+            // SOBRESCRITURA DE SEGURIDAD: Invertir prioridad para usar psychology.solutions antes que los campos básicos
+            let rawBenefits = (pStrategy?.psychology?.solutions && pStrategy.psychology.solutions.length > 0)
+                ? pStrategy.psychology.solutions
+                : (pStrategy?.modules?.web?.landingPageTabs?.benefits?.items && pStrategy.modules.web.landingPageTabs.benefits.items.length > 0)
+                    ? pStrategy.modules.web.landingPageTabs.benefits.items 
+                    : (Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : []);
 
             if (rawBenefits.length > 0) {
                 content.benefits.items = rawBenefits.slice(0, 6).map((b: any) => ({
                     title: typeof b === 'string' ? b : (b.title || ""),
-                    description: typeof b === 'string' ? "" : (b.desc || b.description || ""), 
+                    description: typeof b === 'string' ? "" : (b.description || b.desc || ""), 
                     icon: b.icon || "Sparkles",
                     color: b.color || "blue"
                 }));

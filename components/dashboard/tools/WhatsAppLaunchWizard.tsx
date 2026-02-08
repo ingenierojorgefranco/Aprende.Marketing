@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, useParams, useOutletContext } from 'react-router-dom';
 import { 
@@ -11,20 +12,20 @@ import { Project, User, WhatsAppLaunch, WhatsAppLaunchMessage } from '../../../t
 
 // Estructura estática de los 14 momentos para visualización persuasiva local
 const WHATSAPP_LAUNCH_MOMENTS = [
-    { id: 'wl1', name: 'Confirmación de Fecha', momentText: 'Día -7', objective: 'Generar expectativa y agendar al lead.', pilarType: 'Expectativa', purpose: 'Confirmar la fecha oficial de la clase y asegurar que lo agenden.' },
-    { id: 'wl2', name: 'Historia de Autoridad', momentText: 'Día -5', objective: 'Crear conexión emocional con la experta.', pilarType: 'Autoridad', purpose: 'Narrar brevemente la historia de éxito del experto para generar confianza.' },
-    { id: 'wl3', name: 'Temario y Promesa', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Valor / Curiosidad', purpose: 'Listar los 3 puntos clave que se aprenderán en la clase.' },
-    { id: 'wl4', name: 'Adelanto (3 Errores)', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Valor Preventivo', purpose: 'Identificar 3 errores comunes que el lead está cometiendo hoy.' },
-    { id: 'wl5', name: '¡Hoy es el gran día!', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Urgencia Matutina', purpose: 'Anunciar que hoy es la clase y recordar los horarios.' },
-    { id: 'wl6', name: 'Cuenta Regresiva (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Preparación', purpose: 'Indicar que busquen libreta, café y un lugar tranquilo.' },
-    { id: 'wl7', name: '¡Estamos en Vivo!', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acción Inmediata', purpose: 'Entregar el enlace directo a la transmisión.' },
-    { id: 'wl8', name: 'Oferta Abierta', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Lanzamiento', purpose: 'Anunciar la apertura de inscripciones con el descuento máximo.' },
-    { id: 'wl9', name: 'Bonos de Acción Rápida', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Escasez de Bonus', purpose: 'Mencionar los regalos extra para los primeros en comprar.' },
-    { id: 'wl10', name: 'Tutorial de Pago', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Facilitación', purpose: 'Explicar cómo realizar la compra paso a paso.' },
-    { id: 'wl11', name: 'Certificado y Garantía', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Seguridad', purpose: 'Destacar la garantía de 7 días y el aval profesional.' },
-    { id: 'wl12', name: 'Últimos Cupos', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Escasez Final', purpose: 'Notificar que los cupos con descuento se están terminando.' },
-    { id: 'wl13', name: 'Inscripciones Cerradas', momentText: 'Final', objective: 'Mantener la integridad de la oferta.', pilarType: 'Cierre de Carrito', purpose: 'Informar que el tiempo y los cupos se agotaron.' },
-    { id: 'wl14', name: 'Bienvenida', momentText: 'Bienvenida', objective: 'Bienvenida a las nuevas alumnas.', pilarType: 'Onboarding', purpose: 'Dar la bienvenida oficial a la nueva comunidad de alumnos.' }
+    { id: 'wl1', name: 'Bienvenida y Confirmación de Fecha', momentText: 'Día -7', objective: 'Confirmar lugar, dar gracias, fijar fecha/hora.', pilarType: 'Seguridad', purpose: 'Confirmar que están en el lugar correcto, dar las gracias y fijar la fecha/hora del evento en el calendario mental del usuario.' },
+    { id: 'wl2', name: 'Historia de Autoridad (Storytelling)', momentText: 'Día -5', objective: 'Conectar emocionalmente con la experta.', pilarType: 'Empatía y Confianza', purpose: 'Quién es el experto, sus fracasos iniciales y cómo el método que va a enseñar cambió su vida. Humaniza la marca.' },
+    { id: 'wl3', name: 'El "Qué" vs el "Cómo" (Curiosidad)', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Valor Percibido', purpose: 'Revelar los temas que se verán en la clase. Prometer un secreto o técnica específica que no encontrarán en YouTube.' },
+    { id: 'wl4', name: 'Los 3 Errores Fatales', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Conciencia del Dolor', purpose: 'Identificar qué están haciendo mal los leads hoy. Esto posiciona al experto como la única solución para dejar de perder tiempo/dinero.' },
+    { id: 'wl5', name: 'Recordatorio Matutino', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Entusiasmo', purpose: '¡Llegó el día!. Confirmar horarios por países para evitar confusiones.' },
+    { id: 'wl6', name: 'Instrucciones de Preparación (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Compromiso', purpose: 'Pedir que preparen libreta, café y eliminen distracciones. Crea un ritual en torno a la clase.' },
+    { id: 'wl7', name: '¡Estamos en Vivo! (El Link)', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acción Inmediata', purpose: 'Enlace directo a YouTube/Zoom/VSL. Corto, al grano y con muchos emojis de alerta.' },
+    { id: 'wl8', name: 'Apertura de Carrito y Oferta Irresistible', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Lanzamiento', purpose: 'Revelar el precio especial de lanzamiento, los bonos y el enlace de Hotmart.' },
+    { id: 'wl9', name: 'Bonos de Acción Rápida (Urgencia)', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Beneficio extra', purpose: 'Regalo extra solo para las primeras X personas que compren en las próximas 2 horas.' },
+    { id: 'wl10', name: 'Tutorial de Pago y Soporte', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Eliminación de Fricción', purpose: 'Explicar cómo pagar (tarjeta, PayPal, efectivo) y dejar el link de contacto directo para dudas.' },
+    { id: 'wl11', name: 'Prueba Social Dinámica', momentText: 'Validación', objective: 'Validación de resultados.', pilarType: 'Validación', purpose: 'Mostrar capturas de pantalla de nuevos alumnos o testimonios rápidos. "Si ellos pudieron, tú también".' },
+    { id: 'wl12', name: 'Garantía y Seguridad', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Riesgo Cero', purpose: 'Recordar los 7 o 15 días de garantía de Hotmart. Derriba el miedo al fraude.' },
+    { id: 'wl13', name: 'Última Llamada (Faltan 4 horas)', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Escasez Real', purpose: 'El contador llega a cero. Los bonos desaparecen y el precio subirá.' },
+    { id: 'wl14', name: 'Inscripciones Cerradas y Bienvenida', momentText: 'Bienvenida', objective: 'Bienvenida a las nuevas alumnas.', pilarType: 'Integridad de Marca', purpose: 'Avisar que ya no se puede comprar. Da la bienvenida oficial a los nuevos alumnos (onboarding).' }
 ];
 
 // Professional WhatsApp Chat Simulator Component
@@ -96,20 +97,10 @@ export const WhatsAppLaunchWizard: React.FC = () => {
     const [isTypeLocked, setIsTypeLocked] = useState(true);
 
     const waTypes = [
-        'Expectativa', 
-        'Autoridad', 
-        'Valor / Curiosidad', 
-        'Valor Preventivo', 
-        'Urgencia Matutina', 
-        'Preparación', 
-        'Acción Inmediata',
-        'Lanzamiento',
-        'Escasez de Bonus',
-        'Facilitación',
-        'Seguridad',
-        'Escasez Final',
-        'Cierre de Carrito',
-        'Onboarding'
+        'Seguridad', 'Empatía y Confianza', 'Valor Percibido', 'Conciencia del Dolor',
+        'Entusiasmo', 'Compromiso', 'Acción Inmediata', 'Lanzamiento',
+        'Beneficio extra', 'Eliminación de Fricción', 'Validación', 'Riesgo Cero',
+        'Escasez Real', 'Integridad de Marca'
     ];
 
     useEffect(() => {
@@ -152,12 +143,9 @@ export const WhatsAppLaunchWizard: React.FC = () => {
         setSelectedProject(project);
         setLoading(true);
         try {
-            // PERSISTENCIA DIFERIDA: No creamos en BD inmediatamente.
-            // Cargamos desde la Estrategia Maestra del proyecto si existe.
             const strategy = project.strategy_json;
             const strategyMessages = strategy?.modules?.whatsappLaunch || [];
             
-            // Mapeamos los 14 momentos integrando los textos de la estrategia si existen
             const localMessages: WhatsAppLaunchMessage[] = WHATSAPP_LAUNCH_MOMENTS.map((moment) => {
                 const match = strategyMessages.find((m: any) => m.id === moment.id);
                 return {
@@ -168,7 +156,7 @@ export const WhatsAppLaunchWizard: React.FC = () => {
             });
 
             const tempLaunch: WhatsAppLaunch = {
-                id: `temp-${project.id}`, // ID Temporal
+                id: `temp-${project.id}`, 
                 userId: user.id,
                 projectId: project.id,
                 projectName: project.name,
@@ -195,7 +183,6 @@ export const WhatsAppLaunchWizard: React.FC = () => {
         const updatedLaunch = { ...activeLaunch, messages: newMessages };
         setActiveLaunch(updatedLaunch);
 
-        // Si el ID es temporal, solo actualizamos el estado local
         if (activeLaunch.id.startsWith('temp-')) return;
 
         setSaveIndicator(true);
@@ -213,7 +200,6 @@ export const WhatsAppLaunchWizard: React.FC = () => {
         try {
             let currentLaunch = { ...activeLaunch };
 
-            // PERSISTENCIA DIFERIDA: Si es la primera acción de escritura, creamos el registro real
             if (currentLaunch.id.startsWith('temp-')) {
                 const res = await api.createWhatsAppLaunch(selectedProject.id, `Lanzamiento: ${selectedProject.name}`);
                 const realLaunch = await api.getWhatsAppLaunchByProject(selectedProject.id);
@@ -232,7 +218,6 @@ export const WhatsAppLaunchWizard: React.FC = () => {
             if (msg.id === 'wl7') content = `🔴 *ESTAMOS EN VIVO*\n\nNo esperes más, entra ahora por este link exclusivo para el grupo: [LINK_CLASE]. ¡Te espero dentro! 🚀`;
             else if (msg.id === 'wl8') content = `¡Increíble la clase de hoy! 🎉\n\nComo les prometí, las inscripciones para *${pName}* están abiertas con una *Beca del 75%* de descuento. Solo para las primeras personas que tomen acción ahora mismo.`;
 
-            // Usamos el ID real obtenido arriba para persistir el mensaje generado
             const newMessages = [...currentLaunch.messages];
             newMessages[activeMsgIdx].content = content;
             newMessages[activeMsgIdx].isGenerated = true;
@@ -316,7 +301,6 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                     </div>
                 ) : activeLaunch && (
                     <div className="grid lg:grid-cols-12 gap-10 items-stretch">
-                        {/* PANEL IZQUIERDO: 14 MOMENTOS */}
                         <div className="lg:col-span-4 bg-gray-950 p-6 rounded-[2.5rem] border border-gray-800 flex flex-col shadow-2xl h-[700px] overflow-y-auto custom-scrollbar">
                             <div className="flex items-center gap-3 mb-8 shrink-0">
                                 <div className="p-2.5 bg-emerald-900/30 rounded-xl text-emerald-400 border border-emerald-900/50"><WaIcon className="w-6 h-6" /></div>
@@ -342,7 +326,6 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* PANEL DERECHO: ESTRATEGIA VS EDITOR */}
                         <div className="lg:col-span-8 flex flex-col h-full bg-[#0B0B0B] border border-gray-800 rounded-[3rem] shadow-2xl relative overflow-hidden min-h-[700px]">
                             <div className="p-10 relative flex-1 flex flex-col">
                                 {saveIndicator && (
@@ -394,34 +377,22 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                                                     <Lightbulb className="w-8 h-8" />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-2xl font-black text-white tracking-tight leading-none">Estrategia de WhatsApp: Momento No {activeMsgIdx + 1}</h4>
+                                                    <h4 className="text-2xl font-black text-white tracking-tight leading-none">{activeLaunch.messages[activeMsgIdx].name}</h4>
                                                     <p className="text-sm text-gray-400 font-bold uppercase tracking-widest mt-4 leading-relaxed">Nuestra inteligencia Artificial generará tu mensaje persuasivo basado en esto.</p>
                                                 </div>
                                             </div>
 
                                             <div className="space-y-10">
                                                 <div className="space-y-3">
-                                                    <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
-                                                        <Edit3 className="w-5 h-5 text-emerald-500" /> Título Sugerido
-                                                    </label>
-                                                    <input 
-                                                        type="text"
-                                                        value={activeLaunch.messages[activeMsgIdx].name}
-                                                        onChange={(e) => handleUpdateMessage(activeMsgIdx, 'name', e.target.value)}
-                                                        className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-xl outline-none focus:border-emerald-500/50 transition-all shadow-inner"
-                                                    />
-                                                </div>
-
-                                                <div className="space-y-3">
                                                     <div className="flex justify-between items-center">
-                                                        <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                                        <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2">
                                                             <Settings2 className="w-5 h-5 text-emerald-500" /> Pilar Estratégico (Tipo)
                                                         </label>
                                                         <button 
                                                             onClick={() => setIsTypeLocked(!isTypeLocked)}
                                                             className="text-xs font-black text-emerald-400 uppercase tracking-widest hover:underline px-3 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/20 transition-all"
                                                         >
-                                                            {isTypeLocked ? 'Desbloquear' : 'Bloquear'}
+                                                            {isTypeLocked ? 'Cambiar' : 'Bloquear'}
                                                         </button>
                                                     </div>
                                                     <div className="relative">
@@ -437,14 +408,14 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                                                         </select>
                                                         {!isTypeLocked && (
                                                             <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
-                                                                <ChevronDown className="w-6 h-6 text-emerald-500" />
+                                                                <ChevronDown className="w-6 h-6 text-yellow-500" />
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
 
                                                 <div className="space-y-3">
-                                                    <label className="text-lg font-black text-white uppercase tracking-[0.1em] ml-1 flex items-center gap-2">
+                                                    <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2">
                                                         <Zap className="w-5 h-5 text-emerald-500" /> Propósito Estratégico del Momento
                                                     </label>
                                                     <textarea 

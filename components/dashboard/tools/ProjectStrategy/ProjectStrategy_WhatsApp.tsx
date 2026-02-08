@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2, Crown, X, Loader2 } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
@@ -6,21 +7,20 @@ import { PlanLimits, WhatsAppLaunchMessage, WhatsAppLaunch } from '../../../../t
 import { ProjectMasterStrategy } from '../../../../services/strategySchema';
 
 const WHATSAPP_LAUNCH_MOMENTS = [
-    { id: 'wl1', name: 'Confirmación de Fecha', momentText: 'Día -7', objective: 'Generar expectativa y agendar al lead.', pilarType: 'Expectativa', purpose: 'Confirmar la fecha oficial de la clase y asegurar que lo agenden.' },
-    { id: 'wl2', name: 'Historia de Autoridad', momentText: 'Día -5', objective: 'Crear conexión emocional con la experta.', pilarType: 'Autoridad', purpose: 'Narrar brevemente la historia de éxito del experto para generar confianza.' },
-    { id: 'wl3', name: 'Temario y Promesa', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Valor / Curiosidad', purpose: 'Listar los 3 puntos clave que se aprenderán en la clase.' },
-    { id: 'wl4', name: 'Adelanto (3 Errores)', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Valor Preventivo', purpose: 'Identificar 3 errores comunes que el lead está cometiendo hoy.' },
-    { id: 'wl5', name: '¡Hoy es el gran día!', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Urgencia Matutina', purpose: 'Anunciar que hoy es la clase y recordar los horarios.' },
-    { id: 'wl6', name: 'Cuenta Regresiva (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Preparación', purpose: 'Indicar que busquen libreta, café y un lugar tranquilo.' },
-    { id: 'wl7', name: '¡Estamos en Vivo!', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acción Inmediata', purpose: 'Entregar el enlace directo a la transmisión.' },
-    { id: 'wl8', name: 'Oferta Abierta', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Lanzamiento', purpose: 'Anunciar la apertura de inscripciones con el descuento máximo.' },
-    { id: 'wl9', name: 'Bonos de Acción Rápida', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Escasez de Bonus', purpose: 'Mencionar los regalos extra para los primeros en comprar.' },
-    { id: 'wl10', name: 'Tutorial de Pago', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Facilitación', purpose: 'Explicar cómo realizar la compra paso a paso.' },
-    { id: 'wl11', name: 'Certificado y Garantía', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Seguridad', purpose: 'Destacar la garantía de 7 días y el aval profesional.' },
-    // Fix: Removed duplicate properties 'objective' and 'purpose'
-    { id: 'wl12', name: 'Últimos Cupos', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Escasez Final', purpose: 'Notificar que los cupos con descuento se están terminando.' },
-    { id: 'wl13', name: 'Inscripciones Cerradas', momentText: 'Final', objective: 'Mantener la integridad de la oferta.', pilarType: 'Cierre de Carrito', purpose: 'Informar que el tiempo y los cupos se agotaron.' },
-    { id: 'wl14', name: 'Bienvenida', momentText: 'Bienvenida', pilarType: 'Onboarding', purpose: 'Dar la bienvenida oficial a la nueva comunidad de alumnos.', objective: 'Bienvenida a las nuevas alumnas.', content: '', isGenerated: false }
+    { id: 'wl1', name: 'Bienvenida y Confirmación de Fecha', momentText: 'Día -7', objective: 'Confirmar lugar, dar gracias, fijar fecha/hora.', pilarType: 'Seguridad', purpose: 'Confirmar que están en el lugar correcto, dar las gracias y fijar la fecha/hora del evento en el calendario mental del usuario.' },
+    { id: 'wl2', name: 'Historia de Autoridad (Storytelling)', momentText: 'Día -5', objective: 'Conectar emocionalmente con la experta.', pilarType: 'Empatía y Confianza', purpose: 'Quién es el experto, sus fracasos iniciales y cómo el método que va a enseñar cambió su vida. Humaniza la marca.' },
+    { id: 'wl3', name: 'El "Qué" vs el "Cómo" (Curiosidad)', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Valor Percibido', purpose: 'Revelar los temas que se verán en la clase. Prometer un secreto o técnica específica que no encontrarán en YouTube.' },
+    { id: 'wl4', name: 'Los 3 Errores Fatales', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Conciencia del Dolor', purpose: 'Identificar qué están haciendo mal los leads hoy. Esto posiciona al experto como la única solución para dejar de perder tiempo/dinero.' },
+    { id: 'wl5', name: 'Recordatorio Matutino', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Entusiasmo', purpose: '¡Llegó el día!. Confirmar horarios por países para evitar confusiones.' },
+    { id: 'wl6', name: 'Instrucciones de Preparación (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Compromiso', purpose: 'Pedir que preparen libreta, café y eliminen distracciones. Crea un ritual en torno a la clase.' },
+    { id: 'wl7', name: '¡Estamos en Vivo! (El Link)', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acción Inmediata', purpose: 'Enlace directo a YouTube/Zoom/VSL. Corto, al grano y con muchos emojis de alerta.' },
+    { id: 'wl8', name: 'Apertura de Carrito y Oferta Irresistible', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Lanzamiento', purpose: 'Revelar el precio especial de lanzamiento, los bonos y el enlace de Hotmart.' },
+    { id: 'wl9', name: 'Bonos de Acción Rápida (Urgencia)', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Beneficio extra', purpose: 'Regalo extra solo para las primeras X personas que compren en las próximas 2 horas.' },
+    { id: 'wl10', name: 'Tutorial de Pago y Soporte', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Eliminación de Fricción', purpose: 'Explicar cómo pagar (tarjeta, PayPal, efectivo) y dejar el link de contacto directo para dudas.' },
+    { id: 'wl11', name: 'Prueba Social Dinámica', momentText: 'Validación', objective: 'Validación de resultados.', pilarType: 'Validación', purpose: 'Mostrar capturas de pantalla de nuevos alumnos o testimonios rápidos. "Si ellos pudieron, tú también".' },
+    { id: 'wl12', name: 'Garantía y Seguridad', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Riesgo Cero', purpose: 'Recordar los 7 o 15 días de garantía de Hotmart. Derriba el miedo al fraude.' },
+    { id: 'wl13', name: 'Última Llamada (Faltan 4 horas)', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Escasez Real', purpose: 'El contador llega a cero. Los bonos desaparecen y el precio subirá.' },
+    { id: 'wl14', name: 'Inscripciones Cerradas y Bienvenida', momentText: 'Bienvenida', objective: 'Bienvenida a las nuevas alumnas.', pilarType: 'Integridad de Marca', purpose: 'Avisar que ya no se puede comprar. Da la bienvenida oficial a los nuevos alumnos (onboarding).' }
 ];
 
 const ChatSimulator: React.FC<{ messages: any[]; senderName?: string }> = ({ messages, senderName }) => {
@@ -95,7 +95,12 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const [showVideoModal, setShowVideoModal] = useState(false);
     const dateInputRef = useRef<HTMLInputElement>(null);
 
-    const waTypes = ['Expectativa', 'Autoridad', 'Valor / Curiosidad', 'Valor Preventivo', 'Urgencia Matutina', 'Preparación', 'Acción Inmediata', 'Lanzamiento', 'Escasez de Bonus', 'Facilitación', 'Seguridad', 'Escasez Final', 'Cierre de Carrito', 'Onboarding'];
+    const waTypes = [
+        'Seguridad', 'Empatía y Confianza', 'Valor Percibido', 'Conciencia del Dolor',
+        'Entusiasmo', 'Compromiso', 'Acción Inmediata', 'Lanzamiento',
+        'Beneficio extra', 'Eliminación de Fricción', 'Validación', 'Riesgo Cero',
+        'Escasez Real', 'Integridad de Marca'
+    ];
 
     useEffect(() => {
         const loadLaunchData = async () => {
@@ -171,12 +176,6 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         return formatLongDate(calculatedDate.toISOString().split('T')[0]);
     };
 
-    const getTimeForMessage = (index: number) => {
-        if (index === 4) return '10:00 AM';
-        if (index === 5 || index === 6) return '04:00 PM';
-        return '';
-    };
-
     const activeItem = whatsappLaunch[activeWaScript] || whatsappLaunch[0];
     let displayMessages: any[] = [];
     if (activeItem) {
@@ -211,10 +210,6 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         alert("Mensaje copiado para WhatsApp");
     };
 
-    const handleImageUrlChange = (val: string) => {
-        setImageUrls(prev => ({ ...prev, [activeWaScript]: val }));
-    };
-
     const toggleSent = (e: React.MouseEvent, idx: number) => {
         e.stopPropagation();
         const newSent = new Set(sentMessages);
@@ -243,10 +238,20 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
     const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
     const maxLaunches = planLimits?.maxWhatsAppLaunches || 1;
-    const usagePercent = Math.min(100, (launchCount / maxLaunches) * 100);
+    const launchUsed = launchCount;
+    const usagePercent = Math.min(100, (launchUsed / maxLaunches) * 100);
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";
     if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
+
+    // Función para renderizar encabezados de fase en el listado
+    const renderPhaseHeader = (index: number) => {
+        if (index === 0) return <div className="mt-6 mb-4 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black uppercase text-gray-400 tracking-widest">Fase 1: Anticipación y Autoridad (Días previos)</div>;
+        if (index === 4) return <div className="mt-8 mb-4 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black uppercase text-gray-400 tracking-widest">Fase 2: El Día del Evento</div>;
+        if (index === 7) return <div className="mt-8 mb-4 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black uppercase text-gray-400 tracking-widest">Fase 3: Apertura y Conversión</div>;
+        if (index === 10) return <div className="mt-8 mb-4 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black uppercase text-gray-400 tracking-widest">Fase 4: Cierre y Escasez</div>;
+        return null;
+    };
 
     return (
         <div id="psd-whatsapp-section" className="pt-8">
@@ -256,7 +261,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 
                 <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
                     <p className="flex-1 border-l-4 border-green-500 pl-8 py-2">
-                        El cierre por WhatsApp permite humanizar la venta y generar picos de facturación masiva. Nuestra estrategia divide el lanzamiento en 14 momentos críticos.
+                        El cierre por WhatsApp permite humanizar la venta y generar picos de facturación masiva. Nuestra estrategia divide el lanzamiento en 14 momentos críticos divididos en 4 fases psicológicas.
                     </p>
                     <div className="hidden md:block w-px h-24 bg-emerald-500/30"></div>
                     <div 
@@ -290,13 +295,21 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
                     <div id="psd-whatsapp-grid" className="grid lg:grid-cols-12 gap-8 relative">
                         <div className="lg:col-span-4 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-2xl">
-                            <div className="flex items-center gap-3 mb-6"><div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50"><Calendar className="w-6 h-6" /></div><h3 className="text-xl font-bold text-white">Listado de Mensajes</h3></div>
-                            <div className="space-y-3 flex-1 pr-2 overflow-y-auto custom-scrollbar">
+                            <div className="flex items-center gap-3 mb-6 shrink-0"><div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50"><Calendar className="w-6 h-6" /></div><h3 className="text-xl font-bold text-white">Listado de Mensajes</h3></div>
+                            <div className="space-y-1 flex-1 pr-2 overflow-y-auto custom-scrollbar">
                                 {whatsappLaunch.map((script: any, idx: number) => (
-                                    <div key={script.id} onClick={() => setActiveWaScript(idx)} className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${sentMessages.has(idx) ? 'bg-green-900/10 border-green-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800')}`}>
-                                        <div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${sentMessages.has(idx) ? 'bg-green-500 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div><div className="flex-1 min-w-0"><span className="text-xl font-black uppercase tracking-widest block mb-1 text-blue-500">Mensaje {idx + 1}</span><h4 className="text-lg font-bold leading-tight truncate text-gray-300">{script.name}</h4></div></div>
-                                        <div onClick={(e) => toggleSent(e, idx)} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${sentMessages.has(idx) ? 'border-green-500 bg-green-500' : 'border-gray-600'}`}>{sentMessages.has(idx) && <Check className="w-4 h-4 text-black font-black" />}</div>
-                                    </div>
+                                    <React.Fragment key={script.id}>
+                                        {renderPhaseHeader(idx)}
+                                        <div onClick={() => setActiveWaScript(idx)} className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${sentMessages.has(idx) ? 'bg-green-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800')}`}>
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${sentMessages.has(idx) ? 'bg-green-500 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className={`text-lg font-bold leading-tight whitespace-normal ${sentMessages.has(idx) ? 'text-white' : (activeWaScript === idx ? 'text-blue-400' : 'text-gray-300')}`}>{script.name}</h4>
+                                                </div>
+                                            </div>
+                                            <div onClick={(e) => toggleSent(e, idx)} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${sentMessages.has(idx) ? 'border-green-500 bg-green-500' : 'border-gray-600'}`}>{sentMessages.has(idx) && <Check className="w-4 h-4 text-black font-black" />}</div>
+                                        </div>
+                                    </React.Fragment>
                                 ))}
                             </div>
                         </div>
@@ -316,9 +329,8 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                     <div className="flex items-center justify-between"><span className="bg-emerald-900/20 text-emerald-400 border border-emerald-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase shadow-lg">Pilar: {activeItem?.pilarType}</span><span className="text-white text-lg font-black uppercase tracking-widest italic">{activeItem?.momentText}</span></div>
                                     <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden flex-1">
                                         <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/50"></div>
-                                        <div className="flex items-center gap-4 mb-10"><div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400"><Lightbulb className="w-8 h-8" /></div><h4 className="text-2xl font-black text-white tracking-tight">Estrategia de WhatsApp: Momento No {activeWaScript + 1}</h4></div>
+                                        <div className="flex items-center gap-4 mb-10"><div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400"><Lightbulb className="w-8 h-8" /></div><h4 className="text-2xl font-black text-white tracking-tight">{activeItem?.name}</h4></div>
                                         <div className="space-y-10">
-                                            <div className="space-y-3"><label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2"><PenTool className="w-5 h-5 text-emerald-500" /> Título Sugerido</label><input type="text" value={activeItem?.name} onChange={(e) => handleUpdateMessage(activeWaScript, 'name', e.target.value)} className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-xl outline-none" /></div>
                                             <div className="space-y-3"><div className="flex justify-between items-center"><label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2"><Settings2 className="w-5 h-5 text-emerald-500" /> Pilar Estratégico (Tipo)</label><button onClick={() => setIsTypeLocked(!isTypeLocked)} className="text-xs font-black text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">{isTypeLocked ? 'Desbloquear' : 'Bloquear'}</button></div><select disabled={isTypeLocked} value={activeItem?.pilarType} onChange={(e) => handleUpdateMessage(activeWaScript, 'pilarType', e.target.value)} className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none appearance-none ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50'}`}>{waTypes.map(t => (<option key={t} value={t}>{t}</option>))}</select></div>
                                             <div className="space-y-3"><label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2"><Brain className="w-5 h-5 text-emerald-500" /> Propósito Estratégico</label><textarea rows={4} value={activeItem?.purpose} onChange={(e) => handleUpdateMessage(activeWaScript, 'purpose', e.target.value)} className="w-full bg-black/60 border border-white/10 rounded-[2.5rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none resize-none" /></div>
                                         </div>
@@ -339,14 +351,13 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                             <div className="w-20 h-20 bg-emerald-500/10 text-emerald-400 rounded-3xl flex items-center justify-center mx-auto border border-emerald-500/20 shadow-lg animate-pulse"><Sparkles className="w-10 h-10" /></div>
                             <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirma la generación</h3>
                             <p className="text-gray-400 text-lg leading-relaxed">Generar un nuevo lanzamiento de WhatsApp consumirá créditos de tu plan <span className="text-emerald-400 font-bold capitalize">{planLimits?.planName || 'Starter'}</span>.</p>
-                            <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left"><div className="flex justify-between items-center mb-3"><span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Lanzamientos in tu plan</span><span className="text-white font-bold text-sm">{launchCount} / {isRealAdmin ? '∞' : maxLaunches}</span></div><div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden p-0.5 border border-white/5"><div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(16,185,129,0.5)]`} style={{ width: `${isRealAdmin ? (launchCount > 0 ? 100 : 0) : usagePercent}%` }}></div></div></div>
+                            <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left"><div className="flex justify-between items-center mb-3"><span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Lanzamientos en tu plan</span><span className="text-white font-bold text-sm">{launchUsed} / {isRealAdmin ? '∞' : maxLaunches}</span></div><div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden p-0.5 border border-white/5"><div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(16,185,129,0.5)]`} style={{ width: `${isRealAdmin ? (launchUsed > 0 ? 100 : 0) : usagePercent}%` }}></div></div></div>
                         </div>
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0"><button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button><button onClick={handleGenerate} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Generar</button></div>
                     </div>
                 </div>
             )}
 
-            {/* MODAL DE VIDEO */}
             {showVideoModal && (
                 <div 
                     onClick={() => setShowVideoModal(false)}
