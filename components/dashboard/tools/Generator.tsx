@@ -282,13 +282,15 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
           );
       }
 
+      const slugify = (text: string) => text.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-');
+
       const newPage: LandingPage = {
         id: Date.now().toString(),
         name: formData.pageName,
         niche: formData.pageName,
         goal: formData.goal,
         isPublished: true, // Se genera PUBLICADA directamente
-        subdomain: `${formData.pageName.toLowerCase().replace(/\s+/g, '-')}.generatorlanding.com`,
+        subdomain: `${slugify(formData.pageName)}.generatorlanding.com`,
         content: content,
         createdAt: new Date(),
         visits: 0,
@@ -435,14 +437,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
           100% { transform: translateX(100%); }
         }
         .progress-shine {
-          position: absolute;
-          top: 0;
-          left: 0;
-          height: 100%;
-          width: 50%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-          animation: loading-shine 1.5s infinite;
-        }
+          position: absolute; top: 0; left: 0; height: 100%; width: 50%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: loading-shine 1.5s infinite; }
       `}</style>
 
       <UpgradeModal 

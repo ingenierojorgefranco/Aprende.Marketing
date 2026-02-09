@@ -150,14 +150,19 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     <div className="space-y-4">
                         <h4 className="text-gray-900 font-black text-2xl mb-6">Tu transformación incluye:</h4>
                         <div className="space-y-4">
-                            {items.map((title: string, i: number) => (
-                                <div key={i} className="flex gap-4 items-center p-4 bg-emerald-50 rounded-[1.5rem] border border-emerald-100">
-                                    <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
-                                    <div>
-                                        <p className="text-gray-900 font-bold text-base leading-tight">{title}</p>
+                            {items.map((item: any, i: number) => {
+                                const title = typeof item === 'object' ? item.title : item;
+                                const description = typeof item === 'object' ? item.description : null;
+                                return (
+                                    <div key={i} className="flex gap-4 items-center p-4 bg-emerald-50 rounded-[1.5rem] border border-emerald-100">
+                                        <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
+                                        <div>
+                                            <p className="text-gray-900 font-bold text-base leading-tight">{title}</p>
+                                            {description && <p className="text-gray-600 text-sm mt-1">{description}</p>}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
