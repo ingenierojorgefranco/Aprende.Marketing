@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
 import { Generator } from '../Generator';
@@ -180,6 +180,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             <div className="space-y-6 animate-in fade-in duration-500">
                 {data.type === 'header' && (<div className="text-center flex flex-col items-center"><div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-8 border border-emerald-500/30"><Check className="w-10 h-10 text-emerald-400" /></div><h4 className="text-white font-black text-3xl mb-4 leading-tight">{data.content?.h1}</h4><p className="text-gray-400 text-lg">{data.content?.h2}</p></div>)}
                 {data.type === 'action' && (<div className="text-center"><div className="w-full h-2.5 bg-gray-800 rounded-full mb-10 overflow-hidden shadow-inner"><div className="w-[85%] h-full bg-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.4)] animate-pulse"></div></div><h4 className="text-white font-black text-2xl mb-6">{data.content?.h1}</h4><button className="w-full py-5 bg-[#25D366] rounded-2xl flex items-center justify-center gap-3 text-white font-black text-xl shadow-xl shadow-green-900/40">UNIRME AL GRUPO VIP</button></div>)}
+                {data.type === 'magnet' && (<div className="text-center flex flex-col items-center"><div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center mb-8 border border-primary/30"><Gift className="w-10 h-10 text-primary" /></div><h4 className="text-white font-black text-2xl mb-4 leading-tight">{data.content?.h1}</h4><p className="text-gray-400 text-lg mb-8">{data.content?.h2}</p><div className="w-full py-4 bg-gray-800 rounded-xl border border-gray-700 flex items-center justify-center gap-2 text-gray-300 font-bold"><Download className="w-5 h-5" /> DESCARGAR AHORA</div></div>)}
             </div>
         );
     };

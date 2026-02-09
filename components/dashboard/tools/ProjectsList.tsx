@@ -143,7 +143,7 @@ export const ProjectsList: React.FC = () => {
                         {/* Plan Usage Bar */}
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
                             <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-300 font-medium">{isRealAdmin ? 'Proyectos (Superusuario)' : 'Proyectos Activos'}</span>
+                                <span className="text-gray-300 font-medium">{isRealAdmin ? 'Páginas (Superusuario)' : 'Proyectos Activos'}</span>
                                 <span className="text-white font-bold">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
                             </div>
                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -478,7 +478,7 @@ export const ProjectsList: React.FC = () => {
                         <div className="aspect-video w-full">
                             <iframe 
                                 className="w-full h-full"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                src="https://www.youtube.com/embed/A_dcakdMBow?autoplay=1" 
                                 title="Cómo funciona el gestor de proyectos" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowFullScreen
