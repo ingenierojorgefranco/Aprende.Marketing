@@ -55,7 +55,7 @@ router.post('/launches/generate-message', authMiddleware, async (req, res) => {
             MENSAJE #1 (Día -7: Bienvenida y Confirmación de Fecha):
             Objetivo: Seguridad y Pertenencia.
             Estructura obligatoria:
-            - Saludo entusiasta.
+            - Saludo entusiasta (corto y directo).
             - Validar que están en el lugar correcto ("Si estás aquí es porque buscas una transformación real").
             - Anclaje de fecha y hora clara.
             - Posicionar el producto "${project.product_name}" como el vehículo a la independencia financiera.
@@ -90,10 +90,10 @@ router.post('/launches/generate-message', authMiddleware, async (req, res) => {
 
         REGLAS DE FORMATO Y ESTILO:
         - Usa emojis de forma natural y estratégica.
-        - Usa negritas de WhatsApp (*texto*) para resaltar fechas, horas, nombres y llamados a la acción.
+        - Usa negritas de WhatsApp pero solo en momentos claves (*texto*) para resaltar fechas, horas, nombres y llamados a la acción.
         - NO incluyas enlaces externos.
-        - El lenguaje debe ser cercano, profesional y altamente persuasivo.
-        - No incluyas etiquetas de sistema como [FECHA] si no tienes el dato, usa espacios en blanco o indicadores claros como [Día de la semana].
+        - El lenguaje debe ser cercano, profesional y altamente persuasivo sin ser extenso.
+        - No incluyas etiquetas de sistema como [FECHA] si no tienes el dato, sin embargo si lo tienes [FECHA]  incluye la fecha con su nombre de dia, mes y año usa espacios en blanco o indicadores claros como [Día de la semana].
 
         Responde ÚNICAMENTE con el texto del mensaje redactado para ser copiado y pegado en WhatsApp.
         `;

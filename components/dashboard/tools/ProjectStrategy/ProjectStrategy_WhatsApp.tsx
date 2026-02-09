@@ -30,6 +30,14 @@ const ChatSimulator: React.FC<{
 }> = ({ messages, senderName, onSaveMessage }) => {
     const [editingIdx, setEditingIdx] = useState<number | null>(null);
     const [tempText, setTempText] = useState("");
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    }, [tempText]);
 
     const handleStartEdit = (idx: number, text: string) => {
         setEditingIdx(idx);
@@ -63,15 +71,16 @@ const ChatSimulator: React.FC<{
                     <div key={i} className={`flex ${msg.role === 'user' ? 'justify-start' : 'justify-end'} animate-in slide-in-from-bottom-2 fade-in duration-300`} style={{animationDelay: `${i * 150}ms`}}>
                         <div 
                             onClick={() => onSaveMessage && editingIdx === null && handleStartEdit(i, msg.text)}
-                            className={`max-w-[85%] p-2.5 rounded-lg shadow-sm text-lg whitespace-pre-wrap relative group ${msg.role === 'user' ? 'bg-[#202c33] text-white rounded-tl-none' : 'bg-[#005c4b] text-[#e9edef] rounded-tr-none'} ${editingIdx === null && onSaveMessage ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}`}
+                            className={`${editingIdx === i ? 'w-full' : 'max-w-[85%]'} p-2.5 rounded-lg shadow-sm text-lg whitespace-pre-wrap relative group ${msg.role === 'user' ? 'bg-[#202c33] text-white rounded-tl-none' : 'bg-[#005c4b] text-[#e9edef] rounded-tr-none'} ${editingIdx === null && onSaveMessage ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}`}
                         >
                             {editingIdx === i ? (
                                 <div className="space-y-3" onClick={e => e.stopPropagation()}>
                                     <textarea 
+                                        ref={textareaRef}
                                         autoFocus
                                         value={tempText}
                                         onChange={(e) => setTempText(e.target.value)}
-                                        className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-sm md:text-base text-white outline-none focus:ring-2 focus:ring-[#075E54]/20 min-h-[120px] resize-none"
+                                        className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-sm md:text-base text-white outline-none focus:ring-2 focus:ring-[#075E54]/20 resize-none overflow-hidden"
                                     />
                                     <div className="flex gap-2 justify-end">
                                         <button onClick={() => setEditingIdx(null)} className="p-2 text-gray-300 hover:bg-white/10 rounded-lg transition"><X className="w-4 h-4" /></button>
@@ -328,9 +337,6 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 setLaunchId(res.id);
             }
 
-            // Simulamos tiempo para el impacto visual
-            await new Promise(r => setTimeout(r, 4000));
-
             const generatedText = await generateWhatsAppMessage(projectId, activeItem.id);
 
             const updatedMessages = [...whatsappLaunch];
@@ -376,39 +382,43 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
 
             {/* --- OVERLAY DE CARGA --- */}
             {generationStatus === 'generating' && (
-                <div className="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
-                    <div className="relative mb-12">
-                        <div className="w-24 h-24 bg-emerald-50 rounded-3xl flex items-center justify-center animate-pulse border border-emerald-100">
-                            <Wand2 className="w-12 h-12 text-emerald-600" />
+                <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="relative mb-12 flex justify-center">
+                            <div className="w-24 h-24 bg-emerald-50 rounded-3xl flex items-center justify-center animate-pulse border border-emerald-100">
+                                <Wand2 className="w-12 h-12 text-emerald-600" />
+                            </div>
                         </div>
-                    </div>
-                    <div className="space-y-4">
-                        <h3 className="text-4xl font-black text-black uppercase tracking-tighter italic animate-pulse">Redactando Mensaje Estratégico</h3>
-                        <p className="text-gray-500 font-bold text-sm uppercase tracking-widest">{loadingText}</p>
-                    </div>
-                    <div className="w-full max-w-sm h-1.5 bg-gray-100 rounded-full mt-10 overflow-hidden relative">
-                        <div className="h-full bg-emerald-500 w-full origin-left animate-loading-bar"></div>
+                        <div className="space-y-4">
+                            <h3 className="text-4xl font-black text-black uppercase tracking-tighter italic animate-pulse">Redactando Mensaje Estratégico</h3>
+                            <p className="text-gray-500 font-bold text-sm uppercase tracking-widest">{loadingText}</p>
+                        </div>
+                        <div className="w-full max-w-sm h-1.5 bg-gray-100 rounded-full mx-auto mt-10 overflow-hidden relative">
+                            <div className="h-full bg-emerald-500 w-full origin-left animate-loading-bar"></div>
+                        </div>
                     </div>
                 </div>
             )}
 
             {/* --- OVERLAY DE ÉXITO --- */}
             {generationStatus === 'success' && (
-                <div className="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500 overflow-hidden">
-                    {[...Array(30)].map((_, i) => (
-                        <div key={i} className="confetti" style={{ left: `${Math.random() * 100}%`, backgroundColor: ['#10B981', '#34D399', '#4C1D95', '#F59E0B'][Math.floor(Math.random() * 4)], animationDelay: `${Math.random() * 2}s` }}></div>
-                    ))}
-                    <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-8 scale-110 animate-bounce">
-                        <CheckCircle2 className="w-14 h-14 text-white" />
+                <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-hidden">
+                    <div className="bg-white rounded-[2.5rem] w-full max-w-xl p-12 text-center shadow-2xl animate-in zoom-in-95 duration-300 relative">
+                        {[...Array(30)].map((_, i) => (
+                            <div key={i} className="confetti" style={{ left: `${Math.random() * 100}%`, backgroundColor: ['#10B981', '#34D399', '#4C1D95', '#F59E0B'][Math.floor(Math.random() * 4)], animationDelay: `${Math.random() * 2}s` }}></div>
+                        ))}
+                        <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mx-auto mb-8 scale-110 animate-bounce">
+                            <CheckCircle2 className="w-14 h-14 text-white" />
+                        </div>
+                        <h3 className="text-4xl font-black text-black leading-tight mb-4">¡Tu mensaje No ${activeWaScript + 1} de WhatsApp ha sido creado!</h3>
+                        <p className="text-gray-500 text-lg font-medium mb-10">Tu guion persuasivo está listo para ser copiado y enviado a tu comunidad.</p>
+                        <button 
+                            onClick={() => setGenerationStatus('idle')}
+                            className="w-full py-5 bg-[#FF5A1F] text-white font-black rounded-2xl shadow-xl hover:bg-[#D94A1E] transition-all transform hover:scale-[1.02] active:scale-95 text-lg"
+                        >
+                            Cerrar
+                        </button>
                     </div>
-                    <h3 className="text-4xl font-black text-black leading-tight mb-4">¡Mensaje generado con éxito!</h3>
-                    <p className="text-gray-500 text-lg font-medium max-w-md mb-10">Tu guion persuasivo está listo para ser copiado y enviado a tu comunidad.</p>
-                    <button 
-                        onClick={() => setGenerationStatus('idle')}
-                        className="px-12 py-5 bg-black text-white font-black rounded-2xl shadow-xl hover:bg-gray-800 transition-all transform hover:scale-105 active:scale-95"
-                    >
-                        Cerrar y Ver Mensaje
-                    </button>
                 </div>
             )}
 
@@ -432,7 +442,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                         />
                         <div className="absolute inset-0 flex items-center justify-center">
                             <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                                <PlayCircle className="w-10 h-10 text-emerald-400" />
+                                <PlayCircle className="w-10 h-10 text-blue-400" />
                             </div>
                         </div>
                     </div>
