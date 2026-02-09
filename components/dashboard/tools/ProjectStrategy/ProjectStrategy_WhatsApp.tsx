@@ -241,7 +241,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const handleSaveChatMessage = async (msgIdx: number, newText: string) => {
         if (!projectId || !launchId || !activeItem) return;
 
-        let currentMessages = [];
+        let currentMessages: any[] = [];
         if (activeItem.messages && Array.isArray(activeItem.messages)) {
             currentMessages = [...activeItem.messages];
         } else if (activeItem.content) {
