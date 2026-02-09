@@ -338,11 +338,10 @@ export const Footer = ({
                         </ul>
                     </div>
                     <div>
-                        <h5 className={`font-bold mb-4 text-lg ${ds.footer.titleColor}`}>Contacto</h5>
+                        <h5 className={`font-bold mb-4 text-lg ${ds.footer.titleColor}`}>Legal</h5>
                         <ul id="footer-contact-list" className={`space-y-3 ${ds.footer.textColor}`}>
-                            <li className="flex items-center gap-2"><Mail className="w-4 h-4"/> {content.footer.contact || 'info@empresa.com'}</li>
-                            <li><a href="#" className={`transition hover:${ds.footer.linkHover}`}>Política de Privacidad</a></li>
-                            <li><a href="#" className={`transition hover:${ds.footer.linkHover}`}>Términos de Uso</a></li>
+                            <li><a href={`${basePath || ''}/privacidad`} className={`transition hover:${ds.footer.linkHover}`}>Política de Privacidad</a></li>
+                            <li><a href={`${basePath || ''}/terminos`} className={`transition hover:${ds.footer.linkHover}`}>Términos de Uso</a></li>
                         </ul>
                     </div>
                 </div>

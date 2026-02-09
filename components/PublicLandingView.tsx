@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { LandingPage } from "../types";
@@ -37,8 +36,8 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
   const [debug, setDebug] = useState<DebugInfo | null>(null);
 
   // BLOG & THANK YOU ROUTING LOGIC
-  // Detect if we are in /blog, /blog/article-slug or /gracias
-  let viewMode: 'home' | 'blog-list' | 'blog-post' | 'thank-you' = 'home';
+  // Detect if we are in /blog, /blog/article-slug, /gracias, /privacidad or /terminos
+  let viewMode: 'home' | 'blog-list' | 'blog-post' | 'thank-you' | 'privacy' | 'terms' = 'home';
   let articleSlug = '';
 
   // 1. CUSTOM DOMAIN LOGIC (Prioritize explicit path parsing when forcedSlug is present)
@@ -46,6 +45,10 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
   if (forcedSlug) {
       if (location.pathname.includes('/gracias')) {
           viewMode = 'thank-you';
+      } else if (location.pathname.includes('/privacidad')) {
+          viewMode = 'privacy';
+      } else if (location.pathname.includes('/terminos')) {
+          viewMode = 'terms';
       } else if (location.pathname.includes('/blog')) {
           // Remove trailing slash for consistency
           const cleanPath = location.pathname.endsWith('/') ? location.pathname.slice(0, -1) : location.pathname;
@@ -73,6 +76,10 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
           articleSlug = wildCard.replace('blog/', '');
       } else if (wildCard === 'gracias' || wildCard === 'gracias/') {
           viewMode = 'thank-you';
+      } else if (wildCard === 'privacidad' || wildCard === 'privacidad/') {
+          viewMode = 'privacy';
+      } else if (wildCard === 'terminos' || wildCard === 'terminos/') {
+          viewMode = 'terms';
       }
   }
 
