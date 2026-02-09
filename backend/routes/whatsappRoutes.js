@@ -1,4 +1,3 @@
-
 const express = require('express');
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
@@ -8,6 +7,7 @@ const router = express.Router();
 
 /**
  * Inicializador de los 14 momentos estratégicos con pilares y propósitos detallados según la nueva estructura de 4 fases.
+ * Se asegura que 'content' esté vacío y 'isGenerated' sea false por defecto.
  */
 const DEFAULT_LAUNCH_MESSAGES = [
     // FASE 1: Anticipación y Autoridad (Días previos)

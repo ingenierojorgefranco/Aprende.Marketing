@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2, Crown, X, Loader2 } from 'lucide-react';
+import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2, Crown, X, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { PlanLimits, WhatsAppLaunchMessage, WhatsAppLaunch } from '../../../../types';
 import { ProjectMasterStrategy } from '../../../../services/strategySchema';
+import { generateWhatsAppMessage } from '../../../../services/geminiservices/whatsappService';
 
 const WHATSAPP_LAUNCH_MOMENTS = [
     { id: 'wl1', name: 'Bienvenida y Confirmación de Fecha', momentText: 'Día -7', objective: 'Confirmar lugar, dar gracias, fijar fecha/hora.', pilarType: 'Seguridad', purpose: 'Confirmar que están en el lugar correcto, dar las gracias y fijar la fecha/hora del evento en el calendario mental del usuario.' },
@@ -117,7 +118,6 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const { user } = useOutletContext() as any;
     
     const [whatsappLaunch, setWhatsappLaunch] = useState<any[]>([]);
-    const [isLocked, setIsLocked] = useState(true);
     const [launchCount, setLaunchCount] = useState(0);
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [launchDate, setLaunchDate] = useState<string>('');
@@ -128,6 +128,30 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const [showVideoModal, setShowVideoModal] = useState(false);
     const dateInputRef = useRef<HTMLInputElement>(null);
 
+    // --- ESTADOS DE GENERACIÓN BAJO DEMANDA ---
+    const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
+    const [loadingText, setLoadingText] = useState("");
+    const loadingTexts = [
+        "Analizando psicología del avatar...",
+        "Redactando ganchos de apertura...",
+        "Optimizando para respuesta directa...",
+        "Integrando disparadores mentales...",
+        "Estructurando el cierre de ventas..."
+    ];
+
+    useEffect(() => {
+        let interval: any;
+        if (generationStatus === 'generating') {
+            let i = 0;
+            setLoadingText(loadingTexts[0]);
+            interval = setInterval(() => {
+                i = (i + 1) % loadingTexts.length;
+                setLoadingText(loadingTexts[i]);
+            }, 2500);
+        }
+        return () => clearInterval(interval);
+    }, [generationStatus]);
+
     const waTypes = [
         'Seguridad', 'Empatía y Confianza', 'Valor Percibido', 'Conciencia del Dolor',
         'Entusiasmo', 'Compromiso', 'Acción Inmediata', 'Lanzamiento',
@@ -135,59 +159,59 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         'Escasez Real', 'Integridad de Marca'
     ];
 
-    useEffect(() => {
-        const loadLaunchData = async () => {
-            if (!projectId) return;
-            setLoadingLocal(true);
-            try {
-                const [waLaunchDb, allWaLaunches, fetchedStrategyData] = await Promise.all([
-                    api.getWhatsAppLaunchByProject(projectId),
-                    api.getWhatsAppLaunches(),
-                    propStrategyData ? Promise.resolve(propStrategyData) : api.getProjectStrategy(projectId)
-                ]);
+    const loadLaunchData = async () => {
+        if (!projectId) return;
+        setLoadingLocal(true);
+        try {
+            const [waLaunchDb, allWaLaunches, fetchedStrategyData] = await Promise.all([
+                api.getWhatsAppLaunchByProject(projectId),
+                api.getWhatsAppLaunches(),
+                propStrategyData ? Promise.resolve(propStrategyData) : api.getProjectStrategy(projectId)
+            ]);
 
-                const strategyData = propStrategyData || fetchedStrategyData;
+            const strategyData = propStrategyData || fetchedStrategyData;
+            setLaunchCount(allWaLaunches.length);
 
-                setLaunchCount(allWaLaunches.length);
-                if (waLaunchDb) {
-                    setLaunchId(waLaunchDb.id);
-                    if (waLaunchDb.launchDate) {
-                        const dateOnly = typeof waLaunchDb.launchDate === 'string' ? waLaunchDb.launchDate.split('T')[0] : waLaunchDb.launchDate.toISOString().split('T')[0];
-                        setLaunchDate(dateOnly);
-                    }
+            if (waLaunchDb) {
+                setLaunchId(waLaunchDb.id);
+                if (waLaunchDb.launchDate) {
+                    const dateOnly = typeof waLaunchDb.launchDate === 'string' ? waLaunchDb.launchDate.split('T')[0] : waLaunchDb.launchDate.toISOString().split('T')[0];
+                    setLaunchDate(dateOnly);
                 }
-
-                let final14 = WHATSAPP_LAUNCH_MOMENTS.map(moment => ({ ...moment, content: '', isGenerated: false }));
-                if (waLaunchDb && waLaunchDb.messages) {
-                    const dbMessages = waLaunchDb.messages;
-                    final14 = final14.map(moment => {
-                        const match = dbMessages.find((m: any) => m.id === moment.id);
-                        return match ? { ...moment, ...match } : moment;
-                    });
-                    const hasGeneratedRest = dbMessages.some((m: any) => m.id !== 'wl1' && m.isGenerated);
-                    setIsLocked(!hasGeneratedRest);
-                } else if (strategyData?.modules?.whatsappLaunch) {
-                    const strategyMsgs = strategyData.modules.whatsappLaunch;
-                    final14 = final14.map(moment => {
-                        const match = strategyMsgs.find((m: any) => m.id === moment.id);
-                        if (match) {
-                            return {
-                                ...moment,
-                                content: (match as any).messages?.[0]?.text || (match as any).content || '',
-                                isGenerated: !!((match as any).messages?.[0]?.text || (match as any).content)
-                            };
-                        }
-                        return moment;
-                    });
-                    setIsLocked(true);
-                }
-                setWhatsappLaunch(final14);
-            } catch (e) {
-                console.error(e);
-            } finally {
-                setLoadingLocal(false);
             }
-        };
+
+            // REGLA DE ORO: Inicialmente nada está generado si no está en la DB
+            let final14 = WHATSAPP_LAUNCH_MOMENTS.map(moment => {
+                // Buscamos si existe en la estrategia para sacar pilarType y purpose si la DB no tiene nada aún
+                const strategyMatch = strategyData?.modules?.whatsappLaunch?.find((sm: any) => sm.id === moment.id);
+                
+                return { 
+                    ...moment, 
+                    pilarType: strategyMatch?.pilarType || moment.pilarType,
+                    purpose: strategyMatch?.purpose || moment.purpose,
+                    content: '', 
+                    isGenerated: false 
+                };
+            });
+
+            if (waLaunchDb && waLaunchDb.messages && Array.isArray(waLaunchDb.messages)) {
+                const dbMessages = waLaunchDb.messages;
+                final14 = final14.map(moment => {
+                    const match = dbMessages.find((m: any) => m.id === moment.id);
+                    // Solo marcamos como generado si el match de la DB tiene contenido y isGenerated true
+                    return match ? { ...moment, ...match } : moment;
+                });
+            }
+            
+            setWhatsappLaunch(final14);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoadingLocal(false);
+        }
+    };
+
+    useEffect(() => {
         loadLaunchData();
     }, [projectId, propStrategyData]);
 
@@ -232,7 +256,6 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
             (newMessages[index] as any)[field] = value;
             await api.updateWhatsAppLaunch(launchId, { messages: newMessages });
             setWhatsappLaunch([...newMessages]);
-            setActiveWaScript(activeWaScript); 
         } catch (e) {
             console.error(e);
         }
@@ -295,7 +318,37 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const handleGenerate = async () => {
         setShowConfirmModal(false);
         if (!projectId) return;
-        navigate(`/dashboard/whatsapp-launch/create?projectId=${projectId}`);
+
+        setGenerationStatus('generating');
+        try {
+            let currentLaunchId = launchId;
+            if (!currentLaunchId) {
+                const res = await api.createWhatsAppLaunch(projectId, `Lanzamiento WhatsApp`);
+                currentLaunchId = res.id;
+                setLaunchId(res.id);
+            }
+
+            // Simulamos tiempo para el impacto visual
+            await new Promise(r => setTimeout(r, 4000));
+
+            const generatedText = await generateWhatsAppMessage(projectId, activeItem.id);
+
+            const updatedMessages = [...whatsappLaunch];
+            updatedMessages[activeWaScript] = {
+                ...updatedMessages[activeWaScript],
+                content: generatedText,
+                messages: [{ role: 'agent', text: generatedText }],
+                isGenerated: true
+            };
+
+            await api.updateWhatsAppLaunch(currentLaunchId, { messages: updatedMessages });
+            setWhatsappLaunch(updatedMessages);
+            setGenerationStatus('success');
+        } catch (e) {
+            console.error(e);
+            alert("Error de generación.");
+            setGenerationStatus('idle');
+        }
     };
 
     const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
@@ -315,7 +368,50 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     };
 
     return (
-        <div id="psd-whatsapp-section" className="pt-8">
+        <div id="psd-whatsapp-section" className="pt-8 relative">
+            <style>{`
+                @keyframes confetti-fall { 0% { transform: translateY(-100%) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+                .confetti { position: absolute; width: 8px; height: 8px; animation: confetti-fall 3s linear forwards; top: -10px; z-index: 210; pointer-events: none; }
+            `}</style>
+
+            {/* --- OVERLAY DE CARGA --- */}
+            {generationStatus === 'generating' && (
+                <div className="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
+                    <div className="relative mb-12">
+                        <div className="w-24 h-24 bg-emerald-50 rounded-3xl flex items-center justify-center animate-pulse border border-emerald-100">
+                            <Wand2 className="w-12 h-12 text-emerald-600" />
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <h3 className="text-4xl font-black text-black uppercase tracking-tighter italic animate-pulse">Redactando Mensaje Estratégico</h3>
+                        <p className="text-gray-500 font-bold text-sm uppercase tracking-widest">{loadingText}</p>
+                    </div>
+                    <div className="w-full max-w-sm h-1.5 bg-gray-100 rounded-full mt-10 overflow-hidden relative">
+                        <div className="h-full bg-emerald-500 w-full origin-left animate-loading-bar"></div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- OVERLAY DE ÉXITO --- */}
+            {generationStatus === 'success' && (
+                <div className="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500 overflow-hidden">
+                    {[...Array(30)].map((_, i) => (
+                        <div key={i} className="confetti" style={{ left: `${Math.random() * 100}%`, backgroundColor: ['#10B981', '#34D399', '#4C1D95', '#F59E0B'][Math.floor(Math.random() * 4)], animationDelay: `${Math.random() * 2}s` }}></div>
+                    ))}
+                    <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-8 scale-110 animate-bounce">
+                        <CheckCircle2 className="w-14 h-14 text-white" />
+                    </div>
+                    <h3 className="text-4xl font-black text-black leading-tight mb-4">¡Mensaje generado con éxito!</h3>
+                    <p className="text-gray-500 text-lg font-medium max-w-md mb-10">Tu guion persuasivo está listo para ser copiado y enviado a tu comunidad.</p>
+                    <button 
+                        onClick={() => setGenerationStatus('idle')}
+                        className="px-12 py-5 bg-black text-white font-black rounded-2xl shadow-xl hover:bg-gray-800 transition-all transform hover:scale-105 active:scale-95"
+                    >
+                        Cerrar y Ver Mensaje
+                    </button>
+                </div>
+            )}
+
             <div id="psd-whatsapp-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
                 <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg"><MessageCircle className="w-5 h-5" /> Resumen estratégico</div>
                 <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">Secuencia de Lanzamiento <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400"><b>Lanzamiento vía WhatsApp</b></span></h3>
@@ -409,7 +505,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                 <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4"><Info className="w-6 h-6 text-emerald-400 shrink-0" /><p className="text-gray-300 text-base leading-relaxed"><span className="font-bold text-emerald-200 block mb-1">Propósito Estratégico:</span>{activeItem.purpose}</p></div>
                                             </div>
                                             <ChatSimulator messages={processedMessages} senderName={user?.name} onSaveMessage={handleSaveChatMessage} />
-                                            <div className="flex gap-4 mt-6"><button onClick={() => handleCopy(processedMessages[0]?.text || '')} className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-lg shadow-lg flex items-center justify-center gap-2"><Copy className="w-5 h-5" /> Copiar Mensaje</button><button onClick={() => navigate(`/dashboard/whatsapp-launch/editor/${launchId}`)} className="p-4 bg-white/5 border border-white/10 text-white rounded-xl"><PenTool className="w-6 h-6" /></button></div>
+                                            <div className="flex gap-4 mt-6"><button onClick={() => handleCopy(processedMessages[0]?.text || '')} className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-lg shadow-lg flex items-center justify-center gap-2"><Copy className="w-5 h-5" /> Copiar Mensaje</button></div>
                                         </>
                                     ) : (
                                         <div className="space-y-12 animate-in fade-in duration-500 flex-1 flex flex-col">
