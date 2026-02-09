@@ -2,6 +2,7 @@
 const express = require('express');
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
+const { generateContent } = require('../geminiService');
 
 const router = express.Router();
 
@@ -31,6 +32,78 @@ const DEFAULT_LAUNCH_MESSAGES = [
     { id: 'wl13', name: 'Última Llamada (Faltan 4 horas)', momentText: 'Cierre', pilarType: 'Escasez Real', purpose: 'El contador llega a cero. Los bonos desaparecen y el precio subirá.', objective: 'Escasez máxima y resolución de dudas.', content: '', isGenerated: false },
     { id: 'wl14', name: 'Inscripciones Cerradas y Bienvenida', momentText: 'Bienvenida', pilarType: 'Integridad de Marca', purpose: 'Avisar que ya no se puede comprar. Da la bienvenida oficial a los nuevos alumnos (onboarding).', objective: 'Bienvenida a las nuevas alumnas.', content: '', isGenerated: false }
 ];
+
+// Endpoint de Generación de Mensaje con IA (Blueprints)
+router.post('/launches/generate-message', authMiddleware, async (req, res) => {
+    const { projectId, momentId } = req.body;
+    if (!projectId || !momentId) return res.status(400).json({ error: "Faltan parámetros" });
+
+    try {
+        // 1. Obtener contexto del proyecto
+        const [projRows] = await pool.query(
+            "SELECT product_name, niche, brand_tone, description FROM projects WHERE id = ?",
+            [projectId]
+        );
+        if (projRows.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
+        
+        const project = projRows[0];
+        
+        // 2. Definir Blueprints basados en el momento
+        let specificInstruction = "";
+        if (momentId === 'wl1') {
+            specificInstruction = `
+            MENSAJE #1 (Día -7: Bienvenida y Confirmación de Fecha):
+            Objetivo: Seguridad y Pertenencia.
+            Estructura obligatoria:
+            - Saludo entusiasta.
+            - Validar que están en el lugar correcto ("Si estás aquí es porque buscas una transformación real").
+            - Anclaje de fecha y hora clara.
+            - Posicionar el producto "${project.product_name}" como el vehículo a la independencia financiera.
+            - Dinámica de bienvenida: Pedir obligatoriamente una reacción con emoji 🔥 si han guardado la fecha y están comprometidas.
+            `;
+        } else if (momentId === 'wl2') {
+            specificInstruction = `
+            MENSAJE #2 (Día -5: Historia de Autoridad / Storytelling):
+            Objetivo: Empatía y Autoridad Humana.
+            Estructura obligatoria:
+            - Saludo humano.
+            - Storytelling de vulnerabilidad: admitir que antes trabajaba mucho por poco dinero.
+            - El 'Punto de quiebre': cuando entendió que le faltaba un VEHÍCULO (el producto "${project.product_name}") que le diera libertad.
+            - Relatar el éxito tras descubrir el método.
+            - Pregunta de segmentación (Cierre de Engagement): ¿Cuál es tu mayor miedo hoy al pensar en emprender en "${project.niche}"? 1. No tener clientes, 2. No saber la técnica, 3. Invertir y no recuperar. Pide que escriban el número.
+            `;
+        } else {
+            const momentData = DEFAULT_LAUNCH_MESSAGES.find(m => m.id === momentId);
+            specificInstruction = `Genera un mensaje persuasivo para WhatsApp para el momento "${momentData?.name || momentId}" del lanzamiento de "${project.product_name}". Propósito: ${momentData?.purpose || ''}`;
+        }
+
+        const prompt = `
+        Actúa como un experto Senior en lanzamientos meteóricos por WhatsApp y Copywriting persuasivo de respuesta directa.
+        Genera el contenido para un mensaje de WhatsApp basado en la siguiente información del proyecto:
+        - Producto: ${project.product_name}
+        - Nicho: ${project.niche}
+        - Tono: ${project.brand_tone}
+        - Contexto: ${project.description}
+
+        INSTRUCCIONES ESTRATÉGICAS DEL MOMENTO:
+        ${specificInstruction}
+
+        REGLAS DE FORMATO Y ESTILO:
+        - Usa emojis de forma natural y estratégica.
+        - Usa negritas de WhatsApp (*texto*) para resaltar fechas, horas, nombres y llamados a la acción.
+        - NO incluyas enlaces externos.
+        - El lenguaje debe ser cercano, profesional y altamente persuasivo.
+        - No incluyas etiquetas de sistema como [FECHA] si no tienes el dato, usa espacios en blanco o indicadores claros como [Día de la semana].
+
+        Responde ÚNICAMENTE con el texto del mensaje redactado para ser copiado y pegado en WhatsApp.
+        `;
+
+        const text = await generateContent('gemini-3-flash-preview', prompt);
+        res.json({ text });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
 
 // Obtener todos los lanzamientos del usuario
 router.get('/launches', authMiddleware, async (req, res) => {

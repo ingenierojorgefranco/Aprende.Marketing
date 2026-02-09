@@ -22,7 +22,19 @@ const WHATSAPP_LAUNCH_MOMENTS = [
     { id: 'wl14', name: 'Inscripciones Cerradas y Bienvenida', momentText: 'Bienvenida', objective: 'Bienvenida a las nuevas alumnas.', pilarType: 'Integridad de Marca', purpose: 'Avisar que ya no se puede comprar. Da la bienvenida oficial a los nuevos alumnos (onboarding).' }
 ];
 
-const ChatSimulator: React.FC<{ messages: any[]; senderName?: string }> = ({ messages, senderName }) => {
+const ChatSimulator: React.FC<{ 
+    messages: any[]; 
+    senderName?: string;
+    onSaveMessage?: (idx: number, newText: string) => void;
+}> = ({ messages, senderName, onSaveMessage }) => {
+    const [editingIdx, setEditingIdx] = useState<number | null>(null);
+    const [tempText, setTempText] = useState("");
+
+    const handleStartEdit = (idx: number, text: string) => {
+        setEditingIdx(idx);
+        setTempText(text);
+    };
+
     const renderWhatsAppText = (text: string) => {
         if (!text) return null;
         const parts = text.split(/(\*[^\*]+\*)/g);
@@ -45,13 +57,37 @@ const ChatSimulator: React.FC<{ messages: any[]; senderName?: string }> = ({ mes
                     <p className="text-xs text-emerald-400 font-medium">en línea</p>
                 </div>
             </div>
-            <div id="psd-chat-body" className="p-4 space-y-3 bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-opacity-10 bg-repeat max-h-[400px] overflow-y-auto custom-scrollbar">
+            <div id="psd-chat-body" className="p-4 space-y-3 bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-opacity-10 bg-repeat h-auto">
                 {messages.map((msg, i) => (
                     <div key={i} className={`flex ${msg.role === 'user' ? 'justify-start' : 'justify-end'} animate-in slide-in-from-bottom-2 fade-in duration-300`} style={{animationDelay: `${i * 150}ms`}}>
-                        <div className={`max-w-[85%] p-2.5 rounded-lg shadow-sm text-lg whitespace-pre-wrap ${msg.role === 'user' ? 'bg-[#202c33] text-white rounded-tl-none' : 'bg-[#005c4b] text-[#e9edef] rounded-tr-none'}`}>
-                            {/* Fix: use msg.text instead of undefined variable 'text' */}
-                            {renderWhatsAppText(msg.text)}
-                            <span className="block text-[9px] text-right opacity-60 mt-1">10:0{i} AM ✓✓</span>
+                        <div 
+                            onClick={() => onSaveMessage && editingIdx === null && handleStartEdit(i, msg.text)}
+                            className={`max-w-[85%] p-2.5 rounded-lg shadow-sm text-lg whitespace-pre-wrap relative group ${msg.role === 'user' ? 'bg-[#202c33] text-white rounded-tl-none' : 'bg-[#005c4b] text-[#e9edef] rounded-tr-none'} ${editingIdx === null && onSaveMessage ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}`}
+                        >
+                            {editingIdx === i ? (
+                                <div className="space-y-3" onClick={e => e.stopPropagation()}>
+                                    <textarea 
+                                        autoFocus
+                                        value={tempText}
+                                        onChange={(e) => setTempText(e.target.value)}
+                                        className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-sm md:text-base text-white outline-none focus:ring-2 focus:ring-[#075E54]/20 min-h-[120px] resize-none"
+                                    />
+                                    <div className="flex gap-2 justify-end">
+                                        <button onClick={() => setEditingIdx(null)} className="p-2 text-gray-300 hover:bg-white/10 rounded-lg transition"><X className="w-4 h-4" /></button>
+                                        <button onClick={() => { onSaveMessage?.(i, tempText); setEditingIdx(null); }} className="bg-[#075E54] text-white px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-[#054d44] transition">
+                                            <Check className="w-4 h-4" /> Guardar
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    {onSaveMessage && (
+                                        <div className="absolute -top-6 left-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[#075E54] text-white text-[9px] font-black uppercase px-2 py-0.5 rounded whitespace-nowrap z-10">Clic para editar mensaje</div>
+                                    )}
+                                    {renderWhatsAppText(msg.text)}
+                                    <span className="block text-[9px] text-right opacity-60 mt-1">10:0{i} AM ✓✓</span>
+                                </>
+                            )}
                         </div>
                     </div>
                 ))}
@@ -87,9 +123,6 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const [launchDate, setLaunchDate] = useState<string>('');
     const [launchId, setLaunchId] = useState<string | null>(null);
     const [sentMessages, setSentMessages] = useState<Set<number>>(new Set());
-    const [imageUrls, setImageUrls] = useState<Record<number, string>>({
-        0: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=800&q=80'
-    });
     const [isTypeLocked, setIsTypeLocked] = useState(true);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showVideoModal, setShowVideoModal] = useState(false);
@@ -205,6 +238,35 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
         }
     };
 
+    const handleSaveChatMessage = async (msgIdx: number, newText: string) => {
+        if (!projectId || !launchId || !activeItem) return;
+
+        let currentMessages = [];
+        if (activeItem.messages && Array.isArray(activeItem.messages)) {
+            currentMessages = [...activeItem.messages];
+        } else if (activeItem.content) {
+            currentMessages = [{ role: 'agent', text: activeItem.content }];
+        }
+
+        if (currentMessages[msgIdx]) {
+            currentMessages[msgIdx] = { ...currentMessages[msgIdx], text: newText };
+        }
+
+        const updatedLaunch = [...whatsappLaunch];
+        updatedLaunch[activeWaScript] = {
+            ...updatedLaunch[activeWaScript],
+            messages: currentMessages,
+            content: currentMessages[0]?.text || ''
+        };
+
+        try {
+            await api.updateWhatsAppLaunch(launchId, { messages: updatedLaunch });
+            setWhatsappLaunch(updatedLaunch);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
     const handleCopy = (text: string) => {
         navigator.clipboard.writeText(text);
         alert("Mensaje copiado para WhatsApp");
@@ -244,7 +306,6 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     if (usagePercent > 50) progressColor = "bg-yellow-500";
     if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
-    // Función para renderizar encabezados de fase en el listado
     const renderPhaseHeader = (index: number) => {
         if (index === 0) return <div className="mt-6 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 1: Anticipación y Autoridad (Días previos)</div>;
         if (index === 4) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 2: El Día del Evento</div>;
@@ -286,66 +347,93 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary" /></div>
             ) : (
                 <>
-                    <div className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
-                        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl animate-in slide-in-from-top-2 duration-500 cursor-pointer hover:bg-white/10 transition-all" onClick={() => dateInputRef.current?.showPicker()}>
-                            <label className="block text-xs font-black text-green-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-3 cursor-pointer"><Calendar className="w-8 h-8" /> Define la Fecha de Inicio del Lanzamiento</label>
-                            <input ref={dateInputRef} type="date" value={launchDate} onChange={handleLaunchDateChange} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white font-bold" style={{ colorScheme: 'dark' }} />
-                        </div>
-                    </div>
-
-                    <div id="psd-whatsapp-grid" className="grid lg:grid-cols-12 gap-8 relative">
-                        <div className="lg:col-span-4 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-2xl">
-                            <div className="flex items-center gap-3 mb-6 shrink-0"><div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50"><Calendar className="w-6 h-6" /></div><h3 className="text-xl font-bold text-white">Listado de Mensajes</h3></div>
-                            <div className="space-y-1 flex-1 pr-2 overflow-y-auto custom-scrollbar">
-                                {whatsappLaunch.map((script: any, idx: number) => (
-                                    <React.Fragment key={script.id}>
-                                        {renderPhaseHeader(idx)}
-                                        <div onClick={() => setActiveWaScript(idx)} className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${sentMessages.has(idx) ? 'bg-green-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800')}`}>
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${sentMessages.has(idx) ? 'bg-green-50 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
-                                                <div className="flex-1 min-w-0">
-                                                    <h4 className={`text-lg font-thin leading-relaxed whitespace-normal text-white`}>{script.name}</h4>
-                                                </div>
-                                            </div>
-                                            <div onClick={(e) => toggleSent(e, idx)} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${sentMessages.has(idx) ? 'border-green-500 bg-green-500' : 'border-gray-600'}`}>
-                                                {sentMessages.has(idx) ? (
-                                                    <Check className="w-4 h-4 text-black font-black" />
-                                                ) : (
-                                                    <Check className="w-4 h-4 text-gray-600" />
-                                                )}
-                                            </div>
-                                        </div>
-                                    </React.Fragment>
-                                ))}
+                    {!launchDate ? (
+                        <div className="max-w-2xl mx-auto py-20 animate-in zoom-in-95 duration-500">
+                            <div className="bg-[#111] border border-emerald-500/30 p-12 rounded-[3rem] text-center shadow-2xl">
+                                <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8 border border-emerald-500/20">
+                                    <Calendar className="w-10 h-10 text-emerald-500" />
+                                </div>
+                                <h3 className="text-3xl font-black text-white mb-4">Define la Fecha de Inicio del Lanzamiento</h3>
+                                <p className="text-gray-400 text-lg mb-10 leading-relaxed">Selecciona la fecha para desbloquear tu secuencia estratégica de 14 mensajes coordinados.</p>
+                                <input 
+                                    type="date" 
+                                    value={launchDate} 
+                                    onChange={handleLaunchDateChange} 
+                                    className="w-full bg-black border border-gray-700 rounded-2xl px-6 py-4 text-white font-bold text-xl outline-none focus:border-emerald-500 transition-all" 
+                                    style={{ colorScheme: 'dark' }} 
+                                />
                             </div>
                         </div>
-
-                        <div className="lg:col-span-8 bg-black/40 border border-gray-800 rounded-2xl p-6 flex flex-col relative h-full shadow-2xl">
-                            {activeItem && activeItem.isGenerated ? (
-                                <>
-                                    <div className="bg-green-900/10 border border-green-500/20 p-8 rounded-xl space-y-8 mb-6">
-                                        <h5 className="text-green-400 font-bold text-2xl uppercase tracking-wider">{activeItem.name}</h5>
-                                        <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4"><Info className="w-6 h-6 text-emerald-400 shrink-0" /><p className="text-gray-300 text-base leading-relaxed"><span className="font-bold text-emerald-200 block mb-1">Propósito Estratégico:</span>{activeItem.purpose}</p></div>
-                                    </div>
-                                    <ChatSimulator messages={processedMessages} senderName={user?.name} />
-                                    <div className="flex gap-4 mt-6"><button onClick={() => handleCopy(processedMessages[0]?.text || '')} className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-lg shadow-lg flex items-center justify-center gap-2"><Copy className="w-5 h-5" /> Copiar Mensaje</button><button onClick={() => navigate(`/dashboard/whatsapp-launch/editor/${launchId}`)} className="p-4 bg-white/5 border border-white/10 text-white rounded-xl"><PenTool className="w-6 h-6" /></button></div>
-                                </>
-                            ) : (
-                                <div className="space-y-12 animate-in fade-in duration-500 flex-1 flex flex-col">
-                                    <div className="flex items-center justify-between"><span className="bg-emerald-900/20 text-emerald-400 border border-emerald-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase shadow-lg">Pilar: {activeItem?.pilarType}</span><span className="text-white text-lg font-black uppercase tracking-widest italic">{activeItem?.momentText}</span></div>
-                                    <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden flex-1">
-                                        <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/50"></div>
-                                        <div className="flex items-center gap-4 mb-10"><div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400"><Lightbulb className="w-8 h-8" /></div><h4 className="text-2xl font-black text-white tracking-tight">{activeItem?.name}</h4></div>
-                                        <div className="space-y-10">
-                                            <div className="space-y-3"><div className="flex justify-between items-center"><label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2"><Settings2 className="w-5 h-5 text-emerald-500" /> Pilar Estratégico (Tipo)</label><button onClick={() => setIsTypeLocked(!isTypeLocked)} className="text-xs font-black text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">{isTypeLocked ? 'Desbloquear' : 'Bloquear'}</button></div><select disabled={isTypeLocked} value={activeItem?.pilarType} onChange={(e) => handleUpdateMessage(activeWaScript, 'pilarType', e.target.value)} className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none appearance-none ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50'}`}>{waTypes.map(t => (<option key={t} value={t}>{t}</option>))}</select></div>
-                                            <div className="space-y-3"><label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2"><Brain className="w-5 h-5 text-emerald-500" /> Propósito Estratégico</label><textarea rows={4} value={activeItem?.purpose} onChange={(e) => handleUpdateMessage(activeWaScript, 'purpose', e.target.value)} className="w-full bg-black/60 border border-white/10 rounded-[2.5rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none resize-none" /></div>
-                                        </div>
-                                    </div>
-                                    <div className="pb-6"><button onClick={() => setShowConfirmModal(true)} className="w-full py-6 rounded-[2cm] bg-emerald-600 text-white font-black text-lg uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-4"><Wand2 className="w-7 h-7 fill-current" /> Generar con IA</button></div>
+                    ) : (
+                        <>
+                            <div className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
+                                <div className="bg-white/5 border border-white/10 p-6 rounded-2xl animate-in slide-in-from-top-2 duration-500 cursor-pointer hover:bg-white/10 transition-all" onClick={() => dateInputRef.current?.showPicker()}>
+                                    <label className="block text-xs font-black text-green-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-3 cursor-pointer"><Calendar className="w-8 h-8" /> Fecha de Inicio del Lanzamiento</label>
+                                    <input ref={dateInputRef} type="date" value={launchDate} onChange={handleLaunchDateChange} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white font-bold" style={{ colorScheme: 'dark' }} />
                                 </div>
-                            )}
-                        </div>
-                    </div>
+                            </div>
+
+                            <div id="psd-whatsapp-grid" className="grid lg:grid-cols-12 gap-8 relative">
+                                <div className="lg:col-span-4 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-2xl">
+                                    <div className="flex items-center gap-3 mb-6 shrink-0"><div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50"><Calendar className="w-6 h-6" /></div><h3 className="text-xl font-bold text-white">Listado de Mensajes</h3></div>
+                                    <div className="space-y-1 flex-1 pr-2 overflow-y-auto custom-scrollbar">
+                                        {whatsappLaunch.map((script: any, idx: number) => (
+                                            <React.Fragment key={script.id}>
+                                                {renderPhaseHeader(idx)}
+                                                <div onClick={() => setActiveWaScript(idx)} className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${sentMessages.has(idx) ? 'bg-green-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800')}`}>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${sentMessages.has(idx) ? 'bg-green-50 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className={`text-[10px] font-black uppercase mb-1 ${activeWaScript === idx ? 'text-emerald-400' : 'text-gray-600'}`}>Mensaje {idx + 1}</p>
+                                                            <h4 className={`text-lg font-thin leading-relaxed whitespace-normal text-white`}>{script.name}</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div onClick={(e) => toggleSent(e, idx)} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${sentMessages.has(idx) ? 'border-green-500 bg-green-500' : 'border-gray-600'}`}>
+                                                        {sentMessages.has(idx) ? (
+                                                            <Check className="w-4 h-4 text-black font-black" />
+                                                        ) : (
+                                                            <Check className="w-4 h-4 text-gray-600" />
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="lg:col-span-8 bg-black/40 border border-gray-800 rounded-2xl p-6 flex flex-col relative h-full shadow-2xl">
+                                    {activeItem && activeItem.isGenerated ? (
+                                        <>
+                                            <div className="bg-green-900/10 border border-green-500/20 p-8 rounded-xl space-y-8 mb-6">
+                                                <h5 className="text-green-400 font-bold text-2xl uppercase tracking-wider">{activeItem.name}</h5>
+                                                <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4"><Info className="w-6 h-6 text-emerald-400 shrink-0" /><p className="text-gray-300 text-base leading-relaxed"><span className="font-bold text-emerald-200 block mb-1">Propósito Estratégico:</span>{activeItem.purpose}</p></div>
+                                            </div>
+                                            <ChatSimulator messages={processedMessages} senderName={user?.name} onSaveMessage={handleSaveChatMessage} />
+                                            <div className="flex gap-4 mt-6"><button onClick={() => handleCopy(processedMessages[0]?.text || '')} className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-lg shadow-lg flex items-center justify-center gap-2"><Copy className="w-5 h-5" /> Copiar Mensaje</button><button onClick={() => navigate(`/dashboard/whatsapp-launch/editor/${launchId}`)} className="p-4 bg-white/5 border border-white/10 text-white rounded-xl"><PenTool className="w-6 h-6" /></button></div>
+                                        </>
+                                    ) : (
+                                        <div className="space-y-12 animate-in fade-in duration-500 flex-1 flex flex-col">
+                                            <div className="flex items-center justify-between"><span className="bg-emerald-900/20 text-emerald-400 border border-emerald-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase shadow-lg">Pilar: {activeItem?.pilarType}</span><span className="text-white text-lg font-black uppercase tracking-widest italic">Mensaje {activeWaScript + 1}</span></div>
+                                            <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden flex-1">
+                                                <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/50"></div>
+                                                <div className="flex items-center gap-4 mb-10"><div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400"><Lightbulb className="w-8 h-8" /></div><h4 className="text-2xl font-black text-white tracking-tight">{activeItem?.name}</h4></div>
+                                                <div className="space-y-10">
+                                                    <div className="space-y-3"><div className="flex justify-between items-center"><label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2"><Settings2 className="w-5 h-5 text-emerald-500" /> Pilar Estratégico (Tipo)</label><button onClick={() => setIsTypeLocked(!isTypeLocked)} className="text-xs font-black text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">{isTypeLocked ? 'Desbloquear' : 'Bloquear'}</button></div><select disabled={isTypeLocked} value={activeItem?.pilarType} onChange={(e) => handleUpdateMessage(activeWaScript, 'pilarType', e.target.value)} className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none appearance-none ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50'}`}>{waTypes.map(t => (<option key={t} value={t}>{t}</option>))}</select></div>
+                                                    <div className="space-y-3">
+                                                        <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2"><Brain className="w-5 h-5 text-emerald-500" /> Propósito Estratégico</label>
+                                                        <textarea rows={4} value={activeItem?.purpose} onChange={(e) => handleUpdateMessage(activeWaScript, 'purpose', e.target.value)} className="w-full bg-black/60 border border-white/10 rounded-[2.5rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none resize-none" />
+                                                    </div>
+                                                    <div className="pt-4">
+                                                        <button onClick={() => setShowConfirmModal(true)} className="w-full py-6 rounded-[2cm] bg-emerald-600 text-white font-black text-lg uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-4"><Wand2 className="w-7 h-7 fill-current" /> Generar con IA</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </>
             )}
 
@@ -389,6 +477,11 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowFullScreen
                             ></iframe>
+                        </div>
+                        <div className="p-6 bg-gray-900">
+                            <p className="text-gray-300 text-sm leading-relaxed">
+                                Aprende cómo utilizar nuestra inteligencia artificial para redactar secuencias de mensajes que conviertan prospectos en clientes finales utilizando gatillos mentales probados.
+                            </p>
                         </div>
                     </div>
                 </div>

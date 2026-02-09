@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../../services/api';
 import { Project, User, WhatsAppLaunch, WhatsAppLaunchMessage } from '../../../types';
+import { generateWhatsAppMessage } from '../../../services/geminiservices/whatsappService';
 
 // Estructura estática de los 14 momentos para visualización persuasiva local
 const WHATSAPP_LAUNCH_MOMENTS = [
@@ -209,23 +210,18 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                 }
             }
 
-            await new Promise(r => setTimeout(r, 2500));
-            const msg = currentLaunch.messages[activeMsgIdx];
-            const pName = selectedProject?.productName || "nuestro programa";
-            
-            let content = `*${msg.name}* (Momento: ${msg.momentText})\n\n¡Hola! 🎉 Soy el encargado de tu formación. Solo paso para confirmarte que ya tenemos fecha oficial para nuestra clase maestra de *${pName}*. Será el próximo domingo. ¿Ya lo anotaste en tu calendario?`;
-            
-            if (msg.id === 'wl7') content = `🔴 *ESTAMOS EN VIVO*\n\nNo esperes más, entra ahora por este link exclusivo para el grupo: [LINK_CLASE]. ¡Te espero dentro! 🚀`;
-            else if (msg.id === 'wl8') content = `¡Increíble la clase de hoy! 🎉\n\nComo les prometí, las inscripciones para *${pName}* están abiertas con una *Beca del 75%* de descuento. Solo para las primeras personas que tomen acción ahora mismo.`;
+            // Llamada real al servicio de IA para generar el mensaje basado en Blueprints
+            const generatedText = await generateWhatsAppMessage(selectedProject.id, currentLaunch.messages[activeMsgIdx].id);
 
             const newMessages = [...currentLaunch.messages];
-            newMessages[activeMsgIdx].content = content;
+            newMessages[activeMsgIdx].content = generatedText;
             newMessages[activeMsgIdx].isGenerated = true;
             
             setActiveLaunch({ ...currentLaunch, messages: newMessages });
             await api.updateWhatsAppLaunch(currentLaunch.id, { messages: newMessages });
         } catch (e) {
-            alert("Error de generación con IA");
+            console.error(e);
+            alert("Error de generación con IA: " + (e as Error).message);
         } finally {
             setGenerating(false);
         }
