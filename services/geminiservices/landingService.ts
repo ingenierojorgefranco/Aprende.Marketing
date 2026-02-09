@@ -159,7 +159,24 @@ export const generateLandingPageContent = async (
   6. FAQ: 4 preguntas que maten objeciones.
   7. Instructor: Nombre y biografía.
   8. Footer: Copyright y contacto.
-  9. Thank You Page: Genera una configuración completa de página de gracias persuasiva que guíe al usuario hacia el siguiente paso (WhatsApp) y le entregue su regalo prometido (Lead Magnet).
+  9. BLUEPRINT DE PÁGINA DE GRACIAS (Usa estos valores como base y adáptalos sutilmente al nicho):
+     - headline: "PERFECTO, YA TIENES EL ACCESO A LA CLASE DE ... (Añade aquí la Clase)"
+     - subheadline: "Sigue estos 2 pasos sencillos para asegurar tu cupo y recibir tu material de preparación gratuito."
+     - progressBarText: "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR."
+     - greenBadgeText: "RECIBE TU REGALO 100% GRATIS"
+     - step1Title: "Revisa tu Correo Electrónico"
+     - step1Desc: "Hemos enviado el enlace de acceso y tus bonos a tu correo electrónico."
+     - step1Warning: "Importante: Si no ves el mensaje, verifica tu bandeja de SPAM o Promociones en tu correo."
+     - step2Title: "Paso 2: Únete a nuestro Grupo VIP + Regalo"
+     - step2Desc: "Únete al grupo de WhatsApp para recibir la mentoría y tu regalo de bienvenida.."
+     - step2Badge: "¡ACCIÓN REQUERIDA!"
+     - offerHeadline: "UNETE A NUESTRO GRUPO Y DESCARGA EL LIBRO GRATUITO"
+     - offerDescription: "Este recurso exclusivo te ayudará a acelerar tus resultados."
+     - bookTitle: "Descarga: "5 Errores Comunes que Arruinan el Microblading" (Este es un ejemplo da un titulo de libro que este relacionado con el dolor de la persona)
+     - bookSubtitle: "MÉTODO PRO"
+     - bookFooter: "RECURSO EXCLUSIVO"
+     - ctaButtonText: "UNIRME AL GRUPO Y DESCARGAR"
+     - learningTitle: "Lo que vas a lograr"
   
   Responde ÚNICAMENTE con el objeto JSON válido.`;
 
