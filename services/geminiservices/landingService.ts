@@ -165,18 +165,26 @@ export const generateLandingPageContent = async (
      - progressBarText: "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR."
      - greenBadgeText: "RECIBE TU REGALO 100% GRATIS"
      - step1Title: "Revisa tu Correo Electrónico"
-     - step1Desc: "Hemos enviado el enlace de acceso y tus bonos a tu correo electrónico."
-     - step1Warning: "Importante: Si no ves el mensaje, verifica tu bandeja de SPAM o Promociones en tu correo."
-     - step2Title: "Paso 2: Únete a nuestro Grupo VIP + Regalo"
+     - step1Desc: "Hemos enviado el enlace de acceso a la clase y tu regalo a tu correo electrónico."
+     - step1Warning: "Importante: Si no ves el mensaje en tu correo, verifica tu bandeja de SPAM o Promociones."
+     - step2Title: "Únete a nuestro Grupo VIP + Regalo"
      - step2Desc: "Únete al grupo de WhatsApp para recibir la mentoría y tu regalo de bienvenida.."
      - step2Badge: "¡ACCIÓN REQUERIDA!"
-     - offerHeadline: "UNETE A NUESTRO GRUPO Y DESCARGA EL LIBRO GRATUITO"
-     - offerDescription: "Este recurso exclusivo te ayudará a acelerar tus resultados."
-     - bookTitle: "Descarga: "5 Errores Comunes que Arruinan el Microblading" (Este es un ejemplo da un titulo de libro que este relacionado con el dolor de la persona)
-     - bookSubtitle: "MÉTODO PRO"
-     - bookFooter: "RECURSO EXCLUSIVO"
+     - step2BonusTitle: "Libro Digital GRATIS" 
+     - step2BonusValue: "Precio Regular: $27 USD"  
+     - offerTopTitle: "UNETE A NUESTRO GRUPO Y DESCARGA EL LIBRO GRATUITO" 
+     - offerHeadline: "Descarga: y luego añade aqui el libro digital relacionado con el producto digital en la clase"
+     - offerDescription: "Esta guía nace de la experiencia de profesionales del sector. Te compartimos los fallos más frecuentes y cómo prevenirlos paso a paso para resultados perfectos."
+     - bookTitle: "Titulo del Libro"
+     - bookSubtitle: "Lo que Siempre Quisiste Saber!!!"
+     - bookFooter: "¡OFERTA FLASH!"
+     - offerPriceRegular: "Precio Regular: $27 USD"
+     - offerPriceFree: "HOY: $0.00 GRATIS"
      - ctaButtonText: "UNIRME AL GRUPO Y DESCARGAR"
-     - learningTitle: "Lo que vas a lograr"
+     - learningTitle: "Lo que aprenderás con esta Guía"
+     - learningItems: Genera EXACTAMENTE 6 puntos clave de aprendizaje sobre el libro digital.
+     - socialItems: Genera EXACTAMENTE 4 testimonios realistas de personas que ya leyeron la guía/libro.
+     - faqItems: Genera EXACTAMENTE 5 preguntas frecuentes con sus respuestas. Cada respuesta debe ser de un párrafo (no corto) y estar relacionada específicamente con el libro digital (formato, acceso, contenido, etc).
   
   Responde ÚNICAMENTE con el objeto JSON válido.`;
 
