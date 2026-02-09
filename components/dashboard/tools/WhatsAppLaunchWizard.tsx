@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, useParams, useOutletContext } from 'react-router-dom';
 import { 
@@ -211,10 +210,11 @@ export const WhatsAppLaunchWizard: React.FC = () => {
             }
 
             // Llamada real al servicio de IA para generar el mensaje basado en Blueprints
-            const generatedText = await generateWhatsAppMessage(selectedProject.id, currentLaunch.messages[activeMsgIdx].id);
+            const { message: generatedText, strategicPurpose } = await generateWhatsAppMessage(selectedProject.id, currentLaunch.messages[activeMsgIdx].id);
 
             const newMessages = [...currentLaunch.messages];
             newMessages[activeMsgIdx].content = generatedText;
+            newMessages[activeMsgIdx].purpose = strategicPurpose;
             newMessages[activeMsgIdx].isGenerated = true;
             
             setActiveLaunch({ ...currentLaunch, messages: newMessages });

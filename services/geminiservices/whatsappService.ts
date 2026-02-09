@@ -1,11 +1,10 @@
-
 import { api } from "../api";
 
 /**
  * Invoca al backend para generar un mensaje de WhatsApp basado en un momento específico
  * y el contexto del proyecto (Blueprints estratégicos).
  */
-export const generateWhatsAppMessage = async (projectId: string, momentId: string): Promise<string> => {
+export const generateWhatsAppMessage = async (projectId: string, momentId: string): Promise<{ message: string; strategicPurpose: string }> => {
     const baseUrl = api.getBaseUrl();
     const token = localStorage.getItem('plataformadeventacom_token');
     
@@ -22,5 +21,8 @@ export const generateWhatsAppMessage = async (projectId: string, momentId: strin
     if (!response.ok) {
         throw new Error(data.error || "Error al generar mensaje con IA");
     }
-    return data.text;
+    return {
+        message: data.message,
+        strategicPurpose: data.strategicPurpose
+    };
 };

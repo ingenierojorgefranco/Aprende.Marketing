@@ -47,8 +47,29 @@ router.post('/launches/generate-message', authMiddleware, async (req, res) => {
         if (projRows.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
         
         const project = projRows[0];
+
+        // 2. Obtener fecha de lanzamiento para anclaje dinámico solicitado
+        const [launchRows] = await pool.query(
+            "SELECT launch_date FROM whatsapp_lanzamientos WHERE project_id = ? AND user_id = ?",
+            [projectId, req.user.id]
+        );
+
+        let dateInstruction = "";
+        if (launchRows.length > 0 && launchRows[0].launch_date) {
+            const baseDate = new Date(launchRows[0].launch_date + 'T12:00:00');
+            const formattedDate = new Intl.DateTimeFormat('es-ES', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+            }).format(baseDate);
+            
+            // Capitalización del formato largo para coincidir con la estética solicitada
+            const finalDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+            dateInstruction = `La fecha confirmada para el evento (Día 0) es el ${finalDate}. Debes incluirla obligatoriamente en el texto del mensaje con ese mismo formato cuando hables del día de la clase.`;
+        }
         
-        // 2. Definir Blueprints basados en el momento
+        // 3. Definir Blueprints basados en el momento
         let specificInstruction = "";
         if (momentId === 'wl1') {
             specificInstruction = `
@@ -57,9 +78,9 @@ router.post('/launches/generate-message', authMiddleware, async (req, res) => {
             Estructura obligatoria:
             - Saludo entusiasta (corto y directo).
             - Validar que están en el lugar correcto ("Si estás aquí es porque buscas una transformación real").
-            - Anclaje de fecha y hora clara.
+            - Anclaje de fecha y hora clara. ${dateInstruction}
             - Posicionar el producto "${project.product_name}" como el vehículo a la independencia financiera.
-            - Dinámica de bienvenida: Pedir obligatoriamente una reacción con emoji 🔥 si han guardado la fecha y están comprometidas.
+            - Pedir obligatoriamente una reacción con emoji 🔥 si han guardado la fecha y están comprometidas.
             `;
         } else if (momentId === 'wl2') {
             specificInstruction = `
@@ -74,7 +95,7 @@ router.post('/launches/generate-message', authMiddleware, async (req, res) => {
             `;
         } else {
             const momentData = DEFAULT_LAUNCH_MESSAGES.find(m => m.id === momentId);
-            specificInstruction = `Genera un mensaje persuasivo para WhatsApp para el momento "${momentData?.name || momentId}" del lanzamiento de "${project.product_name}". Propósito: ${momentData?.purpose || ''}`;
+            specificInstruction = `Genera un mensaje persuasivo para WhatsApp para el momento "${momentData?.name || momentId}" del lanzamiento de "${project.product_name}". Propósito: ${momentData?.purpose || ''}. ${dateInstruction}`;
         }
 
         const prompt = `
@@ -93,13 +114,18 @@ router.post('/launches/generate-message', authMiddleware, async (req, res) => {
         - Usa negritas de WhatsApp pero solo en momentos claves (*texto*) para resaltar fechas, horas, nombres y llamados a la acción.
         - NO incluyas enlaces externos.
         - El lenguaje debe ser cercano, profesional y altamente persuasivo sin ser extenso.
-        - No incluyas etiquetas de sistema como [FECHA] si no tienes el dato, sin embargo si lo tienes [FECHA]  incluye la fecha con su nombre de dia, mes y año usa espacios en blanco o indicadores claros como [Día de la semana].
+        - No incluyas etiquetas de sistema como [FECHA] si no tienes el dato, sin embargo si lo tienes [FECHA] incluye la fecha con su nombre de dia, mes y año usando espacios en blanco o indicadores claros como [Día de la semana].
 
-        Responde ÚNICAMENTE con el texto del mensaje redactado para ser copiado y pegado en WhatsApp.
+        Responde EXCLUSIVAMENTE en formato JSON con la siguiente estructura:
+        {
+            "message": "Texto completo del mensaje para WhatsApp",
+            "strategicPurpose": "Análisis estratégico detallado con máximo 4 bullet points explicando por qué este contenido es persuasivo"
+        }
         `;
 
-        const text = await generateContent('gemini-3-flash-preview', prompt);
-        res.json({ text });
+        const responseText = await generateContent('gemini-3-flash-preview', prompt, { responseMimeType: "application/json" });
+        const result = JSON.parse(responseText);
+        res.json(result);
     } catch (e) {
         res.status(500).json({ error: e.message });
     }

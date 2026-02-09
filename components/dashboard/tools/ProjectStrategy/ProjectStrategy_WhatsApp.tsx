@@ -337,12 +337,13 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 setLaunchId(res.id);
             }
 
-            const generatedText = await generateWhatsAppMessage(projectId, activeItem.id);
+            const { message: generatedText, strategicPurpose } = await generateWhatsAppMessage(projectId, activeItem.id);
 
             const updatedMessages = [...whatsappLaunch];
             updatedMessages[activeWaScript] = {
                 ...updatedMessages[activeWaScript],
                 content: generatedText,
+                purpose: strategicPurpose,
                 messages: [{ role: 'agent', text: generatedText }],
                 isGenerated: true
             };
@@ -442,7 +443,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                         />
                         <div className="absolute inset-0 flex items-center justify-center">
                             <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                                <PlayCircle className="w-10 h-10 text-blue-400" />
+                                <PlayCircle className="w-10 h-10 text-emerald-400" />
                             </div>
                         </div>
                     </div>
@@ -486,9 +487,9 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         {whatsappLaunch.map((script: any, idx: number) => (
                                             <React.Fragment key={script.id}>
                                                 {renderPhaseHeader(idx)}
-                                                <div onClick={() => setActiveWaScript(idx)} className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${sentMessages.has(idx) ? 'bg-green-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800')}`}>
+                                                <div onClick={() => setActiveWaScript(idx)} className={`relative pl-6 pr-6 py-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer ${script.isGenerated || sentMessages.has(idx) ? 'bg-emerald-900/10 border-emerald-500/30' : (activeWaScript === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-gray-800 hover:bg-gray-800')}`}>
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${sentMessages.has(idx) ? 'bg-green-50 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
+                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${script.isGenerated || sentMessages.has(idx) ? 'bg-green-50 text-black' : (activeWaScript === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400')}`}>{idx + 1}</div>
                                                         <div className="flex-1 min-w-0">
                                                             <p className={`text-[10px] font-black uppercase mb-1 ${activeWaScript === idx ? 'text-emerald-400' : 'text-gray-600'}`}>Mensaje {idx + 1}</p>
                                                             <h4 className={`text-lg font-thin leading-relaxed whitespace-normal text-white`}>{script.name}</h4>
@@ -512,7 +513,15 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         <>
                                             <div className="bg-green-900/10 border border-green-500/20 p-8 rounded-xl space-y-8 mb-6">
                                                 <h5 className="text-green-400 font-bold text-2xl uppercase tracking-wider">{activeItem.name}</h5>
-                                                <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4"><Info className="w-6 h-6 text-emerald-400 shrink-0" /><p className="text-gray-300 text-base leading-relaxed"><span className="font-bold text-emerald-200 block mb-1">Propósito Estratégico:</span>{activeItem.purpose}</p></div>
+                                                <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4">
+                                                    <Info className="w-6 h-6 text-emerald-400 shrink-0" />
+                                                    <div className="text-gray-300 text-base leading-relaxed">
+                                                        <span className="font-bold text-emerald-200 block mb-1">Propósito Estratégico:</span>
+                                                        <div className="prose prose-invert prose-p:text-gray-300 max-w-none">
+                                                            {activeItem.purpose}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <ChatSimulator messages={processedMessages} senderName={user?.name} onSaveMessage={handleSaveChatMessage} />
                                             <div className="flex gap-4 mt-6"><button onClick={() => handleCopy(processedMessages[0]?.text || '')} className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-lg shadow-lg flex items-center justify-center gap-2"><Copy className="w-5 h-5" /> Copiar Mensaje</button></div>
