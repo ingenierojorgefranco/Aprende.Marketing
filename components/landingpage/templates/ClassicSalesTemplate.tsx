@@ -1,14 +1,13 @@
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { PlayCircle } from 'lucide-react';
-import { Navbar, HeroMedia } from '../ui/LiveComponents';
+import { Navbar, HeroMedia, Footer } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { IntroModule } from './modules/IntroModule';
 import { InstructorModule } from './modules/InstructorModule';
 import { FaqModule } from './modules/FaqModule';
 import { PainPointsModule } from './modules/PainPointsModule';
-import { FooterModule } from './modules/FooterModule';
 import { StepsModule } from './modules/StepsModule';
 import { FinalCtaModule } from './modules/FinalCtaModule';
 import { CtaBlockModule } from './modules/CtaBlockModule';
@@ -104,7 +103,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
         <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
         <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
         <FaqModule content={content} ds={ds} />
-        <FooterModule content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
+        <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
     </div>
   );
 };

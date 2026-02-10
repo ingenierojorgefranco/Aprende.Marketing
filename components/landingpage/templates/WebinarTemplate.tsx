@@ -1,14 +1,13 @@
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { User, Target } from 'lucide-react';
-import { Navbar } from '../ui/LiveComponents';
+import { Navbar, Footer } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { IntroModule } from './modules/IntroModule';
 import { InstructorModule } from './modules/InstructorModule';
 import { FaqModule } from './modules/FaqModule';
 import { PainPointsModule } from './modules/PainPointsModule';
-import { FooterModule } from './modules/FooterModule';
 import { StepsModule } from './modules/StepsModule';
 import { FinalCtaModule } from './modules/FinalCtaModule';
 import { CtaBlockModule } from './modules/CtaBlockModule';
@@ -99,7 +98,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
         />
          <FaqModule content={content} ds={ds} />
          <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
-         <FooterModule content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
+         <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
     </div>
   );
 };
