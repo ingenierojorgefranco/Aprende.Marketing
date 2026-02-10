@@ -389,54 +389,54 @@ export const ProjectsList: React.FC = () => {
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative"
+                        className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative max-h-[90vh]"
                     >
                         {/* Línea de acento dorada superior */}
                         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-yellow-600 via-amber-400 to-yellow-600 shadow-[0_0_15px_rgba(234,179,8,0.5)]"></div>
                         
-                        <div className="p-8 md:p-12 space-y-8 flex-1 overflow-y-auto custom-scrollbar">
+                        <div className="p-6 md:p-8 space-y-8 flex-1 overflow-y-auto custom-scrollbar">
                             <div className="flex flex-col items-center text-center space-y-6">
-                                <div className="w-24 h-24 bg-yellow-500/10 text-yellow-500 rounded-[2.5rem] flex items-center justify-center mx-auto border border-yellow-500/20 shadow-lg shadow-yellow-900/10 animate-pulse">
-                                    <CornerCrown className="w-12 h-12" />
+                                <div className="w-20 h-20 bg-yellow-500/10 text-yellow-500 rounded-[2rem] flex items-center justify-center mx-auto border border-yellow-500/20 shadow-lg shadow-yellow-900/10 animate-pulse">
+                                    <CornerCrown className="w-10 h-10" />
                                 </div>
                                 <div className="space-y-3">
-                                    <h3 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter italic leading-none">Hemos creado todo el ecosistema por ti.</h3>
+                                    <h3 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter italic leading-none">Hemos creado todo el ecosistema por ti.</h3>
                                     <p className="text-yellow-500 font-black uppercase tracking-[0.3em] text-xs">Protocolo de Desbloqueo Maestro Activo</p>
                                 </div>
-                                <p className="text-gray-400 text-xl leading-relaxed font-medium max-w-2xl">
+                                <p className="text-gray-400 text-lg leading-relaxed font-medium max-w-2xl">
                                     Estás a punto de adquirir el ADN estratégico completo para <span className="text-white font-bold">"{selectedMasterProject.name}"</span>. 
                                     Este activo digital incluye avatares, guiones de venta, copys para email y estructura web de alta conversión.
                                 </p>
                             </div>
 
                             {/* Video Informativo Placeholder */}
-                            <div className="aspect-video w-full bg-black rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl relative group cursor-pointer">
+                            <div className="aspect-video max-w-lg mx-auto w-full bg-black rounded-[2rem] overflow-hidden border border-white/5 shadow-2xl relative group cursor-pointer">
                                 <div className="absolute inset-0 flex items-center justify-center bg-white/5 opacity-50 group-hover:opacity-100 transition-opacity">
-                                    <PlayCircle className="w-20 h-20 text-yellow-500 drop-shadow-[0_0_20px_rgba(234,179,8,0.4)]" />
+                                    <PlayCircle className="w-16 h-16 text-yellow-500 drop-shadow-[0_0_20px_rgba(234,179,8,0.4)]" />
                                 </div>
-                                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 font-black uppercase text-[10px] tracking-widest">Vista previa estratégica del proyecto</div>
+                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/40 font-black uppercase text-[8px] tracking-widest">Vista previa estratégica del proyecto</div>
                             </div>
 
                             {/* MAQUINARIA DE VENTAS VISUAL */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 py-2">
                                 {[
                                     { label: 'Copywriting', icon: PenTool, color: 'text-orange-400' },
                                     { label: 'Diseño Web', icon: Layout, color: 'text-blue-400' },
                                     { label: 'Estrategia IA', icon: Sparkles, color: 'text-purple-400' },
                                     { label: 'Automatización', icon: Rocket, color: 'text-emerald-400' }
                                 ].map((item, i) => (
-                                    <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-3xl flex flex-col items-center text-center gap-3 hover:bg-white/10 transition-colors">
-                                        <item.icon className={`w-7 h-7 ${item.color}`} />
-                                        <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">{item.label}</span>
+                                    <div key={i} className="bg-white/5 border border-white/10 p-4 rounded-2xl flex flex-col items-center text-center gap-2 hover:bg-white/10 transition-colors">
+                                        <item.icon className={`w-5 h-5 ${item.color}`} />
+                                        <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{item.label}</span>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Barra de Consumo de Cupos Estilo Premium */}
-                            <div className="bg-black border border-white/5 p-8 rounded-[2.5rem] shadow-inner relative overflow-hidden">
+                            <div className="bg-black border border-white/5 p-6 rounded-[2rem] shadow-inner relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/50"></div>
                                 <div className="flex justify-between items-center mb-4">
-                                    <span className="text-gray-500 text-[11px] font-black uppercase tracking-[0.2em]">Cupos de Proyecto en tu Plan <span className="text-white">({user.planLimits?.planName})</span></span>
+                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Cupos de Proyecto en tu Plan <span className="text-white">({user.planLimits?.planName})</span></span>
                                     <span className="text-white font-mono font-bold text-sm">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
                                 </div>
                                 <div className="w-full bg-gray-900 h-3 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
@@ -455,24 +455,24 @@ export const ProjectsList: React.FC = () => {
                         </div>
 
                         {/* Acciones del Protocolo */}
-                        <div className="p-8 md:p-10 bg-black/60 border-t border-white/5 flex flex-col sm:flex-row gap-4 shrink-0">
+                        <div className="p-6 md:p-8 bg-black/60 border-t border-white/5 flex flex-col sm:flex-row gap-4 shrink-0">
                             <button 
                                 onClick={() => setShowUnlockProtocol(false)}
-                                className="flex-1 py-6 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all border border-white/5"
+                                className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all border border-white/5"
                             >
                                 No, cancelar
                             </button>
                             {isAtLimit ? (
                                 <button 
                                     onClick={() => { setShowUnlockProtocol(false); setShowUpgradeModal(true); }}
-                                    className="flex-1 py-6 rounded-2xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-orange-900/40 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                                    className="flex-1 py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-orange-900/40 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                                 >
                                     Actualizar Plan Pro <ArrowRight className="w-5 h-5" />
                                 </button>
                             ) : (
                                 <button 
                                     onClick={handleConfirmUnlock}
-                                    className="flex-1 py-6 rounded-2xl bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-yellow-900/40 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                                    className="flex-1 py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-yellow-900/40 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                                 >
                                     <Unlock className="w-5 h-5" /> DESBLOQUEAR PROYECTO
                                 </button>

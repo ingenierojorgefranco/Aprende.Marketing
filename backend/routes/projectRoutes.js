@@ -35,7 +35,7 @@ const checkMonthlyQuota = async (userId, resourceType, limit) => {
         WHERE user_id = ? 
           AND resource_type = ? 
           AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(CURRENT_DATE()) = YEAR(created_at)
+          AND YEAR(created_at) = YEAR(created_at)
     `, [userId, resourceType]);
 
     const used = rows[0].count;
@@ -63,15 +63,20 @@ router.use(authMiddleware);
 
 router.get('/master-library', async (req, res) => {
     try {
-        const [rows] = await pool.query(
-            `SELECT p.*, 
+        let query = `SELECT p.*, 
              EXISTS(SELECT 1 FROM unlocked_projects up WHERE up.project_id = p.id AND up.user_id = ?) as is_unlocked
              FROM projects p 
-             WHERE p.is_master = 1 
-             AND p.user_id != ? 
-             ORDER BY p.created_at DESC`,
-            [req.user.id, req.user.id]
-        );
+             WHERE p.is_master = 1`;
+        let params = [req.user.id];
+
+        if (req.user.role !== 'admin') {
+            query += ` AND p.user_id != ?`;
+            params.push(req.user.id);
+        }
+
+        query += ` ORDER BY p.created_at DESC`;
+
+        const [rows] = await pool.query(query, params);
         const projects = rows.map(p => ({
             ...p,
             pain_points: safeParseJson(p.pain_points),
