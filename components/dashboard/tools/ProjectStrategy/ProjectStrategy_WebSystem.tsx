@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download } from 'lucide-react';
+import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LandingPage, PlanLimits, Plan } from '../../../../types';
 import { Generator } from '../Generator';
@@ -39,6 +39,9 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [domainCount, setDomainCount] = useState(0);
     const [strategy, setStrategy] = useState<ProjectMasterStrategy | null>(null);
+    
+    // Estado para el control de acordeón en el modal de dominios
+    const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
 
     useEffect(() => {
         if (!selectedLpTab) {
@@ -208,7 +211,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
                         >
                             <img 
-                            src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                            src="https://img.youtube.com/vi/A_dcakdMBow/maxresdefault.jpg" 
                             alt="Video Thumbnail"
                             className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
                             />
@@ -290,13 +293,20 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <div className="w-full max-w-lg space-y-4">
                                     {/* Fila 1 - Visualización */}
                                     <div className="flex flex-col sm:flex-row gap-4">
-                                        <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Captura</a>
-                                        <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-emerald-600 text-white font-black py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Gracias</a>
+                                        <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Captura</a>
+                                        <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-emerald-600 text-white font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Gracias</a>
                                     </div>
                                     {/* Fila 2 - Gestión */}
                                     <div className="flex flex-col sm:flex-row gap-4">
-                                        <button onClick={() => onEditPage(linkedPages[0].id)} className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-2"><PenTool className="w-5 h-5" /> Editar Página de Captura</button>
-                                        <button onClick={() => setShowDomainModal(true)} className="flex-1 bg-blue-600 text-white font-black py-4 px-6 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-2"><Globe className="w-5 h-5" /> Asignar Dominio</button>
+                                        <a 
+                                            href={window.location.hash.startsWith('#/') ? `#/dashboard/editor/${linkedPages[0].id}` : `/dashboard/editor/${linkedPages[0].id}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-10 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-2"
+                                        >
+                                            <PenTool className="w-5 h-5" /> Editar Página de Captura
+                                        </a>
+                                        <button onClick={() => setShowDomainModal(true)} className="flex-1 bg-blue-600 text-white font-black py-4 px-10 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-2"><Globe className="w-5 h-5" /> Asignar Dominio</button>
                                     </div>
                                 </div>
                             </div>
@@ -379,36 +389,192 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             {showDomainModal && (
                 <div 
                     onClick={() => setShowDomainModal(false)}
-                    className="fixed inset-0 z-250 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+                    className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl p-6 relative animate-in zoom-in-95"
+                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl p-8 relative animate-in zoom-in-95 flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar"
                     >
                         <button onClick={() => setShowDomainModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-white p-1 rounded-full hover:bg-gray-800 transition">
                             <X className="w-5 h-5" />
                         </button>
-                        <div className="text-center mb-6">
-                            <div className="w-16 h-16 bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20 shadow-lg shadow-blue-500/10">
-                                <Globe className="w-8 h-8 text-blue-500" />
+                        
+                        <div className="text-center mb-8">
+                            <div className="w-20 h-20 bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/20 shadow-lg shadow-blue-500/10">
+                                <Globe className="w-10 h-10 text-blue-500" />
                             </div>
-                            <h2 className="text-2xl font-bold text-white mb-2">Dominios Personalizados</h2>
-                            <p className="text-gray-400 text-sm leading-relaxed">Personaliza tu enlace como www.tuempresa.com. Esto aumenta la confianza y tus ventas.</p>
+                            <h2 className="text-3xl font-bold text-white mb-3">Asigna tu Dominio Personalizado</h2>
+                            <p className="text-gray-400 text-lg leading-relaxed max-w-xl mx-auto">
+                                Conecta tu propio dominio (.com, .net, etc.) para profesionalizar tu marca, aumentar la confianza de tus clientes y disparar tus conversiones.
+                            </p>
                         </div>
-                        <div className="space-y-6">
-                            <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
-                                <div className="flex items-start gap-3 mb-2"><CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5" /><p className="text-sm text-gray-300">Certificado SSL Seguro Incluido</p></div>
-                                <div className="flex items-start gap-3"><CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5" /><p className="text-sm text-gray-300">Servidores de Alta Velocidad</p></div>
+
+                        {/* Video Tutorial Integrado */}
+                        <div className="mb-8 bg-black/40 border border-white/5 rounded-3xl p-6">
+                            <p className="text-white font-bold mb-4 flex items-center justify-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-primary" /> Mira el video completo para configurar tu dominio
+                            </p>
+                            <div className="aspect-video w-full bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                                <iframe 
+                                    className="w-full h-full"
+                                    src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                                    title="Tutorial Configuración de Dominio" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowFullScreen
+                                ></iframe>
                             </div>
-                            <div className="text-center"><p className="text-xs text-blue-300 font-bold bg-blue-900/20 py-1.5 px-3 rounded-full inline-block border border-blue-500/20">ℹ️ En tu plan actual puedes añadir {maxDomains} dominios</p></div>
-                            {(domainCount >= maxDomains && !isRealAdmin) ? (
-                                <div className="space-y-3">
-                                    <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-xl flex items-center gap-3"><AlertTriangle className="w-6 h-6 text-red-500 shrink-0" /><p className="text-sm text-red-200">Límite de dominios alcanzado.</p></div>
-                                    <button onClick={() => { setShowDomainModal(false); onUpgrade && onUpgrade(); }} className="w-full py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-bold border border-yellow-400/20">Actualizar Plan</button>
-                                </div>
-                            ) : (
-                                <a href={`https://wa.me/573000000000?text=Hola, quiero configurar un dominio personalizado para mi proyecto ID: ${projectId}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold shadow-lg flex items-center justify-center gap-2 transition-transform hover:scale-[1.02]"><MessageCircle className="w-5 h-5" /> Quiero configurar mi dominio</a>
-                            )}
+                        </div>
+
+                        {/* Sistema de Acordeón */}
+                        <div className="space-y-4 mb-8">
+                            {/* Nivel 1: Comprar Dominio */}
+                            <div className="border border-gray-800 rounded-2xl overflow-hidden">
+                                <button 
+                                    onClick={() => setActiveAccordion(activeAccordion === 1 ? null : 1)}
+                                    className="w-full flex items-center justify-between p-5 bg-gray-800 hover:bg-gray-750 transition text-left"
+                                >
+                                    <span className="font-bold text-white flex items-center gap-3">
+                                        <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-xs font-black">1</div>
+                                        Comprar Dominio
+                                    </span>
+                                    {activeAccordion === 1 ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                                </button>
+                                {activeAccordion === 1 && (
+                                    <div className="p-6 bg-black/30 border-t border-gray-800 animate-in slide-in-from-top-2 text-center">
+                                        <p className="text-gray-300 text-lg leading-relaxed mb-6">
+                                            Si aún no tienes un dominio, te recomendamos comprarlo en <a href="https://name.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-bold">Name.com</a>. Es una de las plataformas más estables y fáciles de configurar con nuestro sistema.
+                                        </p>
+                                        <a 
+                                            href="https://www.name.com" 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-3 px-10 py-4 bg-primary hover:bg-indigo-600 text-white font-black rounded-2xl transition-all shadow-lg shadow-primary/20 transform hover:scale-105 active:scale-95 mb-4"
+                                        >
+                                            Comprar en Name.com <ExternalLink className="w-5 h-5" />
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Nivel 2: Registros DNS */}
+                            <div className="border border-gray-800 rounded-2xl overflow-hidden">
+                                <button 
+                                    onClick={() => setActiveAccordion(activeAccordion === 2 ? null : 2)}
+                                    className="w-full flex items-center justify-between p-5 bg-gray-800 hover:bg-gray-750 transition text-left"
+                                >
+                                    <span className="font-bold text-white flex items-center gap-3">
+                                        <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-xs font-black">2</div>
+                                        Configurar Registros DNS
+                                    </span>
+                                    {activeAccordion === 2 ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                                </button>
+                                {activeAccordion === 2 && (
+                                    <div className="p-6 bg-black/30 border-t border-gray-800 animate-in slide-in-from-top-2">
+                                        <p className="text-gray-300 text-lg mb-8 font-bold">Accede al panel de tu proveedor de dominio (Name.com, GoDaddy, etc.) y añade estos registros exactamente:</p>
+                                        
+                                        <div className="overflow-hidden border border-gray-800 rounded-xl shadow-lg">
+                                            <table className="w-full text-base text-left">
+                                                <thead className="bg-gray-800 text-gray-300 font-black uppercase tracking-widest">
+                                                    <tr>
+                                                        <th className="p-4">Tipo</th>
+                                                        <th className="p-4">Nombre / Host</th>
+                                                        <th className="p-4">Valor / Destino</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-800 text-gray-400 font-mono">
+                                                    <tr className="bg-black/40">
+                                                        <td className="p-4 font-bold text-blue-400">A</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">151.101.1.195</td>
+                                                    </tr>
+                                                    <tr className="bg-black/20">
+                                                        <td className="p-4 font-bold text-blue-400">A</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">151.101.65.195</td>
+                                                    </tr>
+                                                    <tr className="bg-black/40">
+                                                        <td className="p-4 font-bold text-blue-400">A</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">151.101.129.195</td>
+                                                    </tr>
+                                                    <tr className="bg-black/20">
+                                                        <td className="p-4 font-bold text-blue-400">A</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">151.101.193.195</td>
+                                                    </tr>
+                                                    <tr className="bg-black/40">
+                                                        <td className="p-4 font-bold text-purple-400">AAAA</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">2a04:4e42::403</td>
+                                                    </tr>
+                                                    <tr className="bg-black/20">
+                                                        <td className="p-4 font-bold text-purple-400">AAAA</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">2a04:4e42:200::403</td>
+                                                    </tr>
+                                                    <tr className="bg-black/40">
+                                                        <td className="p-4 font-bold text-purple-400">AAAA</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">2a04:4e42:400::403</td>
+                                                    </tr>
+                                                    <tr className="bg-black/20">
+                                                        <td className="p-4 font-bold text-purple-400">AAAA</td>
+                                                        <td className="p-4">@</td>
+                                                        <td className="p-4">2a04:4e42:600::403</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Nivel 3: Finalizar */}
+                            <div className="border border-gray-800 rounded-2xl overflow-hidden">
+                                <button 
+                                    onClick={() => setActiveAccordion(activeAccordion === 3 ? null : 3)}
+                                    className="w-full flex items-center justify-between p-5 bg-gray-800 hover:bg-gray-750 transition text-left"
+                                >
+                                    <span className="font-bold text-white flex items-center gap-3">
+                                        <div className="w-7 h-7 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-xs font-black">3</div>
+                                        Finalizar Configuración
+                                    </span>
+                                    {activeAccordion === 3 ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                                </button>
+                                {activeAccordion === 3 && (
+                                    <div className="p-8 bg-black/30 border-t border-gray-800 animate-in slide-in-from-top-2 text-center">
+                                        <p className="text-gray-300 text-lg leading-relaxed mb-8">
+                                            Una vez realizados los cambios en tu proveedor, la propagación puede tardar entre 1 y 24 horas. Para finalizar, haz clic en el botón de abajo para que nuestro equipo técnico active tu certificado de seguridad SSL y finalice la vinculación.
+                                        </p>
+                                        <a 
+                                            href={`https://wa.me/573146270784?text=${encodeURIComponent("Hola, me gustaria configurar un nombre de dominio a mi pagina web en www.aprende.marketing")}`}
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            className="inline-flex items-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-emerald-900/30 transition-all transform hover:scale-105 active:scale-95 mb-4"
+                                        >
+                                            <MessageCircle className="w-6 h-6" /> Quiero configurar mi dominio
+                                        </a>
+                                        <p className="text-center text-[10px] text-gray-600 font-bold uppercase tracking-[0.3em] mt-4">
+                                            Activación técnica inmediata vía soporte
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Botón WhatsApp Final Fuera del Acordeón para Accesibilidad */}
+                        <div className="mt-auto">
+                            <a 
+                                href={`https://wa.me/573146270784?text=${encodeURIComponent("Hola, me gustaria configurar un nombre de dominio a mi pagina web en www.aprende.marketing")}`}
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="w-full py-5 rounded-[2rem] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-lg shadow-xl shadow-blue-900/30 flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02] active:scale-95 mb-4"
+                            >
+                                <MessageCircle className="w-6 h-6" /> Quiero configurar mi dominio
+                            </a>
+                            <p className="text-center text-[10px] text-gray-600 font-bold uppercase tracking-[0.3em]">
+                                Activación técnica inmediata vía soporte
+                            </p>
                         </div>
                     </div>
                 </div>

@@ -214,30 +214,34 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       setSelectedProject(projectId);
       const proj = userProjects.find(p => p.id === projectId);
       
-      if (proj && !preFilledData) {
-          let audienceInfo = proj.targetAudience || '';
+      if (proj) {
+          // Sync links immediately to prevent overwriting
+          setProjectLinks(proj.affiliateLinks || []);
           
-          if (proj.strategy_json) {
-              const s = proj.strategy_json;
-              if (s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0) {
-                  const main = s.avatars[0];
-                  audienceInfo = `${main.archetype}. Su principal dolor es: ${main.pain}. Su gran deseo: ${main.desire}`;
-              } 
-              else if (s.avatar && s.avatar.story) {
-                  audienceInfo = s.avatar.story;
+          if (!preFilledData) {
+              let audienceInfo = proj.targetAudience || '';
+              
+              if (proj.strategy_json) {
+                  const s = proj.strategy_json;
+                  if (s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0) {
+                      const main = s.avatars[0];
+                      audienceInfo = `${main.archetype}. Su principal dolor es: ${main.pain}. Su gran deseo: ${main.desire}`;
+                  } 
+                  else if (s.avatar && s.avatar.story) {
+                      audienceInfo = s.avatar.story;
+                  }
               }
-          }
 
-          setTopic(proj.niche || '');
-          setObjective(proj.mainGoal ? `Atraer clientes interesados en ${proj.mainGoal}` : '');
-          
-          const hasHotlinks = proj.affiliateLinks && proj.affiliateLinks.length > 0;
-          const initialRedirect = hasHotlinks ? 'hotlink' : 'landing';
-          
-          setRedirectType(initialRedirect);
-          setCtaLink(hasHotlinks ? proj.affiliateLinks[0].url : '');
+              setTopic(proj.niche || '');
+              setObjective(proj.mainGoal ? `Atraer clientes interesados en ${proj.mainGoal}` : '');
+              
+              const hasHotlinks = proj.affiliateLinks && proj.affiliateLinks.length > 0;
+              const initialRedirect = hasHotlinks ? 'hotlink' : 'landing';
+              
+              setRedirectType(initialRedirect);
+              setCtaLink(hasHotlinks ? proj.affiliateLinks[0].url : '');
+          }
       }
-      setStep(1);
   };
 
   const handleSelectRecommendation = async (rec: any) => {

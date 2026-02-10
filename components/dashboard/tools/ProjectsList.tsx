@@ -20,7 +20,6 @@ export const ProjectsList: React.FC = () => {
     
     // Modals State
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-    const [showVideoModal, setShowVideoModal] = useState(false);
     
     // --- Nuevo Estado para Protocolo de Desbloqueo ---
     const [showUnlockProtocol, setShowUnlockProtocol] = useState(false);
@@ -159,21 +158,17 @@ export const ProjectsList: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
-                        {/* Contenedor de Video Interactivo */}
+                        {/* Contenedor de Video Interactivo (Embebido directamente) */}
                         <div 
-                            onClick={() => setShowVideoModal(true)}
-                            className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                            className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
                         >
-                            <img 
-                                src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
-                                alt="Video Tutorial"
-                                className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                                    <PlayCircle className="w-10 h-10 text-blue-400" />
-                                </div>
-                            </div>
+                            <iframe 
+                                className="w-full h-full rounded-2xl"
+                                src="https://www.youtube.com/embed/A_dcakdMBow?rel=0&controls=1&showinfo=0" 
+                                title="Video Tutorial" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
                         </div>
 
                         {/* Botones centrados debajo del video */}
@@ -230,7 +225,7 @@ export const ProjectsList: React.FC = () => {
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {projects.map((project) => (
                             <div 
-                                key={project.id}
+                                key={project.id} 
                                 onClick={() => navigate(`/dashboard/projects/${project.id}/strategy`)}
                                 className={`bg-[#111] rounded-[2.5rem] border transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl ${project.isMaster ? 'border-yellow-500/20 hover:border-yellow-500/40 shadow-yellow-500/5' : 'border-white/5 hover:border-[#FF5A1F]/30'}`}
                             >
@@ -324,7 +319,7 @@ export const ProjectsList: React.FC = () => {
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {masterLibrary.map((item) => (
                             <div 
-                                key={item.id}
+                                key={item.id} 
                                 className="bg-[#0B0B0B] border border-yellow-500/10 rounded-[2.5rem] p-8 hover:border-yellow-500/40 transition-all duration-500 flex flex-col group shadow-2xl relative overflow-hidden"
                             >
                                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover:opacity-[0.08] transition-opacity">
@@ -464,41 +459,6 @@ export const ProjectsList: React.FC = () => {
                     currentPlan={user.planLimits?.planName}
                     reason="Has alcanzado el límite de proyectos de tu plan. Actualiza para crear más estrategias."
                 />
-            )}
-
-            {showVideoModal && (
-                <div 
-                    onClick={() => setShowVideoModal(false)}
-                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
-                >
-                    <div 
-                        onClick={(e) => e.stopPropagation()}
-                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
-                    >
-                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
-                            <h3 className="font-bold text-white flex items-center gap-2">
-                                <PlayCircle className="w-5 h-5 text-blue-400" /> Tutorial: Estrategia de Proyectos
-                            </h3>
-                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                                <X className="w-5 h-5"/>
-                            </button>
-                        </div>
-                        <div className="aspect-video w-full">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
-                                title="Cómo funciona el gestor de proyectos" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-                        <div className="p-6 bg-gray-900">
-                            <p className="text-gray-300 text-sm leading-relaxed">
-                                Aprende a organizar tus productos digitales por proyectos para que la Inteligencia Artificial pueda generar estrategias personalizadas para cada nicho de mercado.
-                            </p>
-                        </div>
-                    </div>
-                </div>
             )}
         </div>
     );

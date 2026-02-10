@@ -415,7 +415,7 @@ export const api = {
           const data = await fetchWithFallback(endpoint);
           const normalized: LandingPage = {
               id: data.id?.toString() ?? slug,
-              name: data.name || "Landing sin título",
+              name: data.name || "Landing no encontrada",
               niche: data.niche || "",
               goal: data.goal || "",
               isPublished: !!data.is_published,
@@ -505,7 +505,7 @@ export const api = {
               id: String(p.id),
               painPoints: safeParseJsonList(p.pain_points),
               keyBenefits: safeParseJsonList(p.key_benefits),
-              affiliate_links: safeParseJsonList(p.affiliate_links),
+              affiliateLinks: safeParseJsonList(p.affiliate_links),
               strategy_json: strategyObj, 
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
