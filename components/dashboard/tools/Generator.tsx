@@ -233,7 +233,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
               thankYouPage: {
                   showSocials: true,
                   ctaLink: "https://chat.whatsapp.com/demo",
-                  progressBarText: "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO...",
+                  progressBarText: "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR...",
                   greenBadgeText: "RECIBE TU REGALO 100% GRATIS",
                   headline: "¡REGISTRO EXITOSO! YA TIENES TU LUGAR ASEGURADO",
                   subheadline: "Sigue los pasos a continuación para acceder al material exclusivo y unirte a la comunidad.",
@@ -519,14 +519,14 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                     <CheckCircle className="w-14 h-14 text-white" />
                 </div>
 
-                <div className="text-center max-w-xl space-y-4">
+                <div className="text-center max-w-[41rem] space-y-4">
                     <h3 className="text-4xl font-black text-white leading-tight">¡Tu Página de Captura ha sido generada correctamente!</h3>
                     <p className="text-gray-400 text-lg font-medium leading-relaxed">
                         Tu nuevo activo digital está optimizado para convertir visitas en leads de alta calidad de forma automática.
                     </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md pt-6">
+                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-[41rem] pt-6">
                     <a 
                         href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}`}
                         target="_blank"

@@ -211,7 +211,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
                         >
                             <img 
-                            src="https://img.youtube.com/vi/A_dcakdMBow/maxresdefault.jpg" 
+                            src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
                             alt="Video Thumbnail"
                             className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
                             />
@@ -290,7 +290,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <h3 className="text-3xl font-black text-white mb-4">¡Tu Sistema de Ventas está 100% Activo!</h3>
                                 <p className="text-gray-400 text-lg font-medium leading-relaxed mb-10 max-w-2xl">Todas las configuraciones técnicas, enlaces de seguimiento y formularios de captura han sido verificados. Tu embudo está listo para procesar visitantes y convertirlos en prospectos de alta calidad.</p>
                                 
-                                <div className="w-full max-w-lg space-y-4">
+                                <div className="w-full max-w-[41rem] space-y-4">
                                     {/* Fila 1 - Visualización */}
                                     <div className="flex flex-col sm:flex-row gap-4">
                                         <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-10 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Captura</a>
@@ -550,7 +550,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                             href={`https://wa.me/573146270784?text=${encodeURIComponent("Hola, me gustaria configurar un nombre de dominio a mi pagina web en www.aprende.marketing")}`}
                                             target="_blank" 
                                             rel="noopener noreferrer" 
-                                            className="inline-flex items-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-emerald-900/30 transition-all transform hover:scale-105 active:scale-95 mb-4"
+                                            className="inline-flex items-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-emerald-900/20 transition-all transform hover:scale-105 active:scale-95 mb-4"
                                         >
                                             <MessageCircle className="w-6 h-6" /> Quiero configurar mi dominio
                                         </a>
