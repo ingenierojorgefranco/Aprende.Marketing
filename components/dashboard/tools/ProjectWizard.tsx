@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -16,7 +16,7 @@ interface VisualEditorProps {
 const VisualEditor = ({ value, onChange, className, placeholder }: VisualEditorProps) => {
     const [isSourceMode, setIsSourceMode] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
-    const textAreaRef = useRef<HTMLTextAreaElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
         if (contentRef.current && contentRef.current.innerHTML !== value && !isSourceMode) {
@@ -81,7 +81,7 @@ const VisualEditor = ({ value, onChange, className, placeholder }: VisualEditorP
             <div className="relative min-h-[150px] bg-black">
                 {isSourceMode ? (
                     <textarea 
-                        ref={textAreaRef}
+                        ref={textareaRef}
                         className="w-full h-full min-h-[150px] p-3 bg-[#0d1117] text-gray-300 font-mono text-xs outline-none resize-y"
                         value={value}
                         onChange={handleSourceChange}
@@ -316,7 +316,7 @@ export const ProjectWizard: React.FC = () => {
     }
 
     return (
-        <div className="max-w-4xl auto pb-12 relative">
+        <div className="max-w-4xl mx-auto pb-12 relative">
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
                 onClose={() => navigate('/dashboard/projects')} 
@@ -402,31 +402,34 @@ export const ProjectWizard: React.FC = () => {
                 <div className="p-8 min-h-[450px]">
                     {step === 1 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
-                            {/* CONFIGURACIÓN PROYECTO MAESTRO (SOLO ADMIN REAL) */}
+                            {/* CONFIGURACIÓN PROYECTO MAESTRO REDISEÑADA (SOLO ADMIN REAL) */}
                             {user.role === 'admin' && !isSimulating && (
-                                <div className="bg-yellow-500/10 border border-yellow-500/30 p-8 rounded-[2rem] animate-in slide-in-from-top-2 shadow-[0_0_40px_rgba(234,179,8,0.1)]">
-                                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                                        <div className="flex items-center gap-5">
-                                            <div className="p-4 bg-yellow-500/20 rounded-2xl text-yellow-500 shadow-lg border border-yellow-500/20">
-                                                <Crown className="w-8 h-8 fill-current" />
+                                <div className="bg-yellow-500/10 border border-yellow-500/30 p-10 rounded-[3rem] animate-in slide-in-from-top-2 shadow-[0_0_50px_rgba(234,179,8,0.15)] relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
+                                        <Star className="w-48 h-48 text-yellow-500" />
+                                    </div>
+                                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+                                        <div className="flex items-center gap-6">
+                                            <div className="p-5 bg-yellow-500/20 rounded-[2rem] text-yellow-500 shadow-xl border border-yellow-500/20 group-hover:scale-105 transition-transform duration-500">
+                                                <Crown className="w-10 h-10 fill-current" />
                                             </div>
                                             <div>
-                                                <h4 className="text-white font-black text-xl uppercase tracking-tight">¿Convertir en Proyecto Maestro?</h4>
-                                                <p className="text-gray-400 text-xs font-bold uppercase tracking-[0.2em] mt-2">Será visible para todos los usuarios en la Biblioteca Maestra.</p>
+                                                <h4 className="text-white font-black text-2xl uppercase tracking-tighter italic leading-none">Publicar en Biblioteca Maestra</h4>
+                                                <p className="text-yellow-500/70 text-xs font-black uppercase tracking-[0.25em] mt-3">Visible para todos los usuarios de la plataforma</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3 bg-black/40 p-2 rounded-2xl border border-white/5 shadow-inner">
+                                        <div className="flex items-center gap-3 bg-black/40 p-2.5 rounded-[1.5rem] border border-white/5 shadow-inner">
                                             <button 
                                                 type="button"
                                                 onClick={() => setIsMaster(true)}
-                                                className={`px-8 py-3 rounded-xl text-sm font-black transition-all ${isMaster ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'text-gray-500 hover:text-white'}`}
+                                                className={`px-10 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${isMaster ? 'bg-yellow-500 text-black shadow-xl shadow-yellow-900/40 transform scale-105' : 'text-gray-500 hover:text-white'}`}
                                             >
-                                                SÍ, MAESTRO
+                                                SÍ, PÚBLICO
                                             </button>
                                             <button 
                                                 type="button"
                                                 onClick={() => setIsMaster(false)}
-                                                className={`px-8 py-3 rounded-xl text-sm font-black transition-all ${!isMaster ? 'bg-gray-700 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                                                className={`px-10 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${!isMaster ? 'bg-gray-700 text-white shadow-xl transform scale-105' : 'text-gray-500 hover:text-white'}`}
                                             >
                                                 NO, PRIVADO
                                             </button>

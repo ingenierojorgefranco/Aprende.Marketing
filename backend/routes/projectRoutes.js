@@ -35,7 +35,7 @@ const checkMonthlyQuota = async (userId, resourceType, limit) => {
         WHERE user_id = ? 
           AND resource_type = ? 
           AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(created_at) = YEAR(CURRENT_DATE())
+          AND YEAR(CURRENT_DATE()) = YEAR(created_at)
     `, [userId, resourceType]);
 
     const used = rows[0].count;
@@ -79,7 +79,7 @@ router.get('/master-library', async (req, res) => {
             affiliate_links: safeParseJson(p.affiliate_links),
             strategy_json: safeParseJson(p.strategy_json),
             isMaster: !!p.is_master,
-            isUnlocked: !!p.is_unlocked
+            isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked
         }));
         res.json(projects);
     } catch (error) {
@@ -94,14 +94,23 @@ router.post('/unlock/:id', async (req, res) => {
         if (projRows.length === 0 || !projRows[0].is_master) {
             return res.status(404).json({ error: 'Proyecto maestro no encontrado.' });
         }
+        
+        // El administrador no consume cupos ni necesita desbloquear formalmente
+        if (req.user.role === 'admin') {
+            return res.json({ success: true, message: 'Acceso total como administrador.' });
+        }
+
         const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
         const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
+        
         const [countRows] = await pool.query(`
             SELECT (SELECT COUNT(*) FROM projects WHERE user_id = ?) + (SELECT COUNT(*) FROM unlocked_projects WHERE user_id = ?) as total
         `, [req.user.id, req.user.id]);
-        if (countRows[0].total >= limits.maxProjects && req.user.role !== 'admin') {
-            return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxProjects} proyectos.` });
+        
+        if (countRows[0].total >= limits.maxProjects) {
+            return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxProjects} proyectos en tu plan.` });
         }
+
         await pool.query('INSERT IGNORE INTO unlocked_projects (user_id, project_id) VALUES (?, ?)', [req.user.id, projectId]);
         await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_PROJECT', 'project', projectId, { name: projRows[0].name });
         res.json({ success: true, message: 'Estrategia desbloqueada correctamente.' });
@@ -195,7 +204,7 @@ router.get('/', async (req, res) => {
         affiliate_links: safeParseJson(p.affiliate_links),
         strategy_json: safeParseJson(p.strategy_json),
         isMaster: !!p.is_master,
-        isUnlocked: !!p.is_unlocked
+        isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked
     }));
     res.json(projects);
   } catch (error) { res.status(500).json({ error: 'Error cargando proyectos' }); }
