@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { Project, User } from '../../../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface DashboardContext {
@@ -134,8 +134,8 @@ export const ProjectsList: React.FC = () => {
                             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
                                 Gestión de <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Proyectos</span>
                             </h1>
-                            <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
-                                Centraliza tus nichos, avatares y enlaces de afiliado. La IA usará estos datos para generar contenido coherente y ventas.
+                            <p className="text-white text-lg max-w-xl leading-relaxed">
+                                Los Proyectos son el centro de tu estrategia de Ventas. Define tu nicho, audiencia y enlaces de afiliado. Nuestro sistema usará Inteligencia Artificial para generar contenido que te genere grandes resultados.
                             </p>
                         </div>
                         
@@ -164,7 +164,7 @@ export const ProjectsList: React.FC = () => {
                         >
                             <iframe 
                                 className="w-full h-full rounded-2xl"
-                                src="https://www.youtube.com/embed/A_dcakdMBow?rel=0&controls=1&showinfo=0" 
+                                src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
                                 title="Video Tutorial" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowFullScreen
@@ -204,7 +204,6 @@ export const ProjectsList: React.FC = () => {
             <div className="space-y-6">
                 <div className="flex items-center gap-3 border-l-4 border-blue-500 pl-4 py-1">
                     <h2 className="text-2xl font-black text-white uppercase tracking-tight">Mis Proyectos</h2>
-                    <span className="bg-blue-500/10 text-blue-400 text-[10px] font-black px-2 py-0.5 rounded border border-blue-500/20 uppercase tracking-widest">{projects.length} activos</span>
                 </div>
                 
                 {projects.length === 0 ? (
@@ -227,7 +226,7 @@ export const ProjectsList: React.FC = () => {
                             <div 
                                 key={project.id} 
                                 onClick={() => navigate(`/dashboard/projects/${project.id}/strategy`)}
-                                className={`bg-[#111] rounded-[2.5rem] border transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl ${project.isMaster ? 'border-yellow-500/20 hover:border-yellow-500/40 shadow-yellow-500/5' : 'border-white/5 hover:border-[#FF5A1F]/30'}`}
+                                className={`bg-[#111] rounded-[2.5rem] border border-white/5 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl ${project.isMaster ? 'border-yellow-500/20 hover:border-yellow-500/40 shadow-yellow-500/5' : ''}`}
                             >
                                 <div className={`absolute top-0 left-0 w-full h-1 opacity-80 ${project.isMaster ? 'bg-gradient-to-r from-yellow-400 to-amber-600' : 'bg-gradient-to-r from-[#FF5A1F] to-orange-600'}`}></div>
                                 
@@ -320,7 +319,7 @@ export const ProjectsList: React.FC = () => {
                         {masterLibrary.map((item) => (
                             <div 
                                 key={item.id} 
-                                className="bg-[#0B0B0B] border border-yellow-500/10 rounded-[2.5rem] p-8 hover:border-yellow-500/40 transition-all duration-500 flex flex-col group shadow-2xl relative overflow-hidden"
+                                className={`bg-[#0B0B0B] border rounded-[2.5rem] p-8 transition-all duration-500 flex flex-col group shadow-2xl relative overflow-hidden ${item.isUnlocked ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-yellow-500/10 hover:border-yellow-500/40'}`}
                             >
                                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover:opacity-[0.08] transition-opacity">
                                     <CornerCrown className="w-32 h-32 text-yellow-500" />
@@ -345,20 +344,36 @@ export const ProjectsList: React.FC = () => {
                                 </div>
 
                                 <div className="mt-10 pt-8 border-t border-white/5 relative z-10">
-                                    <button 
-                                        onClick={(e) => handleUnlock(item, e)}
-                                        disabled={unlockingId === item.id}
-                                        className="w-full py-5 bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-yellow-900/20 flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-                                    >
-                                        {unlockingId === item.id ? (
-                                            <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
-                                        ) : (
-                                            <><Unlock className="w-4 h-4" /> Desbloquear Estrategia</>
-                                        )}
-                                    </button>
-                                    <p className="text-center text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-4">
-                                        Consume 1 cupo de proyecto en tu plan
-                                    </p>
+                                    {item.isUnlocked ? (
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-center gap-2 text-emerald-400 font-black uppercase text-xs tracking-widest">
+                                                <CheckCircle2 className="w-5 h-5" /> Desbloqueado
+                                            </div>
+                                            <button 
+                                                onClick={(e) => handleViewStrategy(e, item)}
+                                                className="w-full py-4 bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                Ver Estrategia
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <button 
+                                                onClick={(e) => handleUnlock(item, e)}
+                                                disabled={unlockingId === item.id}
+                                                className="w-full py-5 bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-yellow-900/20 flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                                            >
+                                                {unlockingId === item.id ? (
+                                                    <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
+                                                ) : (
+                                                    <><Unlock className="w-4 h-4" /> DESBLOQUEAR PROYECTO</>
+                                                )}
+                                            </button>
+                                            <p className="text-center text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-4">
+                                                Consume 1 cupo de proyecto en tu plan
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -374,7 +389,7 @@ export const ProjectsList: React.FC = () => {
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative"
+                        className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative"
                     >
                         {/* Línea de acento dorada */}
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600"></div>
@@ -385,7 +400,7 @@ export const ProjectsList: React.FC = () => {
                                     <CornerCrown className="w-10 h-10" />
                                 </div>
                                 <div className="space-y-2">
-                                    <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight italic">Protocolo de Desbloqueo</h3>
+                                    <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight italic">Hemos creado todo el ecosistema por ti.</h3>
                                     <p className="text-yellow-500 font-black uppercase tracking-[0.2em] text-xs">Estrategia Maestra Validada</p>
                                 </div>
                                 <p className="text-gray-400 text-lg leading-relaxed font-medium">
@@ -400,6 +415,21 @@ export const ProjectsList: React.FC = () => {
                                     <PlayCircle className="w-16 h-16 text-yellow-500" />
                                 </div>
                                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 font-black uppercase text-[10px] tracking-widest">Vista previa del proyecto</div>
+                            </div>
+
+                            {/* MAQUINARIA DE VENTAS VISUAL */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4">
+                                {[
+                                    { label: 'Copywriting', icon: PenTool, color: 'text-orange-400' },
+                                    { label: 'Diseño Web', icon: Layout, color: 'text-blue-400' },
+                                    { label: 'Estrategia IA', icon: Sparkles, color: 'text-purple-400' },
+                                    { label: 'Automatización', icon: Rocket, color: 'text-emerald-400' }
+                                ].map((item, i) => (
+                                    <div key={i} className="bg-white/5 border border-white/10 p-4 rounded-2xl flex flex-col items-center text-center gap-2">
+                                        <item.icon className={`w-6 h-6 ${item.color}`} />
+                                        <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">{item.label}</span>
+                                    </div>
+                                ))}
                             </div>
 
                             {/* Barra de Consumo de Cupos */}
@@ -443,7 +473,7 @@ export const ProjectsList: React.FC = () => {
                                     onClick={handleConfirmUnlock}
                                     className="flex-1 py-5 rounded-2xl bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-yellow-900/20 transform hover:scale-105 active:scale-95 transition-all"
                                 >
-                                    Sí, desbloquear ahora
+                                    DESBLOQUEAR PROYECTO
                                 </button>
                             )}
                         </div>

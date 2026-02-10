@@ -9,8 +9,19 @@ interface ProjectStrategy_BusinessGrowthProps {
     commissionRate: number;
 }
 
-const formatValue = (val: number) => {
-    return Math.floor(val).toLocaleString('es-ES');
+const formatValue = (val: number | string) => {
+    const num = Number(val);
+    if (isNaN(num)) return "0";
+    
+    // Si es un número entero, no mostramos decimales
+    if (Number.isInteger(num)) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+    
+    // Si tiene decimales, usamos punto para miles y coma para decimales
+    const parts = num.toFixed(2).split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return `${parts[0]},${parts[1]}`;
 };
 
 const CustomTooltip = ({ active, payload, label, commissionValue }: any) => {
@@ -161,7 +172,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     dy={10}
                                 />
                                 <YAxis 
-                                    tickFormatter={(value) => `$${formatValue(Number(value))} USD`}
+                                    tickFormatter={(value) => `$${formatValue(value)} USD`}
                                     tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 'bold' }} 
                                     axisLine={false}
                                     tickLine={false}
@@ -225,7 +236,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     items: [
                                         "Tus artículos de blog y videos en redes sociales ganarán autoridad en los algoritmos con el tiempo, atrayendo nuevo tráfico orgánico cualificado sin costo adicional.",
                                         "La audiencia que ya se ha registrado en tu pagina de captura recibirá correos electrónicos masivos y contenidos de alto valor que compartirás a través de Whatsapp, esto generará confianza e interés por parte de tus comunidad.",
-                                        "Realizarás tus primeros cierres de venta reales gracias a la confianza generada por tu ecosistema de contenidos, el seguimiento persuasivo y nuestra estrategia de Lanzamientos que ejecutaremos vía Whatsapp."
+                                        "Realizarás tus primeros cierres de venta reales gracias a la confianza generada por tu ecosistema de contenidos, el seguimiento persuasivo y nuestra estrategia de Lanzamientos que ejecutaremos vía WhatsApp."
                                     ],
                                     objective: "Objetivo: validar que tu estrategia digital funciona y genera resultados"
                                 },
@@ -289,7 +300,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                             <Check className="w-5 h-5 text-emerald-500" /> Tasa de cierre objetivo: 5% en WhatsApp
                                         </div>
                                         <div className="flex items-center gap-3 text-white leading-relaxed font-light">
-                                            <Check className="w-5 h-5 text-emerald-500" /> Porcentaje de comisión: {Math.round(commissionRate * 100)}%
+                                            <Check className="w-5 h-5 text-emerald-500" /> Porcentaje de comisión: {formatValue(Math.round(commissionRate * 100))}%
                                         </div>
                                     </div>
                                 </div>

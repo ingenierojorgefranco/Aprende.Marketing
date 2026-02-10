@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2 } from 'lucide-react';
@@ -130,7 +129,7 @@ export const ProjectWizard: React.FC = () => {
     
     const [fullPrice, setFullPrice] = useState<number>(0);
     const [commissionValue, setCommissionValue] = useState<number>(0);
-    const [leadMagnetType, setLeadMagnetType] = useState('');
+    const [leadMagnetType, setLeadMagnetType] = useState('Clase Gratis / VSL');
     const [leadMagnetUrl, setLeadMagnetUrl] = useState('');
     const [salesPageUrl, setSalesPageUrl] = useState('');
     const [isMaster, setIsMaster] = useState(false);
@@ -317,7 +316,7 @@ export const ProjectWizard: React.FC = () => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto pb-12 relative">
+        <div className="max-w-4xl auto pb-12 relative">
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
                 onClose={() => navigate('/dashboard/projects')} 
@@ -481,7 +480,7 @@ export const ProjectWizard: React.FC = () => {
                                 <select value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)} className={`w-full bg-black border ${errors.leadMagnetType ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all appearance-none cursor-pointer mb-4`}>
                                     <option value="">Selecciona tu Lead Magnet</option>
                                     <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
-                                    <option value="Clase Gratis / VSL">Clase Gratis / VSL</option>
+                                    <option value="Clase Gratis / VSL">Clase Gratis / Carta de Ventas en Video</option>
                                     <option value="Masterclass en Vivo">Masterclass en Vivo</option>
                                     <option value="Plantilla / Checklist">Plantilla / Checklist</option>
                                 </select>
