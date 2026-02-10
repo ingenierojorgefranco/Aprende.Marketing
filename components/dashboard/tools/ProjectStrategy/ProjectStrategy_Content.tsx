@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, CheckCircle2, ChevronLeft, ChevronRight, TrendingUp, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -213,15 +214,24 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto">
                             <div className="flex flex-col items-center text-center space-y-6">
                                 <div className="w-20 h-20 bg-purple-500/10 text-purple-400 rounded-3xl flex items-center justify-center mx-auto border border-purple-500/20 shadow-lg shadow-purple-900/10 animate-pulse"><Sparkles className="w-10 h-10" /></div>
-                                <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">¿Confirmas que deseas generar un nuevo articulo de blog?</h3>
-                                <p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra Inteligencia Artificial redactará un artículo optimizado basado en tu estrategia. Ten en cuenta que esta acción consumirá créditos de generación de tu plan de forma inmediata.</p>
+                                <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
+                                    Generador de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Artículos SEO</span>
+                                </h1>
+                                <p className="text-white text-lg leading-relaxed font-normal">
+                                    Genera artículos optimizados para buscadores que atraen tráfico orgánico a tus ofertas las 24 horas. Ten en cuenta que esta acción consumirá créditos de generación de tu plan.
+                                </p>
                             </div>
-                            <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner">
-                                <div className="flex justify-between items-center mb-3"><span className="text-white text-[10px] font-black uppercase tracking-[0.2em]">ARTICULOS DISPONIBLES EN TU PLAN: <span className="capitalize">{planLimits?.planName || 'Starter'}</span></span><span className="text-white font-bold text-sm">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span></div>
-                                <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden p-0.5 border border-white/5"><div className={`h-full bg-[#FF5A1F] rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_15px_rgba(255,90,31,0.6)]`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div></div>
+                            <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-inner text-left">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Consumo de Artículos</span>
+                                    <span className="text-white font-bold text-sm">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
+                                </div>
+                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
+                                    <div className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                </div>
                             </div>
                         </div>
-                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0"><button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button><button onClick={() => { setShowConfirmModal(false); setShowGeneratorModal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-rose-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-purple-900/20 transform hover:scale-105 active:scale-95 transition-all">Confirmar y Redactar</button></div>
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0"><button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button><button onClick={() => { setShowConfirmModal(false); setShowGeneratorModal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-rose-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Redactar</button></div>
                     </div>
                 </div>
             )}

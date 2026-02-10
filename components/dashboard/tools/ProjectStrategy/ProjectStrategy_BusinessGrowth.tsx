@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { TrendingUp, PlayCircle, Calendar, Sparkles, DollarSign, ArrowUpRight, Users, Clock, Zap, Check, AlertTriangle, Cpu, ArrowRight, X } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 
@@ -13,15 +13,16 @@ const formatValue = (val: number) => {
     return Math.floor(val).toLocaleString('es-ES');
 };
 
-const CustomTooltip = ({ active, payload, label, commissionValue, fullData }: any) => {
+const CustomTooltip = ({ active, payload, label, commissionValue }: any) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
-        const income = data.income;
-        const sales = commissionValue > 0 ? Math.floor(income / commissionValue) : 0;
+        const income = data.income; // Este ya viene procesado como (ventas_reales * comision)
         
-        // Lógica de cálculo inverso basada en el 5% de tasa de cierre aprobada
-        // Leads = Ganancia / (TasaCierre * ValorComision)
-        const leads = (commissionValue > 0) ? Math.ceil(income / (0.05 * commissionValue)) : 0;
+        // Ventas reales calculadas previamente en el mapeo
+        const sales = data.realSales;
+        
+        // Cálculo de leads basado estrictamente en las ventas reales (Ventas / 0.05)
+        const leads = sales > 0 ? Math.ceil(sales / 0.05) : 0;
 
         return (
             <div id="psd-tooltip-chart" className="bg-gray-900/95 backdrop-blur-xl border border-gray-700 p-6 rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] min-w-[240px] animate-in fade-in zoom-in-95 duration-200">
@@ -58,8 +59,25 @@ const CustomTooltip = ({ active, payload, label, commissionValue, fullData }: an
 export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGrowthProps> = ({ chartData, commissionValue, commissionRate }) => {
     const [showVideoModal, setShowVideoModal] = useState(false);
 
-    // Cálculo dinámico de la meta de ingresos sumando todos los meses de la proyección
-    const totalIncome = chartData.reduce((acc, curr) => acc + (curr.income || 0), 0);
+    // Saneamiento de datos para la gráfica: Convertimos ingresos brutos de IA a ingresos por unidades de venta reales (escalones)
+    const adjustedChartData = useMemo(() => {
+        return chartData.map(item => {
+            const rawIncome = item.income || 0;
+            // Unidades enteras = Suelo de (Ingreso / Comisión Fija)
+            const realSales = commissionValue > 0 ? Math.floor(rawIncome / commissionValue) : 0;
+            // Ingreso ajustado para la línea = Ventas reales * Comisión
+            const adjustedIncome = realSales * commissionValue;
+
+            return {
+                ...item,
+                income: adjustedIncome,
+                realSales: realSales
+            };
+        });
+    }, [chartData, commissionValue]);
+
+    // Cálculo dinámico de la meta de ingresos sumando todos los meses de la proyección ajustada
+    const totalIncome = adjustedChartData.reduce((acc, curr) => acc + (curr.income || 0), 0);
 
     // Escenarios de leads solicitados por el usuario
     const leadScenarios = [50, 100, 200, 500, 1000];
@@ -127,7 +145,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                         </div>
 
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
+                            <AreaChart data={adjustedChartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
                                 <defs>
                                     <linearGradient id="colorIncomeMain" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
@@ -143,13 +161,13 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     dy={10}
                                 />
                                 <YAxis 
-                                    tickFormatter={(value) => `$${formatValue(value)} USD`}
+                                    tickFormatter={(value) => `$${formatValue(Number(value))} USD`}
                                     tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 'bold' }} 
                                     axisLine={false}
                                     tickLine={false}
                                     width={100}
                                 />
-                                <Tooltip content={<CustomTooltip commissionValue={commissionValue} fullData={chartData} />} cursor={{ stroke: '#10b981', strokeWidth: 2 }} />
+                                <Tooltip content={<CustomTooltip commissionValue={commissionValue} />} cursor={{ stroke: '#10b981', strokeWidth: 2 }} />
                                 <Area 
                                     type="monotone" 
                                     dataKey="income" 
@@ -332,6 +350,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                         </div>
                     </div>
 
+                    {/* --- CIERRE PERSUASIVO --- */}
                     <div className="flex flex-col items-center justify-center gap-8 pt-10 border-t border-white/5 relative z-10">
                         <div className="flex items-center gap-5 text-center">
                             <div className="p-3 bg-white/5 rounded-full shrink-0"><Sparkles className="w-6 h-6 text-yellow-500" /></div>

@@ -286,10 +286,18 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-6" />
                                 <h3 className="text-3xl font-black text-white mb-4">¡Tu Sistema de Ventas está 100% Activo!</h3>
                                 <p className="text-gray-400 text-lg font-medium leading-relaxed mb-10 max-w-2xl">Todas las configuraciones técnicas, enlaces de seguimiento y formularios de captura han sido verificados. Tu embudo está listo para procesar visitantes y convertirlos en prospectos de alta calidad.</p>
-                                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg">
-                                    <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página</a>
-                                    <button onClick={() => onEditPage(linkedPages[0].id)} className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all">Editar Diseño</button>
-                                    <button onClick={() => setShowDomainModal(true)} className="flex-1 bg-blue-600 text-white font-black py-4 px-6 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-2"><Globe className="w-5 h-5" /> Dominio</button>
+                                
+                                <div className="w-full max-w-lg space-y-4">
+                                    {/* Fila 1 - Visualización */}
+                                    <div className="flex flex-col sm:flex-row gap-4">
+                                        <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Captura</a>
+                                        <a href={`/admin/lp/${linkedPages[0].subdomain.split('.')[0]}/gracias`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-emerald-600 text-white font-black py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-3 transform hover:scale-[1.03] transition-all">Ver Página de Gracias</a>
+                                    </div>
+                                    {/* Fila 2 - Gestión */}
+                                    <div className="flex flex-col sm:flex-row gap-4">
+                                        <button onClick={() => onEditPage(linkedPages[0].id)} className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-2"><PenTool className="w-5 h-5" /> Editar Página de Captura</button>
+                                        <button onClick={() => setShowDomainModal(true)} className="flex-1 bg-blue-600 text-white font-black py-4 px-6 rounded-2xl shadow-xl transform hover:scale-[1.03] transition-all flex items-center justify-center gap-2"><Globe className="w-5 h-5" /> Asignar Dominio</button>
+                                    </div>
                                 </div>
                             </div>
                         ) : (

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { LandingPage } from "../types";
@@ -43,16 +44,16 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
   // 1. CUSTOM DOMAIN LOGIC (Prioritize explicit path parsing when forcedSlug is present)
   // This handles routes like /blog/my-article where the router might pass 'my-article' as wildcard
   if (forcedSlug) {
-      if (location.pathname.includes('/gracias')) {
+      // Remove trailing slash for consistency
+      const cleanPath = location.pathname.endsWith('/') ? location.pathname.slice(0, -1) : location.pathname;
+
+      if (cleanPath.endsWith('/gracias')) {
           viewMode = 'thank-you';
-      } else if (location.pathname.includes('/privacidad')) {
+      } else if (cleanPath.endsWith('/privacidad')) {
           viewMode = 'privacy';
-      } else if (location.pathname.includes('/terminos')) {
+      } else if (cleanPath.endsWith('/terminos')) {
           viewMode = 'terms';
-      } else if (location.pathname.includes('/blog')) {
-          // Remove trailing slash for consistency
-          const cleanPath = location.pathname.endsWith('/') ? location.pathname.slice(0, -1) : location.pathname;
-          
+      } else if (cleanPath.includes('/blog')) {
           if (cleanPath.endsWith('/blog')) {
               viewMode = 'blog-list';
           } else {

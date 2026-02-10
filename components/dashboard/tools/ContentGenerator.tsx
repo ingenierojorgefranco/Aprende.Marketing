@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { generateArticleTitles, generateArticleOutline, generateFullArticle, ArticleTitleIdea } from '../../../services/geminiService';
 import { api } from '../../../services/api';
 import { Article, Project, LandingPage, User, AffiliateLink } from '../../../types';
-import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
+import { useParams, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { Loader2, Briefcase, ChevronRight, Info, BookOpen, Sparkles, Plus, ArrowLeft, Save, Mail, Globe, Layers, AlertTriangle, Zap, Link as LinkIcon, ExternalLink, MousePointerClick, X, CheckCircle, Target, Wand2, PenTool, Eye } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
@@ -38,6 +38,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   
   const { id: editArticleId } = useParams() as { id: string };
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const preSelectedProjectId = embeddedProjectId || searchParams.get('projectId');
   const { user, articleCount, isSimulating } = useOutletContext() as DashboardContext;
   
   // --- ESTADOS DE GENERACIÓN ---
@@ -148,13 +150,13 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     }
   }, [preFilledData]);
 
-  // Sync pre-selected project from Props
+  // Sync pre-selected project from URL or Props
   useEffect(() => {
-    if (embeddedProjectId && userProjects.length > 0) {
-      handleProjectSelect(embeddedProjectId);
+    if (preSelectedProjectId && userProjects.length > 0 && !selectedProject) {
+      handleProjectSelect(preSelectedProjectId);
       setStep(1);
     }
-  }, [embeddedProjectId, userProjects]);
+  }, [preSelectedProjectId, userProjects, selectedProject]);
 
   useEffect(() => {
     if (editArticleId) {
@@ -535,11 +537,11 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                     <div className="max-w-2xl mx-auto"><h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase"><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500">Selecciona tu Proyecto</span></h2><p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra inteligencia artificial necesita conocer tu estrategia y avatar. Selecciona un proyecto para comenzar.</p></div>
                     <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
                         {userProjects.map((project) => (
-                            <div key={project.id} className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full">
+                            <div key={project.id} className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full" onClick={() => handleProjectSelect(project.id)}>
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-5 mb-8"><div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors shadow-inner"><Briefcase className="w-8 h-8" /></div><div className="flex-1 min-w-0"><h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors truncate">{project.name}</h4><p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p></div></div>
                                 <div className="flex-1 mb-10"><p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p><p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p></div>
-                                <button onClick={() => handleProjectSelect(project.id)} className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">Seleccionar <ChevronRight className="w-5 h-5" /></button>
+                                <button className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">Seleccionar <ChevronRight className="w-5 h-5" /></button>
                             </div>
                         ))}
                     </div>
@@ -564,7 +566,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
                             <div className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col p-10 text-center space-y-8">
                                 <div className="w-20 h-20 bg-blue-500/20 text-blue-500 rounded-3xl flex items-center justify-center mx-auto border border-blue-500/30"><AlertTriangle className="w-10 h-10" /></div>
-                                <div className="space-y-4"><h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¿Estás seguro de generar este artículo?</h3><p className="text-white text-lg leading-relaxed font-medium">Vas a consumir créditos al momento de crearlo.</p><div className="mt-8 p-6 bg-black/40 border border-white/10 rounded-[2rem] shadow-inner text-left"><div className="flex justify-between items-center mb-3"><span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span><span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span></div><div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden shadow-inner p-0.5"><div className={`h-full transition-all duration-1000 ease-out rounded-full ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div></div></div></div>
+                                <div className="space-y-4"><h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¿Estás seguro de generar este artículo?</h3><p className="text-white text-lg leading-relaxed font-medium">Vas a consumir créditos al momento de crearlo.</p><div className="mt-8 p-6 bg-black/40 border border-white/10 rounded-[2rem] shadow-inner text-left"><div className="flex justify-between items-center mb-3"><span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span><span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span></div><div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden shadow-inner p-0.5"><div className={`h-full transition-all duration-1000 ease-out rounded-full ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div></div></div></div>
                                 <div className="flex flex-col gap-3 pt-4">{!isAtLimit ? (<><button onClick={executeManualGenerateOutline} className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest transform active:scale-[0.98]">Sí, Generar Ahora</button><button onClick={() => setShowManualConfirm(false)} className="w-full py-5 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-2xl transition-all text-xs uppercase tracking-widest">Cancelar</button></>) : (<button onClick={() => { setShowManualConfirm(false); setShowUpgradeModal(true); }} className="w-full py-5 bg-gradient-to-r from-[#FF5A1F] to-orange-600 text-white font-black rounded-2xl transition-all shadow-lg uppercase text-sm tracking-widest">Actualizar Plan</button>)}</div>
                             </div>
                         </div>

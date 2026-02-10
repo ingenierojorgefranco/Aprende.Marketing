@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { GeneratedPageContent } from '../../../../types';
 import { Award, Users, Star } from 'lucide-react';
@@ -18,7 +19,7 @@ export const InstructorModule: React.FC<InstructorModuleProps> = ({ content, ds,
                 <div className="relative group shrink-0">
                      <div className={`absolute inset-0 rounded-full blur-md opacity-70 group-hover:opacity-100 transition duration-500 ${ds.blobColor}`}></div>
                      <div className={`relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 shadow-2xl z-10 ${ds.instructor.badgeBorder}`}>
-                        <img id="instructor-image" src={content.instructor.imageUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt="Instructor" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        <img id="instructor-image" src={content.instructor.imageUrl || "https://ceslava.s3-accelerate.amazonaws.com/2016/04/mistery-man-gravatar-wordpress-avatar-persona-misteriosa-510x510.png"} alt="Instructor" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                      </div>
                      <div id="instructor-badge" className={`absolute bottom-4 right-4 z-20 backdrop-blur-md border p-3 rounded-2xl shadow-lg flex items-center gap-2 ${ds.instructor.badgeBg} ${ds.instructor.badgeBorder}`}>
                          <Award className={`w-6 h-6 ${ds.decorations.starColor}`} />

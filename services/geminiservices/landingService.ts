@@ -1,3 +1,4 @@
+
 // Refactorización: Creación de servicio para contenido de landing pages - 22/05/2024 14:30
 import { callGeminiBackend, PREDEFINED_LOGOS } from "./base";
 import { GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, Project } from "../../types";
@@ -277,6 +278,11 @@ export const generateLandingPageContent = async (
                     image: String(t.image || "")
                 }));
             }
+        }
+
+        // Aplicar la imagen de persona misteriosa de alta calidad como predeterminada para el instructor
+        if (content.instructor && (!content.instructor.imageUrl || content.instructor.imageUrl.includes('unsplash.com'))) {
+          content.instructor.imageUrl = "https://ceslava.s3-accelerate.amazonaws.com/2016/04/mistery-man-gravatar-wordpress-avatar-persona-misteriosa-510x510.png";
         }
 
         return content;

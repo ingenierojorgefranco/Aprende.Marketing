@@ -165,7 +165,7 @@ export const ProjectsList: React.FC = () => {
                             className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
                         >
                             <img 
-                                src="https://img.youtube.com/vi/A_dcakdMBow/maxresdefault.jpg" 
+                                src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
                                 alt="Video Tutorial"
                                 className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
                             />
@@ -456,20 +456,28 @@ export const ProjectsList: React.FC = () => {
                 </div>
             )}
 
-            {/* MODALS */}
-            <UpgradeModal 
-                isOpen={showUpgradeModal} 
-                onClose={() => setShowUpgradeModal(false)} 
-                currentPlan={user.planLimits?.planName}
-                reason="Para gestionar más de un proyecto o nicho necesitas ampliar tu capacidad."
-            />
+            {/* MODAL ESCRITURA IA */}
+            {showUpgradeModal && (
+                <UpgradeModal 
+                    isOpen={showUpgradeModal} 
+                    onClose={() => setShowUpgradeModal(false)} 
+                    currentPlan={user.planLimits?.planName}
+                    reason="Has alcanzado el límite de proyectos de tu plan. Actualiza para crear más estrategias."
+                />
+            )}
 
             {showVideoModal && (
-                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-                    <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+                <div 
+                    onClick={() => setShowVideoModal(false)}
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+                    >
                         <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
                             <h3 className="font-bold text-white flex items-center gap-2">
-                                <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Estrategia de Nichos
+                                <PlayCircle className="w-5 h-5 text-blue-400" /> Tutorial: Estrategia de Proyectos
                             </h3>
                             <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
                                 <X className="w-5 h-5"/>
@@ -478,7 +486,7 @@ export const ProjectsList: React.FC = () => {
                         <div className="aspect-video w-full">
                             <iframe 
                                 className="w-full h-full"
-                                src="https://www.youtube.com/embed/A_dcakdMBow?autoplay=1" 
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
                                 title="Cómo funciona el gestor de proyectos" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowFullScreen

@@ -290,6 +290,8 @@ const App: React.FC = () => {
             <>
               <Route path="/blog/*" element={<PublicLandingView forcedSlug={domainSlug} />} />
               <Route path="/gracias" element={<PublicLandingView forcedSlug={domainSlug} />} />
+              <Route path="/privacidad" element={<PublicLandingView forcedSlug={domainSlug} />} />
+              <Route path="/terminos" element={<PublicLandingView forcedSlug={domainSlug} />} />
             </>
         )}
 
