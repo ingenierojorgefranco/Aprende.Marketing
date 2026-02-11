@@ -1,3 +1,4 @@
+
 const express = require('express');
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
@@ -106,9 +107,14 @@ router.put('/articles/:id', authMiddleware, async (req, res) => {
 
 router.delete('/articles/:id', authMiddleware, async (req, res) => {
   try {
-    const [art] = await pool.query('SELECT title FROM articles WHERE id = ?', [req.params.id]);
-    const [result] = await pool.query('DELETE FROM articles WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Artículo no encontrado' });
+    const [art] = await pool.query('SELECT title, user_id FROM articles WHERE id = ?', [req.params.id]);
+    if (art.length === 0) return res.status(404).json({ error: 'Artículo no encontrado' });
+
+    if (art[0].user_id !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
+
+    await pool.query('DELETE FROM articles WHERE id = ?', [req.params.id]);
     await logSystemActivity(req.user.id, req.user.email, 'DELETE_ARTICLE', 'article', req.params.id, { title: art[0]?.title });
     res.json({ message: 'Artículo eliminado' });
   } catch (error) { res.status(500).json({ error: error.message }); }

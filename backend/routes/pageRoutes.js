@@ -53,7 +53,7 @@ const checkMonthlyQuota = async (userId, resourceType, limit) => {
         WHERE user_id = ? 
           AND resource_type = ? 
           AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(created_at) = YEAR(CURRENT_DATE())
+          AND YEAR(CURRENT_DATE()) = YEAR(created_at)
     `, [userId, resourceType]);
 
     const used = rows[0].count;
@@ -163,14 +163,20 @@ router.put('/pages/:id', authMiddleware, async (req, res) => {
 
 router.delete('/pages/:id', authMiddleware, async (req, res) => {
   try {
-    const [page] = await pool.query('SELECT name FROM landing_pages WHERE id = ?', [req.params.id]);
-    await pool.query('DELETE FROM landing_pages WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
+    const [page] = await pool.query('SELECT name, user_id FROM landing_pages WHERE id = ?', [req.params.id]);
+    if (page.length === 0) return res.status(404).json({ error: 'No encontrado' });
+
+    if (page[0].user_id !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
+
+    await pool.query('DELETE FROM landing_pages WHERE id = ?', [req.params.id]);
     await logSystemActivity(req.user.id, req.user.email, 'DELETE_PAGE', 'page', req.params.id, { name: page[0]?.name });
     res.json({ message: 'Eliminado' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ======================================================
+// ================= =====================================
 //  ANALYTICS
 // ======================================================
 
