@@ -1,4 +1,3 @@
-
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch, SupportTicket } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES, MOCK_MASTER_STRATEGY } from "./mockData";
 import { ProjectMasterStrategy } from "./strategySchema";
@@ -509,11 +508,11 @@ export const api = {
               id: String(p.id),
               painPoints: safeParseJsonList(p.pain_points),
               keyBenefits: safeParseJsonList(p.key_benefits),
-              affiliateLinks: safeParseJsonList(p.affiliate_links),
+              affiliate_links: safeParseJsonList(p.affiliate_links),
               strategy_json: strategyObj, 
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
-              productName: p.product_name || p.productName,
+              product_name: p.product_name || p.productName,
               shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
               mainGoal: p.main_goal || p.mainGoal,
               salesPageUrl: p.sales_page_url || p.salesPageUrl,
@@ -544,7 +543,7 @@ export const api = {
             id: String(p.id),
             painPoints: safeParseJsonList(p.pain_points),
             keyBenefits: safeParseJsonList(p.key_benefits),
-            affiliateLinks: safeParseJsonList(p.affiliate_links),
+            affiliate_links: safeParseJsonList(p.affiliate_links),
             strategy_json: strategyObj,
             shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
             isMaster: true,
@@ -555,14 +554,15 @@ export const api = {
     return mapped;
   },
 
-  unlockProject: async (projectId: string): Promise<void> => {
-    if (isMockMode) return;
-    await fetchWithFallback(`/projects/unlock/${projectId}`, {
+  unlockProject: async (projectId: string): Promise<{ id: string }> => {
+    if (isMockMode) return { id: 'mock-id' };
+    const res = await fetchWithFallback(`/projects/unlock/${projectId}`, {
         method: 'POST',
         headers: getAuthHeaders()
     });
     clearCache('projects');
     clearCache('masterLibrary');
+    return res;
   },
 
   getProjectById: async (id: string): Promise<Project | null> => {
@@ -582,7 +582,7 @@ export const api = {
               id: String(p.id),
               painPoints: safeParseJsonList(p.pain_points),
               keyBenefits: safeParseJsonList(p.key_benefits),
-              affiliateLinks: safeParseJsonList(p.affiliate_links),
+              affiliate_links: safeParseJsonList(p.affiliate_links),
               strategy_json: strategyObj,
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,

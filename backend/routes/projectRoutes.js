@@ -95,32 +95,46 @@ router.get('/master-library', async (req, res) => {
 router.post('/unlock/:id', async (req, res) => {
     const projectId = req.params.id;
     try {
-        const [projRows] = await pool.query('SELECT is_master, name FROM projects WHERE id = ?', [projectId]);
-        if (projRows.length === 0 || !projRows[0].is_master) {
+        // 1. Buscar los datos base del proyecto maestro
+        const [projRows] = await pool.query('SELECT * FROM projects WHERE id = ? AND is_master = 1', [projectId]);
+        if (projRows.length === 0) {
             return res.status(404).json({ error: 'Proyecto maestro no encontrado.' });
         }
         
-        // El administrador no consume cupos ni necesita desbloquear formalmente
-        if (req.user.role === 'admin') {
-            return res.json({ success: true, message: 'Acceso total como administrador.' });
-        }
-
+        const master = projRows[0];
+        
+        // 2. Verificar límites del usuario
         const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
         const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
         
         const [countRows] = await pool.query(`
-            SELECT (SELECT COUNT(*) FROM projects WHERE user_id = ?) + (SELECT COUNT(*) FROM unlocked_projects WHERE user_id = ?) as total
-        `, [req.user.id, req.user.id]);
+            SELECT COUNT(*) as total FROM projects WHERE user_id = ?
+        `, [req.user.id]);
         
-        if (countRows[0].total >= limits.maxProjects) {
+        if (req.user.role !== 'admin' && countRows[0].total >= limits.maxProjects) {
             return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxProjects} proyectos en tu plan.` });
         }
 
-        await pool.query('INSERT IGNORE INTO unlocked_projects (user_id, project_id) VALUES (?, ?)', [req.user.id, projectId]);
-        await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_PROJECT', 'project', projectId, { name: projRows[0].name });
-        res.json({ success: true, message: 'Estrategia desbloqueada correctamente.' });
+        // 3. Crear un nuevo proyecto independiente para el usuario (copia física)
+        const [result] = await pool.query(
+            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, sales_page_url, is_master, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, NOW(), NOW())`,
+            [req.user.id, master.name, master.niche, master.description, master.target_audience, master.brand_tone, master.product_name, master.main_goal, master.pain_points, master.key_benefits, master.affiliate_links, master.full_price, master.commission_rate, master.lead_magnet_type, master.sales_page_url]
+        );
+        const newProjectId = result.insertId;
+
+        // 4. Invocar internamente a la función generateFullStrategy para que la IA genere avatares y contenidos únicos
+        const strategyJson = await generateFullStrategy(newProjectId);
+        await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), newProjectId]);
+
+        // Registrar actividad de sistema
+        await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_MASTER_STRATEGY_GEN', 'project', newProjectId, { masterName: master.name });
+
+        // 5. Retornar el ID del nuevo proyecto generado
+        res.json({ id: String(newProjectId), success: true, message: 'Tu Estrategia Maestra única ha sido generada correctamente.' });
     } catch (error) {
-        res.status(500).json({ error: 'Error al desbloquear el proyecto' });
+        console.error("[Unlock Error]", error);
+        res.status(500).json({ error: error.message || 'Error al generar la estrategia personalizada' });
     }
 });
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { Project, User } from '../../../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle } from 'lucide-react';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 
@@ -25,7 +25,14 @@ export const ProjectsList: React.FC = () => {
     // --- Nuevo Estado para Protocolo de Desbloqueo ---
     const [showUnlockProtocol, setShowUnlockProtocol] = useState(false);
     const [selectedMasterProject, setSelectedMasterProject] = useState<Project | null>(null);
-    // ------------------------------------------------
+    
+    // --- ESTADOS DE GENERACIÓN DINÁMICA ---
+    const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
+    const [progress, setProgress] = useState(0);
+    const [loadingMessage, setLoadingMessage] = useState('');
+    const [secondsElapsed, setSecondsElapsed] = useState(0);
+    const [generatedProjectId, setGeneratedProjectId] = useState<string | null>(null);
+    // --------------------------------------
 
     // --- Nuevo Estado para Restricción de Eliminación ---
     const [showRestrictionModal, setShowRestrictionModal] = useState(false);
@@ -91,16 +98,49 @@ export const ProjectsList: React.FC = () => {
             return;
         }
 
-        setUnlockingId(selectedMasterProject.id);
         setShowUnlockProtocol(false);
-        
+        setGenerationStatus('generating');
+        setProgress(0);
+        setSecondsElapsed(0);
+
+        const messages = [
+            "Duplicando arquitectura maestra...",
+            "Sincronizando avatares psicológicos...",
+            "Personalizando ganchos de venta...",
+            "Configurando motor de contenidos...",
+            "Optimizando secuencias de email...",
+            "Finalizando Estrategia Maestra única..."
+        ];
+
+        const timerInterval = setInterval(() => {
+            setSecondsElapsed(prev => prev + 1);
+        }, 1000);
+
+        let currentProgress = 0;
+        const progressInterval = setInterval(() => {
+            if (currentProgress < 99) {
+                currentProgress += 1;
+                setProgress(currentProgress);
+                const msgIdx = Math.min(Math.floor((currentProgress / 100) * messages.length), messages.length - 1);
+                setLoadingMessage(messages[msgIdx]);
+            }
+        }, 120); // Simulación de carga fluida (aprox 12s para 100%)
+
         try {
-            await api.unlockProject(selectedMasterProject.id);
+            const res = await api.unlockProject(selectedMasterProject.id);
+            
+            clearInterval(progressInterval);
+            clearInterval(timerInterval);
+            setProgress(100);
+            setGeneratedProjectId(res.id);
+            setGenerationStatus('success');
             await loadData();
         } catch (error: any) {
+            clearInterval(progressInterval);
+            clearInterval(timerInterval);
             alert(error.message || "Error al desbloquear estrategia.");
+            setGenerationStatus('idle');
         } finally {
-            setUnlockingId(null);
             setSelectedMasterProject(null);
         }
     };
@@ -361,7 +401,7 @@ export const ProjectsList: React.FC = () => {
                                     {(item.isUnlocked || user.role === 'admin') ? (
                                         <div className="space-y-4">
                                             <div className="flex items-center justify-center gap-2 text-emerald-400 font-black uppercase text-xs tracking-widest">
-                                                <CheckCircle2 className="w-5 h-5" /> {user.role === 'admin' ? 'Acceso Admin' : 'Desbloqueado'}
+                                                <CheckCircle2 className="w-5 h-5 text-emerald-500" /> {user.role === 'admin' ? 'Acceso Admin' : 'Desbloqueado'}
                                             </div>
                                             <button 
                                                 onClick={(e) => handleViewStrategy(e, item)}
@@ -493,6 +533,95 @@ export const ProjectsList: React.FC = () => {
                             )}
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* --- OVERLAY DE GENERACIÓN (IDÉNTICO A GENERATOR) --- */}
+            {generationStatus === 'generating' && (
+                <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-white p-4 animate-in fade-in duration-500">
+                    <div className="relative mb-2 flex flex-col items-center">
+                        <div className="w-24 h-24 bg-emerald-50 rounded-3xl flex items-center justify-center animate-pulse border border-emerald-100">
+                            <Wand2 className="w-12 h-12 text-emerald-600" />
+                        </div>
+                        <p className="text-red-600 font-black uppercase text-sm mt-4 tracking-wider">No cierres esta Página</p>
+                        <p className="text-black font-bold text-xs uppercase tracking-widest mt-1">(Tiempo de Espera: 1 Minuto)</p>
+                    </div>
+
+                    <div className="flex flex-col items-center bg-black rounded-2xl p-4 px-8 border border-white/10 shadow-2xl mt-4">
+                        <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.3em] mb-1">Tiempo Transcurrido</p>
+                        <div className="text-white font-mono text-4xl font-black tracking-tighter">
+                            {Math.floor(secondsElapsed / 60).toString().padStart(2, '0')}:{(secondsElapsed % 60).toString().padStart(2, '0')}
+                        </div>
+                    </div>
+
+                    <div className="text-center space-y-4 mt-8">
+                        <h3 className="text-4xl font-black text-black uppercase tracking-tighter italic">Generando tu Estrategia Maestra</h3>
+                        <p className="text-gray-500 font-bold text-sm uppercase tracking-widest">{loadingMessage}</p>
+                    </div>
+
+                    <div className="w-full max-w-md space-y-4 mt-8">
+                        <div className="flex justify-between text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">
+                            <span>Inteligencia Estratégica</span>
+                            <span>{Math.round(progress)}%</span>
+                        </div>
+                        <div className="w-full h-5 bg-gray-100 rounded-full overflow-hidden border border-gray-200 shadow-inner relative">
+                            <div 
+                                className="h-full bg-gradient-to-r from-emerald-600 to-green-400 transition-all duration-300 ease-out shadow-lg relative"
+                                style={{ width: `${progress}%` }}
+                            >
+                                <div className="absolute top-0 left-0 h-full w-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] animate-[loading-shine_1.5s_infinite]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- UI DE ÉXITO (IDÉNTICO A GENERATOR) --- */}
+            {generationStatus === 'success' && generatedProjectId && (
+                <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-[#0B0B0B] p-4 animate-in zoom-in-95 duration-700 overflow-hidden">
+                    {/* Confetti simulation */}
+                    {[...Array(30)].map((_, i) => (
+                        <div 
+                            key={i} 
+                            className="confetti" 
+                            style={{
+                                left: `${Math.random() * 100}%`,
+                                backgroundColor: ['#10B981', '#34D399', '#4C1D95', '#F59E0B', '#10B981'][Math.floor(Math.random() * 5)],
+                                animationDelay: `${Math.random() * 3}s`,
+                                animationDuration: `${2 + Math.random() * 2}s`
+                            }}
+                        ></div>
+                    ))}
+
+                    <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-4 scale-110 animate-bounce">
+                        <Check className="w-14 h-14 text-white" />
+                    </div>
+
+                    <div className="text-center max-w-[41rem] space-y-4">
+                        <h3 className="text-4xl font-black text-white leading-tight">¡Tu Nueva Estrategia Maestra ha sido generada correctamente!</h3>
+                        <p className="text-gray-400 text-lg font-medium leading-relaxed">
+                            Hemos diseñado un ecosistema único y personalizado basado en esta plantilla. Tu nueva estrategia está lista para ser implementada.
+                        </p>
+                    </div>
+
+                    <div className="w-full max-w-[41rem] pt-10">
+                        <button 
+                            onClick={() => {
+                                setGenerationStatus('idle');
+                                navigate(`/dashboard/projects/${generatedProjectId}/strategy`);
+                            }}
+                            className="w-full py-6 bg-[#FF5A1F] text-white font-black text-xl uppercase tracking-[0.2em] rounded-[2.5rem] shadow-2xl shadow-[#FF5A1F]/20 transform hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center gap-4"
+                        >
+                            Ver mi nueva Estrategia Maestra <ArrowRight className="w-6 h-6" />
+                        </button>
+                    </div>
+
+                    <button 
+                        onClick={() => setGenerationStatus('idle')}
+                        className="text-gray-500 hover:text-white font-bold text-sm transition-colors pt-8 underline"
+                    >
+                        Cerrar y volver
+                    </button>
                 </div>
             )}
 
