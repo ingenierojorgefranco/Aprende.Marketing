@@ -4,6 +4,7 @@ import { api } from '../../../services/api';
 import { Project, User } from '../../../types';
 import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
+import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 
 interface DashboardContext {
   user: User;
@@ -25,6 +26,11 @@ export const ProjectsList: React.FC = () => {
     const [showUnlockProtocol, setShowUnlockProtocol] = useState(false);
     const [selectedMasterProject, setSelectedMasterProject] = useState<Project | null>(null);
     // ------------------------------------------------
+
+    // --- Nuevo Estado para Restricción de Eliminación ---
+    const [showRestrictionModal, setShowRestrictionModal] = useState(false);
+    const [projectToRestrict, setProjectToRestrict] = useState<Project | null>(null);
+    // ----------------------------------------------------
 
     // Generating state per project ID
     const [generatingId, setGeneratingId] = useState<string | null>(null);
@@ -49,11 +55,19 @@ export const ProjectsList: React.FC = () => {
         }
     };
 
-    const handleDelete = async (id: string, e: React.MouseEvent) => {
+    const handleDelete = async (project: Project, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (confirm("¿Estás seguro de eliminar este proyecto y toda su estrategia?")) {
-            await api.deleteProject(id);
-            setProjects(projects.filter(p => p.id !== id));
+        
+        // Si el usuario no tiene el rol admin, se interceptará la acción
+        if (user.role !== 'admin') {
+            setProjectToRestrict(project);
+            setShowRestrictionModal(true);
+            return;
+        }
+
+        if (confirm(`¿Estás seguro de eliminar el proyecto "${project.name}" y toda su estrategia?`)) {
+            await api.deleteProject(project.id);
+            setProjects(projects.filter(p => p.id !== project.id));
         }
     };
 
@@ -179,7 +193,7 @@ export const ProjectsList: React.FC = () => {
                                     className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-2">
-                                        <Crown className="w-5 h-5 fill-current" /> 
+                                        <CornerCrown className="w-5 h-5 fill-current" /> 
                                         Límite Alcanzado: Subir a PRO
                                     </span>
                                 </button>
@@ -252,7 +266,7 @@ export const ProjectsList: React.FC = () => {
                                                 <span className="text-xs font-bold">Editar</span>
                                             </button>
                                             <button 
-                                                onClick={(e) => handleDelete(project.id, e)}
+                                                onClick={(e) => handleDelete(project, e)}
                                                 className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-red-50 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
                                             >
                                                 <Trash2 className="w-4 h-4" />
@@ -472,7 +486,7 @@ export const ProjectsList: React.FC = () => {
                             ) : (
                                 <button 
                                     onClick={handleConfirmUnlock}
-                                    className="flex-1 py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-yellow-900/40 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                                    className="flex-1 py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-yellow-900/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                                 >
                                     <Unlock className="w-5 h-5" /> DESBLOQUEAR PROYECTO
                                 </button>
@@ -491,6 +505,15 @@ export const ProjectsList: React.FC = () => {
                     reason="Has alcanzado el límite de proyectos de tu plan. Actualiza para crear más estrategias."
                 />
             )}
+
+            {/* MODAL RESTRICCIÓN DE ELIMINACIÓN */}
+            <DeletionRestrictionModal 
+                isOpen={showRestrictionModal} 
+                onClose={() => setShowRestrictionModal(false)}
+                itemName={projectToRestrict?.name || ''}
+                userEmail={user.email}
+                userName={user.name}
+            />
         </div>
     );
 };
