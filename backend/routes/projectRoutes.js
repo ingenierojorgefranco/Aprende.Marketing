@@ -1,4 +1,3 @@
-
 const express = require('express');
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
@@ -23,36 +22,6 @@ const safeParseJson = (str) => {
     } catch (e) {
         console.error("Error parsing JSON:", e.message);
         return null;
-    }
-};
-
-const checkMonthlyQuota = async (userId, resourceType, limit) => {
-    const [user] = await pool.query('SELECT role FROM users WHERE id = ?', [userId]);
-    if (user[0] && user[0].role === 'admin') return true;
-
-    const [rows] = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM usage_logs 
-        WHERE user_id = ? 
-          AND resource_type = ? 
-          AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(created_at) = YEAR(created_at)
-    `, [userId, resourceType]);
-
-    const used = rows[0].count;
-    if (limit > 9000) return true; 
-    
-    if (used >= limit) {
-        return false;
-    }
-    return true;
-};
-
-const logUsage = async (userId, resourceType) => {
-    try {
-        await pool.query('INSERT INTO usage_logs (user_id, resource_type) VALUES (?, ?)', [userId, resourceType]);
-    } catch (e) {
-        console.error("Error logging usage:", e);
     }
 };
 
@@ -263,7 +232,6 @@ router.post('/', async (req, res) => {
     const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
     const [countRows] = await pool.query(`SELECT (SELECT COUNT(*) FROM projects WHERE user_id = ?) + (SELECT COUNT(*) FROM unlocked_projects WHERE user_id = ?) as total`, [req.user.id, req.user.id]);
     if (countRows[0].total >= limits.maxProjects && req.user.role !== 'admin') return res.status(403).json({ error: `Límite alcanzado.` });
-    if (!await checkMonthlyQuota(req.user.id, 'project', limits.maxProjects)) return res.status(403).json({ error: `Cupo mensual alcanzado.` });
 
     const isMasterFinal = (req.user.role === 'admin' && isMaster === true) ? 1 : 0;
     const [result] = await pool.query(
@@ -271,7 +239,6 @@ router.post('/', async (req, res) => {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', salesPageUrl || '', isMasterFinal]
     );
-    await logUsage(req.user.id, 'project');
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
     res.json({ id: result.insertId });
   } catch (error) { res.status(500).json({ error: 'Error BD' }); }

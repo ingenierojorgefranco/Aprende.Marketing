@@ -1,4 +1,3 @@
-
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
@@ -40,33 +39,6 @@ const recordVisit = async (pageId) => {
         );
     } catch (error) {
         console.error(`[Analytics] Error registrando visita para página ${pageId}:`, error.message);
-    }
-};
-
-const checkMonthlyQuota = async (userId, resourceType, limit) => {
-    const [user] = await pool.query('SELECT role FROM users WHERE id = ?', [userId]);
-    if (user[0] && user[0].role === 'admin') return true;
-
-    const [rows] = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM usage_logs 
-        WHERE user_id = ? 
-          AND resource_type = ? 
-          AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(CURRENT_DATE()) = YEAR(created_at)
-    `, [userId, resourceType]);
-
-    const used = rows[0].count;
-    if (limit > 9000) return true; 
-    if (used >= limit) return false;
-    return true;
-};
-
-const logUsage = async (userId, resourceType) => {
-    try {
-        await pool.query('INSERT INTO usage_logs (user_id, resource_type) VALUES (?, ?)', [userId, resourceType]);
-    } catch (e) {
-        console.error("Error logging usage:", e);
     }
 };
 
@@ -118,11 +90,6 @@ router.post('/pages', authMiddleware, async (req, res) => {
         return res.status(403).json({ error: `Has alcanzado el límite de almacenamiento de ${limits.maxLandings} páginas.` });
     }
     
-    const hasQuota = await checkMonthlyQuota(req.user.id, 'landing', limits.maxLandings);
-    if (!hasQuota) {
-        return res.status(403).json({ error: `Has alcanzado tu cupo mensual de ${limits.maxLandings} páginas.` });
-    }
-
     const tyPage = content.thankYouPage;
     if (tyPage) { delete content.thankYouPage; }
 
@@ -137,7 +104,6 @@ router.post('/pages', authMiddleware, async (req, res) => {
     const finalSubdomain = `${pageId}-${subdomain}`;
     await pool.query('UPDATE landing_pages SET subdomain = ? WHERE id = ?', [finalSubdomain, pageId]);
 
-    await logUsage(req.user.id, 'landing');
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PAGE', 'page', pageId, { name, subdomain: finalSubdomain });
     
     res.json({ id: pageId, subdomain: finalSubdomain, message: 'Página creada correctamente con ID único en URL' });
@@ -258,7 +224,7 @@ router.get('/public/pages/by-user/:userSlug/:slug', async (req, res) => {
         page.content.thankYouPage = tyData;
     }
     res.json(page);
-  } catch (e) { res.status(500).json({ error: 'Error interno' }); }
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 router.get('/public/pages/:slug', async (req, res) => {
@@ -281,7 +247,7 @@ router.get('/public/pages/:slug', async (req, res) => {
         page.content.thankYouPage = tyData;
     }
     res.json(page);
-  } catch (e) { res.status(500).json({ error: 'Error interno' }); }
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 router.post('/public/leads/submit', async (req, res) => {
