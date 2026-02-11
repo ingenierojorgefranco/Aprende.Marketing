@@ -52,7 +52,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [activeEmail, setActiveEmail] = useState(0);
     const [activeArticle, setActiveArticle] = useState(0);
     const [activeHook, setActiveHook] = useState(0);
-    const [selectedArticles, setSelectedArticles] = useState<number[]>([0]); 
+    const [selectedArticles, setSelectedArticles] = useState<number[]>([]); 
     const [activeHeaderItem, setActiveHeaderItem] = useState<string | null>(null);
     const [activeEvergreenEmail, setActiveEvergreenEmail] = useState(0); 
     const [selectedLpTab, setSelectedLpTab] = useState<string | null>(null);
@@ -139,7 +139,11 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     const handleTooltipLeave = () => setTooltipState(prev => ({ ...prev, visible: false }));
 
-    const toggleArticleSelection = (index: number) => {
+    const toggleArticleSelection = (index: number, isSingle: boolean = false) => {
+        if (isSingle) {
+            setSelectedArticles([index]);
+            return;
+        }
         if (selectedArticles.includes(index)) setSelectedArticles(prev => prev.filter(i => i !== index));
         else if (selectedArticles.length < (user.planLimits?.maxArticles || 2)) setSelectedArticles(prev => [...prev, index]);
         else { alert("Límite de artículos alcanzado."); setShowUpgradeModal(true); }

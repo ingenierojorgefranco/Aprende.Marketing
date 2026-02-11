@@ -242,6 +242,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
               setCtaLink(hasHotlinks ? proj.affiliateLinks[0].url : '');
           }
       }
+      setStep(1);
   };
 
   const handleSelectRecommendation = async (rec: any) => {
@@ -545,7 +546,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="flex items-center gap-5 mb-8"><div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors shadow-inner"><Briefcase className="w-8 h-8" /></div><div className="flex-1 min-w-0"><h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors truncate">{project.name}</h4><p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p></div></div>
                                 <div className="flex-1 mb-10"><p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p><p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p></div>
-                                <button className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">Seleccionar <ChevronRight className="w-5 h-5" /></button>
+                                <button className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95" onClick={() => handleProjectSelect(project.id)}>Seleccionar <ChevronRight className="w-5 h-5" /></button>
                             </div>
                         ))}
                     </div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, CheckCircle2, ChevronLeft, ChevronRight, TrendingUp, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -12,7 +11,7 @@ interface ProjectStrategy_ContentProps {
     activeArticle: number;
     setActiveArticle: (idx: number) => void;
     selectedArticles: number[];
-    toggleArticleSelection: (idx: number) => void;
+    toggleArticleSelection: (idx: number, isSingle?: boolean) => void;
     handleTooltipHover: (e: React.MouseEvent, content: string[]) => void;
     handleTooltipLeave: () => void;
     onUpgrade: () => void;
@@ -66,10 +65,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     }, [projectId]);
 
     const handleSelectOne = (idx: number) => {
-        selectedArticles.filter(i => i !== idx).forEach(i => toggleArticleSelection(i));
-        if (!selectedArticles.includes(idx)) {
-            toggleArticleSelection(idx);
-        }
+        // Al seleccionar uno solo de forma atómica evitamos el bucle que causaba falsos positivos en la validación de límites
+        toggleArticleSelection(idx, true);
     };
 
     const handleCloseAndReload = () => {
