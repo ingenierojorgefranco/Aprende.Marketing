@@ -4,6 +4,7 @@ import { api } from '../../../services/api';
 import { LandingPage, User } from '../../../types';
 import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
+import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 
 interface DashboardContext {
   user: User;
@@ -25,6 +26,11 @@ export const MyPages: React.FC = () => {
     const [showDomainModal, setShowDomainModal] = useState(false);
     const [selectedPageForDomain, setSelectedPageForDomain] = useState<LandingPage | null>(null);
     
+    // --- Nuevo Estado para Restricción de Eliminación ---
+    const [showRestrictionModal, setShowRestrictionModal] = useState(false);
+    const [pageToRestrict, setPageToRestrict] = useState<LandingPage | null>(null);
+    // ----------------------------------------------------
+
     // Accordion State
     const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
 
@@ -52,6 +58,15 @@ export const MyPages: React.FC = () => {
             setPages(prev => prev.map(p => (p.id === page.id ? updatedPage : p)));
         } catch (error) {
             alert("No se pudo cambiar el estado de publicación.");
+        }
+    };
+
+    const handleDeleteAttempt = (page: LandingPage) => {
+        if (user.role !== 'admin') {
+            setPageToRestrict(page);
+            setShowRestrictionModal(true);
+        } else {
+            setPageToDelete(page);
         }
     };
 
@@ -293,7 +308,7 @@ export const MyPages: React.FC = () => {
                                             </button>
                                         </div>
 
-                                        <button onClick={() => setPageToDelete(page)} className="w-full py-3 text-red-500/40 hover:text-red-400 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition hover:bg-red-500/5 rounded-xl">
+                                        <button onClick={() => handleDeleteAttempt(page)} className="w-full py-3 text-red-500/40 hover:text-red-400 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition hover:bg-red-500/5 rounded-xl">
                                             <Trash2 className="w-3.5 h-3.5" /> Eliminar Página
                                         </button>
                                     </div>
@@ -308,8 +323,7 @@ export const MyPages: React.FC = () => {
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
                 onClose={() => setShowUpgradeModal(false)} 
-                currentPlan={user.planLimits?.planName}
-                reason="Has alcanzado el límite de páginas de tu plan. Actualiza para crear más embudos."
+                reason={`Has alcanzado el límite de ${user.planLimits?.maxLandings} páginas de tu plan ${user.planLimits?.planName}.`}
             />
 
             {showVideoModal && (
@@ -572,6 +586,15 @@ export const MyPages: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            {/* MODAL RESTRICCIÓN DE ELIMINACIÓN */}
+            <DeletionRestrictionModal 
+                isOpen={showRestrictionModal} 
+                onClose={() => setShowRestrictionModal(false)}
+                itemName={pageToRestrict ? `Página: ${pageToRestrict.name}` : ''}
+                userEmail={user.email}
+                userName={user.name}
+            />
         </div>
     );
 };

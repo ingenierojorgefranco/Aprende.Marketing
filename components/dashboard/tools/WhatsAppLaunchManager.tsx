@@ -4,14 +4,20 @@ import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIco
 import { api } from '../../../services/api';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { UpgradeModal } from '../UpgradeModal';
+import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 
 export const WhatsAppLaunchManager: React.FC = () => {
     const navigate = useNavigate();
     const { user, isSimulating } = useOutletContext() as { user: User, isSimulating: boolean };
-    const [launches, setLaunches] = useState<WhatsAppLaunch[]>([]);
+    const [launches, setLeads] = useState<WhatsAppLaunch[]>([]);
     const [loading, setLoading] = useState(true);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [showVideoModal, setShowVideoModal] = useState(false);
+
+    // --- Nuevo Estado para Restricción de Eliminación ---
+    const [showRestrictionModal, setShowRestrictionModal] = useState(false);
+    const [launchToRestrict, setLaunchToRestrict] = useState<WhatsAppLaunch | null>(null);
+    // ----------------------------------------------------
 
     useEffect(() => {
         loadLaunches();
@@ -21,7 +27,7 @@ export const WhatsAppLaunchManager: React.FC = () => {
         setLoading(true);
         try {
             const data = await api.getWhatsAppLaunches();
-            setLaunches(data);
+            setLeads(data);
         } catch (e) {
             console.error("Error cargando lanzamientos", e);
         } finally {
@@ -29,12 +35,19 @@ export const WhatsAppLaunchManager: React.FC = () => {
         }
     };
 
-    const handleDelete = async (id: string, e: React.MouseEvent) => {
+    const handleDelete = async (launch: WhatsAppLaunch, e: React.MouseEvent) => {
         e.stopPropagation();
+
+        if (user.role !== 'admin') {
+            setLaunchToRestrict(launch);
+            setShowRestrictionModal(true);
+            return;
+        }
+
         if (!window.confirm("¿Estás seguro de eliminar este lanzamiento?")) return;
         try {
-            await api.deleteWhatsAppLaunch(id);
-            setLaunches(prev => prev.filter(l => l.id !== id));
+            await api.deleteWhatsAppLaunch(launch.id);
+            setLeads(prev => prev.filter(l => l.id !== launch.id));
         } catch (e) {
             alert("Error al eliminar");
         }
@@ -157,7 +170,7 @@ export const WhatsAppLaunchManager: React.FC = () => {
                                     </div>
                                     <div className="flex gap-2">
                                         <button 
-                                            onClick={(e) => handleDelete(launch.id, e)}
+                                            onClick={(e) => handleDelete(launch, e)}
                                             className="p-3 rounded-2xl bg-red-900/20 text-red-500 border border-red-900/30 hover:bg-red-500 hover:text-white transition-all shadow-lg"
                                         >
                                             <Trash2 className="w-5 h-5" />
@@ -243,6 +256,15 @@ export const WhatsAppLaunchManager: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            {/* MODAL RESTRICCIÓN DE ELIMINACIÓN */}
+            <DeletionRestrictionModal 
+                isOpen={showRestrictionModal} 
+                onClose={() => setShowRestrictionModal(false)}
+                itemName={launchToRestrict ? `WhatsApp Launch: ${launchToRestrict.projectName}` : ''}
+                userEmail={user.email}
+                userName={user.name}
+            />
         </div>
     );
 };

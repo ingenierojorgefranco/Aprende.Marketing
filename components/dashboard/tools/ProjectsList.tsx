@@ -510,7 +510,7 @@ export const ProjectsList: React.FC = () => {
             <DeletionRestrictionModal 
                 isOpen={showRestrictionModal} 
                 onClose={() => setShowRestrictionModal(false)}
-                itemName={projectToRestrict?.name || ''}
+                itemName={projectToRestrict ? `Proyecto: ${projectToRestrict.name}` : ''}
                 userEmail={user.email}
                 userName={user.name}
             />

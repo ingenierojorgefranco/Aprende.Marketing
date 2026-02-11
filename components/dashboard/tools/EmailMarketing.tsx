@@ -4,6 +4,7 @@ import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Sen
 import { api } from '../../../services/api';
 /* */ /* Actualización: Importación de useNavigate para manejar redirección - 24/06/2024 15:15 */
 import { useNavigate, Link, useOutletContext } from 'react-router-dom';
+import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 /* Fin de actualización - 24/06/2024 15:15 */
 
 export const EmailMarketing: React.FC = () => {
@@ -38,6 +39,11 @@ export const EmailMarketing: React.FC = () => {
   const [newTagName, setNewTagName] = useState('');
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
+
+  // --- Nuevo Estado para Restricción de Eliminación ---
+  const [showRestrictionModal, setShowRestrictionModal] = useState(false);
+  const [sequenceToRestrict, setSequenceToRestrict] = useState<EmailSequence | null>(null);
+  // ----------------------------------------------------
 
   useEffect(() => {
     loadSettings();
@@ -91,13 +97,20 @@ export const EmailMarketing: React.FC = () => {
   };
 
   /* */ /* Actualización: Implementación de eliminación física de secuencia con confirmación - 11/12/2024 15:45 */
-  const handleDeleteSequence = async (id: string, e: React.MouseEvent) => {
+  const handleDeleteSequence = async (seq: EmailSequence, e: React.MouseEvent) => {
     e.stopPropagation();
+
+    if (user.role !== 'admin') {
+      setSequenceToRestrict(seq);
+      setShowRestrictionModal(true);
+      return;
+    }
+
     if (!window.confirm("¿Estás seguro de eliminar esta secuencia de correos? Se borrarán todos los borradores asociados.")) return;
     
     try {
-        await api.deleteEmailSequence(id);
-        setSequences(prev => prev.filter(s => s.id !== id));
+        await api.deleteEmailSequence(seq.id);
+        setSequences(prev => prev.filter(s => s.id !== seq.id));
     } catch (error) {
         alert("Error al eliminar la secuencia.");
     }
@@ -319,7 +332,7 @@ export const EmailMarketing: React.FC = () => {
                                     </div>
                                     <div className="flex gap-2">
                                         <button 
-                                            onClick={(e) => handleDeleteSequence(seq.id, e)}
+                                            onClick={(e) => handleDeleteSequence(seq, e)}
                                             className="p-3 rounded-2xl bg-red-900/20 text-red-500 border border-red-900/30 hover:bg-red-500 hover:text-white transition-all shadow-lg"
                                             title="Eliminar Secuencia"
                                         >
@@ -717,6 +730,15 @@ export const EmailMarketing: React.FC = () => {
             </div>
         </div>
       )}
+
+      {/* MODAL RESTRICCIÓN DE ELIMINACIÓN */}
+      <DeletionRestrictionModal 
+          isOpen={showRestrictionModal} 
+          onClose={() => setShowRestrictionModal(false)}
+          itemName={sequenceToRestrict ? `Secuencia Email: ${sequenceToRestrict.projectName}` : ''}
+          userEmail={user.email}
+          userName={user.name}
+      />
     </div>
   );
 };

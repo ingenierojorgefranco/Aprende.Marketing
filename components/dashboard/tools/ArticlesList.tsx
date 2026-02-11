@@ -4,6 +4,7 @@ import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { UpgradeModal } from '../UpgradeModal';
+import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 
 interface DashboardContext {
   user: User;
@@ -24,6 +25,11 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   // Modals States
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
+  
+  // --- Nuevo Estado para Restricción de Eliminación ---
+  const [showRestrictionModal, setShowRestrictionModal] = useState(false);
+  const [articleToRestrict, setArticleToRestrict] = useState<Article | null>(null);
+  // ----------------------------------------------------
 
   useEffect(() => {
       const fetchArticles = async () => {
@@ -40,11 +46,17 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       fetchArticles();
   }, []);
 
-  const handleDelete = async (id: string) => {
-      if (window.confirm("¿Estás seguro de que deseas eliminar este artículo? Esta acción no se puede deshacer.")) {
+  const handleDelete = async (article: Article) => {
+      if (user.role !== 'admin') {
+          setArticleToRestrict(article);
+          setShowRestrictionModal(true);
+          return;
+      }
+
+      if (window.confirm(`¿Estás seguro de que deseas eliminar el artículo "${article.title}"? Esta acción no se puede deshacer.`)) {
           try {
-              await api.deleteArticle(id);
-              setLocalArticles(prev => prev.filter(a => a.id !== id));
+              await api.deleteArticle(article.id);
+              setLocalArticles(prev => prev.filter(a => a.id !== article.id));
           } catch (error) {
               alert("Error eliminando el artículo. Por favor intenta de nuevo.");
           }
@@ -319,7 +331,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                     )}
 
                     <button 
-                        onClick={() => handleDelete(article.id)}
+                        onClick={() => handleDelete(article)}
                         className="p-3 text-red-500/40 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition"
                         title="Eliminar artículo"
                     >
@@ -347,7 +359,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
 
       {/* VIDEO MODAL */}
       {showVideoModal && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={() => setShowVideoModal(false)}>
+          <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300" onClick={() => setShowVideoModal(false)}>
               <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800" onClick={e => e.stopPropagation()}>
                   <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
                       <h3 className="font-bold text-white flex items-center gap-2">
@@ -374,6 +386,15 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
               </div>
           </div>
       )}
+
+      {/* MODAL RESTRICCIÓN DE ELIMINACIÓN */}
+      <DeletionRestrictionModal 
+          isOpen={showRestrictionModal} 
+          onClose={() => setShowRestrictionModal(false)}
+          itemName={articleToRestrict ? `Contenido: ${articleToRestrict.title}` : ''}
+          userEmail={user.email}
+          userName={user.name}
+      />
     </div>
   );
 };

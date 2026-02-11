@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { User, PlanLimits, Plan, UserUsageStats, SupportTicket } from '../../../types';
 import { api } from '../../../services/api';
@@ -459,7 +458,7 @@ export const AdminPanel: React.FC = () => {
                                             <td className="p-6">
                                                 <div className="flex items-center gap-2 text-gray-500 text-xs font-medium">
                                                     <Clock className="w-3.5 h-3.5" />
-                                                    {new Date(ticket.createdAt).toLocaleDateString()}
+                                                    {new Date(ticket.createdAt).toLocaleString()}
                                                 </div>
                                             </td>
                                             <td className="p-6 text-center">
@@ -539,7 +538,7 @@ export const AdminPanel: React.FC = () => {
                                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre</label>
                                                 <input 
                                                     type="text" 
-                                                    value={editingUser.name}
+                                                    value={editingUser.name} 
                                                     onChange={(e) => setEditingUser({...editingUser, name: e.target.value})}
                                                     className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
                                                 />
@@ -548,7 +547,7 @@ export const AdminPanel: React.FC = () => {
                                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
                                                 <input 
                                                     type="email" 
-                                                    value={editingUser.email}
+                                                    value={editingUser.email} 
                                                     onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
                                                     className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
                                                 />
@@ -569,7 +568,7 @@ export const AdminPanel: React.FC = () => {
                                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Avatar URL</label>
                                                 <input 
                                                     type="text" 
-                                                    value={editingUser.avatarUrl || ''}
+                                                    value={editingUser.avatarUrl || ''} 
                                                     onChange={(e) => setEditingUser({...editingUser, avatarUrl: e.target.value})}
                                                     placeholder="https://..."
                                                     className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
@@ -599,7 +598,7 @@ export const AdminPanel: React.FC = () => {
                                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Redirección Personalizada</label>
                                                 <input 
                                                     type="text" 
-                                                    value={editingUser.customRedirectUrl || ''}
+                                                    value={editingUser.customRedirectUrl || ''} 
                                                     onChange={(e) => setEditingUser({...editingUser, customRedirectUrl: e.target.value})}
                                                     placeholder="URL prioritaria al login"
                                                     className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-blue-300 placeholder-gray-600"
