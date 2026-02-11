@@ -1,5 +1,7 @@
+
 import React, { useState } from 'react';
 import { X, AlertTriangle, Send, Loader2, CheckCircle } from 'lucide-react';
+import { api } from '../../services/api';
 
 interface DeletionRestrictionModalProps {
   isOpen: boolean;
@@ -22,18 +24,21 @@ export const DeletionRestrictionModal: React.FC<DeletionRestrictionModalProps> =
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // La lógica para guardar el mensaje se implementará en una fase posterior
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-      setTimeout(() => {
-        setSuccess(false);
-        onClose();
-      }, 3000);
-    }, 1500);
+    try {
+        await api.submitSupportTicket({ itemName, reason });
+        setLoading(false);
+        setSuccess(true);
+        setTimeout(() => {
+          setSuccess(false);
+          onClose();
+        }, 3000);
+    } catch (error) {
+        alert("Error al enviar la solicitud. Por favor intenta de nuevo.");
+        setLoading(false);
+    }
   };
 
   return (

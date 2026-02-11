@@ -1,4 +1,5 @@
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch } from "../types";
+
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch, SupportTicket } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES, MOCK_MASTER_STRATEGY } from "./mockData";
 import { ProjectMasterStrategy } from "./strategySchema";
 
@@ -73,6 +74,7 @@ const apiCache: {
     masterStrategies: Record<string, ProjectMasterStrategy | null>;
     emailSequences: EmailSequence[] | null;
     waLaunches: WhatsAppLaunch[] | null;
+    supportTickets: SupportTicket[] | null;
 } = {
     pages: null,
     projects: null,
@@ -114,7 +116,8 @@ const apiCache: {
     publicPages: {},
     masterStrategies: {},
     emailSequences: null,
-    waLaunches: null
+    waLaunches: null,
+    supportTickets: null
 };
 
 const clearCache = (key?: keyof typeof apiCache, id?: string) => {
@@ -184,6 +187,7 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.masterStrategies = {};
         apiCache.emailSequences = null;
         apiCache.waLaunches = null;
+        apiCache.supportTickets = null;
     }
 };
 
@@ -869,6 +873,7 @@ export const api = {
                 slug: article.slug,
                 description: article.description,
                 content_html: article.contentHtml,
+                // Fixing snake_case keys correctly mapped to article's camelCase properties
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
@@ -897,7 +902,7 @@ export const api = {
                 slug: article.slug,
                 description: article.description,
                 content_html: article.contentHtml,
-                // Corregido: se usa featuredImage para coincidir con la interfaz Partial<Article>
+                // Fixing snake_case keys correctly mapped to article's camelCase properties
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
@@ -1621,6 +1626,29 @@ export const api = {
         await fetchWithFallback(`/whatsapp-launch/launches/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
         clearCache('waLaunches');
     },
+
+    ////////// Actualización: Métodos para Tickets de Soporte - 12/06/2025 //////////
+    submitSupportTicket: async (data: { itemName: string; reason: string }): Promise<void> => {
+        if (isMockMode) {
+            console.log("Mock Support Ticket Submitted:", data);
+            return Promise.resolve();
+        }
+        await fetchWithFallback('/support/tickets', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(data)
+        });
+        clearCache('supportTickets');
+    },
+
+    getAdminSupportTickets: async (): Promise<SupportTicket[]> => {
+        if (isMockMode) return [];
+        if (apiCache.supportTickets) return apiCache.supportTickets;
+        const tickets = await fetchWithFallback('/admin/support/tickets', { headers: getAuthHeaders() });
+        apiCache.supportTickets = tickets;
+        return tickets;
+    },
+    ////////// Fin de actualización //////////
 
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,
     setLastGeneratedTitles: (titles: any[]) => { apiCache.lastGeneratedTitles = titles; }
