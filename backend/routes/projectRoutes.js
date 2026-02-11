@@ -1,3 +1,4 @@
+
 const express = require('express');
 const pool = require('../db');
 const { authMiddleware } = require('../authMiddleware');
@@ -115,13 +116,19 @@ router.post('/unlock/:id', async (req, res) => {
             return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxProjects} proyectos en tu plan.` });
         }
 
-        // 3. Crear un nuevo proyecto independiente para el usuario (copia física)
+        // 3. Crear un nuevo proyecto independiente para el usuario (copia física del ADN base)
         const [result] = await pool.query(
-            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, sales_page_url, is_master, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, NOW(), NOW())`,
-            [req.user.id, master.name, master.niche, master.description, master.target_audience, master.brand_tone, master.product_name, master.main_goal, master.pain_points, master.key_benefits, master.affiliate_links, master.full_price, master.commission_rate, master.lead_magnet_type, master.sales_page_url]
+            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, sales_page_url, is_master, master_parent_id, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, NOW(), NOW())`,
+            [req.user.id, master.name, master.niche, master.description, master.target_audience, master.brand_tone, master.product_name, master.main_goal, master.pain_points, master.key_benefits, master.affiliate_links, master.full_price, master.commission_rate, master.lead_magnet_type, master.sales_page_url, master.id]
         );
         const newProjectId = result.insertId;
+
+        // Registrar el desbloqueo para visualización en biblioteca
+        await pool.query(
+            'INSERT IGNORE INTO unlocked_projects (user_id, project_id, created_at) VALUES (?, ?, NOW())',
+            [req.user.id, projectId]
+        );
 
         // 4. Invocar internamente a la función generateFullStrategy para que la IA genere avatares y contenidos únicos
         const strategyJson = await generateFullStrategy(newProjectId);
@@ -223,7 +230,8 @@ router.get('/', async (req, res) => {
         affiliate_links: safeParseJson(p.affiliate_links),
         strategy_json: safeParseJson(p.strategy_json),
         isMaster: !!p.is_master,
-        isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked
+        isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked,
+        masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined
     }));
     res.json(projects);
   } catch (error) { res.status(500).json({ error: 'Error cargando proyectos' }); }
@@ -243,6 +251,7 @@ router.get('/:id', async (req, res) => {
     project.affiliate_links = safeParseJson(project.affiliate_links);
     project.strategy_json = safeParseJson(project.strategy_json);
     project.isMaster = !!project.is_master;
+    project.masterParentId = project.master_parent_id ? String(project.master_parent_id) : undefined;
     res.json(project);
   } catch (error) { res.status(500).json({ error: error.message }); }
 });
