@@ -184,9 +184,9 @@ router.get('/', async (req, res) => {
       SELECT p.*, (p.user_id = ?) as is_owner,
              EXISTS(SELECT 1 FROM unlocked_projects up WHERE up.project_id = p.id AND up.user_id = ?) as is_unlocked
       FROM projects p LEFT JOIN unlocked_projects up ON p.id = up.project_id AND up.user_id = ?
-      WHERE p.user_id = ? OR up.user_id = ? ORDER BY p.updated_at DESC
+      WHERE p.user_id = ? AND p.is_master = 0 ORDER BY p.updated_at DESC
     `;
-    let params = [req.user.id, req.user.id, req.user.id, req.user.id, req.user.id];
+    let params = [req.user.id, req.user.id, req.user.id, req.user.id];
     if (req.user.role === 'admin') {
         query = 'SELECT *, (user_id = ?) as is_owner, (is_master = 1) as is_master_logic FROM projects ORDER BY updated_at DESC';
         params = [req.user.id];
@@ -246,7 +246,7 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, salesPageUrl, isMaster } = req.body;
+  const { name, niche, description, targetAudience, brand_tone: brandTone, product_name: productName, main_goal: mainGoal, pain_points: painPoints, key_benefits: keyBenefits, affiliate_links: affiliateLinks, strategy_json, full_price: fullPrice, commission_rate: commissionRate, lead_magnet_type: leadMagnetType, sales_page_url: salesPageUrl, is_master: isMaster } = req.body;
   try {
     const [check] = await pool.query('SELECT user_id, is_master FROM projects WHERE id = ?', [id]);
     if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) return res.status(403).json({ error: 'No autorizado' });

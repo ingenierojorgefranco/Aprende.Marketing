@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
@@ -277,7 +276,7 @@ export const ProjectsList: React.FC = () => {
                     </div>
                 ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {projects.map((project) => {
+                        {projects.filter(p => user.role === 'admin' || !p.isMaster).map((project) => {
                             const isClonedFromMaster = !!project.masterParentId;
                             
                             return (
@@ -291,7 +290,7 @@ export const ProjectsList: React.FC = () => {
                                     <div className="p-8 flex-1 flex flex-col">
                                         <div className="flex justify-between items-start mb-6">
                                             {isClonedFromMaster ? (
-                                                <div className="bg-yellow-500/10 text-yellow-500 text-[10px] px-3 py-1.5 rounded-full border border-yellow-500/20 font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg">
+                                                <div className="bg-yellow-500/10 text-yellow-500 text-[10px] font-black px-3 py-1.5 rounded-full border border-yellow-500/20 font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg">
                                                     <CornerCrown className="w-3 h-3 fill-current" />
                                                     Estrategia Desbloqueada
                                                 </div>
@@ -412,7 +411,11 @@ export const ProjectsList: React.FC = () => {
                                                     <CheckCircle2 className="w-5 h-5 text-emerald-500" /> {user.role === 'admin' ? 'Acceso Admin' : 'Desbloqueado'}
                                                 </div>
                                                 <button 
-                                                    onClick={(e) => handleViewStrategy(e, item)}
+                                                    onClick={(e) => {
+                                                        const userClone = projects.find(p => String(p.masterParentId) === String(item.id));
+                                                        const targetProject = userClone || item;
+                                                        handleViewStrategy(e, targetProject);
+                                                    }}
                                                     className="w-full py-4 bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-white/10 transition-all flex items-center justify-center gap-2"
                                                 >
                                                     Ver Estrategia

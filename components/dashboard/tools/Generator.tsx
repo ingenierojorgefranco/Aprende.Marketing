@@ -66,7 +66,8 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
     const fetchProjects = async () => {
         try {
             const projects = await api.getProjects();
-            setUserProjects(projects);
+            const filtered = user.role === 'admin' ? projects : projects.filter(p => !p.isMaster);
+            setUserProjects(filtered);
         } catch (e) {
             console.error("Failed to load projects", e);
         }
