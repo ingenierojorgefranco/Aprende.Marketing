@@ -1,4 +1,4 @@
-const mysql = require('mysql2/promise');
+import mysql from 'mysql2/promise';
 
 // Configuración de la conexión basada en variables de entorno
 const dbConfig = {
@@ -41,4 +41,4 @@ pool.getConnection()
         console.error('   -> Verifica que las variables de entorno DB_USER, DB_PASSWORD y DB_NAME sean correctas en Cloud Run.');
     });
 
-module.exports = pool;
+export default pool;

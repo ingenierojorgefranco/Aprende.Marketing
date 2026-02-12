@@ -1,6 +1,6 @@
 ////////// Actualización: Implementación de verificación de firma HMAC SHA256 para Webhooks - 27/06/2025 11:45 //////////
-const https = require('https');
-const crypto = require('crypto');
+import https from 'https';
+import crypto from 'crypto';
 
 /**
  * Verifica la autenticidad de la firma enviada por Systeme.io
@@ -8,7 +8,7 @@ const crypto = require('crypto');
  * @param {string} signature - La firma recibida en el header X-Webhook-Signature
  * @param {string} secret - El secreto de webhook configurado en Systeme.io
  */
-const verifyWebhookSignature = (rawBody, signature, secret) => {
+export const verifyWebhookSignature = (rawBody, signature, secret) => {
     if (!signature || !secret) return false;
     
     const hmac = crypto.createHmac('sha256', secret);
@@ -32,7 +32,7 @@ const verifyWebhookSignature = (rawBody, signature, secret) => {
  * @param {string} email - Email del lead
  * @param {string} firstName - Nombre del lead
  */
-const addContact = async (apiKey, email, firstName) => {
+export const addContact = async (apiKey, email, firstName) => {
     ////////// Actualización: Se cambia 'name' por 'slug' para corregir error 422 de Systeme.io (This value should not be blank) - 07/06/2025 20:30 //////////
     const data = JSON.stringify({
         email: email,
@@ -84,7 +84,7 @@ const addContact = async (apiKey, email, firstName) => {
  * Obtiene el listado de etiquetas (Tags) de Systeme.io
  * @param {string} apiKey 
  */
-const getTags = async (apiKey) => {
+export const getTags = async (apiKey) => {
     const options = {
         hostname: 'api.systeme.io',
         port: 443,
@@ -128,7 +128,7 @@ const getTags = async (apiKey) => {
  * @param {string} apiKey 
  * @param {string} email 
  */
-const getContactByEmail = async (apiKey, email) => {
+export const getContactByEmail = async (apiKey, email) => {
     const options = {
         hostname: 'api.systeme.io',
         port: 443,
@@ -168,7 +168,7 @@ const getContactByEmail = async (apiKey, email) => {
  * @param {string} apiKey 
  * @param {string} tagName 
  */
-const createTag = async (apiKey, tagName) => {
+export const createTag = async (apiKey, tagName) => {
     const data = JSON.stringify({ name: tagName });
     const options = {
         hostname: 'api.systeme.io',
@@ -211,7 +211,7 @@ const createTag = async (apiKey, tagName) => {
  * @param {number|string} contactId 
  * @param {number|string} tagId 
  */
-const addTagToContact = async (apiKey, contactId, tagId) => {
+export const addTagToContact = async (apiKey, contactId, tagId) => {
     const cleanContactId = Number(contactId);
     const cleanTagId = Number(tagId);
 
@@ -253,14 +253,4 @@ const addTagToContact = async (apiKey, contactId, tagId) => {
         req.write(data);
         req.end();
     });
-};
-////////// Fin de actualización - 27/06/2025 12:30 //////////
-
-module.exports = { 
-    addContact, 
-    getTags, 
-    addTagToContact, 
-    verifyWebhookSignature,
-    getContactByEmail,
-    createTag
 };

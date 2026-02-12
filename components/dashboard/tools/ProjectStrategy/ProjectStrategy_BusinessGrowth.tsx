@@ -1,27 +1,39 @@
-import React from 'react';
-import { TrendingUp, PlayCircle, Calendar, Sparkles, DollarSign, ArrowUpRight, Users, Clock, Zap, Check, AlertTriangle, Cpu, ArrowRight } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { TrendingUp, PlayCircle, Calendar, Sparkles, DollarSign, ArrowUpRight, Users, Clock, Zap, Check, AlertTriangle, Cpu, ArrowRight, X } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 
 interface ProjectStrategy_BusinessGrowthProps {
     chartData: any[];
     onOpenVideo: () => void;
     commissionValue: number;
+    commissionRate: number;
 }
 
-const CustomTooltip = ({ active, payload, label, commissionValue, fullData }: any) => {
+const formatValue = (val: number | string) => {
+    const num = Number(val);
+    if (isNaN(num)) return "0";
+    
+    // Si es un número entero, no mostramos decimales
+    if (Number.isInteger(num)) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+    
+    // Si tiene decimales, usamos punto para miles y coma para decimales
+    const parts = num.toFixed(2).split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return `${parts[0]},${parts[1]}`;
+};
+
+const CustomTooltip = ({ active, payload, label, commissionValue }: any) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
-        const income = data.income;
-        const sales = commissionValue > 0 ? Math.floor(income / commissionValue) : 0;
+        const income = data.income; // Este ya viene procesado como (ventas_reales * comision)
         
-        // Buscar el índice del mes actual para la lógica de Leads
-        const index = fullData.findIndex((d: any) => d.fullDate === data.fullDate);
+        // Ventas reales calculadas previamente en el mapeo
+        const sales = data.realSales;
         
-        let leads = 0;
-        if (index === 0) leads = 5;
-        else if (index === 1) leads = 30; // Promedio de 15 a 45
-        else if (index === 2) leads = 60; // Promedio de 50 a 70
-        else leads = sales * 50; // A partir del mes 4: 50 leads por venta
+        // Cálculo de leads basado estrictamente en las ventas reales (Ventas / 0.05)
+        const leads = sales > 0 ? Math.ceil(sales / 0.05) : 0;
 
         return (
             <div id="psd-tooltip-chart" className="bg-gray-900/95 backdrop-blur-xl border border-gray-700 p-6 rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] min-w-[240px] animate-in fade-in zoom-in-95 duration-200">
@@ -33,19 +45,19 @@ const CustomTooltip = ({ active, payload, label, commissionValue, fullData }: an
                 </div>
                 <div id="psd-tooltip-chart-content" className="space-y-4">
                     <div className="flex justify-between items-center">
-                        <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Leads:</p>
+                        <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Leads Necesarios:</p>
                         <p className="text-blue-400 font-black text-xl flex items-center gap-1">
-                            <Users className="w-3 h-3" /> {leads}
+                            <Users className="w-3 h-3" /> {formatValue(leads)}
                         </p>
                     </div>
                     <div className="flex justify-between items-center">
                         <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Ventas:</p>
-                        <p className="text-white font-black text-xl">{sales}</p>
+                        <p className="text-white font-black text-xl">{formatValue(sales)}</p>
                     </div>
                     <div className="pt-2 border-t border-gray-800 flex justify-between items-end">
                         <div>
                             <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-1">Ganancia Estimada:</p>
-                            <p className="text-emerald-400 font-black text-2xl leading-none">${income.toFixed(2)}</p>
+                            <p className="text-emerald-400 font-black text-2xl leading-none">${formatValue(income)} USD</p>
                         </div>
                     </div>
                 </div>
@@ -55,7 +67,32 @@ const CustomTooltip = ({ active, payload, label, commissionValue, fullData }: an
     return null;
 };
 
-export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGrowthProps> = ({ chartData, onOpenVideo, commissionValue }) => {
+export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGrowthProps> = ({ chartData, commissionValue, commissionRate }) => {
+    const [showVideoModal, setShowVideoModal] = useState(false);
+
+    // Saneamiento de datos para la gráfica: Convertimos ingresos brutos de IA a ingresos por unidades de venta reales (escalones)
+    const adjustedChartData = useMemo(() => {
+        return chartData.map(item => {
+            const rawIncome = item.income || 0;
+            // Unidades enteras = Suelo de (Ingreso / Comisión Fija)
+            const realSales = commissionValue > 0 ? Math.floor(rawIncome / commissionValue) : 0;
+            // Ingreso ajustado para la línea = Ventas reales * Comisión
+            const adjustedIncome = realSales * commissionValue;
+
+            return {
+                ...item,
+                income: adjustedIncome,
+                realSales: realSales
+            };
+        });
+    }, [chartData, commissionValue]);
+
+    // Cálculo dinámico de la meta de ingresos sumando todos los meses de la proyección ajustada
+    const totalIncome = adjustedChartData.reduce((acc, curr) => acc + (curr.income || 0), 0);
+
+    // Escenarios de leads solicitados por el usuario
+    const leadScenarios = [50, 100, 200, 500, 1000];
+
     return (
         <div id="psd-business-growth-section" className="space-y-16 pt-8">
             
@@ -67,33 +104,26 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                     ¿Cuánto podrías ganar con nuestra estrategia?
                 </h3>
                 
-                <div className="grid md:grid-cols-2 gap-10 text-white text-xl leading-relaxed font-light">
-                    <p className="border-l-4 border-emerald-500 pl-8 py-2">
-                        Este sistema está diseñado para ayudarte a construir un negocio de ingresos progresivos utilizando contenido inteligente y automatización masiva. No es una fórmula de dinero fácil ni resultados inmediatos.
-                    </p>
-                    <div className="space-y-8">
-                        <p className="border-l-4 border-teal-500 pl-8 py-2">
-                            Recuerda que los resultados son tu responsabilidad y dependen enteramente de tu trabajo constante, la correcta aplicación del método y el tiempo que le dediques al proyecto.
+                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light pt-[10px]">
+                    <div className="flex-1 border-l-4 border-emerald-500 pl-8 py-2">
+                        <p>
+                            Nuestro sistema está diseñado para ayudarte a construir un negocio digital que te permita generar ingresos progresivos. Sin embargo, no es una fórmula mágica, requiere tiempo y dedicación, si quieres tener resultados plantéate desarrollar tu estrategia por mínimo 1 año.
                         </p>
                     </div>
-                </div>
-            </div>
-
-            {/* BLOQUE DE VIDEO: SOPORTE VISUAL ESTRATÉGICO */}
-            <div id="psd-growth-video-block" className="max-w-[70em] mx-auto px-4 md:px-0">
-                <div className="bg-gray-900/40 p-4 md:p-6 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group transition-all duration-500 hover:border-indigo-500/20">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30"></div>
-                    <div className="aspect-video w-full rounded-[2rem] overflow-hidden shadow-inner bg-black relative">
-                        <iframe 
-                            className="w-full h-full"
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
-                            title="Explicación de la Proyección de Ingresos" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                        ></iframe>
-                        <div className="absolute bottom-6 left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 pointer-events-none transition-opacity group-hover:opacity-0">
-                            <PlayCircle className="w-5 h-5 text-indigo-400" />
-                            <span className="text-white text-xs font-black uppercase tracking-widest">Video Explicativo de Proyección</span>
+                    <div className="hidden md:block w-px h-24 bg-teal-500/30"></div>
+                    <div 
+                        onClick={() => setShowVideoModal(true)}
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                    >
+                        <img 
+                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
+                        alt="Video Thumbnail"
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                                <PlayCircle className="w-10 h-10 text-emerald-400" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -108,25 +138,25 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                     <div className="relative z-10 h-[450px] w-full mb-12">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
                             <div>
-                                <h5 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                                <h4 className="text-[2rem] font-black text-white tracking-tight flex items-center gap-3">
                                     Retorno de Inversión Estimado (Año 1)
-                                </h5>
-                                <p className="text-gray-300 text-sm leading-[1.8] font-light mt-1">Cálculo basado en una tasa de cierre promedio del 3% en WhatsApp.</p>
+                                </h4>
+                                <p className="text-gray-300 text-[1.2rem] leading-[1.8] font-light mt-1 pt-[10px]">Cálculo basado en una tasa de cierre promedio del 5% en WhatsApp.</p>
                             </div>
                             
                             <div className="flex gap-4">
                                 <div className="bg-black/40 border border-emerald-500/30 p-6 rounded-[2rem] flex items-center gap-6 shadow-2xl">
                                     <div className="p-4 bg-emerald-500/20 rounded-2xl text-emerald-400 shadow-lg shadow-emerald-500/10"><DollarSign className="w-8 h-8"/></div>
                                     <div>
-                                        <p className="text-xs text-gray-500 font-black uppercase tracking-[0.2em] mb-1">Meta de ingresos en 12 meses</p>
-                                        <p className="text-white font-black text-3xl md:text-4xl tracking-tighter leading-none">$1.440 USD/MES</p>
+                                        <p className="text-xs text-gray-500 font-black uppercase tracking-[0.2em] mb-1">Meta de ingresos</p>
+                                        <p className="text-white font-black text-3xl md:text-4xl tracking-tighter leading-none">${formatValue(totalIncome)} USD</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
+                            <AreaChart data={adjustedChartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
                                 <defs>
                                     <linearGradient id="colorIncomeMain" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
@@ -142,13 +172,13 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     dy={10}
                                 />
                                 <YAxis 
-                                    tickFormatter={(value) => `$${value}`}
+                                    tickFormatter={(value) => `$${formatValue(value)} USD`}
                                     tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 'bold' }} 
                                     axisLine={false}
                                     tickLine={false}
-                                    width={70}
+                                    width={100}
                                 />
-                                <Tooltip content={<CustomTooltip commissionValue={commissionValue} fullData={chartData} />} cursor={{ stroke: '#10b981', strokeWidth: 2 }} />
+                                <Tooltip content={<CustomTooltip commissionValue={commissionValue} />} cursor={{ stroke: '#10b981', strokeWidth: 2 }} />
                                 <Area 
                                     type="monotone" 
                                     dataKey="income" 
@@ -181,7 +211,7 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
 
                     {/* --- ROADMAP DE EJECUCIÓN (PASO A PASO) --- */}
                     <div className="relative z-10 pt-20 border-t border-white/5 mb-16 px-4 mt-80">
-                        <h4 className="text-2xl font-black text-white mb-10 text-center uppercase tracking-widest opacity-80">Cómo se generan los ingresos (paso a paso)</h4>
+                        <h4 className="text-[2rem] font-black text-white mb-10 text-center uppercase tracking-widest opacity-80">Cómo se generan los ingresos (paso a paso)</h4>
                         <div className="flex flex-col gap-10">
                             {[
                                 {
@@ -191,33 +221,35 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                     color: "text-blue-400",
                                     bg: "bg-blue-500/10",
                                     items: [
-                                        "El sistema crea de forma automática las páginas de ventas, guiones persuasivos, secuencias de correos y los artículos de blog optimizados para Google.",
+                                        "Nuestro sistema creará de forma automática tus guiones de videos, páginas de ventas, secuencias de correos y los artículos de blog optimizados para atraer personas interesadas en tu producto digital.",
                                         "Publicas tus contenidos en redes sociales como YouTube, Instagram, Facebook y Tik Tok para atraer a tus primeros visitantes.",
-                                        "Los leads empiezan a llegar a tu ecosistema, consumen tu regalo de bienvenida y se unen a tu comunidad de WhatsApp."
+                                        "Personas interesadas empezarán a llegar a tu página de captura, se registrarán para tener acceso a tu LeadMagnet y unirán a tu comunidad de WhatsApp."
                                     ],
-                                    objective: "Objetivo: Crear un activo digital rentable"
+                                    objective: "Objetivo: Construir tu activo digital para atraer clientes"
                                 },
                                 {
                                     title: "Etapa 2 – Primeras Ventas",
+                                    subtitle: "(Meses 3 - 5)",
                                     icon: TrendingUp,
                                     color: "text-emerald-400",
                                     bg: "bg-emerald-500/10",
                                     items: [
-                                        "Los contenidos comienzan a posicionarse",
-                                        "WhatsApp empieza a recibir conversaciones reales",
-                                        "Se cierran las primeras ventas"
+                                        "Tus artículos de blog y videos en redes sociales ganarán autoridad en los algoritmos con el tiempo, atrayendo nuevo tráfico orgánico cualificado sin costo adicional.",
+                                        "La audiencia que ya se ha registrado en tu pagina de captura recibirá correos electrónicos masivos y contenidos de alto valor que compartirás a través de Whatsapp, esto generará confianza e interés por parte de tus comunidad.",
+                                        "Realizarás tus primeros cierres de venta reales gracias a la confianza generada por tu ecosistema de contenidos, el seguimiento persuasivo y nuestra estrategia de Lanzamientos que ejecutaremos vía WhatsApp."
                                     ],
                                     objective: "Objetivo: validar que tu estrategia digital funciona y genera resultados"
                                 },
                                 {
-                                    title: "Etapa 3 – Crecimiento acumulativo (Meses 6–12)",
+                                    title: "Etapa 3 – Crecimiento acumulativo",
+                                    subtitle: "(Meses 6 - 12)",
                                     icon: Zap,
                                     color: "text-amber-400",
                                     bg: "bg-amber-500/10",
                                     items: [
-                                        "El contenido trabaja 24/7",
-                                        "El tráfico se vuelve constante",
-                                        "Las ventas se repiten mes a mes"
+                                        "A Larzo plazo tanto los Reels, como los videos Largos, Articulos de Blog y todos los contenidos educativos que compartas se convertirán en un activo digital que educa, persuade y vende por ti las 24 horas del día de forma incansable.",
+                                        "El número de prospectos interesados en obtener más información sobre tu producto digital se estabiliza y crece exponencialmente, permitiéndote predecir tus resultados y comisiones con mayor precisión.",
+                                        "Tu sistema alcanza su punto de madurez operativa, generando ingresos recurrentes y permitiéndote escalar tu negocio al siguiente nivel gracias a los contenidos generados y las estrategias de lanzamientos operativas."
                                     ],
                                     objective: "Objetivo: ingresos más predecibles"
                                 }
@@ -228,20 +260,20 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                             <phase.icon className="w-8 h-8" />
                                         </div>
                                         <div>
-                                            <h5 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">{phase.title}</h5>
-                                            {phase.subtitle && <p className="text-gray-500 text-lg font-medium mt-1">{phase.subtitle}</p>}
+                                            {phase.subtitle && <p className="text-gray-500 text-[1.2rem] font-medium mt-1 pt-[10px]">{phase.subtitle}</p>}
+                                            <h5 className="text-[2rem] font-black text-white tracking-tight leading-tight">{phase.title}</h5>
                                         </div>
-                                        <div className={`md:ml-auto px-6 py-2 rounded-full border border-white/10 font-black text-xs uppercase tracking-wider h-fit ${phase.color}`}>
+                                        <div className={`md:ml-auto px-6 py-2 rounded-full border border-white/10 h-fit ${phase.color} text-[1.2rem] font-light leading-relaxed pt-[10px]`}>
                                             {phase.objective}
                                         </div>
                                     </div>
-                                    <ul className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <ul className="flex flex-col gap-6">
                                         {phase.items.map((item, idx) => (
                                             <li key={idx} className="bg-white/5 border border-white/5 p-6 rounded-2xl flex items-start gap-4 hover:border-gray-700 transition-all duration-300 group/point">
                                                 <div className={`p-1.5 rounded-full ${phase.bg} ${phase.color} shrink-0 mt-0.5 group-hover/point:scale-110 transition-transform`}>
                                                     <Check className="w-4 h-4" />
                                                 </div>
-                                                <span className="text-gray-300 text-lg leading-snug font-medium">{item}</span>
+                                                <span className="text-white text-[1.2rem] leading-relaxed font-light">{item}</span>
                                             </li>
                                         ))}
                                     </ul>
@@ -250,25 +282,25 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                         </div>
                     </div>
 
-                    {/* --- PROYECCIÓN DE INGRESOS (UNIFICADA DENTRO DE LA TARJETA) --- */}
+                    {/* --- PROYECCIÓN DE INGRESOS (DINÁMICA BASADA EN COMISIÓN REAL) --- */}
                     <div className="relative z-10 pt-16 border-t border-white/5 mb-16">
                         <div className="flex flex-col items-center gap-16 max-w-4xl mx-auto">
                             {/* Panel: Configuración Centrado */}
                             <div className="space-y-8 w-full flex flex-col items-center text-center">
                                 <div>
                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black uppercase tracking-widest mb-4">
-                                        Supuesto base
+                                        Tu Objetivo principal siempre será atraer Leads Interesados
                                     </div>
-                                    <h4 className="text-4xl font-black text-white leading-tight">Proyección de ingresos <br/> (estimación orientativa)</h4>
-                                    <div className="space-y-3 mt-8 flex flex-col items-center">
-                                        <div className="flex items-center gap-3 text-gray-300 text-lg font-light">
-                                            <Check className="w-5 h-5 text-emerald-500" /> Precio del curso: $200 USD
+                                    <h4 className="text-[2rem] font-black text-white leading-tight">Proyección de ingresos <br/> (estimación basada en tu comisión)</h4>
+                                    <div className="space-y-3 mt-8 flex flex-col items-center text-[1.2rem] pt-[10px]">
+                                        <div className="flex items-center gap-3 text-white leading-relaxed font-light">
+                                            <Check className="w-5 h-5 text-emerald-500" /> Tu Ganancia neta por venta: ${formatValue(commissionValue)} USD
                                         </div>
-                                        <div className="flex items-center gap-3 text-gray-300 text-lg font-light">
-                                            <Check className="w-5 h-5 text-emerald-500" /> Ganancia por venta: $120 USD
+                                        <div className="flex items-center gap-3 text-white leading-relaxed font-light">
+                                            <Check className="w-5 h-5 text-emerald-500" /> Tasa de cierre objetivo: 5% en WhatsApp
                                         </div>
-                                        <div className="flex items-center gap-3 text-gray-300 text-lg font-light">
-                                            <Check className="w-5 h-5 text-emerald-500" /> Tasa de cierre estimada: 3% en WhatsApp
+                                        <div className="flex items-center gap-3 text-white leading-relaxed font-light">
+                                            <Check className="w-5 h-5 text-emerald-500" /> Porcentaje de comisión: {formatValue(Math.round(commissionRate * 100))}%
                                         </div>
                                     </div>
                                 </div>
@@ -276,44 +308,45 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                 <div className="grid grid-cols-2 gap-4 w-full max-w-md">
                                     <div className="bg-black/40 border border-emerald-500/30 rounded-2xl text-center p-5">
                                         <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mb-2">Ganancia Neta / Venta</p>
-                                        <p className="text-emerald-400 font-black text-3xl">$120.00</p>
+                                        <p className="text-emerald-400 font-black text-3xl">${formatValue(commissionValue)}</p>
                                     </div>
                                     <div className="bg-black/40 border border-gray-700 rounded-2xl text-center p-5">
                                         <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mb-2">Tasa de Cierre WA</p>
-                                        <p className="text-white font-black text-3xl">3%</p>
+                                        <p className="text-white font-black text-3xl">5%</p>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Panel: Tabla de Escala Centrado */}
+                            {/* Panel: Tabla de Escala Dinámica (AÑADIDOS 500 Y 1000 LEADS) */}
                             <div className="bg-gray-800/40 rounded-[2.5rem] border border-gray-700 p-8 shadow-inner w-full max-w-2xl">
-                                <h5 className="text-white font-bold mb-6 flex items-center justify-center gap-2">
-                                    <ArrowUpRight className="w-5 h-5 text-emerald-400" /> Ejemplo práctico de Escala
+                                <h5 className="text-white text-[1.2rem] font-bold mb-6 flex items-center justify-center gap-2 pt-[10px]">
+                                    <ArrowUpRight className="w-5 h-5 text-emerald-400" /> Mientras más leads tengas en tu sistema, mayor será tu probabilidad de generar altos ingresos.
                                 </h5>
                                 
                                 <div className="space-y-4">
-                                    {[
-                                        { leads: 50, sales: "1–2", income: "120 - 240" },
-                                        { leads: 100, sales: "3", income: "360" },
-                                        { leads: 200, sales: "6", income: "720" }
-                                    ].map((row, i) => (
-                                        <div key={i} className="flex items-center justify-between p-5 rounded-2xl bg-black/20 border border-transparent hover:border-emerald-500/30 hover:bg-black/40 transition-all group">
-                                            <div className="text-left">
-                                                <p className="text-xs text-gray-500 font-black uppercase tracking-widest mb-1">Atrayendo</p>
-                                                <p className="text-white font-black text-xl flex items-center gap-2">
-                                                    <Users className="w-5 h-5 text-blue-400" /> {row.leads} Leads
-                                                </p>
+                                    {leadScenarios.map((leads, i) => {
+                                        const sales = Math.floor(leads * 0.05);
+                                        const incomeValue = sales * commissionValue;
+                                        
+                                        return (
+                                            <div key={i} className="flex items-center justify-between p-5 rounded-2xl bg-black/20 border border-transparent hover:border-emerald-500/30 hover:bg-black/40 transition-all group">
+                                                <div className="text-left">
+                                                    <p className="text-xs text-gray-500 font-black uppercase tracking-widest mb-1">Atrayendo</p>
+                                                    <p className="text-white font-black text-xl flex items-center gap-2">
+                                                        <Users className="w-5 h-5 text-blue-400" /> {formatValue(leads)} Leads
+                                                    </p>
+                                                </div>
+                                                <div className="flex flex-col items-center">
+                                                    <p className="text-[10px] text-gray-500 font-black uppercase mb-1">{formatValue(sales)} {sales === 1 ? 'venta' : 'ventas'}</p>
+                                                    <ArrowRight className="w-6 h-6 text-gray-600 group-hover:text-emerald-500 transition-colors" />
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-xs text-gray-500 font-black uppercase tracking-widest mb-1">Ganancia aprox.</p>
+                                                    <p className="text-emerald-400 font-black text-2xl tracking-tighter leading-none">${formatValue(incomeValue)} USD</p>
+                                                </div>
                                             </div>
-                                            <div className="flex flex-col items-center">
-                                                <p className="text-[10px] text-gray-500 font-black uppercase mb-1">{row.sales} ventas</p>
-                                                <ArrowRight className="w-6 h-6 text-gray-600 group-hover:text-emerald-500 transition-colors" />
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-xs text-gray-500 font-black uppercase tracking-widest mb-1">Ganancia aprox.</p>
-                                                <p className="text-emerald-400 font-black text-2xl tracking-tighter leading-none">${row.income} USD</p>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
 
                                 <div className="mt-8 flex items-center gap-4 p-5 bg-black/60 border-l-4 border-amber-500/30 rounded-r-2xl shadow-xl text-left">
@@ -321,23 +354,55 @@ export const ProjectStrategy_BusinessGrowth: React.FC<ProjectStrategy_BusinessGr
                                         <AlertTriangle className="w-6 h-6 text-amber-500" />
                                     </div>
                                     <p className="text-[1.4rem] text-gray-200 leading-relaxed font-medium">
-                                        Estos números son proyecciones, no garantías. <span className="text-amber-400">Sirven para entender el potencial del sistema</span> cuando se aplica correctamente.
+                                        Estos números son proyecciones basadas en un cierre conservador del 5%. <span className="text-amber-400">Sirven para entender el potencial de escala</span> de tu activo digital.
                                     </p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    {/* --- CIERRE PERSUASIVO --- */}
                     <div className="flex flex-col items-center justify-center gap-8 pt-10 border-t border-white/5 relative z-10">
                         <div className="flex items-center gap-5 text-center">
                             <div className="p-3 bg-white/5 rounded-full shrink-0"><Sparkles className="w-6 h-6 text-yellow-500" /></div>
-                            <p className="max-w-3xl leading-relaxed italic text-white text-2xl font-medium border-l-4 border-emerald-500/30 pl-8 py-2 text-left">
+                            <p className="max-w-3xl leading-relaxed italic text-white text-[1.2rem] font-medium border-l-4 border-emerald-500/30 pl-8 py-2 text-left pt-[10px]">
                                 Los ingresos crecen de forma acumulativa a medida que el contenido gana autoridad y visibilidad. Este modelo premia la constancia, no la urgencia.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* MODAL DE VIDEO */}
+            {showVideoModal && (
+                <div 
+                    onClick={() => setShowVideoModal(false)}
+                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+                >
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+                    >
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Proyección de Ingresos
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Tutorial Proyección" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

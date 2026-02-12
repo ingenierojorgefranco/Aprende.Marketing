@@ -1,18 +1,17 @@
-
-const Stripe = require('stripe');
-const pool = require('./db');
+import Stripe from 'stripe';
+import pool from './db.js';
 
 // Initialize Stripe with Secret Key from Environment
 // Fallback is just for dev safety to prevent crash if not set
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-const stripe = new Stripe(STRIPE_SECRET_KEY);
+export const stripe = new Stripe(STRIPE_SECRET_KEY);
 
 const BASE_URL = process.env.BASE_DOMAIN ? `https://${process.env.BASE_DOMAIN}` : 'http://localhost:5173';
 
 /**
  * Crea una sesión de Checkout para suscripción
  */
-const createCheckoutSession = async (userId, userEmail, planSlug) => {
+export const createCheckoutSession = async (userId, userEmail, planSlug) => {
     if (!STRIPE_SECRET_KEY) throw new Error("Stripe API Key no configurada.");
 
     // 1. Obtener precio dinámicamente de la base de datos
@@ -77,7 +76,7 @@ const logPayment = async (userId, stripeId, amount, currency, status, method, re
  * Maneja el Webhook de Stripe
  * Se llama cuando ocurre un evento (pago exitoso, cancelación, etc.)
  */
-const handleWebhook = async (event) => {
+export const handleWebhook = async (event) => {
     console.log(`[Stripe Webhook] Processing event: ${event.type}`);
 
     switch (event.type) {
@@ -209,10 +208,4 @@ const handleWebhook = async (event) => {
         default:
             console.log(`[Stripe Webhook] Evento no manejado: ${event.type}`);
     }
-};
-
-module.exports = {
-    stripe,
-    createCheckoutSession,
-    handleWebhook
 };

@@ -1,9 +1,9 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationType, ThankYouPageConfig } from '../../../types';
+import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, DestinationType, ThankYouPageConfig, Project } from '../../../types';
 import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift, AlertTriangle, Book, ShoppingBag, XCircle } from 'lucide-react';
 import { LivePage } from '../../LivePage';
 import { useLocation } from 'react-router-dom';
+import { api } from '../../../services/api';
 
 // --- UI COMPONENTS EXTRACTED ---
 
@@ -184,9 +184,19 @@ interface EditorProps {
 }
 
 export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
-  // Ensure thankYouPage structure exists
+  // Ensure capture and thankYouPage structure exists
   const initialContent = {
       ...page.content,
+      capture: page.content.capture || {
+          timerLabel: "La sesión expira en:",
+          timerDuration: 15,
+          cardTitle: "",
+          cardDesc: "",
+          helpText: "",
+          guaranteeText: "",
+          socialProofLabel: "Alumnos registrados",
+          securityText: "Acceso Inmediato & Garantizado"
+      },
       thankYouPage: page.content.thankYouPage || {
           headline: "PERFECTO, YA TIENES EL ACCESO...",
           subheadline: "Sigue los pasos a continuación...",
@@ -198,6 +208,9 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const [content, setContent] = useState<GeneratedPageContent>(initialContent);
   const [pageName, setPageName] = useState(page.name);
   const [niche, setNiche] = useState(page.niche);
+  const [subdomain, setSubdomain] = useState(page.subdomain);
+  const [linkedProjectId, setLinkedProjectId] = useState(page.projectId || '');
+  const [userProjects, setUserProjects] = useState<Project[]>([]);
   
   const location = useLocation();
   const getInitialTab = () => {
@@ -218,8 +231,12 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
     setOpenSection(openSection === section ? null : section);
   };
 
+  // Carga de proyectos disponibles
+  useEffect(() => {
+    api.getProjects().then(setUserProjects).catch(err => console.error("Error cargando proyectos", err));
+  }, []);
+
   // URL calculation
-  // ACTUALIZADO: El subdominio ya contiene el ID prepended por el backend.
   const baseSlug = page.subdomain ? page.subdomain.split('.')[0] : page.id;
   const publicUrl = `/admin/lp/${baseSlug}`;
 
@@ -229,6 +246,16 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       ...prev,
       [section]: {
         ...prev[section] as any,
+        [field]: value
+      }
+    }));
+  };
+
+  const updateCaptureField = (field: keyof NonNullable<GeneratedPageContent['capture']>, value: any) => {
+    setContent(prev => ({
+      ...prev,
+      capture: {
+        ...prev.capture!,
         [field]: value
       }
     }));
@@ -352,7 +379,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       }));
   };
 
-  // Helper for dynamic arrays in Thank You Config
   const updateTyArray = (
       arrayName: 'learningItems' | 'socialItems' | 'faqItems',
       index: number,
@@ -373,7 +399,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       });
   };
 
-  // Helper for Bullet Points
   const updateTyBullet = (index: number, value: string) => {
       setContent(prev => {
           const items = [...(prev.thankYouPage?.offerBullets || [])];
@@ -417,7 +442,9 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       name: pageName,
       niche: niche,
       content,
-      isPublished: publishState
+      isPublished: publishState,
+      subdomain: subdomain,
+      projectId: linkedProjectId || undefined
     });
     
     setSaving(false);
@@ -433,6 +460,22 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
               [key]: value
           }
       });
+  };
+
+  const isVideoUrl = (url: string) => {
+      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('vimeo.com') || url.match(/\.(mp4|webm|ogg)$/i);
+  };
+
+  const handleHeroMediaChange = (val: string) => {
+      const isVideo = isVideoUrl(val);
+      setContent(prev => ({
+          ...prev,
+          hero: {
+              ...prev.hero,
+              videoUrl: isVideo ? val : '',
+              heroImage: isVideo ? prev.hero.heroImage : val
+          }
+      }));
   };
 
   const palettes: { id: ColorPalette; name: string; colors: string }[] = [
@@ -597,19 +640,33 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                 <RichTextArea value={content.hero.headline} onChange={(e) => updateNestedField('hero', 'headline', e.target.value)} />
                             </div>
 
-                            {/* 3. Subheadline */}
+                            {/* 3. Subtítulo Persuasivo */}
                             <div>
                                 <Label>3. Subtítulo Persuasivo</Label>
                                 <RichTextArea value={content.hero.subheadline} onChange={(e) => updateNestedField('hero', 'subheadline', e.target.value)} />
                             </div>
 
-                            {/* 4. Hero Image URL */}
+                            {/* 4. Hero Multimedia URL (Unificado) */}
                             <div>
-                                <Label>4. URL Imagen/Portada Video</Label>
+                                <Label>4. URL Imagen o Video (YouTube, Vimeo, MP4)</Label>
                                 <div className="flex gap-2">
-                                    <Input value={content.hero.heroImage || ''} onChange={(e) => updateNestedField('hero', 'heroImage', e.target.value)} placeholder="https://..." />
-                                    {content.hero.heroImage && <img src={content.hero.heroImage} alt="Preview" className="w-10 h-10 rounded border border-gray-700 object-cover" />}
+                                    <Input 
+                                        value={content.hero.videoUrl || content.hero.heroImage || ''} 
+                                        onChange={(e) => handleHeroMediaChange(e.target.value)} 
+                                        placeholder="Pega el link de tu imagen o video..." 
+                                    />
+                                    {(content.hero.heroImage && !content.hero.videoUrl) && (
+                                        <img src={content.hero.heroImage} alt="Preview" className="w-10 h-10 rounded border border-gray-700 object-cover" />
+                                    )}
+                                    {content.hero.videoUrl && (
+                                        <div className="w-10 h-10 rounded border border-gray-700 bg-primary/20 flex items-center justify-center">
+                                            <PlayCircle className="w-5 h-5 text-primary"/>
+                                        </div>
+                                    )}
                                 </div>
+                                <p className="text-[10px] text-gray-500 mt-1">
+                                    * Si pegas un video, la imagen previa se mantendrá como portada/miniatura.
+                                </p>
                             </div>
 
                             {/* 5. Video Title */}
@@ -623,17 +680,77 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                 <Label>6. Duración (Texto)</Label>
                                 <Input value={content.hero.videoDuration || ''} onChange={(e) => updateNestedField('hero', 'videoDuration', e.target.value)} placeholder="Ej: 1h 30m" />
                             </div>
+                        </SectionContent>
+
+                        {/* NEW: 3. Formulario de Captura (SmartCTA) */}
+                        <SectionHeader id="capture" title="Formulario de Captura" icon={Target} openSection={openSection} toggleSection={toggleSection} />
+                        <SectionContent id="capture" openSection={openSection}>
+                            {/* 1. Urgencia */}
+                            <div className="space-y-4 pb-4 border-b border-gray-800">
+                                <h4 className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-widest">Controles de Urgencia</h4>
+                                <div>
+                                    <Label>Etiqueta del Temporizador</Label>
+                                    <Input value={content.capture?.timerLabel || ''} onChange={(e) => updateCaptureField('timerLabel', e.target.value)} placeholder="Ej: La sesión expira en:" />
+                                </div>
+                                <div>
+                                    <Label>Tiempo de Expiración (Minutos)</Label>
+                                    <Input type="number" value={content.capture?.timerDuration || 15} onChange={(e) => updateCaptureField('timerDuration', parseInt(e.target.value) || 0)} />
+                                </div>
+                                <div>
+                                    <Label>Badge Cupos Restantes</Label>
+                                    <Input value={content.hero.spotsLeft || ''} onChange={(e) => updateNestedField('hero', 'spotsLeft', e.target.value)} placeholder="Ej: Solo 5 lugares" />
+                                </div>
+                            </div>
+
+                            {/* 2. Copy de la Tarjeta */}
+                            <div className="space-y-4 pb-4 border-b border-gray-800">
+                                <h4 className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Controles de Copy (SmartCTA)</h4>
+                                <div>
+                                    <Label>Título de la Tarjeta</Label>
+                                    <Input value={content.capture?.cardTitle || ''} onChange={(e) => updateCaptureField('cardTitle', e.target.value)} placeholder="Ej: Únete al Grupo VIP" />
+                                </div>
+                                <div>
+                                    <Label>Descripción de la Tarjeta</Label>
+                                    <Input value={content.capture?.cardDesc || ''} onChange={(e) => updateCaptureField('cardDesc', e.target.value)} placeholder="Ej: Recibe atención personalizada..." />
+                                </div>
+                                <div>
+                                    <Label>Texto de Ayuda Superior</Label>
+                                    <Input value={content.capture?.helpText || ''} onChange={(e) => updateCaptureField('helpText', e.target.value)} placeholder="Ej: Haz clic para chatear..." />
+                                </div>
+                                <div>
+                                    <Label>Pie de Garantía</Label>
+                                    <Input value={content.capture?.guaranteeText || ''} onChange={(e) => updateCaptureField('guaranteeText', e.target.value)} placeholder="Ej: Garantía de satisfacción oficial" />
+                                </div>
+                            </div>
+
+                            {/* 3. Prueba Social y Seguridad */}
+                            <div className="space-y-4">
+                                <h4 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Prueba Social y Seguridad</h4>
+                                <div>
+                                    <Label>Contador Alumnos (Número)</Label>
+                                    <Input value={content.hero.socialProofCount || ''} onChange={(e) => updateNestedField('hero', 'socialProofCount', e.target.value)} placeholder="Ej: 2,458" />
+                                </div>
+                                <div>
+                                    <Label>Etiqueta del Contador</Label>
+                                    <Input value={content.capture?.socialProofLabel || ''} onChange={(e) => updateCaptureField('socialProofLabel', e.target.value)} placeholder="Ej: Alumnos registrados" />
+                                </div>
+                                <div>
+                                    <Label>Texto de Seguridad Inferior</Label>
+                                    <Input value={content.capture?.securityText || ''} onChange={(e) => updateCaptureField('securityText', e.target.value)} placeholder="Ej: Acceso Inmediato & Garantizado" />
+                                </div>
+                            </div>
 
                             {/* 7. CTA Text */}
                             <div>
                                 <Label>7. Texto Botón (CTA)</Label>
                                 <Input value={content.hero.ctaText} onChange={(e) => updateNestedField('hero', 'ctaText', e.target.value)} />
                             </div>
+                        </SectionContent>
 
-                            {/* 8. Problem Identification (Dolores) - Actualización: Transformación semántica 31/12/2025 18:30 */}
-                            <div className="pt-4 border-t border-gray-800">
-                                <Label>8. Identificación del Problema (Dolores)</Label>
-                                <div className="mb-2 flex items-center gap-2">
+                        {/* 4. Dolores (Relocated from Hero) */}
+                        <SectionHeader id="problems" title="Identificación de Dolores" icon={AlertTriangle} openSection={openSection} toggleSection={toggleSection} />
+                        <SectionContent id="problems" openSection={openSection}>
+                             <div className="mb-2 flex items-center gap-2">
                                      <div className="flex-1">
                                         <Label>Título de la sección de Dolores</Label>
                                         <Input value={content.whatYouWillLearn.title} onChange={(e) => setContent({...content, whatYouWillLearn: {...content.whatYouWillLearn, title: e.target.value}})} />
@@ -652,22 +769,9 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                     ))}
                                     <button onClick={() => addItem('whatYouWillLearn')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Punto de Dolor</button>
                                 </div>
-                            </div>
-
-                            {/* 9. Spots Left */}
-                            <div className="pt-4 border-t border-gray-800">
-                                <Label>9. Badge Cupos Restantes</Label>
-                                <Input value={content.hero.spotsLeft || ''} onChange={(e) => updateNestedField('hero', 'spotsLeft', e.target.value)} placeholder="Ej: Solo 5 lugares" />
-                            </div>
-
-                            {/* 10. Social Proof Count */}
-                            <div>
-                                <Label>10. Contador Alumnos (Prueba Social)</Label>
-                                <Input value={content.hero.socialProofCount || ''} onChange={(e) => updateNestedField('hero', 'socialProofCount', e.target.value)} placeholder="Ej: +500 Estudiantes" />
-                            </div>
                         </SectionContent>
 
-                        {/* 3. Testimonials (Moved Up) */}
+                        {/* 5. Testimonials (Existing) */}
                         <SectionHeader id="testimonials" title="Testimonios" icon={MessageCircle} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="testimonials" openSection={openSection}>
                              <div><Label>Título de Sección</Label><Input value={content.testimonialTitle || ''} onChange={(e) => setContent({...content, testimonialTitle: e.target.value})} placeholder="Ej: Lo que dicen nuestros alumnos" /></div>
@@ -680,8 +784,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                             <div><Label>Nombre</Label><Input value={t.name} onChange={(e) => updateArrayItem('testimonials', i, 'name', e.target.value)} /></div>
                                             <div><Label>Ciudad/País</Label><Input value={t.location || ''} onChange={(e) => updateArrayItem('testimonials', i, 'location', e.target.value)} placeholder="Ej: Madrid, ES" /></div>
                                         </div>
-                                        
-                                        {/* New Image Field */}
                                         <div className="mb-2">
                                             <Label>Foto URL (Opcional)</Label>
                                             <div className="flex gap-2 items-center">
@@ -691,7 +793,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                                 )}
                                             </div>
                                         </div>
-
                                         <div className="mb-2">
                                             <Label>Rating</Label>
                                             <div className="flex gap-1">
@@ -709,12 +810,24 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                              </div>
                         </SectionContent>
 
-                        {/* 4. Intro Section */}
+                        {/* 6. Intro Section (Existing) */}
                         <SectionHeader id="intro" title="Introducción" icon={Image} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="intro" openSection={openSection}>
                             <div><Label>Título de Sección</Label><Input value={content.intro.title} onChange={(e) => updateNestedField('intro', 'title', e.target.value)} /></div>
                             <div><Label>Descripción</Label><RichTextArea value={content.intro.description} onChange={(e) => updateNestedField('intro', 'description', e.target.value)} className="h-32" /></div>
-                            <div className="pt-2"><Label>Texto Tarjeta Flotante (Sobre Imagen)</Label><Input value={content.intro.imageCardText || ''} onChange={(e) => updateNestedField('intro', 'imageCardText', e.target.value)} placeholder="Ej: Método Único" /></div>
+                            <div>
+                                <Label>Imagen de Introducción (URL)</Label>
+                                <div className="flex gap-2 items-center">
+                                    <Input 
+                                        value={content.intro.imageUrl || ''} 
+                                        onChange={(e) => updateNestedField('intro', 'imageUrl', e.target.value)} 
+                                        placeholder="Pega la URL de la imagen..." 
+                                    />
+                                    {content.intro.imageUrl && (
+                                        <img src={content.intro.imageUrl} alt="Preview" className="w-10 h-10 rounded border border-gray-700 object-cover" />
+                                    )}
+                                </div>
+                            </div>
                             
                             <div className="pt-4 border-t border-gray-800">
                                 <Label>Puntos Clave (Bullets)</Label>
@@ -731,23 +844,11 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                             </div>
                         </SectionContent>
 
-                        {/* 5. Benefits */}
+                        {/* 7. Benefits (Existing) */}
                         <SectionHeader id="benefits" title="Beneficios" icon={Award} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="benefits" openSection={openSection}>
                             <div><Label>Título de Sección</Label><Input value={content.benefits.title} onChange={(e) => setContent({...content, benefits: {...content.benefits, title: e.target.value}})} /></div>
-                            
-                            {/* NEW: Subtitle Input */}
-                            <div className="mt-3">
-                                <Label>Subtítulo de Sección</Label>
-                                <Input 
-                                    value={content.benefits.subtitle || ''} 
-                                    onChange={(e) => setContent({
-                                        ...content, 
-                                        benefits: { ...content.benefits, subtitle: e.target.value }
-                                    })} 
-                                />
-                            </div>
-
+                            <div className="mt-3"><Label>Subtítulo de Sección</Label><Input value={content.benefits.subtitle || ''} onChange={(e) => setContent({...content, benefits: { ...content.benefits, subtitle: e.target.value }})} /></div>
                             <div className="space-y-4 mt-4">
                                 {(content.benefits.items || []).map((item, i) => (
                                     <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
@@ -770,22 +871,12 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                             </div>
                         </SectionContent>
 
-                        {/* 6. Instructor */}
+                        {/* 8. Instructor (Existing) */}
                         <SectionHeader id="instructor" title="Instructor / Experto" icon={User} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="instructor" openSection={openSection}>
-                            {/* ADDED TITLE INPUT */}
-                            <div className="mb-2">
-                              <Label>Título de Sección</Label>
-                              <Input 
-                                value={content.instructor.title || ''} 
-                                onChange={(e) => updateNestedField('instructor', 'title', e.target.value)} 
-                                placeholder="Ej: Conoce a tu Mentor" 
-                              />
-                            </div>
-
+                            <div className="mb-2"><Label>Título de Sección</Label><Input value={content.instructor.title || ''} onChange={(e) => updateNestedField('instructor', 'title', e.target.value)} placeholder="Ej: Conoce a tu Mentor" /></div>
                             <div><Label>Nombre Completo</Label><Input value={content.instructor.name} onChange={(e) => updateNestedField('instructor', 'name', e.target.value)} /></div>
                             <div><Label>Biografía Corta</Label><RichTextArea value={content.instructor.bio} onChange={(e) => updateNestedField('instructor', 'bio', e.target.value)} className="h-24" /></div>
-                            
                             <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-800">
                                 <div><Label>Badge Superior</Label><Input value={content.instructor.badgeText || ''} onChange={(e) => updateNestedField('instructor', 'badgeText', e.target.value)} placeholder="Ej: Master" /></div>
                                 <div><Label>Subtítulo Badge</Label><Input value={content.instructor.badgeSubtext || ''} onChange={(e) => updateNestedField('instructor', 'badgeSubtext', e.target.value)} placeholder="Ej: Certificado" /></div>
@@ -794,7 +885,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                             </div>
                         </SectionContent>
 
-                        {/* 7. FAQ */}
+                        {/* 9. FAQ (Existing) */}
                         <SectionHeader id="faq" title="Preguntas Frecuentes" icon={HelpCircle} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="faq" openSection={openSection}>
                             <div className="space-y-4">
@@ -809,35 +900,18 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                             </div>
                         </SectionContent>
 
-                        {/* 8. Footer & Legal */}
-                        <SectionHeader id="footer" title="8. Cierre y Footer" icon={LayoutTemplate} openSection={openSection} toggleSection={toggleSection} />
+                        {/* 10. Footer (Existing) */}
+                        <SectionHeader id="footer" title="Cierre y Footer" icon={LayoutTemplate} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="footer" openSection={openSection}>
-                             <div>
-                                <Label>Texto de Cierre (CTA Final)</Label>
-                                <Input 
-                                    value={content.closingOfferText || ''} 
-                                    onChange={(e) => setContent({ ...content, closingOfferText: e.target.value })} 
-                                    placeholder="Ej: No dejes pasar esta oportunidad..." 
-                                />
-                             </div>
+                             <div><Label>Texto de Cierre (CTA Final)</Label><Input value={content.closingOfferText || ''} onChange={(e) => setContent({ ...content, closingOfferText: e.target.value })} placeholder="Ej: No dejes pasar esta oportunidad..." /></div>
                              <div className="pt-4 border-t border-gray-800"><Label>Copyright Text</Label><Input value={content.footer.copyright} onChange={(e) => updateNestedField('footer', 'copyright', e.target.value)} /></div>
                              <div><Label>Email de Contacto</Label><Input value={content.footer.contact} onChange={(e) => updateNestedField('footer', 'contact', e.target.value)} /></div>
-                             
                              <div className="pt-4 border-t border-gray-800">
                                 <Label>Redes Sociales</Label>
                                 <div className="space-y-2 mt-2">
-                                  <div className="flex items-center gap-2">
-                                     <Facebook className="w-4 h-4 text-blue-500" />
-                                     <Input placeholder="URL Facebook" value={content.footer.socials?.facebook || ''} onChange={(e) => updateSocials('facebook', e.target.value)} />
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                     <Instagram className="w-4 h-4 text-pink-500" />
-                                     <Input placeholder="URL Instagram" value={content.footer.socials?.instagram || ''} onChange={(e) => updateSocials('instagram', e.target.value)} />
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                     <Twitter className="w-4 h-4 text-sky-500" />
-                                     <Input placeholder="URL Twitter" value={content.footer.socials?.twitter || ''} onChange={(e) => updateSocials('twitter', e.target.value)} />
-                                  </div>
+                                  <div className="flex items-center gap-2"><Facebook className="w-4 h-4 text-blue-500" /><Input placeholder="URL Facebook" value={content.footer.socials?.facebook || ''} onChange={(e) => updateSocials('facebook', e.target.value)} /></div>
+                                  <div className="flex items-center gap-2"><Instagram className="w-4 h-4 text-pink-500" /><Input placeholder="URL Instagram" value={content.footer.socials?.instagram || ''} onChange={(e) => updateSocials('instagram', e.target.value)} /></div>
+                                  <div className="flex items-center gap-2"><Twitter className="w-4 h-4 text-sky-500" /><Input placeholder="URL Twitter" value={content.footer.socials?.twitter || ''} onChange={(e) => updateSocials('twitter', e.target.value)} /></div>
                                 </div>
                              </div>
                         </SectionContent>
@@ -847,235 +921,75 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                   {/* === TAB: THANK YOU PAGE === */}
                   {activeTab === 'thankyou' && (
                       <div className="space-y-6 animate-in slide-in-from-left-2 duration-200 p-2">
-                          
-                          {/* 1. Hero Config */}
                           <SectionHeader id="ty-hero" title="Hero & Configuración" icon={Sparkles} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-hero" openSection={openSection}>
                               <div><Label>Título Principal</Label><Input value={content.thankYouPage?.headline || ''} onChange={(e) => updateThankYouConfig('headline', e.target.value)} /></div>
                               <div><Label>Mensaje / Subtítulo</Label><RichTextArea value={content.thankYouPage?.subheadline || ''} onChange={(e) => updateThankYouConfig('subheadline', e.target.value)} className="h-20"/></div>
-                              
-                              <div className="pt-4 border-t border-gray-800">
-                                  <Label>Texto Barra Progreso</Label>
-                                  <Input value={content.thankYouPage?.progressBarText || ''} onChange={(e) => updateThankYouConfig('progressBarText', e.target.value)} placeholder="¡ESPERA! SÓLO TE FALTA..." />
-                              </div>
-                              <div>
-                                  <Label>Texto Badge Verde</Label>
-                                  <Input value={content.thankYouPage?.greenBadgeText || ''} onChange={(e) => updateThankYouConfig('greenBadgeText', e.target.value)} placeholder="RECIBE NUESTRO LIBRO..." />
-                              </div>
-
-                              <div className="pt-4 border-t border-gray-800">
-                                  <Label>Link Grupo VIP (WhatsApp)</Label>
-                                  <Input value={content.thankYouPage?.ctaLink || ''} onChange={(e) => updateThankYouConfig('ctaLink', e.target.value)} placeholder="https://chat.whatsapp.com/..." />
-                              </div>
-                              <div className="pt-2">
-                                  <label className="flex items-center gap-2 cursor-pointer">
-                                      <input type="checkbox" checked={content.thankYouPage?.showSocials !== false} onChange={(e) => updateThankYouConfig('showSocials', e.target.checked)} className="accent-green-500 w-4 h-4"/>
-                                      <span className="text-gray-300 text-xs font-bold uppercase">Mostrar Footer Redes Sociales</span>
-                                  </label>
-                              </div>
+                              <div className="pt-4 border-t border-gray-800"><Label>Texto Barra Progreso</Label><Input value={content.thankYouPage?.progressBarText || ''} onChange={(e) => updateThankYouConfig('progressBarText', e.target.value)} placeholder="¡ESPERA! SÓLO TE FALTA..." /></div>
+                              <div><Label>Texto Badge Verde</Label><Input value={content.thankYouPage?.greenBadgeText || ''} onChange={(e) => updateThankYouConfig('greenBadgeText', e.target.value)} placeholder="RECIBE NUESTRO LIBRO..." /></div>
+                              <div className="pt-4 border-t border-gray-800"><Label>Link Grupo VIP (WhatsApp)</Label><Input value={content.thankYouPage?.ctaLink || ''} onChange={(e) => updateThankYouConfig('ctaLink', e.target.value)} placeholder="https://chat.whatsapp.com/..." /></div>
+                              <div className="pt-2"><label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={content.thankYouPage?.showSocials !== false} onChange={(e) => updateThankYouConfig('showSocials', e.target.checked)} className="accent-green-500 w-4 h-4"/><span className="text-gray-300 text-xs font-bold uppercase">Mostrar Footer Redes Sociales</span></label></div>
                           </SectionContent>
 
-                          {/* 2. Paso 1 */}
                           <SectionHeader id="ty-step1" title="Paso 1: Email" icon={MessageCircle} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-step1" openSection={openSection}>
                               <div><Label>Título Paso 1</Label><Input value={content.thankYouPage?.step1Title || ''} onChange={(e) => updateThankYouConfig('step1Title', e.target.value)} placeholder="Revisa tu Correo" /></div>
                               <div><Label>Descripción</Label><Input value={content.thankYouPage?.step1Desc || ''} onChange={(e) => updateThankYouConfig('step1Desc', e.target.value)} /></div>
-                              
-                              <div className="pt-2 bg-yellow-900/20 p-2 rounded border border-yellow-500/20">
-                                  <div><Label>Advertencia Spam</Label><Input value={content.thankYouPage?.step1Warning || ''} onChange={(e) => updateThankYouConfig('step1Warning', e.target.value)} className="bg-black/50" placeholder="Importante: Verifica..." /></div>
-                              </div>
+                              <div className="pt-2 bg-yellow-900/20 p-2 rounded border border-yellow-500/20"><div><Label>Advertencia Spam</Label><Input value={content.thankYouPage?.step1Warning || ''} onChange={(e) => updateThankYouConfig('step1Warning', e.target.value)} className="bg-black/50" placeholder="Importante: Verifica..." /></div></div>
                               <div><Label>Asunto del Correo (Guía)</Label><Input value={content.thankYouPage?.step1Subject || ''} onChange={(e) => updateThankYouConfig('step1Subject', e.target.value)} placeholder='Busca: "Acceso..."' /></div>
                           </SectionContent>
 
-                          {/* 3. Paso 2 */}
                           <SectionHeader id="ty-step2" title="Paso 2: Comunidad" icon={Users} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-step2" openSection={openSection}>
                               <div><Label>Título Paso 2</Label><Input value={content.thankYouPage?.step2Title || ''} onChange={(e) => updateThankYouConfig('step2Title', e.target.value)} placeholder="Grupo VIP" /></div>
                               <div><Label>Descripción</Label><Input value={content.thankYouPage?.step2Desc || ''} onChange={(e) => updateThankYouConfig('step2Desc', e.target.value)} /></div>
                               <div><Label>Badge de Acción (Rojo)</Label><Input value={content.thankYouPage?.step2Badge || ''} onChange={(e) => updateThankYouConfig('step2Badge', e.target.value)} placeholder="¡Acción Requerida!" /></div>
-                              
-                              <div className="grid grid-cols-2 gap-2 pt-2">
-                                  <div><Label>Título Bono</Label><Input value={content.thankYouPage?.step2BonusTitle || ''} onChange={(e) => updateThankYouConfig('step2BonusTitle', e.target.value)} placeholder="Libro Digital GRATIS" /></div>
-                                  <div><Label>Valor Bono</Label><Input value={content.thankYouPage?.step2BonusValue || ''} onChange={(e) => updateThankYouConfig('step2BonusValue', e.target.value)} placeholder="Valor $19 USD" /></div>
-                              </div>
+                              <div className="grid grid-cols-2 gap-2 pt-2"><div><Label>Título Bono</Label><Input value={content.thankYouPage?.step2BonusTitle || ''} onChange={(e) => updateThankYouConfig('step2BonusTitle', e.target.value)} placeholder="Libro Digital GRATIS" /></div><div><Label>Valor Bono</Label><Input value={content.thankYouPage?.step2BonusValue || ''} onChange={(e) => updateThankYouConfig('step2BonusValue', e.target.value)} placeholder="Valor $19 USD" /></div></div>
                           </SectionContent>
 
-                          {/* 4. Oferta Ebook */}
                           <SectionHeader id="ty-offer" title="Oferta / Libro" icon={Book} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-offer" openSection={openSection}>
                               <div><Label>Título Superior (Sección)</Label><Input value={content.thankYouPage?.offerTopTitle || ''} onChange={(e) => updateThankYouConfig('offerTopTitle', e.target.value)} /></div>
                               <div><Label>Headline Oferta (Soporta HTML)</Label><RichTextArea value={content.thankYouPage?.offerHeadline || ''} onChange={(e) => updateThankYouConfig('offerHeadline', e.target.value)} className="h-20" /></div>
                               <div><Label>Descripción Oferta</Label><RichTextArea value={content.thankYouPage?.offerDescription || ''} onChange={(e) => updateThankYouConfig('offerDescription', e.target.value)} className="h-24" /></div>
-                              
-                              <div className="pt-4 border-t border-gray-800">
-                                  <Label>Beneficios del Libro (Bullets)</Label>
-                                  <div className="space-y-2 mt-1">
-                                      {(content.thankYouPage?.offerBullets || []).map((bullet, i) => (
-                                          <div key={i} className="flex gap-2">
-                                              <Input value={bullet} onChange={(e) => updateTyBullet(i, e.target.value)} />
-                                              <button onClick={() => removeTyItem('offerBullets', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button>
-                                          </div>
-                                      ))}
-                                      <button onClick={() => addTyItem('offerBullets')} className="text-xs text-primary flex items-center gap-1 hover:underline"><Plus className="w-3 h-3"/> Agregar Bullet</button>
-                                  </div>
-                              </div>
-
-                              <div className="pt-4 border-t border-gray-800">
-                                  <Label>Botón Descarga (CTA)</Label>
-                                  <Input value={content.thankYouPage?.ctaButtonText || ''} onChange={(e) => updateThankYouConfig('ctaButtonText', e.target.value)} />
-                              </div>
+                              <div className="pt-4 border-t border-gray-800"><Label>Beneficios del Libro (Bullets)</Label><div className="space-y-2 mt-1">{(content.thankYouPage?.offerBullets || []).map((bullet, i) => (<div key={i} className="flex gap-2"><Input value={bullet} onChange={(e) => updateTyBullet(i, e.target.value)} /><button onClick={() => removeTyItem('offerBullets', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>))}<button onClick={() => addTyItem('offerBullets')} className="text-xs text-primary flex items-center gap-1 hover:underline"><Plus className="w-3 h-3"/> Agregar Bullet</button></div></div>
+                              <div className="pt-4 border-t border-gray-800"><Label>Botón Descarga (CTA)</Label><Input value={content.thankYouPage?.ctaButtonText || ''} onChange={(e) => updateThankYouConfig('ctaButtonText', e.target.value)} /></div>
                           </SectionContent>
 
-                          {/* 5. Detalles Libro (Visual) */}
                           <SectionHeader id="ty-book-visual" title="Detalles Visuales Libro" icon={Image} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-book-visual" openSection={openSection}>
-                              <div className="grid grid-cols-2 gap-2">
-                                  <div><Label>Título Portada</Label><Input value={content.thankYouPage?.bookTitle || ''} onChange={(e) => updateThankYouConfig('bookTitle', e.target.value)} /></div>
-                                  <div><Label>Subtítulo Portada</Label><Input value={content.thankYouPage?.bookSubtitle || ''} onChange={(e) => updateThankYouConfig('bookSubtitle', e.target.value)} /></div>
-                              </div>
+                              <div className="grid grid-cols-2 gap-2"><div><Label>Título Portada</Label><Input value={content.thankYouPage?.bookTitle || ''} onChange={(e) => updateThankYouConfig('bookTitle', e.target.value)} /></div><div><Label>Subtítulo Portada</Label><Input value={content.thankYouPage?.bookSubtitle || ''} onChange={(e) => updateThankYouConfig('bookSubtitle', e.target.value)} /></div></div>
                               <div><Label>Texto Pie (ej: Guía 2025)</Label><Input value={content.thankYouPage?.bookFooter || ''} onChange={(e) => updateThankYouConfig('bookFooter', e.target.value)} /></div>
-                              
-                              <div className="pt-2 border-t border-gray-800 mt-2">
-                                  <div className="grid grid-cols-2 gap-2">
-                                      <div><Label>Precio Regular</Label><Input value={content.thankYouPage?.offerPriceRegular || ''} onChange={(e) => updateThankYouConfig('offerPriceRegular', e.target.value)} /></div>
-                                      <div><Label>Precio Oferta</Label><Input value={content.thankYouPage?.offerPriceFree || ''} onChange={(e) => updateThankYouConfig('offerPriceFree', e.target.value)} /></div>
-                                  </div>
-                                  <div className="mt-2"><Label>Badge Oferta</Label><Input value={content.thankYouPage?.offerBadge || ''} onChange={(e) => updateThankYouConfig('offerBadge', e.target.value)} /></div>
-                              </div>
+                              <div className="pt-2 border-t border-gray-800 mt-2"><div className="grid grid-cols-2 gap-2"><div><Label>Precio Regular</Label><Input value={content.thankYouPage?.offerPriceRegular || ''} onChange={(e) => updateThankYouConfig('offerPriceRegular', e.target.value)} /></div><div><Label>Precio Oferta</Label><Input value={content.thankYouPage?.offerPriceFree || ''} onChange={(e) => updateThankYouConfig('offerPriceFree', e.target.value)} /></div></div><div className="mt-2"><Label>Badge Oferta</Label><Input value={content.thankYouPage?.offerBadge || ''} onChange={(e) => updateThankYouConfig('offerBadge', e.target.value)} /></div></div>
                           </SectionContent>
 
-                          {/* 6. Aprenderás (List) */}
                           <SectionHeader id="ty-learning" title="Temario (Aprenderás)" icon={List} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-learning" openSection={openSection}>
                               <div><Label>Título Sección</Label><Input value={content.thankYouPage?.learningTitle || ''} onChange={(e) => updateThankYouConfig('learningTitle', e.target.value)} /></div>
                               <div><Label>Subtítulo</Label><Input value={content.thankYouPage?.learningSubtitle || ''} onChange={(e) => updateThankYouConfig('learningSubtitle', e.target.value)} /></div>
-                              
-                              <div className="space-y-4 mt-4">
-                                  {(content.thankYouPage?.learningItems || []).map((item, i) => (
-                                      <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
-                                          <div className="absolute top-2 right-2"><button onClick={() => removeTyItem('learningItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
-                                          <div className="mb-2"><Label>Título Item</Label><Input value={item.title} onChange={(e) => updateTyArray('learningItems', i, 'title', e.target.value)} /></div>
-                                          <div><Label>Descripción</Label><Input value={item.description} onChange={(e) => updateTyArray('learningItems', i, 'description', e.target.value)} /></div>
-                                      </div>
-                                  ))}
-                                  <button onClick={() => addTyItem('learningItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Item</button>
-                              </div>
+                              <div className="space-y-4 mt-4">{(content.thankYouPage?.learningItems || []).map((item, i) => (<div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group"><div className="absolute top-2 right-2"><button onClick={() => removeTyItem('learningItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div><div className="mb-2"><Label>Título Item</Label><Input value={item.title} onChange={(e) => updateTyArray('learningItems', i, 'title', e.target.value)} /></div><div><Label>Descripción</Label><Input value={item.description} onChange={(e) => updateTyArray('learningItems', i, 'description', e.target.value)} /></div></div>))}<button onClick={() => addTyItem('learningItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Item</button></div>
                           </SectionContent>
 
-                          {/* 7. Social Proof */}
                           <SectionHeader id="ty-social" title="Testimonios" icon={Star} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-social" openSection={openSection}>
                               <div><Label>Título</Label><Input value={content.thankYouPage?.socialTitle || ''} onChange={(e) => updateThankYouConfig('socialTitle', e.target.value)} /></div>
                               <div><Label>Contador (ej: +1000)</Label><Input value={content.thankYouPage?.socialCountText || ''} onChange={(e) => updateThankYouConfig('socialCountText', e.target.value)} /></div>
-                              
-                              <div className="space-y-4 mt-4">
-                                  {(content.thankYouPage?.socialItems || []).map((item, i) => (
-                                      <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
-                                          <div className="absolute top-2 right-2"><button onClick={() => removeTyItem('socialItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
-                                          <div className="grid grid-cols-2 gap-2 mb-2">
-                                              <div><Label>Nombre</Label><Input value={item.name} onChange={(e) => updateTyArray('socialItems', i, 'name', e.target.value)} /></div>
-                                              <div><Label>Ubicación</Label><Input value={item.location} onChange={(e) => updateTyArray('socialItems', i, 'location', e.target.value)} /></div>
-                                          </div>
-                                          <div><Label>Testimonio</Label><RichTextArea value={item.text} onChange={(e) => updateTyArray('socialItems', i, 'text', e.target.value)} className="h-16"/></div>
-                                      </div>
-                                  ))}
-                                  <button onClick={() => addTyItem('socialItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Testimonio</button>
-                              </div>
+                              <div className="space-y-4 mt-4">{(content.thankYouPage?.socialItems || []).map((item, i) => (<div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group"><div className="absolute top-2 right-2"><button onClick={() => removeTyItem('socialItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div><div className="grid grid-cols-2 gap-2 mb-2"><div><Label>Nombre</Label><Input value={item.name} onChange={(e) => updateTyArray('socialItems', i, 'name', e.target.value)} /></div><div><Label>Ubicación</Label><Input value={item.location} onChange={(e) => updateTyArray('socialItems', i, 'location', e.target.value)} /></div></div><div><Label>Testimonio</Label><RichTextArea value={item.text} onChange={(e) => updateTyArray('socialItems', i, 'text', e.target.value)} className="h-16"/></div></div>))}<button onClick={() => addTyItem('socialItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Testimonio</button></div>
                           </SectionContent>
 
-                          {/* 8. FAQ */}
                           <SectionHeader id="ty-faq" title="Preguntas Frecuentes" icon={HelpCircle} openSection={openSection} toggleSection={toggleSection} />
                           <SectionContent id="ty-faq" openSection={openSection}>
                               <div><Label>Título FAQ</Label><Input value={content.thankYouPage?.faqTitle || ''} onChange={(e) => updateThankYouConfig('faqTitle', e.target.value)} /></div>
-                              
-                              <div className="space-y-4 mt-4">
-                                  {(content.thankYouPage?.faqItems || []).map((item, i) => (
-                                      <div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group">
-                                          <div className="absolute top-2 right-2"><button onClick={() => removeTyItem('faqItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div>
-                                          <div className="mb-2"><Label>Pregunta</Label><Input value={item.question} onChange={(e) => updateTyArray('faqItems', i, 'question', e.target.value)} /></div>
-                                          <div><Label>Respuesta</Label><RichTextArea value={item.answer} onChange={(e) => updateTyArray('faqItems', i, 'answer', e.target.value)} className="h-16"/></div>
-                                      </div>
-                                  ))}
-                                  <button onClick={() => addTyItem('faqItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Pregunta</button>
-                              </div>
+                              <div className="space-y-4 mt-4">{(content.thankYouPage?.faqItems || []).map((item, i) => (<div key={i} className="bg-gray-900 p-3 rounded border border-gray-700 relative group"><div className="absolute top-2 right-2"><button onClick={() => removeTyItem('faqItems', i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button></div><div className="mb-2"><Label>Pregunta</Label><Input value={item.question} onChange={(e) => updateTyArray('faqItems', i, 'question', e.target.value)} /></div><div><Label>Respuesta</Label><RichTextArea value={item.answer} onChange={(e) => updateTyArray('faqItems', i, 'answer', e.target.value)} className="h-16"/></div></div>))}<button onClick={() => addTyItem('faqItems')} className="w-full py-2 border border-dashed border-gray-700 text-gray-400 hover:text-white rounded text-xs flex items-center justify-center gap-1"><Plus className="w-3 h-3" /> Agregar Pregunta</button></div>
                           </SectionContent>
-
                       </div>
                   )}
 
                   {/* === TAB: DESIGN === */}
                   {activeTab === 'design' && (
                       <div className="space-y-8 animate-in slide-in-from-left-2 duration-200 p-2">
-                           {/* STRUCTURE SELECTION */}
-                           <div>
-                              <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                                  <LayoutTemplate className="w-4 h-4 text-primary" /> Estructura
-                              </h3>
-                              <div className="grid grid-cols-2 gap-3">
-                                  {structures.map(s => (
-                                      <div 
-                                          key={s.id}
-                                          onClick={() => setContent({...content, structure: s.id})}
-                                          className={`cursor-pointer rounded-lg border p-2 transition-all hover:scale-105 ${
-                                              content.structure === s.id 
-                                              ? 'bg-gray-800 border-primary ring-1 ring-primary' 
-                                              : 'bg-black border-gray-800 hover:border-gray-600'
-                                          }`}
-                                      >
-                                          <div className="mb-2 pointer-events-none scale-90 origin-top-left">
-                                              {s.wireframe}
-                                          </div>
-                                          <p className={`text-xs font-bold ${content.structure === s.id ? 'text-primary' : 'text-gray-400'}`}>
-                                              {s.name}
-                                          </p>
-                                      </div>
-                                  ))}
-                              </div>
-                           </div>
-
-                           {/* VSL Video Configuration - Only visible if structure is VSL */}
-                           {content.structure === 'vsl-focused' && (
-                                <div className="bg-gray-800 border border-primary/30 rounded-xl p-4 animate-in slide-in-from-top-2 shadow-lg shadow-primary/10">
-                                    <h3 className="text-white font-bold mb-3 flex items-center gap-2 text-sm">
-                                        <PlayCircle className="w-4 h-4 text-primary" /> Configuración del Video VSL
-                                    </h3>
-                                    <div className="space-y-3">
-                                        <div>
-                                            <Label>URL del Video (YouTube, Vimeo, MP4)</Label>
-                                            <Input
-                                                value={content.hero.videoUrl || ''}
-                                                onChange={(e) => updateNestedField('hero', 'videoUrl', e.target.value)}
-                                                placeholder="https://www.youtube.com/watch?v=..."
-                                                className="bg-black border-gray-700 focus:border-primary"
-                                            />
-                                            <p className="text-[10px] text-gray-400 mt-1">
-                                                * Se detectará automáticamente si es YouTube/Vimeo para incrustarlo.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                           )}
-
-                           {/* COLOR PALETTE SELECTION */}
-                           <div>
-                              <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                                  <Palette className="w-4 h-4 text-primary" /> Colores
-                              </h3>
-                              <div className="grid grid-cols-4 gap-3">
-                                  {palettes.map(p => (
-                                      <div 
-                                          key={p.id}
-                                          onClick={() => setContent({...content, palette: p.id})}
-                                          className={`cursor-pointer rounded-lg p-2 flex flex-col items-center gap-1 transition ${
-                                              content.palette === p.id ? 'bg-gray-800 border border-primary' : 'hover:bg-gray-800 border border-transparent'
-                                          }`}
-                                      >
-                                          <div className={`w-8 h-8 rounded-full shadow-sm ${p.colors}`}></div>
-                                          <span className="text-[10px] text-gray-400 text-center leading-tight">{p.name}</span>
-                                      </div>
-                                  ))}
-                              </div>
-                           </div>
+                           <div><h3 className="text-white font-bold mb-4 flex items-center gap-2"><LayoutTemplate className="w-4 h-4 text-primary" /> Estructura</h3><div className="grid grid-cols-2 gap-3">{structures.map(s => (<div key={s.id} onClick={() => setContent({...content, structure: s.id})} className={`cursor-pointer rounded-lg border p-2 transition-all hover:scale-105 ${content.structure === s.id ? 'bg-gray-800 border-primary ring-1 ring-primary' : 'bg-black border-gray-800 hover:border-gray-600'}`}><div className="mb-2 pointer-events-none scale-90 origin-top-left">{s.wireframe}</div><p className={`text-xs font-bold ${content.structure === s.id ? 'text-primary' : 'text-gray-400'}`}>{s.name}</p></div>))}</div></div>
+                           <div><h3 className="text-white font-bold mb-4 flex items-center gap-2"><Palette className="w-4 h-4 text-primary" /> Colores</h3><div className="grid grid-cols-4 gap-3">{palettes.map(p => (<div key={p.id} onClick={() => setContent({...content, palette: p.id})} className={`cursor-pointer rounded-lg p-2 flex flex-col items-center gap-1 transition ${content.palette === p.id ? 'bg-gray-800 border border-primary' : 'hover:bg-gray-800 border border-transparent'}`}><div className={`w-8 h-8 rounded-full shadow-sm ${p.colors}`}></div><span className="text-[10px] text-gray-400 text-center leading-tight">{p.name}</span></div>))}</div></div>
                       </div>
                   )}
 
@@ -1083,42 +997,49 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                   {activeTab === 'settings' && (
                       <div className="space-y-6 animate-in slide-in-from-left-2 duration-200 p-2">
                            <div className="bg-black p-4 rounded-xl border border-gray-800">
-                               <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                                  <Settings className="w-4 h-4 text-primary" /> General
-                               </h3>
+                               <h3 className="text-white font-bold mb-4 flex items-center gap-2"><Settings className="w-4 h-4 text-primary" /> General</h3>
                                <div className="space-y-4">
-                                  <div><Label>Nombre del Proyecto</Label><Input value={pageName} onChange={(e) => setPageName(e.target.value)} /></div>
-                                  <div><Label>Nicho</Label><Input value={niche} onChange={(e) => setNiche(e.target.value)} /></div>
-                                  <div><Label>Audiencia Objetivo</Label><Input value={content.targetAudience || ''} onChange={(e) => setContent({...content, targetAudience: e.target.value})} /></div>
-                                </div>
-                           </div>
-                           
-                           <div className="bg-black p-4 rounded-xl border border-gray-800">
-                              <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                                  <Target className="w-4 h-4 text-primary" /> Destino (CTA)
-                              </h3>
-                              
-                              <div className="flex flex-wrap gap-2 mb-4">
-                                <button onClick={() => updateDestination('type', 'form')} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition ${content.destination?.type === 'form' ? 'bg-primary text-white border-primary' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}><FileText className="w-3 h-3" /> Form</button>
-                                <button onClick={() => updateDestination('type', 'whatsapp')} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition ${content.destination?.type === 'whatsapp' ? 'bg-green-600 text-white border-green-600' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}><MessageCircle className="w-3 h-3" /> WhatsApp</button>
-                                <button onClick={() => updateDestination('type', 'external_url')} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition ${content.destination?.type === 'external_url' ? 'bg-purple-600 text-white border-purple-600' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}><LinkIcon className="w-3 h-3" /> Link</button>
-                              </div>
+                                   <div><Label>Nombre de la Página</Label><Input value={pageName} onChange={(e) => setPageName(e.target.value)} /></div>
+                                   <div><Label>Nicho</Label><Input value={niche} onChange={(e) => setNiche(e.target.value)} /></div>
+                                   <div><Label>Audiencia Objetivo</Label><Input value={content.targetAudience || ''} onChange={(e) => setContent({...content, targetAudience: e.target.value})} /></div>
+                                   
+                                   {/* Vinculación de Proyecto */}
+                                   <div className="pt-2">
+                                       <Label>Proyecto Vinculado</Label>
+                                       <select 
+                                           value={linkedProjectId} 
+                                           onChange={(e) => setLinkedProjectId(e.target.value)}
+                                           className="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:border-primary outline-none transition appearance-none cursor-pointer"
+                                       >
+                                           <option value="">-- Sin Vincular --</option>
+                                           {userProjects.map(p => (
+                                               <option key={p.id} value={p.id}>{p.name}</option>
+                                           ))}
+                                       </select>
+                                   </div>
 
-                              <div className="space-y-4 border-t border-gray-800 pt-4">
-                                {content.destination?.type === 'whatsapp' && (
-                                    <>
-                                        <div><Label>Número WhatsApp</Label><Input value={content.destination.whatsappPhone || ''} onChange={(e) => updateDestination('whatsappPhone', e.target.value)} placeholder="+57 300 123 4567" /></div>
-                                        <div><Label>Mensaje Inicial</Label><Input value={content.destination.whatsappMessage || ''} onChange={(e) => updateDestination('whatsappMessage', e.target.value)} placeholder="Hola..." /></div>
-                                    </>
-                                )}
-                                {content.destination?.type === 'external_url' && (
-                                    <div><Label>URL de Destino</Label><Input value={content.destination.url || ''} onChange={(e) => updateDestination('url', e.target.value)} placeholder="https://..." /></div>
-                                )}
-                                {content.destination?.type === 'form' && (
-                                    <div className="text-xs text-gray-500 bg-gray-900 p-3 rounded border border-gray-800 italic">* Se capturarán leads en el CRM.</div>
-                                )}
-                              </div>
+                                   {/* Edición de Subdominio/Slug */}
+                                   <div className="pt-2">
+                                       <Label>Slug de la página (Subdominio)</Label>
+                                       <div className="relative group">
+                                           <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                                           <Input 
+                                               value={subdomain} 
+                                               onChange={(e) => {
+                                                   const val = e.target.value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-');
+                                                   setSubdomain(val);
+                                               }}
+                                               className="pl-10"
+                                               placeholder="ej: mi-landing-increible"
+                                           />
+                                       </div>
+                                       <p className="text-[10px] text-gray-500 mt-2 italic px-1">
+                                           * Tu URL final será: <span className="text-primary font-bold">{subdomain}.generatorlanding.com</span>
+                                       </p>
+                                   </div>
+                               </div>
                            </div>
+                           <div className="bg-black p-4 rounded-xl border border-gray-800"><h3 className="text-white font-bold mb-4 flex items-center gap-2"><Target className="w-4 h-4 text-primary" /> Destino (CTA)</h3><div className="flex flex-wrap gap-2 mb-4"><button onClick={() => updateDestination('type', 'form')} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition ${content.destination?.type === 'form' ? 'bg-primary text-white border-primary' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}><FileText className="w-3 h-3" /> Form</button><button onClick={() => updateDestination('type', 'whatsapp')} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition ${content.destination?.type === 'whatsapp' ? 'bg-green-600 text-white border-green-600' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}><MessageCircle className="w-3 h-3" /> WhatsApp</button><button onClick={() => updateDestination('type', 'external_url')} className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition ${content.destination?.type === 'external_url' ? 'bg-purple-600 text-white border-purple-600' : 'border-gray-700 text-gray-400 hover:bg-gray-800'}`}><LinkIcon className="w-3 h-3" /> Link</button></div><div className="space-y-4 border-t border-gray-800 pt-4">{content.destination?.type === 'whatsapp' && (<><div><Label>Número WhatsApp</Label><Input value={content.destination.whatsappPhone || ''} onChange={(e) => updateDestination('whatsappPhone', e.target.value)} placeholder="+57 300 123 4567" /></div><div><Label>Mensaje Inicial</Label><Input value={content.destination.whatsappMessage || ''} onChange={(e) => updateDestination('whatsappMessage', e.target.value)} placeholder="Hola..." /></div></>)}{content.destination?.type === 'external_url' && (<div><Label>URL de Destino</Label><Input value={content.destination.url || ''} onChange={(e) => updateDestination('url', e.target.value)} placeholder="https://..." /></div>)}{content.destination?.type === 'form' && (<div className="text-xs text-gray-500 bg-gray-900 p-3 rounded border border-gray-800 italic">* Se capturarán leads en el CRM.</div>)}</div></div>
                       </div>
                   )}
               </div>
@@ -1132,7 +1053,6 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
              <div className={`bg-white shadow-2xl transition-all duration-500 ease-in-out overflow-hidden relative transform-gpu ${fullScreenPreview && previewMode === 'desktop' ? 'w-full h-full rounded-none border-0' : previewMode === 'mobile' ? 'w-[375px] h-[700px] rounded-[40px] border-[8px] border-gray-900' : 'w-full h-full rounded-lg border-[8px] border-gray-900'}`}>
                 {previewMode === 'mobile' && !fullScreenPreview && <div className="absolute top-0 left-0 w-full h-6 bg-black z-50 flex justify-center"><div className="w-20 h-4 bg-black rounded-b-xl"></div></div>}
                 <div id="preview-viewport" className="w-full h-full overflow-y-auto bg-white scrollbar-hide">
-                    {/* LivePage handles which view to show based on viewMode prop */}
                     <LivePage 
                         content={content} 
                         isMobilePreview={previewMode === 'mobile'} 

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plan, PlanLimits } from '../../../types';
 import { api } from '../../../services/api';
@@ -9,7 +10,9 @@ const DEFAULT_LIMITS: PlanLimits = {
     maxProjects: 1,
     maxLandings: 1,
     maxArticles: 1,
-    maxDomains: 1, // Default limit
+    maxDomains: 1,
+    maxEmailSequences: 1,
+    maxWhatsAppLaunches: 1, // Añadido para corregir error de propiedad faltante en PlanLimits
     features: {
         whatsappBot: false,
         blogGenerator: false,
@@ -71,6 +74,8 @@ export const AdminPlans: React.FC = () => {
         // Ensure defaults if missing properties
         const safeLimits = { ...DEFAULT_LIMITS, ...plan.limitsConfig, features: { ...DEFAULT_LIMITS.features, ...plan.limitsConfig.features } };
         if (safeLimits.maxDomains === undefined) safeLimits.maxDomains = 1;
+        if (safeLimits.maxEmailSequences === undefined) safeLimits.maxEmailSequences = 1;
+        if (safeLimits.maxWhatsAppLaunches === undefined) safeLimits.maxWhatsAppLaunches = 1;
 
         setEditingPlan({ ...plan, limitsConfig: safeLimits });
         setActiveTab('general');
@@ -160,6 +165,8 @@ export const AdminPlans: React.FC = () => {
                             <p>Landings: <strong>{plan.limitsConfig.maxLandings}</strong></p>
                             <p>Dominios: <strong>{plan.limitsConfig.maxDomains || 0}</strong></p>
                             <p>Artículos SEO: <strong>{plan.limitsConfig.maxArticles || 0}</strong></p>
+                            <p>Secuencias Email: <strong>{plan.limitsConfig.maxEmailSequences || 0}</strong></p>
+                            <p>Lanzamientos WA: <strong>{plan.limitsConfig.maxWhatsAppLaunches || 0}</strong></p>
                             <p>Features: {Object.values(plan.limitsConfig.features).filter(Boolean).length} activas</p>
                             {plan.stripePriceId && <p className="text-xs text-blue-400 truncate mt-2">Stripe: {plan.stripePriceId}</p>}
                             {/* ////////// Visualización de Hotmart ID, Oferta y Modo en la lista - 25/05/2025 18:45 ////////// */}
@@ -192,12 +199,10 @@ export const AdminPlans: React.FC = () => {
             {/* Edit Modal */}
             {editingPlan && (
                 <div 
-                    ////////// Actualización: Cierre de modal al hacer clic en fondo - 28/05/2025 15:30 //////////
                     onClick={() => setEditingPlan(null)}
                     className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
                 >
                     <div 
-                        ////////// Actualización: Evitar propagación al contenido - 28/05/2025 15:30 //////////
                         onClick={(e) => e.stopPropagation()}
                         className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
                     >
@@ -391,7 +396,7 @@ export const AdminPlans: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* NEW: Max Domains & Articles Input */}
+                                    {/* NEW: Max Domains & Articles & Email Sequences & WA Launches Input */}
                                     <div className="grid grid-cols-2 gap-4 mt-4">
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Dominios Personalizados</label>
@@ -419,13 +424,39 @@ export const AdminPlans: React.FC = () => {
                                             />
                                             <p className="text-[10px] text-gray-500 mt-1">Límite mensual de generación IA.</p>
                                         </div>
+                                        <div className="mt-4">
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Secuencias Email</label>
+                                            <input 
+                                                type="number" 
+                                                value={editingPlan.limitsConfig.maxEmailSequences || 0} 
+                                                onChange={(e) => setEditingPlan({
+                                                    ...editingPlan, 
+                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxEmailSequences: parseInt(e.target.value) }
+                                                })}
+                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-yellow-500 outline-none"
+                                            />
+                                            <p className="text-[10px] text-gray-500 mt-1">Límite de secuencias activas.</p>
+                                        </div>
+                                        <div className="mt-4">
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Lanzamientos WhatsApp</label>
+                                            <input 
+                                                type="number" 
+                                                value={editingPlan.limitsConfig.maxWhatsAppLaunches || 0} 
+                                                onChange={(e) => setEditingPlan({
+                                                    ...editingPlan, 
+                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxWhatsAppLaunches: parseInt(e.target.value) }
+                                                })}
+                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-emerald-500 outline-none"
+                                            />
+                                            <p className="text-[10px] text-gray-500 mt-1">Cupos para lanzamientos de grupos.</p>
+                                        </div>
                                     </div>
                                     
                                     <div className="pt-4 border-t border-gray-800 mt-4">
                                         <h4 className="text-sm font-bold text-white mb-3">Feature Flags</h4>
                                         <div className="grid grid-cols-2 gap-3">
                                             {Object.entries(editingPlan.limitsConfig.features).map(([key, val]) => (
-                                                <label key={key} className="flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${val ? 'bg-green-900/10 border-green-500/30' : 'bg-black border-gray-800 hover:border-gray-700'}">
+                                                <label key={key} className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${val ? 'bg-green-900/10 border-green-500/30' : 'bg-black border-gray-800 hover:border-gray-700'}`}>
                                                     <input 
                                                         type="checkbox" 
                                                         checked={val}

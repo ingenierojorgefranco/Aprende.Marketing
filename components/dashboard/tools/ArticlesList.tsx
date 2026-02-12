@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Article, User } from '../../../types';
-import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus, Briefcase } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { UpgradeModal } from '../UpgradeModal';
+import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 
 interface DashboardContext {
   user: User;
@@ -24,6 +25,11 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   // Modals States
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
+  
+  // --- Nuevo Estado para Restricción de Eliminación ---
+  const [showRestrictionModal, setShowRestrictionModal] = useState(false);
+  const [articleToRestrict, setArticleToRestrict] = useState<Article | null>(null);
+  // ----------------------------------------------------
 
   useEffect(() => {
       const fetchArticles = async () => {
@@ -40,11 +46,17 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       fetchArticles();
   }, []);
 
-  const handleDelete = async (id: string) => {
-      if (window.confirm("¿Estás seguro de que deseas eliminar este artículo? Esta acción no se puede deshacer.")) {
+  const handleDelete = async (article: Article) => {
+      if (user.role !== 'admin') {
+          setArticleToRestrict(article);
+          setShowRestrictionModal(true);
+          return;
+      }
+
+      if (window.confirm(`¿Estás seguro de eliminar el artículo "${article.title}"? Esta acción no se puede deshacer.`)) {
           try {
-              await api.deleteArticle(id);
-              setLocalArticles(prev => prev.filter(a => a.id !== id));
+              await api.deleteArticle(article.id);
+              setLocalArticles(prev => prev.filter(a => a.id !== article.id));
           } catch (error) {
               alert("Error eliminando el artículo. Por favor intenta de nuevo.");
           }
@@ -108,7 +120,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                       <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
                           Generador de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Artículos SEO</span>
                       </h1>
-                      <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
+                      <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-[1.625]">
                           Genera artículos optimizados para buscadores que atraen tráfico orgánico a tus ofertas las 24 horas.
                       </p>
                   </div>
@@ -116,7 +128,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   {/* Plan Usage Bar */}
                   <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
                       <div className="flex justify-between items-center mb-2 text-sm">
-                          <span className="text-gray-300 font-medium">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span>
+                          <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span>
                           <span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                       </div>
                       <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -125,42 +137,55 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                       {isAtLimit && (
                           <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
                               <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                              <span>Límite mensual alcanzado. Actualiza para generar contenido ilimitado.</span>
+                              <span className="text-[1rem] leading-[1.5rem]">Límite mensual alcanzado. Actualiza para generar contenido ilimitado.</span>
                           </div>
                       )}
                   </div>
               </div>
 
-              <div className="flex flex-col gap-4 shrink-0 w-full md:w-auto">
-                  {isAtLimit ? (
-                    <button
-                        onClick={() => setShowUpgradeModal(true)}
-                        className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20"
-                    >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                            <Crown className="w-5 h-5 fill-current" /> 
-                            Límite Alcanzado: Subir a PRO
-                        </span>
-                    </button>
-                  ) : (
-                    <button
-                        onClick={handleCreate}
-                        className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:-translate-y-1"
-                    >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                            <PenTool className="w-5 h-5" /> 
-                            Redactar Nuevo
-                        </span>
-                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                    </button>
-                  )}
-                  
-                  <button 
+              <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
+                  {/* Contenedor de Video Interactivo */}
+                  <div 
                       onClick={() => setShowVideoModal(true)}
-                      className="px-8 py-3 bg-transparent border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                      className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
                   >
-                      <PlayCircle className="w-4 h-4" /> ¿Cómo funciona?
-                  </button>
+                      <img 
+                          src="https://img.youtube.com/vi/A_dcakdMBow/maxresdefault.jpg" 
+                          alt="Video Tutorial"
+                          className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                              <PlayCircle className="w-10 h-10 text-purple-400" />
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* Botones centrados debajo del video */}
+                  <div className="flex flex-col gap-3">
+                      {isAtLimit ? (
+                        <button
+                            onClick={() => setShowUpgradeModal(true)}
+                            className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                <Crown className="w-5 h-5 fill-current" /> 
+                                Límite Alcanzado: Subir a PRO
+                            </span>
+                        </button>
+                      ) : (
+                        <button
+                            onClick={handleCreate}
+                            className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:-translate-y-1 w-full"
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                <PenTool className="w-5 h-5" /> 
+                                Redactar Nuevo
+                            </span>
+                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        </button>
+                      )}
+                  </div>
               </div>
           </div>
       </div>
@@ -216,13 +241,13 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                 
                 <div className="p-8 flex-1 flex flex-col">
                     <div className="flex justify-between items-start mb-4">
-                        <div className="bg-white/5 text-gray-500 text-[10px] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
+                        <div className="bg-white/5 text-white text-[0.8em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
                             <Calendar className="w-3 h-3" />
                             {new Date(article.publishedAt || article.createdAt).toLocaleDateString()}
                         </div>
                         {article.status === 'scheduled' && (
                             <span className="text-[10px] text-orange-400 bg-orange-900/20 px-2 py-1 rounded border border-orange-900/30 font-black uppercase tracking-widest flex items-center gap-1">
-                                <Clock className="w-3 h-3" /> Prog.
+                                <Clock className="w-3 h-3" /> Para hoy
                             </span>
                         )}
                         {article.status === 'published' && (
@@ -237,27 +262,42 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                         )}
                     </div>
                     
-                    <h3 className="text-xl font-black text-white mb-3 line-clamp-2 group-hover:text-[#FF5A1F] transition-colors duration-300 leading-tight">
+                    <h3 className="text-xl font-black text-[#FF5A1F] mb-3 line-clamp-2 group-hover:text-[#FF5A1F] transition-colors duration-300 leading-[1.6]">
                     {article.title}
                     </h3>
-                    <p className="text-gray-400 text-base font-medium line-clamp-3 mb-8 flex-1 leading-relaxed">
+                    <p className="text-white text-[1.2rem] line-clamp-3 mb-8 flex-1 leading-relaxed">
                     {article.metaDescription || article.description}
                     </p>
                     
                     <div className="space-y-4 mt-auto pt-6 border-t border-white/5">
                         {article.pageId ? (
-                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
-                                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
-                                    <Globe className="w-3.5 h-3.5" />
+                            <div className="flex flex-col gap-3">
+                                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
+                                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                        <Briefcase className="w-3.5 h-3.5" />
+                                    </div>
+                                    <a 
+                                        href="/dashboard/projects"
+                                        target="_blank"
+                                        rel="noopener noreferrer" 
+                                        className="hover:text-[#FF5A1F] transition-colors"
+                                    >
+                                        Proyecto: {article.pageName || "General"}
+                                    </a>
                                 </div>
-                                <a 
-                                    href={landingUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer" 
-                                    className="hover:text-[#FF5A1F] transition-colors"
-                                >
-                                    Proyecto: {article.pageName || "Landing Page"}
-                                </a>
+                                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
+                                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                        <Globe className="w-3.5 h-3.5" />
+                                    </div>
+                                    <a 
+                                        href={landingUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer" 
+                                        className="hover:text-[#FF5A1F] transition-colors"
+                                    >
+                                        LandingPage: {article.pageName || "Landing Page"}
+                                    </a>
+                                </div>
                             </div>
                         ) : (
                             <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-600">
@@ -291,7 +331,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                     )}
 
                     <button 
-                        onClick={() => handleDelete(article.id)}
+                        onClick={() => handleDelete(article)}
                         className="p-3 text-red-500/40 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition"
                         title="Eliminar artículo"
                     >
@@ -310,8 +350,8 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   <Plus className="w-10 h-10" />
               </div>
               <div className="text-center">
-                  <h4 className="text-xl font-black text-gray-500 group-hover:text-white transition-colors uppercase tracking-tight">Redactar Nuevo Artículo</h4>
-                  <p className="text-xs text-gray-600 mt-2 font-bold uppercase tracking-widest opacity-60">IA optimizada para posicionamiento Google</p>
+                  <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Redactar Nuevo Artículo</h4>
+                  <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>IA optimizada para posicionamiento Google</p>
               </div>
           </button>
         </div>
@@ -319,8 +359,8 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
 
       {/* VIDEO MODAL */}
       {showVideoModal && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
-              <div className="relative w-full max-w-4xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+          <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300" onClick={() => setShowVideoModal(false)}>
+              <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800" onClick={e => e.stopPropagation()}>
                   <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
                       <h3 className="font-bold text-white flex items-center gap-2">
                           <PlayCircle className="w-5 h-5 text-purple-500" /> Tutorial: Estrategia de Contenidos SEO
@@ -346,6 +386,15 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
               </div>
           </div>
       )}
+
+      {/* MODAL RESTRICCIÓN DE ELIMINACIÓN */}
+      <DeletionRestrictionModal 
+          isOpen={showRestrictionModal} 
+          onClose={() => setShowRestrictionModal(false)}
+          itemName={articleToRestrict ? `Contenido: ${articleToRestrict.title}` : ''}
+          userEmail={user.email}
+          userName={user.name}
+      />
     </div>
   );
 };

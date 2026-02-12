@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
-import { User, PlanLimits, Plan, UserUsageStats } from '../../../types';
+import { User, PlanLimits, Plan, UserUsageStats, SupportTicket } from '../../../types';
 import { api } from '../../../services/api';
-import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout } from 'lucide-react';
+import { Loader2, Shield, Users, Edit, Trash2, Save, AlertTriangle, RefreshCw, CreditCard, ExternalLink, Zap, Eye, X, Rocket, Layout, MessageCircle, Clock, CheckCircle } from 'lucide-react';
 
 ////////// Actualización: Implementación de Lazy Load para el componente de auditoría - 05/06/2025 21:30 //////////
 const UserContentModal = React.lazy(() => import('./UserContentModal'));
@@ -14,7 +13,9 @@ const Input = ({ className, ...props }: React.InputHTMLAttributes<HTMLInputEleme
 );
 
 export const AdminPanel: React.FC = () => {
+    const [viewMode, setViewMode] = useState<'users' | 'tickets'>('users');
     const [users, setUsers] = useState<User[]>([]);
+    const [tickets, setTickets] = useState<SupportTicket[]>([]);
     const [plans, setPlans] = useState<Plan[]>([]);
     const [loading, setLoading] = useState(true);
     
@@ -49,29 +50,28 @@ export const AdminPanel: React.FC = () => {
 
     useEffect(() => {
         loadData();
-    }, []);
+    }, [viewMode]);
 
     const loadData = async () => {
         setLoading(true);
         try {
-            const [usersData, plansData, settingsData, pMethodData, modeData] = await Promise.all([
-                api.getUsers(),
-                api.getPlans(),
-                api.getLoginRedirect().catch(() => '/dashboard'),
-                ////////// Se consulta el método de pago activo del sistema - 24/05/2025 10:30 //////////
-                api.getActivePaymentMethod().catch(() => 'stripe'),
-                ////////// Se consulta el modo del sistema - 08/06/2025 //////////
-                api.getSystemMode().catch(() => 'production')
-                ////////// Fin de actualización //////////
-            ]);
-            setUsers(usersData);
-            setPlans(plansData);
-            setRedirectUrl(settingsData || '/dashboard');
-            ////////// Se asigna el método recuperado del sistema - 24/05/2025 10:30 //////////
-            setPaymentMethod(pMethodData as any);
-            ////////// Se asigna el modo recuperado - 08/06/2025 //////////
-            setSystemMode(modeData as any);
-            ////////// Fin de actualización //////////
+            if (viewMode === 'users') {
+                const [usersData, plansData, settingsData, pMethodData, modeData] = await Promise.all([
+                    api.getUsers(),
+                    api.getPlans(),
+                    api.getLoginRedirect().catch(() => '/dashboard'),
+                    api.getActivePaymentMethod().catch(() => 'stripe'),
+                    api.getSystemMode().catch(() => 'production')
+                ]);
+                setUsers(usersData);
+                setPlans(plansData);
+                setRedirectUrl(settingsData || '/dashboard');
+                setPaymentMethod(pMethodData as any);
+                setSystemMode(modeData as any);
+            } else {
+                const ticketsData = await api.getAdminSupportTickets();
+                setTickets(ticketsData);
+            }
         } catch (error) {
             console.error("Error loading admin data:", error);
         } finally {
@@ -98,12 +98,14 @@ export const AdminPanel: React.FC = () => {
 
     const handleEditClick = (user: User) => {
         setEditingUser(user);
-        setTempPlanLimits(JSON.parse(JSON.stringify(user.planLimits || {
+        const currentLimits = user.planLimits || {
             planName: 'starter',
             maxProjects: 1,
             maxLandings: 3,
             maxDomains: 1,
             maxArticles: 2,
+            maxEmailSequences: 1,
+            maxWhatsAppLaunches: 1,
             features: {
                 whatsappBot: false,
                 blogGenerator: false,
@@ -112,7 +114,11 @@ export const AdminPanel: React.FC = () => {
                 emailStrategy: false,
                 evergreenStrategy: false
             }
-        })));
+        };
+        // Asegurar la propiedad maxWhatsAppLaunches
+        if (currentLimits.maxWhatsAppLaunches === undefined) currentLimits.maxWhatsAppLaunches = 1;
+        
+        setTempPlanLimits(JSON.parse(JSON.stringify(currentLimits)));
         setActiveTab('profile'); // Reset tab
         setUserStats(null); // Clear previous stats
         setPaymentHistory([]);
@@ -191,6 +197,8 @@ export const AdminPanel: React.FC = () => {
             maxLandings: plan.limitsConfig.maxLandings,
             maxDomains: plan.limitsConfig.maxDomains || 1,
             maxArticles: plan.limitsConfig.maxArticles || 0,
+            maxEmailSequences: plan.limitsConfig.maxEmailSequences || 1,
+            maxWhatsAppLaunches: plan.limitsConfig.maxWhatsAppLaunches || 1,
             features: { ...plan.limitsConfig.features }
         });
     };
@@ -228,167 +236,260 @@ export const AdminPanel: React.FC = () => {
         );
     };
 
-    if (loading) {
+    if (loading && users.length === 0 && tickets.length === 0) {
         return <div className="flex justify-center p-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>;
     }
 
     return (
         <div className="space-y-8 animate-in fade-in">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                     <Shield className="w-8 h-8 text-red-500" /> Panel de Administración
                 </h1>
-                <div className="text-sm text-gray-400">
-                    Total Usuarios: <span className="font-bold text-white">{users.length}</span>
-                </div>
-            </div>
-
-            {/* System Configuration Section */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <span className="text-primary font-bold">#</span> Configuración Global
-                </h2>
-                <div className="max-w-2xl space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">URL de Redirección (Login/Registro Exitoso)</label>
-                        <Input 
-                            type="text" 
-                            value={redirectUrl}
-                            onChange={(e) => setRedirectUrl(e.target.value)}
-                            placeholder="/dashboard"
-                        />
-                        <p className="text-xs text-gray-500 mt-2">Define a dónde van los usuarios inmediatamente después de iniciar sesión por defecto.</p>
-                    </div>
-
-                    {/* ////////// Selector visual para el método de pago activo global - 24/05/2025 10:30 ////////// */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">Método de Pago Activo (Global)</label>
-                        <div className="grid grid-cols-2 gap-4">
-                            <button 
-                                onClick={() => setPaymentMethod('stripe')}
-                                className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === 'stripe' ? 'bg-primary/20 border-primary text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
-                            >
-                                <CreditCard className={`w-6 h-6 ${paymentMethod === 'stripe' ? 'text-primary' : ''}`} />
-                                <div className="text-left">
-                                    <p className="font-bold text-sm">Stripe</p>
-                                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Suscripciones</p>
-                                </div>
-                            </button>
-                            <button 
-                                onClick={() => setPaymentMethod('hotmart')}
-                                className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === 'hotmart' ? 'bg-orange-500/20 border-orange-500 text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
-                            >
-                                <ExternalLink className={`w-6 h-6 ${paymentMethod === 'hotmart' ? 'text-orange-500' : ''}`} />
-                                <div className="text-left">
-                                    <p className="font-bold text-sm">Hotmart</p>
-                                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Pago Único/Recurrente</p>
-                                </div>
-                            </button>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-3 italic">* El método seleccionado se aplicará a todos los usuarios que intenten comprar un plan.</p>
-                    </div>
-                    {/* ////////// Fin de actualización - 24/05/2025 10:30 ////////// */}
-
-                    {/* ////////// Nueva Sección: Estado del Sistema (Modo Lanzamiento) ////////// */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">Estado del Sistema</label>
-                        <div className="grid grid-cols-2 gap-4">
-                            <button 
-                                onClick={() => setSystemMode('production')}
-                                className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${systemMode === 'production' ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
-                            >
-                                <Layout className={`w-6 h-6 ${systemMode === 'production' ? 'text-emerald-500' : ''}`} />
-                                <div className="text-left">
-                                    <p className="font-bold text-sm">En Producción</p>
-                                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Modo Normal</p>
-                                </div>
-                            </button>
-                            <button 
-                                onClick={() => setSystemMode('launch')}
-                                className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${systemMode === 'launch' ? 'bg-blue-500/20 border-blue-500 text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
-                            >
-                                <Rocket className={`w-6 h-6 ${systemMode === 'launch' ? 'text-blue-500' : ''}`} />
-                                <div className="text-left">
-                                    <p className="font-bold text-sm">En Lanzamiento</p>
-                                    <p className="text-[10px] opacity-70 uppercase tracking-widest">Modo Lista de Espera</p>
-                                </div>
-                            </button>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-3 italic">* El Modo Lanzamiento restringe el acceso de usuarios normales a una lista de espera.</p>
-                    </div>
-                    {/* ////////// Fin de actualización ////////// */}
-
+                
+                {/* Selector de Vista Principal */}
+                <div className="flex bg-gray-900 p-1 rounded-xl border border-gray-800 shadow-inner">
                     <button 
-                        onClick={handleSaveSettings}
-                        disabled={loadingSettings}
-                        className="bg-primary hover:bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 w-full md:w-auto"
+                        onClick={() => setViewMode('users')}
+                        className={`px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'users' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
                     >
-                        {loadingSettings ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                        Guardar Cambios del Sistema
+                        <Users className="w-4 h-4 inline mr-2" /> Usuarios y Configuración
+                    </button>
+                    <button 
+                        onClick={() => setViewMode('tickets')}
+                        className={`px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'tickets' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                    >
+                        <MessageCircle className="w-4 h-4 inline mr-2" /> Tickets de Soporte
                     </button>
                 </div>
             </div>
 
-            {/* Users Table */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-lg">
-                <div className="p-4 border-b border-gray-800">
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Users className="w-5 h-5 text-blue-400" /> Usuarios Registrados
-                    </h2>
+            {viewMode === 'users' ? (
+                <>
+                    {/* System Configuration Section */}
+                    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg">
+                        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <span className="text-primary font-bold">#</span> Configuración Global
+                        </h2>
+                        <div className="max-w-2xl space-y-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">URL de Redirección (Login/Registro Exitoso)</label>
+                                <Input 
+                                    type="text" 
+                                    value={redirectUrl}
+                                    onChange={(e) => setRedirectUrl(e.target.value)}
+                                    placeholder="/dashboard"
+                                />
+                                <p className="text-xs text-gray-500 mt-2">Define a dónde van los usuarios inmediatamente después de iniciar sesión por defecto.</p>
+                            </div>
+
+                            {/* ////////// Selector visual para el método de pago activo global - 24/05/2025 10:30 ////////// */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">Método de Pago Activo (Global)</label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button 
+                                        onClick={() => setPaymentMethod('stripe')}
+                                        className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === 'stripe' ? 'bg-primary/20 border-primary text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
+                                    >
+                                        <CreditCard className={`w-6 h-6 ${paymentMethod === 'stripe' ? 'text-primary' : ''}`} />
+                                        <div className="text-left">
+                                            <p className="font-bold text-sm">Stripe</p>
+                                            <p className="text-[10px] opacity-70 uppercase tracking-widest">Suscripciones</p>
+                                        </div>
+                                    </button>
+                                    <button 
+                                        onClick={() => setPaymentMethod('hotmart')}
+                                        className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === 'hotmart' ? 'bg-orange-500/20 border-orange-500 text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
+                                    >
+                                        <ExternalLink className={`w-6 h-6 ${paymentMethod === 'hotmart' ? 'text-orange-500' : ''}`} />
+                                        <div className="text-left">
+                                            <p className="font-bold text-sm">Hotmart</p>
+                                            <p className="text-[10px] opacity-70 uppercase tracking-widest">Pago Único/Recurrente</p>
+                                        </div>
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-3 italic">* El método seleccionado se aplicará a todos los usuarios que intenten comprar un plan.</p>
+                            </div>
+                            {/* ////////// Fin de actualización - 24/05/2025 10:30 ////////// */}
+
+                            {/* ////////// Nueva Sección: Estado del Sistema (Modo Lanzamiento) ////////// */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">Estado del Sistema</label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button 
+                                        onClick={() => setSystemMode('production')}
+                                        className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${systemMode === 'production' ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
+                                    >
+                                        <Layout className={`w-6 h-6 ${systemMode === 'production' ? 'text-emerald-500' : ''}`} />
+                                        <div className="text-left">
+                                            <p className="font-bold text-sm">En Producción</p>
+                                            <p className="text-[10px] opacity-70 uppercase tracking-widest">Modo Normal</p>
+                                        </div>
+                                    </button>
+                                    <button 
+                                        onClick={() => setSystemMode('launch')}
+                                        className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${systemMode === 'launch' ? 'bg-blue-500/20 border-blue-500 text-white shadow-lg' : 'bg-black border-gray-700 text-gray-500 hover:border-gray-500'}`}
+                                    >
+                                        <Rocket className={`w-6 h-6 ${systemMode === 'launch' ? 'text-blue-500' : ''}`} />
+                                        <div className="text-left">
+                                            <p className="font-bold text-sm">En Lanzamiento</p>
+                                            <p className="text-[10px] opacity-70 uppercase tracking-widest">Modo Lista de Espera</p>
+                                        </div>
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-3 italic">* El Modo Lanzamiento restringe el acceso de usuarios normales a una lista de espera.</p>
+                            </div>
+                            {/* ////////// Fin de actualización ////////// */}
+
+                            <button 
+                                onClick={handleSaveSettings}
+                                disabled={loadingSettings}
+                                className="bg-primary hover:bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 w-full md:w-auto"
+                            >
+                                {loadingSettings ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                                Guardar Cambios del Sistema
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Users Table */}
+                    <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-lg">
+                        <div className="p-4 border-b border-gray-800">
+                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                <Users className="w-5 h-5 text-blue-400" /> Usuarios Registrados
+                            </h2>
+                        </div>
+                        <table className="w-full text-left">
+                            <thead className="bg-gray-800 text-gray-400 text-xs uppercase tracking-wider">
+                                <tr>
+                                    <th className="p-4">Usuario</th>
+                                    <th className="p-4">Rol</th>
+                                    <th className="p-4">Plan Actual</th>
+                                    <th className="p-4">Límites (Proy / Landings)</th>
+                                    <th className="p-4 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-800 text-sm">
+                                {users.map(user => (
+                                    <tr key={user.id} className="hover:bg-gray-800/50 transition">
+                                        <td className="p-4">
+                                            <div className="font-bold text-white">{user.name}</div>
+                                            <div className="text-gray-500">{user.email}</div>
+                                        </td>
+                                        <td className="p-4">
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${user.role === 'admin' ? 'bg-red-900/30 text-red-400 border border-red-900' : 'bg-blue-900/30 text-blue-400 border border-blue-900'}`}>
+                                                {user.role?.toUpperCase()}
+                                            </span>
+                                        </td>
+                                        <td className="p-4">
+                                            <span className="text-gray-300 capitalize">{user.planLimits?.planName || 'N/A'}</span>
+                                        </td>
+                                        <td className="p-4 text-gray-400">
+                                            {user.planLimits?.maxProjects} / {user.planLimits?.maxLandings}
+                                        </td>
+                                        <td className="p-4 text-right flex justify-end gap-2">
+                                            <button 
+                                                onClick={() => setViewingUser(user)}
+                                                className="p-2 hover:bg-purple-900/30 text-purple-400 rounded transition" title="Ver Contenido Generado"
+                                            >
+                                                <Eye className="w-4 h-4" />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleEditClick(user)}
+                                                className="p-2 hover:bg-blue-900/30 text-blue-400 rounded transition" title="Editar Usuario"
+                                            >
+                                                <Edit className="w-4 h-4" />
+                                            </button>
+                                            <button 
+                                                onClick={() => setShowDeleteConfirm(user.id)}
+                                                className="p-2 hover:bg-red-900/30 text-red-400 rounded transition" title="Eliminar Usuario"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </>
+            ) : (
+                /* VISTA: TICKETS DE SOPORTE */
+                <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
+                    <div className="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+                        <div className="p-8 border-b border-white/5 flex justify-between items-center bg-black/20">
+                            <div>
+                                <h2 className="text-xl font-black text-white uppercase tracking-tight">Solicitudes de Eliminación Manual</h2>
+                                <p className="text-xs text-gray-500 font-bold mt-1 uppercase tracking-widest">Gestiona los tickets de soporte enviados por los usuarios</p>
+                            </div>
+                            <button 
+                                onClick={loadData}
+                                className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all text-[#FF5A1F]"
+                            >
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
+                            </button>
+                        </div>
+                        
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-black text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">
+                                    <tr>
+                                        <th className="p-6">Usuario</th>
+                                        <th className="p-6">Activo a Eliminar</th>
+                                        <th className="p-6">Motivo de Solicitud</th>
+                                        <th className="p-6">Fecha</th>
+                                        <th className="p-6 text-center">Estado</th>
+                                        <th className="p-6 text-right">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {tickets.length > 0 ? tickets.map((ticket) => (
+                                        <tr key={ticket.id} className="hover:bg-white/[0.02] transition-colors group">
+                                            <td className="p-6">
+                                                <p className="text-white font-bold">{ticket.userName}</p>
+                                                <p className="text-xs text-gray-500 font-medium">{ticket.userEmail}</p>
+                                            </td>
+                                            <td className="p-6 text-orange-400 font-bold">
+                                                {ticket.itemName}
+                                            </td>
+                                            <td className="p-6">
+                                                <p className="text-gray-400 text-sm leading-relaxed max-w-xs italic">"{ticket.reason}"</p>
+                                            </td>
+                                            <td className="p-6">
+                                                <div className="flex items-center gap-2 text-gray-500 text-xs font-medium">
+                                                    <Clock className="w-3.5 h-3.5" />
+                                                    {new Date(ticket.createdAt).toLocaleString()}
+                                                </div>
+                                            </td>
+                                            <td className="p-6 text-center">
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase border ${ticket.status === 'pending' ? 'bg-yellow-900/20 text-yellow-500 border-yellow-900/30' : 'bg-emerald-900/20 text-emerald-400 border-emerald-900/30'}`}>
+                                                    {ticket.status === 'pending' ? 'Pendiente' : 'Resuelto'}
+                                                </span>
+                                            </td>
+                                            <td className="p-6 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button className="p-2 bg-[#FF5A1F]/10 hover:bg-[#FF5A1F] text-[#FF5A1F] hover:text-white rounded-lg transition-all" title="Resolver Ticket">
+                                                        <CheckCircle className="w-4 h-4" />
+                                                    </button>
+                                                    <button className="p-2 bg-red-900/10 hover:bg-red-900 text-red-500 hover:text-white rounded-lg transition-all" title="Eliminar Permanente">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )) : (
+                                        <tr>
+                                            <td colSpan={6} className="p-20 text-center text-gray-600 font-medium italic">
+                                                No hay solicitudes de eliminación pendientes.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <table className="w-full text-left">
-                    <thead className="bg-gray-800 text-gray-400 text-xs uppercase tracking-wider">
-                        <tr>
-                            <th className="p-4">Usuario</th>
-                            <th className="p-4">Rol</th>
-                            <th className="p-4">Plan Actual</th>
-                            <th className="p-4">Límites (Proy / Landings)</th>
-                            <th className="p-4 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-800 text-sm">
-                        {users.map(user => (
-                            <tr key={user.id} className="hover:bg-gray-800/50 transition">
-                                <td className="p-4">
-                                    <div className="font-bold text-white">{user.name}</div>
-                                    <div className="text-gray-500">{user.email}</div>
-                                </td>
-                                <td className="p-4">
-                                    <span className={`px-2 py-1 rounded text-xs font-bold ${user.role === 'admin' ? 'bg-red-900/30 text-red-400 border border-red-900' : 'bg-blue-900/30 text-blue-400 border border-blue-900'}`}>
-                                        {user.role?.toUpperCase()}
-                                    </span>
-                                </td>
-                                <td className="p-4">
-                                    <span className="text-gray-300 capitalize">{user.planLimits?.planName || 'N/A'}</span>
-                                </td>
-                                <td className="p-4 text-gray-400">
-                                    {user.planLimits?.maxProjects} / {user.planLimits?.maxLandings}
-                                </td>
-                                <td className="p-4 text-right flex justify-end gap-2">
-                                    <button 
-                                        onClick={() => setViewingUser(user)}
-                                        className="p-2 hover:bg-purple-900/30 text-purple-400 rounded transition" title="Ver Contenido Generado"
-                                    >
-                                        <Eye className="w-4 h-4" />
-                                    </button>
-                                    <button 
-                                        onClick={() => handleEditClick(user)}
-                                        className="p-2 hover:bg-blue-900/30 text-blue-400 rounded transition" title="Editar Usuario"
-                                    >
-                                        <Edit className="w-4 h-4" />
-                                    </button>
-                                    <button 
-                                        onClick={() => setShowDeleteConfirm(user.id)}
-                                        className="p-2 hover:bg-red-900/30 text-red-400 rounded transition" title="Eliminar Usuario"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            )}
 
             {/* ////////// Actualización: Integración de Suspense para UserContentModal Lazy - 05/06/2025 21:30 ////////// */}
             <React.Suspense fallback={null}>
@@ -401,14 +502,12 @@ export const AdminPanel: React.FC = () => {
             {/* Edit User Modal */}
             {editingUser && tempPlanLimits && (
                 <div 
-                    ////////// Actualización: Cierre al hacer clic en fondo - 28/05/2025 15:30 //////////
                     onClick={() => setEditingUser(null)}
                     className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
                 >
                     <div 
-                        ////////// Actualización: Evitar propagación - 28/05/2025 15:30 //////////
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]"
+                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
                     >
                         <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-850 shrink-0">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -429,7 +528,7 @@ export const AdminPanel: React.FC = () => {
                             
                             {/* TAB: PROFILE */}
                             {activeTab === 'profile' && (
-                                <div className="space-y-6 animate-in slide-in-from-left-4">
+                                <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
                                     <div className="space-y-4 pb-6 border-b border-gray-800">
                                         <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
                                             <span className="text-primary font-bold">#</span> Datos Personales
@@ -439,7 +538,7 @@ export const AdminPanel: React.FC = () => {
                                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre</label>
                                                 <input 
                                                     type="text" 
-                                                    value={editingUser.name}
+                                                    value={editingUser.name} 
                                                     onChange={(e) => setEditingUser({...editingUser, name: e.target.value})}
                                                     className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
                                                 />
@@ -448,7 +547,7 @@ export const AdminPanel: React.FC = () => {
                                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
                                                 <input 
                                                     type="email" 
-                                                    value={editingUser.email}
+                                                    value={editingUser.email} 
                                                     onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
                                                     className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
                                                 />
@@ -469,7 +568,7 @@ export const AdminPanel: React.FC = () => {
                                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Avatar URL</label>
                                                 <input 
                                                     type="text" 
-                                                    value={editingUser.avatarUrl || ''}
+                                                    value={editingUser.avatarUrl || ''} 
                                                     onChange={(e) => setEditingUser({...editingUser, avatarUrl: e.target.value})}
                                                     placeholder="https://..."
                                                     className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white"
@@ -499,7 +598,7 @@ export const AdminPanel: React.FC = () => {
                                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Redirección Personalizada</label>
                                                 <input 
                                                     type="text" 
-                                                    value={editingUser.customRedirectUrl || ''}
+                                                    value={editingUser.customRedirectUrl || ''} 
                                                     onChange={(e) => setEditingUser({...editingUser, customRedirectUrl: e.target.value})}
                                                     placeholder="URL prioritaria al login"
                                                     className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-blue-300 placeholder-gray-600"
@@ -512,7 +611,7 @@ export const AdminPanel: React.FC = () => {
 
                             {/* TAB: PLAN */}
                             {activeTab === 'plan' && (
-                                <div className="space-y-6 animate-in slide-in-from-right-4">
+                                <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
                                     <div className="flex justify-between items-center mb-2">
                                         <h4 className="text-sm font-bold text-white flex items-center gap-2">
                                             <Zap className="w-4 h-4 text-green-400" /> Configuración de Límites y Características
@@ -579,6 +678,24 @@ export const AdminPanel: React.FC = () => {
                                                 className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
                                             />
                                         </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Secuencias Email</label>
+                                            <input 
+                                                type="number" 
+                                                value={tempPlanLimits.maxEmailSequences || 0}
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxEmailSequences: parseInt(e.target.value) || 0})}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Lanzamientos WhatsApp</label>
+                                            <input 
+                                                type="number" 
+                                                value={tempPlanLimits.maxWhatsAppLaunches || 0}
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxWhatsAppLaunches: parseInt(e.target.value) || 0})}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
+                                            />
+                                        </div>
                                     </div>
 
                                     {/* Features Toggles */}
@@ -611,7 +728,7 @@ export const AdminPanel: React.FC = () => {
 
                             {/* TAB: USAGE STATS (LAZY LOADED) */}
                             {activeTab === 'usage' && (
-                                <div className="space-y-6 animate-in slide-in-from-right-4">
+                                <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
                                     <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
                                         <RefreshCw className="w-4 h-4 text-orange-400" /> Consumo Mensual Actual
                                     </h4>
@@ -653,7 +770,7 @@ export const AdminPanel: React.FC = () => {
 
                             {/* TAB: PAYMENTS HISTORY (NEW) */}
                             {activeTab === 'payments' && (
-                                <div className="space-y-6 animate-in slide-in-from-right-4">
+                                <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
                                     <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
                                         <CreditCard className="w-4 h-4 text-green-400" /> Historial de Transacciones
                                     </h4>
@@ -666,7 +783,7 @@ export const AdminPanel: React.FC = () => {
                                                 <div key={payment.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
                                                     <div>
                                                         <div className="flex items-center gap-2 mb-1">
-                                                            <span className={`text-sm font-bold ${payment.status === 'succeeded' ? 'text-green-400' : 'text-red-400'}`}>
+                                                            <span className={`text-sm font-bold ${payment.status === 'succeeded' ? 'text-emerald-400' : 'text-red-400'}`}>
                                                                 {payment.status === 'succeeded' ? 'Pago Exitoso' : 'Pago Fallido'}
                                                             </span>
                                                             <span className="text-xs text-gray-500">• {new Date(payment.created_at).toLocaleString()}</span>
@@ -711,12 +828,10 @@ export const AdminPanel: React.FC = () => {
             {/* Delete Confirmation */}
             {showDeleteConfirm && (
                 <div 
-                    ////////// Actualización: Cierre al hacer clic en fondo - 28/05/2025 15:30 //////////
                     onClick={() => setShowDeleteConfirm(null)}
                     className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
                 >
                     <div 
-                        ////////// Actualización: Evitar propagación - 28/05/2025 15:30 //////////
                         onClick={(e) => e.stopPropagation()}
                         className="bg-gray-900 border border-red-900/50 p-6 rounded-xl max-w-sm w-full text-center"
                     >
@@ -725,7 +840,6 @@ export const AdminPanel: React.FC = () => {
                         <p className="text-gray-400 text-sm mb-6">Esta acción borrará permanentemente al usuario y todos sus datos.</p>
                         <div className="flex justify-center gap-3">
                             <button onClick={() => setShowDeleteConfirm(null)} className="px-4 py-2 border border-gray-700 rounded text-gray-300">Cancelar</button>
-                            {/* FIX: Uso de referencia a función para evitar ejecución inmediata en onClick - 24/05/2025 10:30 */}
                             <button onClick={() => handleDeleteUser(showDeleteConfirm!)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-bold">Sí, Eliminar</button>
                         </div>
                     </div>

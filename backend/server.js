@@ -1,21 +1,26 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const path = require('path');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const initDb = require('./initDb');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+import initDb from './initDb.js';
 
 // Import Modules
-const { router: authRoutes } = require('./routes/authRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const { studentRouter: courseStudentRouter } = require('./routes/courseRoutes');
-const projectRoutes = require('./routes/projectRoutes');
-const pageRoutes = require('./routes/pageRoutes');
-const articleRoutes = require('./routes/articleRoutes');
-const crmRoutes = require('./routes/crmRoutes');
-const webhookRoutes = require('./routes/webhookRoutes');
-const systemRoutes = require('./routes/systemRoutes');
+import { router as authRoutes } from './routes/authRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import { studentRouter as courseStudentRouter } from './routes/courseRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
+import pageRoutes from './routes/pageRoutes.js';
+import articleRoutes from './routes/articleRoutes.js';
+import crmRoutes from './routes/crmRoutes.js';
+import webhookRoutes from './routes/webhookRoutes.js';
+import systemRoutes from './routes/systemRoutes.js';
+import whatsappRoutes from './routes/whatsappRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -86,6 +91,7 @@ app.use('/api', pageRoutes);
 app.use('/api', articleRoutes);
 app.use('/api', crmRoutes);
 app.use('/api', systemRoutes);
+app.use('/api/whatsapp-launch', whatsappRoutes);
 
 // ======================================================
 //  STATIC FILES & SPA FALLBACK
@@ -105,12 +111,15 @@ app.get('*', (req, res) => {
 // ======================================================
 //  SERVER STARTUP
 // ======================================================
-initDb().then(() => {
-    console.log('✅ Base de datos inicializada correctamente.');
-}).catch(err => {
-    console.error("⚠️ Error inicializando base de datos:", err.message);
-}).finally(() => {
-    app.listen(PORT, () => {
-      console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
+    
+    // Inicializamos la base de datos en segundo plano. 
+    // Esto permite que el contenedor responda al "startup probe" de Cloud Run de inmediato,
+    // evitando el error de timeout en el puerto 8080.
+    initDb().then(() => {
+        console.log('✅ Base de datos inicializada correctamente.');
+    }).catch(err => {
+        console.error("⚠️ Error inicializando base de datos:", err.message);
     });
 });

@@ -1,10 +1,10 @@
-const express = require('express');
-const pool = require('../db');
-const { authMiddleware } = require('../authMiddleware');
-const { logSystemActivity } = require('./authRoutes');
+import express from 'express';
+import pool from '../db.js';
+import { authMiddleware } from '../authMiddleware.js';
+import { logSystemActivity } from './authRoutes.js';
 
-const studentRouter = express.Router();
-const adminRouter = express.Router();
+export const studentRouter = express.Router();
+export const adminRouter = express.Router();
 
 // ======================================================
 //  STUDENT ROUTES (Rutas para Alumnos)
@@ -343,5 +343,3 @@ adminRouter.post('/comments/:id', async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
-
-module.exports = { studentRouter, adminRouter };

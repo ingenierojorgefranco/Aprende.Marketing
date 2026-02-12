@@ -31,8 +31,48 @@ export interface EmailMessage {
   purpose: string;
   contentHtml: string;
   isGenerated: boolean;
+  redirectType?: 'landing' | 'hotlink' | 'external';
+  redirectUrl?: string;
 }
 /* Fin de actualización - 24/06/2024 16:20 */
+
+////////// Actualización: Interfaces para WhatsApp Lanzamientos (Tabla Única con JSON) - 10/06/2025 11:00 //////////
+export interface WhatsAppLaunchMessage {
+  id: string; // wl1 a wl14
+  name: string;
+  momentText: string;
+  objective: string;
+  pilarType: string; // Nuevo: Pilar estratégico del momento
+  purpose: string;   // Nuevo: Propósito detallado para la IA
+  content: string;
+  isGenerated: boolean;
+}
+
+export interface WhatsAppLaunch {
+  id: string;
+  userId: string;
+  projectId: string;
+  projectName: string;
+  name: string;
+  status: 'activa' | 'borrador';
+  createdAt: Date;
+  messages: WhatsAppLaunchMessage[]; // Inmerso en data_json
+  launchDate?: Date | string; // Añadido: Fecha de lanzamiento persistente
+}
+////////// Fin de actualización - 10/06/2025 11:00 //////////
+
+////////// Actualización: Interfaz para Tickets de Soporte - 12/06/2025 //////////
+export interface SupportTicket {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  itemName: string;
+  reason: string;
+  status: 'pending' | 'resolved';
+  createdAt: string;
+}
+////////// Fin de actualización //////////
 
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
@@ -63,7 +103,9 @@ export interface PlanLimits {
   maxProjects: number;
   maxLandings: number;
   maxDomains: number; // Nuevo límite de dominios
-  maxArticles?: number; // Added optional
+  maxArticles: number; // Actualizado a obligatorio
+  maxEmailSequences: number; // Nuevo límite solicitado
+  maxWhatsAppLaunches: number; // Nuevo límite añadido para control de cuotas
   features: PlanFeatures;
 }
 
@@ -252,6 +294,18 @@ export interface GeneratedPageContent {
   closingOfferText?: string; // New: Text above the final CTA e.g. "Quedan pocos cupos..."
   logoSvg?: string; // AI Generated SVG Logo string
 
+  // New section for capture form details
+  capture?: {
+    timerLabel?: string;
+    timerDuration?: number; // in minutes
+    cardTitle?: string;
+    cardDesc?: string;
+    helpText?: string;
+    guaranteeText?: string;
+    socialProofLabel?: string;
+    securityText?: string;
+  };
+
   hero: {
     headline: string;
     subheadline: string;
@@ -273,7 +327,7 @@ export interface GeneratedPageContent {
   intro: {
     title: string;
     description: string;
-    imageCardText?: string; // New: Text floating over the intro image
+    imageUrl?: string; // New independent image field
     items?: Array<{ title: string; description: string }>; // For the bullet points like Visajismo etc.
   };
   benefits: {
@@ -286,7 +340,7 @@ export interface GeneratedPageContent {
       color?: string; // Color name e.g. 'blue', 'green'
     }>;
   };
-  whatYouWillLearn: {
+   whatYouWillLearn: {
     title: string;
     icon?: string; // Icon for the title
     items: string[];
@@ -392,7 +446,7 @@ export interface AffiliateLink {
 }
 
 /* */ /* Actualización: Enriquecimiento de la interfaz StrategyJSON con campos de manifestación diaria y razón emocional para mejorar el copywriting de la IA - 15/06/2024 18:50 */
-// NEW: Strategy JSON Structure (Legacy/Simple AI Gen)
+// NEW: Strategy JSON Structure (Legacy/Simple IA Gen)
 export interface StrategyJSON {
   avatar: {
     name: string;
@@ -408,8 +462,6 @@ export interface StrategyJSON {
     emotionalTriggers: string[];
     objections: string[];
     falseBeliefs: string[];
-    unique_mechanism?: string;   // Nuevo: Mecanismo único de la oferta
-    avoid?: string[];            // Nuevo: Palabras o conceptos a evitar
   };
   funnel: {
     leadMagnetIdea: string;
@@ -434,13 +486,14 @@ export interface Project {
   shortDescription?: string; // */ Sigue presente para el frontend, pero poblado desde el JSON - 25/06/2024 11:30
   targetAudience: string; // "Mujeres de 25-40 años que quieren emprender"
   brandTone: string; // "Amigable, Profesional, Urgente"
-  productName: string; // "Masterclass Uñas Premium"
+  productName: string; // "Masterclass Uñas Perfectas"
   
   // New fields for conversational AI and financial tracking
   salesPageUrl?: string;
   fullPrice?: number;
   commissionRate?: number;
   leadMagnetType?: string;
+  leadMagnetUrl?: string; // */ Se añade para almacenar el enlace del regalo - 11/03/2025 15:45
 
   // Strategy Assets
   mainGoal: string; // "Venta Directa"
@@ -455,6 +508,7 @@ export interface Project {
   ////////// Actualización: Campos para el sistema de Proyectos Maestros - 05/03/2025 10:00 //////////
   isMaster?: boolean;
   isUnlocked?: boolean;
+  masterParentId?: string; // Nuevo: Referencia al proyecto maestro original
   ////////// Fin de actualización - 05/03/2025 10:00 //////////
 }
 /* Fin de actualización - 25/06/2024 11:30 */

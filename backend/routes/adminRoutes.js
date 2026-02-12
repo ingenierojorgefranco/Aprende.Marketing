@@ -1,9 +1,8 @@
-
-const express = require('express');
-const pool = require('../db');
-const { authMiddleware } = require('../authMiddleware');
-const { logSystemActivity, DEFAULT_LIMITS } = require('./authRoutes');
-const { adminRouter: courseAdminRouter } = require('./courseRoutes');
+import express from 'express';
+import pool from '../db.js';
+import { authMiddleware } from '../authMiddleware.js';
+import { logSystemActivity, DEFAULT_LIMITS } from './authRoutes.js';
+import { adminRouter as courseAdminRouter } from './courseRoutes.js';
 
 const router = express.Router();
 
@@ -133,6 +132,29 @@ router.get('/users/:userId/payments', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM user_payments WHERE user_id = ? ORDER BY created_at DESC', [userId]);
         res.json(rows);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// ======================================================
+//  SOPORTE Y TICKETS (Admin)
+// ======================================================
+
+router.get('/support/tickets', async (req, res) => {
+    try {
+        const [tickets] = await pool.query(
+            `SELECT * FROM support_tickets ORDER BY created_at DESC`
+        );
+        res.json(tickets.map(t => ({
+            ...t,
+            id: String(t.id),
+            userId: String(t.user_id),
+            userName: t.user_name,
+            userEmail: t.user_email,
+            itemName: t.item_name,
+            createdAt: t.created_at
+        })));
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -329,4 +351,4 @@ router.delete('/news/:id', async (req, res) => {
 });
 ////////// Fin de actualización - 07/06/2025 10:00 //////////
 
-module.exports = router;
+export default router;

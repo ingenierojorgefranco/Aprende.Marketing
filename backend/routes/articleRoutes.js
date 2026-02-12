@@ -1,40 +1,13 @@
-const express = require('express');
-const pool = require('../db');
-const { authMiddleware } = require('../authMiddleware');
-const { logSystemActivity, DEFAULT_LIMITS } = require('./authRoutes');
+import express from 'express';
+import pool from '../db.js';
+import { authMiddleware } from '../authMiddleware.js';
+import { logSystemActivity, DEFAULT_LIMITS } from './authRoutes.js';
 
 const router = express.Router();
 
 // ======================================================
 //  HELPERS INTERNOS
 // ======================================================
-
-const checkMonthlyQuota = async (userId, resourceType, limit) => {
-    const [user] = await pool.query('SELECT role FROM users WHERE id = ?', [userId]);
-    if (user[0] && user[0].role === 'admin') return true;
-
-    const [rows] = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM usage_logs 
-        WHERE user_id = ? 
-          AND resource_type = ? 
-          AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(created_at) = YEAR(CURRENT_DATE())
-    `, [userId, resourceType]);
-
-    const used = rows[0].count;
-    if (limit > 9000) return true; 
-    if (used >= limit) return false;
-    return true;
-};
-
-const logUsage = async (userId, resourceType) => {
-    try {
-        await pool.query('INSERT INTO usage_logs (user_id, resource_type) VALUES (?, ?)', [userId, resourceType]);
-    } catch (e) {
-        console.error("Error logging usage:", e);
-    }
-};
 
 // ======================================================
 //  RUTAS PRIVADAS (Gestión de Artículos)
@@ -70,9 +43,6 @@ router.post('/articles', authMiddleware, async (req, res) => {
     const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
     const limit = limits.maxArticles || 2; 
     
-    const hasQuota = await checkMonthlyQuota(req.user.id, 'article', limit);
-    if (!hasQuota) { return res.status(403).json({ error: `Has alcanzado tu cupo mensual de ${limit} artículos.` }); }
-
     const [resDb] = await pool.query(
       `INSERT INTO articles 
       (user_id, page_id, title, slug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, status, published_at, created_at) 
@@ -80,7 +50,6 @@ router.post('/articles', authMiddleware, async (req, res) => {
       [req.user.id, page_id || null, title, finalSlug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, status || 'published', published_at ? new Date(published_at) : new Date()]
     );
     
-    await logUsage(req.user.id, 'article');
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_ARTICLE', 'article', resDb.insertId, { title });
     res.json({ id: resDb.insertId });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -106,9 +75,14 @@ router.put('/articles/:id', authMiddleware, async (req, res) => {
 
 router.delete('/articles/:id', authMiddleware, async (req, res) => {
   try {
-    const [art] = await pool.query('SELECT title FROM articles WHERE id = ?', [req.params.id]);
-    const [result] = await pool.query('DELETE FROM articles WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Artículo no encontrado' });
+    const [art] = await pool.query('SELECT title, user_id FROM articles WHERE id = ?', [req.params.id]);
+    if (art.length === 0) return res.status(404).json({ error: 'Artículo no encontrado' });
+
+    if (art[0].user_id !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'No autorizado' });
+    }
+
+    await pool.query('DELETE FROM articles WHERE id = ?', [req.params.id]);
     await logSystemActivity(req.user.id, req.user.email, 'DELETE_ARTICLE', 'article', req.params.id, { title: art[0]?.title });
     res.json({ message: 'Artículo eliminado' });
   } catch (error) { res.status(500).json({ error: error.message }); }
@@ -145,4 +119,4 @@ router.get('/public/articles/:slug', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

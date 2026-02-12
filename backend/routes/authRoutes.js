@@ -1,14 +1,14 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const pool = require('../db');
-const { authMiddleware } = require('../authMiddleware');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import pool from '../db.js';
+import { authMiddleware } from '../authMiddleware.js';
 
-const router = express.Router();
+export const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 
 // Default limits for new users
-const DEFAULT_LIMITS = {
+export const DEFAULT_LIMITS = {
     planName: 'starter',
     maxProjects: 1,
     maxLandings: 2,
@@ -30,7 +30,7 @@ const createToken = (user) => {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 };
 
-const logSystemActivity = async (userId, userName, actionType, entityType, entityId, details) => {
+export const logSystemActivity = async (userId, userName, actionType, entityType, entityId, details) => {
     try {
         await pool.query(
             `INSERT INTO system_activity_logs (user_id, user_name, action_type, entity_type, entity_id, details) 
@@ -209,9 +209,3 @@ router.put('/profile', authMiddleware, async (req, res) => {
         res.status(500).json({ error: "Error al actualizar perfil" });
     }
 });
-
-module.exports = { 
-    router, 
-    logSystemActivity, 
-    DEFAULT_LIMITS 
-};

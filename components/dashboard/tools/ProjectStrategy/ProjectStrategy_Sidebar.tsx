@@ -2,7 +2,7 @@ import React from 'react';
 import { 
     LayoutDashboard, TrendingUp, Map, UserSearch, 
     Globe, FileText, Mail, Calendar, MessageCircle,
-    ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity
+    ChevronRight, Zap, Target, PlayCircle, Play, ChevronDown, Brain, Activity, MessageSquare
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -27,17 +27,19 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
                 { id: 'growth', label: 'Proyección de Ingresos', icon: TrendingUp, module: "FUNDAMENTOS", description: "Escalabilidad año 1" },
                 { id: 'blueprint', label: 'Mapa de Ruta', icon: Map, module: "FUNDAMENTOS", description: "Flujo del cliente" },
                 { id: 'avatar', label: 'Diagnóstico de Avatar', icon: UserSearch, module: "FUNDAMENTOS", description: "Perfil psicológico" },
-                { id: 'psychology', label: 'Miedos y Soluciones', icon: Brain, module: "FUNDAMENTOS", description: "Ingeniería de persuasión" },
+                { id: 'psychology', label: 'Dolores vs Beneficios', icon: Brain, module: "FUNDAMENTOS", description: "Ingeniería de persuasión" },
+                { id: 'testimonials', label: 'Testimonios de Éxito', icon: MessageSquare, module: "FUNDAMENTOS", description: "Prueba social validada" },
             ]
         },
         {
             module: "¿Qué creará nuestro sistema por ti?",
             items: [
-                { id: 'web', label: 'Genera tu Página de Captura', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
-                { id: 'content', label: 'Generar Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
+                { id: 'web', label: 'Tu Página de Captura.', icon: Globe, module: "SISTEMA DE VENTAS", description: "Páginas de captura" },
+                { id: 'hooks', label: 'Hooks de Atracción', icon: Zap, module: "FUNDAMENTOS", description: "Ganchos magnéticos" },
+                { id: 'content', label: 'Tu Estrategia de Contenidos', icon: FileText, module: "SISTEMA DE VENTAS", description: "Artículos SEO" },
                 { id: 'email', label: 'Email Marketing: Secuencia de Conversión', icon: Mail, module: "SISTEMA DE VENTAS", description: "Nutrición inicial" },
                 { id: 'evergreen', label: 'Email Marketing: Secuencia de Nutrición', icon: Calendar, module: "SISTEMA DE VENTAS", description: "Autoridad a largo plazo" },
-                { id: 'whatsapp', label: 'Cierre por WhatsApp', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
+                { id: 'whatsapp', label: 'Lanzamientos: Estrategia Whatsapp', icon: MessageCircle, module: "SISTEMA DE VENTAS", description: "Scripts de venta" },
             ]
         }
     ];
@@ -52,7 +54,7 @@ export const ProjectStrategy_Sidebar: React.FC<ProjectStrategy_SidebarProps> = (
             </div>
 
             {/* --- LISTADO DE SECCIONES (LECCIONES) --- */}
-            <div className="custom-scrollbar">
+            <div className="flex-1 pb-32">
                 {menuItems.map((group, gIdx) => (
                     <div key={gIdx} className="border-b border-gray-800 last:border-0">
                         {/* Cabecera de Módulo (Estilo Botón LMS) */}

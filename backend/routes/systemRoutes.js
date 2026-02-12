@@ -1,12 +1,11 @@
-
-const express = require('express');
-const pool = require('../db');
-const { generateContent } = require('../geminiService');
-const { authMiddleware } = require('../authMiddleware');
-const stripeService = require('../stripeService');
+import express from 'express';
+import pool from '../db.js';
+import { generateContent } from '../geminiService.js';
+import { authMiddleware } from '../authMiddleware.js';
+import * as stripeService from '../stripeService.js';
 
 ////////// Actualización: Importación de servicio Systeme.io para sincronización manual - 07/06/2025 19:40 //////////
-const systemeIoService = require('../systemeIoService');
+import * as systemeIoService from '../systemeIoService.js';
 ////////// Fin de actualización - 07/06/2025 19:40 //////////
 
 const router = express.Router();
@@ -178,6 +177,38 @@ router.put('/email/messages/:id', authMiddleware, async (req, res) => {
 /* Fin de actualización - 24/06/2024 16:20 */
 
 // ======================================================
+//  SOPORTE Y TICKETS
+// ======================================================
+
+/**
+ * Recibe una solicitud de soporte (ticket) de un usuario autenticado.
+ */
+router.post('/support/tickets', authMiddleware, async (req, res) => {
+    const { itemName, reason } = req.body;
+    if (!reason) return res.status(400).json({ error: "Motivo es obligatorio" });
+
+    try {
+        // Obtenemos datos frescos del usuario
+        const [uRows] = await pool.query("SELECT name, email FROM users WHERE id = ?", [req.user.id]);
+        if (uRows.length === 0) return res.status(404).json({ error: "Usuario no encontrado" });
+
+        const userName = uRows[0].name;
+        const userEmail = uRows[0].email;
+
+        await pool.query(
+            `INSERT INTO support_tickets (user_id, user_name, user_email, item_name, reason, status, created_at) 
+             VALUES (?, ?, ?, ?, ?, 'pending', NOW())`,
+            [req.user.id, userName, userEmail, itemName || 'Sin especificar', reason]
+        );
+
+        res.json({ success: true, message: "Ticket enviado correctamente" });
+    } catch (e) {
+        console.error("[Support Ticket Error]", e);
+        res.status(500).json({ error: "Error al procesar la solicitud de soporte." });
+    }
+});
+
+// ======================================================
 //  CONFIGURACIONES Y PLANES PÚBLICOS
 // ======================================================
 
@@ -282,7 +313,7 @@ router.get('/system/integrations/systemeio/tags', authMiddleware, async (req, re
 ////////// Fin de actualización - 17/06/2025 11:30 //////////
 
 ////////// Actualización: Endpoint para crear etiquetas en Systeme.io - 27/06/2025 12:30 //////////
-router.post('/system/integrations/systemeio/tags', authMiddleware, async (req, res) => {
+router.post('/systemeio/tags', authMiddleware, async (req, res) => {
     const { name } = req.body;
     if (!name) return res.status(400).json({ error: "Nombre de etiqueta no proporcionado." });
 
@@ -567,4 +598,4 @@ router.get('/system/news/history', async (req, res) => {
 });
 ////////// Fin de actualización - 07/06/2025 10:00 //////////
 
-module.exports = router;
+export default router;

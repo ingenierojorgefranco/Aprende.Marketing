@@ -1,8 +1,8 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 
-const authMiddleware = (req, res, next) => {
+export const authMiddleware = (req, res, next) => {
   const authHeader = req.headers['authorization'] || '';
 
   if (!authHeader.startsWith('Bearer ')) {
@@ -21,5 +21,3 @@ const authMiddleware = (req, res, next) => {
     return res.status(401).json({ error: 'Token inválido o expirado' });
   }
 };
-
-module.exports = { authMiddleware };

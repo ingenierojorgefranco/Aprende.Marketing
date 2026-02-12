@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
 import { GeneratedPageContent, LandingPage, ColorPalette, StructureType, DestinationConfig, DestinationType, Project, User } from '../../../types';
-import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase, Plus, ArrowRight, ChevronRight, Info, AlertTriangle, X, CheckCircle, ExternalLink, PenTool, Wand2 } from 'lucide-react';
+import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase, Plus, ArrowRight, ChevronRight, Info, AlertTriangle, X, CheckCircle, ExternalLink, PenTool, Wand2, Globe, ArrowLeft } from 'lucide-react';
 import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import { UpgradeModal } from '../UpgradeModal';
 
@@ -35,6 +34,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
   const [progress, setProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [generatedPageResult, setGeneratedPageResult] = useState<LandingPage | null>(null);
+  const [secondsElapsed, setSecondsElapsed] = useState(0);
   // -----------------------------
 
   // Limit Check
@@ -66,7 +66,8 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
     const fetchProjects = async () => {
         try {
             const projects = await api.getProjects();
-            setUserProjects(projects);
+            const filtered = user.role === 'admin' ? projects : projects.filter(p => !p.isMaster);
+            setUserProjects(filtered);
         } catch (e) {
             console.error("Failed to load projects", e);
         }
@@ -117,6 +118,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
     setLoading(true);
     setError('');
     setProgress(0);
+    setSecondsElapsed(0);
 
     const messages = [
         "Analizando nicho estratégico...",
@@ -127,17 +129,20 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         "Finalizando arquitectura SEO..."
     ];
 
-    // Lógica de simulación de progreso lineal de 7 segundos (70ms * 100)
+    // Iniciamos el contador de tiempo real
+    const timerInterval = setInterval(() => {
+        setSecondsElapsed(prev => prev + 1);
+    }, 1000);
+
+    // Lógica de simulación de progreso lineal
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
-        if (currentProgress < 100) {
+        if (currentProgress < 99) {
             currentProgress += 1;
             setProgress(currentProgress);
             
             const msgIdx = Math.min(Math.floor((currentProgress / 100) * messages.length), messages.length - 1);
             setLoadingMessage(messages[msgIdx]);
-        } else {
-            clearInterval(progressInterval);
         }
     }, 70);
 
@@ -155,7 +160,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
 
       if (api.isUsingMockData()) {
           // Local/Mock
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          await new Promise(resolve => setTimeout(resolve, 5000));
           content = {
               palette: formData.palette,
               structure: formData.structure,
@@ -181,7 +186,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
               intro: {
                   title: `¿Qué es ${formData.pageName}?`,
                   description: `Es un sistema integral diseñado para emprendedores que buscan dominar el mercado de ${formData.pageName} utilizando el poder de la automatización estratégica.`,
-                  imageCardText: "Método Validado 2025",
                   items: [
                       { title: "Escalabilidad Global", description: "Llega a miles de clientes en todo el mundo sin límites." },
                       { title: "Automatización Total", description: "Vende tus productos incluso mientras duermes." },
@@ -231,7 +235,44 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                   contact: "soporte@sistema-ia.com" 
               },
               thankYouMessage: "¡Felicidades! Tu acceso ha sido generado correctamente.",
-              redirectUrl: "https://aprende.marketing"
+              redirectUrl: "https://aprende.marketing",
+              thankYouPage: {
+                  showSocials: true,
+                  ctaLink: "https://chat.whatsapp.com/demo",
+                  progressBarText: "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR...",
+                  greenBadgeText: "RECIBE TU REGALO 100% GRATIS",
+                  headline: "¡REGISTRO EXITOSO! YA TIENES TU LUGAR ASEGURADO",
+                  subheadline: "Sigue los pasos a continuación para acceder al material exclusivo y unirte a la comunidad.",
+                  step1Title: "Revisa tu Bandeja de Entrada",
+                  step1Desc: "Hemos enviado el enlace de acceso y tus bonos a tu correo electrónico.",
+                  step1Warning: "Nota: Si no lo ves, revisa tu carpeta de Correo No Deseado (SPAM).",
+                  step1Subject: "Asunto: [ACCESO] Tu material de entrenamiento está listo",
+                  step2Title: "Únete a la Comunidad VIP",
+                  step2Desc: "Accede a nuestro grupo de WhatsApp para recibir mentoría en vivo y soporte prioritario.",
+                  step2Badge: "¡ACCIÓN REQUERIDA!",
+                  step2BonusTitle: "Manual de Implementación Rápida",
+                  step2BonusValue: "Valor $27 USD - GRATIS",
+                  offerTopTitle: "SÓLO PARA NUEVOS MIEMBROS",
+                  offerHeadline: "Descarga: \"El Mapa Maestro para Escalar Ventas con IA\"",
+                  offerDescription: "En esta guía te revelamos los 7 pasos exactos para automatizar tu facturación.",
+                  bookTitle: "Mapa Maestro",
+                  bookSubtitle: "SISTEMA IA 2025",
+                  bookFooter: "RECURSO EXCLUSIVO",
+                  offerPriceRegular: "$27.00",
+                  offerPriceFree: "GRATIS",
+                  offerBadge: "OFERTA DE BIENVENIDA",
+                  offerBullets: ["Estrategias probadas", "Gatillos mentales", "Scripts listos"],
+                  ctaButtonText: "UNIRME Y DESCARGAR REGALO",
+                  learningTitle: "Lo que vas a lograr",
+                  learningSubtitle: "Dominarás las herramientas que están cambiando el juego.",
+                  learningItems: [{ title: "Fase 1", description: "Configuración inicial" }, { title: "Fase 2", description: "Escalamiento" }],
+                  socialTitle: "Comunidad Unida",
+                  socialSubtitle: "Personas reales logrando resultados extraordinarios.",
+                  socialCountText: "+5,000 Miembros",
+                  socialItems: [{ name: "Ana P.", location: "CDMX", text: "Excelente soporte." }],
+                  faqTitle: "¿Tienes dudas?",
+                  faqItems: [{ question: "¿Es gratis?", answer: "Sí, por tiempo limitado." }]
+              }
           };
       } else {
           // Producción: Gemini Real
@@ -247,13 +288,15 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
           );
       }
 
+      const slugify = (text: string) => text.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-');
+
       const newPage: LandingPage = {
         id: Date.now().toString(),
         name: formData.pageName,
         niche: formData.pageName,
         goal: formData.goal,
         isPublished: true, // Se genera PUBLICADA directamente
-        subdomain: `${formData.pageName.toLowerCase().replace(/\s+/g, '-')}.generatorlanding.com`,
+        subdomain: `${slugify(formData.pageName)}.generatorlanding.com`,
         content: content,
         createdAt: new Date(),
         visits: 0,
@@ -264,17 +307,18 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
       // Guardado automático en el servidor antes de mostrar el éxito para obtener el ID real
       const savedPage = await api.createPage(newPage);
 
-      // Esperamos a que la barra de progreso llegue al 100%
-      while (currentProgress < 100) {
-          await new Promise(r => setTimeout(r, 50));
-      }
+      // Limpiamos intervalos
+      clearInterval(progressInterval);
+      clearInterval(timerInterval);
       
+      setProgress(100);
       setGeneratedPageResult(savedPage);
       setGenerationStatus('success');
 
     } catch (err) {
       console.error(err);
       clearInterval(progressInterval);
+      clearInterval(timerInterval);
       setError("Error al generar la página. Por favor intenta de nuevo.");
       setGenerationStatus('idle');
     } finally {
@@ -400,14 +444,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
           100% { transform: translateX(100%); }
         }
         .progress-shine {
-          position: absolute;
-          top: 0;
-          left: 0;
-          height: 100%;
-          width: 50%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-          animation: loading-shine 1.5s infinite;
-        }
+          position: absolute; top: 0; left: 0; height: 100%; width: 50%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: loading-shine 1.5s infinite; }
       `}</style>
 
       <UpgradeModal 
@@ -417,6 +454,9 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
       />
 
       <div className={`bg-primary/10 p-8 text-center border-b border-primary/10 relative ${(showUpgradeModal || (loading && generationStatus !== 'generating')) ? 'opacity-30 pointer-events-none' : ''}`}>
+        <button onClick={() => navigate('/dashboard/pages')} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+            <ArrowLeft className="w-6 h-6" />
+        </button>
         {onClose && (
             <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
                 <X className="w-6 h-6" />
@@ -439,10 +479,19 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         
         {/* --- UI DE GENERACIÓN (LOADING STATE) --- */}
         {generationStatus === 'generating' && (
-            <div className="h-full flex flex-col items-center justify-center py-20 space-y-12 animate-in fade-in duration-500">
-                <div className="relative mb-4">
+            <div className="h-full flex flex-col items-center justify-center py-20 space-y-8 animate-in fade-in duration-500">
+                <div className="relative mb-2 flex flex-col items-center">
                     <div className="w-24 h-24 bg-emerald-50 rounded-3xl flex items-center justify-center animate-pulse border border-emerald-100">
                         <Wand2 className="w-12 h-12 text-emerald-600" />
+                    </div>
+                    <p className="text-red-600 font-black uppercase text-sm mt-4 tracking-wider">No cierres esta Página</p>
+                    <p className="text-black font-bold text-xs uppercase tracking-widest mt-1">(Tiempo de Espera: 1 Minuto)</p>
+                </div>
+
+                <div className="flex flex-col items-center bg-black rounded-2xl p-4 px-8 border border-white/10 shadow-2xl">
+                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.3em] mb-1">Tiempo Transcurrido</p>
+                    <div className="text-white font-mono text-4xl font-black tracking-tighter">
+                        {Math.floor(secondsElapsed / 60).toString().padStart(2, '0')}:{(secondsElapsed % 60).toString().padStart(2, '0')}
                     </div>
                 </div>
 
@@ -489,30 +538,53 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                     <CheckCircle className="w-14 h-14 text-white" />
                 </div>
 
-                <div className="text-center max-w-xl space-y-4">
+                <div className="text-center max-w-[41rem] space-y-4">
                     <h3 className="text-4xl font-black text-white leading-tight">¡Tu Página de Captura ha sido generada correctamente!</h3>
                     <p className="text-gray-400 text-lg font-medium leading-relaxed">
                         Tu nuevo activo digital está optimizado para convertir visitas en leads de alta calidad de forma automática.
                     </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md pt-6">
-                    <a 
-                        href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
-                    >
-                        <ExternalLink className="w-5 h-5" /> Ver Página
-                    </a>
-                    <a 
-                        href={window.location.hash.startsWith('#/') ? `#/dashboard/editor/${generatedPageResult.id}` : `/dashboard/editor/${generatedPageResult.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
-                    >
-                        <PenTool className="w-5 h-5" /> Editar Página
-                    </a>
+                <div className="w-full max-w-[41rem] space-y-4 pt-6">
+                    {/* Fila 1 (Visualización) */}
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <a 
+                            href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 bg-white text-black font-black py-4 px-6 rounded-[2.5rem] transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"
+                        >
+                            <ExternalLink className="w-5 h-5" /> Ver Página de Captura
+                        </a>
+                        <a 
+                            href={`/admin/lp/${generatedPageResult.subdomain.split('.')[0]}/gracias`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 bg-emerald-600 text-white font-black py-4 px-6 rounded-[2.5rem] transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-emerald-500 transform hover:scale-[1.03] active:scale-95"
+                        >
+                            <ExternalLink className="w-5 h-5" /> Ver Página de Gracias
+                        </a>
+                    </div>
+                    {/* Fila 2 (Gestión) */}
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <a 
+                            href={window.location.hash.startsWith('#/') ? `#/dashboard/editor/${generatedPageResult.id}` : `/dashboard/editor/${generatedPageResult.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 bg-[#FF5A1F] text-white font-black py-4 px-6 rounded-[2.5rem] transition-all shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 hover:bg-[#D94A1E] transform hover:scale-[1.03] active:scale-95"
+                        >
+                            <PenTool className="w-5 h-5" /> Editar Página de Captura
+                        </a>
+                        <button 
+                            onClick={() => {
+                                setGenerationStatus('idle');
+                                navigate('/dashboard/pages');
+                            }}
+                            className="flex-1 bg-blue-600 text-white font-black py-4 px-6 rounded-[2.5rem] transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-blue-500 transform hover:scale-[1.03] active:scale-95"
+                        >
+                            <Globe className="w-5 h-5" /> Asignar Dominio
+                        </button>
+                    </div>
                 </div>
 
                 <button 

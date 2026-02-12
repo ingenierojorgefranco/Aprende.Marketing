@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 ////////// Importación de componentes necesarios para el nuevo Centro de Mando - 27/05/2025 14:15 //////////
 import { 
@@ -139,7 +138,7 @@ export const DashboardHome: React.FC = () => {
       {/* Header Dinámico */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-l-4 border-[#FF5A1F] pl-6 py-2">
         <div>
-            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase">Centro de Mando AM</h1>
+            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase">HOLA, {user.name.toUpperCase()}</h1>
             <p className="text-gray-500 font-light text-lg mt-1">Tu ecosistema ha crecido un <span className="text-[#FF5A1F] font-bold">12%</span> esta semana. Mantén el ritmo.</p>
         </div>
         <div className="flex gap-3">
@@ -317,7 +316,7 @@ export const DashboardHome: React.FC = () => {
                         </div>
                     ) : (
                         <p className="text-sm text-gray-500 font-medium leading-relaxed italic">
-                            Estás usando el plan gratuito. Sube de nivel para conectar dominios propios y eliminar marcas de agua.
+                            Estás en la versión gratuita. Aumenta tu plan ahora para desbloquear todas las funciones estratégicas.
                         </p>
                     )}
 
@@ -332,52 +331,6 @@ export const DashboardHome: React.FC = () => {
                 </div>
             </div>
             {/* ////////// Fin de actualización - 27/05/2025 17:15 ////////// */}
-
-            {/* ////////// Acciones Rápidas Actualizadas (Navegación a Paneles) - 27/05/2025 14:45 ////////// */}
-            <div className="bg-[#111] p-8 rounded-[2rem] border border-white/5">
-                <h3 className="text-sm font-black text-gray-500 uppercase tracking-[0.2em] mb-6">Acciones Rápidas</h3>
-                <div className="space-y-4">
-                    <button 
-                        onClick={() => navigate('/dashboard/projects')}
-                        className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-blue-600 hover:border-blue-500 transition-all group"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
-                                <Briefcase className="w-6 h-6 text-white" />
-                            </div>
-                            <span className="font-bold text-lg">Gestionar Proyectos</span>
-                        </div>
-                        <ChevronRight className="w-5 h-5 opacity-30 group-hover:opacity-100" />
-                    </button>
-
-                    <button 
-                        onClick={() => navigate('/dashboard/pages')}
-                        className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-[#FF5A1F] hover:border-[#FF5A1F] transition-all group"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
-                                <Layout className="w-6 h-6 text-white" />
-                            </div>
-                            <span className="font-bold text-lg">Tus Páginas</span>
-                        </div>
-                        <ChevronRight className="w-5 h-5 opacity-30 group-hover:opacity-100" />
-                    </button>
-
-                    <button 
-                        onClick={() => navigate('/dashboard/articles')}
-                        className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-purple-600 hover:border-purple-500 transition-all group"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-white/10 rounded-xl group-hover:bg-white/20 transition-colors">
-                                <FileText className="w-6 h-6 text-white" />
-                            </div>
-                            <span className="font-bold text-lg">Contenidos SEO</span>
-                        </div>
-                        <ChevronRight className="w-5 h-5 opacity-30 group-hover:opacity-100" />
-                    </button>
-                </div>
-            </div>
-            {/* ////////// Fin de actualización - 27/05/2025 14:45 ////////// */}
 
             {/* ////////// Eliminación de "Top Páginas" y Rediseño de Novedades - 27/05/2025 15:00 ////////// */}
             <div className="bg-[#111] p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
@@ -425,7 +378,6 @@ export const DashboardHome: React.FC = () => {
 
       {/* Footer del Dashboard */}
       <footer className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-30">
-          <p className="text-xs font-medium uppercase tracking-[0.4em]">Aprende.Marketing v2.9 // Sistema Estratégico</p>
       </footer>
     </div>
   );

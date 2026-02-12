@@ -1,9 +1,9 @@
-const express = require('express');
-const stripeService = require('../stripeService');
-const hotmartService = require('../hotmartService');
+import express from 'express';
+import * as stripeService from '../stripeService.js';
+import * as hotmartService from '../hotmartService.js';
 ////////// Actualización: Importación de servicio Systeme.io para validación de Webhooks - 27/06/2025 11:45 //////////
-const systemeIoService = require('../systemeIoService');
-const pool = require('../db');
+import * as systemeIoService from '../systemeIoService.js';
+import pool from '../db.js';
 ////////// Fin de actualización - 27/06/2025 11:45 //////////
 
 const router = express.Router();
@@ -115,4 +115,4 @@ router.get('/hotmart/webhook', (req, res) => {
 });
 ////////// Fin de actualización - 25/05/2025 20:45 //////////
 
-module.exports = router;
+export default router;

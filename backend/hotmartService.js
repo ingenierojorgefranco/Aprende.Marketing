@@ -1,10 +1,10 @@
-const pool = require('./db');
+import pool from './db.js';
 
 /**
  * Maneja el Webhook de Hotmart (Postback)
  * Formato esperado: POST con JSON de Hotmart
  */
-const handleWebhook = async (payload) => {
+export const handleWebhook = async (payload) => {
     console.log(`[Hotmart Webhook] Recibida notificación: ${payload.event || 'desconocida'}`);
 
     // Campos clave de Hotmart
@@ -95,8 +95,4 @@ const handleWebhook = async (payload) => {
             );
         }
     }
-};
-
-module.exports = {
-    handleWebhook
 };

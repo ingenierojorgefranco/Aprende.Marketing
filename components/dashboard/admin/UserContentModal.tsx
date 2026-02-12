@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { User } from '../../../types';
 import { api } from '../../../services/api';
-import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2 } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2 } from 'lucide-react';
 
 ////////// Actualización: Creación de archivo independiente para carga dinámica - 05/06/2025 21:30 //////////
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -36,6 +37,24 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
         }
     };
 
+    const handleDeleteAsset = async (type: 'projects' | 'pages' | 'articles', id: string, name: string) => {
+        if (!window.confirm(`¿Estás seguro de eliminar "${name}" permanentemente? Esta acción no se puede deshacer.`)) return;
+        
+        try {
+            if (type === 'pages') await api.deletePage(id);
+            else if (type === 'projects') await api.deleteProject(id);
+            else if (type === 'articles') await api.deleteArticle(id);
+            
+            // Actualizar estado local
+            setLoadedData(prev => ({
+                ...prev,
+                [type]: prev[type]?.filter((item: any) => String(item.id) !== String(id)) || null
+            }));
+        } catch (error) {
+            alert("Error al eliminar el activo.");
+        }
+    };
+
     return (
         <div 
             onClick={() => onClose()}
@@ -43,7 +62,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
         >
             <div 
                 onClick={(e) => e.stopPropagation()}
-                className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-3xl shadow-2xl animate-in zoom-in-95 flex flex-col max-h-[80vh]"
+                className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-4xl shadow-2xl animate-in zoom-in-95 flex flex-col max-h-[80vh]"
             >
                 <div className="p-6 border-b border-gray-800 flex justify-between items-center shrink-0">
                     <div>
@@ -77,17 +96,26 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                     <table className="w-full text-xs text-left">
                                         <thead className="text-gray-500 uppercase">
                                             <tr>
-                                                <th className="pb-2">Nombre</th>
+                                                <th className="pb-2 pl-2">Nombre</th>
                                                 <th className="pb-2">Nicho</th>
                                                 <th className="pb-2">Objetivo</th>
+                                                <th className="pb-2 text-right pr-2">Acción</th>
                                             </tr>
                                         </thead>
                                         <tbody className="text-gray-300 divide-y divide-gray-800">
                                             {loadedData.projects.map((p: any) => (
-                                                <tr key={p.id}>
-                                                    <td className="py-2 font-medium">{p.name}</td>
+                                                <tr key={p.id} className="hover:bg-white/[0.02]">
+                                                    <td className="py-2 pl-2 font-medium">{p.name}</td>
                                                     <td className="py-2">{p.niche}</td>
                                                     <td className="py-2 text-blue-400">{p.main_goal}</td>
+                                                    <td className="py-2 text-right pr-2">
+                                                        <button 
+                                                            onClick={() => handleDeleteAsset('projects', p.id, p.name)}
+                                                            className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -119,17 +147,26 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                     <table className="w-full text-xs text-left">
                                         <thead className="text-gray-500 uppercase">
                                             <tr>
-                                                <th className="pb-2">Nombre</th>
+                                                <th className="pb-2 pl-2">Nombre</th>
                                                 <th className="pb-2">Subdominio</th>
                                                 <th className="pb-2 text-right">Visitas</th>
+                                                <th className="pb-2 text-right pr-2">Acción</th>
                                             </tr>
                                         </thead>
                                         <tbody className="text-gray-300 divide-y divide-gray-800">
                                             {loadedData.pages.map((p: any) => (
-                                                <tr key={p.id}>
-                                                    <td className="py-2 font-medium">{p.name}</td>
+                                                <tr key={p.id} className="hover:bg-white/[0.02]">
+                                                    <td className="py-2 pl-2 font-medium">{p.name}</td>
                                                     <td className="py-2 text-gray-400">{p.subdomain}</td>
                                                     <td className="py-2 text-right font-mono">{p.visits}</td>
+                                                    <td className="py-2 text-right pr-2">
+                                                        <button 
+                                                            onClick={() => handleDeleteAsset('pages', p.id, p.name)}
+                                                            className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -161,21 +198,30 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                     <table className="w-full text-xs text-left">
                                         <thead className="text-gray-500 uppercase">
                                             <tr>
-                                                <th className="pb-2">Título</th>
+                                                <th className="pb-2 pl-2">Título</th>
                                                 <th className="pb-2">Estado</th>
                                                 <th className="pb-2 text-right">SEO</th>
+                                                <th className="pb-2 text-right pr-2">Acción</th>
                                             </tr>
                                         </thead>
                                         <tbody className="text-gray-300 divide-y divide-gray-800">
                                             {loadedData.articles.map((a: any) => (
-                                                <tr key={a.id}>
-                                                    <td className="py-2 font-medium truncate max-w-[200px]">{a.title}</td>
+                                                <tr key={a.id} className="hover:bg-white/[0.02]">
+                                                    <td className="py-2 pl-2 font-medium truncate max-w-[200px]">{a.title}</td>
                                                     <td className="py-2">
                                                         <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.status === 'published' ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
                                                             {a.status}
                                                         </span>
                                                     </td>
                                                     <td className="py-2 text-right font-mono">{a.seo_score}</td>
+                                                    <td className="py-2 text-right pr-2">
+                                                        <button 
+                                                            onClick={() => handleDeleteAsset('articles', a.id, a.title)}
+                                                            className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>

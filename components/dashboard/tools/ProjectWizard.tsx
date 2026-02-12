@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -16,7 +16,7 @@ interface VisualEditorProps {
 const VisualEditor = ({ value, onChange, className, placeholder }: VisualEditorProps) => {
     const [isSourceMode, setIsSourceMode] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
-    const textAreaRef = useRef<HTMLTextAreaElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
         if (contentRef.current && contentRef.current.innerHTML !== value && !isSourceMode) {
@@ -81,7 +81,7 @@ const VisualEditor = ({ value, onChange, className, placeholder }: VisualEditorP
             <div className="relative min-h-[150px] bg-black">
                 {isSourceMode ? (
                     <textarea 
-                        ref={textAreaRef}
+                        ref={textareaRef}
                         className="w-full h-full min-h-[150px] p-3 bg-[#0d1117] text-gray-300 font-mono text-xs outline-none resize-y"
                         value={value}
                         onChange={handleSourceChange}
@@ -129,7 +129,8 @@ export const ProjectWizard: React.FC = () => {
     
     const [fullPrice, setFullPrice] = useState<number>(0);
     const [commissionValue, setCommissionValue] = useState<number>(0);
-    const [leadMagnetType, setLeadMagnetType] = useState('Ebook / Guía PDF');
+    const [leadMagnetType, setLeadMagnetType] = useState('Clase Gratis / VSL');
+    const [leadMagnetUrl, setLeadMagnetUrl] = useState('');
     const [salesPageUrl, setSalesPageUrl] = useState('');
     const [isMaster, setIsMaster] = useState(false);
     
@@ -138,6 +139,8 @@ export const ProjectWizard: React.FC = () => {
     const [mainGoal, setMainGoal] = useState('Venta Directa');
     const [painPoints, setPainPoints] = useState<string[]>([]);
     const [keyBenefits, setKeyBenefits] = useState<string[]>([]);
+    
+    const [errors, setErrors] = useState<Record<string, string>>({});
     
     const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([
         { label: 'Hotlink Principal Precio Full', url: '' },
@@ -192,14 +195,15 @@ export const ProjectWizard: React.FC = () => {
                 if (proj.commissionRate && proj.fullPrice) {
                     setCommissionValue(proj.commissionRate * proj.fullPrice);
                 }
-                setLeadMagnetType(proj.leadMagnetType || 'Ebook / Guía PDF');
+                setLeadMagnetType(proj.leadMagnetType || '');
+                setLeadMagnetUrl(proj.leadMagnetUrl || '');
                 setSalesPageUrl(proj.salesPageUrl || '');
                 setNiche(proj.niche || '');
                 setTargetAudience(proj.targetAudience || '');
                 setMainGoal(proj.mainGoal || 'Venta Directa');
                 setPainPoints(proj.painPoints || []);
                 setKeyBenefits(proj.keyBenefits || []);
-                setAffiliateLinks(proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks : [
+                setAffiliateLinks(affiliateLinks && affiliateLinks.length > 0 ? affiliateLinks : [
                     { label: 'Hotlink Principal Precio Full', url: '' },
                     { label: 'Hotlink con Descuento', url: '' }
                 ]);
@@ -240,6 +244,23 @@ export const ProjectWizard: React.FC = () => {
         }
     };
 
+    const nextStep = () => {
+        if (step === 1) {
+            const newErrors: Record<string, string> = {};
+            if (!name.trim()) newErrors.name = "Este campo es obligatorio para que la IA genere tu estrategia";
+            if (!productName.trim()) newErrors.productName = "Este campo es obligatorio para que la IA genere tu estrategia";
+            if (!leadMagnetType) newErrors.leadMagnetType = "Este campo es obligatorio para que la IA genere tu estrategia";
+            if (leadMagnetType && !leadMagnetUrl.trim()) newErrors.leadMagnetUrl = "Este campo es obligatorio para que la IA genere tu estrategia";
+            
+            if (Object.keys(newErrors).length > 0) {
+                setErrors(newErrors);
+                return;
+            }
+        }
+        setErrors({});
+        setStep(step + 1);
+    };
+
     const saveProject = async () => {
         if (!name || !productName) return alert('Por favor completa el nombre del proyecto y del producto.');
         setLoading(true);
@@ -252,6 +273,7 @@ export const ProjectWizard: React.FC = () => {
             fullPrice,
             commissionRate: fullPrice > 0 ? commissionValue / fullPrice : 0,
             leadMagnetType,
+            leadMagnetUrl,
             salesPageUrl,
             niche: niche || name, 
             targetAudience: targetAudience || '',
@@ -380,31 +402,34 @@ export const ProjectWizard: React.FC = () => {
                 <div className="p-8 min-h-[450px]">
                     {step === 1 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
-                            {/* CONFIGURACIÓN PROYECTO MAESTRO (SOLO ADMIN REAL) */}
+                            {/* CONFIGURACIÓN PROYECTO MAESTRO REDISEÑADA (SOLO ADMIN REAL) */}
                             {user.role === 'admin' && !isSimulating && (
-                                <div className="bg-yellow-500/10 border border-yellow-500/30 p-8 rounded-[2rem] animate-in slide-in-from-top-2 shadow-[0_0_40px_rgba(234,179,8,0.1)]">
-                                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                                        <div className="flex items-center gap-5">
-                                            <div className="p-4 bg-yellow-500/20 rounded-2xl text-yellow-500 shadow-lg border border-yellow-500/20">
-                                                <Crown className="w-8 h-8 fill-current" />
+                                <div className="bg-yellow-500/10 border border-yellow-500/30 p-10 rounded-[3rem] animate-in slide-in-from-top-2 shadow-[0_0_50px_rgba(234,179,8,0.15)] relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
+                                        <Star className="w-48 h-48 text-yellow-500" />
+                                    </div>
+                                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+                                        <div className="flex items-center gap-6">
+                                            <div className="p-5 bg-yellow-500/20 rounded-[2rem] text-yellow-500 shadow-xl border border-yellow-500/20 group-hover:scale-105 transition-transform duration-500">
+                                                <Crown className="w-10 h-10 fill-current" />
                                             </div>
                                             <div>
-                                                <h4 className="text-white font-black text-xl uppercase tracking-tight">¿Convertir en Proyecto Maestro?</h4>
-                                                <p className="text-gray-400 text-xs font-bold uppercase tracking-[0.2em] mt-2">Será visible para todos los usuarios en la Biblioteca Maestra.</p>
+                                                <h4 className="text-white font-black text-2xl uppercase tracking-tighter italic leading-none">Publicar en Biblioteca Maestra</h4>
+                                                <p className="text-yellow-500/70 text-xs font-black uppercase tracking-[0.25em] mt-3">Visible para todos los usuarios de la plataforma</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3 bg-black/40 p-2 rounded-2xl border border-white/5 shadow-inner">
+                                        <div className="flex items-center gap-3 bg-black/40 p-2.5 rounded-[1.5rem] border border-white/5 shadow-inner">
                                             <button 
                                                 type="button"
                                                 onClick={() => setIsMaster(true)}
-                                                className={`px-8 py-3 rounded-xl text-sm font-black transition-all ${isMaster ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'text-gray-500 hover:text-white'}`}
+                                                className={`px-10 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${isMaster ? 'bg-yellow-500 text-black shadow-xl shadow-yellow-900/40 transform scale-105' : 'text-gray-500 hover:text-white'}`}
                                             >
-                                                SÍ, MAESTRO
+                                                SÍ, PÚBLICO
                                             </button>
                                             <button 
                                                 type="button"
                                                 onClick={() => setIsMaster(false)}
-                                                className={`px-8 py-3 rounded-xl text-sm font-black transition-all ${!isMaster ? 'bg-gray-700 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                                                className={`px-10 py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${!isMaster ? 'bg-gray-700 text-white shadow-xl transform scale-105' : 'text-gray-500 hover:text-white'}`}
                                             >
                                                 NO, PRIVADO
                                             </button>
@@ -436,11 +461,13 @@ export const ProjectWizard: React.FC = () => {
                             <div className="grid md:grid-cols-2 gap-6 pt-4">
                                 <div>
                                     <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Nombre del Proyecto</label>
-                                    <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" placeholder="Ej: Lanzamiento Uñas Pro" />
+                                    <input type="text" value={name} onChange={e => setName(e.target.value)} className={`w-full bg-black border ${errors.name ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700`} placeholder="Ej: Lanzamiento Uñas Pro" />
+                                    {errors.name && <p className="text-red-500 text-xs mt-2 font-medium">{errors.name}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Nombre del Producto</label>
-                                    <input type="text" value={productName} onChange={e => setProductName(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700" placeholder="Ej: Masterclass Uñas Perfectas" />
+                                    <input type="text" value={productName} onChange={e => setProductName(e.target.value)} className={`w-full bg-black border ${errors.productName ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all placeholder:text-gray-700`} placeholder="Ej: Masterclass Uñas Perfectas" />
+                                    {errors.productName && <p className="text-red-500 text-xs mt-2 font-medium">{errors.productName}</p>}
                                 </div>
                             </div>
                             <div>
@@ -452,13 +479,28 @@ export const ProjectWizard: React.FC = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Tono de Comunicación</label>
-                                <select value={brandTone} onChange={e => setBrandTone(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all appearance-none cursor-pointer">
-                                    <option value="Amigable y Cercano">Amigable y Cercano</option>
-                                    <option value="Profesional y Serio">Profesional y Serio</option>
-                                    <option value="Agresivo y Urgente">Agresivo y Urgente</option>
-                                    <option value="Inspirador y Aspiracional">Inspirador y Aspiracional</option>
+                                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Lead Magnet (Regalo)</label>
+                                <select value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)} className={`w-full bg-black border ${errors.leadMagnetType ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all appearance-none cursor-pointer mb-4`}>
+                                    <option value="">Selecciona tu Lead Magnet</option>
+                                    <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
+                                    <option value="Clase Gratis / VSL">Clase Gratis / Carta de Ventas en Video</option>
+                                    <option value="Masterclass en Vivo">Masterclass en Vivo</option>
+                                    <option value="Plantilla / Checklist">Plantilla / Checklist</option>
                                 </select>
+                                {errors.leadMagnetType && <p className="text-red-500 text-xs mt-0 mb-4 font-medium">{errors.leadMagnetType}</p>}
+                                {leadMagnetType && (
+                                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Enlace de la {leadMagnetType}</label>
+                                        <input 
+                                            type="text" 
+                                            value={leadMagnetUrl} 
+                                            onChange={(e) => setLeadMagnetUrl(e.target.value)} 
+                                            className={`w-full bg-black border ${errors.leadMagnetUrl ? 'border-red-500 animate-pulse' : 'border-gray-700'} rounded-xl px-4 py-3 text-blue-400 focus:border-primary outline-none transition-all placeholder:text-gray-700`} 
+                                            placeholder="https://..." 
+                                        />
+                                        {errors.leadMagnetUrl && <p className="text-red-500 text-xs mt-2 font-medium">{errors.leadMagnetUrl}</p>}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -485,16 +527,14 @@ export const ProjectWizard: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Lead Magnet (Regalo)</label>
-                                    <select value={leadMagnetType} onChange={e => setLeadMagnetType(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all">
-                                        <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
-                                        <option value="Clase Gratis / VSL">Clase Gratis / VSL</option>
-                                        <option value="Masterclass en Vivo">Masterclass en Vivo</option>
-                                        <option value="Plantilla / Checklist">Plantilla / Checklist</option>
-                                    </select>
-                                </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Tono de Comunicación</label>
+                                <select value={brandTone} onChange={e => setBrandTone(e.target.value)} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition-all appearance-none cursor-pointer">
+                                    <option value="Amigable y Cercano">Amigable y Cercano</option>
+                                    <option value="Profesional y Serio">Profesional y Serio</option>
+                                    <option value="Agresivo y Urgente">Agresivo y Urgente</option>
+                                    <option value="Inspirador y Aspiracional">Inspirador y Aspiracional</option>
+                                </select>
                             </div>
                         </div>
                     )}
@@ -505,6 +545,22 @@ export const ProjectWizard: React.FC = () => {
                                 <p className="text-xs text-gray-500 mt-1">Configura tus enlaces de Hotmart para los botones de tu web.</p>
                             </div>
                             <div className="space-y-4">
+                                {leadMagnetUrl && (
+                                    <div className="flex gap-3 p-4 bg-emerald-950/20 rounded-2xl border border-emerald-500/30 group relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 p-2 opacity-20"><Crown className="w-12 h-12 text-emerald-500" /></div>
+                                        <div className="flex-1 space-y-3">
+                                            <div>
+                                                <label className="block text-[10px] font-black text-emerald-500 uppercase mb-1 tracking-widest">LeadMagnet (Configurado en Paso 1)</label>
+                                                <p className="text-white font-bold text-sm uppercase">{leadMagnetType}</p>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">URL del Regalo</label>
+                                                <p className="text-emerald-400 text-xs font-mono truncate">{leadMagnetUrl}</p>
+                                            </div>
+                                        </div>
+                                        <div className="self-center p-2 bg-emerald-500/10 rounded-xl"><CheckCircle2 className="w-5 h-5 text-emerald-500" /></div>
+                                    </div>
+                                )}
                                 {affiliateLinks.map((link, idx) => (
                                     <div key={idx} className="flex gap-3 p-4 bg-black rounded-2xl border border-gray-800 group hover:border-gray-700 transition-colors">
                                         <div className="flex-1 space-y-3">
@@ -527,7 +583,7 @@ export const ProjectWizard: React.FC = () => {
                 </div>
                 <div className="bg-gray-800/30 p-6 border-t border-gray-800 flex justify-between items-center">
                     {step > 1 ? <button onClick={() => setStep(step - 1)} className="px-6 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-bold transition flex items-center gap-2 shadow-md"><ArrowLeft className="w-4 h-4" /> Anterior</button> : <div />}
-                    {step < 3 ? <button onClick={() => setStep(step + 1)} className="px-8 py-3 rounded-xl bg-primary hover:bg-indigo-600 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-primary/20">Siguiente <ArrowRight className="w-4 h-4" /></button> : <button onClick={saveProject} disabled={loading} className="px-10 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-green-900/20 transform hover:scale-[1.02] active:scale-95">{loading ? <Loader2 className="w-5 h-5 animate-spin"/> : <Save className="w-5 h-5"/>}{id ? 'Actualizar Proyecto' : 'Finalizar y Generar con IA'}</button>}
+                    {step < 3 ? <button onClick={nextStep} className="px-8 py-3 rounded-xl bg-primary hover:bg-indigo-600 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-primary/20">Siguiente <ArrowRight className="w-4 h-4" /></button> : <button onClick={saveProject} disabled={loading} className="px-10 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-green-900/20 transform hover:scale-[1.02] active:scale-95">{loading ? <Loader2 className="w-5 h-5 animate-spin"/> : <Save className="w-5 h-5"/>}{id ? 'Actualizar Proyecto' : 'Finalizar y Generar con IA'}</button>}
                 </div>
             </div>
         </div>
