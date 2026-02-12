@@ -44,7 +44,7 @@ const withRetries = async (fn, maxRetries = 3) => {
 /**
  * Genera contenido usando Google Gemini con manejo de errores mejorado y settings de seguridad relajados
  */
-const generateContent = async (model, contents, config = {}) => {
+export const generateContent = async (model, contents, config = {}) => {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
     try {
