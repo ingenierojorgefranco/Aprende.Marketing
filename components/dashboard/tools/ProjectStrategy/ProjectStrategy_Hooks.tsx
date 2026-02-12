@@ -19,12 +19,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 }) => {
   const { id: projectId } = useParams() as { id: string };
   const [showVideoModal, setShowVideoModal] = useState(false);
-  const [editingText, setEditingText] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
   
   // Estados para el prototipo del Kit
   const [isGenerating, setIsGenerating] = useState(false);
-  const [showKit, setShowKit] = useState(false);
+  // Inicializamos con el índice 0 para que el primer gancho aparezca generado
+  const [generatedIndices, setGeneratedIndices] = useState<Set<number>>(new Set([0]));
   const [loadingStep, setLoadingStep] = useState(0);
   const [activeKitTab, setActiveKitTab] = useState<'video' | 'ads' | 'thumbs' | 'visual'>('video');
 
@@ -57,15 +56,12 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const totalPages = Math.ceil(hooks.length / itemsPerPage);
   const paginatedHooks = hooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const startEdit = () => {
-    setEditingText(currentHook.question);
-    setIsEditing(true);
-  };
+  // Verificamos si el gancho actual está en la lista de generados
+  const isCurrentHookGenerated = generatedIndices.has(activeHook);
 
   // Simulación de generación del Kit
   const handleGenerateKit = () => {
     setIsGenerating(true);
-    setShowKit(false);
     let step = 0;
     const interval = setInterval(() => {
       if (step < loadingMessages.length - 1) {
@@ -74,7 +70,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
       } else {
         clearInterval(interval);
         setIsGenerating(false);
-        setShowKit(true);
+        // Agregamos el índice actual a los generados
+        setGeneratedIndices(prev => new Set(prev).add(activeHook));
       }
     }, 1200);
   };
@@ -84,22 +81,22 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     alert("Contenido copiado al portapapeles");
   };
 
-  // Datos mockeados para el Kit (Gancho 1)
+  // Datos mockeados para el Kit (Adaptables según el gancho, pero para el prototipo usamos el del Gancho 1)
   const kitContent = {
     video: {
       script: [
         { time: "0-3s", action: "Mira a cámara con seguridad y señala el texto en pantalla.", text: "¿$1,000 EXTRAS SIN RENUNCIAR? 🤫" },
-        { time: "3-12s", action: "Camina hacia la cámara mientras explicas.", text: "La mayoría cree que para emprender necesita dejar su empleo. Gran error. Con el método [Nombre del Producto], puedes empezar con solo 1 hora al día." },
+        { time: "3-12s", action: "Camina hacia la cámara mientras explicas.", text: `La mayoría cree que para emprender necesita dejar su empleo. Gran error. Con el método para ${strategyData?.meta?.projectName || 'tu negocio'}, puedes empezar con solo 1 hora al día.` },
         { time: "12-15s", action: "Señala hacia abajo/enlace.", text: "Toca el botón aquí abajo para ver la clase gratuita donde te explico el paso a paso." }
       ]
     },
-    ads: "🔥 ¿Te gustaría generar $1,000 extras al mes sin dejar tu trabajo actual?\n\nSé que suena a promesa vacía, pero en el sector de [Nicho] la demanda es tan alta que muchas personas están logrando independencia financiera empezando en sus tiempos libres.\n\n✅ Sin jefes.\n✅ A tu ritmo.\n✅ Con una técnica probada.\n\nHe preparado una Masterclass gratuita donde te revelo el mapa exacto para lograrlo este mismo mes. 👇\n\n🔗 [LINK DE TU LANDING]",
+    ads: `🔥 ${currentHook.question}\n\nSé que suena a promesa vacía, pero en el sector de ${strategyData?.meta?.niche || 'este nicho'} la demanda es tan alta que muchas personas están logrando independencia financiera empezando en sus tiempos libres.\n\n✅ Sin jefes.\n✅ A tu ritmo.\n✅ Con una técnica probada.\n\nHe preparado una Masterclass gratuita donde te revelo el mapa exacto para lograrlo este mismo mes. 👇\n\n🔗 [LINK DE TU LANDING]`,
     thumbs: [
       "Genera $1,000 EXTRAS 💰",
       "SIN RENUNCIAR A TU EMPLEO 🚫",
       "El Método de 1 Hora/Día ⏰"
     ],
-    visual: "Graba este video en un entorno luminoso y profesional (puede ser tu sala o un escritorio ordenado). Viste ropa semi-formal que transmita autoridad. La clave es el contacto visual directo para generar confianza."
+    visual: "Graba este video en un entorno luminoso y profesional. Viste ropa que transmita autoridad según tu nicho. La clave es el contacto visual directo para generar confianza desde el segundo cero."
   };
 
   return (
@@ -138,7 +135,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
       </div>
 
       <div className="grid lg:grid-cols-12 gap-8">
-        {/* LISTADO DE HOOKS (Ocupa 4 de 12 para dar más espacio al resultado) */}
+        {/* LISTADO DE HOOKS */}
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-[#111] p-6 rounded-[2.5rem] border border-white/5 h-full flex flex-col shadow-xl">
             <div className="flex items-center gap-3 mb-6">
@@ -154,15 +151,17 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
               {paginatedHooks.map((hook: any, idxInPage: number) => {
                 const globalIdx = (currentPage - 1) * itemsPerPage + idxInPage;
                 const isActive = activeHook === globalIdx;
+                const isHookGenerated = generatedIndices.has(globalIdx);
 
                 return (
                   <div 
                     key={hook.id} 
-                    onClick={() => { setActiveHook(globalIdx); setShowKit(false); }}
+                    onClick={() => setActiveHook(globalIdx)}
                     className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isActive ? 'bg-orange-900/20 border-orange-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
                   >
                     <div className="flex-1">
                       <h4 className={`font-medium text-base leading-snug ${isActive ? 'text-orange-300' : 'text-gray-300 group-hover:text-white'}`}>{hook.question}</h4>
+                      {isHookGenerated && <span className="text-[9px] text-emerald-400 font-black uppercase mt-1 block">Kit Generado</span>}
                     </div>
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-orange-500 border-orange-500' : 'border-gray-600 group-hover:border-orange-400'}`}>
                       {isActive && <Check className="w-4 h-4 font-bold text-black" />}
@@ -182,7 +181,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
           </div>
         </div>
 
-        {/* DETALLE Y RESULTADO (Ocupa 8 de 12) */}
+        {/* DETALLE Y RESULTADO */}
         <div className="lg:col-span-8 space-y-8">
             {/* CARD DE DETALLE Y GENERADOR */}
             <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 flex flex-col relative overflow-hidden shadow-2xl">
@@ -204,7 +203,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         </div>
                     </div>
 
-                    {!showKit && !isGenerating && (
+                    {!isCurrentHookGenerated && !isGenerating && (
                         <button 
                             onClick={handleGenerateKit}
                             className="w-full py-5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-900/20 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group"
@@ -228,8 +227,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 </div>
             </div>
 
-            {/* --- KIT DE CONTENIDO GENERADO (PROTOTIPO) --- */}
-            {showKit && (
+            {/* --- KIT DE CONTENIDO GENERADO --- */}
+            {isCurrentHookGenerated && (
                 <div className="animate-in slide-in-from-bottom-6 duration-700">
                     <div className="bg-[#111] border border-[#FF5A1F]/30 rounded-[3rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
                         {/* Header del Kit */}
