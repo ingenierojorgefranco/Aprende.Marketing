@@ -12,6 +12,17 @@ import * as systemeIoService from '../systemeIoService.js';
 const router = express.Router();
 
 // ======================================================
+//  LEGACY COMPATIBILITY
+// ======================================================
+
+/**
+ * Redirección de login antiguo para no romper compatibilidad
+ */
+router.post('/login', (req, res) => {
+    res.redirect(307, '/api/auth/login');
+});
+
+// ======================================================
 //  STRIPE CHECKOUT
 // ======================================================
 
@@ -167,38 +178,6 @@ router.put('/email/messages/:id', authMiddleware, async (req, res) => {
 /* Fin de actualización - 24/06/2024 16:20 */
 
 // ======================================================
-//  SOPORTE Y TICKETS
-// ======================================================
-
-/**
- * Recibe una solicitud de soporte (ticket) de un usuario autenticado.
- */
-router.post('/support/tickets', authMiddleware, async (req, res) => {
-    const { itemName, reason } = req.body;
-    if (!reason) return res.status(400).json({ error: "Motivo es obligatorio" });
-
-    try {
-        // Obtenemos datos frescos del usuario
-        const [uRows] = await pool.query("SELECT name, email FROM users WHERE id = ?", [req.user.id]);
-        if (uRows.length === 0) return res.status(404).json({ error: "Usuario no encontrado" });
-
-        const userName = uRows[0].name;
-        const userEmail = uRows[0].email;
-
-        await pool.query(
-            `INSERT INTO support_tickets (user_id, user_name, user_email, item_name, reason, status, created_at) 
-             VALUES (?, ?, ?, ?, ?, 'pending', NOW())`,
-            [req.user.id, userName, userEmail, itemName || 'Sin especificar', reason]
-        );
-
-        res.json({ success: true, message: "Ticket enviado correctamente" });
-    } catch (e) {
-        console.error("[Support Ticket Error]", e);
-        res.status(500).json({ error: "Error al procesar la solicitud de soporte." });
-    }
-});
-
-// ======================================================
 //  CONFIGURACIONES Y PLANES PÚBLICOS
 // ======================================================
 
@@ -215,7 +194,10 @@ router.get('/settings/redirect', async (req, res) => {
     }
 });
 
-////////// Actualización: Obtener el método de pago activo del sistema //////////
+////////// Se añade endpoint para obtener el método de pago activo del sistema - 24/05/2025 10:30 //////////
+/**
+ * Obtiene el método de pago activo configurado globalmente.
+ */
 router.get('/settings/payment-method', async (req, res) => {
     try {
         const [rows] = await pool.query("SELECT setting_value FROM system_settings WHERE setting_key = 'active_payment_method'");
@@ -225,6 +207,7 @@ router.get('/settings/payment-method', async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+////////// Fin de actualización - 24/05/2025 10:30 //////////
 
 /**
  * Obtiene el modo del sistema (Producción o Lanzamiento)
@@ -240,6 +223,9 @@ router.get('/system/mode', async (req, res) => {
 });
 
 ////////// Actualización: Endpoints para gestionar integraciones externas (Systeme.io) - 07/06/2025 19:30 //////////
+/**
+ * Obtiene las claves de integración del usuario
+ */
 router.get('/system/integrations', authMiddleware, async (req, res) => {
     try {
         const [rows] = await pool.query(
@@ -256,6 +242,9 @@ router.get('/system/integrations', authMiddleware, async (req, res) => {
     }
 });
 
+/**
+ * Actualiza las claves de integración del usuario
+ */
 router.put('/system/integrations', authMiddleware, async (req, res) => {
     const settings = req.body;
     try {
@@ -270,7 +259,9 @@ router.put('/system/integrations', authMiddleware, async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+////////// Fin de actualización - 07/06/2025 19:30 //////////
 
+////////// Actualización: Reemplazo de campañas por etiquetas (Tags) en endpoints de integración - 17/06/2025 11:30 //////////
 router.get('/system/integrations/systemeio/tags', authMiddleware, async (req, res) => {
     try {
         const [rows] = await pool.query(
@@ -288,8 +279,10 @@ router.get('/system/integrations/systemeio/tags', authMiddleware, async (req, re
         res.status(500).json({ error: e.message });
     }
 });
+////////// Fin de actualización - 17/06/2025 11:30 //////////
 
-router.post('/systemeio/tags', authMiddleware, async (req, res) => {
+////////// Actualización: Endpoint para crear etiquetas en Systeme.io - 27/06/2025 12:30 //////////
+router.post('/system/integrations/systemeio/tags', authMiddleware, async (req, res) => {
     const { name } = req.body;
     if (!name) return res.status(400).json({ error: "Nombre de etiqueta no proporcionado." });
 
@@ -309,12 +302,16 @@ router.post('/systemeio/tags', authMiddleware, async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+////////// Fin de actualización - 27/06/2025 12:30 //////////
 
+/* Actualización: El endpoint de sincronización masiva ahora acepta un tagId opcional para vincular a todos los leads seleccionados a esa etiqueta específica durante el envío - 30/06/2025 15:30 */
+////////// Actualización: Endpoint para sincronización manual de leads pendientes con Systeme.io - 07/06/2025 19:40 //////////
 router.post('/system/integrations/sync-pending', authMiddleware, async (req, res) => {
     try {
         const userId = req.user.id;
         const { tagId } = req.body;
         
+        // 1. Obtener API Key
         const [intRows] = await pool.query(
             "SELECT setting_value FROM system_settings WHERE setting_key = ?",
             [`integrations_${userId}`]
@@ -325,6 +322,7 @@ router.post('/system/integrations/sync-pending', authMiddleware, async (req, res
         const settings = JSON.parse(intRows[0].setting_value);
         if (!settings.systemeIoKey) return res.status(400).json({ error: "No tienes configurada la API Key de Systeme.io." });
 
+        // 2. Obtener leads pendientes (join con landing_pages para verificar owner)
         const [pendingLeads] = await pool.query(
             `SELECT l.id, l.email, l.name, l.page_id 
              FROM leads l 
@@ -337,10 +335,13 @@ router.post('/system/integrations/sync-pending', authMiddleware, async (req, res
             return res.json({ success: true, count: 0, message: "No hay leads pendientes por sincronizar." });
         }
 
+        // 3. Sincronizar uno a uno
         let successCount = 0;
         for (const lead of pendingLeads) {
             try {
                 const contactResponse = await systemeIoService.addContact(settings.systemeIoKey, lead.email, lead.name || 'Prospecto');
+                
+                // Si hay tagId, asignamos etiqueta individualmente
                 const contactId = contactResponse?.contact?.id || contactResponse?.contact?.contact?.id || contactResponse?.id;
                 if (tagId && contactId) {
                     try {
@@ -350,12 +351,14 @@ router.post('/system/integrations/sync-pending', authMiddleware, async (req, res
                     }
                 }
 
+                ////////// Actualización: Manejo de error de BD separado de API - 15/06/2025 16:30 //////////
                 try {
                     await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [lead.id]);
                     successCount++;
                 } catch (dbErr) {
                     console.error(`[Manual Sync DB Error] Lead ID ${lead.id}:`, dbErr.message);
                 }
+                ////////// Fin de actualización - 15/06/2025 16:30 //////////
             } catch (e) {
                 console.error(`[Manual Sync API Error] Lead ID ${lead.id}:`, e.message);
             }
@@ -363,17 +366,23 @@ router.post('/system/integrations/sync-pending', authMiddleware, async (req, res
 
         res.json({ success: true, count: successCount, message: `Se han sincronizado ${successCount} leads exitosamente.` });
     } catch (e) {
+        ////////// Actualización: Log de error detallado para diagnosticar error 500 - 07/06/2025 20:15 //////////
         console.error("[CRITICAL SYNC ERROR 500]:", e);
+        ////////// Fin de actualización - 07/06/2025 20:15 //////////
         res.status(500).json({ error: e.message });
     }
 });
+////////// Fin de actualización - 07/06/2025 19:40 //////////
 
+////////// Actualización: Mejora de la respuesta ante fallos en la asignación de etiquetas individuales - 17/06/2025 14:30 //////////
 router.post('/system/integrations/sync-single', authMiddleware, async (req, res) => {
     const { leadId, tagId } = req.body;
     if (!leadId) return res.status(400).json({ error: "ID de lead no proporcionado." });
 
     try {
         const userId = req.user.id;
+        
+        // 1. Obtener API Key
         const [intRows] = await pool.query(
             "SELECT setting_value FROM system_settings WHERE setting_key = ?",
             [`integrations_${userId}`]
@@ -384,6 +393,7 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
         const settings = JSON.parse(intRows[0].setting_value);
         if (!settings.systemeIoKey) return res.status(400).json({ error: "Configura la API Key de Systeme.io en Herramientas Pro." });
 
+        // 2. Obtener datos del lead verificando pertenencia
         const [leads] = await pool.query(
             `SELECT l.id, l.email, l.name, l.page_id 
              FROM leads l 
@@ -395,6 +405,7 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
         if (leads.length === 0) return res.status(404).json({ error: "Lead no encontrado o no tienes permisos." });
         const lead = leads[0];
 
+        // 3. Sincronizar Contacto
         let contactResponse;
         try {
             contactResponse = await systemeIoService.addContact(settings.systemeIoKey, lead.email, lead.name || 'Prospecto');
@@ -403,8 +414,11 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
             return res.status(500).json({ error: `Error de API Systeme.io al añadir contacto: ${apiErr.message}` });
         }
 
+        ////////// Actualización: Implementación de extracción inteligente de ID (buscando en contact.id, contact.contact.id e id directo) para máxima compatibilidad con las variaciones de la API de Systeme.io - 25/05/2025 15:50 //////////
         const finalContactId = contactResponse?.contact?.id || contactResponse?.contact?.contact?.id || contactResponse?.id;
+        ////////// Fin de actualización - 25/05/2025 15:50 //////////
 
+        // 4. Asignar Etiqueta si se proporcionó ID
         let tagSuccess = true;
         let tagErrorMessage = "";
         if (tagId && finalContactId) {
@@ -417,8 +431,11 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
             }
         }
 
+        // 5. Actualizar estado local
         try {
             await pool.query('UPDATE leads SET synced = 1 WHERE id = ?', [leadId]);
+            
+            // Construimos mensaje de éxito detallado
             let finalMessage = `Lead ${lead.email} sincronizado con éxito.`;
             if (tagId) {
                 if (tagSuccess) {
@@ -427,6 +444,7 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
                     finalMessage += ` ¡AVISO!: El contacto se creó pero no se pudo asignar la etiqueta (${tagErrorMessage}).`;
                 }
             }
+            
             res.json({ success: true, message: finalMessage });
         } catch (dbErr) {
             console.error(`[Single Sync DB Error]:`, dbErr);
@@ -437,7 +455,11 @@ router.post('/system/integrations/sync-single', authMiddleware, async (req, res)
         res.status(500).json({ error: e.message });
     }
 });
+////////// Fin de actualización - 17/06/2025 14:30 //////////
 
+/**
+ * Lista los planes activos para la landing page pública o modal de upgrade.
+ */
 router.get('/public/plans', async (req, res) => {
     try {
         const [plans] = await pool.query('SELECT * FROM plans WHERE is_active = 1 ORDER BY price_monthly ASC');
@@ -449,9 +471,13 @@ router.get('/public/plans', async (req, res) => {
             priceMonthly: parseFloat(p.price_monthly),
             currency: p.currency,
             stripePriceId: p.stripe_price_id,
+            ////////// Se incluye hotmartId en la respuesta pública - 24/05/2025 10:30 //////////
             hotmartId: p.hotmart_id,
+            ////////// Fin de actualización - 24/05/2025 10:30 //////////
+            ////////// Se incluyen hotmartOffer y hotmartCheckoutMode en la respuesta pública - 25/05/2025 19:30 //////////
             hotmartOffer: p.hotmart_offer,
             hotmartCheckoutMode: p.hotmart_checkout_mode,
+            ////////// Fin de actualización - 25/05/2025 19:30 //////////
             limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
             uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : (p.ui_features || []),
             isRecommended: !!p.is_recommended
@@ -463,6 +489,13 @@ router.get('/public/plans', async (req, res) => {
     }
 });
 
+// ======================================================
+//  IA & DIAGNÓSTICO
+// ======================================================
+
+/**
+ * Proxy para el motor de Inteligencia Artificial Gemini.
+ */
 router.post('/gemini', async (req, res) => {
   try {
     const { model, contents, config } = req.body;
@@ -473,6 +506,9 @@ router.post('/gemini', async (req, res) => {
   }
 });
 
+/**
+ * Endpoint de diagnóstico de salud de la infraestructura.
+ */
 router.get('/debug/db-status', async (req, res) => {
   try {
       const [rows] = await pool.query('SELECT 1 as val');
@@ -487,6 +523,7 @@ router.get('/debug/db-status', async (req, res) => {
   }
 });
 
+////////// Actualización: Endpoint público para el feed de novedades - 07/06/2025 10:00 //////////
 router.get('/system/news', async (req, res) => {
     try {
         const [news] = await pool.query('SELECT * FROM novedadestips ORDER BY created_at DESC LIMIT 5');
@@ -528,5 +565,6 @@ router.get('/system/news/history', async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+////////// Fin de actualización - 07/06/2025 10:00 //////////
 
 export default router;
