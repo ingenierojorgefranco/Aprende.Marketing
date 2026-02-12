@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 import pool from './db.js';
 
@@ -47,8 +48,6 @@ export const generateContent = async (model, contents, config = {}) => {
 
     try {
         return await withRetries(async () => {
-
-
             const response = await ai.models.generateContent({
                 model: model || 'gemini-3-flash-preview',
                 contents: contents,
@@ -182,15 +181,12 @@ export const generateFullStrategy = async (projectId) => {
     const projectData = rows[0];
     const { niche, product_name: productName, brand_tone: brandTone, full_price: fullPrice, commission_rate: commissionRate, lead_magnet_type: leadMagnetType  } = projectData;
 
-    let step1Data, step2Data, step3Web, step4Content, step5Emails, step6WhatsApp;
+    let step1Data;
 
     // 3. GENERACIÓN REAL ETAPA 1 (IA - Fusionada con Psicología)
     try {
         process.stdout.write(`⏳ [PIPELINE IA] Llamando a Gemini 3 Flash para Etapa 1 + Psicología: ${productName}...\n`);
 
-        //const step1Prompt = ``;
-        
-        
         const step1Prompt = `Eres un Estratega Senior de Marketing Digital. Tu misión es generar el ADN de marketing, 3 perfiles de Avatar extremadamente detallados y la psicología profunda del consumidor para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}".
 
         "El regalo (Lead Magnet) que el usuario entrega es de tipo: "${leadMagnetType}"
@@ -227,8 +223,6 @@ export const generateFullStrategy = async (projectId) => {
             Etapa 3 (Mes 11): Mes anterior + (80 a 90 Leads/mes obligatorio). 
             Etapa 3 (Mes 12): Mes anterior + (90 a 100 Leads /mes obligatorio).
 
-
-
         INSTRUCCIONES PARA LOS 3 AVATARES (OBLIGATORIO):
         Genera perfiles diferenciados y profundos para estos 3 tipos de cliente:
         1. AVATAR 1 (El Emprendedor Activo): Alguien con energía que busca escalar un negocio o empezar uno nuevo con decisión.
@@ -246,8 +240,8 @@ export const generateFullStrategy = async (projectId) => {
        Actúa como un Copywriter Senior experto en Marketing de Respuesta Directa. Tu misión es redactar una secuencia de titulos y contenidos de 7 correos electrónicos (Día 0 al Día 6) diseñada para convertir prospectos en compradores del producto
         
         REGLA DE COHERENCIA DE VERBOS:
-        Si el Lead Magnet is un PDF, Guía o Ebook, utiliza verbos como "Descargar", "Leer", "Revisar el archivo".
-        Si el Lead Magnet es una Clase, Webinar o VSL, utiliza verbos como "Ver ahora", "Asistir", "Reproducir", "Mirar".
+        Si el Lead Magnet es un PDF, Guía o Ebook, utiliza verbos como "Descargar", "Leer", "Revisar el archivo".
+        Si el Lead Magnet es un Clase, Webinar o VSL, utiliza verbos como "Ver ahora", "Asistir", "Reproducir", "Mirar".
         El correo del Día 0 y los recordatorios posteriores deben ser consistentes con esta acción.
         
         para ello el sistema tendra el siguiente enfoque segun los dias de envio.
@@ -280,8 +274,6 @@ export const generateFullStrategy = async (projectId) => {
             action: Una instrucción directa para unirse al grupo de WhatsApp (ej: 'Únete a la comunidad para recibir soporte').
             magnet: Copy específico para la entrega del Lead Magnet (PDF o Clase) con un titular que genere deseo de consumo inmediato.
 
-
-
         INSTRUCCIONES PARA SECUENCIA DE LANZAMIENTO WHATSAPP whatsappLaunch (OBLIGATORIO):
         Genera una secuencia completa de 3 mensajes para un lanzamiento de WhatsApp Flow / Meteórico. Cada mensaje debe ser persuasivo, usar emojis y formato negrita de WhatsApp.
         Los 3 momentos son:
@@ -308,11 +300,7 @@ export const generateFullStrategy = async (projectId) => {
             "objective": "Venta directa del Producto Digital con cierre asistido por WhatsApp, email Marketing y Artículos de Blog",
             "price": ${fullPrice || 0},
             "commissionRate": ${commissionRate || 0},
-
-            
-            "projection": [0 ventas, 0 ventas, 1 ventas, 2 ventas, 3 ventas, 4 ventas, 5 ventas, 6 ventas, 7 ventas, 8 ventas, 9 ventas, 10 ventas],
-
-
+            "projection": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             "summary": {
                 "primaryObjective": "string",
                 "systemAction": "string",
@@ -333,350 +321,137 @@ export const generateFullStrategy = async (projectId) => {
           "avatars": [
             {
               "id": 1,
-              "name": "Nombre Realista Latino del Avatar 1",
-              "archetype": "Emprendedor Activo",
-              "age": "Rango de edad",
-              "quote": "Frase que define su mentalidad",
-              "pain": "Dolor principal",
-              "daily_manifestation": "Cómo experimenta el dolor en su día a día",
-              "desire": "Deseo profundo",
-              "emotional_reason": "Para qué emocional de su deseo",
-              "objection": "Miedo principal al éxito o al fallo",
-              "interests": "Intereses específicos",
-              "behavior": "Comportamiento en canales digitales",
+              "name": "string",
+              "archetype": "string",
+              "age": "string",
+              "quote": "string",
+              "pain": "string",
+              "daily_manifestation": "string",
+              "desire": "string",
+              "emotional_reason": "string",
+              "objection": "string",
+              "interests": "string",
+              "behavior": "string",
               "motivations": { "dinero": 90, "tiempo": 80, "estatus": 70, "seguridad": 60 }
             },
             {
               "id": 2,
-              "name": "Nombre Realista Latino del Avatar 2",
-              "archetype": "Escéptico con Miedo",
-              "age": "Rango de edad",
-              "quote": "Frase de duda o desconfianza",
-              "pain": "Dolor principal",
-              "daily_manifestation": "Cómo experimenta el dolor en su día a día",
-              "desire": "Deseo profundo",
-              "emotional_reason": "Para qué emocional de su deseo",
-              "objection": "Miedo al fraude o mala inversión",
-              "interests": "Intereses específicos",
-              "behavior": "Comportamiento en canales digitales",
+              "name": "string",
+              "archetype": "string",
+              "age": "string",
+              "quote": "string",
+              "pain": "string",
+              "daily_manifestation": "string",
+              "desire": "string",
+              "emotional_reason": "string",
+              "objection": "string",
+              "interests": "string",
+              "behavior": "string",
               "motivations": { "dinero": 70, "tiempo": 60, "estatus": 50, "seguridad": 95 }
             },
             {
               "id": 3,
-              "name": "Nombre Realista Latino del Avatar 3",
-              "archetype": "Persona buscando Reinvención",
-              "age": "Rango de edad",
-              "quote": "Frase de cansancio y esperanza",
-              "pain": "Dolor principal",
-              "daily_manifestation": "Cómo experimenta el dolor en su día a día",
-              "desire": "Deseo profundo",
-              "emotional_reason": "Para qué emocional de su deseo",
-              "objection": "Miedo a empezar de cero",
-              "interests": "Intereses específicos",
-              "behavior": "Comportamiento en canales digitales",
+              "name": "string",
+              "archetype": "string",
+              "age": "string",
+              "quote": "string",
+              "pain": "string",
+              "daily_manifestation": "string",
+              "desire": "string",
+              "emotional_reason": "string",
+              "objection": "string",
+              "interests": "string",
+              "behavior": "string",
               "motivations": { "dinero": 80, "tiempo": 95, "estatus": 60, "seguridad": 70 }
             }
           ],
-
-
-
-          psychology: {
-            pains: [
-                "Identifica un dolor agudo relacionado con la falta de ingresos o estabilidad en este nicho. (Este es el Dolor 1, No muestres el texto Dolor 1, solo el texto normal)",
-                "Detecta una frustración técnica o de aprendizaje específica que detiene al avatar.  (Este es el Dolor 2, No muestres el texto Dolor 1, solo el texto normal)",
-                "Analiza el miedo al fracaso o a la pérdida de tiempo o dinero en este mercado. (Este es el Dolor 3, No muestres el texto Dolor 1, solo el texto normal)",
-                "Describe la sensación de estancamiento profesional o personal del prospecto. (Este es el Dolor 4, No muestres el texto Dolor 1, solo el texto normal)",
-                "Identifica la presión social o familiar que siente el avatar por no tener resultados. (Este es el Dolor 5, No muestres el texto Dolor 1, solo el texto normal)",
-                "Analiza el agotamiento por métodos tradicionales que no funcionan en este sector. (Este es el Dolor 6, No muestres el texto Dolor 1, solo el texto normal)",
-            ],
-            "solutions": [
-            {
-                "title": "Título corto y potente como Solucion al Dolor 1", 
-                "description": "Descripción persuasiva que explica la transformación del Dolor 1"
-            },
-            {
-                "title": "Título corto y potente como Solucion al Dolor 2", 
-                "description": "Descripción persuasiva que explica la transformación del Dolor 2"
-            },
-            {
-                "title": "Título corto y potente como Solucion al Dolor 3", 
-                "description": "Descripción persuasiva que explica la transformación del Dolor 3"
-            },
-            {
-                "title": "Título corto y potente como Solucion al Dolor 4", 
-                "description": "Descripción persuasiva que explica la transformación del Dolor 4"
-            },
-            {
-                "title": "Título corto y potente como Solucion al Dolor 5", 
-                "description": "Descripción persuasiva que explica la transformación del Dolor 5"
-            },
-            {
-                "title": "Título corto y potente como Solucion al Dolor 6", 
-                "description": "Descripción persuasiva que explica la transformación del Dolor 6"
+          "psychology": {
+            "pains": ["string"],
+            "solutions": [{"title": "string", "description": "string"}],
+            "awarenessStages": {
+                "stage1_pain": "string",
+                "stage2_solution": "string",
+                "stage3_barrier": "string"
             }
-        ],
-            awarenessStages: {
-                stage1_pain: "Analiza el nivel de consciencia del avatar sobre su dolor principal en este nicho específico.",
-                stage2_solution: "Analiza la percepción del avatar sobre las soluciones existentes y por qué esta es la ideal.",
-                stage3_barrier: "Analiza la barrera mental o duda técnica específica que impide al avatar comprar ahora mismo."
-            },
+          },
+          "landingPageTabs": {
+            "hero": {
+                "label": "string",
+                "title": "string",
+                "type": "hero",
+                "h1": "string",
+                "h2": "string"
+            }
+          },
+          "thankYouPageTabs": {
+            "header": { "label": "string", "title": "string", "type": "header", "content": { "h1": "string", "h2": "string" } },
+            "action": { "label": "string", "title": "string", "type": "action", "content": { "h1": "string", "h2": "string" } },
+            "magnet": { "label": "string", "title": "string", "type": "magnet", "content": { "h1": "string", "h2": "string" } }
+          },
+          "content": [
+            { "id": 1, "title": "string", "traffic": 50, "difficulty": 20, "keyword": "string", "searchVolume": "string", "objective": "string", "strategy": "string" }
+          ],
+          "emails": {
+            "nurture": [
+              { "id": 1, "day": "Día 0", "subject": "string", "type": "string", "objective": "string" }
+            ],
+            "evergreen": [
+              { "id": 8, "day": "Día 8", "subject": "string", "type": "string", "objective": "string" }
+            ]
+          },
+          "whatsapp": [
+            { "id": 1, "title": "string", "objective": "string", "messages": [{ "role": "agent", "text": "string" }] }
+          ],
+          "whatsappLaunch": [
+            { "id": "wl1", "name": "string", "moment": "string", "objective": "string", "messages": [{ "role": "agent", "text": "string" }] }
+          ],
+          "testimonials": [
+            { "name": "string", "text": "string" }
+          ]
+        }
+        `;
+
+        const step1Res = await generateContent('gemini-3-flash-preview', step1Prompt, { 
+            responseMimeType: "application/json",
+            thinkingConfig: { thinkingBudget: 0 }
+        });
+
+        if (!step1Res) throw new Error("Gemini devolvió vacío en Etapa 1");
+        
+        step1Data = JSON.parse(step1Res.trim());
+        process.stdout.write(`✅ [PIPELINE IA] Etapa 1 + Psicología finalizada con éxito para ${productName}.\n`);
+
+    } catch (err) {
+        process.stdout.write(`❌ [PIPELINE ERROR ETAPA 1 IA]: ${err.message}\n`);
+        throw err;
     }
 
+    try {
+        // 5. CONSOLIDACIÓN FINAL
+        process.stdout.write(`[PIPELINE DEBUG] Ensamblando JSON final...\n`);
+        
+        const finalJson = { 
+            meta: step1Data.meta,
+            avatars: step1Data.avatars,
+            psychology: step1Data.psychology,
+            modules: { 
+                web: {
+                    landingPageTabs: step1Data.landingPageTabs,
+                    thankYouPageTabs: step1Data.thankYouPageTabs
+                },
+                content: step1Data.content,
+                emails: step1Data.emails,
+                whatsapp: step1Data.whatsapp,
+                whatsappLaunch: step1Data.whatsappLaunch,
+                testimonials: step1Data.testimonials
+            } 
+        };
 
+        process.stdout.write(`✨ [PIPELINE COMPLETE] Retornando datos al cliente.\n`);
+        return finalJson;
 
-        landingPageTabs: {
-            hero: {
-                label: "1. Encabezado",
-                title: "Promesa de Valor (Hero Section)",
-                type: 'hero',
-                h1: "Domina el Arte del Microblading y Genera Ingresos Propios de Alto Valor",
-                h2: "La oportunidad perfecta para emprendedoras del sector belleza que buscan independencia financiera sin trucos ni promesas vacías."
-            }
-        },
-        thankYouPageTabs: {
-            header: {
-                label: "1. Confirmación",
-                title: "Mensaje de Éxito",
-                type: 'header',
-                content: {
-                    h1: "string (Titular de éxito)",
-                    h2: "string (Subtítulo con frase de felicitación por registrarse)"
-                }
-            },
-            action: {
-                label: "2. Siguiente Paso",
-                title: "Instrucción WhatsApp",
-                type: 'action',
-                content: {
-                    h1: "string (añade un Llamado a la acción para ingresar al grupo)",
-                    h2: "string (añade una frase de Beneficio de estar en el grupo)"
-                }
-            },
-            magnet: {
-                label: "3. Lead Magnet",
-                title: "Texto de Entrega de un Regalo relacionado con el producto digital y el dolor de la audiencia",
-                type: 'magnet',
-                content: {
-                    h1: "string (Nombre del regalo) relacionado con el producto digital y dolor de la audiencia",
-                    h2: "string (Instrucción de descarga o visualización)"
-                }
-            }
-        },
-
-
-
-
-
-
-
-
-    "content": [
-      {
-            id: 1,
-            title: "¿Qué es el microblading en cejas?",
-            traffic: 50,
-            difficulty: 20,
-            keyword: "que es microblading cejas",
-            searchVolume: "500 - 1K",
-            objective: "Educación inicial para el futuro artista",
-            strategy: "Definimos la técnica desde una perspectiva profesional para que el alumno entienda el potencial del negocio. Posicionamos el microblading como la habilidad mejor pagada en estética actualmente."
-        },
-        {
-            id: 2,
-            title: "¿Qué desventajas tiene el microblading?",
-            traffic: 40,
-            difficulty: 15,
-            keyword: "desventajas de microblading",
-            searchVolume: "100 - 500",
-            objective: "Transparencia and profesionalismo",
-            strategy: "Abordamos los retos and cuidados necesarios con honestidad. El objetivo es filtrar a alumnos comprometidos and demostrar que la formación adecuada elimina la mayoría de estos riesgos."
-        },
-        {
-            id: 3,
-            title: "Diferencia entre Microblading, Microshading y Micropigmentación",
-            traffic: 65,
-            difficulty: 30,
-            keyword: "diferencia microblading microshading micropigmentacion",
-            searchVolume: "800 - 2K",
-            objective: "Claridad técnica y autoridad",
-            strategy: "Desglosamos las terminologías para que el alumno aprenda a asesorar a sus futuros clientes. Esto establece una base de autoridad técnica indispensable para cobrar precios premium."
-        },
-        {
-            id: 4,
-            title: "¿Cuánto dura el microblading? Realidad y retoques",
-            traffic: 75,
-            difficulty: 40,
-            keyword: "cuánto dura el microblading",
-            searchVolume: "2K - 5K",
-            objective: "Expectativas y rentabilidad",
-            strategy: "Explicamos el ciclo de vida del servicio. Esto ayuda al alumno a entender la necesidad de retoques y cómo fidelizar clientes para generar ingresos recurrentes en su negocio."
-        },
-        {
-            id: 5,
-            title: "¿Cuánto suele costar el microblading de cejas?",
-            traffic: 85,
-            difficulty: 50,
-            keyword: "microblading cejas precio",
-            searchVolume: "1.5K - 3K",
-            objective: "Análisis de mercado y viabilidad",
-            strategy: "Mostramos el rango de precios del mercado para que el alumno visualice su retorno de inversión. Motivamos la profesionalización como vía para cobrar en el rango más alto."
-        },
-        {
-            id: 6,
-            title: "Microblading: El proceso de curación en los primeros 10 días",
-            traffic: 30,
-            difficulty: 10,
-            keyword: "curacion microblading dia a dia",
-            searchVolume: "300 - 600",
-            objective: "Conocimiento del proceso de curación",
-            strategy: "Es fundamental que el artista sepa qué esperar. Educamos sobre la fase de oscurecimiento y regeneración para que el alumno pueda dar seguridad total a sus clientes."
-        },
-        {
-            id: 7,
-            title: "¿Cuánto cuesta un microblading para cejas?",
-            traffic: 80,
-            difficulty: 45,
-            keyword: "precio de micropigmentación de cejas",
-            searchVolume: "1K - 2.5K",
-            objective: "Posicionamiento High Ticket",
-            strategy: "Comparamos el costo del servicio vs la rentabilidad para el artista. Enfocamos el contenido en cómo vender el valor del resultado final en lugar de competir por el precio más bajo."
-        }
-    ],
-
-
-
-
-
-    "emails": {
-      "nurture": [
-        {
-                id: 1,
-                day: "Día 0",
-                subject: "🎁 Titulo altamente persuasivo y motivador con acceso al LeadMagnet definido en el proyecto",
-                type: "Entrega de Valor",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se invita al usuario a ingresar al leadmagnet"
-            },
-            {
-                id: 2,
-                day: "Día 1",
-                subject: "😫 ¿Cansada de trabajar 10h y no ver frutos reales?",
-                type: "Agitación del Dolor",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que busca conectar emocionalmente con el cansancio sistémico del avatar y la frustración económica."
-            },
-            {
-                id: 2,
-                day: "Día 2",
-                subject: "📈 Cómo Maria pasó de 0 a $2,000/mes con cejas",
-                type: "Prueba Social",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se demuestra la factibilidad mediante un caso de éxito real que genere deseo y credibilidad."
-            },
-            {
-                id: 3,
-                day: "Día 3",
-                subject: "💎 La verdad sobre el Microblading (y por qué otros fallan)",
-                type: "Mecanismo Único",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se explica la diferenciación del curso digital frrente a otros cursos genericos"
-            },
-            {
-                id: 4,
-                day: "Día 4",
-                subject: "🚀 ¡INSCRIPCIONES ABIERTAS! Domina la Certificación Pro",
-                type: "Lanzamiento / Oferta",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se busca Presentar oficialmente el programa completo con todos los beneficios y abrir inscripciones."
-            },
-            {
-                id: 5,
-                day: "Día 5",
-                subject: "⏳ Tus 3 Bonos Exclusivos expiran en pocas horas...",
-                type: "Escasez / Valor",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que Añadir presión positiva mediante la pérdida inminente de los bonos adicionales."
-            },
-            {
-                id: 6,
-                day: "Día 6",
-                subject: "⚠️ ÚLTIMA LLAMADA: Tu futuro profesional empieza hoy",
-                type: "Cierre / Urgencia",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se hace una Llamada final a la acción agresivo pero profesional. Confronta al prospecto con su situación actual vs. su potencial futuro si toma acción hoy."
-            }
-      ],
-      "evergreen": [
-        {
-                id: 8,
-                day: "Día 8",
-                subject: "¿Cansada de las promesas vacías en cursos online?",
-                type: "Autoridad / Educación",
-                objective: "Empatizar con el miedo del cliente and posicionar el curso como la única solución técnica real."
-            },
-            {
-                id: 9,
-                day: "Día 15",
-                subject: "El checklist definitivo para montar tu estudio en casa",
-                type: "Valor / Utilidad",
-                objective: "Entregar valor práctico que facilite la visualización del negocio real."
-            }
-      ]
-    },
-    "whatsapp": [
-     {
-            id: 1,
-            title: "👋 Bienvenida e Interés",
-            objective: "Filtro inicial para conocer la experiencia de la alumna y conectar por su canal preferido.",
-            messages: [
-                { role: "agent", text: "¡Hola! Qué alegría saludarte. Soy Valentina de MicroBrows Academy. He visto que te interesa nuestra Certificación Expert en Microblading. Cuéntame un poco de ti, ¿ya tienes experiencia en belleza o empiezas totalmente desde cero?" }
-            ]
-        },
-        {
-            id: 2,
-            title: "🎨 Objeción: 'No sé dibujar'",
-            objective: "Guion persuasivo diseñado para calmar el miedo técnico y la parálisis por falta de 'talento artístico'.",
-            messages: [
-                { role: "agent", text: "¡Esa es la duda más común! Pero te cuento un secreto: para el Microblading profesional no necesitas ser dibujante. Usamos herramientas de visajismo digital y plantillas de simetría que hacen el 90% del trabajo por ti. Lo que realmente importa es la técnica del trazo que te enseñaré paso a paso." }
-            ]
-        },
-        {
-            id: 3,
-            title: "💎 El Método Brows360",
-            objective: "Explicación del mecanismo único de la oferta para diferenciarte de la competencia barata.",
-            messages: [
-                { role: "agent", text: "Lo que nos hace diferentes es el Método Brows360. No solo enseñamos a hacer cejas, enseñamos a diseñar miradas basándonos en la estructura ósea de cada clienta. Así garantizamos resultados hiperrealistas que duran el doble que el microblading tradicional." }
-            ]
-        },
-        {
-            id: 4,
-            title: "💰 Rentabilidad del Negocio",
-            objective: "Argumentos lógicos y matemáticos sobre el potencial de ingresos y la velocidad del retorno de inversión.",
-            messages: [
-                { role: "agent", text: "Hablemos de números. Un servicio de Microblading se cobra entre $150 y $300 USD. Si haces solo 2 servicios a la semana, ya estarías facturando más de $1,200 USD al mes. Recuperas el valor de la certificación con tus primeras 2 clientas. Es la habilidad mejor pagada hoy en día." }
-            ]
-        },
-        {
-            id: 5,
-            title: "🚀 Cierre y Enlace de Pago",
-            objective: "Guion final de conversión con gatillos de escasez y urgencia para forzar la toma de decisión.",
-            messages: [
-                { role: "agent", text: "¡Llegó el momento! Hoy puedes entrar con el 50% de descuento y llevarte el Kit de Pigmentos de regalo. Solo me quedan 3 cupos con este beneficio. ¿Te mando el enlace de pago seguro para que asegures tu lugar y empecemos hoy mismo?" }
-            ]
-        },
-        {
-            id: 6,
-            title: "⏳ Seguimiento (Follow-up)",
-            objective: "Mensaje de reactivación para recuperar interesados que dejaron de responder pero tienen interés latente.",
-            messages: [
-                { role: "agent", text: "¡Hola de nuevo! Te escribo porque no quería que te perdieras el bono de Asesoría VIP que expira hoy a medianoche. ¿Sigues interesada en iniciar tu propio estudio de cejas este mes? Cuéntame si tienes alguna duda final con el pago." }
-            ]
-        }
-    ],
-    "whatsappLaunch": [
-        {
-          "id": "wl1",
-          "name": "Confirmación de Fecha",
-          "moment": "Día -7",
-          "objective": "Generar expectativa y agendar al lead.",
-          "messages": [{"role": "agent", "text": "¡Hola! 🎉 Soy el encargado de tu formación. Solo paso para confirmarte que ya tenemos fecha oficial para nuestra clase maestra de **[PRODUCT_NAME]**. Será el próximo domingo. ¿Ya lo anotaste en tu calendario?"}]
-        }
-    ],
-    "testimonials": [
-        { "name": "Nombre de la persona", "text": "Texto del testimonio" }
-    ]
-  }
+    } catch (error) {
+        process.stdout.write(`❌ [PIPELINE GLOBAL FAILURE]: ${error.message}\n`);
+        throw error;
+    }
 };

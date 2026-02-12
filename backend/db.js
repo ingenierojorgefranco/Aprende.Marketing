@@ -1,3 +1,4 @@
+
 import mysql from 'mysql2/promise';
 
 // Configuración de la conexión basada en variables de entorno

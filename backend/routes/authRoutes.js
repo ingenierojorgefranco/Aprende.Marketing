@@ -1,10 +1,11 @@
+
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
 
-export const router = express.Router();
+const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 
 // Default limits for new users
@@ -209,3 +210,5 @@ router.put('/profile', authMiddleware, async (req, res) => {
         res.status(500).json({ error: "Error al actualizar perfil" });
     }
 });
+
+export { router };

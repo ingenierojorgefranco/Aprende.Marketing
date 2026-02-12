@@ -1,10 +1,11 @@
+
 import Stripe from 'stripe';
 import pool from './db.js';
 
 // Initialize Stripe with Secret Key from Environment
 // Fallback is just for dev safety to prevent crash if not set
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-export const stripe = new Stripe(STRIPE_SECRET_KEY);
+const stripe = new Stripe(STRIPE_SECRET_KEY);
 
 const BASE_URL = process.env.BASE_DOMAIN ? `https://${process.env.BASE_DOMAIN}` : 'http://localhost:5173';
 
@@ -209,3 +210,5 @@ export const handleWebhook = async (event) => {
             console.log(`[Stripe Webhook] Evento no manejado: ${event.type}`);
     }
 };
+
+export { stripe };

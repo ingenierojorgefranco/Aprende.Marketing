@@ -1,13 +1,10 @@
+
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
 import { logSystemActivity, DEFAULT_LIMITS } from './authRoutes.js';
 
 const router = express.Router();
-
-// ======================================================
-//  HELPERS INTERNOS
-// ======================================================
 
 // ======================================================
 //  RUTAS PRIVADAS (Gestión de Artículos)

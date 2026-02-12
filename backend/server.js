@@ -1,12 +1,10 @@
+
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 import initDb from './initDb.js';
 
@@ -21,6 +19,9 @@ import crmRoutes from './routes/crmRoutes.js';
 import webhookRoutes from './routes/webhookRoutes.js';
 import systemRoutes from './routes/systemRoutes.js';
 import whatsappRoutes from './routes/whatsappRoutes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 8080;

@@ -1,12 +1,10 @@
+
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
 import { logSystemActivity, DEFAULT_LIMITS } from './authRoutes.js';
-
-////////// Importación de servicio Systeme.io para sincronización - 07/06/2025 19:30 //////////
 import * as systemeIoService from '../systemeIoService.js';
-////////// Fin de actualización - 07/06/2025 19:30 //////////
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
