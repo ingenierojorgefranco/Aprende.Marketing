@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { generateLandingPageContent } from '../../../services/geminiService';
 import { api } from '../../../services/api'; 
 import { GeneratedPageContent, LandingPage, ColorPalette, StructureType, DestinationConfig, DestinationType, Project, User } from '../../../types';
-import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase, Plus, ArrowRight, ChevronRight, Info, AlertTriangle, X, CheckCircle, ExternalLink, PenTool, Wand2, Globe } from 'lucide-react';
+import { Sparkles, Loader2, LayoutTemplate, Palette, Target, Link as LinkIcon, MessageCircle, FileText, Briefcase, Plus, ArrowRight, ChevronRight, Info, AlertTriangle, X, CheckCircle, ExternalLink, PenTool, Wand2, Globe, ArrowLeft } from 'lucide-react';
 import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import { UpgradeModal } from '../UpgradeModal';
 
@@ -454,6 +454,9 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
       />
 
       <div className={`bg-primary/10 p-8 text-center border-b border-primary/10 relative ${(showUpgradeModal || (loading && generationStatus !== 'generating')) ? 'opacity-30 pointer-events-none' : ''}`}>
+        <button onClick={() => navigate('/dashboard/pages')} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+            <ArrowLeft className="w-6 h-6" />
+        </button>
         {onClose && (
             <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
                 <X className="w-6 h-6" />

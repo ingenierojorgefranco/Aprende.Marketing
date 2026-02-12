@@ -188,7 +188,7 @@ export const ProjectsList: React.FC = () => {
                             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
                                 Gestión de <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Proyectos</span>
                             </h1>
-                            <p className="text-white text-lg max-w-xl leading-relaxed">
+                            <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-relaxed">
                                 Los Proyectos son el centro de tu estrategia de Ventas. Define tu nicho, audiencia y enlaces de afiliado. Nuestro sistema usará Inteligencia Artificial para generar contenido que te genere grandes resultados.
                             </p>
                         </div>
@@ -196,16 +196,16 @@ export const ProjectsList: React.FC = () => {
                         {/* Plan Usage Bar */}
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
                             <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-300 font-medium">{isRealAdmin ? 'Páginas (Superusuario)' : 'Proyectos Activos'}</span>
+                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Páginas (Superusuario)' : 'Proyectos Activos'}</span>
                                 <span className="text-white font-bold">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
                             </div>
                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
                                 <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                             </div>
                             {isAtLimit && (
-                                <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
+                                <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30">
                                     <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                                    <span>Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
+                                    <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
                                 </div>
                             )}
                         </div>
@@ -256,8 +256,21 @@ export const ProjectsList: React.FC = () => {
 
             {/* SECCIÓN 1: MIS PROYECTOS */}
             <div className="space-y-6">
-                <div className="flex items-center gap-3 border-l-4 border-blue-500 pl-4 py-1">
-                    <h2 className="text-2xl font-black text-white uppercase tracking-tight">Mis Proyectos</h2>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                    <div className="flex items-center gap-4 border-l-4 border-blue-500 pl-4 py-1">
+                        <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-500 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+                            <Briefcase className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Proyectos</h2>
+                            <p className="text-gray-400 font-medium">Gestiona y optimiza tus estrategias activas</p>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-blue-500/10 border border-blue-500/20 px-4 py-2 rounded-xl flex items-center gap-3">
+                        <Sparkles className="w-4 h-4 text-blue-400" />
+                        <span className="text-[10px] font-black text-blue-200 uppercase tracking-widest">Estrategias en Ejecución</span>
+                    </div>
                 </div>
                 
                 {projects.length === 0 ? (
@@ -289,17 +302,10 @@ export const ProjectsList: React.FC = () => {
                                     
                                     <div className="p-8 flex-1 flex flex-col">
                                         <div className="flex justify-between items-start mb-6">
-                                            {isClonedFromMaster ? (
-                                                <div className="bg-yellow-500/10 text-yellow-500 text-[10px] font-black px-3 py-1.5 rounded-full border border-yellow-500/20 font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg">
-                                                    <CornerCrown className="w-3 h-3 fill-current" />
-                                                    Estrategia Desbloqueada
-                                                </div>
-                                            ) : (
-                                                <div className="bg-[#FF5A1F]/10 text-[#FF5A1F] text-[10px] px-3 py-1.5 rounded-full border border-[#FF5A1F]/20 font-black uppercase tracking-widest flex items-center gap-1.5">
-                                                    <Target className="w-3 h-3" />
-                                                    {project.mainGoal || "General"}
-                                                </div>
-                                            )}
+                                            <div className="bg-white/5 text-white text-[0.8em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
+                                                <Calendar className="w-3 h-3" />
+                                                {new Date(project.createdAt).toLocaleDateString()}
+                                            </div>
                                             <div className="flex gap-2">
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/projects/edit/${project.id}`); }}
@@ -319,7 +325,7 @@ export const ProjectsList: React.FC = () => {
                                         </div>
                                         
                                         <h3 className={`text-2xl font-black mb-3 line-clamp-1 group-hover:text-primary transition-colors duration-300 ${isClonedFromMaster ? 'text-yellow-400' : 'text-white'}`}>{project.name}</h3>
-                                        <p className="text-lg font-medium text-gray-400 mb-8 min-h-[56px] leading-relaxed line-clamp-2">
+                                        <p className="text-[1.2rem] text-gray-400 mb-8 min-h-[56px] leading-relaxed line-clamp-2">
                                             {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción definida.")}
                                         </p>
 
@@ -332,19 +338,31 @@ export const ProjectsList: React.FC = () => {
                                                 <Zap className="w-4 h-4 fill-current" /> Ver Estrategia de Proyecto
                                             </button>
 
-                                            <div className="flex items-center justify-end pt-2">
-                                                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
-                                                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5">
-                                                        <Calendar className="w-3.5 h-3.5" /> 
+                                            {isClonedFromMaster && (
+                                                <div className="flex justify-center pt-2">
+                                                    <div className="bg-yellow-500/10 text-yellow-500 text-[10px] font-black px-4 py-2 rounded-full border border-yellow-500/20 font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                                                        <CornerCrown className="w-3.5 h-3.5 fill-current" />
+                                                        Estrategia Desbloqueada
                                                     </div>
-                                                    <span>{new Date(project.createdAt).toLocaleDateString()}</span>
                                                 </div>
-                                            </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
                             );
                         })}
+                        <button 
+                            onClick={() => navigate('/dashboard/projects/create')}
+                            className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
+                        >
+                            <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
+                                <Plus className="w-10 h-10" />
+                            </div>
+                            <div className="text-center">
+                                <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear un nuevo proyecto</h4>
+                                <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Define un nuevo nicho o producto</p>
+                            </div>
+                        </button>
                     </div>
                 )}
             </div>
@@ -606,7 +624,7 @@ export const ProjectsList: React.FC = () => {
                     ))}
 
                     <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-4 scale-110 animate-bounce">
-                        <Check className="w-14 h-14 text-white" />
+                        <CheckCircle2 className="w-14 h-14 text-white" />
                     </div>
 
                     <div className="text-center max-w-[41rem] space-y-4">

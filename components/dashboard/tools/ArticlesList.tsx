@@ -53,7 +53,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
           return;
       }
 
-      if (window.confirm(`¿Estás seguro de que deseas eliminar el artículo "${article.title}"? Esta acción no se puede deshacer.`)) {
+      if (window.confirm(`¿Estás seguro de eliminar el artículo "${article.title}"? Esta acción no se puede deshacer.`)) {
           try {
               await api.deleteArticle(article.id);
               setLocalArticles(prev => prev.filter(a => a.id !== article.id));
@@ -120,7 +120,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                       <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
                           Generador de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Artículos SEO</span>
                       </h1>
-                      <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
+                      <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-[1.625]">
                           Genera artículos optimizados para buscadores que atraen tráfico orgánico a tus ofertas las 24 horas.
                       </p>
                   </div>
@@ -128,7 +128,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   {/* Plan Usage Bar */}
                   <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
                       <div className="flex justify-between items-center mb-2 text-sm">
-                          <span className="text-gray-300 font-medium">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span>
+                          <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span>
                           <span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                       </div>
                       <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -137,7 +137,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                       {isAtLimit && (
                           <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
                               <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                              <span>Límite mensual alcanzado. Actualiza para generar contenido ilimitado.</span>
+                              <span className="text-[1rem] leading-[1.5rem]">Límite mensual alcanzado. Actualiza para generar contenido ilimitado.</span>
                           </div>
                       )}
                   </div>
@@ -241,7 +241,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                 
                 <div className="p-8 flex-1 flex flex-col">
                     <div className="flex justify-between items-start mb-4">
-                        <div className="bg-white/5 text-gray-500 text-[10px] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
+                        <div className="bg-white/5 text-white text-[0.8em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
                             <Calendar className="w-3 h-3" />
                             {new Date(article.publishedAt || article.createdAt).toLocaleDateString()}
                         </div>
@@ -262,10 +262,10 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                         )}
                     </div>
                     
-                    <h3 className="text-xl font-black text-white mb-3 line-clamp-2 group-hover:text-[#FF5A1F] transition-colors duration-300 leading-tight">
+                    <h3 className="text-xl font-black text-[#FF5A1F] mb-3 line-clamp-2 group-hover:text-[#FF5A1F] transition-colors duration-300 leading-[1.6]">
                     {article.title}
                     </h3>
-                    <p className="text-gray-400 text-base font-medium line-clamp-3 mb-8 flex-1 leading-relaxed">
+                    <p className="text-white text-[1.2rem] line-clamp-3 mb-8 flex-1 leading-relaxed">
                     {article.metaDescription || article.description}
                     </p>
                     
@@ -350,8 +350,8 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   <Plus className="w-10 h-10" />
               </div>
               <div className="text-center">
-                  <h4 className="text-xl font-black text-gray-500 group-hover:text-white transition-colors uppercase tracking-tight">Redactar Nuevo Artículo</h4>
-                  <p className="text-xs text-gray-600 mt-2 font-bold uppercase tracking-widest opacity-60">IA optimizada para posicionamiento Google</p>
+                  <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Redactar Nuevo Artículo</h4>
+                  <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>IA optimizada para posicionamiento Google</p>
               </div>
           </button>
         </div>
