@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext, Link } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { LandingPage, User } from '../../../types';
-import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info, Plus } from 'lucide-react';
+import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
-import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 
 interface DashboardContext {
   user: User;
@@ -26,11 +25,6 @@ export const MyPages: React.FC = () => {
     const [showDomainModal, setShowDomainModal] = useState(false);
     const [selectedPageForDomain, setSelectedPageForDomain] = useState<LandingPage | null>(null);
     
-    // --- Nuevo Estado para Restricción de Eliminación ---
-    const [showRestrictionModal, setShowRestrictionModal] = useState(false);
-    const [pageToRestrict, setPageToRestrict] = useState<LandingPage | null>(null);
-    // ----------------------------------------------------
-
     // Accordion State
     const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
 
@@ -58,15 +52,6 @@ export const MyPages: React.FC = () => {
             setPages(prev => prev.map(p => (p.id === page.id ? updatedPage : p)));
         } catch (error) {
             alert("No se pudo cambiar el estado de publicación.");
-        }
-    };
-
-    const handleDeleteAttempt = (page: LandingPage) => {
-        if (user.role !== 'admin') {
-            setPageToRestrict(page);
-            setShowRestrictionModal(true);
-        } else {
-            setPageToDelete(page);
         }
     };
 
@@ -141,7 +126,7 @@ export const MyPages: React.FC = () => {
                             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
                                 Tus Páginas de <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Alta Conversión</span>
                             </h1>
-                            <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-[1.625]">
+                            <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
                                 Centraliza todas tus ofertas en un solo lugar. Crea, edita y optimiza tus páginas de venta para maximizar tus conversiones.
                             </p>
                         </div>
@@ -149,7 +134,7 @@ export const MyPages: React.FC = () => {
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner space-y-4">
                             <div>
                                 <div className="flex justify-between items-center mb-2 text-sm">
-                                    <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Páginas (Superusuario)' : 'Páginas Creadas'}</span>
+                                    <span className="text-gray-300 font-medium">{isRealAdmin ? 'Páginas (Superusuario)' : 'Páginas Creadas'}</span>
                                     <span className="text-white font-bold">{currentCount} / {isRealAdmin ? '∞' : maxLandings}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -159,20 +144,13 @@ export const MyPages: React.FC = () => {
 
                             <div>
                                 <div className="flex justify-between items-center mb-2 text-sm">
-                                    <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Dominios Personalizados</span>
+                                    <span className="text-gray-300 font-medium">Dominios Personalizados</span>
                                     <span className="text-white font-bold">{currentDomainsCount} / {isRealAdmin ? '∞' : maxDomains}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
                                     <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${domainProgressColor}`} style={{ width: `${isRealAdmin ? (currentDomainsCount > 0 ? 100 : 0) : domainUsagePercent}%` }}></div>
                                 </div>
                             </div>
-                            
-                            {isAtLimit && (
-                                <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30">
-                                    <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                                    <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
-                                </div>
-                            )}
                         </div>
                     </div>
 
@@ -315,7 +293,7 @@ export const MyPages: React.FC = () => {
                                             </button>
                                         </div>
 
-                                        <button onClick={() => handleDeleteAttempt(page)} className="w-full py-3 text-red-500/40 hover:text-red-400 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition hover:bg-red-500/5 rounded-xl">
+                                        <button onClick={() => setPageToDelete(page)} className="w-full py-3 text-red-500/40 hover:text-red-400 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition hover:bg-red-500/5 rounded-xl">
                                             <Trash2 className="w-3.5 h-3.5" /> Eliminar Página
                                         </button>
                                     </div>
@@ -323,18 +301,6 @@ export const MyPages: React.FC = () => {
                             </div>
                         );
                     })}
-                    <button 
-                        onClick={() => navigate("/dashboard/generator")}
-                        className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
-                    >
-                        <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
-                            <Plus className="w-10 h-10" />
-                        </div>
-                        <div className="text-center">
-                            <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear Nueva Página</h4>
-                            <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Diseño de alta conversión generado por IA</p>
-                        </div>
-                    </button>
                 </div>
             )}
 
@@ -342,7 +308,8 @@ export const MyPages: React.FC = () => {
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
                 onClose={() => setShowUpgradeModal(false)} 
-                reason={`Has alcanzado el límite de ${user.planLimits?.maxLandings} páginas de tu plan ${user.planLimits?.planName}.`}
+                currentPlan={user.planLimits?.planName}
+                reason="Has alcanzado el límite de páginas de tu plan. Actualiza para crear más embudos."
             />
 
             {showVideoModal && (
@@ -356,7 +323,7 @@ export const MyPages: React.FC = () => {
                     >
                         <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
                             <h3 className="font-bold text-white flex items-center gap-2">
-                                <PlayCircle className="w-5 h-5 text-primary" /> Tutorial: Creación de Páginas
+                                <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Creación de Páginas
                             </h3>
                             <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
                                 <X className="w-5 h-5"/>
@@ -544,7 +511,7 @@ export const MyPages: React.FC = () => {
                                             href={`https://wa.me/573146270784?text=${encodeURIComponent("Hola, me gustaria configurar un nombre de dominio a mi pagina web en www.aprende.marketing")}`}
                                             target="_blank" 
                                             rel="noopener noreferrer" 
-                                            className="inline-flex items-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-emerald-900/20 transition-all transform hover:scale-105 active:scale-95 mb-4"
+                                            className="inline-flex items-center gap-3 px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-emerald-900/30 transition-all transform hover:scale-105 active:scale-95 mb-4"
                                         >
                                             <MessageCircle className="w-6 h-6" /> Quiero configurar mi dominio
                                         </a>
@@ -605,15 +572,6 @@ export const MyPages: React.FC = () => {
                     </div>
                 </div>
             )}
-
-            {/* MODAL RESTRICCIÓN DE ELIMINACIÓN */}
-            <DeletionRestrictionModal 
-                isOpen={showRestrictionModal} 
-                onClose={() => setShowRestrictionModal(false)}
-                itemName={pageToRestrict ? `Página: ${pageToRestrict.name}` : ''}
-                userEmail={user.email}
-                userName={user.name}
-            />
         </div>
     );
 };

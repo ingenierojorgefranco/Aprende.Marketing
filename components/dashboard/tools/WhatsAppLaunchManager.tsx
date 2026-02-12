@@ -1,23 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { WhatsAppLaunch, User } from '../../../types';
-import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers, Crown, X, AlertCircle } from 'lucide-react';
+import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers, Crown, X } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { UpgradeModal } from '../UpgradeModal';
-import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 
 export const WhatsAppLaunchManager: React.FC = () => {
     const navigate = useNavigate();
     const { user, isSimulating } = useOutletContext() as { user: User, isSimulating: boolean };
-    const [launches, setLeads] = useState<WhatsAppLaunch[]>([]);
+    const [launches, setLaunches] = useState<WhatsAppLaunch[]>([]);
     const [loading, setLoading] = useState(true);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [showVideoModal, setShowVideoModal] = useState(false);
-
-    // --- Nuevo Estado para Restricción de Eliminación ---
-    const [showRestrictionModal, setShowRestrictionModal] = useState(false);
-    const [launchToRestrict, setLaunchToRestrict] = useState<WhatsAppLaunch | null>(null);
-    // ----------------------------------------------------
 
     useEffect(() => {
         loadLaunches();
@@ -27,7 +21,7 @@ export const WhatsAppLaunchManager: React.FC = () => {
         setLoading(true);
         try {
             const data = await api.getWhatsAppLaunches();
-            setLeads(data);
+            setLaunches(data);
         } catch (e) {
             console.error("Error cargando lanzamientos", e);
         } finally {
@@ -35,19 +29,12 @@ export const WhatsAppLaunchManager: React.FC = () => {
         }
     };
 
-    const handleDelete = async (launch: WhatsAppLaunch, e: React.MouseEvent) => {
+    const handleDelete = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-
-        if (user.role !== 'admin') {
-            setLaunchToRestrict(launch);
-            setShowRestrictionModal(true);
-            return;
-        }
-
         if (!window.confirm("¿Estás seguro de eliminar este lanzamiento?")) return;
         try {
-            await api.deleteWhatsAppLaunch(launch.id);
-            setLeads(prev => prev.filter(l => l.id !== launch.id));
+            await api.deleteWhatsAppLaunch(id);
+            setLaunches(prev => prev.filter(l => l.id !== id));
         } catch (e) {
             alert("Error al eliminar");
         }
@@ -59,11 +46,6 @@ export const WhatsAppLaunchManager: React.FC = () => {
     const currentCount = launches.length;
     const isAtLimit = !isRealAdmin && currentCount >= maxLaunches;
     const usagePercent = Math.min(100, (currentCount / maxLaunches) * 100);
-
-    // Lógica de color de progreso sincronizada con MyPages
-    let progressColor = "bg-green-500";
-    if (usagePercent > 50) progressColor = "bg-yellow-500";
-    if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
     const handleCreateNew = () => {
         if (isAtLimit) {
@@ -93,30 +75,22 @@ export const WhatsAppLaunchManager: React.FC = () => {
                         <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
                             Genera Picos de <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-400">Ventas Masivas</span>
                         </h1>
-                        <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-2xl leading-[1.625] font-medium">
+                        <p className="text-gray-400 text-lg max-w-2xl font-medium leading-relaxed">
                             Crea la secuencia perfecta de 14 mensajes estratégicos para grupos de WhatsApp. Activa los gatillos de comunidad, escasez y urgencia en tiempo real.
                         </p>
                         
                         <div className="pt-4 max-w-md mx-auto md:mx-0">
-                            <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 shadow-inner space-y-4">
-                                <div>
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Lanzamientos Activos</span>
-                                        <span className="text-white font-bold">{currentCount} / {isRealAdmin ? '∞' : maxLaunches}</span>
-                                    </div>
-                                    <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                        <div 
-                                            className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} 
-                                            style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}
-                                        ></div>
-                                    </div>
+                            <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-inner">
+                                <div className="flex justify-between items-center mb-3 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
+                                    <span>Lanzamientos Activos</span>
+                                    <span className="text-white">{currentCount} / {isRealAdmin ? '∞' : maxLaunches}</span>
                                 </div>
-                                {isAtLimit && (
-                                    <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30">
-                                        <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
-                                        <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
-                                    </div>
-                                )}
+                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
+                                    <div 
+                                        className={`h-full bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.6)] transition-all duration-[1500ms] ease-out`} 
+                                        style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}
+                                    ></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -175,26 +149,28 @@ export const WhatsAppLaunchManager: React.FC = () => {
                                             {launch.projectName}
                                         </h3>
                                         <div className="flex items-center gap-3">
-                                            <div className="bg-white/5 text-white text-[0.8em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
-                                                <Calendar className="w-3 h-3" />
-                                                {launch.createdAt.toLocaleDateString()}
-                                            </div>
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${launch.status === 'activa' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
+                                                {launch.status}
+                                            </span>
+                                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Creado {launch.createdAt.toLocaleDateString()}</span>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
                                         <button 
-                                            onClick={(e) => handleDelete(launch, e)}
-                                            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-red-900/20 text-red-500 border border-red-900/30 hover:bg-red-500 hover:text-white transition-all shadow-lg"
+                                            onClick={(e) => handleDelete(launch.id, e)}
+                                            className="p-3 rounded-2xl bg-red-900/20 text-red-500 border border-red-900/30 hover:bg-red-500 hover:text-white transition-all shadow-lg"
                                         >
                                             <Trash2 className="w-5 h-5" />
-                                            <span className="text-xs font-bold">Eliminar</span>
                                         </button>
+                                        <div className="bg-white/5 p-3 rounded-2xl border border-white/10 group-hover:bg-emerald-500 group-hover:text-black transition-all shadow-lg">
+                                            <WaIcon className="w-6 h-6" />
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div className="space-y-6 flex-1">
                                     <div className="bg-black/40 p-6 rounded-3xl border border-white/5">
-                                        <p className="text-[0.9em] font-black text-white uppercase tracking-widest mb-4">Secuencia de 14 Momentos (Progreso)</p>
+                                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Secuencia de 14 Momentos (Progreso)</p>
                                         <div className="grid grid-cols-7 gap-2">
                                             {launch.messages.map((msg, i) => (
                                                 <div 
@@ -217,18 +193,6 @@ export const WhatsAppLaunchManager: React.FC = () => {
                                 </div>
                             </div>
                         ))}
-                        <button 
-                            onClick={handleCreateNew}
-                            className="bg-gray-900 border-2 border-dashed border-white/20 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px]"
-                        >
-                            <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all">
-                                <Plus className="w-10 h-10" />
-                            </div>
-                            <div className="text-center">
-                                <h4 className="font-bold transition-colors" style={{ color: 'white', fontSize: '2em' }}>Nuevo Lanzamiento</h4>
-                                <p className="mt-2 font-medium" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>IA optimizada para cierre masivo</p>
-                            </div>
-                        </button>
                     </div>
                 ) : (
                     <div className="bg-[#111] p-20 rounded-[3rem] border border-white/5 text-center space-y-8 animate-in zoom-in-95 duration-700">
@@ -279,15 +243,6 @@ export const WhatsAppLaunchManager: React.FC = () => {
                     </div>
                 </div>
             )}
-
-            {/* MODAL RESTRICCIÓN DE ELIMINACIÓN */}
-            <DeletionRestrictionModal 
-                isOpen={showRestrictionModal} 
-                onClose={() => setShowRestrictionModal(false)}
-                itemName={launchToRestrict ? `WhatsApp Launch: ${launchToRestrict.projectName}` : ''}
-                userEmail={user.email}
-                userName={user.name}
-            />
         </div>
     );
 };

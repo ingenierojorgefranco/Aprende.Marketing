@@ -139,29 +139,6 @@ router.get('/users/:userId/payments', async (req, res) => {
 });
 
 // ======================================================
-//  SOPORTE Y TICKETS (Admin)
-// ======================================================
-
-router.get('/support/tickets', async (req, res) => {
-    try {
-        const [tickets] = await pool.query(
-            `SELECT * FROM support_tickets ORDER BY created_at DESC`
-        );
-        res.json(tickets.map(t => ({
-            ...t,
-            id: String(t.id),
-            userId: String(t.user_id),
-            userName: t.user_name,
-            userEmail: t.user_email,
-            itemName: t.item_name,
-            createdAt: t.created_at
-        })));
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// ======================================================
 //  ESTADÍSTICAS GLOBALES Y REGISTROS
 // ======================================================
 

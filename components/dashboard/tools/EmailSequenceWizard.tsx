@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 /* */ /* Actualización: Importación de useSearchParams para soporte de Deep Linking - 25/05/2024 18:15 */
 import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
@@ -216,7 +217,7 @@ export const EmailSequenceWizard: React.FC = () => {
             setNewLinkLabel('');
             setNewLinkUrl('');
         } catch (e) {
-            alert("Error al guardar the nuevo link.");
+            alert("Error al guardar el nuevo link.");
         } finally {
             setSavingNewLink(false);
         }
@@ -322,21 +323,23 @@ export const EmailSequenceWizard: React.FC = () => {
             )}
 
             <div className="bg-[#FF5A1F]/10 p-8 text-center border-b border-[#FF5A1F]/10 shrink-0 relative">
-                <button 
-                    onClick={() => { 
-                        if (step === 0 || urlProjectId) {
-                            navigate('/dashboard/email');
-                        } else {
-                            setStep(0); 
-                            setStrategy(null); 
-                            setSelectedProject(null); 
-                        }
-                    }}
-                    className="absolute left-8 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-800 text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/5 group"
-                >
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
-                    {step === 0 ? 'Volver' : (urlProjectId ? 'Ver otra Secuencia' : 'Cambiar Proyecto')}
-                </button>
+                {step > 0 && selectedProject && (
+                    <button 
+                        onClick={() => { 
+                            if (urlProjectId) {
+                                navigate('/dashboard/email');
+                            } else {
+                                setStep(0); 
+                                setStrategy(null); 
+                                setSelectedProject(null); 
+                            }
+                        }}
+                        className="absolute left-8 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-800 text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/5 group"
+                    >
+                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
+                        {urlProjectId ? 'Ver otra Secuencia' : 'Cambiar Proyecto'}
+                    </button>
+                )}
                 
                 <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
                     <Mail className="w-8 h-8 text-[#FF5A1F]" />
@@ -448,7 +451,7 @@ export const EmailSequenceWizard: React.FC = () => {
                                             onClick={() => setActiveEmailIdx(idx)}
                                             className={`relative p-6 rounded-2xl border transition-all duration-300 cursor-pointer flex items-center gap-5 ${activeEmailIdx === idx ? 'bg-yellow-900/20 border-yellow-500/50 shadow-xl shadow-yellow-900/30 translate-x-2' : 'bg-black/40 border-white/5 hover:border-white/10'}`}
                                         >
-                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xs font-black shrink-0 transition-colors ${activeEmailIdx === idx ? 'bg-yellow-500 text-black' : 'bg-gray-800 text-gray-400'}`}>
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xs font-black shrink-0 transition-colors ${activeEmailIdx === idx ? 'bg-yellow-500 text-black' : 'bg-gray-800 text-gray-500'}`}>
                                                 {idx + 1}
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -685,7 +688,7 @@ export const EmailSequenceWizard: React.FC = () => {
                                                                                     handleUpdateEmail(activeEmailIdx, 'redirectUrl', page.customDomain ? `https://${page.customDomain}` : `https://${page.subdomain}`);
                                                                                 }
                                                                             }}
-                                                                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-blue-500 appearance-none cursor-pointer"
+                                                                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
                                                                         >
                                                                             <option value="" disabled>-- Selecciona una Landing Page --</option>
                                                                             {userPages.map(p => (

@@ -25,6 +25,36 @@ const safeParseJson = (str) => {
     }
 };
 
+const checkMonthlyQuota = async (userId, resourceType, limit) => {
+    const [user] = await pool.query('SELECT role FROM users WHERE id = ?', [userId]);
+    if (user[0] && user[0].role === 'admin') return true;
+
+    const [rows] = await pool.query(`
+        SELECT COUNT(*) as count 
+        FROM usage_logs 
+        WHERE user_id = ? 
+          AND resource_type = ? 
+          AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
+          AND YEAR(created_at) = YEAR(created_at)
+    `, [userId, resourceType]);
+
+    const used = rows[0].count;
+    if (limit > 9000) return true; 
+    
+    if (used >= limit) {
+        return false;
+    }
+    return true;
+};
+
+const logUsage = async (userId, resourceType) => {
+    try {
+        await pool.query('INSERT INTO usage_logs (user_id, resource_type) VALUES (?, ?)', [userId, resourceType]);
+    } catch (e) {
+        console.error("Error logging usage:", e);
+    }
+};
+
 router.use(authMiddleware);
 
 // ======================================================
@@ -65,52 +95,32 @@ router.get('/master-library', async (req, res) => {
 router.post('/unlock/:id', async (req, res) => {
     const projectId = req.params.id;
     try {
-        // 1. Buscar los datos base del proyecto maestro
-        const [projRows] = await pool.query('SELECT * FROM projects WHERE id = ? AND is_master = 1', [projectId]);
-        if (projRows.length === 0) {
+        const [projRows] = await pool.query('SELECT is_master, name FROM projects WHERE id = ?', [projectId]);
+        if (projRows.length === 0 || !projRows[0].is_master) {
             return res.status(404).json({ error: 'Proyecto maestro no encontrado.' });
         }
         
-        const master = projRows[0];
-        
-        // 2. Verificar límites del usuario
+        // El administrador no consume cupos ni necesita desbloquear formalmente
+        if (req.user.role === 'admin') {
+            return res.json({ success: true, message: 'Acceso total como administrador.' });
+        }
+
         const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
         const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
         
         const [countRows] = await pool.query(`
-            SELECT COUNT(*) as total FROM projects WHERE user_id = ?
-        `, [req.user.id]);
+            SELECT (SELECT COUNT(*) FROM projects WHERE user_id = ?) + (SELECT COUNT(*) FROM unlocked_projects WHERE user_id = ?) as total
+        `, [req.user.id, req.user.id]);
         
-        if (req.user.role !== 'admin' && countRows[0].total >= limits.maxProjects) {
+        if (countRows[0].total >= limits.maxProjects) {
             return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxProjects} proyectos en tu plan.` });
         }
 
-        // 3. Crear un nuevo proyecto independiente para el usuario (copia física del ADN base)
-        const [result] = await pool.query(
-            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, sales_page_url, is_master, master_parent_id, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, NOW(), NOW())`,
-            [req.user.id, master.name, master.niche, master.description, master.target_audience, master.brand_tone, master.product_name, master.main_goal, master.pain_points, master.key_benefits, master.affiliate_links, master.full_price, master.commission_rate, master.lead_magnet_type, master.sales_page_url, master.id]
-        );
-        const newProjectId = result.insertId;
-
-        // Registrar el desbloqueo para visualización en biblioteca
-        await pool.query(
-            'INSERT IGNORE INTO unlocked_projects (user_id, project_id, created_at) VALUES (?, ?, NOW())',
-            [req.user.id, projectId]
-        );
-
-        // 4. Invocar internamente a la función generateFullStrategy para que la IA genere avatares y contenidos únicos
-        const strategyJson = await generateFullStrategy(newProjectId);
-        await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), newProjectId]);
-
-        // Registrar actividad de sistema
-        await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_MASTER_STRATEGY_GEN', 'project', newProjectId, { masterName: master.name });
-
-        // 5. Retornar el ID del nuevo proyecto generado
-        res.json({ id: String(newProjectId), success: true, message: 'Tu Estrategia Maestra única ha sido generada correctamente.' });
+        await pool.query('INSERT IGNORE INTO unlocked_projects (user_id, project_id) VALUES (?, ?)', [req.user.id, projectId]);
+        await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_PROJECT', 'project', projectId, { name: projRows[0].name });
+        res.json({ success: true, message: 'Estrategia desbloqueada correctamente.' });
     } catch (error) {
-        console.error("[Unlock Error]", error);
-        res.status(500).json({ error: error.message || 'Error al generar la estrategia personalizada' });
+        res.status(500).json({ error: 'Error al desbloquear el proyecto' });
     }
 });
 
@@ -184,9 +194,9 @@ router.get('/', async (req, res) => {
       SELECT p.*, (p.user_id = ?) as is_owner,
              EXISTS(SELECT 1 FROM unlocked_projects up WHERE up.project_id = p.id AND up.user_id = ?) as is_unlocked
       FROM projects p LEFT JOIN unlocked_projects up ON p.id = up.project_id AND up.user_id = ?
-      WHERE p.user_id = ? AND p.is_master = 0 ORDER BY p.updated_at DESC
+      WHERE p.user_id = ? OR up.user_id = ? ORDER BY p.updated_at DESC
     `;
-    let params = [req.user.id, req.user.id, req.user.id, req.user.id];
+    let params = [req.user.id, req.user.id, req.user.id, req.user.id, req.user.id];
     if (req.user.role === 'admin') {
         query = 'SELECT *, (user_id = ?) as is_owner, (is_master = 1) as is_master_logic FROM projects ORDER BY updated_at DESC';
         params = [req.user.id];
@@ -199,8 +209,7 @@ router.get('/', async (req, res) => {
         affiliate_links: safeParseJson(p.affiliate_links),
         strategy_json: safeParseJson(p.strategy_json),
         isMaster: !!p.is_master,
-        isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked,
-        masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined
+        isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked
     }));
     res.json(projects);
   } catch (error) { res.status(500).json({ error: 'Error cargando proyectos' }); }
@@ -220,7 +229,6 @@ router.get('/:id', async (req, res) => {
     project.affiliate_links = safeParseJson(project.affiliate_links);
     project.strategy_json = safeParseJson(project.strategy_json);
     project.isMaster = !!project.is_master;
-    project.masterParentId = project.master_parent_id ? String(project.master_parent_id) : undefined;
     res.json(project);
   } catch (error) { res.status(500).json({ error: error.message }); }
 });
@@ -232,6 +240,7 @@ router.post('/', async (req, res) => {
     const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
     const [countRows] = await pool.query(`SELECT (SELECT COUNT(*) FROM projects WHERE user_id = ?) + (SELECT COUNT(*) FROM unlocked_projects WHERE user_id = ?) as total`, [req.user.id, req.user.id]);
     if (countRows[0].total >= limits.maxProjects && req.user.role !== 'admin') return res.status(403).json({ error: `Límite alcanzado.` });
+    if (!await checkMonthlyQuota(req.user.id, 'project', limits.maxProjects)) return res.status(403).json({ error: `Cupo mensual alcanzado.` });
 
     const isMasterFinal = (req.user.role === 'admin' && isMaster === true) ? 1 : 0;
     const [result] = await pool.query(
@@ -239,6 +248,7 @@ router.post('/', async (req, res) => {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', salesPageUrl || '', isMasterFinal]
     );
+    await logUsage(req.user.id, 'project');
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
     res.json({ id: result.insertId });
   } catch (error) { res.status(500).json({ error: 'Error BD' }); }
@@ -246,7 +256,7 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, niche, description, targetAudience, brand_tone: brandTone, product_name: productName, main_goal: mainGoal, pain_points: painPoints, key_benefits: keyBenefits, affiliate_links: affiliateLinks, strategy_json, full_price: fullPrice, commission_rate: commissionRate, lead_magnet_type: leadMagnetType, sales_page_url: salesPageUrl, is_master: isMaster } = req.body;
+  const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, salesPageUrl, isMaster } = req.body;
   try {
     const [check] = await pool.query('SELECT user_id, is_master FROM projects WHERE id = ?', [id]);
     if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) return res.status(403).json({ error: 'No autorizado' });

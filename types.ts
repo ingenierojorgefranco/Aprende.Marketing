@@ -1,4 +1,6 @@
 
+
+
 ////////// Actualización: Definición de tipos para el Feed de Noticias del Dashboard - 24/05/2024 16:45 //////////
 export interface DashboardNews {
     id: string;
@@ -60,19 +62,6 @@ export interface WhatsAppLaunch {
   launchDate?: Date | string; // Añadido: Fecha de lanzamiento persistente
 }
 ////////// Fin de actualización - 10/06/2025 11:00 //////////
-
-////////// Actualización: Interfaz para Tickets de Soporte - 12/06/2025 //////////
-export interface SupportTicket {
-  id: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  itemName: string;
-  reason: string;
-  status: 'pending' | 'resolved';
-  createdAt: string;
-}
-////////// Fin de actualización //////////
 
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',
@@ -508,7 +497,6 @@ export interface Project {
   ////////// Actualización: Campos para el sistema de Proyectos Maestros - 05/03/2025 10:00 //////////
   isMaster?: boolean;
   isUnlocked?: boolean;
-  masterParentId?: string; // Nuevo: Referencia al proyecto maestro original
   ////////// Fin de actualización - 05/03/2025 10:00 //////////
 }
 /* Fin de actualización - 25/06/2024 11:30 */

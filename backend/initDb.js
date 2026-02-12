@@ -284,20 +284,6 @@ const initDb = async () => {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
         ////////// Fin de actualización - 05/03/2025 10:00 //////////
 
-        ////////// Actualización: Tabla para Tickets de Soporte - 12/06/2025 //////////
-        await connection.query(`CREATE TABLE IF NOT EXISTS support_tickets (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id ${userIdType} NOT NULL,
-            user_name VARCHAR(255),
-            user_email VARCHAR(255),
-            item_name VARCHAR(255),
-            reason TEXT,
-            status VARCHAR(50) DEFAULT 'pending',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
-        ////////// Fin de actualización //////////
-
         // Tablas existentes del sistema (Projects, Pages, etc.)
         const tables = [
             {
@@ -403,9 +389,6 @@ const initDb = async () => {
         await addColumnSafe(connection, 'projects', "sales_page_url VARCHAR(500)");
         ////////// Actualización: Columna para marcar proyectos maestros - 05/03/2025 10:00 //////////
         await addColumnSafe(connection, 'projects', "is_master BOOLEAN DEFAULT FALSE");
-        ////////// Fin de actualización - 05/03/2025 10:00 //////////
-        ////////// Actualización: Columna para identificar el origen de un proyecto clonado - 05/03/2025 10:00 //////////
-        await addColumnSafe(connection, 'projects', "master_parent_id INT NULL");
         ////////// Fin de actualización - 05/03/2025 10:00 //////////
         
         /* */ /* Actualización: Eliminación de la creación de la columna redundante short_description en la tabla projects, centralizando su almacenamiento dentro de strategy_json - 25/06/2024 11:30 */

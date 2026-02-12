@@ -1,4 +1,4 @@
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch, SupportTicket } from "../types";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES, MOCK_MASTER_STRATEGY } from "./mockData";
 import { ProjectMasterStrategy } from "./strategySchema";
 
@@ -73,7 +73,6 @@ const apiCache: {
     masterStrategies: Record<string, ProjectMasterStrategy | null>;
     emailSequences: EmailSequence[] | null;
     waLaunches: WhatsAppLaunch[] | null;
-    supportTickets: SupportTicket[] | null;
 } = {
     pages: null,
     projects: null,
@@ -115,8 +114,7 @@ const apiCache: {
     publicPages: {},
     masterStrategies: {},
     emailSequences: null,
-    waLaunches: null,
-    supportTickets: null
+    waLaunches: null
 };
 
 const clearCache = (key?: keyof typeof apiCache, id?: string) => {
@@ -186,7 +184,6 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.masterStrategies = {};
         apiCache.emailSequences = null;
         apiCache.waLaunches = null;
-        apiCache.supportTickets = null;
     }
 };
 
@@ -508,11 +505,11 @@ export const api = {
               id: String(p.id),
               painPoints: safeParseJsonList(p.pain_points),
               keyBenefits: safeParseJsonList(p.key_benefits),
-              affiliate_links: safeParseJsonList(p.affiliate_links),
+              affiliateLinks: safeParseJsonList(p.affiliate_links),
               strategy_json: strategyObj, 
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
-              product_name: p.product_name || p.productName,
+              productName: p.product_name || p.productName,
               shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
               mainGoal: p.main_goal || p.mainGoal,
               salesPageUrl: p.sales_page_url || p.salesPageUrl,
@@ -543,7 +540,7 @@ export const api = {
             id: String(p.id),
             painPoints: safeParseJsonList(p.pain_points),
             keyBenefits: safeParseJsonList(p.key_benefits),
-            affiliate_links: safeParseJsonList(p.affiliate_links),
+            affiliateLinks: safeParseJsonList(p.affiliate_links),
             strategy_json: strategyObj,
             shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
             isMaster: true,
@@ -554,15 +551,14 @@ export const api = {
     return mapped;
   },
 
-  unlockProject: async (projectId: string): Promise<{ id: string }> => {
-    if (isMockMode) return { id: 'mock-id' };
-    const res = await fetchWithFallback(`/projects/unlock/${projectId}`, {
+  unlockProject: async (projectId: string): Promise<void> => {
+    if (isMockMode) return;
+    await fetchWithFallback(`/projects/unlock/${projectId}`, {
         method: 'POST',
         headers: getAuthHeaders()
     });
     clearCache('projects');
     clearCache('masterLibrary');
-    return res;
   },
 
   getProjectById: async (id: string): Promise<Project | null> => {
@@ -582,7 +578,7 @@ export const api = {
               id: String(p.id),
               painPoints: safeParseJsonList(p.pain_points),
               keyBenefits: safeParseJsonList(p.key_benefits),
-              affiliate_links: safeParseJsonList(p.affiliate_links),
+              affiliateLinks: safeParseJsonList(p.affiliate_links),
               strategy_json: strategyObj,
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
@@ -873,7 +869,6 @@ export const api = {
                 slug: article.slug,
                 description: article.description,
                 content_html: article.contentHtml,
-                // Fixing snake_case keys correctly mapped to article's camelCase properties
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
@@ -902,7 +897,7 @@ export const api = {
                 slug: article.slug,
                 description: article.description,
                 content_html: article.contentHtml,
-                // Fixing snake_case keys correctly mapped to article's camelCase properties
+                // Corregido: se usa featuredImage para coincidir con la interfaz Partial<Article>
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
@@ -1626,29 +1621,6 @@ export const api = {
         await fetchWithFallback(`/whatsapp-launch/launches/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
         clearCache('waLaunches');
     },
-
-    ////////// Actualización: Métodos para Tickets de Soporte - 12/06/2025 //////////
-    submitSupportTicket: async (data: { itemName: string; reason: string }): Promise<void> => {
-        if (isMockMode) {
-            console.log("Mock Support Ticket Submitted:", data);
-            return Promise.resolve();
-        }
-        await fetchWithFallback('/support/tickets', {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(data)
-        });
-        clearCache('supportTickets');
-    },
-
-    getAdminSupportTickets: async (): Promise<SupportTicket[]> => {
-        if (isMockMode) return [];
-        if (apiCache.supportTickets) return apiCache.supportTickets;
-        const tickets = await fetchWithFallback('/admin/support/tickets', { headers: getAuthHeaders() });
-        apiCache.supportTickets = tickets;
-        return tickets;
-    },
-    ////////// Fin de actualización //////////
 
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,
     setLastGeneratedTitles: (titles: any[]) => { apiCache.lastGeneratedTitles = titles; }

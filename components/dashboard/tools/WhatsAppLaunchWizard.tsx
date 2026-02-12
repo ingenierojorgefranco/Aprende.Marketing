@@ -254,20 +254,14 @@ export const WhatsAppLaunchWizard: React.FC = () => {
             )}
 
             <div className="bg-emerald-500/10 p-8 text-center border-b border-emerald-500/10 shrink-0 relative">
-                <button 
-                    onClick={() => { 
-                        if (step === 0 || launchId || urlProjectId) {
-                            navigate('/dashboard/whatsapp-launch'); 
-                        } else {
-                            setStep(0); 
-                            setSelectedProject(null); 
-                            setActiveLaunch(null); 
-                        }
-                    }}
-                    className="absolute left-8 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-800 text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/5 group"
-                >
-                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver
-                </button>
+                {step > 0 && (
+                    <button 
+                        onClick={() => { setStep(0); setSelectedProject(null); setActiveLaunch(null); navigate('/dashboard/whatsapp-launch'); }}
+                        className="absolute left-8 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-800 text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/5 group"
+                    >
+                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver
+                    </button>
+                )}
                 
                 <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
                     <Smartphone className="w-8 h-8 text-emerald-400" />
@@ -402,7 +396,7 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                                                             disabled={isTypeLocked}
                                                             value={activeLaunch.messages[activeMsgIdx].pilarType}
                                                             onChange={(e) => handleUpdateMessage(activeMsgIdx, 'pilarType', e.target.value)}
-                                                            className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none appearance-none ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50 ring-2 ring-emerald-500/10'}`}
+                                                            className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none transition-all shadow-inner appearance-none cursor-pointer ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50 ring-2 ring-emerald-500/10'}`}
                                                         >
                                                             {waTypes.map(t => (
                                                                 <option key={t} value={t}>{t}</option>
