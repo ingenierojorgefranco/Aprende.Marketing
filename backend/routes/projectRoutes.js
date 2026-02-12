@@ -188,10 +188,7 @@ router.get('/', async (req, res) => {
       WHERE p.user_id = ? AND p.is_master = 0 ORDER BY p.updated_at DESC
     `;
     let params = [req.user.id, req.user.id, req.user.id, req.user.id];
-    if (req.user.role === 'admin') {
-        query = 'SELECT *, (user_id = ?) as is_owner, (is_master = 1) as is_master_logic FROM projects ORDER BY updated_at DESC';
-        params = [req.user.id];
-    }
+
     const [rows] = await pool.query(query, params);
     const projects = rows.map(p => ({
         ...p,
