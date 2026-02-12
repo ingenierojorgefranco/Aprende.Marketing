@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, UserPlus, Loader2, AlertCircle, Mail, Lock, User as UserIcon } from 'lucide-react';
 import { User } from '../types';
@@ -36,9 +35,6 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
             maxProjects: 1,
             maxLandings: 3,
             maxDomains: 1,
-            maxArticles: 2,
-            maxEmailSequences: 1,
-            maxWhatsAppLaunches: 1, // Propiedad añadida para coherencia con PlanLimits
             features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false }
         },
         customRedirectUrl: (user as any).customRedirectUrl

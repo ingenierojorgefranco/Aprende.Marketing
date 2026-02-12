@@ -38,37 +38,25 @@ export const generateLandingPageContent = async (
           ? `- Título Principal OBLIGATORIO (h1): "${pH1}"\n      - Subtítulo OBLIGATORIO (h2): "${pH2}"`
           : "";
 
-      // 2. Extraer Dolores (Pains) - Prioriza strategy_json (Informe Maestro), sino busca en campos básicos - 01/01/2026 13:05
-      let extractedPains: string[] = [];
-      if (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0) {
+      // 2. Extraer Dolores (Pains) - Prioriza campo directo, sino busca en strategy_json - 01/01/2026 13:05
+      let extractedPains: string[] = Array.isArray(projectContext.painPoints) ? projectContext.painPoints.map(p => String(p)) : [];
+      if (extractedPains.length === 0 && pStrategy?.psychology?.pains) {
           extractedPains = pStrategy.psychology.pains.map((p: any) => String(p));
-      } else if (Array.isArray(projectContext.painPoints)) {
-          extractedPains = projectContext.painPoints.map(p => String(p));
       }
       
       const painsText = (extractedPains.length > 0) 
           ? `- Dolores del Cliente (USA ESTOS 6 PUNTOS EXACTAMENTE): ${extractedPains.slice(0, 6).join(", ")}` 
           : "";
 
-      // 3. Extraer Beneficios - Prioriza psychology.solutions, sino busca en campos básicos
-      let extractedBenefitsData: any[] = [];
-      if (pStrategy?.psychology?.solutions && pStrategy.psychology.solutions.length > 0) {
-          extractedBenefitsData = pStrategy.psychology.solutions;
-      } else if (pStrategy?.modules?.web?.landingPageTabs?.benefits?.items && pStrategy.modules.web.landingPageTabs.benefits.items.length > 0) {
-          extractedBenefitsData = pStrategy.modules.web.landingPageTabs.benefits.items;
-      } else if (Array.isArray(projectContext.keyBenefits)) {
-          extractedBenefitsData = projectContext.keyBenefits;
+      // 3. Extraer Beneficios - Prioriza campo directo, sino busca en strategy_json (títulos de items) - 01/01/2026 13:05
+      let extractedBenefits: string[] = Array.isArray(projectContext.keyBenefits) ? projectContext.keyBenefits.map(b => String(b)) : [];
+      if (extractedBenefits.length === 0 && pStrategy?.modules?.web?.landingPageTabs?.benefits?.items) {
+          extractedBenefits = pStrategy.modules.web.landingPageTabs.benefits.items.map((b: any) => String(b.title));
       }
 
-      const benefitsText = (extractedBenefitsData.length > 0) 
-          ? `- Beneficios Clave (USA ESTOS 6 PUNTOS EXACTAMENTE, incluye su descripción): ${extractedBenefitsData.slice(0, 6).map(b => typeof b === 'string' ? b : `${b.title}: ${b.description}`).join(" | ")}` 
+      const benefitsText = (extractedBenefits.length > 0) 
+          ? `- Beneficios Clave (USA ESTOS 6 PUNTOS EXACTAMENTE): ${extractedBenefits.slice(0, 6).join(", ")}` 
           : "";
-
-      // 4. Extraer Testimonios de la Estrategia Maestra - 08/01/2026
-      let testimonialsText = "";
-      if (pStrategy?.modules?.testimonials && pStrategy.modules.testimonials.length > 0) {
-          testimonialsText = `- Testimonios OBLIGATORIOS (USA ESTOS DATOS): ${JSON.stringify(pStrategy.modules.testimonials)}`;
-      }
 
       projectStrategy = `
       CONTEXTO ESTRATÉGICO DEL PROYECTO (ORDEN DE PRIORIDAD MÁXIMA):
@@ -77,10 +65,9 @@ export const generateLandingPageContent = async (
       ${mandatoryHeadlines}
       ${painsText}
       ${benefitsText}
-      ${testimonialsText}
       - Descripción del Proyecto: ${pDesc}.
       
-      REGLA OBLIGATORIA: Si te he proporcionado los Títulos (h1, h2), Dolores, Beneficios y Testimonios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
+      REGLA OBLIGATORIA: Si te he proporcionado los Títulos (h1, h2), Dolores y Beneficios arriba, COPIA su sentido exactamente en las secciones correspondientes de la landing. NO inventes unos nuevos para ahorrar tiempo.
       `;
   }
 
@@ -89,57 +76,21 @@ export const generateLandingPageContent = async (
     "brandName": "string",
     "topTagline": "string",
     "navCta": "string",
+    "navLinks": [{"label": "string", "href": "string"}],
     "testimonialTitle": "string",
     "hero": { "headline": "string", "subheadline": "string", "ctaText": "string" },
-    "testimonials": [{"name": "string", "text": "string", "rating": number, "image": "string"}],
-    "intro": { "title": "string", "description": "string", "items": [{"title": "string", "description": "string"}] },
+    "testimonials": [{"name": "string", "text": "string", "rating": number}],
+    "intro": { "title": "string", "description": "string", "imageCardText": "string", "items": [{"title": "string", "description": "string"}] },
     "benefits": { "title": "string", "items": [{"title": "string", "description": "string"}] },
     "whatYouWillLearn": { "title": "string", "items": ["string"] },
     "faq": [{"question": "string", "answer": "string"}],
     "instructor": { "name": "string", "bio": "string" },
     "footer": { "copyright": "string", "contact": "string" },
     "thankYouMessage": "string",
-    "redirectUrl": "string",
-    "thankYouPage": {
-      "showSocials": boolean,
-      "ctaLink": "string",
-      "progressBarText": "string",
-      "greenBadgeText": "string",
-      "headline": "string",
-      "subheadline": "string",
-      "step1Title": "string",
-      "step1Desc": "string",
-      "step1Warning": "string",
-      "step1Subject": "string",
-      "step2Title": "string",
-      "step2Desc": "string",
-      "step2Badge": "string",
-      "step2BonusTitle": "string",
-      "step2BonusValue": "string",
-      "offerTopTitle": "string",
-      "offerHeadline": "string",
-      "offerDescription": "string",
-      "bookTitle": "string",
-      "bookSubtitle": "string",
-      "bookFooter": "string",
-      "offerPriceRegular": "string",
-      "offerPriceFree": "string",
-      "offerBadge": "string",
-      "offerBullets": ["string"],
-      "ctaButtonText": "string",
-      "learningTitle": "string",
-      "learningSubtitle": "string",
-      "learningItems": [{"title": "string", "description": "string"}],
-      "socialTitle": "string",
-      "socialSubtitle": "string",
-      "socialCountText": "string",
-      "socialItems": [{"name": "string", "location": "string", "text": "string"}],
-      "faqTitle": "string",
-      "faqItems": [{"question": "string", "answer": "string"}]
-    }
+    "redirectUrl": "string"
   }`;
 
-  const prompt = `Actúa como un experto en copywriting and marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
+  const prompt = `Actúa como un experto en copywriting y marketing digital. Genera el contenido COMPLETO para una Landing Page de alta conversión en ESPAÑOL para el nicho "${niche}".
   El objetivo es "${goal}". La audiencia objetivo es "${targetAudience}".
   La oferta es de tipo "${offerType}".
   ${ctaContext}
@@ -153,39 +104,13 @@ export const generateLandingPageContent = async (
 
   Instrucciones de contenido:
   1. Hero: Título (con etiquetas <b> en la parte emocional), subtítulo y botón.
-  2. Testimonios: 3 testimonios cortos y realistas (usa los del proyecto si se proporcionaron, incluyendo su 'image' URL si existe).
-  3. Intro: Qué es el producto. Genera 'items' (3 bullets).
+  2. Testimonios: 3 testimonios cortos y realistas.
+  3. Intro: Qué es el producto. Genera 'imageCardText' (frase corta) and 'items' (3 bullets).
   4. Beneficios: Lista detallada (usa los proporcionados en el contexto si existen).
   5. Lo que aprenderás: 4-6 puntos clave (basados en dolores si existen).
   6. FAQ: 4 preguntas que maten objeciones.
   7. Instructor: Nombre y biografía.
   8. Footer: Copyright y contacto.
-  9. BLUEPRINT DE PÁGINA DE GRACIAS (Usa estos valores como base y adáptalos sutilmente al nicho):
-     - headline: "PERFECTO, YA TIENES EL ACCESO A LA CLASE DE ... (Añade aquí la Clase)"
-     - subheadline: "Sigue estos 2 pasos sencillos para asegurar tu cupo y recibir tu material de preparación gratuito."
-     - progressBarText: "¡ESPERA! SÓLO TE FALTA UN ÚLTIMO PASO PARA TERMINAR."
-     - greenBadgeText: "RECIBE TU REGALO 100% GRATIS"
-     - step1Title: "Revisa tu Correo Electrónico"
-     - step1Desc: "Hemos enviado el enlace de acceso a la clase y tu regalo a tu correo electrónico."
-     - step1Warning: "Importante: Si no ves el mensaje en tu correo, verifica tu bandeja de SPAM o Promociones."
-     - step2Title: "Únete a nuestro Grupo VIP + Regalo"
-     - step2Desc: "Únete al grupo de WhatsApp para recibir la mentoría y tu regalo de bienvenida.."
-     - step2Badge: "¡ACCIÓN REQUERIDA!"
-     - step2BonusTitle: "Libro Digital GRATIS" 
-     - step2BonusValue: "Precio Regular: $27 USD"  
-     - offerTopTitle: "UNETE A NUESTRO GRUPO Y DESCARGA EL LIBRO GRATUITO" 
-     - offerHeadline: "Descarga: y luego añade aqui el libro digital relacionado con el producto digital en la clase"
-     - offerDescription: "Esta guía nace de la experiencia de profesionales del sector. Te compartimos los fallos más frecuentes y cómo prevenirlos paso a paso para resultados perfectos."
-     - bookTitle: "Titulo del Libro"
-     - bookSubtitle: "Lo que Siempre Quisiste Saber!!!"
-     - bookFooter: "¡OFERTA FLASH!"
-     - offerPriceRegular: "Precio Regular: $27 USD"
-     - offerPriceFree: "HOY: $0.00 GRATIS"
-     - ctaButtonText: "UNIRME AL GRUPO Y DESCARGAR"
-     - learningTitle: "Lo que aprenderás con esta Guía"
-     - learningItems: Genera EXACTAMENTE 6 puntos clave de aprendizaje sobre el libro digital.
-     - socialItems: Genera EXACTAMENTE 4 testimonios realistas de personas que ya leyeron la guía/libro.
-     - faqItems: Genera EXACTAMENTE 5 preguntas frecuentes con sus respuestas. Cada respuesta debe ser de un párrafo (no corto) y estar relacionada específicamente con el libro digital (formato, acceso, contenido, etc).
   
   Responde ÚNICAMENTE con el objeto JSON válido.`;
 
@@ -214,10 +139,10 @@ export const generateLandingPageContent = async (
         if (!content.instructor.badgeSubtext) content.instructor.badgeSubtext = "Certificado Oficial";
         if (!content.instructor.statsStudents) content.instructor.statsStudents = "+500 Alumnos";
         if (!content.instructor.statsRating) content.instructor.statsRating = "5.0 Estrellas";
+        if (!content.intro.imageCardText) content.intro.imageCardText = "Método Exclusivo";
         if (!content.hero.socialProofCount) content.hero.socialProofCount = "+1000";
         if (!content.hero.videoTitle) content.hero.videoTitle = "Clase Exclusiva";
         if (!content.hero.videoDuration) content.hero.videoDuration = "45 Minutos";
-        if (!content.hero.videoUrl) content.hero.videoUrl = "";
         if (!content.hero.spotsLeft) content.hero.spotsLeft = "¡Cupos Limitados!";
         if (!content.testimonialSubtitle) content.testimonialSubtitle = "Resultados reales de alumnos";
         if (!content.closingOfferText) content.closingOfferText = "No dejes pasar esta oportunidad. Quedan pocos cupos para acceder.";
@@ -243,46 +168,30 @@ export const generateLandingPageContent = async (
             if (pH1) content.hero.headline = pH1;
             if (pH2) content.hero.subheadline = pH2;
 
-            // SOBRESCRITURA DE SEGURIDAD: Invertir prioridad para usar psychology.solutions antes que los campos básicos
-            let rawBenefits = (pStrategy?.psychology?.solutions && pStrategy.psychology.solutions.length > 0)
-                ? pStrategy.psychology.solutions
-                : (pStrategy?.modules?.web?.landingPageTabs?.benefits?.items && pStrategy.modules.web.landingPageTabs.benefits.items.length > 0)
-                    ? pStrategy.modules.web.landingPageTabs.benefits.items 
-                    : (Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : []);
+            let rawBenefits = Array.isArray(projectContext.keyBenefits) ? [...projectContext.keyBenefits] : [];
+            if (rawBenefits.length === 0 && pStrategy?.modules?.web?.landingPageTabs?.benefits?.items) {
+                rawBenefits = pStrategy.modules.web.landingPageTabs.benefits.items;
+            }
 
             if (rawBenefits.length > 0) {
                 content.benefits.items = rawBenefits.slice(0, 6).map((b: any) => ({
                     title: typeof b === 'string' ? b : (b.title || ""),
-                    description: typeof b === 'string' ? "" : (b.description || b.desc || ""), 
+                    description: typeof b === 'string' ? "" : (b.desc || b.description || ""), 
                     icon: b.icon || "Sparkles",
                     color: b.color || "blue"
                 }));
             }
 
-            let rawPains = (pStrategy?.psychology?.pains && pStrategy.psychology.pains.length > 0)
-                ? pStrategy.psychology.pains
-                : (Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : []);
+            let rawPains = Array.isArray(projectContext.painPoints) ? [...projectContext.painPoints] : [];
+            if (rawPains.length === 0 && pStrategy?.psychology?.pains) {
+                rawPains = pStrategy.psychology.pains;
+            }
 
             if (rawPains.length > 0) {
                 content.whatYouWillLearn.items = rawPains.slice(0, 6).map((p: any) => String(p));
                 content.whatYouWillLearn.title = "¿Te sientes identificado con alguna de estas situaciones?";
                 content.whatYouWillLearn.icon = "AlertTriangle";
             }
-
-            // SINCRO FORZADA DE TESTIMONIOS: Si la estrategia tiene testimonios, los copiamos íntegros a la landing
-            if (pStrategy?.modules?.testimonials && pStrategy.modules.testimonials.length > 0) {
-                content.testimonials = pStrategy.modules.testimonials.slice(0, 3).map((t: any) => ({
-                    name: String(t.name || ""),
-                    text: String(t.text || ""),
-                    rating: 5,
-                    image: String(t.image || "")
-                }));
-            }
-        }
-
-        // Aplicar la imagen de persona misteriosa de alta calidad como predeterminada para el instructor
-        if (content.instructor && (!content.instructor.imageUrl || content.instructor.imageUrl.includes('unsplash.com'))) {
-          content.instructor.imageUrl = "https://ceslava.s3-accelerate.amazonaws.com/2016/04/mistery-man-gravatar-wordpress-avatar-persona-misteriosa-510x510.png";
         }
 
         return content;

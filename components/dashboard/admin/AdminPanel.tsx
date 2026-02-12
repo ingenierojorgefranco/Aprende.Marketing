@@ -98,14 +98,12 @@ export const AdminPanel: React.FC = () => {
 
     const handleEditClick = (user: User) => {
         setEditingUser(user);
-        const currentLimits = user.planLimits || {
+        setTempPlanLimits(JSON.parse(JSON.stringify(user.planLimits || {
             planName: 'starter',
             maxProjects: 1,
             maxLandings: 3,
             maxDomains: 1,
             maxArticles: 2,
-            maxEmailSequences: 1,
-            maxWhatsAppLaunches: 1,
             features: {
                 whatsappBot: false,
                 blogGenerator: false,
@@ -114,11 +112,7 @@ export const AdminPanel: React.FC = () => {
                 emailStrategy: false,
                 evergreenStrategy: false
             }
-        };
-        // Asegurar la propiedad maxWhatsAppLaunches
-        if (currentLimits.maxWhatsAppLaunches === undefined) currentLimits.maxWhatsAppLaunches = 1;
-        
-        setTempPlanLimits(JSON.parse(JSON.stringify(currentLimits)));
+        })));
         setActiveTab('profile'); // Reset tab
         setUserStats(null); // Clear previous stats
         setPaymentHistory([]);
@@ -197,8 +191,6 @@ export const AdminPanel: React.FC = () => {
             maxLandings: plan.limitsConfig.maxLandings,
             maxDomains: plan.limitsConfig.maxDomains || 1,
             maxArticles: plan.limitsConfig.maxArticles || 0,
-            maxEmailSequences: plan.limitsConfig.maxEmailSequences || 1,
-            maxWhatsAppLaunches: plan.limitsConfig.maxWhatsAppLaunches || 1,
             features: { ...plan.limitsConfig.features }
         });
     };
@@ -409,12 +401,14 @@ export const AdminPanel: React.FC = () => {
             {/* Edit User Modal */}
             {editingUser && tempPlanLimits && (
                 <div 
+                    ////////// Actualización: Cierre al hacer clic en fondo - 28/05/2025 15:30 //////////
                     onClick={() => setEditingUser(null)}
                     className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
                 >
                     <div 
+                        ////////// Actualización: Evitar propagación - 28/05/2025 15:30 //////////
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+                        className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl animate-in zoom-in-95 overflow-hidden flex flex-col max-h-[90vh]"
                     >
                         <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-850 shrink-0">
                             <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -435,7 +429,7 @@ export const AdminPanel: React.FC = () => {
                             
                             {/* TAB: PROFILE */}
                             {activeTab === 'profile' && (
-                                <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
+                                <div className="space-y-6 animate-in slide-in-from-left-4">
                                     <div className="space-y-4 pb-6 border-b border-gray-800">
                                         <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
                                             <span className="text-primary font-bold">#</span> Datos Personales
@@ -518,7 +512,7 @@ export const AdminPanel: React.FC = () => {
 
                             {/* TAB: PLAN */}
                             {activeTab === 'plan' && (
-                                <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
+                                <div className="space-y-6 animate-in slide-in-from-right-4">
                                     <div className="flex justify-between items-center mb-2">
                                         <h4 className="text-sm font-bold text-white flex items-center gap-2">
                                             <Zap className="w-4 h-4 text-green-400" /> Configuración de Límites y Características
@@ -585,24 +579,6 @@ export const AdminPanel: React.FC = () => {
                                                 className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
                                             />
                                         </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Secuencias Email</label>
-                                            <input 
-                                                type="number" 
-                                                value={tempPlanLimits.maxEmailSequences || 0}
-                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxEmailSequences: parseInt(e.target.value) || 0})}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Lanzamientos WhatsApp</label>
-                                            <input 
-                                                type="number" 
-                                                value={tempPlanLimits.maxWhatsAppLaunches || 0}
-                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxWhatsAppLaunches: parseInt(e.target.value) || 0})}
-                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
-                                            />
-                                        </div>
                                     </div>
 
                                     {/* Features Toggles */}
@@ -635,7 +611,7 @@ export const AdminPanel: React.FC = () => {
 
                             {/* TAB: USAGE STATS (LAZY LOADED) */}
                             {activeTab === 'usage' && (
-                                <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
+                                <div className="space-y-6 animate-in slide-in-from-right-4">
                                     <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
                                         <RefreshCw className="w-4 h-4 text-orange-400" /> Consumo Mensual Actual
                                     </h4>
@@ -677,7 +653,7 @@ export const AdminPanel: React.FC = () => {
 
                             {/* TAB: PAYMENTS HISTORY (NEW) */}
                             {activeTab === 'payments' && (
-                                <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
+                                <div className="space-y-6 animate-in slide-in-from-right-4">
                                     <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
                                         <CreditCard className="w-4 h-4 text-green-400" /> Historial de Transacciones
                                     </h4>
@@ -690,7 +666,7 @@ export const AdminPanel: React.FC = () => {
                                                 <div key={payment.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
                                                     <div>
                                                         <div className="flex items-center gap-2 mb-1">
-                                                            <span className={`text-sm font-bold ${payment.status === 'succeeded' ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                            <span className={`text-sm font-bold ${payment.status === 'succeeded' ? 'text-green-400' : 'text-red-400'}`}>
                                                                 {payment.status === 'succeeded' ? 'Pago Exitoso' : 'Pago Fallido'}
                                                             </span>
                                                             <span className="text-xs text-gray-500">• {new Date(payment.created_at).toLocaleString()}</span>
@@ -735,10 +711,12 @@ export const AdminPanel: React.FC = () => {
             {/* Delete Confirmation */}
             {showDeleteConfirm && (
                 <div 
+                    ////////// Actualización: Cierre al hacer clic en fondo - 28/05/2025 15:30 //////////
                     onClick={() => setShowDeleteConfirm(null)}
                     className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
                 >
                     <div 
+                        ////////// Actualización: Evitar propagación - 28/05/2025 15:30 //////////
                         onClick={(e) => e.stopPropagation()}
                         className="bg-gray-900 border border-red-900/50 p-6 rounded-xl max-w-sm w-full text-center"
                     >
@@ -747,6 +725,7 @@ export const AdminPanel: React.FC = () => {
                         <p className="text-gray-400 text-sm mb-6">Esta acción borrará permanentemente al usuario y todos sus datos.</p>
                         <div className="flex justify-center gap-3">
                             <button onClick={() => setShowDeleteConfirm(null)} className="px-4 py-2 border border-gray-700 rounded text-gray-300">Cancelar</button>
+                            {/* FIX: Uso de referencia a función para evitar ejecución inmediata en onClick - 24/05/2025 10:30 */}
                             <button onClick={() => handleDeleteUser(showDeleteConfirm!)} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-bold">Sí, Eliminar</button>
                         </div>
                     </div>

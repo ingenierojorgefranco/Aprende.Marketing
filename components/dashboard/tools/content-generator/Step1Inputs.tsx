@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Project, LandingPage, User } from '../../../../types';
-import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, ChevronLeft, Loader2, AlertTriangle, ExternalLink, X, Zap, Rocket } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, ChevronLeft, Loader2, AlertTriangle, ExternalLink, X, Zap } from 'lucide-react';
 
 interface Step1InputsProps {
   userProjects: Project[];
@@ -25,7 +24,6 @@ interface Step1InputsProps {
   setShowUpgradeModal: (show: boolean) => void;
   isSimulating: boolean;
   isPreFilled?: boolean;
-  onClose?: () => void;
 }
 
 export const Step1Inputs: React.FC<Step1InputsProps> = ({
@@ -34,10 +32,8 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
   topic, objective, keyword,
   onGenerate, onSelectRecommendation, onBack, loading,
   user, articleCount, setShowUpgradeModal, isSimulating,
-  isPreFilled = false,
-  onClose
+  isPreFilled = false
 }) => {
-  const navigate = useNavigate();
   /* Actualización: Implementación del Selector de Página Estratégico interceptando el flujo de creación para forzar la vinculación de activos antes de proceder con la IA - 25/05/2024 10:00 */
   const [selectionMode, setSelectionMode] = useState<'choice' | 'ia'>('choice');
   const [isPreparing, setIsPreparing] = useState(false);
@@ -50,9 +46,6 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
   /* Estados para la paginación de recomendaciones - 07/06/2025 15:45 */
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-
-  // Filtrado de páginas basado en el proyecto seleccionado para este componente específico
-  const filteredPages = userPages.filter(p => String(p.projectId) === String(selectedProject));
   
   const activeProject = userProjects.find(p => p.id === selectedProject);
   const recommendations = activeProject?.strategy_json?.modules?.content || [];
@@ -63,11 +56,11 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
 
   /* Actualización: Auto-disparo del selector si es un flujo pre-llenado desde estrategia - 11/03/2025 11:45 */
   useEffect(() => {
-    if (isPreFilled && !hasAutoOpened) {
+    if (isPreFilled && !hasAutoOpened && userPages.length > 0) {
       setHasAutoOpened(true);
       handleInitiateAction('ia');
     }
-  }, [isPreFilled, filteredPages, hasAutoOpened]);
+  }, [isPreFilled, userPages, hasAutoOpened]);
 
   /* Actualización: Función para interceptar el inicio de la acción y abrir el selector de página estratégica - 25/05/2024 10:10 */
   const handleInitiateAction = (action: 'ia' | 'manual') => {
@@ -183,7 +176,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
 
         {/* Actualización: Implementación de la ventana modal prioritaria para la selección de página estratégica con estética Premium Dark y línea de acento naranja - 25/05/2024 10:20 */}
         {showPageSelector && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => { setShowPageSelector(false); if (isPreFilled && onClose) onClose(); }}>
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowPageSelector(false)}>
             <div 
               className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative"
               onClick={e => e.stopPropagation()}
@@ -200,12 +193,12 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
                     Selecciona a continuación la página estratégica a la cual te gustaría vincular este nuevo contenido. Al asignar el artículo, este se publicará automáticamente en el blog de dicha página, potenciando su autoridad y atrayendo tráfico orgánico cualificado.
                   </p>
                 </div>
-                <button onClick={() => { setShowPageSelector(false); if (isPreFilled && onClose) onClose(); }} className="text-gray-500 hover:text-white transition p-2 hover:bg-white/5 rounded-full"><X className="w-6 h-6" /></button>
+                <button onClick={() => setShowPageSelector(false)} className="text-gray-500 hover:text-white transition p-2 hover:bg-white/5 rounded-full"><X className="w-6 h-6" /></button>
               </div>
 
               <div className="p-8 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
-                {filteredPages.length > 0 ? (
-                  filteredPages.map((page) => (
+                {userPages.length > 0 ? (
+                  userPages.map((page) => (
                     <div 
                       key={page.id}
                       onClick={() => handlePageSelect(page.id)}
@@ -234,26 +227,14 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
                     </div>
                   ))
                 ) : (
-                  <div className="py-16 px-8 text-center border border-dashed border-[#FF5A1F]/30 rounded-[2.5rem] bg-[#FF5A1F]/5 flex flex-col items-center gap-6 animate-in zoom-in-95 duration-500">
-                    <div className="w-16 h-16 bg-[#FF5A1F]/10 rounded-2xl flex items-center justify-center text-[#FF5A1F] shadow-lg border border-[#FF5A1F]/20">
-                      <Rocket className="w-8 h-8" />
-                    </div>
-                    <div className="space-y-2">
-                      <h4 className="text-white font-black text-xl uppercase tracking-tight">Aún no tienes una Página de Captura Creada</h4>
-                      <p className="text-gray-400 text-sm font-medium leading-relaxed max-w-xs mx-auto">Para crear un artículo de Blog antes tienes que crear tu página de captura, haz clic en crear mi Página de Captura para crearla.</p>
-                    </div>
-                    <button 
-                      onClick={() => navigate(`/dashboard/projects/${selectedProject}/strategy?section=web`)}
-                      className="px-8 py-4 bg-gradient-to-r from-[#FF5A1F] to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-black text-sm uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-[#FF5A1F]/20 transform hover:scale-[1.03] active:scale-95 flex items-center gap-3"
-                    >
-                      <Plus className="w-4 h-4" /> Crear mi Página de Captura
-                    </button>
+                  <div className="py-12 text-center border border-dashed border-white/10 rounded-3xl bg-white/5">
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">No tienes páginas creadas para este proyecto.</p>
                   </div>
                 )}
               </div>
               
               <div className="p-8 bg-black/40 border-t border-white/5 flex justify-end">
-                <button onClick={() => { setShowPageSelector(false); if (isPreFilled && onClose) onClose(); }} className="px-6 py-2 text-gray-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-all">Cancelar</button>
+                <button onClick={() => setShowPageSelector(false)} className="px-6 py-2 text-gray-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-all">Cancelar</button>
               </div>
             </div>
           </div>

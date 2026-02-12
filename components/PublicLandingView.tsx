@@ -37,23 +37,19 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
   const [debug, setDebug] = useState<DebugInfo | null>(null);
 
   // BLOG & THANK YOU ROUTING LOGIC
-  // Detect if we are in /blog, /blog/article-slug, /gracias, /privacidad or /terminos
-  let viewMode: 'home' | 'blog-list' | 'blog-post' | 'thank-you' | 'privacy' | 'terms' = 'home';
+  // Detect if we are in /blog, /blog/article-slug or /gracias
+  let viewMode: 'home' | 'blog-list' | 'blog-post' | 'thank-you' = 'home';
   let articleSlug = '';
 
   // 1. CUSTOM DOMAIN LOGIC (Prioritize explicit path parsing when forcedSlug is present)
   // This handles routes like /blog/my-article where the router might pass 'my-article' as wildcard
   if (forcedSlug) {
-      // Remove trailing slash for consistency
-      const cleanPath = location.pathname.endsWith('/') ? location.pathname.slice(0, -1) : location.pathname;
-
-      if (cleanPath.endsWith('/gracias')) {
+      if (location.pathname.includes('/gracias')) {
           viewMode = 'thank-you';
-      } else if (cleanPath.endsWith('/privacidad')) {
-          viewMode = 'privacy';
-      } else if (cleanPath.endsWith('/terminos')) {
-          viewMode = 'terms';
-      } else if (cleanPath.includes('/blog')) {
+      } else if (location.pathname.includes('/blog')) {
+          // Remove trailing slash for consistency
+          const cleanPath = location.pathname.endsWith('/') ? location.pathname.slice(0, -1) : location.pathname;
+          
           if (cleanPath.endsWith('/blog')) {
               viewMode = 'blog-list';
           } else {
@@ -77,10 +73,6 @@ export const PublicLandingView: React.FC<PublicLandingViewProps> = ({ forcedSlug
           articleSlug = wildCard.replace('blog/', '');
       } else if (wildCard === 'gracias' || wildCard === 'gracias/') {
           viewMode = 'thank-you';
-      } else if (wildCard === 'privacidad' || wildCard === 'privacidad/') {
-          viewMode = 'privacy';
-      } else if (wildCard === 'terminos' || wildCard === 'terminos/') {
-          viewMode = 'terms';
       }
   }
 

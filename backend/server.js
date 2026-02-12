@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -17,7 +16,6 @@ const articleRoutes = require('./routes/articleRoutes');
 const crmRoutes = require('./routes/crmRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const systemRoutes = require('./routes/systemRoutes');
-const whatsappRoutes = require('./routes/whatsappRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -88,7 +86,6 @@ app.use('/api', pageRoutes);
 app.use('/api', articleRoutes);
 app.use('/api', crmRoutes);
 app.use('/api', systemRoutes);
-app.use('/api/whatsapp-launch', whatsappRoutes);
 
 // ======================================================
 //  STATIC FILES & SPA FALLBACK
@@ -108,15 +105,12 @@ app.get('*', (req, res) => {
 // ======================================================
 //  SERVER STARTUP
 // ======================================================
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
-    
-    // Inicializamos la base de datos en segundo plano. 
-    // Esto permite que el contenedor responda al "startup probe" de Cloud Run de inmediato,
-    // evitando el error de timeout en el puerto 8080.
-    initDb().then(() => {
-        console.log('✅ Base de datos inicializada correctamente.');
-    }).catch(err => {
-        console.error("⚠️ Error inicializando base de datos:", err.message);
+initDb().then(() => {
+    console.log('✅ Base de datos inicializada correctamente.');
+}).catch(err => {
+    console.error("⚠️ Error inicializando base de datos:", err.message);
+}).finally(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor ${SERVER_VERSION} escuchando en puerto ${PORT}`);
     });
 });

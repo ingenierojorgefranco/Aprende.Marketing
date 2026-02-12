@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Article, User } from '../../../types';
-import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus, Briefcase } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { UpgradeModal } from '../UpgradeModal';
@@ -131,49 +131,36 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   </div>
               </div>
 
-              <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
-                  {/* Contenedor de Video Interactivo */}
-                  <div 
+              <div className="flex flex-col gap-4 shrink-0 w-full md:w-auto">
+                  {isAtLimit ? (
+                    <button
+                        onClick={() => setShowUpgradeModal(true)}
+                        className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20"
+                    >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                            <Crown className="w-5 h-5 fill-current" /> 
+                            Límite Alcanzado: Subir a PRO
+                        </span>
+                    </button>
+                  ) : (
+                    <button
+                        onClick={handleCreate}
+                        className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:-translate-y-1"
+                    >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                            <PenTool className="w-5 h-5" /> 
+                            Redactar Nuevo
+                        </span>
+                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                    </button>
+                  )}
+                  
+                  <button 
                       onClick={() => setShowVideoModal(true)}
-                      className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                      className="px-8 py-3 bg-transparent border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
                   >
-                      <img 
-                          src="https://img.youtube.com/vi/A_dcakdMBow/maxresdefault.jpg" 
-                          alt="Video Tutorial"
-                          className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                              <PlayCircle className="w-10 h-10 text-purple-400" />
-                          </div>
-                      </div>
-                  </div>
-
-                  {/* Botones centrados debajo del video */}
-                  <div className="flex flex-col gap-3">
-                      {isAtLimit ? (
-                        <button
-                            onClick={() => setShowUpgradeModal(true)}
-                            className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
-                        >
-                            <span className="relative z-10 flex items-center justify-center gap-2">
-                                <Crown className="w-5 h-5 fill-current" /> 
-                                Límite Alcanzado: Subir a PRO
-                            </span>
-                        </button>
-                      ) : (
-                        <button
-                            onClick={handleCreate}
-                            className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:-translate-y-1 w-full"
-                        >
-                            <span className="relative z-10 flex items-center justify-center gap-2">
-                                <PenTool className="w-5 h-5" /> 
-                                Redactar Nuevo
-                            </span>
-                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                        </button>
-                      )}
-                  </div>
+                      <PlayCircle className="w-4 h-4" /> ¿Cómo funciona?
+                  </button>
               </div>
           </div>
       </div>
@@ -235,7 +222,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                         </div>
                         {article.status === 'scheduled' && (
                             <span className="text-[10px] text-orange-400 bg-orange-900/20 px-2 py-1 rounded border border-orange-900/30 font-black uppercase tracking-widest flex items-center gap-1">
-                                <Clock className="w-3 h-3" /> Para hoy
+                                <Clock className="w-3 h-3" /> Prog.
                             </span>
                         )}
                         {article.status === 'published' && (
@@ -259,33 +246,18 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                     
                     <div className="space-y-4 mt-auto pt-6 border-t border-white/5">
                         {article.pageId ? (
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
-                                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
-                                        <Briefcase className="w-3.5 h-3.5" />
-                                    </div>
-                                    <a 
-                                        href="/dashboard/projects"
-                                        target="_blank"
-                                        rel="noopener noreferrer" 
-                                        className="hover:text-[#FF5A1F] transition-colors"
-                                    >
-                                        Proyecto: {article.pageName || "General"}
-                                    </a>
+                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
+                                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                    <Globe className="w-3.5 h-3.5" />
                                 </div>
-                                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
-                                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
-                                        <Globe className="w-3.5 h-3.5" />
-                                    </div>
-                                    <a 
-                                        href={landingUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer" 
-                                        className="hover:text-[#FF5A1F] transition-colors"
-                                    >
-                                        LandingPage: {article.pageName || "Landing Page"}
-                                    </a>
-                                </div>
+                                <a 
+                                    href={landingUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer" 
+                                    className="hover:text-[#FF5A1F] transition-colors"
+                                >
+                                    Proyecto: {article.pageName || "Landing Page"}
+                                </a>
                             </div>
                         ) : (
                             <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-600">
@@ -347,8 +319,8 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
 
       {/* VIDEO MODAL */}
       {showVideoModal && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={() => setShowVideoModal(false)}>
-              <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800" onClick={e => e.stopPropagation()}>
+          <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
+              <div className="relative w-full max-w-4xl bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
                   <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
                       <h3 className="font-bold text-white flex items-center gap-2">
                           <PlayCircle className="w-5 h-5 text-purple-500" /> Tutorial: Estrategia de Contenidos SEO

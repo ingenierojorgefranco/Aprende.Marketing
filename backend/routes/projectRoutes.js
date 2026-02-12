@@ -35,7 +35,7 @@ const checkMonthlyQuota = async (userId, resourceType, limit) => {
         WHERE user_id = ? 
           AND resource_type = ? 
           AND MONTH(created_at) = MONTH(CURRENT_DATE()) 
-          AND YEAR(created_at) = YEAR(created_at)
+          AND YEAR(created_at) = YEAR(CURRENT_DATE())
     `, [userId, resourceType]);
 
     const used = rows[0].count;
@@ -63,28 +63,21 @@ router.use(authMiddleware);
 
 router.get('/master-library', async (req, res) => {
     try {
-        let query = `SELECT p.*, 
-             EXISTS(SELECT 1 FROM unlocked_projects up WHERE up.project_id = p.id AND up.user_id = ?) as is_unlocked
-             FROM projects p 
-             WHERE p.is_master = 1`;
-        let params = [req.user.id];
-
-        if (req.user.role !== 'admin') {
-            query += ` AND p.user_id != ?`;
-            params.push(req.user.id);
-        }
-
-        query += ` ORDER BY p.created_at DESC`;
-
-        const [rows] = await pool.query(query, params);
+        const [rows] = await pool.query(
+            `SELECT p.* FROM projects p 
+             WHERE p.is_master = 1 
+             AND p.user_id != ? 
+             AND p.id NOT IN (SELECT project_id FROM unlocked_projects WHERE user_id = ?)
+             ORDER BY p.created_at DESC`,
+            [req.user.id, req.user.id]
+        );
         const projects = rows.map(p => ({
             ...p,
             pain_points: safeParseJson(p.pain_points),
             key_benefits: safeParseJson(p.key_benefits),
             affiliate_links: safeParseJson(p.affiliate_links),
             strategy_json: safeParseJson(p.strategy_json),
-            isMaster: !!p.is_master,
-            isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked
+            isMaster: !!p.is_master
         }));
         res.json(projects);
     } catch (error) {
@@ -99,23 +92,14 @@ router.post('/unlock/:id', async (req, res) => {
         if (projRows.length === 0 || !projRows[0].is_master) {
             return res.status(404).json({ error: 'Proyecto maestro no encontrado.' });
         }
-        
-        // El administrador no consume cupos ni necesita desbloquear formalmente
-        if (req.user.role === 'admin') {
-            return res.json({ success: true, message: 'Acceso total como administrador.' });
-        }
-
         const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
         const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
-        
         const [countRows] = await pool.query(`
             SELECT (SELECT COUNT(*) FROM projects WHERE user_id = ?) + (SELECT COUNT(*) FROM unlocked_projects WHERE user_id = ?) as total
         `, [req.user.id, req.user.id]);
-        
-        if (countRows[0].total >= limits.maxProjects) {
-            return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxProjects} proyectos en tu plan.` });
+        if (countRows[0].total >= limits.maxProjects && req.user.role !== 'admin') {
+            return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxProjects} proyectos.` });
         }
-
         await pool.query('INSERT IGNORE INTO unlocked_projects (user_id, project_id) VALUES (?, ?)', [req.user.id, projectId]);
         await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_PROJECT', 'project', projectId, { name: projRows[0].name });
         res.json({ success: true, message: 'Estrategia desbloqueada correctamente.' });
@@ -129,7 +113,6 @@ router.post('/unlock/:id', async (req, res) => {
 // ======================================================
 
 router.post('/analyze-site', async (req, res) => {
-    process.stdout.write(`\n[CRITICAL SCRAPE] Solicitud analyze-site recibida para URL a las ${new Date().toISOString()}\n`);
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: 'URL no proporcionada' });
 
@@ -169,7 +152,7 @@ router.post('/analyze-site', async (req, res) => {
             .replace(/\s+/g, ' ')                                 // Unificar espacios
             .trim();
 
-        process.stdout.write(`[SCRAPER AUDIT] Longitud extraída: ${cleanText.length} caracteres. Llamando a Gemini...\n`);
+        console.log(`[SCRAPER AUDIT] Longitud extraída: ${cleanText.length} caracteres.`);
 
         if (!cleanText || cleanText.length < 200) {
             return res.status(422).json({ error: 'No se pudo extraer contenido suficiente. El sitio podría estar protegido o cargado dinámicamente.' });
@@ -209,7 +192,7 @@ router.get('/', async (req, res) => {
         affiliate_links: safeParseJson(p.affiliate_links),
         strategy_json: safeParseJson(p.strategy_json),
         isMaster: !!p.is_master,
-        isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked
+        isUnlocked: !!p.is_unlocked
     }));
     res.json(projects);
   } catch (error) { res.status(500).json({ error: 'Error cargando proyectos' }); }
@@ -284,32 +267,13 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/:id/generate-strategy', async (req, res) => {
-    // 1. FORZADO DE SALIDA EN CONSOLA (Bypassing buffering)
-    process.stdout.write(`\n[CRITICAL AUDIT] Recibida petición POST /generate-strategy para ID: ${req.params.id} a las ${new Date().toISOString()}\n`);
-    
     try {
-        process.stdout.write(`[DB CHECK] Iniciando verificación para Proyecto ID: ${req.params.id}\n`);
-        // 2. Log de seguimiento de conexión BD granular
-        const [check] = await pool.query('SELECT user_id FROM projects WHERE id = ?', [req.params.id]);
-        process.stdout.write(`[DB CHECK] Proyecto encontrado: ${check.length > 0}. Iniciando Pipeline...\n`);
-
-        if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) {
-            console.warn(`[AUTH WARN] Intento de acceso no autorizado o proyecto inexistente: ${req.params.id}`);
-            return res.status(403).json({ error: 'No autorizado' });
-        }
-
-        // Call pipeline passing only the ID
-        const strategyJson = await generateFullStrategy(req.params.id);
-        process.stdout.write(`[PIPELINE SUCCESS] IA devolvió datos para ID: ${req.params.id}. Actualizando BD...\n`);
-
+        const [projects] = await pool.query('SELECT * FROM projects WHERE id = ?', [req.params.id]);
+        if (projects.length === 0 || (projects[0].user_id !== req.user.id && req.user.role !== 'admin')) return res.status(403).json({ error: 'No autorizado' });
+        const strategyJson = await generateFullStrategy(projects[0]);
         await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), req.params.id]);
-        process.stdout.write(`[DB UPDATE] Estrategia guardada exitosamente para ID: ${req.params.id}\n`);
-        
         res.json(strategyJson);
-    } catch (e) { 
-        console.error(`[ROUTE ERROR] Fallo crítico en generación para ${req.params.id}:`, e.message);
-        res.status(500).json({ error: e.message }); 
-    }
+    } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 module.exports = router;

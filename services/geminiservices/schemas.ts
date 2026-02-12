@@ -44,6 +44,7 @@ export const LANDING_PAGE_SCHEMA = {
         properties: {
         title: { type: Type.STRING },
         description: { type: Type.STRING },
+        imageCardText: { type: Type.STRING },
         items: {
             type: Type.ARRAY,
             items: {

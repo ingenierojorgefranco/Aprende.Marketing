@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { Project, User } from '../../../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle } from 'lucide-react';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 
 interface DashboardContext {
@@ -20,6 +20,7 @@ export const ProjectsList: React.FC = () => {
     
     // Modals State
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [showVideoModal, setShowVideoModal] = useState(false);
     
     // --- Nuevo Estado para Protocolo de Desbloqueo ---
     const [showUnlockProtocol, setShowUnlockProtocol] = useState(false);
@@ -134,15 +135,15 @@ export const ProjectsList: React.FC = () => {
                             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
                                 Gestión de <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Proyectos</span>
                             </h1>
-                            <p className="text-white text-lg max-w-xl leading-relaxed">
-                                Los Proyectos son el centro de tu estrategia de Ventas. Define tu nicho, audiencia y enlaces de afiliado. Nuestro sistema usará Inteligencia Artificial para generar contenido que te genere grandes resultados.
+                            <p className="text-gray-400 text-lg max-w-xl leading-relaxed">
+                                Centraliza tus nichos, avatares y enlaces de afiliado. La IA usará estos datos para generar contenido coherente y ventas.
                             </p>
                         </div>
                         
                         {/* Plan Usage Bar */}
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
                             <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-300 font-medium">{isRealAdmin ? 'Páginas (Superusuario)' : 'Proyectos Activos'}</span>
+                                <span className="text-gray-300 font-medium">{isRealAdmin ? 'Proyectos (Superusuario)' : 'Proyectos Activos'}</span>
                                 <span className="text-white font-bold">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
                             </div>
                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -157,45 +158,36 @@ export const ProjectsList: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
-                        {/* Contenedor de Video Interactivo (Embebido directamente) */}
-                        <div 
-                            className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
+                    <div className="flex flex-col gap-3 shrink-0 w-full md:w-auto">
+                        {isAtLimit ? (
+                            <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20"
+                            >
+                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                    <Crown className="w-5 h-5 fill-current" /> 
+                                    Límite Alcanzado: Subir a PRO
+                                </span>
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => navigate('/dashboard/projects/create')}
+                                className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:-translate-y-1"
+                            >
+                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                    <Plus className="w-5 h-5" /> 
+                                    Nuevo Proyecto
+                                </span>
+                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                            </button>
+                        )}
+                        
+                        <button 
+                            onClick={() => setShowVideoModal(true)}
+                            className="px-8 py-3 bg-transparent border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white rounded-xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
                         >
-                            <iframe 
-                                className="w-full h-full rounded-2xl"
-                                src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
-                                title="Video Tutorial" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-
-                        {/* Botones centrados debajo del video */}
-                        <div className="flex flex-col gap-3">
-                            {isAtLimit ? (
-                                <button
-                                    onClick={() => setShowUpgradeModal(true)}
-                                    className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
-                                >
-                                    <span className="relative z-10 flex items-center justify-center gap-2">
-                                        <Crown className="w-5 h-5 fill-current" /> 
-                                        Límite Alcanzado: Subir a PRO
-                                    </span>
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={() => navigate('/dashboard/projects/create')}
-                                    className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:-translate-y-1 w-full"
-                                >
-                                    <span className="relative z-10 flex items-center justify-center gap-2">
-                                        <Plus className="w-5 h-5" /> 
-                                        Nuevo Proyecto
-                                    </span>
-                                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                                </button>
-                            )}
-                        </div>
+                            <PlayCircle className="w-4 h-4" /> ¿Cómo funciona?
+                        </button>
                     </div>
                 </div>
             </div>
@@ -204,6 +196,7 @@ export const ProjectsList: React.FC = () => {
             <div className="space-y-6">
                 <div className="flex items-center gap-3 border-l-4 border-blue-500 pl-4 py-1">
                     <h2 className="text-2xl font-black text-white uppercase tracking-tight">Mis Proyectos</h2>
+                    <span className="bg-blue-500/10 text-blue-400 text-[10px] font-black px-2 py-0.5 rounded border border-blue-500/20 uppercase tracking-widest">{projects.length} activos</span>
                 </div>
                 
                 {projects.length === 0 ? (
@@ -224,9 +217,9 @@ export const ProjectsList: React.FC = () => {
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {projects.map((project) => (
                             <div 
-                                key={project.id} 
-                                onClick={() => navigate(`/dashboard/projects/${project.id}/strategy`)}
-                                className={`bg-[#111] rounded-[2.5rem] border border-white/5 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl ${project.isMaster ? 'border-yellow-500/20 hover:border-yellow-500/40 shadow-yellow-500/5' : ''}`}
+                                key={project.id}
+                                onClick={() => navigate(`/dashboard/projects/edit/${project.id}`)}
+                                className={`bg-[#111] rounded-[2.5rem] border transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl ${project.isMaster ? 'border-yellow-500/20 hover:border-yellow-500/40 shadow-yellow-500/5' : 'border-white/5 hover:border-[#FF5A1F]/30'}`}
                             >
                                 <div className={`absolute top-0 left-0 w-full h-1 opacity-80 ${project.isMaster ? 'bg-gradient-to-r from-yellow-400 to-amber-600' : 'bg-gradient-to-r from-[#FF5A1F] to-orange-600'}`}></div>
                                 
@@ -234,7 +227,7 @@ export const ProjectsList: React.FC = () => {
                                     <div className="flex justify-between items-start mb-6">
                                         {project.isMaster ? (
                                             <div className="bg-yellow-500/10 text-yellow-500 text-[10px] px-3 py-1.5 rounded-full border border-yellow-500/20 font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg">
-                                                <CornerCrown className="w-3 h-3 fill-current" />
+                                                <Crown className="w-3 h-3 fill-current" />
                                                 Estrategia Maestra
                                             </div>
                                         ) : (
@@ -243,20 +236,20 @@ export const ProjectsList: React.FC = () => {
                                                 {project.mainGoal || "General"}
                                             </div>
                                         )}
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <button 
                                                 onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/projects/edit/${project.id}`); }}
-                                                className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
+                                                className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
+                                                title="Editar"
                                             >
                                                 <Edit2 className="w-4 h-4" />
-                                                <span className="text-xs font-bold">Editar</span>
                                             </button>
                                             <button 
                                                 onClick={(e) => handleDelete(project.id, e)}
-                                                className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-red-50 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
+                                                className="p-2.5 bg-red-900/20 hover:bg-red-500 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
+                                                title="Eliminar"
                                             >
                                                 <Trash2 className="w-4 h-4" />
-                                                <span className="text-xs font-bold">Borrar</span>
                                             </button>
                                         </div>
                                     </div>
@@ -272,10 +265,16 @@ export const ProjectsList: React.FC = () => {
                                             disabled={generatingId === project.id}
                                             className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98] ${project.isMaster ? 'bg-yellow-600 hover:bg-yellow-500 text-black shadow-yellow-900/20' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-[#FF5A1F]/20'}`}
                                         >
-                                            <Zap className="w-4 h-4 fill-current" /> Ver Estrategia de Proyecto
+                                            <Zap className="w-4 h-4 fill-current" /> Abrir Centro de Mando
                                         </button>
 
-                                        <div className="flex items-center justify-end pt-2">
+                                        <div className="flex items-center justify-between pt-2">
+                                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                                                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5">
+                                                    <LinkIcon className="w-3.5 h-3.5" /> 
+                                                </div>
+                                                <span>{project.affiliateLinks?.length || 0} Enlaces</span>
+                                            </div>
                                             <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
                                                 <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5">
                                                     <Calendar className="w-3.5 h-3.5" /> 
@@ -318,11 +317,11 @@ export const ProjectsList: React.FC = () => {
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {masterLibrary.map((item) => (
                             <div 
-                                key={item.id} 
-                                className={`bg-[#0B0B0B] border rounded-[2.5rem] p-8 transition-all duration-500 flex flex-col group shadow-2xl relative overflow-hidden ${item.isUnlocked || user.role === 'admin' ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-yellow-500/10 hover:border-yellow-500/40 shadow-[0_0_30px_rgba(234,179,8,0.05)]'}`}
+                                key={item.id}
+                                className="bg-[#0B0B0B] border border-yellow-500/10 rounded-[2.5rem] p-8 hover:border-yellow-500/40 transition-all duration-500 flex flex-col group shadow-2xl relative overflow-hidden"
                             >
                                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover:opacity-[0.08] transition-opacity">
-                                    <CornerCrown className="w-32 h-32 text-yellow-500" />
+                                    <Crown className="w-32 h-32 text-yellow-500" />
                                 </div>
                                 
                                 <div className="flex justify-between items-start mb-8 relative z-10">
@@ -344,36 +343,20 @@ export const ProjectsList: React.FC = () => {
                                 </div>
 
                                 <div className="mt-10 pt-8 border-t border-white/5 relative z-10">
-                                    {(item.isUnlocked || user.role === 'admin') ? (
-                                        <div className="space-y-4">
-                                            <div className="flex items-center justify-center gap-2 text-emerald-400 font-black uppercase text-xs tracking-widest">
-                                                <CheckCircle2 className="w-5 h-5" /> {user.role === 'admin' ? 'Acceso Admin' : 'Desbloqueado'}
-                                            </div>
-                                            <button 
-                                                onClick={(e) => handleViewStrategy(e, item)}
-                                                className="w-full py-4 bg-white/5 border border-white/10 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-white/10 transition-all flex items-center justify-center gap-2"
-                                            >
-                                                Ver Estrategia
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <button 
-                                                onClick={(e) => handleUnlock(item, e)}
-                                                disabled={unlockingId === item.id}
-                                                className="w-full py-5 bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-yellow-900/20 flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-                                            >
-                                                {unlockingId === item.id ? (
-                                                    <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
-                                                ) : (
-                                                    <><Unlock className="w-4 h-4" /> DESBLOQUEAR PROYECTO</>
-                                                )}
-                                            </button>
-                                            <p className="text-center text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-4">
-                                                Consume 1 cupo de proyecto en tu plan
-                                            </p>
-                                        </>
-                                    )}
+                                    <button 
+                                        onClick={(e) => handleUnlock(item, e)}
+                                        disabled={unlockingId === item.id}
+                                        className="w-full py-5 bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-yellow-900/20 flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                                    >
+                                        {unlockingId === item.id ? (
+                                            <><Loader2 className="w-4 h-4 animate-spin" /> Procesando...</>
+                                        ) : (
+                                            <><Unlock className="w-4 h-4" /> Desbloquear Estrategia</>
+                                        )}
+                                    </button>
+                                    <p className="text-center text-[9px] text-gray-600 font-bold uppercase tracking-widest mt-4">
+                                        Consume 1 cupo de proyecto en tu plan
+                                    </p>
                                 </div>
                             </div>
                         ))}
@@ -381,7 +364,7 @@ export const ProjectsList: React.FC = () => {
                 )}
             </div>
 
-            {/* --- PROTOCOLO DE DESBLOQUEO MAESTRO (MODAL INTERCEPTOR REDISEÑADO) --- */}
+            {/* --- PROTOCOLO DE DESBLOQUEO MAESTRO (MODAL INTERCEPTOR) --- */}
             {showUnlockProtocol && selectedMasterProject && (
                 <div 
                     onClick={() => setShowUnlockProtocol(false)}
@@ -389,92 +372,76 @@ export const ProjectsList: React.FC = () => {
                 >
                     <div 
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative max-h-[90vh]"
+                        className="bg-[#0B0B0B] border border-white/10 rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative"
                     >
-                        {/* Línea de acento dorada superior */}
-                        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-yellow-600 via-amber-400 to-yellow-600 shadow-[0_0_15px_rgba(234,179,8,0.5)]"></div>
+                        {/* Línea de acento dorada */}
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-600"></div>
                         
-                        <div className="p-6 md:p-8 space-y-8 flex-1 overflow-y-auto custom-scrollbar">
+                        <div className="p-8 md:p-12 space-y-8 flex-1 overflow-y-auto">
                             <div className="flex flex-col items-center text-center space-y-6">
-                                <div className="w-20 h-20 bg-yellow-500/10 text-yellow-500 rounded-[2rem] flex items-center justify-center mx-auto border border-yellow-500/20 shadow-lg shadow-yellow-900/10 animate-pulse">
-                                    <CornerCrown className="w-10 h-10" />
+                                <div className="w-20 h-20 bg-yellow-500/10 text-yellow-500 rounded-3xl flex items-center justify-center border border-yellow-500/20 shadow-lg shadow-yellow-900/10 animate-pulse">
+                                    <Crown className="w-10 h-10" />
                                 </div>
-                                <div className="space-y-3">
-                                    <h3 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter italic leading-none">Hemos creado todo el ecosistema por ti.</h3>
-                                    <p className="text-yellow-500 font-black uppercase tracking-[0.3em] text-xs">Protocolo de Desbloqueo Maestro Activo</p>
+                                <div className="space-y-2">
+                                    <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight italic">Protocolo de Desbloqueo</h3>
+                                    <p className="text-yellow-500 font-black uppercase tracking-[0.2em] text-xs">Estrategia Maestra Validada</p>
                                 </div>
-                                <p className="text-gray-400 text-lg leading-relaxed font-medium max-w-2xl">
+                                <p className="text-gray-400 text-lg leading-relaxed font-medium">
                                     Estás a punto de adquirir el ADN estratégico completo para <span className="text-white font-bold">"{selectedMasterProject.name}"</span>. 
-                                    Este activo digital incluye avatares, guiones de venta, copys para email y estructura web de alta conversión.
+                                    Este activo incluye avatares, guiones de venta, copys para email y estructura web de alta conversión.
                                 </p>
                             </div>
 
                             {/* Video Informativo Placeholder */}
-                            <div className="aspect-video max-w-lg mx-auto w-full bg-black rounded-[2rem] overflow-hidden border border-white/5 shadow-2xl relative group cursor-pointer">
+                            <div className="aspect-video w-full bg-black rounded-3xl overflow-hidden border border-white/5 shadow-2xl relative group cursor-pointer">
                                 <div className="absolute inset-0 flex items-center justify-center bg-white/5 opacity-50 group-hover:opacity-100 transition-opacity">
-                                    <PlayCircle className="w-16 h-16 text-yellow-500 drop-shadow-[0_0_20px_rgba(234,179,8,0.4)]" />
+                                    <PlayCircle className="w-16 h-16 text-yellow-500" />
                                 </div>
-                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/40 font-black uppercase text-[8px] tracking-widest">Vista previa estratégica del proyecto</div>
+                                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 font-black uppercase text-[10px] tracking-widest">Vista previa del proyecto</div>
                             </div>
 
-                            {/* MAQUINARIA DE VENTAS VISUAL */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 py-2">
-                                {[
-                                    { label: 'Copywriting', icon: PenTool, color: 'text-orange-400' },
-                                    { label: 'Diseño Web', icon: Layout, color: 'text-blue-400' },
-                                    { label: 'Estrategia IA', icon: Sparkles, color: 'text-purple-400' },
-                                    { label: 'Automatización', icon: Rocket, color: 'text-emerald-400' }
-                                ].map((item, i) => (
-                                    <div key={i} className="bg-white/5 border border-white/10 p-4 rounded-2xl flex flex-col items-center text-center gap-2 hover:bg-white/10 transition-colors">
-                                        <item.icon className={`w-5 h-5 ${item.color}`} />
-                                        <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{item.label}</span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Barra de Consumo de Cupos Estilo Premium */}
-                            <div className="bg-black border border-white/5 p-6 rounded-[2rem] shadow-inner relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/50"></div>
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Cupos de Proyecto en tu Plan <span className="text-white">({user.planLimits?.planName})</span></span>
-                                    <span className="text-white font-mono font-bold text-sm">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
+                            {/* Barra de Consumo de Cupos */}
+                            <div className="bg-white/5 border border-white/5 p-8 rounded-[2rem] shadow-inner">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Cupos de Proyecto Utilizados</span>
+                                    <span className="text-white font-bold text-sm">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
                                 </div>
-                                <div className="w-full bg-gray-900 h-3 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
+                                <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
                                     <div 
-                                        className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-[0_0_15px_rgba(234,179,8,0.5)] ${progressColor}`} 
+                                        className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-lg ${progressColor}`} 
                                         style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}
                                     ></div>
                                 </div>
                                 {isAtLimit && (
-                                    <div className="mt-6 flex items-center gap-4 p-4 bg-red-950/20 border border-red-900/30 rounded-2xl">
-                                        <AlertTriangle className="w-6 h-6 text-red-500 shrink-0" />
-                                        <p className="text-red-400 text-sm font-bold leading-snug uppercase tracking-tight">Has alcanzado tu límite máximo de proyectos activos. Debes subir de plan para desbloquear esta estrategia.</p>
+                                    <div className="mt-4 flex items-center gap-3 p-3 bg-red-900/20 border border-red-900/30 rounded-xl">
+                                        <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
+                                        <p className="text-red-400 text-xs font-bold leading-snug">Has alcanzado tu límite. No puedes desbloquear más estrategias.</p>
                                     </div>
                                 )}
                             </div>
                         </div>
 
                         {/* Acciones del Protocolo */}
-                        <div className="p-6 md:p-8 bg-black/60 border-t border-white/5 flex flex-col sm:flex-row gap-4 shrink-0">
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
                             <button 
                                 onClick={() => setShowUnlockProtocol(false)}
-                                className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all border border-white/5"
+                                className="flex-1 py-5 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all"
                             >
                                 No, cancelar
                             </button>
                             {isAtLimit ? (
                                 <button 
                                     onClick={() => { setShowUnlockProtocol(false); setShowUpgradeModal(true); }}
-                                    className="flex-1 py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-orange-900/40 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                                    className="flex-1 py-5 rounded-2xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-orange-900/20 transform hover:scale-105 active:scale-95 transition-all"
                                 >
-                                    Actualizar Plan Pro <ArrowRight className="w-5 h-5" />
+                                    Actualizar Plan <ArrowRight className="w-4 h-4 inline ml-2" />
                                 </button>
                             ) : (
                                 <button 
                                     onClick={handleConfirmUnlock}
-                                    className="flex-1 py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-yellow-900/40 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                                    className="flex-1 py-5 rounded-2xl bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-widest shadow-xl shadow-yellow-900/20 transform hover:scale-105 active:scale-95 transition-all"
                                 >
-                                    <Unlock className="w-5 h-5" /> DESBLOQUEAR PROYECTO
+                                    Sí, desbloquear ahora
                                 </button>
                             )}
                         </div>
@@ -482,18 +449,42 @@ export const ProjectsList: React.FC = () => {
                 </div>
             )}
 
-            {/* MODAL ESCRITURA IA */}
-            {showUpgradeModal && (
-                <UpgradeModal 
-                    isOpen={showUpgradeModal} 
-                    onClose={() => setShowUpgradeModal(false)} 
-                    currentPlan={user.planLimits?.planName}
-                    reason="Has alcanzado el límite de proyectos de tu plan. Actualiza para crear más estrategias."
-                />
+            {/* MODALS */}
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => setShowUpgradeModal(false)} 
+                currentPlan={user.planLimits?.planName}
+                reason="Para gestionar más de un proyecto o nicho necesitas ampliar tu capacidad."
+            />
+
+            {showVideoModal && (
+                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Estrategia de Nichos
+                            </h3>
+                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                                <X className="w-6 h-6"/>
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full">
+                            <iframe 
+                                className="w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                title="Cómo funciona el gestor de proyectos" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                        <div className="p-6 bg-gray-900">
+                            <p className="text-gray-300 text-sm leading-relaxed">
+                                Aprende a organizar tus productos digitales por proyectos para que la Inteligencia Artificial pueda generar estrategias personalizadas para cada nicho de mercado.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
 };
-
-// Se renombra localmente para evitar conflicto con la importación principal de lucide-react si existiera
-const CornerCrown = Crown;

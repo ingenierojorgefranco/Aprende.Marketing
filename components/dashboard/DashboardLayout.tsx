@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
+
+import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket, Smartphone } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket } from 'lucide-react';
+////////// Fin de actualización - 05/06/2025 10:00 //////////
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
 import { UpgradeModal } from './UpgradeModal';
@@ -58,13 +60,19 @@ export const DashboardLayout = ({
         '/dashboard/editor',
         '/dashboard/articles',
         '/dashboard/content-creator',
-        '/dashboard/email',
-        '/dashboard/whatsapp-launch'
+        '/dashboard/email'
     ];
     if (sistemaPrefixes.some(prefix => pathname.startsWith(prefix))) return 'sistema';
     
     // Categoría: CRM
     if (pathname.startsWith('/dashboard/crm')) return 'crm';
+    
+    // Categoría: Herramientas Pro
+    const toolsPrefixes = [
+        '/dashboard/whatsapp',
+        '/dashboard/copy-pro'
+    ];
+    if (toolsPrefixes.some(prefix => pathname.startsWith(prefix))) return 'tools';
     
     return null;
   };
@@ -82,16 +90,13 @@ export const DashboardLayout = ({
     // Lógica para Contenidos Automáticos (incluye creador de contenido)
     if (subPath === '/dashboard/articles' && currentPath.startsWith('/dashboard/content-creator')) return true;
 
-    // Lógica para WhatsApp Lanzamientos
-    if (subPath === '/dashboard/whatsapp-launch' && currentPath.startsWith('/dashboard/whatsapp-launch/create')) return true;
-
     // Default: Empieza por el path
     return currentPath.startsWith(subPath);
   };
   /* Fin de actualización - 22/05/2024 11:30 */
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [expandedMenu, setExpandedMenu] = useState<string | null>('sistema');
+  const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
   const [courseItems, setCourseItems] = useState<{ label: string; path: string; icon: any }[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -173,6 +178,7 @@ export const DashboardLayout = ({
       return { ...user, planLimits: plan.limitsConfig };
   }, [user, simulatedPlanSlug, availablePlans]);
 
+  /* */ /* Actualización: Unificación de todas las herramientas principales en el menú 'Tu Sistema' y limpieza de sub-items de creación - 22/05/2024 18:35 */
   const menuStructure: MenuItem[] = useMemo(() => {
     // Si estamos en modo lanzamiento y no es admin, menú ultra simplificado
     if (systemMode === 'launch' && user.role !== 'admin') {
@@ -200,15 +206,19 @@ export const DashboardLayout = ({
         { id: 'training', label: 'Entrenamiento', icon: GraduationCap, subItems: courseItems },
         { id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
             { label: 'Mis Proyectos', path: '/dashboard/projects', icon: Briefcase },
-            { label: 'Páginas de Captura', path: '/dashboard/pages', icon: FileText },
-            { label: 'Contenidos SEO', path: '/dashboard/articles', icon: BookOpen },
-            { label: 'Email Marketing', path: '/dashboard/email', icon: Mail },
-            ////////// Actualización: Opción de WhatsApp Lanzamientos en el menú lateral - 10/06/2025 10:00 //////////
-            { label: 'WhatsApp Lanzamientos', path: '/dashboard/whatsapp-launch', icon: Smartphone }
+            { label: 'Páginas de Venta', path: '/dashboard/pages', icon: FileText },
+            { label: 'Contenidos Automáticos', path: '/dashboard/articles', icon: BookOpen },
+            { label: 'Email Marketing', path: '/dashboard/email', icon: Mail }
+          ]
+        },
+        { id: 'tools', label: 'Herramientas Pro', icon: Wrench, subItems: [
+            { label: 'WhatsApp CRM', path: '/dashboard/whatsapp', icon: MessageSquare },
+            { label: 'CopySell AI', path: '/dashboard/copy-pro', icon: PenTool }
           ]
         }
       ];
   }, [systemMode, user.role, courseItems]);
+  /* Fin de actualización - 22/05/2024 18:35 */
 
   const NavItemRender: React.FC<{ item: MenuItem }> = ({ item }) => {
     if (item.adminOnly && user.role !== 'admin') return null;
@@ -256,9 +266,11 @@ export const DashboardLayout = ({
 
   const currentPlan = effectiveUser.planLimits?.planName || 'starter';
 
+  ////////// Función para manejar el envío del formulario de ayuda - 05/06/2025 10:00 //////////
   const handleHelpSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSendingHelp(true);
+    // Simulación de envío al equipo de soporte
     setTimeout(() => {
         setSendingHelp(false);
         setHelpSuccess(true);
@@ -269,6 +281,7 @@ export const DashboardLayout = ({
         }, 2000);
     }, 1500);
   };
+  ////////// Fin de actualización - 05/06/2025 10:00 //////////
 
   if (loadingMode) {
       return (
@@ -278,6 +291,7 @@ export const DashboardLayout = ({
       );
   }
 
+  // Lógica de visualización Modo Lanzamiento
   const isLaunchRestricted = systemMode === 'launch' && user.role !== 'admin';
 
   return (
@@ -295,6 +309,8 @@ export const DashboardLayout = ({
         </div>
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">{menuStructure.map(item => <NavItemRender key={item.id} item={item} />)}</nav>
         
+        {/* ////////// Eliminación del botón únete a la comunidad del sidebar por solicitud del usuario - 06/06/2025 10:45 ////////// */}
+
         {user.role === 'admin' && (
             <div className="mt-auto px-6 py-2">
                 <div className="bg-[#FF5A1F]/5 border border-[#FF5A1F]/20 p-3 rounded-xl">
@@ -335,6 +351,7 @@ export const DashboardLayout = ({
                  <h2 className="text-xl font-bold text-white hidden sm:block">Hola, {effectiveUser.name.split(' ')[0]} 👋</h2>
              </div>
              
+             {/* ////////// Unificación visual de botones del header con bolita naranja e icono - 06/06/2025 10:45 ////////// */}
              <div className="flex items-center gap-2 sm:gap-4">
                  <a 
                     href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1"
@@ -373,6 +390,7 @@ export const DashboardLayout = ({
                      <span className="text-sm font-bold uppercase tracking-wider hidden lg:inline">Salir</span>
                  </button>
              </div>
+             {/* ////////// Fin de actualización - 06/06/2025 10:45 ////////// */}
         </header>
 
         <div className="flex-1 overflow-auto bg-black p-4 sm:p-8 relative">
@@ -393,6 +411,7 @@ export const DashboardLayout = ({
         </div>
       </main>
 
+      {/* ////////// Ventana Modal de Ayuda Integrada - 05/06/2025 10:00 ////////// */}
       {showHelpModal && (
         <div 
             onClick={() => !sendingHelp && setShowHelpModal(false)}
@@ -488,6 +507,7 @@ export const DashboardLayout = ({
             </div>
         </div>
       )}
+      {/* ////////// Fin de actualización - 05/06/2025 10:00 ////////// */}
 
       <Suspense fallback={null}>{showProfileModal && <UserProfileModal user={effectiveUser} onClose={() => setShowProfileModal(false)} onUpdateUser={onUpdateUser!} />}</Suspense>
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} currentPlan={effectiveUser.planLimits?.planName} />

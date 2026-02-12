@@ -1,6 +1,6 @@
-import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch } from "../types";
-import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES, MOCK_MASTER_STRATEGY } from "./mockData";
-import { ProjectMasterStrategy } from "./strategySchema";
+import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage } from "../types";
+import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES } from "./mockData";
+import { ProjectMasterStrategy, MOCK_MASTER_STRATEGY } from "./strategySchema";
 
 // --- HELPER PARA OBTENER BASE URL ---
 const getBaseUrl = () => {
@@ -72,7 +72,6 @@ const apiCache: {
     publicPages: Record<string, LandingPage | null>;
     masterStrategies: Record<string, ProjectMasterStrategy | null>;
     emailSequences: EmailSequence[] | null;
-    waLaunches: WhatsAppLaunch[] | null;
 } = {
     pages: null,
     projects: null,
@@ -113,8 +112,7 @@ const apiCache: {
     siteAnalysis: {},
     publicPages: {},
     masterStrategies: {},
-    emailSequences: null,
-    waLaunches: null
+    emailSequences: null
 };
 
 const clearCache = (key?: keyof typeof apiCache, id?: string) => {
@@ -183,7 +181,6 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.publicPages = {};
         apiCache.masterStrategies = {};
         apiCache.emailSequences = null;
-        apiCache.waLaunches = null;
     }
 };
 
@@ -415,7 +412,7 @@ export const api = {
           const data = await fetchWithFallback(endpoint);
           const normalized: LandingPage = {
               id: data.id?.toString() ?? slug,
-              name: data.name || "Landing no encontrada",
+              name: data.name || "Landing sin título",
               niche: data.niche || "",
               goal: data.goal || "",
               isPublished: !!data.is_published,
@@ -468,8 +465,7 @@ export const api = {
             niche: page.niche,
             content: page.content,
             isPublished: page.isPublished,
-            projectId: page.projectId,
-            subdomain: page.subdomain
+            projectId: page.projectId
         })
     });
     clearCache('pages');
@@ -505,7 +501,7 @@ export const api = {
               id: String(p.id),
               painPoints: safeParseJsonList(p.pain_points),
               keyBenefits: safeParseJsonList(p.key_benefits),
-              affiliateLinks: safeParseJsonList(p.affiliate_links),
+              affiliate_links: safeParseJsonList(p.affiliate_links),
               strategy_json: strategyObj, 
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
@@ -533,20 +529,16 @@ export const api = {
         method: 'GET',
         headers: getAuthHeaders()
     });
-    const mapped = projects.map((p: any) => {
-        const strategyObj = safeJsonParse(p.strategy_json, 'proj.masterStrategy');
-        return {
-            ...p,
-            id: String(p.id),
-            painPoints: safeParseJsonList(p.pain_points),
-            keyBenefits: safeParseJsonList(p.key_benefits),
-            affiliateLinks: safeParseJsonList(p.affiliate_links),
-            strategy_json: strategyObj,
-            shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
-            isMaster: true,
-            createdAt: new Date(p.created_at)
-        };
-    });
+    const mapped = projects.map((p: any) => ({
+        ...p,
+        id: String(p.id),
+        painPoints: safeParseJsonList(p.pain_points),
+        keyBenefits: safeParseJsonList(p.key_benefits),
+        affiliateLinks: safeParseJsonList(p.affiliate_links),
+        strategy_json: safeJsonParse(p.strategy_json, 'proj.masterStrategy'),
+        isMaster: true,
+        createdAt: new Date(p.created_at)
+    }));
     apiCache.masterLibrary = mapped;
     return mapped;
   },
@@ -600,11 +592,7 @@ export const api = {
   },
 
   getProjectStrategy: async (id: string): Promise<ProjectMasterStrategy | null> => {
-      if (isMockMode) {
-          const proj = localProjects.find(p => p.id === id);
-          if (proj && proj.strategy_json) return Promise.resolve(proj.strategy_json as ProjectMasterStrategy);
-          return Promise.resolve(MOCK_MASTER_STRATEGY);
-      }
+      if (isMockMode) return Promise.resolve(MOCK_MASTER_STRATEGY);
       if (apiCache.masterStrategies[id]) return apiCache.masterStrategies[id];
       try {
           const project = await api.getProjectById(id);
@@ -638,8 +626,6 @@ export const api = {
     updateProject: async (id: string, project: Omit<Project, 'id' | 'createdAt'>): Promise<void> => {
         if (isMockMode) {
             localProjects = localProjects.map(p => p.id === id ? { ...project, id, createdAt: p.createdAt } : p);
-            clearCache('projectDetails', id);
-            clearCache('masterStrategies', id);
             return Promise.resolve();
         }
         await fetchWithFallback(`/projects/${id}`, {
@@ -662,56 +648,6 @@ export const api = {
         clearCache('projectDetails', id);
         clearCache('userUsageStats');
         clearCache('masterStrategies', id);
-    },
-
-    updateProjectTestimonials: async (projectId: string, testimonials: any[]): Promise<void> => {
-        if (isMockMode) {
-            const project = localProjects.find(p => p.id === projectId);
-            if (!project) return;
-            const strategy = project.strategy_json || { modules: { testimonials: [] } };
-            if (!strategy.modules) strategy.modules = {};
-            strategy.modules.testimonials = testimonials;
-            project.strategy_json = strategy;
-            
-            localPages = localPages.map(page => {
-                if (String(page.projectId) === String(projectId)) {
-                    return { ...page, content: { ...page.content, testimonials: testimonials.map((t: any) => ({
-                        name: t.name,
-                        text: t.text,
-                        rating: 5,
-                        image: t.image
-                    })) }};
-                }
-                return page;
-            });
-            clearCache('projectDetails', projectId);
-            clearCache('masterStrategies', projectId);
-            return;
-        }
-
-        const project = await api.getProjectById(projectId);
-        if (!project) throw new Error("Proyecto no encontrado");
-        
-        const strategy = project.strategy_json || { modules: { testimonials: [] } };
-        if (!strategy.modules) strategy.modules = {};
-        strategy.modules.testimonials = testimonials;
-        
-        await api.updateProject(projectId, { ...project, strategy_json: strategy } as any);
-
-        const allPages = await api.getPages();
-        const linkedPages = allPages.filter(p => String(p.projectId) === String(projectId));
-        
-        for (const page of linkedPages) {
-            const updatedContent = { ...page.content, testimonials: testimonials.map(t => ({
-                name: t.name,
-                text: t.text,
-                rating: 5,
-                image: t.image
-            }))};
-            await api.updatePage({ ...page, content: updatedContent });
-        }
-        clearCache('projectDetails', projectId);
-        clearCache('masterStrategies', projectId);
     },
   
     analyzeSite: async (url: string): Promise<{ productName: string, description: string, niche: string }> => {
@@ -802,7 +738,7 @@ export const api = {
         if (isMockMode) return Promise.resolve([...localArticles]);
         if (apiCache.articles) return apiCache.articles;
 
-        const articles = await fetchWithFallback('/articles', { method: 'GET', headers: getAuthHeaders() });
+        const articles = await fetchWithFallback('/articles', { headers: getAuthHeaders() });
         const mapped = articles.map((a: any) => ({
             id: a.id.toString(),
             pageId: a.page_id ? a.page_id.toString() : undefined,
@@ -856,7 +792,7 @@ export const api = {
   
     saveArticle: async (article: Omit<Article, 'id' | 'createdAt'>): Promise<Article> => {
         if (isMockMode) {
-            const newArticle: Article = { ...article, id: `mock-art-${Date.now()}`, createdAt: new Date() } as any;
+            const newArticle: Article = { ...article, id: `mock-art-${Date.now()}`, createdAt: new Date() };
             localArticles.unshift(newArticle);
             return Promise.resolve(newArticle);
         }
@@ -880,7 +816,7 @@ export const api = {
         });
         clearCache('articles');
         clearCache('userUsageStats');
-        return { ...article, id: saved.id.toString(), createdAt: new Date() } as any;
+        return { ...article, id: saved.id.toString(), createdAt: new Date() };
     },
   
     updateArticle: async (id: string, article: Partial<Article>): Promise<void> => {
@@ -897,7 +833,6 @@ export const api = {
                 slug: article.slug,
                 description: article.description,
                 content_html: article.contentHtml,
-                // Corregido: se usa featuredImage para coincidir con la interfaz Partial<Article>
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
@@ -1212,48 +1147,8 @@ export const api = {
     getPublicPlans: async (): Promise<Plan[]> => {
         if (isMockMode) {
             return Promise.resolve([
-                { 
-                  id: 'starter', 
-                  name: 'Starter', 
-                  slug: 'starter', 
-                  description: '...', 
-                  priceMonthly: 0, 
-                  currency: 'EUR', 
-                  limitsConfig: { 
-                    planName: 'starter', 
-                    maxProjects: 1, 
-                    maxLandings: 3, 
-                    maxArticles: 2, 
-                    maxDomains: 1, 
-                    maxEmailSequences: 1,
-                    maxWhatsAppLaunches: 1, 
-                    features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } 
-                  }, 
-                  uiFeatures: ['...'], 
-                  isActive: true, 
-                  isRecommended: false 
-                },
-                { 
-                  id: 'pro', 
-                  name: 'Pro', 
-                  slug: 'pro', 
-                  description: '...', 
-                  priceMonthly: 19.99, 
-                  currency: 'EUR', 
-                  limitsConfig: { 
-                    planName: 'pro', 
-                    maxProjects: 5, 
-                    maxLandings: 20, 
-                    maxArticles: 20, 
-                    maxDomains: 3, 
-                    maxEmailSequences: 5,
-                    maxWhatsAppLaunches: 5, 
-                    features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } 
-                  }, 
-                  uiFeatures: ['...'], 
-                  isActive: true, 
-                  isRecommended: true 
-                }
+                { id: 'starter', name: 'Starter', slug: 'starter', description: '...', priceMonthly: 0, currency: 'EUR', limitsConfig: { planName: 'starter', maxProjects: 1, maxLandings: 3, maxDomains: 1, features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } }, uiFeatures: ['...'], isActive: true, isRecommended: false },
+                { id: 'pro', name: 'Pro', slug: 'pro', description: '...', priceMonthly: 19.99, currency: 'EUR', limitsConfig: { planName: 'pro', maxProjects: 5, maxLandings: 20, maxDomains: 3, features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } }, uiFeatures: ['...'], isActive: true, isRecommended: true }
             ]);
         }
         if (apiCache.publicPlans) return apiCache.publicPlans;
@@ -1549,77 +1444,6 @@ export const api = {
             body: JSON.stringify(data)
         });
         clearCache('emailSequences');
-    },
-
-    getWhatsAppLaunches: async (): Promise<WhatsAppLaunch[]> => {
-        if (isMockMode) return [];
-        if (apiCache.waLaunches) return apiCache.waLaunches;
-        const data = await fetchWithFallback('/whatsapp-launch/launches', { headers: getAuthHeaders() });
-        const mapped = data.map((l: any) => ({
-            ...l,
-            id: String(l.id),
-            projectId: String(l.project_id),
-            projectName: l.project_name,
-            createdAt: new Date(l.created_at),
-            messages: typeof l.data_json === 'string' ? JSON.parse(l.data_json) : (l.data_json || []),
-            launchDate: l.launch_date ? new Date(l.launch_date) : undefined
-        }));
-        apiCache.waLaunches = mapped;
-        return mapped;
-    },
-
-    getWhatsAppLaunchByProject: async (projectId: string): Promise<WhatsAppLaunch | null> => {
-        if (isMockMode) return null;
-        try {
-            const l = await fetchWithFallback(`/whatsapp-launch/launches/by-project/${projectId}`, { headers: getAuthHeaders() });
-            return {
-                ...l,
-                id: String(l.id),
-                projectId: String(l.project_id),
-                projectName: l.project_name,
-                createdAt: new Date(l.created_at),
-                messages: typeof l.data_json === 'string' ? JSON.parse(l.data_json) : (l.data_json || []),
-                launchDate: l.launch_date ? new Date(l.launch_date) : undefined
-            };
-        } catch (e) {
-            return null;
-        }
-    },
-
-    createWhatsAppLaunch: async (projectId: string, name?: string): Promise<{ id: string }> => {
-        if (isMockMode) return Promise.resolve({ id: 'mock-wa-1' });
-        const res = await fetchWithFallback('/whatsapp-launch/launches', {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ projectId, name })
-        });
-        clearCache('waLaunches');
-        return res;
-    },
-
-    updateWhatsAppLaunch: async (launchId: string, data: Partial<WhatsAppLaunch>) => {
-        if (isMockMode) return Promise.resolve();
-        const payload = { ...data };
-        if (payload.messages) {
-            (payload as any).data_json = JSON.stringify(payload.messages);
-            delete payload.messages;
-        }
-        if (payload.launchDate) {
-            (payload as any).launch_date = typeof payload.launchDate === 'string' ? payload.launchDate : (payload.launchDate as Date).toISOString().split('T')[0];
-            delete payload.launchDate;
-        }
-        await fetchWithFallback(`/whatsapp-launch/launches/${launchId}`, {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(payload)
-        });
-        clearCache('waLaunches');
-    },
-
-    deleteWhatsAppLaunch: async (id: string) => {
-        if (isMockMode) return Promise.resolve();
-        await fetchWithFallback(`/whatsapp-launch/launches/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
-        clearCache('waLaunches');
     },
 
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,

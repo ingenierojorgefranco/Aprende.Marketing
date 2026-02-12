@@ -1,9 +1,9 @@
+
 import React, { useEffect, useState } from 'react';
 import { GeneratedPageContent, StructureType } from '../types';
 import { api } from '../services/api';
 import { SingleBlog } from './landingpage/blog/SingleBlog';
 import { LiveThankYouPage } from './landingpage/LiveThankYouPage';
-import { LiveLegalPage } from './landingpage/LiveLegalPage';
 import { getDesignSystem } from './landingpage/designSystem';
 import { Navbar, Footer } from './landingpage/ui/LiveComponents';
 import { ClassicSalesTemplate } from './landingpage/templates/ClassicSalesTemplate';
@@ -15,7 +15,7 @@ interface LivePageProps {
   content: GeneratedPageContent;
   isMobilePreview?: boolean;
   pageId?: string;
-  viewMode?: 'home' | 'blog-list' | 'blog-post' | 'thank-you' | 'privacy' | 'terms';
+  viewMode?: 'home' | 'blog-list' | 'blog-post' | 'thank-you';
   articleSlug?: string;
   basePath?: string;
 }
@@ -94,22 +94,6 @@ export const LivePage: React.FC<LivePageProps> = ({
   // --- THANK YOU PAGE RENDER ---
   if (viewMode === 'thank-you') {
       return <LiveThankYouPage content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />;
-  }
-
-  // --- LEGAL PAGES RENDER ---
-  if (viewMode === 'privacy' || viewMode === 'terms') {
-      return (
-          <div className={`min-h-screen font-sans selection:bg-pink-500 selection:text-white ${ds.bg} scroll-smooth relative overflow-hidden`}>
-              <div className={`absolute inset-0 ${ds.hero.bgGradient} opacity-100 z-0`}></div>
-              <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full blur-[120px] opacity-30 pointer-events-none ${ds.blobColor}`}></div>
-              
-              <div className="relative z-10">
-                  <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />
-                  <LiveLegalPage content={content} ds={ds} type={viewMode} />
-                  <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
-              </div>
-          </div>
-      );
   }
 
   // --- BLOG VIEW RENDER ---

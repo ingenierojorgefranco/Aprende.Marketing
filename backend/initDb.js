@@ -256,22 +256,6 @@ const initDb = async () => {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
         /* Fin de actualización - 24/06/2024 16:20 */
 
-        ////////// Actualización: Tabla única whatsapp_lanzamientos con columna JSON - 10/06/2025 11:15 //////////
-        await connection.query(`CREATE TABLE IF NOT EXISTS whatsapp_lanzamientos (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id ${userIdType} NOT NULL,
-            project_id INT NOT NULL,
-            name VARCHAR(255) NOT NULL,
-            status VARCHAR(50) DEFAULT 'borrador',
-            data_json LONGTEXT, -- Almacena el array de los 14 momentos inmersos
-            launch_date DATE, -- Añadido: Fecha de lanzamiento persistente
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
-        ////////// Fin de actualización - 10/06/2025 11:15 //////////
-
         ////////// Actualización: Tabla para seguimiento de Proyectos Maestros desbloqueados - 05/03/2025 10:00 //////////
         await connection.query(`CREATE TABLE IF NOT EXISTS unlocked_projects (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -437,11 +421,6 @@ const initDb = async () => {
 
         // NEW: PROJECT ID IN LANDING PAGES
         await addColumnSafe(connection, 'landing_pages', "project_id INT NULL");
-
-        ////////// Migración para WhatsApp Lanzamientos: Fecha de inicio persistente //////////
-        await addColumnSafe(connection, 'whatsapp_lanzamientos', "launch_date DATE");
-        ////////// Fin de migración //////////
-
         try {
             // Attempt to add FK. If it fails (exists), ignore.
             await connection.query(`ALTER TABLE landing_pages ADD CONSTRAINT fk_landing_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL`);
@@ -491,9 +470,6 @@ const initDb = async () => {
                         maxProjects: 1,
                         maxLandings: 2, 
                         maxArticles: 2, 
-                        maxDomains: 1, 
-                        maxEmailSequences: 1,
-                        maxWhatsAppLaunches: 1,
                         features: { 
                             whatsappBot: false, 
                             blogGenerator: false, 
@@ -517,9 +493,6 @@ const initDb = async () => {
                         maxProjects: 5,
                         maxLandings: 20,
                         maxArticles: 20,
-                        maxDomains: 3, 
-                        maxEmailSequences: 5,
-                        maxWhatsAppLaunches: 5,
                         features: { 
                             whatsappBot: true, 
                             blogGenerator: true, 
@@ -543,9 +516,6 @@ const initDb = async () => {
                         maxProjects: 100,
                         maxLandings: 500,
                         maxArticles: 500,
-                        maxDomains: 10, 
-                        maxEmailSequences: 50,
-                        maxWhatsAppLaunches: 50,
                         features: { 
                             whatsappBot: true, 
                             blogGenerator: true, 
@@ -605,7 +575,7 @@ const initDb = async () => {
 
             const pointsM3 = JSON.stringify(['Hotmart setup', 'Subida de archivos', 'Checkout']);
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-                [m3.insertId, 'Registro y Configuración de Cuenta', '08:00', 'https://www.youtube.com/embed/dQw4w9XcQ?rel=0&autoplay=1', 'Primeros pasos en la plataforma.', pointsM3, 1]);
+                [m3.insertId, 'Registro y Configuración de Cuenta', '08:00', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1', 'Primeros pasos en la plataforma.', pointsM3, 1]);
             await connection.query(`INSERT INTO course_lessons (module_id, title, duration, video_url, description, learning_points, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)`, 
                 [m3.insertId, 'Subiendo tu Producto Paso a Paso', '25:00', 'https://www.youtube.com/embed/dQw4w9XcQ?rel=0&autoplay=1', 'Configuración técnica.', pointsM3, 2]);
 
