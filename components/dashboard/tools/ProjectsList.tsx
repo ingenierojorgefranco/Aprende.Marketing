@@ -579,39 +579,71 @@ export const ProjectsList: React.FC = () => {
                                         <CornerCrown className="w-10 h-10" />
                                     </div>
                                     <div className="space-y-3">
-                                        <h3 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter italic leading-none">Hemos creado todo el ecosistema por ti.</h3>
-                                        <p className="text-yellow-500 font-black uppercase tracking-[0.3em] text-xs">Protocolo de Desbloqueo Maestro Activo</p>
+                                        <h3 className="text-2xl md:text-4xl font-black text-white leading-none">COPIA NUESTRA ESTRATEGIA Y MEJORA TUS RESULTADOS</h3>
+                                        <p className="text-yellow-500 pt-3 text-[1.2em] leading-[1.6em]">Sabemos lo frustrante y dificil que es crear tu propio negocio por Internet</p>
                                     </div>
-                                    <p className="text-gray-400 text-lg leading-relaxed font-medium max-w-2xl">
-                                        Estás a punto de adquirir el ADN estratégico completo para <span className="text-white font-bold">"{selectedMasterProject.name}"</span>. 
-                                        Este activo digital incluye avatares, guiones de venta, copys para email y estructura web de alta conversión.
-                                    </p>
+                                    <div className="space-y-4">
+                                        <p className="text-white text-[1.2rem] leading-[1.6em] font-normal max-w-2xl mx-auto">
+                                            ¿Pero que pensarias si te dijese que nuestro equipo de profesionales ha diseñado para ti la mejor estrategia para empieces a recomendar en minutos el producto digital "{selectedMasterProject.name}"?
+                                        </p>
+                                        <p className="text-white text-[1.2rem] leading-[1.6em] font-normal max-w-2xl mx-auto">
+                                            Nuestra estratrategia incluye avatares, guiones de venta, copys para email y estructura web de alta conversión.
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <div className="aspect-video max-w-lg mx-auto w-full bg-black rounded-[2rem] overflow-hidden border border-white/5 shadow-2xl relative group cursor-pointer">
-                                    <div className="absolute inset-0 flex items-center justify-center bg-white/5 opacity-50 group-hover:opacity-100 transition-opacity">
-                                        <PlayCircle className="w-16 h-16 text-yellow-500 drop-shadow-[0_0_20px_rgba(234,179,8,0.4)]" />
-                                    </div>
-                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/40 font-black uppercase text-[8px] tracking-widest">Vista previa estratégica del proyecto</div>
+                                    <iframe 
+                                        className="w-full h-full rounded-2xl"
+                                        src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                                        title="Video Preview" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowFullScreen
+                                    ></iframe>
                                 </div>
 
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 py-2">
+                                <div className="flex flex-col gap-4 py-2">
                                     {[
-                                        { label: 'Copywriting', icon: PenTool, color: 'text-orange-400' },
-                                        { label: 'Diseño Web', icon: Layout, color: 'text-blue-400' },
-                                        { label: 'Estrategia IA', icon: Sparkles, color: 'text-purple-400' },
-                                        { label: 'Automatización', icon: Rocket, color: 'text-emerald-400' }
+                                        { 
+                                            label: 'Copywriting', 
+                                            icon: PenTool, 
+                                            color: 'text-orange-400',
+                                            desc: 'Escritura persuasiva de alto nivel diseñada para tocar las fibras emocionales de tu cliente y forzar la decisión de compra sin sonar como un vendedor pesado.'
+                                        },
+                                        { 
+                                            label: 'Diseño Web', 
+                                            icon: Layout, 
+                                            color: 'text-blue-400',
+                                            desc: 'Estructuras de alta conversión probadas y optimizadas para móviles, asegurando que cada visita tenga la mayor probabilidad de convertirse en un registro.'
+                                        },
+                                        { 
+                                            label: 'Estrategia IA', 
+                                            icon: Sparkles, 
+                                            color: 'text-purple-400',
+                                            desc: 'Inteligencia artificial avanzada que analiza tu nicho específico para crear ganchos y ángulos de venta únicos que tu competencia ni siquiera imagina.'
+                                        },
+                                        { 
+                                            label: 'Automatización', 
+                                            icon: Rocket, 
+                                            color: 'text-emerald-400',
+                                            desc: 'Sincronización total de tu embudo para que los prospectos fluyan desde tu página hasta tu WhatsApp sin que tengas que mover un solo dedo.'
+                                        }
                                     ].map((item, i) => (
-                                        <div key={i} className="bg-white/5 border border-white/10 p-4 rounded-2xl flex flex-col items-center text-center gap-2 hover:bg-white/10 transition-colors">
-                                            <item.icon className={`w-5 h-5 ${item.color}`} />
-                                            <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{item.label}</span>
+                                        <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-3xl flex flex-col md:flex-row items-center gap-6 hover:bg-white/10 transition-all group">
+                                            <div className={`p-4 rounded-2xl bg-black/40 ${item.color} shadow-lg shrink-0`}>
+                                                <item.icon className="w-8 h-8" />
+                                            </div>
+                                            <div className="text-center md:text-left">
+                                                <h5 className="text-white font-black text-xl mb-2 uppercase tracking-tight">{item.label}</h5>
+                                                <p className="text-white text-[1.2rem] leading-[1.6em] font-normal opacity-80">{item.desc}</p>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
                                 
                                 <div className="p-6 md:p-8 bg-black/60 border-t border-white/5 flex flex-col sm:flex-row gap-4 shrink-0">
-                                    <button onClick={() => setShowUnlockProtocol(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all border border-white/5">No, cancelar</button>
-                                    <button onClick={handleNextToConfirm} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-black font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-yellow-900/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"><Unlock className="w-5 h-5" /> DESBLOQUEAR PROYECTO</button>
+                                    <button onClick={() => setShowUnlockProtocol(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all border border-white/5">Cancelar</button>
+                                    <button onClick={handleNextToConfirm} className="flex-1 py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#FF5A1F]/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"><Unlock className="w-5 h-5" /> DESBLOQUEAR</button>
                                 </div>
                             </div>
                         )}
@@ -624,7 +656,7 @@ export const ProjectsList: React.FC = () => {
                                     </div>
                                     <div className="space-y-2">
                                         <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirmar Consumo de Créditos</h3>
-                                        <p className="text-gray-400 text-lg leading-relaxed font-medium">Al desbloquear esta estrategia maestra se consumirá 1 cupo de proyecto de tu plan actual.</p>
+                                        <p className="text-gray-400 text-lg leading-relaxed font-medium max-w-xl">Al desbloquear esta estrategia maestra se consumirá 1 cupo de proyecto de tu plan actual.</p>
                                     </div>
                                 </div>
 
