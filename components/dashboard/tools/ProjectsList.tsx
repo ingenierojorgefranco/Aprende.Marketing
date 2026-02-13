@@ -400,7 +400,7 @@ export const ProjectsList: React.FC = () => {
                                         </div>
                                         
                                         <h3 className={`text-2xl font-black mb-3 line-clamp-1 group-hover:text-primary transition-colors duration-300 ${isClonedFromMaster ? 'text-yellow-400' : 'text-white'}`}>{project.name}</h3>
-                                        <p className="text-[1.2rem] text-gray-400 mb-8 min-h-[56px] leading-relaxed line-clamp-2">
+                                        <p className="text-[1.2rem] text-white mb-8 min-h-[56px] leading-relaxed line-clamp-2">
                                             {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción definida.")}
                                         </p>
 
@@ -483,16 +483,35 @@ export const ProjectsList: React.FC = () => {
                                         <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${isAlreadyUnlocked ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-emerald-900/10' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500 shadow-yellow-900/10'}`}>
                                             <Sparkles className="w-8 h-8" />
                                         </div>
-                                        <div className="flex items-center gap-1.5 px-3 py-1 bg-black/60 rounded-full border border-white/10 text-[9px] font-black text-gray-500 uppercase tracking-widest">
-                                            <Target className="w-3 h-3" /> {item.niche}
-                                        </div>
+                                        {user.role === 'admin' ? (
+                                            <div className="flex gap-2">
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/projects/edit/${item.id}`); }}
+                                                    className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
+                                                >
+                                                    <Edit2 className="w-4 h-4" />
+                                                    <span className="text-xs font-bold">Editar</span>
+                                                </button>
+                                                <button 
+                                                    onClick={(e) => handleDelete(item, e)}
+                                                    className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-red-50 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                    <span className="text-xs font-bold">Borrar</span>
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-1.5 px-3 py-1 bg-black/60 rounded-full border border-white/10 text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                                                <Target className="w-3 h-3" /> {item.niche}
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="flex-1 space-y-4 relative z-10">
                                         <h4 className={`text-2xl font-black tracking-tight leading-tight transition-colors ${isAlreadyUnlocked ? 'text-emerald-400' : 'text-white group-hover:text-yellow-400'}`}>
                                             {item.name}
                                         </h4>
-                                        <p className="text-gray-400 text-base leading-relaxed line-clamp-3">
+                                        <p className="text-[1.2rem] text-white mb-8 min-h-[56px] leading-relaxed line-clamp-2">
                                             {item.shortDescription || (item.description ? item.description.replace(/<[^>]*>?/gm, '') : "Estrategia validada para lanzamientos.")}
                                         </p>
                                     </div>
