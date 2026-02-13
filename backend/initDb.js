@@ -401,6 +401,7 @@ const initDb = async () => {
         await addColumnSafe(connection, 'projects', "commission_rate DECIMAL(5,4) DEFAULT 0");
         await addColumnSafe(connection, 'projects', "lead_magnet_type VARCHAR(100)");
         await addColumnSafe(connection, 'projects', "sales_page_url VARCHAR(500)");
+        await addColumnSafe(connection, 'projects', "lead_magnet_url VARCHAR(500)");
         ////////// Actualización: Columna para marcar proyectos maestros - 05/03/2025 10:00 //////////
         await addColumnSafe(connection, 'projects', "is_master BOOLEAN DEFAULT FALSE");
         ////////// Fin de actualización - 05/03/2025 10:00 //////////
@@ -572,7 +573,7 @@ const initDb = async () => {
                             evergreenStrategy: true // Both enabled
                         }
                     }),
-                    features: JSON.stringify(['Ilimitado', 'Soporte Prioritario', 'API Access', 'Todo Incluido', 'Estrategia Email Completa (30 Días)']),
+                    features: JSON.stringify(['Ilimitado', 'Soporte Prioritario', 'API Access', 'Todo Incluido', 'Estrategia Email completa (30 Días)']),
                     is_rec: false
                 }
             ];
