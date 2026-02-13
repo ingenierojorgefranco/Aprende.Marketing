@@ -271,8 +271,8 @@ const safeJsonParse = (data: any, fieldName: string = 'unknown') => {
 };
 
 export const api = {
-  getBaseUrl: getBaseUrl,
-  
+  getBaseUrl,
+
   enableMockMode: () => {
       isMockMode = true;
       console.log("🟡 MODO MOCK ACTIVADO: Usando datos locales de prueba.");
@@ -411,8 +411,8 @@ export const api = {
       if (apiCache.publicPages[cacheKey]) return apiCache.publicPages[cacheKey];
 
       let endpoint = userSlug 
-          ? `/public/pages/by-user/${encodeURIComponent(userSlug)}/${encodeURIComponent(slug)}`
-          : `/public/pages/${encodeURIComponent(slug)}`;
+          ? `/api/public/pages/by-user/${encodeURIComponent(userSlug)}/${encodeURIComponent(slug)}`
+          : `/api/public/pages/${encodeURIComponent(slug)}`;
 
       try {
           const data = await fetchWithFallback(endpoint);
@@ -554,11 +554,12 @@ export const api = {
     return mapped;
   },
 
-  unlockProject: async (projectId: string): Promise<{ id: string }> => {
+  unlockProject: async (projectId: string, userData: any): Promise<{ id: string }> => {
     if (isMockMode) return { id: 'mock-id' };
     const res = await fetchWithFallback(`/projects/unlock/${projectId}`, {
         method: 'POST',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        body: JSON.stringify(userData)
     });
     clearCache('projects');
     clearCache('masterLibrary');
@@ -1335,7 +1336,7 @@ export const api = {
         const activities = await fetchWithFallback(`/crm/contacts/${contactId}/history`, { headers: getAuthHeaders() });
         const mapped = activities.map((a: any) => ({
             id: a.id.toString(),
-            contact_id: a.contact_id.toString(),
+            contactId: a.contact_id.toString(),
             type: a.type,
             content: a.content,
             createdAt: new Date(a.created_at)

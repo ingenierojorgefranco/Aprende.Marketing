@@ -1,4 +1,3 @@
-
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
@@ -65,6 +64,8 @@ router.get('/master-library', async (req, res) => {
 
 router.post('/unlock/:id', async (req, res) => {
     const projectId = req.params.id;
+    const { leadMagnetUrl, affiliateLinks } = req.body;
+
     try {
         // 1. Buscar los datos base del proyecto maestro
         const [projRows] = await pool.query('SELECT * FROM projects WHERE id = ? AND is_master = 1', [projectId]);
@@ -87,10 +88,29 @@ router.post('/unlock/:id', async (req, res) => {
         }
 
         // 3. Crear un nuevo proyecto independiente para el usuario (copia física del ADN base)
+        // Sobrescribimos affiliate_links y lead_magnet_url con los datos proporcionados por el usuario
         const [result] = await pool.query(
-            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, sales_page_url, is_master, master_parent_id, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, NOW(), NOW())`,
-            [req.user.id, master.name, master.niche, master.description, master.target_audience, master.brand_tone, master.product_name, master.main_goal, master.pain_points, master.key_benefits, master.affiliate_links, master.full_price, master.commission_rate, master.lead_magnet_type, master.sales_page_url, master.id]
+            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, is_master, master_parent_id, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, NOW(), NOW())`,
+            [
+                req.user.id, 
+                master.name, 
+                master.niche, 
+                master.description, 
+                master.target_audience, 
+                master.brand_tone, 
+                master.product_name, 
+                master.main_goal, 
+                master.pain_points, 
+                master.key_benefits, 
+                JSON.stringify(affiliateLinks || []), 
+                master.full_price, 
+                master.commission_rate, 
+                master.lead_magnet_type, 
+                leadMagnetUrl || '',
+                master.sales_page_url, 
+                master.id
+            ]
         );
         const newProjectId = result.insertId;
 

@@ -1,4 +1,3 @@
-
 import express from 'express';
 import pool from '../db.js';
 import { generateContent } from '../geminiService.js';
@@ -566,5 +565,27 @@ router.get('/system/news/history', async (req, res) => {
     }
 });
 ////////// Fin de actualización - 07/06/2025 10:00 //////////
+
+/**
+ * Crea un ticket de soporte para solicitudes de eliminación de activos
+ */
+router.post('/support/tickets', authMiddleware, async (req, res) => {
+    const { itemName, reason } = req.body;
+    if (!itemName || !reason) return res.status(400).json({ error: "Faltan datos de la solicitud." });
+
+    try {
+        const [userRows] = await pool.query("SELECT name FROM users WHERE id = ?", [req.user.id]);
+        const userName = userRows[0]?.name || 'Usuario';
+        
+        await pool.query(
+            "INSERT INTO support_tickets (user_id, user_name, user_email, item_name, reason, created_at) VALUES (?, ?, ?, ?, ?, NOW())",
+            [req.user.id, userName, req.user.email, itemName, reason]
+        );
+        res.json({ success: true });
+    } catch (e) {
+        console.error("[Support Ticket Error]", e);
+        res.status(500).json({ error: "Error al procesar la solicitud de soporte." });
+    }
+});
 
 export default router;
