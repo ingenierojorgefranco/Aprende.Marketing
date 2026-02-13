@@ -213,7 +213,7 @@ export const DashboardLayout = ({
   const NavItemRender: React.FC<{ item: MenuItem }> = ({ item }) => {
     if (item.adminOnly && user.role !== 'admin') return null;
     const hasSubItems = !!item.subItems && item.subItems.length > 0; 
-    const isExpanded = expandedMenu === item.id;
+    const isExpanded = item.id === 'sistema' ? true : expandedMenu === item.id;
     const activeId = getActiveMenuId(location.pathname);
     const isActive = activeId === item.id || (item.id === 'waitlist' && location.pathname === '/dashboard');
 
@@ -221,7 +221,10 @@ export const DashboardLayout = ({
       <div className="mb-2">
         <div
           onClick={() => {
-            if (hasSubItems) setExpandedMenu(isExpanded ? null : item.id);
+            if (hasSubItems) {
+              if (item.id === 'sistema') return;
+              setExpandedMenu(isExpanded ? null : item.id);
+            }
             else if (item.path) { navigate(item.path); setMobileMenuOpen(false); }
           }}
           className={`w-full flex items-center justify-between px-5 py-4 rounded-xl transition-all cursor-pointer ${
@@ -444,7 +447,7 @@ export const DashboardLayout = ({
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Motivo del Contacto</label>
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Motivo del Contacto</label>
                                 <select 
                                     className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[#FF5A1F] text-white transition appearance-none cursor-pointer"
                                     value={helpForm.reason}

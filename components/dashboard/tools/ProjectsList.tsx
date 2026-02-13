@@ -36,6 +36,9 @@ export const ProjectsList: React.FC = () => {
             { label: 'Checkout con Descuento', url: '' }
         ] as AffiliateLink[]
     });
+
+    // Estado de errores para validación visual activa
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     
     // --- ESTADOS DE GENERACIÓN DINÁMICA ---
     const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
@@ -95,6 +98,7 @@ export const ProjectsList: React.FC = () => {
         setSelectedMasterProject(project);
         setUnlockStep('info');
         setShowUnlockProtocol(true);
+        setFormErrors({});
         // Reset form
         setUnlockForm({
             leadMagnetType: project.leadMagnetType || 'Clase Gratis / VSL',
@@ -117,10 +121,21 @@ export const ProjectsList: React.FC = () => {
     const handleFinalGeneration = async () => {
         if (!selectedMasterProject) return;
         
-        // Validación básica
-        if (!unlockForm.leadMagnetType) return alert("El tipo de regalo es obligatorio.");
-        if (!unlockForm.leadMagnetUrl.trim()) return alert("La URL del regalo es obligatoria.");
-        if (unlockForm.affiliateLinks.some(l => !l.url.trim())) return alert("Todos los Hotlinks de afiliado son obligatorios.");
+        // Validación visual activa
+        const newErrors: Record<string, string> = {};
+        if (!unlockForm.leadMagnetUrl.trim()) {
+            newErrors.leadMagnetUrl = "Este campo es obligatorio para que la IA genere tu estrategia";
+        }
+        
+        const hasAtLeastOneLink = unlockForm.affiliateLinks.some(l => l.url.trim() !== '');
+        if (!hasAtLeastOneLink) {
+            newErrors.affiliateLinks = "Este campo es obligatorio para que la IA genere tu estrategia";
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setFormErrors(newErrors);
+            return;
+        }
 
         const isRealAdmin = user.role === 'admin' && !isSimulating;
         const maxProjects = user.planLimits?.maxProjects || 1;
@@ -184,6 +199,13 @@ export const ProjectsList: React.FC = () => {
         const newLinks = [...unlockForm.affiliateLinks];
         newLinks[idx] = { ...newLinks[idx], [field]: val };
         setUnlockForm({ ...unlockForm, affiliateLinks: newLinks });
+        if (field === 'url' && val.trim() !== '') {
+            setFormErrors(prev => {
+                const updated = { ...prev };
+                delete updated.affiliateLinks;
+                return updated;
+            });
+        }
     };
 
     const handleAddLinkForm = () => {
@@ -587,7 +609,7 @@ export const ProjectsList: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="bg-black border border-white/5 p-8 rounded-[2rem] shadow-inner relative overflow-hidden">
+                                <div className="bg-black border border-white/5 p-8 rounded-[2.5rem] shadow-inner relative overflow-hidden">
                                     <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500/50"></div>
                                     <div className="flex justify-between items-center mb-4">
                                         <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Cupos de Proyecto en tu Plan <span className="text-white">({user.planLimits?.planName})</span></span>
@@ -653,8 +675,9 @@ export const ProjectsList: React.FC = () => {
                                                     value={unlockForm.leadMagnetUrl}
                                                     onChange={(e) => setUnlockForm({ ...unlockForm, leadMagnetUrl: e.target.value })}
                                                     placeholder="https://pega-aqui-tu-link-de-google-drive-o-clase.com"
-                                                    className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white text-base outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner placeholder:text-gray-700"
+                                                    className={`w-full bg-black/60 border ${formErrors.leadMagnetUrl ? 'border-red-500' : 'border-white/10'} rounded-2xl py-4 px-6 text-white text-base outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner placeholder:text-gray-700`}
                                                 />
+                                                {formErrors.leadMagnetUrl && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{formErrors.leadMagnetUrl}</p>}
                                             </div>
                                         )}
                                     </div>
@@ -669,42 +692,37 @@ export const ProjectsList: React.FC = () => {
                                                 <div key={idx} className="bg-black/60 border border-white/10 rounded-2xl p-4 space-y-3 relative group/link">
                                                     <button onClick={() => handleRemoveLinkForm(idx)} className="absolute top-2 right-2 p-1.5 text-gray-500 hover:text-red-500 transition-colors opacity-0 group-hover/link:opacity-100"><X className="w-3.5 h-3.5"/></button>
                                                     <div className="space-y-1">
-                                                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest ml-1">Etiqueta del Botón</p>
+                                                        <p className="text-sm text-gray-500 font-bold uppercase tracking-widest ml-1">Etiqueta del Botón</p>
                                                         <input 
                                                             type="text" 
                                                             value={link.label}
                                                             onChange={(e) => handleUpdateLinkForm(idx, 'label', e.target.value)}
                                                             placeholder="Ej: Checkout Principal"
-                                                            className="w-full bg-gray-900 border border-white/5 rounded-xl py-2 px-4 text-white text-sm outline-none focus:border-blue-500/50"
+                                                            className="w-full bg-gray-900 border border-white/5 rounded-xl py-2 px-4 text-white text-base outline-none focus:border-blue-500/50"
                                                         />
                                                     </div>
                                                     <div className="space-y-1">
-                                                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest ml-1">URL de Afiliado</p>
+                                                        <p className="text-sm text-gray-500 font-bold uppercase tracking-widest ml-1">URL de Afiliado</p>
                                                         <input 
                                                             type="text" 
                                                             value={link.url}
                                                             onChange={(e) => handleUpdateLinkForm(idx, 'url', e.target.value)}
                                                             placeholder="https://go.hotmart.com/..."
-                                                            className="w-full bg-gray-900 border border-white/5 rounded-xl py-2 px-4 text-emerald-400 font-mono text-xs outline-none focus:border-blue-500/50"
+                                                            className={`w-full bg-gray-900 border ${formErrors.affiliateLinks && !link.url.trim() ? 'border-red-500' : 'border-white/5'} rounded-xl py-2 px-4 text-emerald-400 font-mono text-base outline-none focus:border-blue-500/50`}
                                                         />
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
+                                        {formErrors.affiliateLinks && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{formErrors.affiliateLinks}</p>}
                                     </div>
                                 </div>
 
-                                <div className="p-4 bg-blue-900/10 border border-blue-500/20 rounded-2xl flex items-center gap-4">
-                                    <Info className="w-5 h-5 text-blue-400 shrink-0" />
-                                    <p className="text-xs text-gray-400 leading-relaxed font-medium">Una vez completes estos campos, la IA generará el ecosistema vinculando todos los botones de tus páginas a estos enlaces de forma automática.</p>
-                                </div>
-
                                 <div className="p-6 md:p-8 bg-black/60 border-t border-white/5 flex flex-col sm:flex-row gap-4 shrink-0">
-                                    <button onClick={() => setUnlockStep('confirm')} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest border border-white/5">Volver</button>
+                                    <button onClick={() => setUnlockStep('confirm')} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest border border-white/5">Cancelar</button>
                                     <button 
                                         onClick={handleFinalGeneration} 
-                                        disabled={!unlockForm.leadMagnetUrl || unlockForm.affiliateLinks.some(l => !l.url)}
-                                        className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#D94A1E] hover:to-orange-600 text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#FF5A1F]/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:grayscale"
+                                        className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-orange-500 hover:from-[#D94A1E] hover:to-orange-600 text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#FF5A1F]/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                                     >
                                         <Rocket className="w-5 h-5" /> Iniciar Generación Estratégica
                                     </button>
