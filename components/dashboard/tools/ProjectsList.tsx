@@ -29,6 +29,7 @@ export const ProjectsList: React.FC = () => {
 
     // Estado para formulario de enlaces en el desbloqueo
     const [unlockForm, setUnlockForm] = useState({
+        leadMagnetType: 'Clase Gratis / VSL',
         leadMagnetUrl: '',
         affiliateLinks: [
             { label: 'Checkout Principal', url: '' },
@@ -96,6 +97,7 @@ export const ProjectsList: React.FC = () => {
         setShowUnlockProtocol(true);
         // Reset form
         setUnlockForm({
+            leadMagnetType: project.leadMagnetType || 'Clase Gratis / VSL',
             leadMagnetUrl: '',
             affiliateLinks: [
                 { label: 'Checkout Principal', url: '' },
@@ -116,6 +118,7 @@ export const ProjectsList: React.FC = () => {
         if (!selectedMasterProject) return;
         
         // Validación básica
+        if (!unlockForm.leadMagnetType) return alert("El tipo de regalo es obligatorio.");
         if (!unlockForm.leadMagnetUrl.trim()) return alert("La URL del regalo es obligatoria.");
         if (unlockForm.affiliateLinks.some(l => !l.url.trim())) return alert("Todos los Hotlinks de afiliado son obligatorios.");
 
@@ -180,6 +183,18 @@ export const ProjectsList: React.FC = () => {
     const handleUpdateLinkForm = (idx: number, field: 'label' | 'url', val: string) => {
         const newLinks = [...unlockForm.affiliateLinks];
         newLinks[idx] = { ...newLinks[idx], [field]: val };
+        setUnlockForm({ ...unlockForm, affiliateLinks: newLinks });
+    };
+
+    const handleAddLinkForm = () => {
+        setUnlockForm({
+            ...unlockForm,
+            affiliateLinks: [...unlockForm.affiliateLinks, { label: 'Nuevo Enlace', url: '' }]
+        });
+    };
+
+    const handleRemoveLinkForm = (idx: number) => {
+        const newLinks = unlockForm.affiliateLinks.filter((_, i) => i !== idx);
         setUnlockForm({ ...unlockForm, affiliateLinks: newLinks });
     };
     // ----------------------------------------------
@@ -614,30 +629,65 @@ export const ProjectsList: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-6 bg-black/40 p-8 rounded-[2.5rem] border border-white/5 shadow-inner">
-                                    <div className="space-y-3">
-                                        <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2"><Gift className="w-4 h-4" /> URL de tu Regalo / Lead Magnet</label>
-                                        <input 
-                                            type="text" 
-                                            value={unlockForm.leadMagnetUrl}
-                                            onChange={(e) => setUnlockForm({ ...unlockForm, leadMagnetUrl: e.target.value })}
-                                            placeholder="https://pega-aqui-tu-link-de-google-drive-o-clase.com"
-                                            className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white text-base outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner placeholder:text-gray-700"
-                                        />
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1">Tipo de Lead Magnet (Regalo)</label>
+                                            <select 
+                                                value={unlockForm.leadMagnetType} 
+                                                onChange={(e) => setUnlockForm({ ...unlockForm, leadMagnetType: e.target.value })}
+                                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white text-base outline-none focus:border-[#FF5A1F]/50 transition-all appearance-none cursor-pointer"
+                                            >
+                                                <option value="">Selecciona tu Lead Magnet</option>
+                                                <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
+                                                <option value="Clase Gratis / VSL">Clase Gratis / Carta de Ventas en Video</option>
+                                                <option value="Masterclass en Vivo">Masterclass en Vivo</option>
+                                                <option value="Plantilla / Checklist">Plantilla / Checklist</option>
+                                            </select>
+                                        </div>
+
+                                        {unlockForm.leadMagnetType && (
+                                            <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2"><Gift className="w-4 h-4" /> URL de tu {unlockForm.leadMagnetType}</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={unlockForm.leadMagnetUrl}
+                                                    onChange={(e) => setUnlockForm({ ...unlockForm, leadMagnetUrl: e.target.value })}
+                                                    placeholder="https://pega-aqui-tu-link-de-google-drive-o-clase.com"
+                                                    className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-white text-base outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner placeholder:text-gray-700"
+                                                />
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="pt-4 border-t border-white/5 space-y-4">
-                                        <label className="text-sm font-black text-blue-400 uppercase tracking-widest ml-1 flex items-center gap-2"><CartIcon className="w-4 h-4" /> Hotlinks de Pago (Afiliado)</label>
+                                        <div className="flex justify-between items-center px-1">
+                                            <label className="text-sm font-black text-blue-400 uppercase tracking-widest flex items-center gap-2"><CartIcon className="w-4 h-4" /> Hotlinks de Pago (Afiliado)</label>
+                                            <button onClick={handleAddLinkForm} className="text-[10px] font-black text-blue-400 bg-blue-900/20 px-3 py-1 rounded-lg border border-blue-500/20 hover:bg-blue-600 hover:text-white transition-all">+ Añadir</button>
+                                        </div>
                                         <div className="grid grid-cols-1 gap-4">
                                             {unlockForm.affiliateLinks.map((link, idx) => (
-                                                <div key={idx} className="space-y-2">
-                                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-1">{link.label}</p>
-                                                    <input 
-                                                        type="text" 
-                                                        value={link.url}
-                                                        onChange={(e) => handleUpdateLinkForm(idx, 'url', e.target.value)}
-                                                        placeholder="https://go.hotmart.com/..."
-                                                        className="w-full bg-black/60 border border-white/10 rounded-2xl py-3 px-6 text-emerald-400 font-mono text-sm outline-none focus:border-blue-500/50 transition-all shadow-inner placeholder:text-gray-800"
-                                                    />
+                                                <div key={idx} className="bg-black/60 border border-white/10 rounded-2xl p-4 space-y-3 relative group/link">
+                                                    <button onClick={() => handleRemoveLinkForm(idx)} className="absolute top-2 right-2 p-1.5 text-gray-500 hover:text-red-500 transition-colors opacity-0 group-hover/link:opacity-100"><X className="w-3.5 h-3.5"/></button>
+                                                    <div className="space-y-1">
+                                                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest ml-1">Etiqueta del Botón</p>
+                                                        <input 
+                                                            type="text" 
+                                                            value={link.label}
+                                                            onChange={(e) => handleUpdateLinkForm(idx, 'label', e.target.value)}
+                                                            placeholder="Ej: Checkout Principal"
+                                                            className="w-full bg-gray-900 border border-white/5 rounded-xl py-2 px-4 text-white text-sm outline-none focus:border-blue-500/50"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest ml-1">URL de Afiliado</p>
+                                                        <input 
+                                                            type="text" 
+                                                            value={link.url}
+                                                            onChange={(e) => handleUpdateLinkForm(idx, 'url', e.target.value)}
+                                                            placeholder="https://go.hotmart.com/..."
+                                                            className="w-full bg-gray-900 border border-white/5 rounded-xl py-2 px-4 text-emerald-400 font-mono text-xs outline-none focus:border-blue-500/50"
+                                                        />
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
