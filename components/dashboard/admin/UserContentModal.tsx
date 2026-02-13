@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { User } from '../../../types';
 import { api } from '../../../services/api';
-import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2 } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone } from 'lucide-react';
 
 ////////// Actualización: Creación de archivo independiente para carga dinámica - 05/06/2025 21:30 //////////
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -10,12 +9,14 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
         projects: any[] | null;
         pages: any[] | null;
         articles: any[] | null;
-    }>({ projects: null, pages: null, articles: null });
+        emails: any[] | null;
+        whatsapp: any[] | null;
+    }>({ projects: null, pages: null, articles: null, emails: null, whatsapp: null });
 
-    const [expandedSection, setExpandedSection] = useState<'projects' | 'pages' | 'articles' | null>(null);
+    const [expandedSection, setExpandedSection] = useState<'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | null>(null);
     const [loadingSection, setLoadingSection] = useState<string | null>(null);
 
-    const toggleSection = async (section: 'projects' | 'pages' | 'articles') => {
+    const toggleSection = async (section: 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp') => {
         if (expandedSection === section) {
             setExpandedSection(null);
             return;
@@ -37,13 +38,15 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
         }
     };
 
-    const handleDeleteAsset = async (type: 'projects' | 'pages' | 'articles', id: string, name: string) => {
+    const handleDeleteAsset = async (type: 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp', id: string, name: string) => {
         if (!window.confirm(`¿Estás seguro de eliminar "${name}" permanentemente? Esta acción no se puede deshacer.`)) return;
         
         try {
             if (type === 'pages') await api.deletePage(id);
             else if (type === 'projects') await api.deleteProject(id);
             else if (type === 'articles') await api.deleteArticle(id);
+            else if (type === 'emails') await api.deleteEmailSequence(id);
+            else if (type === 'whatsapp') await api.deleteWhatsAppLaunch(id);
             
             // Actualizar estado local
             setLoadedData(prev => ({
@@ -228,6 +231,116 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                     </table>
                                 ) : (
                                     <p className="text-sm text-gray-500 italic text-center">No hay artículos creados.</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Email Sequences Section */}
+                    <div className="border border-gray-700 rounded-xl overflow-hidden">
+                        <button 
+                            onClick={() => toggleSection('emails')}
+                            className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition text-left"
+                        >
+                            <div className="flex items-center gap-3 font-bold text-white">
+                                <Mail className="w-5 h-5 text-blue-400" /> Secuencias de Email
+                            </div>
+                            {expandedSection === 'emails' ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+                        </button>
+                        
+                        {expandedSection === 'emails' && (
+                            <div className="bg-black/50 p-4 border-t border-gray-700 animate-in slide-in-from-top-2">
+                                {loadingSection === 'emails' ? (
+                                    <div className="flex justify-center py-4"><Loader2 className="w-6 h-6 animate-spin text-blue-500" /></div>
+                                ) : loadedData.emails && loadedData.emails.length > 0 ? (
+                                    <table className="w-full text-xs text-left">
+                                        <thead className="text-gray-500 uppercase">
+                                            <tr>
+                                                <th className="pb-2 pl-2">Nombre</th>
+                                                <th className="pb-2">Estado</th>
+                                                <th className="pb-2">Fecha</th>
+                                                <th className="pb-2 text-right pr-2">Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="text-gray-300 divide-y divide-gray-800">
+                                            {loadedData.emails.map((e: any) => (
+                                                <tr key={e.id} className="hover:bg-white/[0.02]">
+                                                    <td className="py-2 pl-2 font-medium">{e.name}</td>
+                                                    <td className="py-2">
+                                                        <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${e.status === 'activa' ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
+                                                            {e.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-2">{new Date(e.created_at).toLocaleDateString()}</td>
+                                                    <td className="py-2 text-right pr-2">
+                                                        <button 
+                                                            onClick={() => handleDeleteAsset('emails', e.id, e.name)}
+                                                            className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <p className="text-sm text-gray-500 italic text-center">No hay secuencias creadas.</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* WhatsApp Launches Section */}
+                    <div className="border border-gray-700 rounded-xl overflow-hidden">
+                        <button 
+                            onClick={() => toggleSection('whatsapp')}
+                            className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition text-left"
+                        >
+                            <div className="flex items-center gap-3 font-bold text-white">
+                                <Smartphone className="w-5 h-5 text-emerald-400" /> Lanzamientos de WhatsApp
+                            </div>
+                            {expandedSection === 'whatsapp' ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+                        </button>
+                        
+                        {expandedSection === 'whatsapp' && (
+                            <div className="bg-black/50 p-4 border-t border-gray-700 animate-in slide-in-from-top-2">
+                                {loadingSection === 'whatsapp' ? (
+                                    <div className="flex justify-center py-4"><Loader2 className="w-6 h-6 animate-spin text-blue-500" /></div>
+                                ) : loadedData.whatsapp && loadedData.whatsapp.length > 0 ? (
+                                    <table className="w-full text-xs text-left">
+                                        <thead className="text-gray-500 uppercase">
+                                            <tr>
+                                                <th className="pb-2 pl-2">Nombre</th>
+                                                <th className="pb-2">Estado</th>
+                                                <th className="pb-2">Fecha</th>
+                                                <th className="pb-2 text-right pr-2">Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="text-gray-300 divide-y divide-gray-800">
+                                            {loadedData.whatsapp.map((w: any) => (
+                                                <tr key={w.id} className="hover:bg-white/[0.02]">
+                                                    <td className="py-2 pl-2 font-medium">{w.name}</td>
+                                                    <td className="py-2">
+                                                        <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${w.status === 'activa' ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
+                                                            {w.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-2">{new Date(w.created_at).toLocaleDateString()}</td>
+                                                    <td className="py-2 text-right pr-2">
+                                                        <button 
+                                                            onClick={() => handleDeleteAsset('whatsapp', w.id, w.name)}
+                                                            className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <p className="text-sm text-gray-500 italic text-center">No hay lanzamientos creados.</p>
                                 )}
                             </div>
                         )}

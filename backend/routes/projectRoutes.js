@@ -279,16 +279,34 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const [proj] = await pool.query('SELECT user_id FROM projects WHERE id = ?', [req.params.id]);
+    // 1. Obtener user_id y master_parent_id antes de borrar
+    const [proj] = await pool.query('SELECT user_id, master_parent_id FROM projects WHERE id = ?', [req.params.id]);
     if (proj.length === 0) return res.status(404).json({ error: 'No encontrado' });
-    if (proj[0].user_id !== req.user.id && req.user.role !== 'admin') {
+    
+    const projectOwnerId = proj[0].user_id;
+    const masterParentId = proj[0].master_parent_id;
+
+    // Caso: El usuario NO es dueño ni admin (intento de quitar de biblioteca)
+    if (projectOwnerId !== req.user.id && req.user.role !== 'admin') {
         await pool.query('DELETE FROM unlocked_projects WHERE user_id = ? AND project_id = ?', [req.user.id, req.params.id]);
         return res.json({ message: 'Quitado de biblioteca.' });
     }
+    
+    // 2. Si es un clon de la biblioteca maestra, limpiar el registro de desbloqueo
+    if (masterParentId) {
+        await pool.query('DELETE FROM unlocked_projects WHERE user_id = ? AND project_id = ?', [projectOwnerId, masterParentId]);
+    }
+
+    // 3. Borrar el proyecto
     await pool.query('DELETE FROM projects WHERE id = ?', [req.params.id]);
+    
+    // 4. Log de actividad (asegurando DELETE_PROJECT)
     await logSystemActivity(req.user.id, req.user.email, 'DELETE_PROJECT', 'project', req.params.id, {});
+    
     res.json({ message: 'Eliminado.' });
-  } catch (error) { res.status(500).json({ error: error.message }); }
+  } catch (error) { 
+      res.status(500).json({ error: error.message }); 
+  }
 });
 
 router.post('/:id/generate-strategy', async (req, res) => {

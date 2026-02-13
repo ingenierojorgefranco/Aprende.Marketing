@@ -1,4 +1,3 @@
-
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
@@ -119,6 +118,10 @@ router.get('/users/:userId/resources', async (req, res) => {
             [rows] = await pool.query('SELECT id, name, subdomain, is_published, visits, created_at FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC', [userId]);
         } else if (type === 'articles') {
             [rows] = await pool.query('SELECT id, title, slug, status, seo_score, created_at FROM articles WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+        } else if (type === 'emails') {
+            [rows] = await pool.query('SELECT id, name, status, created_at FROM email_sequences WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+        } else if (type === 'whatsapp') {
+            [rows] = await pool.query('SELECT id, name, status, created_at FROM whatsapp_lanzamientos WHERE user_id = ? ORDER BY created_at DESC', [userId]);
         } else {
             return res.status(400).json({ error: 'Invalid resource type' });
         }
@@ -273,7 +276,7 @@ router.put('/plans/:id', async (req, res) => {
     }
 });
 
-router.delete('/plans/:id', async (req, res) => {
+router.get('/plans/:id', async (req, res) => {
     const { id } = req.params;
     try {
         await pool.query('DELETE FROM plans WHERE id = ?', [id]);

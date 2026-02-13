@@ -838,7 +838,7 @@ export const api = {
       if (apiCache.articleDetails[id]) return apiCache.articleDetails[id];
       try {
           const a = await fetchWithFallback(`/articles/${id}`, { headers: getAuthHeaders() });
-          const mapped = {
+          const mapped: Article = {
                 id: a.id.toString(),
                 pageId: a.page_id ? a.page_id.toString() : undefined,
                 title: a.title,
@@ -847,7 +847,7 @@ export const api = {
                 contentHtml: a.content_html,
                 featuredImage: a.featured_image,
                 keyword: a.keyword,
-                seoScore: a.seo_score,
+                seoScore: a.seo_score || 0,
                 metaTitle: a.meta_title,
                 metaDescription: a.meta_description,
                 status: a.status || 'published',
@@ -1004,7 +1004,7 @@ export const api = {
         clearCache('usersList');
     },
   
-    getAdminUserResources: async (userId: string, type: 'projects' | 'pages' | 'articles'): Promise<any[]> => {
+    getAdminUserResources: async (userId: string, type: 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp'): Promise<any[]> => {
         if (isMockMode) {
             if (type === 'projects') return Promise.resolve([...localProjects]);
             if (type === 'pages') return Promise.resolve([...localPages]);
