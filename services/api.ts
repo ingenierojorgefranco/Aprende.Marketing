@@ -1660,8 +1660,8 @@ export const api = {
         return await fetchWithFallback(`/hooks/project/${projectId}`, { headers: getAuthHeaders() });
     },
 
-    unlockMoreHooks: async (projectId: string): Promise<{ success: boolean; count: number }> => {
-        if (isMockMode) return { success: true, count: 10 };
+    unlockMoreHooks: async (projectId: string): Promise<{ success: boolean; count: number; message: string }> => {
+        if (isMockMode) return { success: true, count: 10, message: "10 nuevos ganchos añadidos a tu estrategia." };
         const res = await fetchWithFallback(`/hooks/unlock-more/${projectId}`, {
             method: 'POST',
             headers: getAuthHeaders()
@@ -1669,7 +1669,7 @@ export const api = {
         return res;
     },
 
-    updateHook: async (hookId: string, data: Partial<ProjectHook>): Promise<void> => {
+    updateProjectHook: async (hookId: string, data: Partial<ProjectHook>): Promise<void> => {
         if (isMockMode) return;
         await fetchWithFallback(`/hooks/${hookId}`, {
             method: 'PUT',

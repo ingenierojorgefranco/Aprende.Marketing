@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus } from 'lucide-react';
+import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock } from 'lucide-react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { ProjectHook } from '../../../../types';
@@ -26,6 +26,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [hooks, setHooks] = useState<ProjectHook[]>([]);
   const [loadingHooks, setLoadingHooks] = useState(true);
   const [unlockingMore, setUnlockingMore] = useState(false);
+  const [isClone, setIsClone] = useState(false);
   
   // Estados para el prototipo del Kit
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
@@ -54,19 +55,37 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   useEffect(() => {
+    const checkProject = async () => {
+        if (!projectId) return;
+        try {
+            const p = await api.getProjectById(projectId);
+            if (p?.masterParentId) setIsClone(true);
+        } catch (e) {}
+    };
+    checkProject();
     loadHooks();
   }, [projectId]);
 
   const handleUnlockMore = async () => {
     setUnlockingMore(true);
     try {
-        await api.unlockMoreHooks(projectId);
+        const res = await api.unlockMoreHooks(projectId);
         await loadHooks();
-        alert("¡10 nuevos ganchos añadidos a tu estrategia!");
+        alert(res.message || "¡10 nuevos ganchos añadidos a tu estrategia!");
     } catch (e: any) {
         alert(e.message || "Error al cargar más ganchos.");
     } finally {
         setUnlockingMore(false);
+    }
+  };
+
+  const handleUpdateMessage = async (field: string, value: any) => {
+    if (!currentHook.id) return;
+    try {
+        await api.updateProjectHook(currentHook.id, { [field]: value });
+        setHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, [field]: value } : h));
+    } catch (e) {
+        console.error("Error updating hook:", e);
     }
   };
 
@@ -84,7 +103,19 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const totalPages = Math.ceil(hooks.length / itemsPerPage);
   const paginatedHooks = hooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // Simulación de generación del Kit con persistencia
+  // Datos mockeados para el Kit
+  const defaultKitContent = {
+    script: "Gana más tiempo con tu familia aprendiendo microblading de cejas.\nEs la forma más sencilla de equilibrar tu vida personal y profesional.\n\nOrganizas tus propios horarios sin depender de nadie.\nGeneras ingresos mientras disfruta de tus seres queridos.\nY recuperas momentos que antes no podías tener.\n\nNuestra profesora especialista en microblading dará hoy una clase GRATIS en vivo.\nUna oportunidad perfecta para que descubras cómo iniciar in esta profesión.\n\nEscribe microblading en los comentarios y entra al link de nuestro perfil para unirte a la clase gratuita que daremos hoy.\nHoy puede ser el comienzo de una nueva vida.",
+    ads: `🔥 ${currentHook.title}\n\nSé que suena a promesa vacía, pero en este sector la demanda es tan alta que muchas personas están logrando independencia financiera empezando in sus tiempos libres.\n\n✅ Sin jefes.\n✅ A tu ritmo.\n✅ Con una técnica probada.\n\nHe preparado una Masterclass gratuita donde te revelo el mapa exacto para lograrlo este mismo mes. 👇\n\n🔗 [LINK DE TU LANDING]`,
+    thumbs: [
+      "Genera $1,000 EXTRAS 💰",
+      "SIN RENUNCIAR A TU EMPLEO 🚫",
+      "El Método de 1 Hora/Día ⏰"
+    ]
+  };
+
+  const currentKit = currentHook.contentJson || defaultKitContent;
+
   const handleGenerateKit = async () => {
     const hookId = currentHook.id;
     if (!hookId) return;
@@ -101,12 +132,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }, 1200);
 
     try {
-        // En un sistema real, aquí llamaríamos a la IA para generar el contenido JSON del kit
-        // Por ahora simulamos la persistencia marcando como generado en la DB
-        await api.updateHook(hookId, { isGenerated: true });
-        
-        // Actualizamos localmente para reflejar el cambio sin recargar todo
-        setHooks(prev => prev.map(h => h.id === hookId ? { ...h, isGenerated: true } : h));
+        const generatedKit = { ...currentKit };
+        await api.updateProjectHook(hookId, { isGenerated: true, contentJson: generatedKit });
+        setHooks(prev => prev.map(h => h.id === hookId ? { ...h, isGenerated: true, contentJson: generatedKit } : h));
         
         setTimeout(() => {
             setIsGenerating(false);
@@ -121,17 +149,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     alert("Contenido copiado al portapapeles");
-  };
-
-  // Datos mockeados para el Kit (Vienen del hook real o fallback)
-  const currentKit = currentHook.contentJson || {
-    script: "Gana más tiempo con tu familia aprendiendo microblading de cejas.\nEs la forma más sencilla de equilibrar tu vida personal y profesional.\n\nOrganizas tus propios horarios sin depender de nadie.\nGeneras ingresos mientras disfruta de tus seres queridos.\nY recuperas momentos que antes no podías tener.\n\nNuestra profesora especialista en microblading dará hoy una clase GRATIS en vivo.\nUna oportunidad perfecta para que descubras cómo iniciar in esta profesión.\n\nEscribe microblading en los comentarios y entra al link de nuestro perfil para unirte a la clase gratuita que daremos hoy.\nHoy puede ser el comienzo de una nueva vida.",
-    ads: `🔥 ${currentHook.title}\n\nSé que suena a promesa vacía, pero en este sector la demanda es tan alta que muchas personas están logrando independencia financiera empezando in sus tiempos libres.\n\n✅ Sin jefes.\n✅ A tu ritmo.\n✅ Con una técnica probada.\n\nHe preparado una Masterclass gratuita donde te revelo el mapa exacto para lograrlo este mismo mes. 👇\n\n🔗 [LINK DE TU LANDING]`,
-    thumbs: [
-      "Genera $1,000 EXTRAS 💰",
-      "SIN RENUNCIAR A TU EMPLEO 🚫",
-      "El Método de 1 Hora/Día ⏰"
-    ]
   };
 
   return (
@@ -156,7 +173,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
           >
               <img 
-                src="https://img.youtube.com/vi/dQw4w9XcQ/maxresdefault.jpg" 
+                src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
                 alt="Tutorial Thumbnail"
                 className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
               />
@@ -182,14 +199,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   <h4 className="text-xl font-bold text-white">Ganchos Sugeridos</h4>
                 </div>
               </div>
-              <button 
-                onClick={handleUnlockMore}
-                disabled={unlockingMore || loadingHooks}
-                className="p-2 bg-orange-600/10 border border-orange-500/20 text-orange-400 rounded-xl hover:bg-orange-600 hover:text-white transition-all group"
-                title="Cargar 10 ganchos más"
-              >
-                {unlockingMore ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
-              </button>
+              {isClone && (
+                <button 
+                  onClick={handleUnlockMore}
+                  disabled={unlockingMore || loadingHooks}
+                  className="p-2 bg-orange-600/10 border border-orange-500/20 text-orange-400 rounded-xl hover:bg-orange-600 hover:text-white transition-all group"
+                  title="Cargar 10 ganchos más"
+                >
+                  {unlockingMore ? <Loader2 className="w-5 h-5 animate-spin" /> : <Unlock className="w-5 h-5" />}
+                </button>
+              )}
             </div>
             
             <div className="space-y-4 flex-1">
@@ -285,8 +304,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             <div className="w-14 h-14 bg-orange-500 text-black rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20">
                                 <Sparkles className="w-8 h-8 fill-current" />
                             </div>
-                            <div>
-                                <h4 className="text-2xl font-black text-white uppercase tracking-tight">{currentHook.title}</h4>
+                            <div className="flex-1">
+                                <div className="flex justify-between items-center">
+                                    <h4 className="text-2xl font-black text-white uppercase tracking-tight">{currentHook.title}</h4>
+                                    <button 
+                                        onClick={() => handleUpdateMessage('isGenerated', false)}
+                                        className="text-[10px] font-black text-white uppercase tracking-widest hover:underline transition-all"
+                                    >
+                                        Refinar Ángulo
+                                    </button>
+                                </div>
                                 <div className="mt-4 bg-orange-500/5 border border-orange-500/20 rounded-[3rem] px-8 py-3 inline-block shadow-inner">
                                     <p className="text-white text-lg font-light italic">
                                         Estrategia Psicológica: "{currentHook.psychologicalStrategy}"
