@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock } from 'lucide-react';
 import { useOutletContext, useParams } from 'react-router-dom';
@@ -121,11 +120,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (!hookId) return;
 
     setIsGenerating(true);
-    let step = 0;
+    let stepCount = 0;
     const interval = setInterval(() => {
-      if (step < loadingMessages.length - 1) {
-        step++;
-        setLoadingStep(step);
+      if (stepCount < loadingMessages.length - 1) {
+        stepCount++;
+        setLoadingStep(stepCount);
       } else {
         clearInterval(interval);
       }
@@ -214,25 +213,27 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             <div className="space-y-4 flex-1">
               {loadingHooks ? (
                 <div className="flex justify-center py-10"><Loader2 className="animate-spin text-orange-400" /></div>
-              ) : paginatedHooks.length > 0 ? paginatedHooks.map((hook: ProjectHook, idxInPage: number) => {
-                const globalIdx = (currentPage - 1) * itemsPerPage + idxInPage;
-                const isActive = activeHook === globalIdx;
+              ) : paginatedHooks.length > 0 ? (
+                paginatedHooks.map((hook: ProjectHook, idxInPage: number) => {
+                  const globalIdx = (currentPage - 1) * itemsPerPage + idxInPage;
+                  const isActive = activeHook === globalIdx;
 
-                return (
-                  <div 
-                    key={hook.id} 
-                    onClick={() => setActiveHook(globalIdx)}
-                    className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isActive ? 'bg-orange-900/20 border-orange-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
-                  >
-                    <div className="flex-1">
-                      <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${isActive ? 'text-orange-300' : 'text-gray-300 group-hover:text-white'}`}>{hook.title}</h4>
+                  return (
+                    <div 
+                      key={hook.id} 
+                      onClick={() => setActiveHook(globalIdx)}
+                      className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isActive ? 'bg-orange-900/20 border-orange-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
+                    >
+                      <div className="flex-1">
+                        <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${isActive ? 'text-orange-300' : 'text-gray-300 group-hover:text-white'}`}>{hook.title}</h4>
+                      </div>
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-orange-500 border-orange-500' : 'border-gray-600 group-hover:border-orange-400'}`}>
+                        {(isActive || hook.isGenerated) && <Check className={`w-4 h-4 font-bold ${hook.isGenerated ? 'text-white' : 'text-black'}`} />}
+                      </div>
                     </div>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-orange-500 border-orange-500' : 'border-gray-600 group-hover:border-orange-400'}`}>
-                      {(isActive || hook.isGenerated) && <Check className={`w-4 h-4 font-bold ${hook.isGenerated ? 'text-white' : 'text-black'}`} />}
-                    </div>
-                  </div>
-                );
-              }) : (
+                  );
+                })
+              ) : (
                 <div className="py-10 text-center text-gray-500 italic">No hay ganchos disponibles.</div>
               )}
             </div>
@@ -249,7 +250,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
         {/* DETALLE Y RESULTADO */}
         <div className="lg:col-span-7 space-y-8">
-            {/* CARD DE DETALLE Y GENERADOR - OCULTA SI YA SE GENERÓ EL KIT */}
             {!currentHook.isGenerated && (
                 <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 flex flex-col relative overflow-hidden shadow-2xl">
                     <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Zap className="w-40 h-40 text-orange-500" /></div>
@@ -270,7 +270,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             </div>
                         </div>
 
-                        {!currentHook.isGenerated && !isGenerating && (
+                        {!isGenerating && (
                             <button 
                                 onClick={handleGenerateKit}
                                 className="w-full py-5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-900/20 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group"
@@ -295,11 +295,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 </div>
             )}
 
-            {/* --- KIT DE CONTENIDO GENERADO --- */}
             {currentHook.isGenerated && (
                 <div className="animate-in slide-in-from-bottom-6 duration-700">
                     <div className="bg-[#111] border border-[#FF5A1F]/30 rounded-[3rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
-                        {/* Header del Kit Rediseñado */}
                         <div className="p-8 border-b border-white/5 bg-gradient-to-r from-orange-500/10 to-transparent flex items-center gap-4">
                             <div className="w-14 h-14 bg-orange-500 text-black rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20">
                                 <Sparkles className="w-8 h-8 fill-current" />
@@ -322,7 +320,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             </div>
                         </div>
 
-                        {/* Navigation Row - Justo debajo de la línea divisoria */}
                         <div className="px-8 py-6 bg-black/20 border-b border-white/5">
                             <div className="w-full flex flex-wrap bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-inner">
                                 <button onClick={() => setActiveKitTab('publish')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'publish' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Instrucciones</button>
@@ -333,7 +330,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         </div>
 
                         <div className="p-8 md:p-12 min-h-[250px]">
-                            {/* VIDEO TAB */}
                             {activeKitTab === 'video' && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 h-full flex flex-col">
                                     <div className="flex items-center justify-between">
@@ -357,7 +353,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 </div>
                             )}
 
-                            {/* ADS TAB */}
                             {activeKitTab === 'ads' && (
                                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
                                     <div className="flex items-center justify-between">
@@ -380,7 +375,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 </div>
                             )}
 
-                            {/* THUMBS TAB */}
                             {activeKitTab === 'thumbs' && (
                                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
                                     <h5 className="text-white font-black text-xl flex items-center gap-3 uppercase tracking-tight">
@@ -406,7 +400,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 </div>
                             )}
 
-                            {/* PUBLISH TAB */}
                             {activeKitTab === 'publish' && (
                                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
                                     <div className="space-y-4">
@@ -419,7 +412,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     </div>
 
                                     <div className="space-y-4 mt-8">
-                                        {[1, 2, 3, 4, 5].map((step, idx) => (
+                                        {[1, 2, 3, 4, 5].map((s, idx) => (
                                             <div key={idx} className="bg-black/40 border border-white/5 rounded-2xl overflow-hidden shadow-xl">
                                                 <button 
                                                     onClick={() => setOpenAccordion(openAccordion === idx ? null : idx)}
@@ -455,5 +448,37 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 </div>
             )}
         </div>
-    );
+      </div>
+      
+      {showVideoModal && (
+          <div 
+              onClick={() => setShowVideoModal(false)}
+              className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
+          >
+              <div 
+                  onClick={(e) => e.stopPropagation()}
+                  className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
+              >
+                  <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                      <h3 className="font-bold text-white flex items-center gap-2">
+                          <PlayCircle className="w-5 h-5 text-orange-400" /> Tutorial: Hooks de Atracción
+                      </h3>
+                      <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
+                          <X className="w-6 h-6"/>
+                      </button>
+                  </div>
+                  <div className="aspect-video w-full">
+                      <iframe 
+                          className="w-full h-full"
+                          src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                          title="Tutorial Hooks" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowFullScreen
+                      ></iframe>
+                  </div>
+              </div>
+          </div>
+      )}
+    </div>
+  );
 };
