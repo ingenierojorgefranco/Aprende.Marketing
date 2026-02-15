@@ -267,6 +267,15 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 strategy: "Comparamos el costo del servicio vs la rentabilidad para el artista. Enfocamos el contenido en cómo vender el valor del resultado final en lugar de competir por el precio más bajo."
             }
         ],
+        hooks: [
+            { id: 1, question: "¿Te gustaría generar $1,000 extras al mes sin dejar tu trabajo actual?", strategy: "Conecta con el deseo de seguridad financiera inmediata y falta de riesgo." },
+            { id: 2, question: "¿Has sentido que tu talento no está siendo pagado como realmente merece?", strategy: "Apela al sentimiento de infravaloración profesional y deseo de estatus." },
+            { id: 3, question: "¿Qué harías si tuvieras una técnica que te permitiera ser tu propia jefa mañana mismo?", strategy: "Estimula la visualización de independencia y control total del tiempo." },
+            { id: 4, question: "¿Estás cansada de ver cómo otros tienen éxito mientras tú sigues estancada?", strategy: "Utiliza el gatillo de la envidia benigna y la urgencia por el cambio." },
+            { id: 5, question: "¿Sabías que el microblading es la habilidad mejor pagada en el sector belleza hoy?", strategy: "Autoridad basada en datos de mercado para validar la oportunidad." },
+            { id: 6, question: "¿Te imaginas recuperar tu inversión con tan solo tus primeras dos clientas?", strategy: "Neutraliza el miedo a la pérdida económica con un cálculo de retorno rápido." },
+            { id: 7, question: "¿Quieres aprender el sistema que automatiza tus ventas mientras tú te enfocas en tu arte?", strategy: "Deseo de simplicidad técnica y enfoque en lo que realmente les apasiona." }
+        ],
         emails: {
             nurture: [
                 {
@@ -314,9 +323,9 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 {
                     id: 6,
                     day: "Día 6",
-                    subject: "⚠️ ÚLTIMA LLAMADA: Tu futuro profesional empieza hoy",
-                    type: "Cierre / Urgencia",
-                    objective: "Llamada final a la acción antes del cierre de inscripciones."
+                    subject: "ÚLTIMA LLAMADA: ¿Eliges independencia o sigues igual?",
+                    type: "Cierre",
+                    objective: "Llamado final a la acción antes del cierre de inscripciones."
                 }
             ],
             evergreen: [
@@ -408,7 +417,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 name: "Tutorial de Pago",
                 moment: "Soporte",
                 objective: "Tutorial de Pago: Eliminar barreras técnicas de compra mostrando lo sencillo que es el proceso de checkout en Hotmart.",
-                messages: [{ role: 'agent', text: "*🎁✨ BONOS ESPECIALES DE LANZAMIENTO ✨🎁*\n_¡Atención comunidad! 🚨_\nLas primeras 50 personas que se inscriban hoy en el curso completo de Microblading de Cejas 2.0 recibirán de regalo un pack increíble de BONOS exclusivos:\n• 🎁 BONO 1: Cuadernillo de ejercicios “Nueva Guía Práctica del Microblading” (diseños, trazos y práctica profesional).\n• 🎁 BONO 2: Checklist completo de materiales para empezar sin excusas.\n• 🎁 BONO 3: Entrenamiento en diseño y construcción de cejas según morfología.\n• 🎁 BONO 4: Acceso al canal privado “Artistas en Cejas” para preguntas y soporte.\n• 🎁 BONO 5: Documentación indispensable lista para usar con clientas.\n• 🎁 BONO 6: Agenda + 20 diseños listos para organizar tu negocio.\n• 🎁 BONO 7: Entrenamiento “Comenzando mi propio emprendimiento”.\n• 🎁 BONO 8: Pack de 5 libros de belleza en PDF para potenciar tus conocimientos.\n*Todo esto es tuyo GRATIS si aseguras tu cupo hoy al precio especial de 47 USD (antes 200 USD).*\n*Inscríbete aquí y reclama tus bonos ahora mismo:*\n👉 https://hotm.art/microblading-web-beca\n_Recuerda: solo aplica para las primeras 50 inscripciones._\n¡No te quedes fuera!" }]
+                messages: [{ role: 'agent', text: "*🎁✨ BONOS ESPECIALES DE LANZAMIENTO ✨🎁*\n_¡Atención comunidad! 🚨_\nLas primeras 50 personas que se inscriban hoy en el curso completo de Microblading de Cejas 2.0 recibirán de regalo un pack increíble de BONOS exclusivos:\n• 🎁 BONO 1: Cuadernillo de ejercicios “Nueva Guía Práctica del Microblading” (diseños, trazos y práctica profesional).\n• 🎁 BONO 2: Checklist completo de materiales para empezar sin excusas.\n• 🎁 BONO 3: Entrenamiento en diseño y construcción de cejas según morfología.\n• 🎁 BONO 4: Acceso al canal privado “Artistas en Cejas” para preguntas y soporte.\n• 🎁 BONO 5: Documentación indispensable lista para usar con clientas.\n• 🎁 BONO 6: Agenda + 20 diseños listos para organizar tu negocio.\n• 🎁 BONO 7: Entrenamiento “Comenzando mi propio emprendimiento”.\n• 🎁 BONO 8: Pack de 5 libros de belleza en PDF para potenciar tus conocimientos.\n*Todo esto es tuyas GRATIS si aseguras tu cupo hoy al precio especial de 47 USD (antes 200 USD).*\n*Inscríbete aquí y reclama tus bonos ahora mismo:*\n👉 https://hotm.art/microblading-web-beca\n_Recuerda: solo aplica para las primeras 50 inscripciones._\n¡No te quedes fuera!" }]
             },
             {
                 id: "wl11",

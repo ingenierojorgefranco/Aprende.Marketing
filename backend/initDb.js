@@ -1,5 +1,4 @@
 
-
 import pool from './db.js';
 
 /**
@@ -285,22 +284,6 @@ const initDb = async () => {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
         ////////// Fin de actualización - 05/03/2025 10:00 //////////
 
-        ////////// Actualización: Tabla para ganchos persistentes y kits de contenido - 15/01/2026 10:00 //////////
-        await connection.query(`CREATE TABLE IF NOT EXISTS project_hooks (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            project_id INT NOT NULL,
-            master_hook_id INT NULL,
-            question TEXT NOT NULL,
-            strategy TEXT NOT NULL,
-            kit_json LONGTEXT NULL,
-            is_generated BOOLEAN DEFAULT FALSE,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
-
-        await addIndexSafe(connection, 'project_hooks', 'idx_hook_project_id', 'project_id');
-        ////////// Fin de actualización //////////
-
         ////////// Actualización: Tabla para Tickets de Soporte - 12/06/2025 //////////
         await connection.query(`CREATE TABLE IF NOT EXISTS support_tickets (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -314,6 +297,32 @@ const initDb = async () => {
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
         ////////// Fin de actualización //////////
+
+        ////////// Actualización: Tablas para el sistema dinámico de Hooks de Atracción - 01/01/2026 //////////
+        await connection.query(`CREATE TABLE IF NOT EXISTS master_hooks (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            master_project_id INT NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            psychological_strategy TEXT,
+            content_json JSON,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (master_project_id) REFERENCES projects(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+        await connection.query(`CREATE TABLE IF NOT EXISTS project_hooks (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            project_id INT NOT NULL,
+            master_hook_id INT NULL,
+            title VARCHAR(255) NOT NULL,
+            psychological_strategy TEXT,
+            landing_page_url VARCHAR(255),
+            content_json JSON,
+            is_generated BOOLEAN DEFAULT FALSE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+            FOREIGN KEY (master_hook_id) REFERENCES master_hooks(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+        ////////// Fin de actualización - 01/01/2026 //////////
 
         // Tablas existentes del sistema (Projects, Pages, etc.)
         const tables = [
@@ -417,7 +426,6 @@ const initDb = async () => {
         await addColumnSafe(connection, 'projects', "full_price DECIMAL(10,2) DEFAULT 0");
         await addColumnSafe(connection, 'projects', "commission_rate DECIMAL(5,4) DEFAULT 0");
         await addColumnSafe(connection, 'projects', "lead_magnet_type VARCHAR(100)");
-        await addColumnSafe(connection, 'projects', "lead_magnet_url VARCHAR(500)");
         await addColumnSafe(connection, 'projects', "sales_page_url VARCHAR(500)");
         await addColumnSafe(connection, 'projects', "lead_magnet_url VARCHAR(500)");
         ////////// Actualización: Columna para marcar proyectos maestros - 05/03/2025 10:00 //////////

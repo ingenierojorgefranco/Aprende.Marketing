@@ -1,5 +1,4 @@
 
-
 ////////// Actualización: Definición de tipos para el Feed de Noticias del Dashboard - 24/05/2024 16:45 //////////
 export interface DashboardNews {
     id: string;
@@ -75,18 +74,18 @@ export interface SupportTicket {
 }
 ////////// Fin de actualización //////////
 
-////////// Actualización: Interfaz para Ganchos Persistentes - 15/01/2026 //////////
+/* Actualización: Interfaz para el nuevo sistema dinámico de Hooks de Atracción - 01/01/2026 */
 export interface ProjectHook {
   id: string;
   projectId: string;
   masterHookId?: string;
-  question: string;
-  strategy: string;
-  kitJson?: string | any;
+  title: string;
+  psychologicalStrategy: string;
+  landingPageUrl?: string;
+  contentJson: any;
   isGenerated: boolean;
-  createdAt: Date;
 }
-////////// Fin de actualización //////////
+/* Fin de actualización */
 
 export enum ViewState {
   PUBLIC_HOME = 'PUBLIC_HOME',

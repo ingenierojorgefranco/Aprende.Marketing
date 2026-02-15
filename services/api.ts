@@ -31,7 +31,6 @@ let localCourses: Course[] = [...MOCK_COURSES];
 let localComments: Comment[] = [...MOCK_COMMENTS];
 let localCrmContacts: CRMContact[] = [...MOCK_CRM_CONTACTS];
 let localCrmActivities: CRMActivity[] = [...MOCK_CRM_ACTIVITIES];
-let localProjectHooks: ProjectHook[] = [];
 
 const apiCache: {
     pages: LandingPage[] | null;
@@ -76,7 +75,6 @@ const apiCache: {
     emailSequences: EmailSequence[] | null;
     waLaunches: WhatsAppLaunch[] | null;
     supportTickets: SupportTicket[] | null;
-    projectHooks: Record<string, ProjectHook[] | null>;
 } = {
     pages: null,
     projects: null,
@@ -119,16 +117,15 @@ const apiCache: {
     masterStrategies: {},
     emailSequences: null,
     waLaunches: null,
-    supportTickets: null,
-    projectHooks: {}
+    supportTickets: null
 };
 
 const clearCache = (key?: keyof typeof apiCache, id?: string) => {
     if (key) {
-        if (id && (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis' || key === 'publicPages' || key === 'masterStrategies' || key === 'projectHooks')) {
+        if (id && (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis' || key === 'publicPages' || key === 'masterStrategies')) {
             delete (apiCache[key] as any)[id];
         } else {
-            if (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis' || key === 'publicPages' || key === 'masterStrategies' || key === 'projectHooks') {
+            if (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis' || key === 'publicPages' || key === 'masterStrategies') {
                 (apiCache[key] as any) = {};
             } else if (key === 'newsHistory') {
                 apiCache.newsHistory = {};
@@ -191,7 +188,6 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.emailSequences = null;
         apiCache.waLaunches = null;
         apiCache.supportTickets = null;
-        apiCache.projectHooks = {};
     }
 };
 
@@ -560,34 +556,7 @@ export const api = {
   },
 
   unlockProject: async (projectId: string, userData: any): Promise<{ id: string }> => {
-    if (isMockMode) {
-        const master = MOCK_PROJECTS.find(p => p.id === projectId);
-        const newProjId = `mock-unlocked-${Date.now()}`;
-        const newProj: Project = {
-            ...master!,
-            id: newProjId,
-            user_id: MOCK_USER.id,
-            masterParentId: projectId,
-            affiliateLinks: userData.affiliateLinks,
-            leadMagnetType: userData.leadMagnetType,
-            leadMagnetUrl: userData.leadMagnetUrl,
-            isMaster: false,
-            createdAt: new Date()
-        } as any;
-        localProjects.unshift(newProj);
-        // Inicializar hooks mock para este proyecto
-        const initialHooks = MOCK_MASTER_STRATEGY.modules.hooks?.slice(0, 10).map((h, i) => ({
-            id: `mock-hook-${newProjId}-${i}`,
-            projectId: newProjId,
-            masterHookId: String(h.id),
-            question: h.question,
-            strategy: h.strategy,
-            isGenerated: true,
-            createdAt: new Date()
-        })) || [];
-        localProjectHooks.push(...initialHooks);
-        return Promise.resolve({ id: newProjId });
-    }
+    if (isMockMode) return { id: 'mock-id' };
     const res = await fetchWithFallback(`/projects/unlock/${projectId}`, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -784,77 +753,6 @@ export const api = {
         clearCache('masterStrategies', projectId);
         return strategy;
     },
-
-    ////////// Actualización: Métodos para Ganchos Persistentes - 15/01/2026 //////////
-    getProjectHooks: async (projectId: string): Promise<ProjectHook[]> => {
-        if (isMockMode) {
-            let hooks = localProjectHooks.filter(h => h.projectId === projectId);
-            if (hooks.length === 0) {
-                // Initial load for mock
-                hooks = MOCK_MASTER_STRATEGY.modules.hooks?.slice(0, 10).map((h, i) => ({
-                    id: `mock-hook-${projectId}-${i}`,
-                    projectId: projectId,
-                    masterHookId: String(h.id),
-                    question: h.question,
-                    strategy: h.strategy,
-                    isGenerated: true,
-                    createdAt: new Date()
-                })) || [];
-                localProjectHooks.push(...hooks);
-            }
-            return Promise.resolve(hooks);
-        }
-        if (apiCache.projectHooks[projectId]) return apiCache.projectHooks[projectId]!;
-        const data = await fetchWithFallback(`/projects/${projectId}/hooks`, { headers: getAuthHeaders() });
-        apiCache.projectHooks[projectId] = data;
-        return data;
-    },
-
-    unlockMoreHooks: async (projectId: string): Promise<{ success: boolean; count: number; message?: string }> => {
-        if (isMockMode) {
-            const currentHooks = localProjectHooks.filter(h => h.projectId === projectId);
-            const masterHooks = MOCK_MASTER_STRATEGY.modules.hooks || [];
-            const nextBatch = masterHooks.slice(currentHooks.length, currentHooks.length + 10);
-            
-            const newHooks = nextBatch.map((h, i) => ({
-                id: `mock-hook-${projectId}-${currentHooks.length + i}`,
-                projectId: projectId,
-                masterHookId: String(h.id),
-                question: h.question,
-                strategy: h.strategy,
-                isGenerated: true,
-                createdAt: new Date()
-            }));
-            
-            localProjectHooks.push(...newHooks);
-            return Promise.resolve({ success: true, count: newHooks.length });
-        }
-        const res = await fetchWithFallback(`/projects/${projectId}/hooks/unlock-more`, {
-            method: 'POST',
-            headers: getAuthHeaders()
-        });
-        clearCache('projectHooks', projectId);
-        return res;
-    },
-
-    updateProjectHook: async (hookId: string, data: Partial<ProjectHook>): Promise<void> => {
-        if (isMockMode) {
-            localProjectHooks = localProjectHooks.map(h => h.id === hookId ? { ...h, ...data } : h);
-            return Promise.resolve();
-        }
-        const payload: any = {};
-        if (data.kitJson) payload.kit_json = data.kitJson;
-        if (data.isGenerated !== undefined) payload.is_generated = data.isGenerated;
-
-        await fetchWithFallback(`/projects/hooks/${hookId}`, {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(payload)
-        });
-        // Clear all hooks cache since we don't easily know the project ID from just hookId
-        apiCache.projectHooks = {};
-    },
-    ////////// Fin de actualización //////////
   
     getLeads: async (): Promise<Lead[]> => {
         if (isMockMode) return Promise.resolve([...localLeads]);
@@ -982,6 +880,7 @@ export const api = {
                 keyword: article.keyword,
                 seo_score: article.seoScore,
                 meta_title: article.metaTitle,
+                // Fixed: meta_description was incorrectly trying to access meta_description instead of metaDescription
                 meta_description: article.metaDescription,
                 status: article.status,
                 published_at: article.publishedAt
@@ -1005,6 +904,7 @@ export const api = {
                 title: article.title,
                 slug: article.slug,
                 description: article.description,
+                // Fix: Access article.contentHtml instead of non-existent article.content_html
                 content_html: article.contentHtml,
                 // Fixing snake_case keys correctly mapped to article's camelCase properties
                 featured_image: article.featuredImage,
@@ -1753,6 +1653,31 @@ export const api = {
         return tickets;
     },
     ////////// Fin de actualización //////////
+
+    /* Actualización: Métodos para el sistema dinámico de Hooks de Atracción - 01/01/2026 */
+    getProjectHooks: async (projectId: string): Promise<ProjectHook[]> => {
+        if (isMockMode) return [];
+        return await fetchWithFallback(`/hooks/project/${projectId}`, { headers: getAuthHeaders() });
+    },
+
+    unlockMoreHooks: async (projectId: string): Promise<{ success: boolean; count: number }> => {
+        if (isMockMode) return { success: true, count: 10 };
+        const res = await fetchWithFallback(`/hooks/unlock-more/${projectId}`, {
+            method: 'POST',
+            headers: getAuthHeaders()
+        });
+        return res;
+    },
+
+    updateHook: async (hookId: string, data: Partial<ProjectHook>): Promise<void> => {
+        if (isMockMode) return;
+        await fetchWithFallback(`/hooks/${hookId}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(data)
+        });
+    },
+    /* Fin de actualización */
 
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,
     setLastGeneratedTitles: (titles: any[]) => { apiCache.lastGeneratedTitles = titles; }
