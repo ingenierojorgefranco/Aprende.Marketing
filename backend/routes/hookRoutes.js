@@ -12,19 +12,34 @@ router.use(authMiddleware);
 router.get('/project/:projectId', async (req, res) => {
     const { projectId } = req.params;
     try {
-        const [rows] = await pool.query(
-            'SELECT * FROM project_hooks WHERE project_id = ? ORDER BY created_at ASC',
-            [projectId]
-        );
+        // Verificar si el proyecto es maestro
+        const [projectRows] = await pool.query('SELECT is_master FROM projects WHERE id = ?', [projectId]);
+        const isMaster = projectRows.length > 0 && !!projectRows[0].is_master;
+
+        let rows = [];
+        if (isMaster) {
+            // Si es maestro, consultar la tabla master_hooks
+            [rows] = await pool.query(
+                'SELECT * FROM master_hooks WHERE master_project_id = ? ORDER BY created_at ASC',
+                [projectId]
+            );
+        } else {
+            // Si no es maestro, consultar la tabla project_hooks
+            [rows] = await pool.query(
+                'SELECT * FROM project_hooks WHERE project_id = ? ORDER BY created_at ASC',
+                [projectId]
+            );
+        }
+
         res.json(rows.map(h => ({
             ...h,
             id: String(h.id),
-            projectId: String(h.project_id),
-            masterHookId: h.master_hook_id ? String(h.master_hook_id) : undefined,
+            projectId: String(h.project_id || h.master_project_id),
+            masterHookId: h.master_hook_id ? String(h.master_hook_id) : (isMaster ? String(h.id) : undefined),
             psychologicalStrategy: h.psychological_strategy,
             landingPageUrl: h.landing_page_url,
             contentJson: typeof h.content_json === 'string' ? JSON.parse(h.content_json) : h.content_json,
-            isGenerated: !!h.is_generated
+            isGenerated: h.is_generated !== undefined ? !!h.is_generated : !!h.content_json
         })));
     } catch (e) {
         res.status(500).json({ error: e.message });

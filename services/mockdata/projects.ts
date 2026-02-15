@@ -1,4 +1,4 @@
-import { Project, LandingPage, GeneratedPageContent } from "../../types";
+import { Project, LandingPage, GeneratedPageContent, ProjectHook } from "../../types";
 import { ProjectMasterStrategy } from "../strategySchema";
 import { BookOpen, Sparkles, Users, MessageCircle, Target } from 'lucide-react';
 
@@ -334,7 +334,7 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                     day: "Día 8",
                     subject: "¿Cansada de las promesas vacías en cursos online?",
                     type: "Educativo",
-                    objective: "Empatizar con el miedo del cliente y posicionar el curso como la solución real."
+                    objective: "Empatizar con el miedo del cliente and posicionar el curso como the solución real."
                 }
             ]
         },
@@ -376,79 +376,8 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
                 moment: "Día -1",
                 objective: "Adelanto (3 Errores): Aportar valor real antes de la clase identificando errores comunes, posicionando la clase como la solución para evitarlos.",
                 messages: [{ role: 'agent', text: "*📣 Hola chicas, ya estamos a un solo día de nuestra clase gratuita de microblading 🙋‍♀️✨*\nAntes de vernos mañana, quiero regalarles un pequeño adelanto de lo que vamos a trabajar juntas. 💖\nHoy les voy a contar los _3 errores más comunes que cometen las personas_ cuando empiezan en microblading (y cómo tú los puedes evitar):\n❌ Pensar que solo se necesita buen pulso y práctica.\n❌ Usar cualquier pigmento o material sin entender su calidad ni compatibilidad.\n❌ Creer que con videos sueltos de internet se puede aprender toda la técnica.\nMañana te voy a mostrar cómo evitar cada uno de estos errores y, además, te enseñará en vivo el proceso completo, los pigmentos y materiales profesionales que usamos, y te compartiré tips que aprendí en mis más de 10 años de experiencia.\n• Estoy preparando algo muy especial para ti, así que no te lo puedes perder por nada. 🌟\n• Nos vemos mañana viernes a las 8:00 p.m. (hora Colombia/México) – 10:00 p.m. (hora Argentina/Chile).\n• Te espero con toda mi energía y ganas de compartir lo mejor que tengo contigo.\n💖 Ariana Zamora ✨" }]
-            },
-            {
-                id: "wl5",
-                name: "¡Hoy es el gran día!",
-                moment: "Día Clase (AM)",
-                objective: "Recordatorio Matutino: Generar urgencia y entusiasmo desde temprano, asegurando que el lead sepa que 'hoy es el día' y prepare su entorno.",
-                messages: [{ role: 'agent', text: "*📣🎺 HOY CLASE DE MICROBLADING DE CEJAS 🎺📣*\n¡GRANDIOSA comunidad! ✨ _Llegó el día que estábamos esperando_ 🙌.\nHOY iniciamos nuestra capacitación completa para convertirte en una *especialista de Microblading de Cejas* . 💖\n*❗ ¡PRESTAME ATENCIÓN! ❗*\n✅ Durante el día voy a estar enviando recordatorios para que no se te olvide la hora.\n🕗 La clase es hoy a las 8:00 p.m. (hora Colombia/México) – 10:00 p.m. (hora Argentina/Chile).\n✅ 5 minutos antes de iniciar la clase te compartiré aquí mismo el enlace de acceso a la clase\n*Estoy muy emocionada y feliz de compartir este momento contigo ✨.*\nPrepárate porque lo que vas a vivir hoy puede ser el inicio de una gran transformación en tu vida. 🌟\n— Ariana Zamora 💕" }]
-            },
-            {
-                id: "wl6",
-                name: "Cuenta Regresiva (T-4h)",
-                moment: "Día Clase (PM)",
-                objective: "Cuenta Regresiva Final: Incrementar la dopamina y la urgencia faltando pocas horas, dando instrucciones finales para la conexión.",
-                messages: [{ role: 'agent', text: "*⏳ Faltan 4 horas ⏳*\n• 🔔 Recuerda tener todo preparado para la clase de hoy.\n• 🕒 Separa 1 hora para ver nuestra clase en vivo de Microblading de Cejas.\n• 🪑 Destina un lugar cómodo donde te puedas concentrar.\n• 💻 Ten preparado el computador, televisor o móvil para ver la clase.\n• 📝 Ten a la mano dónde tomar notas y aleja todo tipo de distracciones.\nEstoy muy emocionada porque en pocas horas empezaremos juntas esta experiencia única.\n*Prepárate, porque lo que aprenderás hoy puede ser el inicio de un cambio en tu vida. 💕*\n— Ariana Zamora 🌟" }]
-            },
-            {
-                id: "wl7",
-                name: "¡Estamos en Vivo!",
-                moment: "Día Clase (Link)",
-                objective: "Acceso al En Vivo: Facilitar la entrada inmediata a la transmisión, eliminando cualquier fricción técnica con un link directo y claro.",
-                messages: [{ role: 'agent', text: "*🚀 Iniciamos en 20 minutos 🚀*\n• La clase será transmitida a través de YouTube 🎥.\n• En unos minutos les compartiré aquí mismo el enlace de acceso.\n*Recuerda:*\n👉 Estar muy bien enfocada y centrada.\n👉 Alejar todas tus distracciones.\n*Porque en solo 20 minutos empezamos juntas esta gran experiencia. 🌟*\n¿Listas? 🙌💖" }]
-            },
-            {
-                id: "wl8",
-                name: "Oferta Abierta (Beca 75%)",
-                moment: "Post-Clase",
-                objective: "Apertura de Inscripciones: Presentar la oferta irresistible con el descuento máximo (Beca) para capturar a los 'early birds' y compradores impulsivos.",
-                messages: [{ role: 'agent', text: "*🔴🔴 YA ESTAMOS EN VIVO 🔴🔴*\n• 🎥 Haremos la transmisión vía YouTube.\n*LINK DE ACCESO:*\n👉 https://hotm.art/microblading-clase-online\n*⚡ YA PUEDEN IR INGRESANDO A LA CLASE HACIENDO CLIC EN EL ENLACE ⚡*" }]
-            },
-            {
-                id: "wl9",
-                name: "Bonos de Acción Rápida",
-                moment: "Urgencia 1",
-                objective: "Bonos de Acción Rápida: Presionar éticamente mediante la pérdida inminente de los regalos exclusivos, forzando una decisión de compra rápida.",
-                messages: [{ role: 'agent', text: "*✨ ¡Gracias hermosas por estar en la clase de hoy! 🙋‍♀️💕*\nDe corazón espero que hayas disfrutado, aprendido y descubierto lo maravilloso que puede ser el mundo del microblading.\n📹 Quiero contarte que la grabación de la clase la vamos a compartir en este mismo grupo, para que puedas repasarla las veces que quieras.\n*Y ahora quiero darte una noticia especial:*\n👉 Las inscripciones al curso completo de Especialista en Microblading de Cejas 2.0 ya están abiertas.\nSu valor normal es de *200 Dólares* , pero por lanzamiento exclusivo para quienes participaron hoy, *queda en solo 47 Dólares* . 🎉\n_*En este curso vas a tener acceso a:*_\n• 💎 Las técnicas paso a paso explicadas en detalle.\n• 🎥 Clases grabadas + prácticas para que avances a tu ritmo.\n• 🎁 Bonos exclusivos (guía de pigmentos, plantillas de práctica y acceso a comunidad privada).\nEsta es tu oportunidad de dar el siguiente paso y empezar a transformar tu futuro con una habilidad rentable y apasionante.\n*Aquí puedes ver todos los detalles del programa con el descuento del 75%*\n👉 https://hotm.art/microblading-web-beca\nDe nuevo, gracias por confiar en mí.\nEstoy muy feliz de acompañarte en este camino. 💖\n— Ariana Zamora ✨" }]
-            },
-            {
-                id: "wl10",
-                name: "Tutorial de Pago",
-                moment: "Soporte",
-                objective: "Tutorial de Pago: Eliminar barreras técnicas de compra mostrando lo sencillo que es el proceso de checkout en Hotmart.",
-                messages: [{ role: 'agent', text: "*🎁✨ BONOS ESPECIALES DE LANZAMIENTO ✨🎁*\n_¡Atención comunidad! 🚨_\nLas primeras 50 personas que se inscriban hoy en el curso completo de Microblading de Cejas 2.0 recibirán de regalo un pack increíble de BONOS exclusivos:\n• 🎁 BONO 1: Cuadernillo de ejercicios “Nueva Guía Práctica del Microblading” (diseños, trazos y práctica profesional).\n• 🎁 BONO 2: Checklist completo de materiales para empezar sin excusas.\n• 🎁 BONO 3: Entrenamiento en diseño y construcción de cejas según morfología.\n• 🎁 BONO 4: Acceso al canal privado “Artistas en Cejas” para preguntas y soporte.\n• 🎁 BONO 5: Documentación indispensable lista para usar con clientas.\n• 🎁 BONO 6: Agenda + 20 diseños listos para organizar tu negocio.\n• 🎁 BONO 7: Entrenamiento “Comenzando mi propio emprendimiento”.\n• 🎁 BONO 8: Pack de 5 libros de belleza en PDF para potenciar tus conocimientos.\n*Todo esto es tuyas GRATIS si aseguras tu cupo hoy al precio especial de 47 USD (antes 200 USD).*\n*Inscríbete aquí y reclama tus bonos ahora mismo:*\n👉 https://hotm.art/microblading-web-beca\n_Recuerda: solo aplica para las primeras 50 inscripciones._\n¡No te quedes fuera!" }]
-            },
-            {
-                id: "wl11",
-                name: "Certificado y Garantía",
-                moment: "Garantía",
-                objective: "Seguridad y Aval: Neutralizar el miedo al riesgo financiero resaltando la garantía de satisfacción y la certificación profesional.",
-                messages: [{ role: 'agent', text: "*✅ Había olvidado decirte: GARANTÍA TOTAL ✅*\nQueremos que te sientas tranquila al dar este paso 🙌.\n*_Por eso, el curso Especialista en Microblading de Cejas 2.0 tiene una garantía de 7 días._*\n• Esto significa que puedes ingresar, probar el contenido, ver las clases y comenzar tu proceso.\n• Si en esos 7 días consideras que el curso no cumple con tus expectativas, se te devuelve el 100% de tu dinero. 💵\n*✨ Aunque estamos seguros de que eso no pasará…*\n• Porque este es el mejor curso de microblading online, probado y diseñado para que realmente logres resultados.\n• Hoy tienes la oportunidad de empezar con total seguridad y sin riesgos. 🌟\n*Aquí tienes el link directo para inscribirte al programa:*\n*👉 https://hotm.art/microblading-beca-70*" }]
-            },
-            {
-                id: "wl12",
-                name: "Últimos Cupos / Apertura Grupo",
-                moment: "Cierre",
-                objective: "Últimos Cupos: Notificar la escasez real de plazas para movilizar a los indicisos que necesitan un último empujón antes del cierre.",
-                messages: [{ role: 'agent', text: "*🚨 INSCRIPCIONES CERRADAS 🚨*\n*El precio especial de lanzamiento (200 USD → 47 USD) ya ha finalizado. ❌*\n• Oficialmente, esta oportunidad no está disponible más…\n• Sabemos que muchas personas querían entrar, pero el tiempo y los cupos se agotaron.\n• Si no alcanzaste, puedes escribirme por interno y veremos si es posible habilitarte un cupo extra con el descuento.\n⚠ ️ Eso sí, no puedo garantizar porque los cupos estaban limitados.\nHoy cerramos esta etapa con un grupo maravilloso de nuevas futuras especialistas en microblading que ya están dentro.\n*Si te quedaste por fuera, recuerda: las oportunidades no esperan. 💎*" }]
-            },
-            {
-                id: "wl13",
-                name: "Inscripciones Cerradas",
-                moment: "Final",
-                objective: "Cierre de Carrito: Mantener la integridad de la oferta informar que las inscripciones terminaron, generando deseo para la próxima edición.",
-                messages: [{ role: 'agent', text: "*🎉 ¡FELICIDADES NUEVAS ESPECIALISTAS! 🎉*\nQueremos felicitar a todas las personas que aprovecharon la oportunidad y ya se inscribieron en el curso Especialista en Microblading de Cejas 2.0. 💖\n• Hoy damos inicio a una nueva comunidad de mujeres valientes que decidieron apostar por ellas mismas, aprender una profesión con futuro y transformar su vida con el microblading. 🌟\n• 🥂 Bienvenidas a este camino, ¡ya son parte de nuestra familia de especialistas!\n• Gracias a todas las que participaron en la clase, estuvieron atentas y llenaron este grupo de energía positiva. 🙌\n*👉 Y si te quedaste por fuera, no te preocupes…*\n• Estate atenta a nuestras próximas oportunidades, porque lo mejor apenas está comenzando. 😉" }]
-            },
-            {
-                id: "wl14",
-                name: "Bienvenida y Próximos Pasos",
-                moment: "Bienvenida",
-                objective: "Onboarding: Dar la bienvenida oficial a los nuevos alumnos, reduciendo el remordimiento de compra y guiándolos al primer paso del curso.",
-                messages: [{ role: 'agent', text: "¡Bienvenida al equipo! 🎉 Revisa tu correo para el acceso al área de miembros. Mañana iniciamos el Módulo 1." }]
             }
         ],
-        ////////// Actualización: Testimonios Mock para validar la interfaz - 08/01/2026 //////////
         testimonials: [
             { 
               name: "Maria G.", 
@@ -463,9 +392,100 @@ export const MOCK_MASTER_STRATEGY: ProjectMasterStrategy = {
               text: "Increíble cómo optimizó mis artículos para SEO. Estoy empezando a recibir tráfico orgánico desde Google sin gastar ni un dólar en anuncios."
             }
         ]
-        ////////// Fin de actualización //////////
     }
 };
+
+// --- MOCK DE GANCHOS DE ATRACCIÓN ---
+export const MOCK_PROJECT_HOOKS: ProjectHook[] = [
+  {
+    id: 'hook-1',
+    projectId: 'proj-microblading-01',
+    title: "¿Te gustaría generar $1.000 extras al mes sin dejar tu trabajo actual?",
+    psychologicalStrategy: "Conecta con el deseo de seguridad financiera inmediata y falta de riesgo.",
+    isGenerated: true,
+    contentJson: {
+      script: "Gana más tiempo con tu familia aprendiendo microblading de cejas.\nEs la forma más sencilla de equilibrar tu vida personal y profesional.\n\nOrganizas tus propios horarios sin depender de nadie.\nGeneras ingresos mientras disfruta de tus seres queridos.\nY recuperas momentos que antes no podías tener.\n\nNuestra profesora especialista en microblading dará hoy una clase GRATIS en vivo.\nUna oportunidad perfecta para que descubras cómo iniciar in esta profesión.\n\nEscribe microblading en los comentarios y entra al link de nuestro perfil para unirte a la clase gratuita que daremos hoy.\nHoy puede ser el comienzo de una nueva vida.",
+      ads: "🔥 ¿Te gustaría generar $1.000 extras al mes sin dejar tu trabajo actual?\n\nSé que suena a promesa vacía, pero en este sector la demanda es tan alta que muchas personas están logrando independencia financiera empezando in sus tiempos libres.\n\n✅ Sin jefes.\n✅ A tu ritmo.\n✅ Con una técnica probada.\n\nHe preparado una Masterclass gratuita donde te revelo el mapa exacto para lograrlo este mismo mes. 👇\n\n🔗 [LINK DE TU LANDING]",
+      thumbs: [
+        "Genera $1,000 EXTRAS 💰",
+        "SIN RENUNCIAR A TU EMPLEO 🚫",
+        "El Método de 1 Hora/Día ⏰"
+      ]
+    }
+  },
+  {
+    id: 'hook-2',
+    projectId: 'proj-microblading-01',
+    title: "¿Has sentido que tu talento no está siendo pagado como realmente merece?",
+    psychologicalStrategy: "Apela al sentimiento de infravaloración profesional y deseo de estatus.",
+    isGenerated: false,
+    contentJson: null
+  },
+  {
+    id: 'hook-3',
+    projectId: 'proj-microblading-01',
+    title: "¿Qué harías si tuvieras una técnica que te permitiera ser tu propia jefa mañana mismo?",
+    psychologicalStrategy: "Estimula la visualización de independencia y control total del tiempo.",
+    isGenerated: false,
+    contentJson: null
+  },
+  {
+    id: 'hook-4',
+    projectId: 'proj-microblading-01',
+    title: "¿Estás cansada de ver cómo otros tienen éxito mientras tú sigues estancada?",
+    psychologicalStrategy: "Utiliza el gatillo de la envidia benigna y la urgencia por el cambio.",
+    isGenerated: false,
+    contentJson: null
+  },
+  {
+    id: 'hook-5',
+    projectId: 'proj-microblading-01',
+    title: "¿Sabías que el microblading es la habilidad mejor pagada en el sector belleza hoy?",
+    psychologicalStrategy: "Autoridad basada en datos de mercado para validar la oportunidad.",
+    isGenerated: false,
+    contentJson: null
+  },
+  {
+    id: 'hook-6',
+    projectId: 'proj-microblading-01',
+    title: "¿Te imaginas recuperar tu inversión con tan solo tus primeras dos clientas?",
+    psychologicalStrategy: "Neutraliza el miedo a la pérdida económica con un cálculo de retorno rápido.",
+    isGenerated: false,
+    contentJson: null
+  },
+  {
+    id: 'hook-7',
+    projectId: 'proj-microblading-01',
+    title: "¿Quieres aprender el sistema que automatiza tus ventas mientras tú te enfocas en tu arte?",
+    psychologicalStrategy: "Deseo de simplicidad técnica y enfoque en lo que realmente les apasiona.",
+    isGenerated: false,
+    contentJson: null
+  },
+  {
+    id: 'hook-8',
+    projectId: 'proj-microblading-01',
+    title: "¿Y si pudieras duplicar tu agenda sin invertir más en publicidad?",
+    psychologicalStrategy: "Foco en eficiencia operativa y crecimiento orgánico.",
+    isGenerated: false,
+    contentJson: null
+  },
+  {
+    id: 'hook-9',
+    projectId: 'proj-microblading-01',
+    title: "¿Buscas una forma segura de emprender en el mundo de la estética?",
+    psychologicalStrategy: "Seguridad y acompañamiento profesional.",
+    isGenerated: false,
+    contentJson: null
+  },
+  {
+    id: 'hook-10',
+    projectId: 'proj-microblading-01',
+    title: "¿Quieres dejar de depender de un sueldo fijo y crear tu propio destino?",
+    psychologicalStrategy: "Apelación a la libertad individual y el empoderamiento.",
+    isGenerated: false,
+    contentJson: null
+  }
+];
 
 // Actualización: Mapeo exacto de beneficios desde la estrategia maestra - 24/10/2023 14:15
 export const MICROBLADING_CONTENT: GeneratedPageContent = {
