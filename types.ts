@@ -1,4 +1,5 @@
 
+
 ////////// Actualización: Definición de tipos para el Feed de Noticias del Dashboard - 24/05/2024 16:45 //////////
 export interface DashboardNews {
     id: string;
@@ -71,6 +72,19 @@ export interface SupportTicket {
   reason: string;
   status: 'pending' | 'resolved';
   createdAt: string;
+}
+////////// Fin de actualización //////////
+
+////////// Actualización: Interfaz para Ganchos Persistentes - 15/01/2026 //////////
+export interface ProjectHook {
+  id: string;
+  projectId: string;
+  masterHookId?: string;
+  question: string;
+  strategy: string;
+  kitJson?: string | any;
+  isGenerated: boolean;
+  createdAt: Date;
 }
 ////////// Fin de actualización //////////
 

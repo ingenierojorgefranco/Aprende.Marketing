@@ -1,6 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
-import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download } from 'lucide-react';
-import { useOutletContext, useParams } from 'react-router-dom';
+import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Unlock } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { api } from '../../../../services/api';
+import { ProjectHook } from '../../../../types';
 
 interface ProjectStrategy_HooksProps {
   strategyData: any;
@@ -20,12 +23,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const { id: projectId } = useParams() as { id: string };
   const [showVideoModal, setShowVideoModal] = useState(false);
   
-  // Estados para el prototipo del Kit
+  // Ganchos persistentes reales
+  const [hooks, setHooks] = useState<ProjectHook[]>([]);
+  const [loadingHooks, setLoadingHooks] = useState(true);
+  const [unlockingMore, setUnlockingMore] = useState(false);
+
+  // Estados para el generador del Kit
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  // Inicializamos con el índice 0 para que el primer gancho aparezca generado
-  const [generatedIndices, setGeneratedIndices] = useState<Set<number>>(new Set([0]));
   const [loadingStep, setLoadingStep] = useState(0);
-  const [activeKitTab, setActiveKitTab] = useState<'video' | 'ads' | 'thumbs' | 'publish'>('video');
+  const [activeKitTab, setActiveKitTab] = useState<'video' | 'ads' | 'thumbs' | 'publish'>('publish');
   const [openAccordion, setOpenAccordion] = useState<number | null>(0);
 
   const loadingMessages = [
@@ -35,44 +41,91 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     "Diseñando conceptos visuales..."
   ];
 
-  // Ganchos sugeridos
-  const fallbackHooks = [
-    { id: 1, question: "¿Te gustaría generar $1,000 extras al mes sin dejar tu trabajo actual?", strategy: "Conecta con el deseo de seguridad financiera inmediata y falta de riesgo." },
-    { id: 2, question: "¿Has sentido que tu talento no está siendo pagado como realmente merece?", strategy: "Apela al sentimiento de infravaloración profesional y deseo de estatus." },
-    { id: 3, question: "¿Qué harías si tuvieras una técnica que te permitiera ser tu propia jefa mañana mismo?", strategy: "Estimula la visualización de independencia y control total del tiempo." },
-    { id: 4, question: "¿Estás cansada de ver cómo otros tienen éxito mientras tú sigues estancada?", strategy: "Utiliza el gatillo de la envidia benigna y la urgencia por el cambio." },
-    { id: 5, question: "¿Sabías que el microblading es la habilidad mejor pagada en el sector belleza hoy?", strategy: "Autoridad basada en datos de mercado para validar la oportunidad." },
-    { id: 6, question: "¿Te imaginas recuperar tu inversión con tan solo tus primeras dos clientas?", strategy: "Neutraliza el miedo a la pérdida económica con un cálculo de retorno rápido." },
-    { id: 7, question: "¿Quieres aprender el sistema que automatiza tus ventas mientras tú te enfocas en tu arte?", strategy: "Deseo de simplicidad técnica y enfoque en lo que realmente les apasiona." }
-  ];
-
-  const hooks = strategyData?.modules?.hooks && strategyData.modules.hooks.length > 0 
-    ? strategyData.modules.hooks 
-    : fallbackHooks;
-
-  const currentHook = hooks[activeHook] || hooks[0];
-
+  // Paginación local de la lista UI
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const totalPages = Math.ceil(hooks.length / itemsPerPage);
   const paginatedHooks = hooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // Verificamos si el gancho actual está en la lista de generados
-  const isCurrentHookGenerated = generatedIndices.has(activeHook);
+  useEffect(() => {
+    loadHooks();
+  }, [projectId]);
 
-  // Simulación de generación del Kit
+  const loadHooks = async () => {
+    if (!projectId) return;
+    setLoadingHooks(true);
+    try {
+        const data = await api.getProjectHooks(projectId);
+        setHooks(data);
+    } catch (e) {
+        console.error("Error cargando ganchos persistentes", e);
+    } finally {
+        setLoadingHooks(false);
+    }
+  };
+
+  /* Actualización: Implementación de handleUpdateMessage para permitir el refinamiento estratégico de ganchos - 11/03/2025 */
+  const handleUpdateMessage = async (idx: number, field: string, value: any) => {
+    const hook = hooks[idx];
+    if (!hook) return;
+
+    try {
+        await api.updateProjectHook(hook.id, { [field]: value });
+        await loadHooks();
+    } catch (e) {
+        console.error("Error updating hook", e);
+    }
+  };
+
+  /* Actualización: Corrección de acceso a propiedad 'message' en la respuesta de unlockMoreHooks - 11/03/2025 */
+  const handleUnlockMore = async () => {
+    setUnlockingMore(true);
+    try {
+        const res = await api.unlockMoreHooks(projectId);
+        if (res.count > 0) {
+            await loadHooks();
+            alert(`Se han desbloqueado ${res.count} nuevos ganchos maestros.`);
+        } else {
+            alert(res.message || "No hay más ganchos disponibles en el proyecto maestro.");
+        }
+    } catch (e) {
+        alert("Error al desbloquear más ganchos.");
+    } finally {
+        setUnlockingMore(false);
+    }
+  };
+
+  const currentHook = hooks[activeHook] || null;
+
+  // Simulación de generación del Kit (con persistencia real)
   const handleGenerateKit = () => {
+    if (!currentHook) return;
     setIsGenerating(true);
     let step = 0;
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       if (step < loadingMessages.length - 1) {
         step++;
         setLoadingStep(step);
       } else {
         clearInterval(interval);
+        
+        // Simulación de contenido generado
+        const generatedKit = {
+            videoScript: "Gana más tiempo con tu familia aprendiendo microblading de cejas.\nEs la forma más sencilla de equilibrar tu vida personal y profesional.\n\nOrganizas tus propios horarios sin depender de nadie.\nGeneras ingresos mientras disfruta de tus seres queridos.\nY recuperas momentos que antes no podías tener.\n\nNuestra profesora especialista en microblading dará hoy una clase GRATIS en vivo.\nUna oportunidad perfecta para que descubras cómo iniciar in esta profesión.\n\nEscribe microblading en los comentarios y entra al link de nuestro perfil para unirte a la clase gratuita que daremos hoy.\nHoy puede ser el comienzo de una nueva vida.",
+            adCopy: `🔥 ${currentHook.question}\n\nSé que suena a promesa vacía, pero en el sector de ${strategyData?.meta?.niche || 'este nicho'} la demanda es tan alta que muchas personas están logrando independencia financiera empezando in sus tiempos libres.\n\n✅ Sin jefes.\n✅ A tu ritmo.\n✅ Con una técnica probada.\n\nHe preparado una Masterclass gratuita donde te revelo el mapa exacto para lograrlo este mismo mes. 👇\n\n🔗 [LINK DE TU LANDING]`
+        };
+
+        try {
+            await api.updateProjectHook(currentHook.id, { 
+                kitJson: generatedKit,
+                isGenerated: true 
+            });
+            await loadHooks(); // Recargar para ver el cambio
+        } catch (e) {
+            console.error("Error persistiendo kit", e);
+        }
+        
         setIsGenerating(false);
-        // Agregamos el índice actual a los generados
-        setGeneratedIndices(prev => new Set(prev).add(activeHook));
       }
     }, 1200);
   };
@@ -82,14 +135,14 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     alert("Contenido copiado al portapapeles");
   };
 
-  // Datos mockeados para el Kit (Adaptables según el gancho, pero para el prototipo usamos el del Gancho 1)
-  const kitContent = {
+  // Contenido del kit (Persistido o fallback)
+  const activeKit = currentHook?.kitJson || null;
+
+  const kitViewData = {
     video: {
-      script: [
-        { text: "Gana más tiempo con tu familia aprendiendo microblading de cejas.\nEs la forma más sencilla de equilibrar tu vida personal y profesional.\n\nOrganizas tus propios horarios sin depender de nadie.\nGeneras ingresos mientras disfruta de tus seres queridos.\nY recuperas momentos que antes no podías tener.\n\nNuestra profesora especialista en microblading dará hoy una clase GRATIS en vivo.\nUna oportunidad perfecta para que descubras cómo iniciar en esta profesión.\n\nEscribe microblading en los comentarios y entra al link de nuestro perfil para unirte a la clase gratuita que daremos hoy.\nHoy puede ser el comienzo de una nueva vida." }
-      ]
+      script: activeKit?.videoScript || ""
     },
-    ads: `🔥 ${currentHook.question}\n\nSé que suena a promesa vacía, pero en el sector de ${strategyData?.meta?.niche || 'este nicho'} la demanda es tan alta que muchas personas están logrando independencia financiera empezando en sus tiempos libres.\n\n✅ Sin jefes.\n✅ A tu ritmo.\n✅ Con una técnica probada.\n\nHe preparado una Masterclass gratuita donde te revelo el mapa exacto para lograrlo este mismo mes. 👇\n\n🔗 [LINK DE TU LANDING]`,
+    ads: activeKit?.adCopy || "",
     thumbs: [
       "Genera $1,000 EXTRAS 💰",
       "SIN RENUNCIAR A TU EMPLEO 🚫",
@@ -145,17 +198,20 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         {/* LISTADO DE HOOKS */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-[#111] p-6 rounded-[2.5rem] border border-white/5 h-full flex flex-col shadow-xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-orange-900/30 rounded-lg text-orange-400 border border-orange-900/50">
-                <Target className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-xl font-bold text-white">Ganchos Sugeridos</h4>
-              </div>
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-orange-900/30 rounded-lg text-orange-400 border border-orange-900/50">
+                        <Target className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h4 className="text-xl font-bold text-white">Ganchos Sugeridos</h4>
+                    </div>
+                </div>
+                {loadingHooks && <Loader2 className="w-4 h-4 animate-spin text-orange-400" />}
             </div>
             
             <div className="space-y-4 flex-1">
-              {paginatedHooks.map((hook: any, idxInPage: number) => {
+              {paginatedHooks.map((hook: ProjectHook, idxInPage: number) => {
                 const globalIdx = (currentPage - 1) * itemsPerPage + idxInPage;
                 const isActive = activeHook === globalIdx;
 
@@ -176,21 +232,39 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
               })}
             </div>
 
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-800">
-                <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"><ChevronLeft className="w-5 h-5" /></button>
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Pág. {currentPage}</span>
-                <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)} className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"><ChevronRight className="w-5 h-5" /></button>
-              </div>
-            )}
+            <div className="space-y-4 mt-6">
+                {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-6 border-t border-gray-800">
+                    <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"><ChevronLeft className="w-5 h-5" /></button>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Pág. {currentPage} / {totalPages}</span>
+                    <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)} className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"><ChevronRight className="w-5 h-5" /></button>
+                </div>
+                )}
+
+                {/* Botón de Desbloqueo Incremental */}
+                {strategyData?.meta?.masterParentId && (
+                    <button 
+                        onClick={handleUnlockMore}
+                        disabled={unlockingMore}
+                        className="w-full py-4 bg-yellow-600 hover:bg-yellow-500 text-black font-black text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
+                    >
+                        {unlockingMore ? <Loader2 className="w-4 h-4 animate-spin" /> : <Unlock className="w-4 h-4" />}
+                        Desbloquear 10 Ganchos más
+                    </button>
+                )}
+            </div>
           </div>
         </div>
 
         {/* DETALLE Y RESULTADO */}
         <div className="lg:col-span-7 space-y-8">
-            {/* CARD DE DETALLE Y GENERADOR - OCULTA SI YA SE GENERÓ EL KIT */}
-            {!isCurrentHookGenerated && (
-                <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 flex flex-col relative overflow-hidden shadow-2xl">
+            {!currentHook ? (
+                <div className="h-full flex flex-col items-center justify-center text-gray-600">
+                    <Target className="w-12 h-12 mb-4 opacity-20" />
+                    <p>Selecciona un gancho para ver el detalle.</p>
+                </div>
+            ) : !currentHook.isGenerated ? (
+                <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 flex flex-col relative overflow-hidden shadow-2xl animate-in fade-in duration-500">
                     <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Zap className="w-40 h-40 text-orange-500" /></div>
                     <div className="relative z-10">
                         <div className="flex justify-between items-center mb-6">
@@ -201,7 +275,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             {currentHook.question}
                         </h3>
 
-                        <div className="bg-black/40 rounded-[2rem] p-6 border border-gray-700/50 backdrop-blur-sm mb-8 flex gap-4 items-start">
+                        <div className="bg-orange-500/5 rounded-[3rem] p-8 border border-orange-500/30 backdrop-blur-sm mb-8 flex gap-4 items-start shadow-inner">
                             <Brain className="w-6 h-6 text-orange-400 shrink-0 mt-1"/>
                             <div>
                                 <h5 className="text-white font-bold text-sm uppercase tracking-widest mb-1">Estrategia Psicológica</h5>
@@ -209,16 +283,14 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             </div>
                         </div>
 
-                        {!isCurrentHookGenerated && !isGenerating && (
+                        {!isGenerating ? (
                             <button 
                                 onClick={handleGenerateKit}
                                 className="w-full py-5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-900/20 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group"
                             >
                                 <Sparkles className="w-6 h-6 group-hover:animate-pulse" /> Crear Kit de Contenido con este ángulo
                             </button>
-                        )}
-
-                        {isGenerating && (
+                        ) : (
                             <div className="py-10 text-center space-y-6 animate-in fade-in duration-500">
                                 <div className="relative inline-block">
                                     <div className="absolute -inset-4 bg-orange-500/20 rounded-full blur-xl animate-pulse"></div>
@@ -232,32 +304,27 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         )}
                     </div>
                 </div>
-            )}
-
-            {/* --- KIT DE CONTENIDO GENERADO --- */}
-            {isCurrentHookGenerated && (
+            ) : (
                 <div className="animate-in slide-in-from-bottom-6 duration-700">
                     <div className="bg-[#111] border border-[#FF5A1F]/30 rounded-[3rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
-                        {/* Header del Kit Rediseñado */}
+                        {/* Header del Kit */}
                         <div className="p-8 border-b border-white/5 bg-gradient-to-r from-orange-500/10 to-transparent flex items-center gap-4">
                             <div className="w-14 h-14 bg-orange-500 text-black rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20">
                                 <Sparkles className="w-8 h-8 fill-current" />
                             </div>
                             <div>
                                 <h4 className="text-2xl font-black text-white uppercase tracking-tight">{currentHook.question}</h4>
-                                <p className="text-white text-[1.3rem] leading-[2.5rem] font-light py-4">
-                                    Estrategia Psicológica: "{currentHook.strategy}"
-                                </p>
+                                <button onClick={() => handleUpdateMessage(activeHook, 'isGenerated', false)} className="mt-2 text-gray-500 hover:text-white text-xs uppercase font-bold transition">Refinar Ángulo Estratégico</button>
                             </div>
                         </div>
 
-                        {/* Navigation Row - Justo debajo de la línea divisoria */}
+                        {/* Navigation Row */}
                         <div className="px-8 py-6 bg-black/20 border-b border-white/5">
                             <div className="w-full flex flex-wrap bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-inner">
-                                <button onClick={() => setActiveKitTab('video')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'video' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Guión de Video</button>
+                                <button onClick={() => setActiveKitTab('publish')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'publish' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Instrucciones</button>
+                                <button onClick={() => setActiveKitTab('video')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'video' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>GUION</button>
                                 <button onClick={() => setActiveKitTab('thumbs')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'thumbs' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Video</button>
                                 <button onClick={() => setActiveKitTab('ads')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'ads' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Descripción</button>
-                                <button onClick={() => setActiveKitTab('publish')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'publish' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Publicar</button>
                             </div>
                         </div>
 
@@ -272,17 +339,13 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     </div>
                                     <div className="bg-black/40 border border-white/5 rounded-[2.5rem] p-8 md:p-10 transition-all">
                                         <div className="text-gray-200 text-[1.3rem] leading-[2.5rem] font-light whitespace-pre-wrap">
-                                            {kitContent.video.script.map((step, i) => (
-                                                <div key={i} className="mb-0 last:mb-0">
-                                                    {step.text}
-                                                </div>
-                                            ))}
+                                            {kitViewData.video.script}
                                         </div>
                                     </div>
                                     <div className="flex justify-center">
                                         <button 
-                                            onClick={() => handleCopy(kitContent.video.script.map(s => s.text).join('\n\n'))} 
-                                            className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center gap-3 shadow-lg shadow-orange-900/20"
+                                            onClick={() => handleCopy(kitViewData.video.script)} 
+                                            className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-orange-900/20"
                                         >
                                             <Copy className="w-5 h-5" /> Copiar Guion
                                         </button>
@@ -300,11 +363,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     </div>
                                     <div className="bg-white rounded-[2rem] p-10 shadow-2xl text-gray-900 font-medium text-lg leading-relaxed border-4 border-gray-100 relative">
                                         <div className="absolute top-4 right-6 text-[10px] font-black text-gray-300 uppercase tracking-widest">Vista Previa Anuncio</div>
-                                        <div className="whitespace-pre-wrap">{kitContent.ads}</div>
+                                        <div className="whitespace-pre-wrap">{kitViewData.ads}</div>
                                     </div>
                                     <div className="flex justify-center">
                                         <button 
-                                            onClick={() => handleCopy(kitContent.ads)} 
+                                            onClick={() => handleCopy(kitViewData.ads)} 
                                             className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-orange-900/20"
                                         >
                                             <Copy className="w-5 h-5" /> Copiar Descripción
@@ -331,7 +394,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                             href="https://drive.google.com/file/d/18nIzeigNWVl6T2dhxuf34hlqAQKxHFAf/view?usp=drive_link" 
                                             target="_blank" 
                                             rel="noopener noreferrer"
-                                            className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center gap-3 shadow-lg shadow-orange-900/20"
+                                            className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-orange-900/20"
                                         >
                                             <Download className="w-5 h-5" /> Descargar Video
                                         </a>
@@ -344,7 +407,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
                                     <div className="space-y-4">
                                         <h5 className="text-white font-black text-3xl leading-tight">
-                                            ¿Cómo publicar automáticamente en redes sociales?
+                                            ¿Cómo publicar automáticamente in redes sociales?
                                         </h5>
                                         <p className="text-gray-400 text-lg font-light leading-relaxed">
                                             Sigue esta guía paso a paso para configurar tu sistema de publicación automatizada y escalar tu presencia digital sin esfuerzo manual constante.
@@ -352,7 +415,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     </div>
 
                                     <div className="space-y-4 mt-8">
-                                        {kitContent.publish.steps.map((step, idx) => (
+                                        {kitViewData.publish.steps.map((step, idx) => (
                                             <div key={idx} className="bg-black/40 border border-white/5 rounded-2xl overflow-hidden shadow-xl">
                                                 <button 
                                                     onClick={() => setOpenAccordion(openAccordion === idx ? null : idx)}

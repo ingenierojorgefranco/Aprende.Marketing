@@ -1,3 +1,5 @@
+
+
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
@@ -88,7 +90,6 @@ router.post('/unlock/:id', async (req, res) => {
         }
 
         // 3. Crear un nuevo proyecto independiente para el usuario (copia física del ADN base)
-        // Sobrescribimos affiliate_links, lead_magnet_type y lead_magnet_url con los datos proporcionados por el usuario
         const [result] = await pool.query(
             `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, is_master, master_parent_id, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, NOW(), NOW())`,
@@ -120,7 +121,33 @@ router.post('/unlock/:id', async (req, res) => {
             [req.user.id, projectId]
         );
 
-        // 4. Invocar internamente a la función generateFullStrategy para que la IA genere avatares y contenidos únicos
+        // 4. Clonación de los primeros 10 ganchos del maestro
+        const [masterHooks] = await pool.query(
+            'SELECT id, question, strategy, kit_json FROM project_hooks WHERE project_id = ? LIMIT 10',
+            [projectId]
+        );
+
+        if (masterHooks.length > 0) {
+            for (const hook of masterHooks) {
+                await pool.query(
+                    'INSERT INTO project_hooks (project_id, master_hook_id, question, strategy, kit_json, is_generated) VALUES (?, ?, ?, ?, ?, 1)',
+                    [newProjectId, hook.id, hook.question, hook.strategy, hook.kit_json]
+                );
+            }
+        } else {
+            // Fallback: Si el maestro solo tiene ganchos en el JSON, los extraemos
+            const masterStrategy = safeParseJson(master.strategy_json);
+            const legacyHooks = masterStrategy?.modules?.hooks || [];
+            for (let i = 0; i < Math.min(10, legacyHooks.length); i++) {
+                const hook = legacyHooks[i];
+                await pool.query(
+                    'INSERT INTO project_hooks (project_id, question, strategy, is_generated) VALUES (?, ?, ?, 1)',
+                    [newProjectId, hook.question, hook.strategy]
+                );
+            }
+        }
+
+        // 5. Invocar internamente a la función generateFullStrategy para que la IA genere avatares y contenidos únicos
         const strategyJson = await generateFullStrategy(newProjectId);
         await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), newProjectId]);
 
@@ -132,6 +159,77 @@ router.post('/unlock/:id', async (req, res) => {
     } catch (error) {
         console.error("[Unlock Error]", error);
         res.status(500).json({ error: error.message || 'Error al generar la estrategia personalizada' });
+    }
+});
+
+// ======================================================
+//  GESTIÓN DE GANCHOS (HOOKS)
+// ======================================================
+
+router.get('/:id/hooks', async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            'SELECT * FROM project_hooks WHERE project_id = ? ORDER BY created_at ASC',
+            [req.params.id]
+        );
+        res.json(rows.map(h => ({
+            ...h,
+            id: String(h.id),
+            projectId: String(h.project_id),
+            kitJson: safeParseJson(h.kit_json),
+            isGenerated: !!h.is_generated
+        })));
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+router.post('/:id/hooks/unlock-more', async (req, res) => {
+    try {
+        // 1. Verificar origen maestro
+        const [projRows] = await pool.query('SELECT master_parent_id FROM projects WHERE id = ?', [req.params.id]);
+        if (projRows.length === 0 || !projRows[0].master_parent_id) {
+            return res.status(400).json({ error: "Este proyecto no está vinculado a una estrategia maestra." });
+        }
+        const masterId = projRows[0].master_parent_id;
+
+        // 2. Buscar hooks en el maestro que el usuario aún no tenga
+        const [availableHooks] = await pool.query(`
+            SELECT id, question, strategy, kit_json 
+            FROM project_hooks 
+            WHERE project_id = ? 
+            AND id NOT IN (SELECT COALESCE(master_hook_id, 0) FROM project_hooks WHERE project_id = ?)
+            LIMIT 10
+        `, [masterId, req.params.id]);
+
+        if (availableHooks.length === 0) {
+            return res.json({ success: true, count: 0, message: "Has desbloqueado todos los ganchos disponibles." });
+        }
+
+        // 3. Copiar
+        for (const hook of availableHooks) {
+            await pool.query(
+                'INSERT INTO project_hooks (project_id, master_hook_id, question, strategy, kit_json, is_generated) VALUES (?, ?, ?, ?, ?, 1)',
+                [req.params.id, hook.id, hook.question, hook.strategy, hook.kit_json]
+            );
+        }
+
+        res.json({ success: true, count: availableHooks.length });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+router.put('/hooks/:hookId', async (req, res) => {
+    const { kit_json, is_generated } = req.body;
+    try {
+        await pool.query(
+            'UPDATE project_hooks SET kit_json = ?, is_generated = COALESCE(?, is_generated) WHERE id = ?',
+            [typeof kit_json === 'string' ? kit_json : JSON.stringify(kit_json), is_generated, req.params.hookId]
+        );
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
     }
 });
 
@@ -203,7 +301,7 @@ router.get('/', async (req, res) => {
   try {
     let query = `
       SELECT p.*, (p.user_id = ?) as is_owner,
-             EXISTS(SELECT 1 FROM unlocked_projects up WHERE up.project_id = p.id AND up.user_id = ?) as is_unlocked
+             EXISTS(SELECT 1 FROM unlocked_projects up ON p.id = up.project_id AND up.user_id = ?) as is_unlocked
       FROM projects p LEFT JOIN unlocked_projects up ON p.id = up.project_id AND up.user_id = ?
       WHERE p.user_id = ? AND p.is_master = 0 ORDER BY p.updated_at DESC
     `;
@@ -331,6 +429,15 @@ router.post('/:id/generate-strategy', async (req, res) => {
         await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), req.params.id]);
         process.stdout.write(`[DB UPDATE] Estrategia guardada exitosamente para ID: ${req.params.id}\n`);
         
+        // Inicializar ganchos en la nueva tabla para ganchos persistentes tras generación por IA
+        const hooks = strategyJson.modules?.hooks || [];
+        for (const hook of hooks) {
+            await pool.query(
+                'INSERT INTO project_hooks (project_id, question, strategy, is_generated) VALUES (?, ?, ?, 1)',
+                [req.params.id, hook.question, hook.strategy]
+            );
+        }
+
         res.json(strategyJson);
     } catch (e) { 
         console.error(`[ROUTE ERROR] Fallo crítico en generación para ${req.params.id}:`, e.message);
