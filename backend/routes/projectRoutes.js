@@ -1,4 +1,3 @@
-
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
@@ -125,8 +124,8 @@ router.post('/unlock/:id', async (req, res) => {
         const strategyJson = await generateFullStrategy(newProjectId);
         await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), newProjectId]);
 
-        ////////// Actualización: Carga inicial de 10 ganchos desde la tabla maestra - 01/01/2026 //////////
-        const [masterHooks] = await pool.query('SELECT * FROM master_hooks WHERE master_project_id = ? LIMIT 10', [projectId]);
+        ////////// Actualización: Carga inicial de 10 ganchos desde la tabla unificada project_hooks - 01/01/2026 //////////
+        const [masterHooks] = await pool.query('SELECT * FROM project_hooks WHERE project_id = ? LIMIT 10', [projectId]);
         for (const h of masterHooks) {
             await pool.query(
                 `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
@@ -187,7 +186,7 @@ router.post('/analyze-site', async (req, res) => {
             .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "")   // Quitar estilos
             .replace(/<!--[\s\S]*?-->/g, "")                      // Quitar comentarios HTML
             .replace(/<svg\b[^>]*>([\s\S]*?)<\/svg>/gim, "")      // Quitar SVGs
-            .replace(/<[^>]+>/g, ' ')                             // Quitar tags pero dejar espacio
+            .replace(/<[^+]>+/g, ' ')                             // Quitar tags pero dejar espacio
             .replace(/&nbsp;/g, ' ')
             .replace(/\s+/g, ' ')                                 // Unificar espacios
             .trim();

@@ -312,17 +312,7 @@ const initDb = async () => {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
         ////////// Fin de actualización //////////
 
-        ////////// Actualización: Tablas para el sistema dinámico de Hooks de Atracción - 01/01/2026 //////////
-        await connection.query(`CREATE TABLE IF NOT EXISTS master_hooks (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            master_project_id INT NOT NULL,
-            title VARCHAR(255) NOT NULL,
-            psychological_strategy TEXT,
-            content_json JSON,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (master_project_id) REFERENCES projects(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
-
+        ////////// Actualización: Tabla unificada para el sistema dinámico de Hooks de Atracción - 01/01/2026 //////////
         await connection.query(`CREATE TABLE IF NOT EXISTS project_hooks (
             id INT AUTO_INCREMENT PRIMARY KEY,
             project_id INT NOT NULL,
@@ -333,8 +323,7 @@ const initDb = async () => {
             content_json JSON,
             is_generated BOOLEAN DEFAULT FALSE,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-            FOREIGN KEY (master_hook_id) REFERENCES master_hooks(id) ON DELETE SET NULL
+            FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
         ////////// Fin de actualización - 01/01/2026 //////////
 
@@ -501,24 +490,17 @@ const initDb = async () => {
         ////////// Fin de migración //////////
 
         ////////// Migración para Hooks de Atracción //////////
-        await addColumnSafe(connection, 'master_hooks', "title VARCHAR(255) NOT NULL");
-        await addColumnSafe(connection, 'master_hooks', "psychological_strategy TEXT");
-        await addColumnSafe(connection, 'master_hooks', "content_json JSON");
         await addColumnSafe(connection, 'project_hooks', "title VARCHAR(255) NOT NULL");
         await addColumnSafe(connection, 'project_hooks', "psychological_strategy TEXT");
         await addColumnSafe(connection, 'project_hooks', "content_json JSON");
         
-        /* Actualización: Adición de columna is_generated a master_hooks para gestión de Administrador */
-        await addColumnSafe(connection, 'master_hooks', "is_generated BOOLEAN DEFAULT FALSE");
+        /* Actualización: Adición de columna is_generated a project_hooks para gestión */
+        await addColumnSafe(connection, 'project_hooks', "is_generated BOOLEAN DEFAULT FALSE");
         ////////// Fin de migración //////////
 
         ////////// LIMPIEZA DE COLUMNAS OBSOLETAS (DATOS BASURA) //////////
-        await dropColumnSafe(connection, 'master_hooks', 'question');
-        await dropColumnSafe(connection, 'project_hooks', 'question');
         await dropColumnSafe(connection, 'projects', 'short_description');
         await dropColumnSafe(connection, 'projects', 'strategy');
-        await dropColumnSafe(connection, 'master_hooks', 'strategy');
-        await dropColumnSafe(connection, 'project_hooks', 'strategy');
         ////////// FIN DE LIMPIEZA //////////
 
         try {
