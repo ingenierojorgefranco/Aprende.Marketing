@@ -16,6 +16,21 @@ const addColumnSafe = async (connection, tableName, columnDef) => {
 };
 
 /**
+ * Helper para eliminar columnas de forma segura en MySQL (idempotente)
+ */
+const dropColumnSafe = async (connection, tableName, columnName) => {
+    try {
+        await connection.query(`ALTER TABLE ${tableName} DROP COLUMN ${columnName}`);
+        console.log(`[DB] Columna eliminada de ${tableName}: ${columnName}`);
+    } catch (err) {
+        // Ignorar si la columna no existe (ER_CANT_DROP_FIELD_OR_KEY)
+        if (err.code !== 'ER_CANT_DROP_FIELD_OR_KEY' && err.errno !== 1091) {
+            console.warn(`[DB] Nota al eliminar columna ${columnName} en ${tableName}: ${err.message}`);
+        }
+    }
+};
+
+/**
  * Helper para añadir índices de forma segura en MySQL (idempotente)
  */
 const addIndexSafe = async (connection, tableName, indexName, column) => {
@@ -494,6 +509,12 @@ const initDb = async () => {
         await addColumnSafe(connection, 'project_hooks', "content_json JSON");
         ////////// Fin de migración //////////
 
+        ////////// LIMPIEZA DE COLUMNAS OBSOLETAS (DATOS BASURA) //////////
+        await dropColumnSafe(connection, 'master_hooks', 'question');
+        await dropColumnSafe(connection, 'project_hooks', 'question');
+        await dropColumnSafe(connection, 'projects', 'short_description');
+        ////////// FIN DE LIMPIEZA //////////
+
         try {
             // Attempt to add FK. If it fails (exists), ignore.
             await connection.query(`ALTER TABLE landing_pages ADD CONSTRAINT fk_landing_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL`);
@@ -502,7 +523,7 @@ const initDb = async () => {
         }
 
         // --- OPTIMIZACIÓN: CREACIÓN DE ÍNDICES PARA ELIMINAR "Out of sort memory" ---
-        console.log('[DB Init] 🚀 Creando índices de optimización...');
+        console.log('[DB Init] 404 Creando índices de optimización...');
         await addIndexSafe(connection, 'landing_pages', 'idx_lp_created_at', 'created_at');
         await addIndexSafe(connection, 'projects', 'idx_proj_created_at', 'created_at');
         await addIndexSafe(connection, 'articles', 'idx_art_created_at', 'created_at');
