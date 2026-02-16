@@ -513,6 +513,9 @@ const initDb = async () => {
         await dropColumnSafe(connection, 'master_hooks', 'question');
         await dropColumnSafe(connection, 'project_hooks', 'question');
         await dropColumnSafe(connection, 'projects', 'short_description');
+        await dropColumnSafe(connection, 'projects', 'strategy');
+        await dropColumnSafe(connection, 'master_hooks', 'strategy');
+        await dropColumnSafe(connection, 'project_hooks', 'strategy');
         ////////// FIN DE LIMPIEZA //////////
 
         try {
