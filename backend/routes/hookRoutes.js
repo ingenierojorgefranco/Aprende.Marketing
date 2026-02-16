@@ -96,4 +96,21 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+/**
+ * Crea un nuevo gancho manualmente (Admin)
+ */
+router.post('/', async (req, res) => {
+    const { projectId, title, psychologicalStrategy, contentJson } = req.body;
+    try {
+        const [result] = await pool.query(
+            `INSERT INTO project_hooks (project_id, title, psychological_strategy, content_json, is_generated)
+             VALUES (?, ?, ?, ?, 1)`,
+            [projectId, title, psychologicalStrategy, JSON.stringify(contentJson)]
+        );
+        res.json({ id: result.insertId, success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 export default router;

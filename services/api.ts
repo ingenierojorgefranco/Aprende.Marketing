@@ -1338,7 +1338,7 @@ export const api = {
         const activities = await fetchWithFallback(`/crm/contacts/${contactId}/history`, { headers: getAuthHeaders() });
         const mapped = activities.map((a: any) => ({
             id: a.id.toString(),
-            contactId: a.contact_id.toString(),
+            contact_id: a.contact_id.toString(),
             type: a.type,
             content: a.content,
             createdAt: new Date(a.created_at)
@@ -1675,6 +1675,16 @@ export const api = {
             headers: getAuthHeaders(),
             body: JSON.stringify(data)
         });
+    },
+    
+    createProjectHook: async (projectId: string, hookData: any): Promise<any> => {
+        if (isMockMode) return { id: `manual-${Date.now()}`, ...hookData };
+        const res = await fetchWithFallback('/hooks', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ projectId, ...hookData })
+        });
+        return res;
     },
     /* Fin de actualización */
 

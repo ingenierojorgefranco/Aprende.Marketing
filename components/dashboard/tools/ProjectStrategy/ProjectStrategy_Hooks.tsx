@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock } from 'lucide-react';
+import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save } from 'lucide-react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { ProjectHook } from '../../../../types';
@@ -34,6 +34,17 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [loadingStep, setLoadingStep] = useState(0);
   const [activeKitTab, setActiveKitTab] = useState<'video' | 'ads' | 'thumbs' | 'publish'>('publish');
   const [openAccordion, setOpenAccordion] = useState<number | null>(0);
+
+  // Estados para añadir manual (Admin)
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
+  const [manualHookForm, setManualHookForm] = useState({
+      title: '',
+      psychologicalStrategy: '',
+      script: '',
+      ads: '',
+      thumbs: ['', '', '']
+  });
+  const [saving, setSaving] = useState(false);
 
   const loadingMessages = [
     "Analizando ángulo psicológico...",
@@ -145,6 +156,39 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         clearInterval(interval);
         setIsGenerating(false);
         alert("Error al generar el kit.");
+    }
+  };
+
+  const handleSaveManual = async () => {
+    if (!manualHookForm.title || !manualHookForm.psychologicalStrategy) {
+        alert("Título y Estrategia son obligatorios.");
+        return;
+    }
+    setSaving(true);
+    try {
+        const hookData = {
+            title: manualHookForm.title,
+            psychologicalStrategy: manualHookForm.psychologicalStrategy,
+            contentJson: {
+                script: manualHookForm.script,
+                ads: manualHookForm.ads,
+                thumbs: manualHookForm.thumbs
+            }
+        };
+        await api.createProjectHook(projectId, hookData);
+        setIsManualModalOpen(false);
+        setManualHookForm({
+            title: '',
+            psychologicalStrategy: '',
+            script: '',
+            ads: '',
+            thumbs: ['', '', '']
+        });
+        await loadHooks();
+    } catch (e: any) {
+        alert("Error al guardar gancho manual: " + e.message);
+    } finally {
+        setSaving(false);
     }
   };
 
@@ -281,6 +325,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 className="w-full py-5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-900/20 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group"
                             >
                                 <Sparkles className="w-6 h-6 group-hover:animate-pulse" /> Crear Kit de Contenido con este ángulo
+                            </button>
+                        )}
+
+                        {user?.role === 'admin' && !isGenerating && (
+                            <button 
+                                onClick={() => setIsManualModalOpen(true)}
+                                className="w-full py-3 mt-4 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-2"
+                            >
+                                <Plus className="w-4 h-4" /> Añadir Manualmente (Admin)
                             </button>
                         )}
 
@@ -482,6 +535,71 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                           allowFullScreen
                       ></iframe>
+                  </div>
+              </div>
+          </div>
+      )}
+
+      {/* MODAL PARA AÑADIR GANCHO MANUALMENTE (ADMIN) */}
+      {isManualModalOpen && (
+          <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => !saving && setIsManualModalOpen(false)}>
+              <div className="bg-[#0B0B0B] border border-[#FF5A1F]/30 rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative max-h-[90vh]" onClick={e => e.stopPropagation()}>
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-500"></div>
+                  <div className="p-8 border-b border-white/5 flex justify-between items-center bg-black/20">
+                      <h3 className="text-2xl font-black text-white uppercase tracking-tight">Añadir Gancho Manual</h3>
+                      <button onClick={() => setIsManualModalOpen(false)} className="text-gray-500 hover:text-white transition"><X className="w-6 h-6"/></button>
+                  </div>
+                  <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                      <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Título del Gancho (Hook)</label>
+                          <input 
+                              type="text"
+                              value={manualHookForm.title}
+                              onChange={e => setManualHookForm({...manualHookForm, title: e.target.value})}
+                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition"
+                              placeholder="Ej: ¿Te gustaría generar $1,000 extras...?"
+                          />
+                      </div>
+                      <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Estrategia Psicológica</label>
+                          <textarea 
+                              rows={2}
+                              value={manualHookForm.psychologicalStrategy}
+                              onChange={e => setManualHookForm({...manualHookForm, psychologicalStrategy: e.target.value})}
+                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition resize-none"
+                              placeholder="Describe el ángulo de venta..."
+                          />
+                      </div>
+                      <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Guión de Video</label>
+                          <textarea 
+                              rows={4}
+                              value={manualHookForm.script}
+                              onChange={e => setManualHookForm({...manualHookForm, script: e.target.value})}
+                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition resize-none"
+                              placeholder="Contenido del video..."
+                          />
+                      </div>
+                      <div className="space-y-2">
+                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Descripción / Ads Copy</label>
+                          <textarea 
+                              rows={4}
+                              value={manualHookForm.ads}
+                              onChange={e => setManualHookForm({...manualHookForm, ads: e.target.value})}
+                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition resize-none"
+                              placeholder="Texto para el anuncio..."
+                          />
+                      </div>
+                  </div>
+                  <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4">
+                      <button onClick={() => setIsManualModalOpen(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">Cancelar</button>
+                      <button 
+                          onClick={handleSaveManual}
+                          disabled={saving}
+                          className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-orange-500 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all flex items-center justify-center gap-2"
+                      >
+                          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Guardar Gancho
+                      </button>
                   </div>
               </div>
           </div>
