@@ -208,8 +208,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 psychologicalStrategy: 'Ingresa aquí el ángulo psicológico...',
                 contentJson: defaultKitContent
             };
-            await api.createProjectHook(projectId, hookData);
+            const res = await api.createProjectHook(projectId, hookData);
             await loadHooks();
+            // Seleccionar automáticamente el último (el nuevo)
+            setActiveHook(hooks.length);
             alert("¡Gancho creado exitosamente!");
         } catch (e: any) {
             alert("Error al crear gancho: " + e.message);
@@ -290,16 +292,28 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   <h4 className="text-xl font-bold text-white">Ganchos Sugeridos</h4>
                 </div>
               </div>
-              {isClone && (
-                <button 
-                  onClick={handleUnlockMore}
-                  disabled={unlockingMore || loadingHooks}
-                  className="p-2 bg-orange-600/10 border border-orange-500/20 text-orange-400 rounded-xl hover:bg-orange-600 hover:text-white transition-all group"
-                  title="Cargar 10 ganchos más"
-                >
-                  {unlockingMore ? <Loader2 className="w-5 h-5 animate-spin" /> : <Unlock className="w-5 h-5" />}
-                </button>
-              )}
+              <div className="flex gap-2">
+                {user?.role === 'admin' && (
+                    <button 
+                        onClick={handleCreateManualHook}
+                        disabled={saving}
+                        className="p-2 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] rounded-xl hover:bg-[#FF5A1F] hover:text-white transition-all group"
+                        title="Añadir Manualmente (Admin)"
+                    >
+                        {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                    </button>
+                )}
+                {isClone && (
+                    <button 
+                        onClick={handleUnlockMore}
+                        disabled={unlockingMore || loadingHooks}
+                        className="p-2 bg-orange-600/10 border border-orange-500/20 text-orange-400 rounded-xl hover:bg-orange-600 hover:text-white transition-all group"
+                        title="Cargar 10 ganchos más"
+                    >
+                        {unlockingMore ? <Loader2 className="w-5 h-5 animate-spin" /> : <Unlock className="w-5 h-5" />}
+                    </button>
+                )}
+              </div>
             </div>
             
             <div className="space-y-4 flex-1">
@@ -397,16 +411,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 className="w-full py-5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-900/20 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group"
                             >
                                 <Sparkles className="w-6 h-6 group-hover:animate-pulse" /> Crear Kit de Contenido con este ángulo
-                            </button>
-                        )}
-
-                        {user?.role === 'admin' && !isGenerating && (
-                            <button 
-                                onClick={handleCreateManualHook}
-                                disabled={saving}
-                                className="w-full py-3 mt-4 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-2"
-                            >
-                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Añadir Manualmente (Admin)
                             </button>
                         )}
 

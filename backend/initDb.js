@@ -496,6 +496,9 @@ const initDb = async () => {
         
         /* Actualización: Adición de columna is_generated a project_hooks para gestión */
         await addColumnSafe(connection, 'project_hooks', "is_generated BOOLEAN DEFAULT FALSE");
+
+        /* Actualización: Adición de columna landing_page_url a project_hooks para evitar errores de persistencia */
+        await addColumnSafe(connection, 'project_hooks', "landing_page_url VARCHAR(255)");
         ////////// Fin de migración //////////
 
         ////////// LIMPIEZA DE COLUMNAS OBSOLETAS (DATOS BASURA) //////////
