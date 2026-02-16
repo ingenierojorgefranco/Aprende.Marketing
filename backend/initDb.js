@@ -507,6 +507,9 @@ const initDb = async () => {
         await addColumnSafe(connection, 'project_hooks', "title VARCHAR(255) NOT NULL");
         await addColumnSafe(connection, 'project_hooks', "psychological_strategy TEXT");
         await addColumnSafe(connection, 'project_hooks', "content_json JSON");
+        
+        /* Actualización: Adición de columna is_generated a master_hooks para gestión de Administrador */
+        await addColumnSafe(connection, 'master_hooks', "is_generated BOOLEAN DEFAULT FALSE");
         ////////// Fin de migración //////////
 
         ////////// LIMPIEZA DE COLUMNAS OBSOLETAS (DATOS BASURA) //////////

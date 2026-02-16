@@ -1,4 +1,3 @@
-
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
@@ -90,12 +89,14 @@ router.post('/unlock-more/:projectId', async (req, res) => {
 
 /**
  * Actualiza la información de un gancho (ej: marcar como generado o cambiar URL)
+ * Soporta actualización en master_hooks si el gancho pertenece a un proyecto maestro.
  */
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { landingPageUrl, isGenerated, contentJson } = req.body;
     try {
-        await pool.query(
+        // Intentar actualizar primero en project_hooks
+        const [projUpdate] = await pool.query(
             `UPDATE project_hooks SET 
                 landing_page_url = COALESCE(?, landing_page_url),
                 is_generated = COALESCE(?, is_generated),
@@ -103,6 +104,18 @@ router.put('/:id', async (req, res) => {
              WHERE id = ?`,
             [landingPageUrl, isGenerated, contentJson ? JSON.stringify(contentJson) : null, id]
         );
+
+        // Si no se afectó ninguna fila, es probable que sea un gancho maestro siendo editado por un admin
+        if (projUpdate.affectedRows === 0) {
+            await pool.query(
+                `UPDATE master_hooks SET 
+                    is_generated = COALESCE(?, is_generated),
+                    content_json = COALESCE(?, content_json)
+                 WHERE id = ?`,
+                [isGenerated, contentJson ? JSON.stringify(contentJson) : null, id]
+            );
+        }
+        
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });

@@ -19,6 +19,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   handleTooltipLeave
 }) => {
   const { id: projectId } = useParams() as { id: string };
+  const { user } = useOutletContext() as any;
   const [showVideoModal, setShowVideoModal] = useState(false);
   
   // --- NUEVA LÓGICA DE PERSISTENCIA REAL ---
@@ -26,6 +27,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [loadingHooks, setLoadingHooks] = useState(true);
   const [unlockingMore, setUnlockingMore] = useState(false);
   const [isClone, setIsClone] = useState(false);
+  const [isMaster, setIsMaster] = useState(false);
   
   // Estados para el prototipo del Kit
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
@@ -59,6 +61,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         try {
             const p = await api.getProjectById(projectId);
             if (p?.masterParentId) setIsClone(true);
+            if (p?.isMaster) setIsMaster(true);
         } catch (e) {}
     };
     checkProject();
@@ -149,6 +152,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     navigator.clipboard.writeText(text);
     alert("Contenido copiado al portapapeles");
   };
+
+  const canGenerate = !currentHook.isGenerated || (isMaster && user?.role === 'admin');
 
   return (
     <div className="space-y-16">
@@ -250,7 +255,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
         {/* DETALLE Y RESULTADO */}
         <div className="lg:col-span-7 space-y-8">
-            {!currentHook.isGenerated && (
+            {canGenerate && (
                 <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 flex flex-col relative overflow-hidden shadow-2xl">
                     <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Zap className="w-40 h-40 text-orange-500" /></div>
                     <div className="relative z-10">
@@ -305,12 +310,14 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             <div className="flex-1">
                                 <div className="flex justify-between items-center">
                                     <h4 className="text-2xl font-black text-white uppercase tracking-tight">{currentHook.title}</h4>
-                                    <button 
-                                        onClick={() => handleUpdateMessage('isGenerated', false)}
-                                        className="text-[10px] font-black text-white uppercase tracking-widest hover:underline transition-all"
-                                    >
-                                        Refinar Ángulo
-                                    </button>
+                                    {(user?.role === 'admin' || !isMaster) && (
+                                        <button 
+                                            onClick={() => handleUpdateMessage('isGenerated', false)}
+                                            className="text-[10px] font-black text-white uppercase tracking-widest hover:underline transition-all"
+                                        >
+                                            Refinar Ángulo
+                                        </button>
+                                    )}
                                 </div>
                                 <div className="mt-4 bg-orange-500/5 border border-orange-500/20 rounded-[3rem] px-8 py-3 inline-block shadow-inner">
                                     <p className="text-white text-lg font-light italic">
