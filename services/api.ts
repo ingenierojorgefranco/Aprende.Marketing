@@ -1638,7 +1638,7 @@ export const api = {
         }
         await fetchWithFallback('/support/tickets', {
             method: 'POST',
-            headers: getAuthHeaders(),
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
         clearCache('supportTickets');
@@ -1685,6 +1685,14 @@ export const api = {
             body: JSON.stringify({ projectId, ...hookData })
         });
         return res;
+    },
+
+    deleteProjectHook: async (hookId: string): Promise<void> => {
+        if (isMockMode) return;
+        await fetchWithFallback(`/hooks/${hookId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
     },
     /* Fin de actualización */
 

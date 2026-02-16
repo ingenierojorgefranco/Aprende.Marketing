@@ -79,15 +79,17 @@ router.post('/unlock-more/:projectId', async (req, res) => {
  */
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { landingPageUrl, isGenerated, contentJson } = req.body;
+    const { landingPageUrl, isGenerated, contentJson, title, psychologicalStrategy } = req.body;
     try {
         await pool.query(
             `UPDATE project_hooks SET 
                 landing_page_url = COALESCE(?, landing_page_url),
                 is_generated = COALESCE(?, is_generated),
-                content_json = COALESCE(?, content_json)
+                content_json = COALESCE(?, content_json),
+                title = COALESCE(?, title),
+                psychological_strategy = COALESCE(?, psychological_strategy)
              WHERE id = ?`,
-            [landingPageUrl, isGenerated, contentJson ? JSON.stringify(contentJson) : null, id]
+            [landingPageUrl, isGenerated, contentJson ? JSON.stringify(contentJson) : null, title, psychologicalStrategy, id]
         );
         
         res.json({ success: true });
@@ -108,6 +110,19 @@ router.post('/', async (req, res) => {
             [projectId, title, psychologicalStrategy, JSON.stringify(contentJson)]
         );
         res.json({ id: result.insertId, success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+/**
+ * Elimina un gancho (Admin)
+ */
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM project_hooks WHERE id = ?', [id]);
+        res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }

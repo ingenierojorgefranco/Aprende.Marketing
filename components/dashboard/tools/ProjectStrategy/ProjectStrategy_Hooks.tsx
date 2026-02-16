@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save } from 'lucide-react';
+import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2 } from 'lucide-react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { ProjectHook } from '../../../../types';
@@ -35,16 +35,13 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [activeKitTab, setActiveKitTab] = useState<'video' | 'ads' | 'thumbs' | 'publish'>('video');
   const [openAccordion, setOpenAccordion] = useState<number | null>(0);
 
-  // Estados para añadir manual (Admin)
-  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
-  const [manualHookForm, setManualHookForm] = useState({
-      title: '',
-      psychologicalStrategy: '',
-      script: '',
-      ads: '',
-      thumbs: ['', '', '']
-  });
   const [saving, setSaving] = useState(false);
+
+  // ESTADOS DE EDICIÓN LOCAL SOLICITADOS
+  const [isEditingScript, setIsEditingScript] = useState(false);
+  const [tempScript, setTempScript] = useState("");
+  const [isEditingAds, setIsEditingAds] = useState(false);
+  const [tempAds, setTempAds] = useState("");
 
   const loadingMessages = [
     "Analizando ángulo psicológico...",
@@ -118,18 +115,59 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   // Datos mockeados para el Kit
   const defaultKitContent = {
-    script: "Gana más tiempo con tu familia aprendiendo microblading de cejas.\nEs la forma más sencilla de equilibrar tu vida personal y profesional.\n\nOrganizas tus propios horarios sin depender de nadie.\nGeneras ingresos mientras disfruta de tus seres queridos.\nY recuperas momentos que antes no podías tener.\n\nNuestra profesora especialista en microblading dará hoy una clase GRATIS en vivo.\nUna oportunidad perfecta para que descubras cómo iniciar in esta profesión.\n\nEscribe microblading en los comentarios y entra al link de nuestro perfil para unirte a la clase gratuita que daremos hoy.\nHoy puede ser el comienzo de una nueva vida.",
-    ads: `🔥 ${currentHook.title}\n\nSé que suena a promesa vacía, pero en este sector la demanda es tan alta que muchas personas están logrando independencia financiera empezando in sus tiempos libres.\n\n✅ Sin jefes.\n✅ A tu ritmo.\n✅ Con una técnica probada.\n\nHe preparado una Masterclass gratuita donde te revelo el mapa exacto para lograrlo este mismo mes. 👇\n\n🔗 [LINK DE TU LANDING]`,
+    script: "Aquí ingresa el guion del video persuasivo...",
+    ads: "🔥 Aquí ingresa la descripción para tus anuncios...\n\n✅ Beneficio 1\n✅ Beneficio 2\n\n🔗 [LINK]",
     videoUrl: "https://drive.google.com/file/d/18nIzeigNWVl6T2dhxuf34hlqAQKxHFAf/preview",
-    downloadUrl: "https://drive.google.com/file/d/18nIzeigNWVl6T2dhxuf34hlqAQKxHFAf/view?usp=drive_link",
+    downloadUrl: "https://drive.google.com/file/d/18nIzeigNWVl6T2dhxuf34hlqAQKxHFAf/view",
     thumbs: [
-      "Genera $1,000 EXTRAS 💰",
-      "SIN RENUNCIAR A TU EMPLEO 🚫",
-      "El Método de 1 Hora/Día ⏰"
+      "Diseño Sugerido 1",
+      "Diseño Sugerido 2",
+      "Diseño Sugerido 3"
     ]
   };
 
   const currentKit = currentHook.contentJson || defaultKitContent;
+
+  const handleUpdateKitJson = async (field: string, value: any) => {
+    if (!currentHook.id) return;
+    try {
+        const updatedKit = { ...currentKit, [field]: value };
+        await api.updateProjectHook(currentHook.id, { contentJson: updatedKit });
+        setHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
+    } catch (e) {
+        console.error("Error updating kit json:", e);
+    }
+  };
+
+  const handleSaveScript = async () => {
+    if (!currentHook.id) return;
+    setSaving(true);
+    try {
+        const updatedKit = { ...currentKit, script: tempScript };
+        await api.updateProjectHook(currentHook.id, { contentJson: updatedKit });
+        setHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
+        setIsEditingScript(false);
+    } catch (e) {
+        alert("Error al guardar el guion");
+    } finally {
+        setSaving(false);
+    }
+  };
+
+  const handleSaveAds = async () => {
+    if (!currentHook.id) return;
+    setSaving(true);
+    try {
+        const updatedKit = { ...currentKit, ads: tempAds };
+        await api.updateProjectHook(currentHook.id, { contentJson: updatedKit });
+        setHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, contentJson: updatedKit } : h));
+        setIsEditingAds(false);
+    } catch (e) {
+        alert("Error al guardar la descripción");
+    } finally {
+        setSaving(false);
+    }
+  };
 
   const handleGenerateKit = async () => {
     const hookId = currentHook.id;
@@ -161,36 +199,39 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const handleSaveManual = async () => {
-    if (!manualHookForm.title || !manualHookForm.psychologicalStrategy) {
-        alert("Título y Estrategia son obligatorios.");
-        return;
+  const handleCreateManualHook = async () => {
+    if (window.confirm("¿Deseas crear el hook manualmente?")) {
+        setSaving(true);
+        try {
+            const hookData = {
+                title: 'Nuevo Gancho Manual',
+                psychologicalStrategy: 'Ingresa aquí el ángulo psicológico...',
+                contentJson: defaultKitContent
+            };
+            await api.createProjectHook(projectId, hookData);
+            await loadHooks();
+            alert("¡Gancho creado exitosamente!");
+        } catch (e: any) {
+            alert("Error al crear gancho: " + e.message);
+        } finally {
+            setSaving(false);
+        }
     }
-    setSaving(true);
-    try {
-        const hookData = {
-            title: manualHookForm.title,
-            psychologicalStrategy: manualHookForm.psychologicalStrategy,
-            contentJson: {
-                script: manualHookForm.script,
-                ads: manualHookForm.ads,
-                thumbs: manualHookForm.thumbs
-            }
-        };
-        await api.createProjectHook(projectId, hookData);
-        setIsManualModalOpen(false);
-        setManualHookForm({
-            title: '',
-            psychologicalStrategy: '',
-            script: '',
-            ads: '',
-            thumbs: ['', '', '']
-        });
-        await loadHooks();
-    } catch (e: any) {
-        alert("Error al guardar gancho manual: " + e.message);
-    } finally {
-        setSaving(false);
+  };
+
+  const handleDeleteHook = async () => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar este hook permanentemente? Esta acción no se puede deshacer.")) {
+        setSaving(true);
+        try {
+            await api.deleteProjectHook(currentHook.id);
+            await loadHooks();
+            setActiveHook(0);
+            alert("Gancho eliminado correctamente.");
+        } catch (e: any) {
+            alert("Error al eliminar: " + e.message);
+        } finally {
+            setSaving(false);
+        }
     }
   };
 
@@ -199,7 +240,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     alert("Contenido copiado al portapapeles");
   };
 
-  const canGenerate = !currentHook.isGenerated || (isMaster && user?.role === 'admin');
+  const canGenerate = !currentHook.isGenerated;
 
   return (
     <div className="space-y-16">
@@ -307,19 +348,48 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     <div className="relative z-10">
                         <div className="flex justify-between items-center mb-6">
                             <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-orange-500/10 text-orange-300 border-orange-500/20">Ángulo de Venta Seleccionado</span>
+                            {(user?.role === 'admin' && currentHook.id) && (
+                                <button onClick={handleDeleteHook} className="p-2 text-gray-500 hover:text-red-500 transition-colors">
+                                    <Trash2 className="w-5 h-5" />
+                                </button>
+                            )}
                         </div>
                         
-                        <h3 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-                            {currentHook.title}
-                        </h3>
-
-                        <div className="bg-orange-500/5 rounded-[3rem] p-8 border border-orange-500/30 backdrop-blur-sm mb-8 flex gap-4 items-start shadow-inner">
-                            <Brain className="w-6 h-6 text-orange-400 shrink-0 mt-1"/>
-                            <div>
-                                <h5 className="text-white font-bold text-sm uppercase tracking-widest mb-1">Estrategia Psicológica</h5>
-                                <p className="text-gray-400 text-lg font-light italic">"{currentHook.psychologicalStrategy}"</p>
+                        {user?.role === 'admin' ? (
+                            <div className="space-y-6">
+                                <input 
+                                    type="text"
+                                    value={currentHook.title}
+                                    onChange={(e) => handleUpdateMessage('title', e.target.value)}
+                                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-black text-2xl outline-none focus:border-orange-500 transition-all shadow-inner"
+                                />
+                                <div className="bg-orange-500/5 rounded-[3rem] p-8 border border-orange-500/30 backdrop-blur-sm mb-8 flex gap-4 items-start shadow-inner">
+                                    <Brain className="w-6 h-6 text-orange-400 shrink-0 mt-1"/>
+                                    <div className="flex-1">
+                                        <h5 className="text-white font-bold text-sm uppercase tracking-widest mb-1">Estrategia Psicológica (Admin)</h5>
+                                        <textarea 
+                                            value={currentHook.psychologicalStrategy}
+                                            onChange={(e) => handleUpdateMessage('psychologicalStrategy', e.target.value)}
+                                            className="w-full bg-transparent border-none text-gray-400 text-lg font-light italic outline-none resize-none h-auto min-h-[100px]"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <>
+                                <h3 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
+                                    {currentHook.title}
+                                </h3>
+
+                                <div className="bg-orange-500/5 rounded-[3rem] p-8 border border-orange-500/30 backdrop-blur-sm mb-8 flex gap-4 items-start shadow-inner">
+                                    <Brain className="w-6 h-6 text-orange-400 shrink-0 mt-1"/>
+                                    <div>
+                                        <h5 className="text-white font-bold text-sm uppercase tracking-widest mb-1">Estrategia Psicológica</h5>
+                                        <p className="text-gray-400 text-lg font-light italic">"{currentHook.psychologicalStrategy}"</p>
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
                         {!isGenerating && (
                             <button 
@@ -332,10 +402,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
                         {user?.role === 'admin' && !isGenerating && (
                             <button 
-                                onClick={() => setIsManualModalOpen(true)}
+                                onClick={handleCreateManualHook}
+                                disabled={saving}
                                 className="w-full py-3 mt-4 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-2"
                             >
-                                <Plus className="w-4 h-4" /> Añadir Manualmente (Admin)
+                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Añadir Manualmente (Admin)
                             </button>
                         )}
 
@@ -364,20 +435,34 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             </div>
                             <div className="flex-1">
                                 <div className="flex justify-between items-center">
-                                    <h4 className="text-2xl font-black text-white uppercase tracking-tight">{currentHook.title}</h4>
-                                    {(user?.role === 'admin' || !isMaster) && (
-                                        <button 
-                                            onClick={() => handleUpdateMessage('isGenerated', false)}
-                                            className="text-[10px] font-black text-white uppercase tracking-widest hover:underline transition-all"
-                                        >
-                                            Refinar Ángulo
+                                    {user?.role === 'admin' ? (
+                                        <input 
+                                            type="text"
+                                            value={currentHook.title}
+                                            onChange={(e) => handleUpdateMessage('title', e.target.value)}
+                                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white font-black text-xl outline-none focus:border-orange-500"
+                                        />
+                                    ) : (
+                                        <h4 className="text-2xl font-black text-white uppercase tracking-tight">{currentHook.title}</h4>
+                                    )}
+                                    {user?.role === 'admin' && (
+                                        <button onClick={handleDeleteHook} className="p-2 text-gray-500 hover:text-red-500 transition-colors ml-4">
+                                            <Trash2 className="w-5 h-5" />
                                         </button>
                                     )}
                                 </div>
-                                <div className="mt-4 bg-orange-500/5 border border-orange-500/20 rounded-[3rem] px-8 py-3 inline-block shadow-inner">
-                                    <p className="text-white text-lg font-light italic">
-                                        Estrategia Psicológica: "{currentHook.psychologicalStrategy}"
-                                    </p>
+                                <div className="mt-4 bg-orange-500/5 border border-orange-500/20 rounded-[3rem] px-8 py-3 inline-block shadow-inner w-full">
+                                    {user?.role === 'admin' ? (
+                                        <textarea 
+                                            value={currentHook.psychologicalStrategy}
+                                            onChange={(e) => handleUpdateMessage('psychologicalStrategy', e.target.value)}
+                                            className="w-full bg-transparent border-none text-white text-lg font-light italic outline-none resize-none h-auto"
+                                        />
+                                    ) : (
+                                        <p className="text-white text-lg font-light italic">
+                                            Estrategia Psicológica: "{currentHook.psychologicalStrategy}"
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -398,19 +483,46 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         <h5 className="text-white font-black text-xl flex items-center gap-3 uppercase tracking-tight">
                                             <Video className="w-6 h-6 text-orange-400" /> Guión de Video
                                         </h5>
+                                        {!isEditingScript ? (
+                                            <button 
+                                                onClick={() => { setTempScript(currentKit.script); setIsEditingScript(true); }}
+                                                className="text-xs font-black text-orange-400 uppercase bg-orange-400/10 px-3 py-1 rounded-lg border border-orange-400/20"
+                                            >
+                                                Editar Guion
+                                            </button>
+                                        ) : (
+                                            <button 
+                                                onClick={handleSaveScript}
+                                                disabled={saving}
+                                                className="text-xs font-black text-emerald-400 uppercase bg-emerald-400/10 px-3 py-1 rounded-lg border border-emerald-400/20 flex items-center gap-1"
+                                            >
+                                                {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                                                Guardar Cambios
+                                            </button>
+                                        )}
                                     </div>
                                     <div className="bg-black/40 border border-white/5 rounded-[2.5rem] p-8 md:p-10 transition-all">
-                                        <div className="text-gray-200 text-[1.3rem] leading-[2.5rem] font-light whitespace-pre-wrap">
-                                            {currentKit.script}
-                                        </div>
+                                        {isEditingScript ? (
+                                            <textarea 
+                                                value={tempScript}
+                                                onChange={(e) => setTempScript(e.target.value)}
+                                                className="w-full bg-black/60 border border-white/10 rounded-2xl p-6 text-gray-200 text-[1.3rem] leading-[2.5rem] font-light outline-none focus:border-orange-500/50 min-h-[300px] resize-none"
+                                            />
+                                        ) : (
+                                            <div className="text-gray-200 text-[1.3rem] leading-[2.5rem] font-light whitespace-pre-wrap">
+                                                {currentKit.script}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex justify-center">
-                                        <button 
-                                            onClick={() => handleCopy(currentKit.script)} 
-                                            className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-orange-900/20"
-                                        >
-                                            <Copy className="w-5 h-5" /> Copiar Guion
-                                        </button>
+                                        {!isEditingScript && (
+                                            <button 
+                                                onClick={() => handleCopy(currentKit.script)} 
+                                                className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-orange-900/20"
+                                            >
+                                                <Copy className="w-5 h-5" /> Copiar Guion
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -421,18 +533,45 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         <h5 className="text-white font-black text-xl flex items-center gap-3 uppercase tracking-tight">
                                             <Megaphone className="w-6 h-6 text-orange-400" /> Descripción
                                         </h5>
+                                        {!isEditingAds ? (
+                                            <button 
+                                                onClick={() => { setTempAds(currentKit.ads); setIsEditingAds(true); }}
+                                                className="text-xs font-black text-orange-400 uppercase bg-orange-400/10 px-3 py-1 rounded-lg border border-orange-400/20"
+                                            >
+                                                Editar Descripción
+                                            </button>
+                                        ) : (
+                                            <button 
+                                                onClick={handleSaveAds}
+                                                disabled={saving}
+                                                className="text-xs font-black text-emerald-400 uppercase bg-emerald-400/10 px-3 py-1 rounded-lg border border-emerald-400/20 flex items-center gap-1"
+                                            >
+                                                {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                                                Guardar Cambios
+                                            </button>
+                                        )}
                                     </div>
                                     <div className="bg-white rounded-[2rem] p-10 shadow-2xl text-gray-900 font-medium text-lg leading-relaxed border-4 border-gray-100 relative">
                                         <div className="absolute top-4 right-6 text-[10px] font-black text-gray-300 uppercase tracking-widest">Vista Previa Anuncio</div>
-                                        <div className="whitespace-pre-wrap">{currentKit.ads}</div>
+                                        {isEditingAds ? (
+                                            <textarea 
+                                                value={tempAds}
+                                                onChange={(e) => setTempAds(e.target.value)}
+                                                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-[#0B0B0B] font-medium text-lg outline-none focus:ring-2 focus:ring-orange-500/20 min-h-[250px] resize-none"
+                                            />
+                                        ) : (
+                                            <div className="whitespace-pre-wrap">{currentKit.ads}</div>
+                                        )}
                                     </div>
                                     <div className="flex justify-center">
-                                        <button 
-                                            onClick={() => handleCopy(currentKit.ads)} 
-                                            className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-orange-900/20"
-                                        >
-                                            <Copy className="w-5 h-5" /> Copiar Descripción
-                                        </button>
+                                        {!isEditingAds && (
+                                            <button 
+                                                onClick={() => handleCopy(currentKit.ads)} 
+                                                className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-orange-900/20"
+                                            >
+                                                <Copy className="w-5 h-5" /> Copiar Descripción
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -449,6 +588,38 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                             allow="autoplay"
                                         ></iframe>
                                     </div>
+
+                                    {/* SECCIÓN DE EDICIÓN DE URL PARA ADMIN */}
+                                    {user?.role === 'admin' && (
+                                        <div className="bg-black/40 border border-white/5 rounded-[2rem] p-8 space-y-6">
+                                            <h6 className="text-white font-bold text-sm uppercase tracking-widest border-b border-white/5 pb-4 flex items-center gap-2">
+                                                <PenTool className="w-4 h-4 text-[#FF5A1F]" /> Configuración de Enlaces (Admin)
+                                            </h6>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">URL del Video (Embed)</label>
+                                                    <input 
+                                                        type="text"
+                                                        value={currentKit.videoUrl || ''}
+                                                        onChange={(e) => handleUpdateKitJson('videoUrl', e.target.value)}
+                                                        className="w-full bg-black/60 border border-white/10 rounded-xl py-3 px-4 text-blue-400 font-mono text-xs outline-none focus:border-orange-500 transition-all shadow-inner"
+                                                        placeholder="https://..."
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">URL de Descarga</label>
+                                                    <input 
+                                                        type="text"
+                                                        value={currentKit.downloadUrl || ''}
+                                                        onChange={(e) => handleUpdateKitJson('downloadUrl', e.target.value)}
+                                                        className="w-full bg-black/60 border border-white/10 rounded-xl py-3 px-4 text-emerald-400 font-mono text-xs outline-none focus:border-orange-500 transition-all shadow-inner"
+                                                        placeholder="https://..."
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="flex justify-center">
                                         <a 
                                             href={currentKit.downloadUrl} 
@@ -532,76 +703,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   <div className="aspect-video w-full">
                       <iframe 
                           className="w-full h-full"
-                          src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                          src="https://www.youtube.com/embed/dQw4w9XcQ?autoplay=1" 
                           title="Tutorial Hooks" 
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                           allowFullScreen
                       ></iframe>
-                  </div>
-              </div>
-          </div>
-      )}
-
-      {/* MODAL PARA AÑADIR GANCHO MANUALMENTE (ADMIN) */}
-      {isManualModalOpen && (
-          <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => !saving && setIsManualModalOpen(false)}>
-              <div className="bg-[#0B0B0B] border border-[#FF5A1F]/30 rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative max-h-[90vh]" onClick={e => e.stopPropagation()}>
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-500"></div>
-                  <div className="p-8 border-b border-white/5 flex justify-between items-center bg-black/20">
-                      <h3 className="text-2xl font-black text-white uppercase tracking-tight">Añadir Gancho Manual</h3>
-                      <button onClick={() => setIsManualModalOpen(false)} className="text-gray-500 hover:text-white transition"><X className="w-6 h-6"/></button>
-                  </div>
-                  <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
-                      <div className="space-y-2">
-                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Título del Gancho (Hook)</label>
-                          <input 
-                              type="text"
-                              value={manualHookForm.title}
-                              onChange={e => setManualHookForm({...manualHookForm, title: e.target.value})}
-                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition"
-                              placeholder="Ej: ¿Te gustaría generar $1,000 extras...?"
-                          />
-                      </div>
-                      <div className="space-y-2">
-                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Estrategia Psicológica</label>
-                          <textarea 
-                              rows={2}
-                              value={manualHookForm.psychologicalStrategy}
-                              onChange={e => setManualHookForm({...manualHookForm, psychologicalStrategy: e.target.value})}
-                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition resize-none"
-                              placeholder="Describe el ángulo de venta..."
-                          />
-                      </div>
-                      <div className="space-y-2">
-                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Guión de Video</label>
-                          <textarea 
-                              rows={4}
-                              value={manualHookForm.script}
-                              onChange={e => setManualHookForm({...manualHookForm, script: e.target.value})}
-                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition resize-none"
-                              placeholder="Contenido del video..."
-                          />
-                      </div>
-                      <div className="space-y-2">
-                          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Descripción / Ads Copy</label>
-                          <textarea 
-                              rows={4}
-                              value={manualHookForm.ads}
-                              onChange={e => setManualHookForm({...manualHookForm, ads: e.target.value})}
-                              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition resize-none"
-                              placeholder="Texto para el anuncio..."
-                          />
-                      </div>
-                  </div>
-                  <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4">
-                      <button onClick={() => setIsManualModalOpen(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">Cancelar</button>
-                      <button 
-                          onClick={handleSaveManual}
-                          disabled={saving}
-                          className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-orange-500 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all flex items-center justify-center gap-2"
-                      >
-                          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Guardar Gancho
-                      </button>
                   </div>
               </div>
           </div>
