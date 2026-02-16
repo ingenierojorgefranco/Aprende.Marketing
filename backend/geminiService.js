@@ -42,6 +42,17 @@ const withRetries = async (fn, maxRetries = 3) => {
 };
 
 /**
+ * Función auxiliar para limpiar la respuesta de la IA y asegurar un JSON válido (Elimina Markdown y espacios).
+ */
+const cleanJsonString = (str) => {
+    if (!str) return "";
+    return str
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+};
+
+/**
  * Genera contenido usando Google Gemini con manejo de errores mejorado y settings de seguridad relajados
  */
 export const generateContent = async (model, contents, config = {}) => {
@@ -145,7 +156,7 @@ export const analyzeWebsiteContent = async (rawText) => {
 
             if (!textResponse) throw new Error("IA returned empty response");
             
-            const result = JSON.parse(textResponse.trim());
+            const result = JSON.parse(cleanJsonString(textResponse));
             
             if (result.description === "ERROR_ACCESO_DENEGADO" || result.productName === "ERROR") {
                 throw new Error("No se pudo extraer contenido real. La web podría estar protegida contra bots.");
@@ -700,7 +711,7 @@ export const generateFullStrategy = async (projectId) => {
 
         if (!step1Res) throw new Error("Gemini devolvió vacío en Etapa 1");
         
-        step1Data = JSON.parse(step1Res.trim());
+        step1Data = JSON.parse(cleanJsonString(step1Res));
         process.stdout.write(`✅ [PIPELINE IA] Etapa 1 + Psicología finalizada con éxito para ${productName}.\n`);
 
     } catch (err) {
