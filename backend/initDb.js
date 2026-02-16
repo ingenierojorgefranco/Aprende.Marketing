@@ -1,4 +1,3 @@
-
 import pool from './db.js';
 
 /**
@@ -484,6 +483,15 @@ const initDb = async () => {
 
         ////////// Migración para WhatsApp Lanzamientos: Fecha de inicio persistente //////////
         await addColumnSafe(connection, 'whatsapp_lanzamientos', "launch_date DATE");
+        ////////// Fin de migración //////////
+
+        ////////// Migración para Hooks de Atracción //////////
+        await addColumnSafe(connection, 'master_hooks', "title VARCHAR(255) NOT NULL");
+        await addColumnSafe(connection, 'master_hooks', "psychological_strategy TEXT");
+        await addColumnSafe(connection, 'master_hooks', "content_json JSON");
+        await addColumnSafe(connection, 'project_hooks', "title VARCHAR(255) NOT NULL");
+        await addColumnSafe(connection, 'project_hooks', "psychological_strategy TEXT");
+        await addColumnSafe(connection, 'project_hooks', "content_json JSON");
         ////////// Fin de migración //////////
 
         try {
