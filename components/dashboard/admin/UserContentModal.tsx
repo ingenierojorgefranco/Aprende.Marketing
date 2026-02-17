@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User } from '../../../types';
 import { api } from '../../../services/api';
-import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap } from 'lucide-react';
 
 ////////// Actualización: Creación de archivo independiente para carga dinámica - 05/06/2025 21:30 //////////
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -11,12 +11,13 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
         articles: any[] | null;
         emails: any[] | null;
         whatsapp: any[] | null;
-    }>({ projects: null, pages: null, articles: null, emails: null, whatsapp: null });
+        hooks: any[] | null;
+    }>({ projects: null, pages: null, articles: null, emails: null, whatsapp: null, hooks: null });
 
-    const [expandedSection, setExpandedSection] = useState<'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | null>(null);
+    const [expandedSection, setExpandedSection] = useState<'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | null>(null);
     const [loadingSection, setLoadingSection] = useState<string | null>(null);
 
-    const toggleSection = async (section: 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp') => {
+    const toggleSection = async (section: 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks') => {
         if (expandedSection === section) {
             setExpandedSection(null);
             return;
@@ -38,7 +39,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
         }
     };
 
-    const handleDeleteAsset = async (type: 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp', id: string, name: string) => {
+    const handleDeleteAsset = async (type: 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks', id: string, name: string) => {
         if (!window.confirm(`¿Estás seguro de eliminar "${name}" permanentemente? Esta acción no se puede deshacer.`)) return;
         
         try {
@@ -47,6 +48,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
             else if (type === 'articles') await api.deleteArticle(id);
             else if (type === 'emails') await api.deleteEmailSequence(id);
             else if (type === 'whatsapp') await api.deleteWhatsAppLaunch(id);
+            else if (type === 'hooks') await api.deleteProjectHook(id);
             
             // Actualizar estado local
             setLoadedData(prev => ({
@@ -236,6 +238,57 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                         )}
                     </div>
 
+                    {/* Hooks Section */}
+                    <div className="border border-gray-700 rounded-xl overflow-hidden">
+                        <button 
+                            onClick={() => toggleSection('hooks')}
+                            className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition text-left"
+                        >
+                            <div className="flex items-center gap-3 font-bold text-white">
+                                <Zap className="w-5 h-5 text-orange-500" /> Hooks de Atracción
+                            </div>
+                            {expandedSection === 'hooks' ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+                        </button>
+                        
+                        {expandedSection === 'hooks' && (
+                            <div className="bg-black/50 p-4 border-t border-gray-700 animate-in slide-in-from-top-2">
+                                {loadingSection === 'hooks' ? (
+                                    <div className="flex justify-center py-4"><Loader2 className="w-6 h-6 animate-spin text-orange-500" /></div>
+                                ) : loadedData.hooks && loadedData.hooks.length > 0 ? (
+                                    <table className="w-full text-xs text-left">
+                                        <thead className="text-gray-500 uppercase">
+                                            <tr>
+                                                <th className="pb-2 pl-2">Título del Gancho</th>
+                                                <th className="pb-2">Estrategia</th>
+                                                <th className="pb-2">Proyecto</th>
+                                                <th className="pb-2 text-right pr-2">Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="text-gray-300 divide-y divide-gray-800">
+                                            {loadedData.hooks.map((h: any) => (
+                                                <tr key={h.id} className="hover:bg-white/[0.02]">
+                                                    <td className="py-2 pl-2 font-medium truncate max-w-[200px]">{h.title}</td>
+                                                    <td className="py-2 truncate max-w-[200px] text-gray-400">{h.psychological_strategy}</td>
+                                                    <td className="py-2 text-orange-400">{h.project_name}</td>
+                                                    <td className="py-2 text-right pr-2">
+                                                        <button 
+                                                            onClick={() => handleDeleteAsset('hooks', h.id, h.title)}
+                                                            className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <p className="text-sm text-gray-500 italic text-center">No hay hooks generados.</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
                     {/* Email Sequences Section */}
                     <div className="border border-gray-700 rounded-xl overflow-hidden">
                         <button 
@@ -353,4 +406,3 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
 };
 
 export default UserContentModal;
-////////// Fin de actualización - 05/06/2025 21:30 //////////
