@@ -22,7 +22,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const { user } = useOutletContext() as any;
   const [showVideoModal, setShowVideoModal] = useState(false);
   
-  // --- NUEVA LÓGICA DE PERSISTENCIA REAL ---
+  // --- LÓGICA DE PERSISTENCIA REAL ---
   const [hooks, setHooks] = useState<ProjectHook[]>([]);
   const [loadingHooks, setLoadingHooks] = useState(true);
   const [unlockingMore, setUnlockingMore] = useState(false);
@@ -38,7 +38,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const [saving, setSaving] = useState(false);
 
-  // ESTADOS DE EDICIÓN LOCAL SOLICITADOS PARA EVITAR CORTES AL ESCRIBIR
+  // ESTADOS DE EDICIÓN LOCAL
   const [localTitle, setLocalTitle] = useState("");
   const [localStrategy, setLocalStrategy] = useState("");
 
@@ -471,7 +471,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         {!isGenerating && (
                             <button 
                                 onClick={handleGenerateKit}
-                                className="w-full py-5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-900/20 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group"
+                                className="w-full py-5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-900/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group"
                             >
                                 <Sparkles className="w-6 h-6 group-hover:animate-pulse" /> Crear Kit de Contenido con este ángulo
                             </button>

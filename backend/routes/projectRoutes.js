@@ -88,7 +88,7 @@ router.post('/unlock/:id', async (req, res) => {
         }
 
         // 3. Crear un nuevo proyecto independiente para el usuario (copia física del ADN base)
-        // Sobrescribimos affiliate_links, lead_magnet_type y lead_magnet_url con los datos proporcionados por el usuario
+        // Se asegura que master_parent_id quede registrado para habilitar la visualización de ganchos del padre
         const [result] = await pool.query(
             `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, is_master, master_parent_id, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, NOW(), NOW())`,
@@ -123,17 +123,6 @@ router.post('/unlock/:id', async (req, res) => {
         // 4. Invocar internamente a la función generateFullStrategy para que la IA genere avatares y contenidos únicos
         const strategyJson = await generateFullStrategy(newProjectId);
         await pool.query('UPDATE projects SET strategy_json = ? WHERE id = ?', [JSON.stringify(strategyJson), newProjectId]);
-
-        ////////// Actualización: Carga inicial de 10 ganchos desde la tabla unificada project_hooks - 01/01/2026 //////////
-        const [masterHooks] = await pool.query('SELECT * FROM project_hooks WHERE project_id = ? LIMIT 10', [projectId]);
-        for (const h of masterHooks) {
-            await pool.query(
-                `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
-                 VALUES (?, ?, ?, ?, ?, 0)`,
-                [newProjectId, h.id, h.title, h.psychological_strategy, JSON.stringify(h.content_json)]
-            );
-        }
-        ////////// Fin de actualización //////////
 
         // Registrar actividad de sistema
         await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_MASTER_STRATEGY_GEN', 'project', newProjectId, { masterName: master.name });
