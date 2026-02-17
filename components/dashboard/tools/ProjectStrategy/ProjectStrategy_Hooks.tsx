@@ -38,7 +38,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const [saving, setSaving] = useState(false);
 
-  // ESTADOS DE EDICIÓN LOCAL SOLICITADOS
+  // ESTADOS DE EDICIÓN LOCAL SOLICITADOS PARA EVITAR CORTES AL ESCRIBIR
+  const [localTitle, setLocalTitle] = useState("");
+  const [localStrategy, setLocalStrategy] = useState("");
+
   const [isEditingScript, setIsEditingScript] = useState(false);
   const [tempScript, setTempScript] = useState("");
   const [isEditingAds, setIsEditingAds] = useState(false);
@@ -76,6 +79,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     checkProject();
     loadHooks();
   }, [projectId]);
+
+  // Sincronizar estados locales cuando cambia el gancho activo
+  useEffect(() => {
+    if (hooks.length > 0 && hooks[activeHook]) {
+        const hook = hooks[activeHook];
+        setLocalTitle(hook.title || "");
+        setLocalStrategy(hook.psychologicalStrategy || "");
+    }
+  }, [activeHook, hooks]);
 
   const handleUnlockMore = async () => {
     setUnlockingMore(true);
@@ -124,6 +136,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     contentJson: null, 
     isGenerated: false 
   } as ProjectHook;
+
+  const isCurrentUnlocked = (currentHook as any).isUnlocked;
+  const canGenerate = isCurrentUnlocked && !currentHook.isGenerated;
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -258,9 +273,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     navigator.clipboard.writeText(text);
     alert("Contenido copiado al portapapeles");
   };
-
-  const isCurrentUnlocked = (currentHook as any).isUnlocked;
-  const canGenerate = isCurrentUnlocked && !currentHook.isGenerated;
 
   return (
     <div className="space-y-16">
@@ -422,8 +434,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             <div className="space-y-6">
                                 <input 
                                     type="text"
-                                    value={currentHook.title}
-                                    onChange={(e) => handleUpdateMessage('title', e.target.value)}
+                                    value={localTitle}
+                                    onChange={(e) => setLocalTitle(e.target.value)}
+                                    onBlur={() => handleUpdateMessage('title', localTitle)}
                                     className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-black text-2xl outline-none focus:border-orange-500 transition-all shadow-inner"
                                 />
                                 <div className="bg-orange-500/5 rounded-[3rem] p-8 border border-orange-500/30 backdrop-blur-sm mb-8 flex gap-4 items-start shadow-inner">
@@ -431,8 +444,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     <div className="flex-1">
                                         <h5 className="text-white font-bold text-sm uppercase tracking-widest mb-1">Estrategia Psicológica (Admin)</h5>
                                         <textarea 
-                                            value={currentHook.psychologicalStrategy}
-                                            onChange={(e) => handleUpdateMessage('psychologicalStrategy', e.target.value)}
+                                            value={localStrategy}
+                                            onChange={(e) => setLocalStrategy(e.target.value)}
+                                            onBlur={() => handleUpdateMessage('psychologicalStrategy', localStrategy)}
                                             className="w-full bg-transparent border-none text-gray-400 text-lg font-light italic outline-none resize-none h-auto min-h-[100px]"
                                         />
                                     </div>
@@ -491,8 +505,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     {user?.role === 'admin' ? (
                                         <input 
                                             type="text"
-                                            value={currentHook.title}
-                                            onChange={(e) => handleUpdateMessage('title', e.target.value)}
+                                            value={localTitle}
+                                            onChange={(e) => setLocalTitle(e.target.value)}
+                                            onBlur={() => handleUpdateMessage('title', localTitle)}
                                             className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white font-black text-xl outline-none focus:border-orange-500"
                                         />
                                     ) : (
@@ -507,8 +522,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 <div className="mt-4 bg-orange-500/5 border border-orange-500/20 rounded-[3rem] px-8 py-3 inline-block shadow-inner w-full">
                                     {user?.role === 'admin' ? (
                                         <textarea 
-                                            value={currentHook.psychologicalStrategy}
-                                            onChange={(e) => handleUpdateMessage('psychologicalStrategy', e.target.value)}
+                                            value={localStrategy}
+                                            onChange={(e) => setLocalStrategy(e.target.value)}
+                                            onBlur={() => handleUpdateMessage('psychologicalStrategy', localStrategy)}
                                             className="w-full bg-transparent border-none text-white text-lg font-light italic outline-none resize-none h-auto"
                                         />
                                     ) : (
