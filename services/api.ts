@@ -1659,6 +1659,15 @@ export const api = {
         return await fetchWithFallback(`/hooks/project/${projectId}`, { headers: getAuthHeaders() });
     },
 
+    unlockSingleHook: async (projectId: string, masterHookId: string): Promise<{ id: string }> => {
+        if (isMockMode) return { id: `unlocked-${Date.now()}` };
+        return await fetchWithFallback('/hooks/unlock-single', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ projectId, masterHookId })
+        });
+    },
+
     unlockMoreHooks: async (projectId: string): Promise<{ success: boolean; count: number; message: string }> => {
         if (isMockMode) return { success: true, count: 10, message: "10 nuevos ganchos añadidos a tu estrategia." };
         const res = await fetchWithFallback(`/hooks/unlock-more/${projectId}`, {
@@ -1698,10 +1707,10 @@ export const api = {
 
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,
     setLastGeneratedTitles: (titles: any[]) => { apiCache.lastGeneratedTitles = titles; }
-  };
+};
   
-  function safeParseJsonList(data: any): any[] {
-      if (!data) return [];
-      if (Array.isArray(data)) return data;
-      try { return typeof data === 'string' ? JSON.parse(data) : data; } catch (e) { return []; }
-  }
+function safeParseJsonList(data: any): any[] {
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    try { return typeof data === 'string' ? JSON.parse(data) : data; } catch (e) { return []; }
+}

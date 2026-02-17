@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2 } from 'lucide-react';
+import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield } from 'lucide-react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { ProjectHook } from '../../../../types';
@@ -26,6 +26,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [hooks, setHooks] = useState<ProjectHook[]>([]);
   const [loadingHooks, setLoadingHooks] = useState(true);
   const [unlockingMore, setUnlockingMore] = useState(false);
+  const [unlockingSingle, setUnlockingSingle] = useState(false);
   const [isClone, setIsClone] = useState(false);
   const [isMaster, setIsMaster] = useState(false);
   
@@ -86,6 +87,22 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         alert(e.message || "Error al cargar más ganchos.");
     } finally {
         setUnlockingMore(false);
+    }
+  };
+
+  const handleUnlockSingle = async () => {
+    const hook = hooks[activeHook];
+    if (!hook || !projectId || !(hook as any).masterHookId) return;
+    
+    setUnlockingSingle(true);
+    try {
+        await api.unlockSingleHook(projectId, (hook as any).masterHookId);
+        await loadHooks();
+        alert("¡Gancho desbloqueado exitosamente!");
+    } catch (e: any) {
+        alert("Error al desbloquear gancho: " + e.message);
+    } finally {
+        setUnlockingSingle(false);
     }
   };
 
@@ -242,7 +259,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     alert("Contenido copiado al portapapeles");
   };
 
-  const canGenerate = !currentHook.isGenerated;
+  const isCurrentUnlocked = (currentHook as any).isUnlocked;
+  const canGenerate = isCurrentUnlocked && !currentHook.isGenerated;
 
   return (
     <div className="space-y-16">
@@ -323,15 +341,19 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 paginatedHooks.map((hook: ProjectHook, idxInPage: number) => {
                   const globalIdx = (currentPage - 1) * itemsPerPage + idxInPage;
                   const isActive = activeHook === globalIdx;
+                  const isUnlocked = (hook as any).isUnlocked;
 
                   return (
                     <div 
                       key={hook.id} 
                       onClick={() => setActiveHook(globalIdx)}
-                      className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isActive ? 'bg-orange-900/20 border-orange-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
+                      className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isActive ? 'bg-orange-900/20 border-orange-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
                     >
                       <div className="flex-1">
-                        <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${isActive ? 'text-orange-300' : 'text-gray-300 group-hover:text-white'}`}>{hook.title}</h4>
+                        <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${isActive ? 'text-orange-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
+                            {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
+                            {hook.title}
+                        </h4>
                       </div>
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-orange-500 border-orange-500' : 'border-gray-600 group-hover:border-orange-400'}`}>
                         {(isActive || hook.isGenerated) && <Check className={`w-4 h-4 font-bold ${hook.isGenerated ? 'text-white' : 'text-black'}`} />}
@@ -356,7 +378,34 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
         {/* DETALLE Y RESULTADO */}
         <div className="lg:col-span-7 space-y-8">
-            {canGenerate && (
+            {/* VISTA DE GANCHO BLOQUEADO */}
+            {!isCurrentUnlocked && currentHook.id && (
+                <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 md:p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl animate-in zoom-in-95">
+                    <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-orange-500" /></div>
+                    
+                    <div className="w-24 h-24 bg-orange-500/10 rounded-[2.5rem] flex items-center justify-center mb-8 border border-orange-500/20 shadow-lg shadow-orange-900/10 animate-pulse">
+                        <Lock className="w-12 h-12 text-orange-500" />
+                    </div>
+
+                    <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tight">Gancho Disponible en Biblioteca</h3>
+                    <p className="text-gray-400 text-lg leading-relaxed max-w-md mx-auto mb-10">Este ángulo estratégico pertenece a la biblioteca maestra de tu nicho. Desbloquéalo para generar el kit completo de contenido.</p>
+
+                    <button 
+                        onClick={handleUnlockSingle}
+                        disabled={unlockingSingle}
+                        className="w-full py-5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-900/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70"
+                    >
+                        {unlockingSingle ? <Loader2 className="w-6 h-6 animate-spin" /> : <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
+                        {unlockingSingle ? 'Desbloqueando...' : 'Desbloquear este Gancho'}
+                    </button>
+                    
+                    <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
+                        <Shield className="w-3 h-3" /> Acceso Instantáneo tras Desbloqueo
+                    </div>
+                </div>
+            )}
+
+            {isCurrentUnlocked && canGenerate && (
                 <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 flex flex-col relative overflow-hidden shadow-2xl">
                     <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Zap className="w-40 h-40 text-orange-500" /></div>
                     <div className="relative z-10">
@@ -430,7 +479,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 </div>
             )}
 
-            {currentHook.isGenerated && (
+            {isCurrentUnlocked && currentHook.isGenerated && (
                 <div className="animate-in slide-in-from-bottom-6 duration-700">
                     <div className="bg-[#111] border border-[#FF5A1F]/30 rounded-[3rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
                         <div className="p-8 border-b border-white/5 bg-gradient-to-r from-orange-500/10 to-transparent flex items-center gap-4">
@@ -707,7 +756,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   <div className="aspect-video w-full">
                       <iframe 
                           className="w-full h-full"
-                          src="https://www.youtube.com/embed/dQw4w9XcQ?autoplay=1" 
+                          src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
                           title="Tutorial Hooks" 
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                           allowFullScreen

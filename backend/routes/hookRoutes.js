@@ -11,22 +11,84 @@ router.use(authMiddleware);
 router.get('/project/:projectId', async (req, res) => {
     const { projectId } = req.params;
     try {
-        // Consultar directamente la tabla project_hooks filtrando por project_id
-        const [rows] = await pool.query(
-            'SELECT * FROM project_hooks WHERE project_id = ? ORDER BY created_at ASC',
-            [projectId]
+        // 1. Verificar si el proyecto es un clon de una biblioteca maestra
+        const [proj] = await pool.query('SELECT master_parent_id FROM projects WHERE id = ?', [projectId]);
+        const masterParentId = proj[0]?.master_parent_id;
+
+        let hooks = [];
+        if (masterParentId) {
+            // Es un proyecto hijo: Traer ganchos del maestro y cruzar con los ya desbloqueados por el usuario
+            const [rows] = await pool.query(
+                `SELECT 
+                    mh.id as master_id, 
+                    mh.title, 
+                    mh.psychological_strategy, 
+                    uh.id as user_hook_id,
+                    uh.content_json as user_content,
+                    uh.is_generated
+                 FROM project_hooks mh
+                 LEFT JOIN project_hooks uh ON mh.id = uh.master_hook_id AND uh.project_id = ?
+                 WHERE mh.project_id = ?
+                 ORDER BY mh.created_at ASC`,
+                [projectId, masterParentId]
+            );
+            
+            hooks = rows.map(h => ({
+                id: h.user_hook_id ? String(h.user_hook_id) : `available-${h.master_id}`,
+                masterHookId: String(h.master_id),
+                projectId: String(projectId),
+                title: h.title,
+                psychologicalStrategy: h.psychological_strategy,
+                contentJson: h.user_content ? (typeof h.user_content === 'string' ? JSON.parse(h.user_content) : h.user_content) : null,
+                isUnlocked: !!h.user_hook_id,
+                isGenerated: !!h.is_generated
+            }));
+        } else {
+            // Es un proyecto independiente o maestro: Todo está desbloqueado por defecto
+            const [rows] = await pool.query(
+                'SELECT * FROM project_hooks WHERE project_id = ? ORDER BY created_at ASC',
+                [projectId]
+            );
+            hooks = rows.map(h => ({
+                ...h,
+                id: String(h.id),
+                projectId: String(h.project_id),
+                masterHookId: h.master_hook_id ? String(h.master_hook_id) : undefined,
+                psychologicalStrategy: h.psychological_strategy,
+                landingPageUrl: h.landing_page_url,
+                contentJson: typeof h.content_json === 'string' ? JSON.parse(h.content_json) : h.content_json,
+                isUnlocked: true,
+                isGenerated: h.is_generated !== undefined ? !!h.is_generated : !!h.content_json
+            }));
+        }
+
+        res.json(hooks);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+/**
+ * Desbloquea un gancho individual desde la biblioteca maestra
+ */
+router.post('/unlock-single', async (req, res) => {
+    const { projectId, masterHookId } = req.body;
+    if (!projectId || !masterHookId) return res.status(400).json({ error: "Faltan parámetros" });
+
+    try {
+        // 1. Obtener datos del gancho maestro
+        const [masterRows] = await pool.query('SELECT * FROM project_hooks WHERE id = ?', [masterHookId]);
+        if (masterRows.length === 0) return res.status(404).json({ error: "Hook maestro no encontrado" });
+        const master = masterRows[0];
+
+        // 2. Clonar físicamente el gancho al proyecto del usuario
+        const [result] = await pool.query(
+            `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
+             VALUES (?, ?, ?, ?, ?, 0)`,
+            [projectId, master.id, master.title, master.psychological_strategy, master.content_json]
         );
 
-        res.json(rows.map(h => ({
-            ...h,
-            id: String(h.id),
-            projectId: String(h.project_id),
-            masterHookId: h.master_hook_id ? String(h.master_hook_id) : undefined,
-            psychologicalStrategy: h.psychological_strategy,
-            landingPageUrl: h.landing_page_url,
-            contentJson: typeof h.content_json === 'string' ? JSON.parse(h.content_json) : h.content_json,
-            isGenerated: h.is_generated !== undefined ? !!h.is_generated : !!h.content_json
-        })));
+        res.json({ id: String(result.insertId), success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
