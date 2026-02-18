@@ -34,33 +34,57 @@ router.get('/project/:projectId', async (req, res) => {
                 [projectId, masterParentId]
             );
             
-            hooks = rows.map(h => ({
-                id: h.user_hook_id ? String(h.user_hook_id) : `available-${h.master_id}`,
-                masterHookId: String(h.master_id),
-                projectId: String(projectId),
-                title: h.title,
-                psychologicalStrategy: h.psychological_strategy,
-                contentJson: h.user_content ? (typeof h.user_content === 'string' ? JSON.parse(h.user_content) : h.user_content) : null,
-                isUnlocked: !!h.user_hook_id,
-                isGenerated: !!h.is_generated
-            }));
+            hooks = rows.map(h => {
+                let parsedContent = null;
+                if (h.user_content) {
+                    try {
+                        parsedContent = typeof h.user_content === 'string' ? JSON.parse(h.user_content) : h.user_content;
+                        if (typeof parsedContent === 'string') parsedContent = JSON.parse(parsedContent);
+                    } catch (e) {
+                        parsedContent = null;
+                    }
+                }
+
+                return {
+                    id: h.user_hook_id ? String(h.user_hook_id) : `available-${h.master_id}`,
+                    masterHookId: String(h.master_id),
+                    projectId: String(projectId),
+                    title: h.title,
+                    psychologicalStrategy: h.psychological_strategy,
+                    contentJson: parsedContent,
+                    isUnlocked: !!h.user_hook_id,
+                    isGenerated: !!h.is_generated
+                };
+            });
         } else {
             // Es un proyecto independiente o maestro
             const [rows] = await pool.query(
                 'SELECT * FROM project_hooks WHERE project_id = ? ORDER BY created_at ASC',
                 [projectId]
             );
-            hooks = rows.map(h => ({
-                ...h,
-                id: String(h.id),
-                projectId: String(h.project_id),
-                masterHookId: h.master_hook_id ? String(h.master_hook_id) : undefined,
-                psychologicalStrategy: h.psychological_strategy,
-                landingPageUrl: h.landing_page_url,
-                contentJson: typeof h.content_json === 'string' ? JSON.parse(h.content_json) : h.content_json,
-                isUnlocked: true,
-                isGenerated: h.is_generated !== undefined ? !!h.is_generated : !!h.content_json
-            }));
+            hooks = rows.map(h => {
+                let parsedContent = null;
+                if (h.content_json) {
+                    try {
+                        parsedContent = typeof h.content_json === 'string' ? JSON.parse(h.content_json) : h.content_json;
+                        if (typeof parsedContent === 'string') parsedContent = JSON.parse(parsedContent);
+                    } catch (e) {
+                        parsedContent = null;
+                    }
+                }
+
+                return {
+                    ...h,
+                    id: String(h.id),
+                    projectId: String(h.project_id),
+                    masterHookId: h.master_hook_id ? String(h.master_hook_id) : undefined,
+                    psychologicalStrategy: h.psychological_strategy,
+                    landingPageUrl: h.landing_page_url,
+                    contentJson: parsedContent,
+                    isUnlocked: true,
+                    isGenerated: h.is_generated !== undefined ? !!h.is_generated : !!h.content_json
+                };
+            });
         }
 
         res.json(hooks);
@@ -101,7 +125,8 @@ router.post('/unlock-single', async (req, res) => {
         const master = masterRows[0];
 
         // 3. Clonar físicamente el gancho al proyecto del usuario
-        // CORRECCIÓN: Se asegura el número correcto de parámetros (5) para los placeholders.
+        const clonedContent = master.content_json ? (typeof master.content_json === 'string' ? master.content_json : JSON.stringify(master.content_json)) : null;
+
         const [result] = await pool.query(
             `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
              VALUES (?, ?, ?, ?, ?, 0)`,
@@ -110,7 +135,7 @@ router.post('/unlock-single', async (req, res) => {
                 master.id, 
                 master.title, 
                 master.psychological_strategy, 
-                master.content_json ? JSON.stringify(master.content_json) : null
+                clonedContent
             ]
         );
 
@@ -170,7 +195,7 @@ router.post('/unlock-more/:projectId', async (req, res) => {
 
         // 4. Clonar los ganchos al proyecto del usuario
         for (const hook of availableHooks) {
-            // CORRECCIÓN: Se aplica JSON.stringify para asegurar formato JSON válido en MySQL
+            const clonedContent = hook.content_json ? (typeof hook.content_json === 'string' ? hook.content_json : JSON.stringify(hook.content_json)) : null;
             await pool.query(
                 `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
                  VALUES (?, ?, ?, ?, ?, 0)`,
@@ -179,7 +204,7 @@ router.post('/unlock-more/:projectId', async (req, res) => {
                     hook.id, 
                     hook.title, 
                     hook.psychological_strategy, 
-                    hook.content_json ? JSON.stringify(hook.content_json) : null
+                    clonedContent
                 ]
             );
         }
@@ -205,7 +230,7 @@ router.put('/:id', async (req, res) => {
                 title = COALESCE(?, title),
                 psychological_strategy = COALESCE(?, psychological_strategy)
              WHERE id = ?`,
-            [landingPageUrl, isGenerated, contentJson ? JSON.stringify(contentJson) : null, title, psychologicalStrategy, id]
+            [landingPageUrl, isGenerated, contentJson ? (typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)) : null, title, psychologicalStrategy, id]
         );
         
         res.json({ success: true });
@@ -241,7 +266,7 @@ router.post('/', async (req, res) => {
         const [result] = await pool.query(
             `INSERT INTO project_hooks (project_id, title, psychological_strategy, content_json, is_generated)
              VALUES (?, ?, ?, ?, 1)`,
-            [projectId, title, psychologicalStrategy, JSON.stringify(contentJson)]
+            [projectId, title, psychologicalStrategy, contentJson ? (typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)) : null]
         );
         res.json({ id: result.insertId, success: true });
     } catch (e) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle } from 'lucide-react';
+import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Wand2 } from 'lucide-react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { ProjectHook } from '../../../../types';
@@ -35,6 +35,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   // Estados para el prototipo del Kit
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
   const [activeKitTab, setActiveKitTab] = useState<'video' | 'ads' | 'thumbs' | 'publish'>('video');
   const [openAccordion, setOpenAccordion] = useState<number | null>(0);
 
@@ -114,13 +115,18 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     
     setShowConfirmModal(false);
     setUnlockingSingle(true);
+    setGenerationStatus('generating');
+    
     try {
         const res = await api.unlockSingleHook(projectId, (hook as any).masterHookId);
         // Disparar automáticamente el proceso de generación visual del Kit pasando el ID obtenido
         await handleGenerateKit(res.id);
+        // Esperar a que los ganchos se recarguen y se reflejen los nuevos datos clonados
         await loadHooks();
+        setGenerationStatus('success');
     } catch (e: any) {
         alert("Error al desbloquear gancho: " + e.message);
+        setGenerationStatus('idle');
     } finally {
         setUnlockingSingle(false);
     }
@@ -213,7 +219,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     const hookId = hookIdOverride || currentHook.id;
     if (!hookId) return;
 
-    setIsGenerating(true);
+    setGenerationStatus('generating');
     let stepCount = 0;
     const interval = setInterval(() => {
       if (stepCount < loadingMessages.length - 1) {
@@ -225,17 +231,17 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }, 1200);
 
     try {
-        const generatedKit = { ...defaultKitContent };
-        await api.updateProjectHook(hookId, { isGenerated: true, contentJson: generatedKit });
-        setHooks(prev => prev.map(h => h.id === hookId ? { ...h, isGenerated: true, contentJson: generatedKit } : h));
+        // Marcamos como generado para que se active la vista del kit
+        await api.updateProjectHook(hookId, { isGenerated: true });
+        setHooks(prev => prev.map(h => h.id === hookId ? { ...h, isGenerated: true } : h));
         
-        setTimeout(() => {
-            setIsGenerating(false);
-        }, 5000);
+        // Simulación de tiempo de procesamiento IA
+        await new Promise(resolve => setTimeout(resolve, 4000));
+        clearInterval(interval);
     } catch (e) {
         clearInterval(interval);
-        setIsGenerating(false);
-        alert("Error al generar el kit.");
+        setGenerationStatus('idle');
+        throw e;
     }
   };
 
@@ -248,9 +254,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 psychologicalStrategy: 'Ingresa aquí el ángulo psicológico...',
                 contentJson: defaultKitContent
             };
-            const res = await api.createProjectHook(projectId, hookData);
+            await api.createProjectHook(projectId, hookData);
             await loadHooks();
-            // Seleccionar automáticamente el último (el nuevo)
             setActiveHook(hooks.length);
             alert("¡Gancho creado exitosamente!");
         } catch (e: any) {
@@ -282,7 +287,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     alert("Contenido copiado al portapapeles");
   };
 
-  // Lógica de límites para la modal de confirmación
   const isRealAdmin = user?.role === 'admin' && !isSimulating;
   const maxHooks = planLimits?.maxHooks || 10;
   const currentHooksCount = hooks.filter(h => (h as any).isUnlocked || h.isGenerated).length;
@@ -326,6 +330,48 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
           </div>
         </div>
       </div>
+
+      {/* --- OVERLAY DE GENERACIÓN PROFESIONAL --- */}
+      {generationStatus === 'generating' && (
+        <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-white p-4 animate-in fade-in duration-500">
+            <div className="relative mb-2 flex flex-col items-center">
+                <div className="w-24 h-24 bg-orange-50 rounded-3xl flex items-center justify-center animate-pulse border border-orange-100">
+                    <Wand2 className="w-12 h-12 text-orange-600" />
+                </div>
+                <p className="text-red-600 font-black uppercase text-sm mt-4 tracking-wider">No cierres esta Página</p>
+                <p className="text-black font-bold text-xs uppercase tracking-widest mt-1">(IA Redactando Kit de Contenido)</p>
+            </div>
+
+            <div className="text-center space-y-4 mt-8">
+                <h3 className="text-4xl font-black text-black uppercase tracking-tighter italic">{loadingMessages[loadingStep]}</h3>
+                <p className="text-gray-500 font-bold text-sm uppercase tracking-widest">Sincronizando con tu estrategia Maestra...</p>
+            </div>
+
+            <div className="w-full max-w-md h-1.5 bg-gray-100 rounded-full mx-auto mt-10 overflow-hidden relative border border-gray-200 shadow-inner">
+                <div className="h-full bg-orange-500 w-full origin-left animate-loading-bar"></div>
+                <div className="progress-shine"></div>
+            </div>
+        </div>
+      )}
+
+      {/* --- OVERLAY DE ÉXITO --- */}
+      {generationStatus === 'success' && (
+        <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-[#0B0B0B] p-4 animate-in zoom-in-95 duration-700 overflow-hidden">
+            <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/20 mb-8 scale-110 animate-bounce">
+                <CheckCircle2 className="w-14 h-14 text-white" />
+            </div>
+            <div className="text-center max-w-xl space-y-4">
+                <h3 className="text-4xl font-black text-white leading-tight uppercase tracking-tight">¡Kit de Contenido Generado!</h3>
+                <p className="text-gray-400 text-lg font-medium leading-relaxed">Tu guion, descripción de anuncios y miniatura sugerida están listos para ser utilizados.</p>
+            </div>
+            <button 
+                onClick={() => setGenerationStatus('idle')}
+                className="mt-12 px-16 py-6 bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest rounded-2xl transition-all shadow-2xl transform hover:scale-105 active:scale-95"
+            >
+                Ver mi Kit de Contenido
+            </button>
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-12 gap-8">
         {/* LISTADO DE HOOKS */}
@@ -493,19 +539,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             >
                                 <Sparkles className="w-6 h-6 group-hover:animate-pulse" /> Crear Kit de Contenido con este ángulo
                             </button>
-                        )}
-
-                        {isGenerating && (
-                            <div className="py-10 text-center space-y-6 animate-in fade-in duration-500">
-                                <div className="relative inline-block">
-                                    <div className="absolute -inset-4 bg-orange-500/20 rounded-full blur-xl animate-pulse"></div>
-                                    <Loader2 className="w-16 h-16 text-orange-500 animate-spin relative z-10" />
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-white font-black uppercase tracking-widest text-lg">{loadingMessages[loadingStep]}</p>
-                                    <p className="text-gray-500 text-xs uppercase font-bold tracking-[0.3em]">IA procesando estructura...</p>
-                                </div>
-                            </div>
                         )}
                     </div>
                 </div>
@@ -819,7 +852,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                               <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Créditos de Ganchos</span>
                               <span className="text-white font-mono font-bold text-sm">{currentHooksCount} / {isRealAdmin ? '∞' : maxHooks}</span>
                           </div>
-                          <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                          <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
                               <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(249,115,22,0.5)]`} style={{ width: `${isRealAdmin ? (currentHooksCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                           </div>
                       </div>
