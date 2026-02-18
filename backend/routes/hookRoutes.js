@@ -6,85 +6,82 @@ import { DEFAULT_LIMITS } from './authRoutes.js';
 const router = express.Router();
 router.use(authMiddleware);
 
+const safeParseJson = (data) => {
+    if (!data) return null;
+    try {
+        let p = typeof data === 'string' ? JSON.parse(data) : data;
+        if (typeof p === 'string') p = JSON.parse(p);
+        return p;
+    } catch (e) {
+        return null;
+    }
+};
+
 /**
  * Obtiene los ganchos asignados a un proyecto
  */
 router.get('/project/:projectId', async (req, res) => {
     const { projectId } = req.params;
     try {
-        // 1. Verificar si el proyecto es un clon de una biblioteca maestra
         const [proj] = await pool.query('SELECT master_parent_id FROM projects WHERE id = ?', [projectId]);
         const masterParentId = proj[0]?.master_parent_id;
 
         let hooks = [];
         if (masterParentId) {
-            // Es un proyecto hijo: Traer ganchos del maestro y cruzar con los ya desbloqueados por el usuario
-            const [rows] = await pool.query(
-                `SELECT 
-                    mh.id as master_id, 
-                    mh.title, 
-                    mh.psychological_strategy, 
-                    uh.id as user_hook_id,
-                    uh.content_json as user_content,
-                    uh.is_generated
-                 FROM project_hooks mh
-                 LEFT JOIN project_hooks uh ON mh.id = uh.master_hook_id AND uh.project_id = ?
-                 WHERE mh.project_id = ?
-                 ORDER BY mh.created_at ASC`,
-                [projectId, masterParentId]
+            // Traer ganchos reales del usuario (clonados o manuales)
+            const [userRows] = await pool.query(
+                'SELECT * FROM project_hooks WHERE project_id = ? ORDER BY created_at ASC',
+                [projectId]
+            );
+
+            // Traer ganchos del maestro que no han sido clonados todavía
+            const [masterRows] = await pool.query(
+                `SELECT * FROM project_hooks 
+                 WHERE project_id = ? 
+                 AND id NOT IN (SELECT master_hook_id FROM project_hooks WHERE project_id = ? AND master_hook_id IS NOT NULL)
+                 ORDER BY created_at ASC`,
+                [masterParentId, projectId]
             );
             
-            hooks = rows.map(h => {
-                let parsedContent = null;
-                if (h.user_content) {
-                    try {
-                        parsedContent = typeof h.user_content === 'string' ? JSON.parse(h.user_content) : h.user_content;
-                        if (typeof parsedContent === 'string') parsedContent = JSON.parse(parsedContent);
-                    } catch (e) {
-                        parsedContent = null;
-                    }
-                }
+            const userHooks = userRows.map(h => ({
+                id: String(h.id),
+                masterHookId: h.master_hook_id ? String(h.master_hook_id) : undefined,
+                projectId: String(projectId),
+                title: h.title,
+                psychologicalStrategy: h.psychological_strategy,
+                contentJson: safeParseJson(h.content_json),
+                isUnlocked: true,
+                isGenerated: !!h.is_generated
+            }));
 
-                return {
-                    id: h.user_hook_id ? String(h.user_hook_id) : `available-${h.master_id}`,
-                    masterHookId: String(h.master_id),
-                    projectId: String(projectId),
-                    title: h.title,
-                    psychologicalStrategy: h.psychological_strategy,
-                    contentJson: parsedContent,
-                    isUnlocked: !!h.user_hook_id,
-                    isGenerated: !!h.is_generated
-                };
-            });
+            const availableHooks = masterRows.map(h => ({
+                id: `available-${h.id}`,
+                masterHookId: String(h.id),
+                projectId: String(projectId),
+                title: h.title,
+                psychologicalStrategy: h.psychological_strategy,
+                contentJson: null,
+                isUnlocked: false,
+                isGenerated: false
+            }));
+
+            hooks = [...userHooks, ...availableHooks];
         } else {
-            // Es un proyecto independiente o maestro
             const [rows] = await pool.query(
                 'SELECT * FROM project_hooks WHERE project_id = ? ORDER BY created_at ASC',
                 [projectId]
             );
-            hooks = rows.map(h => {
-                let parsedContent = null;
-                if (h.content_json) {
-                    try {
-                        parsedContent = typeof h.content_json === 'string' ? JSON.parse(h.content_json) : h.content_json;
-                        if (typeof parsedContent === 'string') parsedContent = JSON.parse(parsedContent);
-                    } catch (e) {
-                        parsedContent = null;
-                    }
-                }
-
-                return {
-                    ...h,
-                    id: String(h.id),
-                    projectId: String(h.project_id),
-                    masterHookId: h.master_hook_id ? String(h.master_hook_id) : undefined,
-                    psychologicalStrategy: h.psychological_strategy,
-                    landingPageUrl: h.landing_page_url,
-                    contentJson: parsedContent,
-                    isUnlocked: true,
-                    isGenerated: h.is_generated !== undefined ? !!h.is_generated : !!h.content_json
-                };
-            });
+            hooks = rows.map(h => ({
+                ...h,
+                id: String(h.id),
+                projectId: String(h.project_id),
+                masterHookId: h.master_hook_id ? String(h.master_hook_id) : undefined,
+                psychologicalStrategy: h.psychological_strategy,
+                landingPageUrl: h.landing_page_url,
+                contentJson: safeParseJson(h.content_json),
+                isUnlocked: true,
+                isGenerated: !!h.is_generated
+            }));
         }
 
         res.json(hooks);
@@ -101,7 +98,6 @@ router.post('/unlock-single', async (req, res) => {
     if (!projectId || !masterHookId) return res.status(400).json({ error: "Faltan parámetros" });
 
     try {
-        // 1. Verificar límites del usuario
         const [userData] = await pool.query('SELECT plan_limits, role FROM users WHERE id = ?', [req.user.id]);
         const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
         
@@ -119,24 +115,16 @@ router.post('/unlock-single', async (req, res) => {
             }
         }
 
-        // 2. Obtener datos del gancho maestro
         const [masterRows] = await pool.query('SELECT * FROM project_hooks WHERE id = ?', [masterHookId]);
         if (masterRows.length === 0) return res.status(404).json({ error: "Hook maestro no encontrado" });
         const master = masterRows[0];
 
-        // 3. Clonar físicamente el gancho al proyecto del usuario
         const clonedContent = master.content_json ? (typeof master.content_json === 'string' ? master.content_json : JSON.stringify(master.content_json)) : null;
 
         const [result] = await pool.query(
             `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
              VALUES (?, ?, ?, ?, ?, 0)`,
-            [
-                projectId, 
-                master.id, 
-                master.title, 
-                master.psychological_strategy, 
-                clonedContent
-            ]
+            [projectId, master.id, master.title, master.psychological_strategy, clonedContent]
         );
 
         res.json({ id: String(result.insertId), success: true });
@@ -151,14 +139,12 @@ router.post('/unlock-single', async (req, res) => {
 router.post('/unlock-more/:projectId', async (req, res) => {
     const { projectId } = req.params;
     try {
-        // 1. Obtener el master_parent_id del proyecto
         const [projRows] = await pool.query('SELECT master_parent_id FROM projects WHERE id = ?', [projectId]);
         if (projRows.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
         
         const masterParentId = projRows[0].master_parent_id;
         if (!masterParentId) return res.status(400).json({ error: "Este proyecto no está vinculado a una biblioteca maestra." });
 
-        // 2. Verificar límites del usuario
         const [userData] = await pool.query('SELECT plan_limits, role FROM users WHERE id = ?', [req.user.id]);
         const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
         
@@ -180,7 +166,6 @@ router.post('/unlock-more/:projectId', async (req, res) => {
             maxToLoad = Math.min(10, remaining);
         }
 
-        // 3. Buscar ganchos en el proyecto maestro que el usuario NO tenga ya clonados
         const [availableHooks] = await pool.query(
             `SELECT * FROM project_hooks 
              WHERE project_id = ? 
@@ -193,19 +178,12 @@ router.post('/unlock-more/:projectId', async (req, res) => {
             return res.status(404).json({ error: "No hay más ganchos disponibles en la biblioteca para este nicho." });
         }
 
-        // 4. Clonar los ganchos al proyecto del usuario
         for (const hook of availableHooks) {
             const clonedContent = hook.content_json ? (typeof hook.content_json === 'string' ? hook.content_json : JSON.stringify(hook.content_json)) : null;
             await pool.query(
                 `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
                  VALUES (?, ?, ?, ?, ?, 0)`,
-                [
-                    projectId, 
-                    hook.id, 
-                    hook.title, 
-                    hook.psychological_strategy, 
-                    clonedContent
-                ]
+                [projectId, hook.id, hook.title, hook.psychological_strategy, clonedContent]
             );
         }
 
@@ -240,12 +218,11 @@ router.put('/:id', async (req, res) => {
 });
 
 /**
- * Crea un nuevo gancho manualmente (Admin o con validación de límites)
+ * Crea un nuevo gancho manualmente (Acepta peticiones de usuarios estándar dentro de límites)
  */
 router.post('/', async (req, res) => {
     const { projectId, title, psychologicalStrategy, contentJson } = req.body;
     try {
-        // Verificar límites
         const [userData] = await pool.query('SELECT plan_limits, role FROM users WHERE id = ?', [req.user.id]);
         const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
         
@@ -263,9 +240,10 @@ router.post('/', async (req, res) => {
             }
         }
 
+        // Se cambia is_generated a 0 para que el usuario pueda editar y generar el kit después
         const [result] = await pool.query(
             `INSERT INTO project_hooks (project_id, title, psychological_strategy, content_json, is_generated)
-             VALUES (?, ?, ?, ?, 1)`,
+             VALUES (?, ?, ?, ?, 0)`,
             [projectId, title, psychologicalStrategy, contentJson ? (typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)) : null]
         );
         res.json({ id: result.insertId, success: true });
@@ -275,7 +253,7 @@ router.post('/', async (req, res) => {
 });
 
 /**
- * Elimina un gancho (Admin)
+ * Elimina un gancho
  */
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;

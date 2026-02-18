@@ -23,7 +23,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const planLimits = user?.planLimits;
   const [showVideoModal, setShowVideoModal] = useState(false);
   
-  // --- LÓGICA DE PERSISTENCIA REAL ---
   const [hooks, setHooks] = useState<ProjectHook[]>([]);
   const [loadingHooks, setLoadingHooks] = useState(true);
   const [unlockingMore, setUnlockingMore] = useState(false);
@@ -32,7 +31,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [isMaster, setIsMaster] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   
-  // Estados para el prototipo del Kit
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
@@ -41,7 +39,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const [saving, setSaving] = useState(false);
 
-  // ESTADOS DE EDICIÓN LOCAL
   const [localTitle, setLocalTitle] = useState("");
   const [localStrategy, setLocalStrategy] = useState("");
 
@@ -58,15 +55,17 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   ];
 
   const loadHooks = async () => {
-    if (!projectId) return;
+    if (!projectId) return [];
     setLoadingHooks(true);
     try {
         const data = await api.getProjectHooks(projectId);
         setHooks(data);
+        setLoadingHooks(false);
+        return data;
     } catch (e) {
         console.error("Error cargando ganchos dinámicos:", e);
-    } finally {
         setLoadingHooks(false);
+        return [];
     }
   };
 
@@ -83,7 +82,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     loadHooks();
   }, [projectId]);
 
-  // Sincronizar estados locales cuando cambia el gancho activo
   useEffect(() => {
     if (hooks.length > 0 && hooks[activeHook]) {
         const hook = hooks[activeHook];
@@ -119,9 +117,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     
     try {
         const res = await api.unlockSingleHook(projectId, (hook as any).masterHookId);
-        // Disparar automáticamente el proceso de generación visual del Kit pasando el ID obtenido
         await handleGenerateKit(res.id);
-        // Esperar a que los ganchos se recarguen y se reflejen los nuevos datos clonados
         await loadHooks();
         setGenerationStatus('success');
     } catch (e: any) {
@@ -159,7 +155,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const totalPages = Math.ceil(hooks.length / itemsPerPage);
   const paginatedHooks = hooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // Datos mockeados para el Kit
   const defaultKitContent = {
     script: "Aquí ingresa el guion del video persuasivo...",
     ads: "🔥 Aquí ingresa la descripción para tus anuncios...\n\n✅ Beneficio 1\n✅ Beneficio 2\n\n🔗 [LINK]",
@@ -231,11 +226,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }, 1200);
 
     try {
-        // Marcamos como generado para que se active la vista del kit
         await api.updateProjectHook(hookId, { isGenerated: true });
         setHooks(prev => prev.map(h => h.id === hookId ? { ...h, isGenerated: true } : h));
-        
-        // Simulación de tiempo de procesamiento IA
         await new Promise(resolve => setTimeout(resolve, 4000));
         clearInterval(interval);
     } catch (e) {
@@ -254,9 +246,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 psychologicalStrategy: 'Ingresa aquí el ángulo psicológico...',
                 contentJson: defaultKitContent
             };
-            await api.createProjectHook(projectId, hookData);
-            await loadHooks();
-            setActiveHook(hooks.length);
+            const res = await api.createProjectHook(projectId, hookData);
+            const freshHooks = await loadHooks();
+            
+            // Selección automática del nuevo gancho y navegación al editor
+            const newIndex = freshHooks.findIndex((h: any) => String(h.id) === String(res.id));
+            if (newIndex !== -1) {
+                setActiveHook(newIndex);
+            }
+            
             alert("¡Gancho creado exitosamente!");
         } catch (e: any) {
             alert("Error al crear gancho: " + e.message);
@@ -288,9 +286,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const isRealAdmin = user?.role === 'admin' && !isSimulating;
-  const maxHooks = planLimits?.maxHooks || 10;
+  const maxHooks = planLimits?.maxHooks || 0;
   const currentHooksCount = hooks.filter(h => (h as any).isUnlocked || h.isGenerated).length;
-  const usagePercent = Math.min(100, (currentHooksCount / maxHooks) * 100);
+  const usagePercent = maxHooks > 0 ? Math.min(100, (currentHooksCount / maxHooks) * 100) : 0;
   
   let progressColor = "bg-green-500";
   if (usagePercent > 50) progressColor = "bg-yellow-500";
@@ -387,26 +385,14 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 </div>
               </div>
               <div className="flex gap-2">
-                {user?.role === 'admin' && (
-                    <button 
-                        onClick={handleCreateManualHook}
-                        disabled={saving}
-                        className="p-2 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] rounded-xl hover:bg-[#FF5A1F] hover:text-white transition-all group"
-                        title="Añadir Manualmente (Admin)"
-                    >
-                        {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
-                    </button>
-                )}
-                {isClone && (
-                    <button 
-                        onClick={handleUnlockMore}
-                        disabled={unlockingMore || loadingHooks}
-                        className="p-2 bg-orange-600/10 border border-orange-500/20 text-orange-400 rounded-xl hover:bg-orange-600 hover:text-white transition-all group"
-                        title="Cargar 10 ganchos más"
-                    >
-                        {unlockingMore ? <Loader2 className="w-5 h-5 animate-spin" /> : <Unlock className="w-5 h-5" />}
-                    </button>
-                )}
+                <button 
+                    onClick={handleCreateManualHook}
+                    disabled={saving}
+                    className="p-2 bg-[#FF5A1F]/10 border border-[#FF5A1F]/20 text-[#FF5A1F] rounded-xl hover:bg-[#FF5A1F] hover:text-white transition-all group"
+                    title="Añadir Manualmente"
+                >
+                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                </button>
               </div>
             </div>
             
@@ -487,50 +473,34 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     <div className="relative z-10">
                         <div className="flex justify-between items-center mb-6">
                             <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-orange-500/10 text-orange-300 border-orange-500/20">Ángulo de Venta Seleccionado</span>
-                            {(user?.role === 'admin' && currentHook.id) && (
+                            {currentHook.id && (
                                 <button onClick={handleDeleteHook} className="p-2 text-gray-500 hover:text-red-500 transition-colors">
                                     <Trash2 className="w-5 h-5" />
                                 </button>
                             )}
                         </div>
                         
-                        {user?.role === 'admin' ? (
-                            <div className="space-y-6">
-                                <input 
-                                    type="text"
-                                    value={localTitle}
-                                    onChange={(e) => setLocalTitle(e.target.value)}
-                                    onBlur={() => handleUpdateMessage('title', localTitle)}
-                                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-black text-2xl outline-none focus:border-orange-500 transition-all shadow-inner"
-                                />
-                                <div className="bg-orange-500/5 rounded-[3rem] p-8 border border-orange-500/30 backdrop-blur-sm mb-8 flex gap-4 items-start shadow-inner">
-                                    <Brain className="w-6 h-6 text-orange-400 shrink-0 mt-1"/>
-                                    <div className="flex-1">
-                                        <h5 className="text-white font-bold text-sm uppercase tracking-widest mb-1">Estrategia Psicológica (Admin)</h5>
-                                        <textarea 
-                                            value={localStrategy}
-                                            onChange={(e) => setLocalStrategy(e.target.value)}
-                                            onBlur={() => handleUpdateMessage('psychologicalStrategy', localStrategy)}
-                                            className="w-full bg-transparent border-none text-gray-400 text-lg font-light italic outline-none resize-none h-auto min-h-[100px]"
-                                        />
-                                    </div>
+                        <div className="space-y-6">
+                            <input 
+                                type="text"
+                                value={localTitle}
+                                onChange={(e) => setLocalTitle(e.target.value)}
+                                onBlur={() => handleUpdateMessage('title', localTitle)}
+                                className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-black text-2xl outline-none focus:border-orange-500 transition-all shadow-inner"
+                            />
+                            <div className="bg-orange-500/5 rounded-[3rem] p-8 border border-orange-500/30 backdrop-blur-sm mb-8 flex gap-4 items-start shadow-inner">
+                                <Brain className="w-6 h-6 text-orange-400 shrink-0 mt-1"/>
+                                <div className="flex-1">
+                                    <h5 className="text-white font-bold text-sm uppercase tracking-widest mb-1">Estrategia Psicológica</h5>
+                                    <textarea 
+                                        value={localStrategy}
+                                        onChange={(e) => setLocalStrategy(e.target.value)}
+                                        onBlur={() => handleUpdateMessage('psychologicalStrategy', localStrategy)}
+                                        className="w-full bg-transparent border-none text-gray-400 text-lg font-light italic outline-none resize-none h-auto min-h-[100px]"
+                                    />
                                 </div>
                             </div>
-                        ) : (
-                            <>
-                                <h3 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight">
-                                    {currentHook.title}
-                                </h3>
-
-                                <div className="bg-orange-500/5 rounded-[3rem] p-8 border border-orange-500/30 backdrop-blur-sm mb-8 flex gap-4 items-start shadow-inner">
-                                    <Brain className="w-6 h-6 text-orange-400 shrink-0 mt-1"/>
-                                    <div>
-                                        <h5 className="text-white font-bold text-sm uppercase tracking-widest mb-1">Estrategia Psicológica</h5>
-                                        <p className="text-gray-400 text-lg font-light italic">"{currentHook.psychologicalStrategy}"</p>
-                                    </div>
-                                </div>
-                            </>
-                        )}
+                        </div>
 
                         {!isGenerating && (
                             <button 
@@ -553,36 +523,24 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             </div>
                             <div className="flex-1">
                                 <div className="flex justify-between items-center">
-                                    {user?.role === 'admin' ? (
-                                        <input 
-                                            type="text"
-                                            value={localTitle}
-                                            onChange={(e) => setLocalTitle(e.target.value)}
-                                            onBlur={() => handleUpdateMessage('title', localTitle)}
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white font-black text-xl outline-none focus:border-orange-500"
-                                        />
-                                    ) : (
-                                        <h4 className="text-2xl font-black text-white uppercase tracking-tight">{currentHook.title}</h4>
-                                    )}
-                                    {user?.role === 'admin' && (
-                                        <button onClick={handleDeleteHook} className="p-2 text-gray-500 hover:text-red-500 transition-colors ml-4">
-                                            <Trash2 className="w-5 h-5" />
-                                        </button>
-                                    )}
+                                    <input 
+                                        type="text"
+                                        value={localTitle}
+                                        onChange={(e) => setLocalTitle(e.target.value)}
+                                        onBlur={() => handleUpdateMessage('title', localTitle)}
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white font-black text-xl outline-none focus:border-orange-500"
+                                    />
+                                    <button onClick={handleDeleteHook} className="p-2 text-gray-500 hover:text-red-500 transition-colors ml-4">
+                                        <Trash2 className="w-5 h-5" />
+                                    </button>
                                 </div>
                                 <div className="mt-4 bg-orange-500/5 border border-orange-500/20 rounded-[3rem] px-8 py-3 inline-block shadow-inner w-full">
-                                    {user?.role === 'admin' ? (
-                                        <textarea 
-                                            value={localStrategy}
-                                            onChange={(e) => setLocalStrategy(e.target.value)}
-                                            onBlur={() => handleUpdateMessage('psychologicalStrategy', localStrategy)}
-                                            className="w-full bg-transparent border-none text-white text-lg font-light italic outline-none resize-none h-auto"
-                                        />
-                                    ) : (
-                                        <p className="text-white text-lg font-light italic">
-                                            Estrategia Psicológica: "{currentHook.psychologicalStrategy}"
-                                        </p>
-                                    )}
+                                    <textarea 
+                                        value={localStrategy}
+                                        onChange={(e) => setLocalStrategy(e.target.value)}
+                                        onBlur={() => handleUpdateMessage('psychologicalStrategy', localStrategy)}
+                                        className="w-full bg-transparent border-none text-white text-lg font-light italic outline-none resize-none h-auto"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -590,8 +548,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         <div className="px-8 py-6 bg-black/20 border-b border-white/5">
                             <div className="w-full flex flex-wrap bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-inner">
                                 <button onClick={() => setActiveKitTab('video')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'video' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>GUION</button>
-                                <button onClick={() => setActiveKitTab('thumbs')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'thumbs' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Video</button>
                                 <button onClick={() => setActiveKitTab('ads')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'ads' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Descripción</button>
+                                <button onClick={() => setActiveKitTab('thumbs')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'thumbs' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Video</button>
                                 <button onClick={() => setActiveKitTab('publish')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'publish' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Publicar</button>
                             </div>
                         </div>
@@ -621,15 +579,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                             </button>
                                         )}
                                     </div>
-                                    <div className="bg-black/40 border border-white/5 rounded-[2.5rem] p-8 md:p-10 transition-all">
+                                    <div className="bg-white rounded-[2rem] p-10 shadow-2xl text-gray-900 font-medium text-lg leading-relaxed border-4 border-gray-100 relative transition-all">
                                         {isEditingScript ? (
                                             <textarea 
                                                 value={tempScript}
                                                 onChange={(e) => setTempScript(e.target.value)}
-                                                className="w-full bg-black/60 border border-white/10 rounded-2xl p-6 text-gray-200 text-[1.3rem] leading-[2.5rem] font-light outline-none focus:border-orange-500/50 min-h-[300px] resize-none"
+                                                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-[#0B0B0B] font-medium text-lg outline-none focus:ring-2 focus:ring-orange-500/20 min-h-[250px] resize-none"
                                             />
                                         ) : (
-                                            <div className="text-gray-200 text-[1.3rem] leading-[2.5rem] font-light whitespace-pre-wrap">
+                                            <div className="text-gray-900 text-[1.3rem] leading-[2.5rem] font-light whitespace-pre-wrap">
                                                 {currentKit.script}
                                             </div>
                                         )}
