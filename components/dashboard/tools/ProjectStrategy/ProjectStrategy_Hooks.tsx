@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield } from 'lucide-react';
+import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle } from 'lucide-react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { ProjectHook } from '../../../../types';
@@ -19,7 +19,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   handleTooltipLeave
 }) => {
   const { id: projectId } = useParams() as { id: string };
-  const { user } = useOutletContext() as any;
+  const { user, isSimulating } = useOutletContext() as any;
+  const planLimits = user?.planLimits;
   const [showVideoModal, setShowVideoModal] = useState(false);
   
   // --- LÓGICA DE PERSISTENCIA REAL ---
@@ -29,6 +30,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [unlockingSingle, setUnlockingSingle] = useState(false);
   const [isClone, setIsClone] = useState(false);
   const [isMaster, setIsMaster] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   
   // Estados para el prototipo del Kit
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
@@ -102,10 +104,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const handleUnlockSingle = async () => {
+  const handleUnlockSingle = () => {
+    setShowConfirmModal(true);
+  };
+
+  const executeUnlock = async () => {
     const hook = hooks[activeHook];
     if (!hook || !projectId || !(hook as any).masterHookId) return;
     
+    setShowConfirmModal(false);
     setUnlockingSingle(true);
     try {
         await api.unlockSingleHook(projectId, (hook as any).masterHookId);
@@ -273,6 +280,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     navigator.clipboard.writeText(text);
     alert("Contenido copiado al portapapeles");
   };
+
+  // Lógica de límites para la modal de confirmación
+  const isRealAdmin = user?.role === 'admin' && !isSimulating;
+  const maxHooks = planLimits?.maxHooks || 10;
+  const currentHooksCount = hooks.filter(h => (h as any).isUnlocked || h.isGenerated).length;
+  const usagePercent = Math.min(100, (currentHooksCount / maxHooks) * 100);
+  
+  let progressColor = "bg-green-500";
+  if (usagePercent > 50) progressColor = "bg-yellow-500";
+  if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
   return (
     <div className="space-y-16">
@@ -766,7 +783,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                           <PlayCircle className="w-5 h-5 text-orange-400" /> Tutorial: Hooks de Atracción
                       </h3>
                       <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                          <X className="w-6 h-6"/>
+                          <X className="w-5 h-5"/>
                       </button>
                   </div>
                   <div className="aspect-video w-full">
@@ -777,6 +794,38 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                           allowFullScreen
                       ></iframe>
+                  </div>
+              </div>
+          </div>
+      )}
+
+      {/* --- MODAL DE CONFIRMACIÓN DE LÍMITES TÉCNICOS --- */}
+      {showConfirmModal && (
+          <div 
+              onClick={() => setShowConfirmModal(false)}
+              className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" 
+          >
+              <div className="bg-[#0B0B0B] border border-orange-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-amber-500"></div>
+                  <div className="p-8 md:p-10 space-y-8 flex-1 text-center">
+                      <div className="w-20 h-20 bg-orange-500/10 text-orange-400 rounded-3xl flex items-center justify-center mx-auto border border-orange-500/20 shadow-lg animate-pulse">
+                          <Sparkles className="w-10 h-10" />
+                      </div>
+                      <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirmar Consumo de Créditos</h3>
+                      <p className="text-gray-400 text-lg leading-relaxed font-medium">Al desbloquear este gancho estratégico se consumirá 1 crédito de tu plan actual.</p>
+                      <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left">
+                          <div className="flex justify-between items-center mb-3">
+                              <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Créditos de Ganchos</span>
+                              <span className="text-white font-mono font-bold text-sm">{currentHooksCount} / {isRealAdmin ? '∞' : maxHooks}</span>
+                          </div>
+                          <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                              <div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(249,115,22,0.5)]`} style={{ width: `${isRealAdmin ? (currentHooksCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                          </div>
+                      </div>
+                  </div>
+                  <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                      <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
+                      <button onClick={executeUnlock} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Desbloquear</button>
                   </div>
               </div>
           </div>
