@@ -98,7 +98,10 @@ export const AdminPanel: React.FC = () => {
 
     const handleEditClick = (user: User) => {
         setEditingUser(user);
-        const currentLimits = user.planLimits || {
+        const currentLimits: PlanLimits = user.planLimits ? {
+            ...user.planLimits,
+            maxHooks: user.planLimits.maxHooks || 10 // Ensure maxHooks exists
+        } : {
             planName: 'starter',
             maxProjects: 1,
             maxLandings: 3,
@@ -106,6 +109,7 @@ export const AdminPanel: React.FC = () => {
             maxArticles: 2,
             maxEmailSequences: 1,
             maxWhatsAppLaunches: 1,
+            maxHooks: 10,
             features: {
                 whatsappBot: false,
                 blogGenerator: false,
@@ -115,8 +119,10 @@ export const AdminPanel: React.FC = () => {
                 evergreenStrategy: false
             }
         };
-        // Asegurar la propiedad maxWhatsAppLaunches
+        
+        // Asegurar la propiedad maxWhatsAppLaunches y maxHooks si faltan por migración parcial
         if (currentLimits.maxWhatsAppLaunches === undefined) currentLimits.maxWhatsAppLaunches = 1;
+        if (currentLimits.maxHooks === undefined) currentLimits.maxHooks = 10;
         
         setTempPlanLimits(JSON.parse(JSON.stringify(currentLimits)));
         setActiveTab('profile'); // Reset tab
@@ -199,6 +205,7 @@ export const AdminPanel: React.FC = () => {
             maxArticles: plan.limitsConfig.maxArticles || 0,
             maxEmailSequences: plan.limitsConfig.maxEmailSequences || 1,
             maxWhatsAppLaunches: plan.limitsConfig.maxWhatsAppLaunches || 1,
+            maxHooks: plan.limitsConfig.maxHooks || 10,
             features: { ...plan.limitsConfig.features }
         });
     };
@@ -696,6 +703,15 @@ export const AdminPanel: React.FC = () => {
                                                 className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
                                             />
                                         </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Máx Ganchos IA</label>
+                                            <input 
+                                                type="number" 
+                                                value={tempPlanLimits.maxHooks || 0}
+                                                onChange={(e) => setTempPlanLimits({...tempPlanLimits, maxHooks: parseInt(e.target.value) || 0})}
+                                                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-primary transition"
+                                            />
+                                        </div>
                                     </div>
 
                                     {/* Features Toggles */}
@@ -751,6 +767,11 @@ export const AdminPanel: React.FC = () => {
                                                 label="Artículos Escritos" 
                                                 current={userStats.articles} 
                                                 max={tempPlanLimits.maxArticles || 2} 
+                                            />
+                                            <UsageBar 
+                                                label="Ganchos Creados" 
+                                                current={userStats.hooks} 
+                                                max={tempPlanLimits.maxHooks} 
                                             />
                                             
                                             <div className="pt-4 border-t border-gray-700 flex justify-end">
