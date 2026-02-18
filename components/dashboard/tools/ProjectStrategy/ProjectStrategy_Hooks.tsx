@@ -115,9 +115,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     setShowConfirmModal(false);
     setUnlockingSingle(true);
     try {
-        await api.unlockSingleHook(projectId, (hook as any).masterHookId);
+        const res = await api.unlockSingleHook(projectId, (hook as any).masterHookId);
+        // Disparar automáticamente el proceso de generación visual del Kit pasando el ID obtenido
+        await handleGenerateKit(res.id);
         await loadHooks();
-        alert("¡Gancho desbloqueado exitosamente!");
     } catch (e: any) {
         alert("Error al desbloquear gancho: " + e.message);
     } finally {
@@ -208,8 +209,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const handleGenerateKit = async () => {
-    const hookId = currentHook.id;
+  const handleGenerateKit = async (hookIdOverride?: string) => {
+    const hookId = hookIdOverride || currentHook.id;
     if (!hookId) return;
 
     setIsGenerating(true);
@@ -224,7 +225,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }, 1200);
 
     try {
-        const generatedKit = { ...currentKit };
+        const generatedKit = { ...defaultKitContent };
         await api.updateProjectHook(hookId, { isGenerated: true, contentJson: generatedKit });
         setHooks(prev => prev.map(h => h.id === hookId ? { ...h, isGenerated: true, contentJson: generatedKit } : h));
         
@@ -487,7 +488,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
                         {!isGenerating && (
                             <button 
-                                onClick={handleGenerateKit}
+                                onClick={() => handleGenerateKit()}
                                 className="w-full py-5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-900/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group"
                             >
                                 <Sparkles className="w-6 h-6 group-hover:animate-pulse" /> Crear Kit de Contenido con este ángulo

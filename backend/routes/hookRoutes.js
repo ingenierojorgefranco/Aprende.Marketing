@@ -1,4 +1,3 @@
-
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
@@ -102,7 +101,7 @@ router.post('/unlock-single', async (req, res) => {
         const master = masterRows[0];
 
         // 3. Clonar físicamente el gancho al proyecto del usuario
-        // CORRECCIÓN: Se aplica JSON.stringify para asegurar formato JSON válido en MySQL
+        // CORRECCIÓN: Se asegura el número correcto de parámetros (5) para los placeholders.
         const [result] = await pool.query(
             `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
              VALUES (?, ?, ?, ?, ?, 0)`,
@@ -111,8 +110,7 @@ router.post('/unlock-single', async (req, res) => {
                 master.id, 
                 master.title, 
                 master.psychological_strategy, 
-                master.content_json ? JSON.stringify(master.content_json) : null,
-                0
+                master.content_json ? JSON.stringify(master.content_json) : null
             ]
         );
 
