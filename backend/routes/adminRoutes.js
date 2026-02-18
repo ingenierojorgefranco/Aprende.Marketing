@@ -1,3 +1,4 @@
+
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
@@ -58,7 +59,16 @@ router.get('/users/:id/stats', async (req, res) => {
               AND YEAR(CURRENT_DATE()) = YEAR(created_at)
             GROUP BY resource_type
         `, [id]);
-        const usage = { projects: 0, landings: 0, articles: 0 };
+
+        // Nuevo: Conteo de ganchos para el usuario
+        const [hooksCount] = await pool.query(`
+            SELECT COUNT(*) as count 
+            FROM project_hooks h
+            JOIN projects p ON h.project_id = p.id
+            WHERE p.user_id = ?
+        `, [id]);
+
+        const usage = { projects: 0, landings: 0, articles: 0, hooks: hooksCount[0].count || 0 };
         usageRows.forEach(row => {
             if (row.resource_type === 'project') usage.projects = row.count;
             if (row.resource_type === 'landing') usage.landings = row.count;

@@ -12,7 +12,8 @@ const DEFAULT_LIMITS: PlanLimits = {
     maxArticles: 1,
     maxDomains: 1,
     maxEmailSequences: 1,
-    maxWhatsAppLaunches: 1, // Añadido para corregir error de propiedad faltante en PlanLimits
+    maxWhatsAppLaunches: 1,
+    maxHooks: 10,
     features: {
         whatsappBot: false,
         blogGenerator: false,
@@ -76,6 +77,7 @@ export const AdminPlans: React.FC = () => {
         if (safeLimits.maxDomains === undefined) safeLimits.maxDomains = 1;
         if (safeLimits.maxEmailSequences === undefined) safeLimits.maxEmailSequences = 1;
         if (safeLimits.maxWhatsAppLaunches === undefined) safeLimits.maxWhatsAppLaunches = 1;
+        if (safeLimits.maxHooks === undefined) safeLimits.maxHooks = 10;
 
         setEditingPlan({ ...plan, limitsConfig: safeLimits });
         setActiveTab('general');
@@ -167,6 +169,7 @@ export const AdminPlans: React.FC = () => {
                             <p>Artículos SEO: <strong>{plan.limitsConfig.maxArticles || 0}</strong></p>
                             <p>Secuencias Email: <strong>{plan.limitsConfig.maxEmailSequences || 0}</strong></p>
                             <p>Lanzamientos WA: <strong>{plan.limitsConfig.maxWhatsAppLaunches || 0}</strong></p>
+                            <p>Ganchos IA: <strong>{plan.limitsConfig.maxHooks || 0}</strong></p>
                             <p>Features: {Object.values(plan.limitsConfig.features).filter(Boolean).length} activas</p>
                             {plan.stripePriceId && <p className="text-xs text-blue-400 truncate mt-2">Stripe: {plan.stripePriceId}</p>}
                             {/* ////////// Visualización de Hotmart ID, Oferta y Modo en la lista - 25/05/2025 18:45 ////////// */}
@@ -188,6 +191,7 @@ export const AdminPlans: React.FC = () => {
                             <button onClick={() => handleEdit(plan)} className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-2 rounded-lg flex justify-center items-center gap-2 transition">
                                 <Edit className="w-4 h-4" /> Editar
                             </button>
+                            {/* Fix: changed handleDelete(id) to handleDelete(plan.id) - Line 194 */}
                             <button onClick={() => handleDelete(plan.id)} className="p-2 bg-red-900/20 hover:bg-red-900/40 text-red-400 rounded-lg transition">
                                 <Trash2 className="w-4 h-4" />
                             </button>
@@ -396,7 +400,7 @@ export const AdminPlans: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* NEW: Max Domains & Articles & Email Sequences & WA Launches Input */}
+                                    {/* NEW: Max Domains & Articles & Email Sequences & WA Launches & Hooks Input */}
                                     <div className="grid grid-cols-2 gap-4 mt-4">
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Dominios Personalizados</label>
@@ -449,6 +453,18 @@ export const AdminPlans: React.FC = () => {
                                                 className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-emerald-500 outline-none"
                                             />
                                             <p className="text-[10px] text-gray-500 mt-1">Cupos para lanzamientos de grupos.</p>
+                                        </div>
+                                        <div className="mt-4">
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Ganchos de Atracción</label>
+                                            <input 
+                                                type="number" 
+                                                value={editingPlan.limitsConfig.maxHooks || 0} 
+                                                onChange={(e) => setEditingPlan({
+                                                    ...editingPlan, 
+                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxHooks: parseInt(e.target.value) }
+                                                })}
+                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-orange-500 outline-none"
+                                            />
                                         </div>
                                     </div>
                                     

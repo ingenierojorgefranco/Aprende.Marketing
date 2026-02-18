@@ -119,6 +119,7 @@ export interface PlanLimits {
   maxArticles: number; // Actualizado a obligatorio
   maxEmailSequences: number; // Nuevo límite solicitado
   maxWhatsAppLaunches: number; // Nuevo límite añadido para control de cuotas
+  maxHooks: number; // Nuevo: Límite de Hooks de Atracción
   features: PlanFeatures;
 }
 
@@ -175,6 +176,7 @@ export interface UserUsageStats {
     projects: number;
     landings: number;
     articles: number;
+    hooks: number; // Nuevo: Conteo de ganchos creados
 }
 
 // --- CRM TYPES ---

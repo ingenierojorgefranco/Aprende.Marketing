@@ -14,11 +14,17 @@ export const DEFAULT_LIMITS = {
     maxProjects: 1,
     maxLandings: 2,
     maxArticles: 2,
+    maxDomains: 1,
+    maxEmailSequences: 1,
+    maxWhatsAppLaunches: 1,
+    maxHooks: 10,
     features: {
         whatsappBot: false,
         blogGenerator: false,
         emailMarketing: false,
-        removeBranding: false
+        removeBranding: false,
+        emailStrategy: false,
+        evergreenStrategy: false
     }
 };
 

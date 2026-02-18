@@ -38,7 +38,8 @@ export const Register: React.FC<RegisterProps> = ({ onLogin }) => {
             maxDomains: 1,
             maxArticles: 2,
             maxEmailSequences: 1,
-            maxWhatsAppLaunches: 1, // Propiedad añadida para coherencia con PlanLimits
+            maxWhatsAppLaunches: 1,
+            maxHooks: 10,
             features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false }
         },
         customRedirectUrl: (user as any).customRedirectUrl

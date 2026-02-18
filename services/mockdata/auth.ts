@@ -1,3 +1,4 @@
+
 import { User } from "../../types";
 
 export const MOCK_CREDENTIALS = {
@@ -18,6 +19,7 @@ export const MOCK_USER: User = {
       maxArticles: 20,
       maxEmailSequences: 5,
       maxWhatsAppLaunches: 5,
+      maxHooks: 50, // Añadido límite de ganchos
       features: {
           whatsappBot: true,
           blogGenerator: true,

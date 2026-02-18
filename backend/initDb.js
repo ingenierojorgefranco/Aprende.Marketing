@@ -1,3 +1,4 @@
+
 import pool from './db.js';
 
 /**
@@ -558,6 +559,7 @@ const initDb = async () => {
                         maxDomains: 1, 
                         maxEmailSequences: 1,
                         maxWhatsAppLaunches: 1,
+                        maxHooks: 10,
                         features: { 
                             whatsappBot: false, 
                             blogGenerator: false, 
@@ -584,6 +586,7 @@ const initDb = async () => {
                         maxDomains: 3, 
                         maxEmailSequences: 5,
                         maxWhatsAppLaunches: 5,
+                        maxHooks: 50,
                         features: { 
                             whatsappBot: true, 
                             blogGenerator: true, 
@@ -610,6 +613,7 @@ const initDb = async () => {
                         maxDomains: 10, 
                         maxEmailSequences: 50,
                         maxWhatsAppLaunches: 50,
+                        maxHooks: 500,
                         features: { 
                             whatsappBot: true, 
                             blogGenerator: true, 

@@ -1,3 +1,4 @@
+
 import { LandingPage, Lead, GeneratedPageContent, Article, User, Project, PlanLimits, Course, Comment, CourseLesson, Plan, SystemLog, UserUsageStats, StrategyJSON, CRMContact, CRMActivity, DashboardNews, EmailSequence, EmailMessage, WhatsAppLaunch, SupportTicket, ProjectHook } from "../types";
 import { MOCK_USER, MOCK_PROJECTS, MOCK_PAGES, MOCK_ARTICLES, MOCK_LEADS, MOCK_CREDENTIALS, MOCK_COURSES, MOCK_COMMENTS, MOCK_CRM_CONTACTS, MOCK_CRM_ACTIVITIES, MOCK_NEWS, MOCK_EMAIL_SEQUENCES, MOCK_EMAIL_MESSAGES, MOCK_MASTER_STRATEGY, MOCK_PROJECT_HOOKS } from "./mockData";
 import { ProjectMasterStrategy } from "./strategySchema";
@@ -791,11 +792,11 @@ export const api = {
         return data;
     },
   
-    getAnalyticsSummary: async (): Promise<{totalVisits: number, totalConversions: number, totalPages: number, totalArticles: number, totalProjects: number}> => {
+    getAnalyticsSummary: async (): Promise<{totalVisits: number, totalConversions: number, totalPages: number, totalArticles: number, totalProjects: number, totalHooks: number}> => {
         if (isMockMode) {
             const totalVisits = localPages.reduce((acc, p) => acc + p.visits, 0);
             const totalConversions = localPages.reduce((acc, p) => acc + p.conversions, 0);
-            return Promise.resolve({ totalVisits, totalConversions, totalPages: localPages.length, totalArticles: localArticles.length, totalProjects: localProjects.length });
+            return Promise.resolve({ totalVisits, totalConversions, totalPages: localPages.length, totalArticles: localArticles.length, totalProjects: localProjects.length, totalHooks: 0 });
         }
         if (apiCache.summary) return apiCache.summary;
         const summary = await fetchWithFallback('/analytics/summary', { headers: getAuthHeaders() });
@@ -1041,7 +1042,7 @@ export const api = {
     },
   
     getUserUsageStats: async (userId: string): Promise<UserUsageStats> => {
-        if (isMockMode) return Promise.resolve({ projects: 5, landings: 2, articles: 1 });
+        if (isMockMode) return Promise.resolve({ projects: 5, landings: 2, articles: 1, hooks: 0 });
         if (apiCache.userUsageStats[userId]) return apiCache.userUsageStats[userId];
         const stats = await fetchWithFallback(`/admin/users/${userId}/stats`, { headers: getAuthHeaders() });
         apiCache.userUsageStats[userId] = stats;
@@ -1235,6 +1236,7 @@ export const api = {
                     maxDomains: 1, 
                     maxEmailSequences: 1,
                     maxWhatsAppLaunches: 1, 
+                    maxHooks: 10,
                     features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } 
                   }, 
                   uiFeatures: ['...'], 
@@ -1256,6 +1258,7 @@ export const api = {
                     maxDomains: 3, 
                     maxEmailSequences: 5,
                     maxWhatsAppLaunches: 5, 
+                    maxHooks: 50,
                     features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } 
                   }, 
                   uiFeatures: ['...'], 
