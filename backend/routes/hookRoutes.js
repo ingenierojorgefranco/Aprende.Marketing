@@ -20,7 +20,6 @@ router.get('/project/:projectId', async (req, res) => {
         let hooks = [];
         if (masterParentId) {
             // Es un proyecto hijo: Traer ganchos del maestro y cruzar con los ya desbloqueados por el usuario
-            // Esto permite que el usuario VEA los ganchos del padre sin que existan en su lista local (JOIN LEFT)
             const [rows] = await pool.query(
                 `SELECT 
                     mh.id as master_id, 
@@ -47,7 +46,7 @@ router.get('/project/:projectId', async (req, res) => {
                 isGenerated: !!h.is_generated
             }));
         } else {
-            // Es un proyecto independiente o maestro: Todo está desbloqueado por defecto
+            // Es un proyecto independiente o maestro
             const [rows] = await pool.query(
                 'SELECT * FROM project_hooks WHERE project_id = ? ORDER BY created_at ASC',
                 [projectId]
@@ -103,11 +102,18 @@ router.post('/unlock-single', async (req, res) => {
         const master = masterRows[0];
 
         // 3. Clonar físicamente el gancho al proyecto del usuario
-        // Solo en este momento se crea el registro en la base de datos del usuario
+        // CORRECCIÓN: Se aplica JSON.stringify para asegurar formato JSON válido en MySQL
         const [result] = await pool.query(
             `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
              VALUES (?, ?, ?, ?, ?, 0)`,
-            [projectId, master.id, master.title, master.psychological_strategy, master.content_json]
+            [
+                projectId, 
+                master.id, 
+                master.title, 
+                master.psychological_strategy, 
+                master.content_json ? JSON.stringify(master.content_json) : null,
+                0
+            ]
         );
 
         res.json({ id: String(result.insertId), success: true });
@@ -166,10 +172,17 @@ router.post('/unlock-more/:projectId', async (req, res) => {
 
         // 4. Clonar los ganchos al proyecto del usuario
         for (const hook of availableHooks) {
+            // CORRECCIÓN: Se aplica JSON.stringify para asegurar formato JSON válido en MySQL
             await pool.query(
                 `INSERT INTO project_hooks (project_id, master_hook_id, title, psychological_strategy, content_json, is_generated)
                  VALUES (?, ?, ?, ?, ?, 0)`,
-                [projectId, hook.id, hook.title, hook.psychological_strategy, hook.content_json]
+                [
+                    projectId, 
+                    hook.id, 
+                    hook.title, 
+                    hook.psychological_strategy, 
+                    hook.content_json ? JSON.stringify(hook.content_json) : null
+                ]
             );
         }
 
