@@ -58,6 +58,7 @@ import { ContentGenerator } from "./components/dashboard/tools/ContentGenerator"
 import { ArticlesList } from "./components/dashboard/tools/ArticlesList";
 import { ProjectWizard } from "./components/dashboard/tools/ProjectWizard";
 import { ProjectsList } from "./components/dashboard/tools/ProjectsList";
+import { HooksList } from "./components/dashboard/tools/HooksList";
 import { MyPages } from "./components/dashboard/tools/MyPages";
 import { ProjectStrategyDashboard } from "./components/dashboard/tools/ProjectStrategyDashboard";
 
@@ -352,6 +353,7 @@ const App: React.FC = () => {
 
           {/* PROYECTOS */}
           <Route path="projects" element={<ProjectsList />} />
+          <Route path="hooks" element={<HooksList />} />
           <Route path="projects/create" element={<ProjectWizard />} />
           <Route path="projects/edit/:id" element={<ProjectWizard />} />
           <Route path="projects/:id/strategy" element={<ProjectStrategyDashboard />} />

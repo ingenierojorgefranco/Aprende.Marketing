@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { User, Plan } from '../../types';
 ////////// Adición de iconos HelpCircle, Send y CheckCircle para el sistema de ayuda - 05/06/2025 10:00 //////////
-import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket, Smartphone } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, MessageSquare, Mail, LogOut, FileText, Menu, X, ChevronDown, ChevronRight, PenTool, Wrench, BookOpen, List, Briefcase, Plus, Database, Shield, GraduationCap, PlayCircle, Bot, Video, Users, Sparkles, Crown, CreditCard, Settings, Loader2, Activity, Wifi, WifiOff, Eye, ShoppingCart, HelpCircle, Send, CheckCircle, Newspaper, Layers, Rocket, Smartphone, Zap } from 'lucide-react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { api } from '../../services/api';
 import { UpgradeModal } from './UpgradeModal';
@@ -202,6 +202,7 @@ export const DashboardLayout = ({
         { id: 'training', label: 'Entrenamiento', icon: GraduationCap, subItems: courseItems },
         { id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
             { label: 'Mis Proyectos', path: '/dashboard/projects', icon: Briefcase },
+            { label: 'Mis Ganchos', path: '/dashboard/hooks', icon: Zap },
             { label: 'Páginas de Captura', path: '/dashboard/pages', icon: FileText },
             { label: 'Contenidos SEO', path: '/dashboard/articles', icon: BookOpen },
             { label: 'Email Marketing', path: '/dashboard/email', icon: Mail },
