@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Wand2 } from 'lucide-react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
+import { UpgradeModal } from '../../UpgradeModal';
 import { ProjectHook } from '../../../../types';
 
 interface ProjectStrategy_HooksProps {
@@ -30,6 +31,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [isClone, setIsClone] = useState(false);
   const [isMaster, setIsMaster] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showUpgradeModalLocal, setShowUpgradeModalLocal] = useState(false);
   
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -113,6 +115,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     const hook = hooks[activeHook];
     if (!hook || !projectId || !(hook as any).masterHookId) return;
     
+    if (!isRealAdmin && currentHooksCount >= maxHooks) {
+        alert("Límite de ganchos alcanzado. Por favor, actualiza tu plan para desbloquear más.");
+        return;
+    }
+
     setShowConfirmModal(false);
     setUnlockingSingle(true);
     setGenerationStatus('generating');
@@ -839,7 +846,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                           <Sparkles className="w-10 h-10" />
                       </div>
                       <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirmar Consumo de Créditos</h3>
-                      <p className="text-gray-400 text-lg leading-relaxed font-medium">Al desbloquear este gancho estratégico se consumirá 1 crédito de tu plan actual.</p>
+                      <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                        {(!isRealAdmin && currentHooksCount >= maxHooks) 
+                          ? "Has alcanzado el límite de ganchos de tu plan actual. Actualiza tu plan para continuar."
+                          : "Al desbloquear este gancho estratégico se consumirá 1 crédito de tu plan actual."}
+                      </p>
                       <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left">
                           <div className="flex justify-between items-center mb-3">
                               <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Créditos de Ganchos</span>
@@ -852,11 +863,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   </div>
                   <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
                       <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
-                      <button onClick={executeUnlock} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Desbloquear</button>
+                      {(!isRealAdmin && currentHooksCount >= maxHooks) ? (
+                          <button onClick={() => { setShowConfirmModal(false); setShowUpgradeModalLocal(true); }} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Actualizar Plan</button>
+                      ) : (
+                          <button onClick={executeUnlock} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Desbloquear</button>
+                      )}
                   </div>
               </div>
           </div>
       )}
+      <UpgradeModal isOpen={showUpgradeModalLocal} onClose={() => setShowUpgradeModalLocal(false)} currentPlan={planLimits?.planName} />
     </div>
   );
 };
