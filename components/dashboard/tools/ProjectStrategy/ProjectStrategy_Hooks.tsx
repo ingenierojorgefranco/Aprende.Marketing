@@ -41,6 +41,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const [localTitle, setLocalTitle] = useState("");
   const [localStrategy, setLocalStrategy] = useState("");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
 
   const [isEditingScript, setIsEditingScript] = useState(false);
   const [tempScript, setTempScript] = useState("");
@@ -87,6 +88,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         const hook = hooks[activeHook];
         setLocalTitle(hook.title || "");
         setLocalStrategy(hook.psychologicalStrategy || "");
+        setIsEditingTitle(false);
     }
   }, [activeHook, hooks]);
 
@@ -265,7 +267,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const handleDeleteHook = async () => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar este hook permanentemente? Esta acción no se puede deshacer.")) {
+    if (window.confirm("¿Estás seguro de que que deseas eliminar este hook permanentemente? Esta acción no se puede deshacer.")) {
         setSaving(true);
         try {
             await api.deleteProjectHook(currentHook.id);
@@ -404,20 +406,21 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   const globalIdx = (currentPage - 1) * itemsPerPage + idxInPage;
                   const isActive = activeHook === globalIdx;
                   const isUnlocked = (hook as any).isUnlocked;
+                  const isGenerated = hook.isGenerated;
 
                   return (
                     <div 
                       key={hook.id} 
                       onClick={() => setActiveHook(globalIdx)}
-                      className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isActive ? 'bg-orange-900/20 border-orange-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
+                      className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isActive ? (isGenerated ? 'bg-emerald-900/20 border-emerald-500/50 translate-x-2' : 'bg-orange-900/20 border-orange-500/50 translate-x-2') : 'bg-black/20 border-gray-800 hover:border-gray-700'} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
                     >
                       <div className="flex-1">
-                        <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${isActive ? 'text-orange-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
+                        <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${isActive ? (isGenerated ? 'text-emerald-400' : 'text-orange-300') : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
                             {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
                             {hook.title}
                         </h4>
                       </div>
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isActive ? 'bg-orange-500 border-orange-500' : 'border-gray-600 group-hover:border-orange-400'}`}>
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isActive ? (isGenerated ? 'bg-emerald-500 border-emerald-500' : 'bg-orange-500 border-orange-500') : 'border-gray-600 group-hover:border-emerald-400'}`}>
                         {(isActive || hook.isGenerated) && <Check className={`w-4 h-4 font-bold ${hook.isGenerated ? 'text-white' : 'text-black'}`} />}
                       </div>
                     </div>
@@ -481,22 +484,41 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         </div>
                         
                         <div className="space-y-6">
-                            <input 
-                                type="text"
-                                value={localTitle}
-                                onChange={(e) => setLocalTitle(e.target.value)}
-                                onBlur={() => handleUpdateMessage('title', localTitle)}
-                                className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-black text-2xl outline-none focus:border-orange-500 transition-all shadow-inner"
-                            />
-                            <div className="bg-orange-500/5 rounded-[3rem] p-8 border border-orange-500/30 backdrop-blur-sm mb-8 flex gap-4 items-start shadow-inner">
-                                <Brain className="w-6 h-6 text-orange-400 shrink-0 mt-1"/>
-                                <div className="flex-1">
-                                    <h5 className="text-white font-bold text-sm uppercase tracking-widest mb-1">Estrategia Psicológica</h5>
+                            {/* Edición In-place para el título */}
+                            <div className="relative group/edit">
+                                {isEditingTitle ? (
+                                    <input 
+                                        autoFocus
+                                        type="text"
+                                        value={localTitle}
+                                        onChange={(e) => setLocalTitle(e.target.value)}
+                                        onBlur={() => { handleUpdateMessage('title', localTitle); setIsEditingTitle(false); }}
+                                        onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget.blur())}
+                                        className="w-full bg-black/60 border border-orange-500 rounded-2xl px-6 py-4 text-white font-black text-2xl outline-none transition-all shadow-inner"
+                                    />
+                                ) : (
+                                    <div 
+                                        onClick={() => setIsEditingTitle(true)}
+                                        className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-black text-2xl cursor-pointer hover:border-orange-500/50 transition-all shadow-inner min-h-[4rem] flex items-center justify-between"
+                                    >
+                                        <span>{localTitle}</span>
+                                        <div className="opacity-0 group-hover/edit:opacity-100 transition-opacity text-[9px] font-black uppercase text-gray-500 bg-gray-800 px-2 py-1 rounded">Haz clic para editar</div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="bg-orange-500/5 rounded-[3rem] p-8 border border-orange-500/30 backdrop-blur-sm mb-8 flex flex-col gap-4 items-start shadow-inner">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Brain className="w-6 h-6 text-orange-400 shrink-0"/>
+                                    <h5 className="text-white font-bold text-sm uppercase tracking-widest">Estrategia Psicológica</h5>
+                                </div>
+                                <div className="w-full pl-8">
                                     <textarea 
                                         value={localStrategy}
                                         onChange={(e) => setLocalStrategy(e.target.value)}
                                         onBlur={() => handleUpdateMessage('psychologicalStrategy', localStrategy)}
                                         className="w-full bg-transparent border-none text-gray-400 text-lg font-light italic outline-none resize-none h-auto min-h-[100px]"
+                                        placeholder="Ingresa aquí el ángulo psicológico..."
                                     />
                                 </div>
                             </div>
@@ -516,30 +538,43 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
             {isCurrentUnlocked && currentHook.isGenerated && (
                 <div className="animate-in slide-in-from-bottom-6 duration-700">
-                    <div className="bg-[#111] border border-[#FF5A1F]/30 rounded-[3rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
-                        <div className="p-8 border-b border-white/5 bg-gradient-to-r from-orange-500/10 to-transparent flex items-center gap-4">
-                            <div className="w-14 h-14 bg-orange-500 text-black rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20">
-                                <Sparkles className="w-8 h-8 fill-current" />
-                            </div>
+                    <div className="bg-[#111] border border-emerald-500/30 rounded-[3rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
+                        <div className="p-8 border-b border-white/5 bg-gradient-to-r from-emerald-500/10 to-transparent flex items-center gap-4">
                             <div className="flex-1">
                                 <div className="flex justify-between items-center">
-                                    <input 
-                                        type="text"
-                                        value={localTitle}
-                                        onChange={(e) => setLocalTitle(e.target.value)}
-                                        onBlur={() => handleUpdateMessage('title', localTitle)}
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white font-black text-xl outline-none focus:border-orange-500"
-                                    />
+                                    {isEditingTitle ? (
+                                        <input 
+                                            autoFocus
+                                            type="text"
+                                            value={localTitle}
+                                            onChange={(e) => setLocalTitle(e.target.value)}
+                                            onBlur={() => { handleUpdateMessage('title', localTitle); setIsEditingTitle(false); }}
+                                            onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget.blur())}
+                                            className="w-full bg-black/40 border border-emerald-500 rounded-xl px-4 py-2 text-white font-black text-xl outline-none focus:border-emerald-500"
+                                        />
+                                    ) : (
+                                        <div 
+                                            onClick={() => setIsEditingTitle(true)}
+                                            className="group/title-edit cursor-pointer w-full flex items-center justify-between"
+                                        >
+                                            <h3 className="text-white font-black text-xl leading-tight">{localTitle}</h3>
+                                            <div className="opacity-0 group-hover/title-edit:opacity-100 transition-opacity text-[8px] font-black uppercase text-gray-500 bg-gray-800 px-1.5 py-0.5 rounded ml-4 whitespace-nowrap">Editar Título</div>
+                                        </div>
+                                    )}
                                     <button onClick={handleDeleteHook} className="p-2 text-gray-500 hover:text-red-500 transition-colors ml-4">
                                         <Trash2 className="w-5 h-5" />
                                     </button>
                                 </div>
-                                <div className="mt-4 bg-orange-500/5 border border-orange-500/20 rounded-[3rem] px-8 py-3 inline-block shadow-inner w-full">
+                                <div className="mt-4 bg-emerald-500/5 border border-emerald-500/20 rounded-[2rem] p-6 shadow-inner w-full flex flex-col gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <Brain className="w-4 h-4 text-emerald-400" />
+                                        <h5 className="text-white font-bold text-xs uppercase tracking-widest">Estrategia Psicológica</h5>
+                                    </div>
                                     <textarea 
                                         value={localStrategy}
                                         onChange={(e) => setLocalStrategy(e.target.value)}
                                         onBlur={() => handleUpdateMessage('psychologicalStrategy', localStrategy)}
-                                        className="w-full bg-transparent border-none text-white text-lg font-light italic outline-none resize-none h-auto"
+                                        className="w-full bg-transparent border-none text-gray-400 text-lg font-light italic outline-none resize-none h-auto pl-6"
                                     />
                                 </div>
                             </div>
@@ -547,10 +582,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
                         <div className="px-8 py-6 bg-black/20 border-b border-white/5">
                             <div className="w-full flex flex-wrap bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-inner">
-                                <button onClick={() => setActiveKitTab('video')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'video' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>GUION</button>
-                                <button onClick={() => setActiveKitTab('ads')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'ads' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Descripción</button>
-                                <button onClick={() => setActiveKitTab('thumbs')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'thumbs' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Video</button>
-                                <button onClick={() => setActiveKitTab('publish')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'publish' ? 'bg-[#FF5A1F] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Publicar</button>
+                                <button onClick={() => setActiveKitTab('video')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'video' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>GUION</button>
+                                <button onClick={() => setActiveKitTab('ads')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'ads' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Descripción</button>
+                                <button onClick={() => setActiveKitTab('thumbs')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'thumbs' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Video</button>
+                                <button onClick={() => setActiveKitTab('publish')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'publish' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Publicar</button>
                             </div>
                         </div>
 
@@ -559,12 +594,12 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 h-full flex flex-col">
                                     <div className="flex items-center justify-between">
                                         <h5 className="text-white font-black text-xl flex items-center gap-3 uppercase tracking-tight">
-                                            <Video className="w-6 h-6 text-orange-400" /> Guión de Video
+                                            <Video className="w-6 h-6 text-emerald-400" /> Guión de Video
                                         </h5>
                                         {!isEditingScript ? (
                                             <button 
                                                 onClick={() => { setTempScript(currentKit.script); setIsEditingScript(true); }}
-                                                className="text-xs font-black text-orange-400 uppercase bg-orange-400/10 px-3 py-1 rounded-lg border border-orange-400/20"
+                                                className="text-xs font-black text-emerald-400 uppercase bg-emerald-400/10 px-3 py-1 rounded-lg border border-emerald-400/20"
                                             >
                                                 Editar Guion
                                             </button>
@@ -584,7 +619,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                             <textarea 
                                                 value={tempScript}
                                                 onChange={(e) => setTempScript(e.target.value)}
-                                                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-[#0B0B0B] font-medium text-lg outline-none focus:ring-2 focus:ring-orange-500/20 min-h-[250px] resize-none"
+                                                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-[#0B0B0B] font-medium text-lg outline-none focus:ring-2 focus:ring-[#075E54]/20 min-h-[250px] resize-none"
                                             />
                                         ) : (
                                             <div className="text-gray-900 text-[1.3rem] leading-[2.5rem] font-light whitespace-pre-wrap">
@@ -596,7 +631,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         {!isEditingScript && (
                                             <button 
                                                 onClick={() => handleCopy(currentKit.script)} 
-                                                className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-orange-900/20"
+                                                className="px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-900/20"
                                             >
                                                 <Copy className="w-5 h-5" /> Copiar Guion
                                             </button>
@@ -609,12 +644,12 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
                                     <div className="flex items-center justify-between">
                                         <h5 className="text-white font-black text-xl flex items-center gap-3 uppercase tracking-tight">
-                                            <Megaphone className="w-6 h-6 text-orange-400" /> Descripción
+                                            <Megaphone className="w-6 h-6 text-emerald-400" /> Descripción
                                         </h5>
                                         {!isEditingAds ? (
                                             <button 
                                                 onClick={() => { setTempAds(currentKit.ads); setIsEditingAds(true); }}
-                                                className="text-xs font-black text-orange-400 uppercase bg-orange-400/10 px-3 py-1 rounded-lg border border-orange-400/20"
+                                                className="text-xs font-black text-emerald-400 uppercase bg-emerald-400/10 px-3 py-1 rounded-lg border border-emerald-400/20"
                                             >
                                                 Editar Descripción
                                             </button>
@@ -645,7 +680,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         {!isEditingAds && (
                                             <button 
                                                 onClick={() => handleCopy(currentKit.ads)} 
-                                                className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-orange-900/20"
+                                                className="px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-900/20"
                                             >
                                                 <Copy className="w-5 h-5" /> Copiar Descripción
                                             </button>
@@ -657,7 +692,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             {activeKitTab === 'thumbs' && (
                                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
                                     <h5 className="text-white font-black text-xl flex items-center gap-3 uppercase tracking-tight">
-                                        <Layout className="w-6 h-6 text-orange-400" /> Video
+                                        <Layout className="w-6 h-6 text-emerald-400" /> Video
                                     </h5>
                                     <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl">
                                         <iframe 
@@ -671,7 +706,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     {user?.role === 'admin' && (
                                         <div className="bg-black/40 border border-white/5 rounded-[2rem] p-8 space-y-6">
                                             <h6 className="text-white font-bold text-sm uppercase tracking-widest border-b border-white/5 pb-4 flex items-center gap-2">
-                                                <PenTool className="w-4 h-4 text-[#FF5A1F]" /> Configuración de Enlaces (Admin)
+                                                <PenTool className="w-4 h-4 text-[#10B981]" /> Configuración de Enlaces (Admin)
                                             </h6>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 <div className="space-y-2">
@@ -680,7 +715,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                                         type="text"
                                                         value={currentKit.videoUrl || ''}
                                                         onChange={(e) => handleUpdateKitJson('videoUrl', e.target.value)}
-                                                        className="w-full bg-black/60 border border-white/10 rounded-xl py-3 px-4 text-blue-400 font-mono text-xs outline-none focus:border-orange-500 transition-all shadow-inner"
+                                                        className="w-full bg-black/60 border border-white/10 rounded-xl py-3 px-4 text-blue-400 font-mono text-xs outline-none focus:border-emerald-500 transition-all shadow-inner"
                                                         placeholder="https://..."
                                                     />
                                                 </div>
@@ -690,7 +725,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                                         type="text"
                                                         value={currentKit.downloadUrl || ''}
                                                         onChange={(e) => handleUpdateKitJson('downloadUrl', e.target.value)}
-                                                        className="w-full bg-black/60 border border-white/10 rounded-xl py-3 px-4 text-emerald-400 font-mono text-xs outline-none focus:border-orange-500 transition-all shadow-inner"
+                                                        className="w-full bg-black/60 border border-white/10 rounded-xl py-3 px-4 text-emerald-400 font-mono text-xs outline-none focus:border-emerald-500 transition-all shadow-inner"
                                                         placeholder="https://..."
                                                     />
                                                 </div>
@@ -703,7 +738,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                             href={currentKit.downloadUrl} 
                                             target="_blank" 
                                             rel="noopener noreferrer"
-                                            className="px-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-orange-900/20"
+                                            className="px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-900/20"
                                         >
                                             <Download className="w-5 h-5" /> Descargar Video
                                         </a>
@@ -730,7 +765,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                                     className="w-full flex items-center justify-between p-6 hover:bg-white/5 transition-all text-left"
                                                 >
                                                     <span className="font-bold text-white text-lg flex items-center gap-4">
-                                                        <span className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center text-xs font-black">{idx + 1}</span>
+                                                        <span className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-black">{idx + 1}</span>
                                                         Paso {idx + 1}
                                                     </span>
                                                     {openAccordion === idx ? <ChevronUp className="text-gray-500" /> : <ChevronDown className="text-gray-500" />}
