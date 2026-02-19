@@ -68,20 +68,21 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
             setLoadingStats(true);
             setLoadingResources(true);
             try {
-                const [stats, projects, pages, articles, emails, whatsapp] = await Promise.all([
+                const [stats, projects, pages, articles, emails, whatsapp, hooks] = await Promise.all([
                     api.getUserUsageStats(user.id),
-                    api.getProjects(),
-                    api.getPages(),
-                    api.getArticles(),
-                    api.getEmailSequences(),
-                    api.getWhatsAppLaunches()
+                    api.getUserResources('projects'),
+                    api.getUserResources('pages'),
+                    api.getUserResources('articles'),
+                    api.getUserResources('emails'),
+                    api.getUserResources('whatsapp'),
+                    api.getUserResources('hooks')
                 ]);
                 setUsageStats(stats);
                 setResources({
                     projects,
                     pages,
                     articles,
-                    hooks: [], // Hooks are usually inside projects
+                    hooks,
                     emails,
                     whatsapp
                 });
@@ -337,6 +338,35 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                                                 </a>
                                                             </div>
                                                         )) : <p className="text-xs text-gray-600 italic">No tienes proyectos creados.</p>}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Hooks Section */}
+                                            <div className="bg-black/30 border border-white/5 rounded-2xl overflow-hidden">
+                                                <button 
+                                                    onClick={() => setExpandedResource(expandedResource === 'hooks' ? null : 'hooks')}
+                                                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <Zap className="w-5 h-5 text-orange-400" />
+                                                        <span className="text-sm font-bold text-white">Ganchos Magnéticos ({resources.hooks.length} / {user.planLimits?.maxHooks || 10})</span>
+                                                    </div>
+                                                    {expandedResource === 'hooks' ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+                                                </button>
+                                                {expandedResource === 'hooks' && (
+                                                    <div className="px-6 pb-4 space-y-2 border-t border-white/5 pt-4 animate-in slide-in-from-top-2 duration-300">
+                                                        {resources.hooks.length > 0 ? resources.hooks.map(h => (
+                                                            <div key={h.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-xs text-gray-300 truncate max-w-[200px]">{h.title}</span>
+                                                                    <span className="text-[9px] text-gray-500 uppercase font-black tracking-tighter">Proyecto: {h.project_name}</span>
+                                                                </div>
+                                                                <a href={`#/dashboard/projects/${h.project_id}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] font-black uppercase text-[#FF5A1F] hover:text-white transition-colors">
+                                                                    Ver <ExternalLink className="w-3 h-3" />
+                                                                </a>
+                                                            </div>
+                                                        )) : <p className="text-xs text-gray-600 italic">No tienes ganchos creados.</p>}
                                                     </div>
                                                 )}
                                             </div>

@@ -1048,6 +1048,11 @@ export const api = {
         apiCache.userUsageStats[userId] = stats;
         return stats;
     },
+
+    getUserResources: async (type: string): Promise<any[]> => {
+        if (isMockMode) return Promise.resolve([]);
+        return await fetchWithFallback(`/auth/me/resources?type=${type}`, { headers: getAuthHeaders() });
+    },
   
     getCoursesList: async (): Promise<{id: string, title: string, slug: string}[]> => {
         if (isMockMode) return Promise.resolve(localCourses.map(c => ({ id: c.id, title: c.title, slug: c.slug })));

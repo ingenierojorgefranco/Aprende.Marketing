@@ -174,6 +174,40 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
+// Get user resources for profile accordion
+router.get('/me/resources', authMiddleware, async (req, res) => {
+    const userId = req.user.id;
+    const { type } = req.query;
+    try {
+        let rows = [];
+        if (type === 'projects') {
+            [rows] = await pool.query('SELECT id, name, created_at FROM projects WHERE user_id = ? AND is_master = 0 ORDER BY created_at DESC', [userId]);
+        } else if (type === 'pages') {
+            [rows] = await pool.query('SELECT id, name, subdomain, created_at FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+        } else if (type === 'articles') {
+            [rows] = await pool.query('SELECT id, title, slug, created_at FROM articles WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+        } else if (type === 'emails') {
+            [rows] = await pool.query('SELECT id, name, created_at FROM email_sequences WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+        } else if (type === 'whatsapp') {
+            [rows] = await pool.query('SELECT id, name, created_at FROM whatsapp_lanzamientos WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+        } else if (type === 'hooks') {
+            [rows] = await pool.query(`
+                SELECT ph.id, ph.title, ph.created_at, p.name as project_name, ph.project_id
+                FROM project_hooks ph 
+                JOIN projects p ON ph.project_id = p.id 
+                WHERE p.user_id = ? 
+                ORDER BY ph.created_at DESC
+            `, [userId]);
+        } else {
+            return res.status(400).json({ error: 'Tipo de recurso no válido' });
+        }
+        res.json(rows);
+    } catch (e) {
+        console.error("[Resources Error]", e.message);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Profile Update Route
 router.put('/profile', authMiddleware, async (req, res) => {
     const { name, email, avatarUrl, birthDate } = req.body;
