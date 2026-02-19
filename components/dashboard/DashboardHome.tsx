@@ -139,7 +139,6 @@ export const DashboardHome: React.FC = () => {
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-l-4 border-[#FF5A1F] pl-6 py-2">
         <div>
             <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase">HOLA, {user.name.toUpperCase()}</h1>
-            <p className="text-gray-500 font-light text-lg mt-1">Tu ecosistema ha crecido un <span className="text-[#FF5A1F] font-bold">12%</span> esta semana. Mantén el ritmo.</p>
         </div>
         <div className="flex gap-3">
              {/* ////////// Eliminación de "Servidores Online" por solicitud del usuario - 27/05/2025 14:15 ////////// */}
@@ -164,7 +163,7 @@ export const DashboardHome: React.FC = () => {
                     </div>
                     <p className="text-xs font-black text-blue-400 uppercase tracking-[0.2em] mb-3">Visitas Recibidas</p>
                     <h3 className="text-4xl font-black text-white leading-none">{summaryData.totalVisits}</h3>
-                    <p className="text-gray-500 text-xs mt-3 font-medium">Tráfico Bruto</p>
+                    <p className="text-white text-[1em] leading-[1rem] mt-3 font-medium">Tráfico Bruto</p>
                 </div>
 
                 {/* 2. Leads Capturados */}
@@ -178,7 +177,7 @@ export const DashboardHome: React.FC = () => {
                     </div>
                     <p className="text-xs font-black text-[#FF5A1F] uppercase tracking-[0.2em] mb-3">Leads Capturados</p>
                     <h3 className="text-4xl font-black text-white leading-none">{summaryData.totalConversions}</h3>
-                    <p className="text-gray-500 text-xs mt-3 font-medium flex items-center gap-1">
+                    <p className="text-white text-[1em] leading-[1rem] mt-3 font-medium flex items-center gap-1">
                         <ArrowUpRight className="w-3 h-3 text-emerald-500" /> +5% vs ayer
                     </p>
                 </div>
@@ -194,7 +193,7 @@ export const DashboardHome: React.FC = () => {
                     </div>
                     <p className="text-xs font-black text-purple-400 uppercase tracking-[0.2em] mb-3">Tasa Conversión</p>
                     <h3 className="text-4xl font-black text-white leading-none">{summaryData.conversionRate}%</h3>
-                    <p className="text-gray-500 text-xs mt-3 font-medium italic">Ratio de Éxito</p>
+                    <p className="text-white text-[1em] leading-[1rem] mt-3 font-medium">Ratio de Éxito</p>
                 </div>
 
                 {/* ////////// Eliminación de la tarjeta "Potencial Facturación" por solicitud del usuario - 01/06/2025 20:45 ////////// */}
@@ -315,7 +314,7 @@ export const DashboardHome: React.FC = () => {
                             </div>
                         </div>
                     ) : (
-                        <p className="text-sm text-gray-500 font-medium leading-relaxed italic">
+                        <p className="text-[1em] text-white font-medium leading-[1.5em]">
                             Estás en la versión gratuita. Aumenta tu plan ahora para desbloquear todas las funciones estratégicas.
                         </p>
                     )}
@@ -323,7 +322,7 @@ export const DashboardHome: React.FC = () => {
                     {/* ////////// Actualización: Redirección al panel de gestión de usuario en lugar de al Home - 27/05/2025 12:45 ////////// */}
                     <button 
                         onClick={() => setShowProfileModal(true)} 
-                        className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest bg-white/5 border border-white/10 text-white hover:bg-[#FF5A1F] hover:border-[#FF5A1F] transition-all flex items-center justify-center gap-2"
+                        className="w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest bg-[#FF5A1F] border border-[#FF5A1F] text-white hover:bg-[#D94A1E] hover:border-[#D94A1E] transition-all flex items-center justify-center gap-2"
                     >
                         <Zap className="w-4 h-4 fill-current" /> Gestionar Suscripción
                     </button>
@@ -360,9 +359,9 @@ export const DashboardHome: React.FC = () => {
                 </div>
                 <button 
                     onClick={() => setShowHistoryModal(true)}
-                    className="w-full mt-10 py-4 rounded-xl border border-white/5 text-[11px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-white hover:bg-white/5 transition-all"
+                    className="w-full mt-10 py-4 rounded-xl border border-[#FF5A1F]/30 text-[11px] font-black uppercase tracking-[0.3em] text-white hover:bg-white/5 transition-all"
                 >
-                    Ver Histórico
+                    Ver más novedades
                 </button>
             </div>
             {/* ////////// Fin de actualización - 27/05/2025 15:00 ////////// */}

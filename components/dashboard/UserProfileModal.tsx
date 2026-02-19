@@ -6,7 +6,8 @@ import { api } from '../../services/api';
 import { 
     X, Save, Upload, User as UserIcon, Mail, Calendar, 
     ShieldCheck, Crown, Clock, Loader2, Sparkles, 
-    CreditCard, BarChart, RefreshCw, ExternalLink, Zap, Info
+    CreditCard, BarChart, RefreshCw, ExternalLink, Zap, Info,
+    ChevronDown, ChevronUp, Briefcase, FileText, BookOpen, Smartphone
 } from 'lucide-react';
 import { UpgradeModal } from './UpgradeModal';
 
@@ -18,7 +19,7 @@ interface UserProfileModalProps {
 
 const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUpdateUser }) => {
     ////////// Estado de pestañas y edición - 27/05/2025 13:00 //////////
-    const [activeTab, setActiveTab] = useState<'profile' | 'plan' | 'usage' | 'payments'>('profile');
+    const [activeTab, setActiveTab] = useState<'profile' | 'plan' | 'usage' | 'payments'>('plan');
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showUpgrade, setShowUpgrade] = useState(false);
@@ -35,6 +36,25 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
     const [payments, setPayments] = useState<any[]>([]);
     const [loadingPayments, setLoadingPayments] = useState(false);
 
+    // Resource Data for Accordion
+    const [resources, setResources] = useState<{
+        projects: any[],
+        pages: any[],
+        articles: any[],
+        hooks: any[],
+        emails: any[],
+        whatsapp: any[]
+    }>({
+        projects: [],
+        pages: [],
+        articles: [],
+        hooks: [],
+        emails: [],
+        whatsapp: []
+    });
+    const [loadingResources, setLoadingResources] = useState(false);
+    const [expandedResource, setExpandedResource] = useState<string | null>(null);
+
     ////////// Fin de actualización - 27/05/2025 13:00 /////////
 
     const memberDays = user.createdAt 
@@ -44,15 +64,32 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
     ////////// Lógica de carga de datos bajo demanda según pestaña - 27/05/2025 13:10 //////////
     const handleTabChange = async (tab: 'profile' | 'plan' | 'usage' | 'payments') => {
         setActiveTab(tab);
-        if (tab === 'usage' && !usageStats) {
+        if (tab === 'usage') {
             setLoadingStats(true);
+            setLoadingResources(true);
             try {
-                const stats = await api.getUserUsageStats(user.id);
+                const [stats, projects, pages, articles, emails, whatsapp] = await Promise.all([
+                    api.getUserUsageStats(user.id),
+                    api.getProjects(),
+                    api.getPages(),
+                    api.getArticles(),
+                    api.getEmailSequences(),
+                    api.getWhatsAppLaunches()
+                ]);
                 setUsageStats(stats);
+                setResources({
+                    projects,
+                    pages,
+                    articles,
+                    hooks: [], // Hooks are usually inside projects
+                    emails,
+                    whatsapp
+                });
             } catch (e) {
-                console.error("Error cargando estadísticas", e);
+                console.error("Error cargando datos de uso", e);
             } finally {
                 setLoadingStats(false);
+                setLoadingResources(false);
             }
         } else if (tab === 'payments' && payments.length === 0) {
             setLoadingPayments(true);
@@ -147,10 +184,10 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                             <p className="text-gray-400 text-sm font-medium">{user.email}</p>
                             <div className="flex items-center justify-center md:justify-start gap-4 mt-3 text-[10px] font-black uppercase tracking-widest text-gray-500">
                                 <span className="flex items-center gap-1.5 bg-[#FF5A1F]/10 text-[#FF5A1F] px-3 py-1 rounded-full border border-[#FF5A1F]/20">
-                                    <ShieldCheck className="w-3 h-3" /> {user.role === 'admin' ? 'Administrador' : 'Estratega'}
+                                    <ShieldCheck className="w-3 h-3" /> {user.role === 'admin' ? 'Administrador' : `Plan ${user.planLimits?.planName || 'Starter'}`}
                                 </span>
                                 <span className="flex items-center gap-1.5">
-                                    <Clock className="w-3 h-3" /> Miembro hace {memberDays} días
+                                    <Clock className="w-3 h-3" /> Miembro hace {memberDays} {memberDays === 1 ? 'día' : 'días'}
                                 </span>
                             </div>
                         </div>
@@ -158,8 +195,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
 
                     {/* ////////// SISTEMA DE PESTAÑAS PARA AUTOGESTIÓN - 27/05/2025 13:20 ////////// */}
                     <div className="flex border-b border-white/5 bg-black/20 rounded-xl mb-8 p-1">
-                        <button onClick={() => handleTabChange('profile')} className={`flex-1 py-3 text-[11px] font-black uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'profile' ? 'bg-[#FF5A1F] text-white shadow-lg shadow-[#FF5A1F]/20' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>Perfil</button>
                         <button onClick={() => handleTabChange('plan')} className={`flex-1 py-3 text-[11px] font-black uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'plan' ? 'bg-[#FF5A1F] text-white shadow-lg shadow-[#FF5A1F]/20' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>Suscripción</button>
+                        <button onClick={() => handleTabChange('profile')} className={`flex-1 py-3 text-[11px] font-black uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'profile' ? 'bg-[#FF5A1F] text-white shadow-lg shadow-[#FF5A1F]/20' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>Perfil</button>
                         <button onClick={() => handleTabChange('usage')} className={`flex-1 py-3 text-[11px] font-black uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'usage' ? 'bg-[#FF5A1F] text-white shadow-lg shadow-[#FF5A1F]/20' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>Consumo</button>
                         <button onClick={() => handleTabChange('payments')} className={`flex-1 py-3 text-[11px] font-black uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'payments' ? 'bg-[#FF5A1F] text-white shadow-lg shadow-[#FF5A1F]/20' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}>Facturación</button>
                     </div>
@@ -251,19 +288,12 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                     </div>
                                 </div>
 
-                                <div className="p-6 bg-blue-900/10 border border-blue-500/20 rounded-2xl flex items-start gap-4">
-                                    <Info className="w-5 h-5 text-blue-400 shrink-0 mt-1" />
-                                    <p className="text-sm text-gray-400 leading-relaxed font-medium">
-                                        Para cambiar tu método de pago o cancelar la suscripción, por favor utiliza la pasarela de pagos correspondiente (Stripe o Hotmart) vinculada a tu correo electrónico.
-                                    </p>
-                                </div>
-
                                 {user.planLimits?.planName !== 'max' && (
                                     <button 
                                         onClick={() => setShowUpgrade(true)}
-                                        className="w-full py-5 rounded-2xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg shadow-xl shadow-[#FF5A1F]/20 transition-all flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95"
+                                        className="w-full py-6 rounded-2xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-xl shadow-[#FF5A1F]/20 transition-all flex items-center justify-center gap-3 transform hover:scale-[1.02] active:scale-95 uppercase"
                                     >
-                                        <Sparkles className="w-6 h-6 fill-current" /> Subir de Plan ahora
+                                        <Sparkles className="w-7 h-7 fill-current" /> Actualizar Plan
                                     </button>
                                 )}
                             </div>
@@ -282,10 +312,139 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                 {loadingStats ? (
                                     <div className="flex justify-center py-20 text-[#FF5A1F]"><Loader2 className="w-12 h-12 animate-spin" /></div>
                                 ) : usageStats ? (
-                                    <div className="space-y-2 bg-black/30 border border-white/5 p-8 rounded-[2.5rem] shadow-inner">
-                                        <UsageBar label="Proyectos" current={usageStats.projects} max={user.planLimits?.maxProjects || 1} />
-                                        <UsageBar label="Landing Pages" current={usageStats.landings} max={user.planLimits?.maxLandings || 3} />
-                                        <UsageBar label="Artículos SEO" current={usageStats.articles} max={user.planLimits?.maxArticles || 2} />
+                                    <div className="space-y-4">
+                                        {/* Accordion Sections */}
+                                        <div className="space-y-3">
+                                            {/* Projects Section */}
+                                            <div className="bg-black/30 border border-white/5 rounded-2xl overflow-hidden">
+                                                <button 
+                                                    onClick={() => setExpandedResource(expandedResource === 'projects' ? null : 'projects')}
+                                                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <Briefcase className="w-5 h-5 text-blue-400" />
+                                                        <span className="text-sm font-bold text-white">Proyectos ({resources.projects.length} / {user.planLimits?.maxProjects || 1})</span>
+                                                    </div>
+                                                    {expandedResource === 'projects' ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+                                                </button>
+                                                {expandedResource === 'projects' && (
+                                                    <div className="px-6 pb-4 space-y-2 border-t border-white/5 pt-4 animate-in slide-in-from-top-2 duration-300">
+                                                        {resources.projects.length > 0 ? resources.projects.map(p => (
+                                                            <div key={p.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                                                                <span className="text-xs text-gray-300 truncate max-w-[200px]">{p.name}</span>
+                                                                <a href={`#/dashboard/projects/${p.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] font-black uppercase text-[#FF5A1F] hover:text-white transition-colors">
+                                                                    Ver <ExternalLink className="w-3 h-3" />
+                                                                </a>
+                                                            </div>
+                                                        )) : <p className="text-xs text-gray-600 italic">No tienes proyectos creados.</p>}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Pages Section */}
+                                            <div className="bg-black/30 border border-white/5 rounded-2xl overflow-hidden">
+                                                <button 
+                                                    onClick={() => setExpandedResource(expandedResource === 'pages' ? null : 'pages')}
+                                                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <FileText className="w-5 h-5 text-emerald-400" />
+                                                        <span className="text-sm font-bold text-white">Landing Pages ({resources.pages.length} / {user.planLimits?.maxLandings || 3})</span>
+                                                    </div>
+                                                    {expandedResource === 'pages' ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+                                                </button>
+                                                {expandedResource === 'pages' && (
+                                                    <div className="px-6 pb-4 space-y-2 border-t border-white/5 pt-4 animate-in slide-in-from-top-2 duration-300">
+                                                        {resources.pages.length > 0 ? resources.pages.map(p => (
+                                                            <div key={p.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                                                                <span className="text-xs text-gray-300 truncate max-w-[200px]">{p.name}</span>
+                                                                <a href={`#/dashboard/pages`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] font-black uppercase text-[#FF5A1F] hover:text-white transition-colors">
+                                                                    Ver <ExternalLink className="w-3 h-3" />
+                                                                </a>
+                                                            </div>
+                                                        )) : <p className="text-xs text-gray-600 italic">No tienes páginas creadas.</p>}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Articles Section */}
+                                            <div className="bg-black/30 border border-white/5 rounded-2xl overflow-hidden">
+                                                <button 
+                                                    onClick={() => setExpandedResource(expandedResource === 'articles' ? null : 'articles')}
+                                                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <BookOpen className="w-5 h-5 text-purple-400" />
+                                                        <span className="text-sm font-bold text-white">Artículos SEO ({resources.articles.length} / {user.planLimits?.maxArticles || 2})</span>
+                                                    </div>
+                                                    {expandedResource === 'articles' ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+                                                </button>
+                                                {expandedResource === 'articles' && (
+                                                    <div className="px-6 pb-4 space-y-2 border-t border-white/5 pt-4 animate-in slide-in-from-top-2 duration-300">
+                                                        {resources.articles.length > 0 ? resources.articles.map(a => (
+                                                            <div key={a.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                                                                <span className="text-xs text-gray-300 truncate max-w-[200px]">{a.title}</span>
+                                                                <a href={`#/dashboard/articles`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] font-black uppercase text-[#FF5A1F] hover:text-white transition-colors">
+                                                                    Ver <ExternalLink className="w-3 h-3" />
+                                                                </a>
+                                                            </div>
+                                                        )) : <p className="text-xs text-gray-600 italic">No tienes artículos creados.</p>}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Emails Section */}
+                                            <div className="bg-black/30 border border-white/5 rounded-2xl overflow-hidden">
+                                                <button 
+                                                    onClick={() => setExpandedResource(expandedResource === 'emails' ? null : 'emails')}
+                                                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <Mail className="w-5 h-5 text-yellow-400" />
+                                                        <span className="text-sm font-bold text-white">Secuencias Email ({resources.emails.length} / {user.planLimits?.maxEmailSequences || 1})</span>
+                                                    </div>
+                                                    {expandedResource === 'emails' ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+                                                </button>
+                                                {expandedResource === 'emails' && (
+                                                    <div className="px-6 pb-4 space-y-2 border-t border-white/5 pt-4 animate-in slide-in-from-top-2 duration-300">
+                                                        {resources.emails.length > 0 ? resources.emails.map(e => (
+                                                            <div key={e.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                                                                <span className="text-xs text-gray-300 truncate max-w-[200px]">{e.name}</span>
+                                                                <a href={`#/dashboard/email`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] font-black uppercase text-[#FF5A1F] hover:text-white transition-colors">
+                                                                    Ver <ExternalLink className="w-3 h-3" />
+                                                                </a>
+                                                            </div>
+                                                        )) : <p className="text-xs text-gray-600 italic">No tienes secuencias creadas.</p>}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* WhatsApp Section */}
+                                            <div className="bg-black/30 border border-white/5 rounded-2xl overflow-hidden">
+                                                <button 
+                                                    onClick={() => setExpandedResource(expandedResource === 'whatsapp' ? null : 'whatsapp')}
+                                                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <Smartphone className="w-5 h-5 text-rose-400" />
+                                                        <span className="text-sm font-bold text-white">Lanzamientos WhatsApp ({resources.whatsapp.length} / {user.planLimits?.maxWhatsAppLaunches || 1})</span>
+                                                    </div>
+                                                    {expandedResource === 'whatsapp' ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+                                                </button>
+                                                {expandedResource === 'whatsapp' && (
+                                                    <div className="px-6 pb-4 space-y-2 border-t border-white/5 pt-4 animate-in slide-in-from-top-2 duration-300">
+                                                        {resources.whatsapp.length > 0 ? resources.whatsapp.map(w => (
+                                                            <div key={w.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                                                                <span className="text-xs text-gray-300 truncate max-w-[200px]">{w.name}</span>
+                                                                <a href={`#/dashboard/whatsapp-launch`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] font-black uppercase text-[#FF5A1F] hover:text-white transition-colors">
+                                                                    Ver <ExternalLink className="w-3 h-3" />
+                                                                </a>
+                                                            </div>
+                                                        )) : <p className="text-xs text-gray-600 italic">No tienes lanzamientos creados.</p>}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
                                         
                                         <div className="mt-8 pt-8 border-t border-white/5 text-center">
                                             <p className="text-xs text-gray-500 font-medium italic">

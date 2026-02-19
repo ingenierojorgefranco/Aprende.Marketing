@@ -20,7 +20,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   handleTooltipLeave
 }) => {
   const { id: projectId } = useParams() as { id: string };
-  const { user, isSimulating } = useOutletContext() as any;
+  const { user, isSimulating, hookCount } = useOutletContext() as any;
   const planLimits = user?.planLimits;
   const [showVideoModal, setShowVideoModal] = useState(false);
   
@@ -295,8 +295,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const isRealAdmin = user?.role === 'admin' && !isSimulating;
-  const maxHooks = planLimits?.maxHooks || 0;
-  const currentHooksCount = hooks.filter(h => (h as any).isUnlocked || h.isGenerated).length;
+  const maxHooks = planLimits?.maxHooks || 5;
+  const currentHooksCount = hookCount || hooks.filter(h => (h as any).isUnlocked || h.isGenerated).length;
   const usagePercent = maxHooks > 0 ? Math.min(100, (currentHooksCount / maxHooks) * 100) : 0;
   
   let progressColor = "bg-green-500";
@@ -419,7 +419,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     <div 
                       key={hook.id} 
                       onClick={() => setActiveHook(globalIdx)}
-                      className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isActive ? (isGenerated ? 'bg-emerald-900/20 border-emerald-500/50 translate-x-2' : 'bg-orange-900/20 border-orange-500/50 translate-x-2') : 'bg-black/20 border-gray-800 hover:border-gray-700'} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
+                      className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-900/20 border-emerald-500/50' : (isActive ? 'bg-orange-900/20 border-orange-500/50' : 'bg-black/20 border-gray-800 hover:border-gray-700')} ${isActive ? 'translate-x-2' : ''} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
                     >
                       <div className="flex-1">
                         <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${isActive ? (isGenerated ? 'text-emerald-400' : 'text-orange-300') : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>

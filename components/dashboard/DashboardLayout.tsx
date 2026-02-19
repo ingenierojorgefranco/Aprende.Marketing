@@ -110,6 +110,7 @@ export const DashboardLayout = ({
   const [projectCount, setProjectCount] = useState(0);
   const [pageCount, setPageCount] = useState(0);
   const [articleCount, setArticleCount] = useState(0);
+  const [hookCount, setHookCount] = useState(0);
   const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
   
   const [simulatedPlanSlug, setSimulatedPlanSlug] = useState<string | null>(() => {
@@ -146,6 +147,7 @@ export const DashboardLayout = ({
               setProjectCount(summary.totalProjects || 0);
               setPageCount(summary.totalPages || 0);
               setArticleCount(summary.totalArticles || 0);
+              setHookCount(summary.totalHooks || 0);
 
               if (user.role === 'admin') {
                   const plansData = await api.getPlans();
@@ -388,6 +390,7 @@ export const DashboardLayout = ({
                         projectCount, 
                         pageCount, 
                         articleCount, 
+                        hookCount,
                         isSimulating: !!simulatedPlanSlug && user.role === 'admin',
                         setShowProfileModal 
                     }} />
