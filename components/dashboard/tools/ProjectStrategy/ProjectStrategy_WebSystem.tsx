@@ -282,25 +282,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     </div>
 
                     <div id="web-system-anchor" className="max-w-4xl mx-auto w-full pt-10">
-                        {/* Card Fija de Creación */}
-                        <div 
-                            onClick={() => setShowConfirmModal(true)}
-                            className="w-full text-left p-6 rounded-[2rem] border border-dashed border-gray-700 bg-gray-900/50 hover:bg-gray-900 hover:border-blue-500/50 transition-all group cursor-pointer flex items-center justify-between gap-4 mb-8 shadow-lg"
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
-                                    <Wand2 className="w-6 h-6 text-blue-400" />
-                                </div>
-                                <div>
-                                    <h4 className="font-black text-xl text-white group-hover:text-blue-400 transition-colors">Crear Nueva Página</h4>
-                                    <p className="text-sm text-gray-500 group-hover:text-gray-400">Diseño de alta conversión generado por IA</p>
-                                </div>
-                            </div>
-                            <div className="bg-blue-600 text-white p-2 rounded-full shadow-lg shadow-blue-900/20 group-hover:bg-blue-500 transition-colors">
-                                <Plus className="w-6 h-6" />
-                            </div>
-                        </div>
-
                         {loadingLocal ? (
                             <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
                         ) : linkedPages.length > 0 ? (
@@ -330,9 +311,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-center py-10 text-gray-500">
-                                <p>No hay páginas activas. Usa la opción de arriba para crear una.</p>
-                            </div>
+                            <button onClick={() => setShowConfirmModal(true)} className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-xl flex items-center justify-center gap-4">Crear Página Web de Captura</button>
                         )}
                     </div>
                 </div>

@@ -157,6 +157,21 @@ export const WhatsAppLaunchManager: React.FC = () => {
                 </div>
             </div>
 
+            {/* SECCIÓN: MIS LANZAMIENTOS */}
+            <div className="space-y-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                    <div className="flex items-center gap-4 border-l-4 border-emerald-500 pl-4 py-1 pb-5">
+                        <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-500 border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+                            <Smartphone className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Lanzamientos</h2>
+                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tus estrategias de cierre masivo por WhatsApp</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* GRID DE LANZAMIENTOS */}
             <div className="space-y-8">
                 {loading ? (

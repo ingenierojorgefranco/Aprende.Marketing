@@ -253,7 +253,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             const hookData = {
                 title: 'Nuevo Gancho Manual',
                 psychologicalStrategy: 'Ingresa aquí el ángulo psicológico...',
-                contentJson: defaultKitContent
+                contentJson: defaultKitContent,
+                isGenerated: isRealAdmin
             };
             const res = await api.createProjectHook(projectId, hookData);
             const freshHooks = await loadHooks();
