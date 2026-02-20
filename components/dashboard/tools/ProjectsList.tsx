@@ -333,13 +333,13 @@ export const ProjectsList: React.FC = () => {
             {/* SECCIÓN 1: MIS PROYECTOS */}
             <div className="space-y-6">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                    <div className="flex items-center gap-4 border-l-4 border-blue-500 pl-4 py-1">
+                    <div className="flex items-center gap-4 border-l-4 border-blue-500 pl-4 py-1 pb-5">
                         <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-500 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
                             <Briefcase className="w-8 h-8" />
                         </div>
                         <div>
                             <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Proyectos</h2>
-                            <p className="text-gray-400 font-medium">Encuentra aquí tu lista de Proyectos creados y Proyectos Desbloqueados</p>
+                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Encuentra aquí tu lista de Proyectos creados y Proyectos Desbloqueados</p>
                         </div>
                     </div>
                 </div>
@@ -360,6 +360,18 @@ export const ProjectsList: React.FC = () => {
                     </div>
                 ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <button 
+                            onClick={() => navigate('/dashboard/projects/create')}
+                            className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
+                        >
+                            <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
+                                <Plus className="w-10 h-10" />
+                            </div>
+                            <div className="text-center">
+                                <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear un nuevo proyecto</h4>
+                                <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Define un nuevo nicho o producto</p>
+                            </div>
+                        </button>
                         {projects.filter(p => user.role === 'admin' || !p.isMaster).map((project) => {
                             const isClonedFromMaster = !!project.masterParentId;
                             
@@ -422,18 +434,6 @@ export const ProjectsList: React.FC = () => {
                                 </div>
                             );
                         })}
-                        <button 
-                            onClick={() => navigate('/dashboard/projects/create')}
-                            className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
-                        >
-                            <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
-                                <Plus className="w-10 h-10" />
-                            </div>
-                            <div className="text-center">
-                                <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear un nuevo proyecto</h4>
-                                <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Define un nuevo nicho o producto</p>
-                            </div>
-                        </button>
                     </div>
                 )}
             </div>
@@ -441,13 +441,13 @@ export const ProjectsList: React.FC = () => {
             {/* SECCIÓN 2: BIBLIOTECA DE ESTRATEGIAS MAESTRAS (NUEVA) */}
             <div className="space-y-8 pt-12 border-t border-white/5">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                    <div className="flex items-center gap-4 border-l-4 border-yellow-500 pl-4 py-1">
+                    <div className="flex items-center gap-4 border-l-4 border-yellow-500 pl-4 py-1 pb-5">
                         <div className="p-3 bg-yellow-500/10 rounded-2xl text-yellow-500 border border-yellow-500/20 shadow-[0_0_20px_rgba(234,179,8,0.1)]">
                             <Library className="w-8 h-8" />
                         </div>
                         <div>
                             <h2 className="text-3xl font-black text-white uppercase tracking-tight">Biblioteca Maestra</h2>
-                            <p className="text-gray-400 font-medium">Optimiza tu tiempo y gana dinero copiando nuestra estrategia maestra</p>
+                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Optimiza tu tiempo y gana dinero copiando nuestra estrategia maestra</p>
                         </div>
                     </div>
                 </div>

@@ -219,6 +219,21 @@ export const MyPages: React.FC = () => {
                 </div>
             </div>
 
+            {/* SECCIÓN: MIS PÁGINAS */}
+            <div className="space-y-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                    <div className="flex items-center gap-4 border-l-4 border-primary pl-4 py-1 pb-5">
+                        <div className="p-3 bg-primary/10 rounded-2xl text-primary border border-primary/20 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
+                            <LayoutTemplate className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Páginas</h2>
+                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tus embudos de venta y páginas de aterrizaje</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Content Area */}
             {pages.length === 0 ? (
                 <div className="text-center py-20 bg-gray-900 rounded-2xl border border-dashed border-gray-700">
@@ -236,6 +251,18 @@ export const MyPages: React.FC = () => {
                 </div>
             ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <button 
+                        onClick={() => navigate("/dashboard/generator")}
+                        className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
+                    >
+                        <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
+                            <Plus className="w-10 h-10" />
+                        </div>
+                        <div className="text-center">
+                            <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear Nueva Página</h4>
+                            <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Diseño de alta conversión generado por IA</p>
+                        </div>
+                    </button>
                     {pages.map((page) => {
                         // ACTUALIZADO: El subdominio ya contiene el ID antepuesto por el backend.
                         // Limpiamos el subdominio para obtener el slug exacto para el enlace.
@@ -319,18 +346,6 @@ export const MyPages: React.FC = () => {
                             </div>
                         );
                     })}
-                    <button 
-                        onClick={() => navigate("/dashboard/generator")}
-                        className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
-                    >
-                        <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
-                            <Plus className="w-10 h-10" />
-                        </div>
-                        <div className="text-center">
-                            <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear Nueva Página</h4>
-                            <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Diseño de alta conversión generado por IA</p>
-                        </div>
-                    </button>
                 </div>
             )}
 

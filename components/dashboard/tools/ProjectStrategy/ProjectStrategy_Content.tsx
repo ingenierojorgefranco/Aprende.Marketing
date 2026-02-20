@@ -139,6 +139,20 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             </div>
                             
                             <div id="psd-content-items-list" className="space-y-4 flex-1">
+                                {/* Card Fija de Creación */}
+                                <div 
+                                    onClick={() => setShowConfirmModal(true)}
+                                    className="w-full text-left p-4 rounded-xl border border-dashed border-gray-700 bg-gray-800/30 hover:bg-gray-800/50 hover:border-purple-500/50 transition-all group cursor-pointer flex items-center justify-between gap-3 mb-4"
+                                >
+                                    <div>
+                                        <h4 className="font-bold text-lg text-white group-hover:text-purple-400 transition-colors">Redactar Nuevo Artículo</h4>
+                                        <p className="text-xs text-gray-500 group-hover:text-gray-400">IA optimizada para posicionamiento Google</p>
+                                    </div>
+                                    <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:scale-110 transition-transform">
+                                        <Sparkles className="w-4 h-4 text-purple-400" />
+                                    </div>
+                                </div>
+
                                 {paginatedData.map((art: any, indexInPage: number) => {
                                     const globalIdx = (currentPage - 1) * itemsPerPage + indexInPage;
                                     const isSelected = selectedArticles.includes(globalIdx);

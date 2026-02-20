@@ -186,6 +186,21 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
           </div>
       </div>
 
+      {/* SECCIÓN: MIS ARTÍCULOS */}
+      <div className="space-y-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+              <div className="flex items-center gap-4 border-l-4 border-purple-500 pl-4 py-1 pb-5">
+                  <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500 border border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
+                      <FileText className="w-8 h-8" />
+                  </div>
+                  <div>
+                      <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Artículos</h2>
+                      <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tu contenido SEO y posicionamiento orgánico</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+
       {/* CONTENT GRID */}
       {/* */ /* Actualización: Rediseño Premium Dark con cuadrícula de 3 columnas (LG), bordes redondeados [2.5rem], fondo #111 y línea de acento naranja superior para una estética coherente y profesional - 22/05/2024 19:45 */ }
       {localArticles.length === 0 ? (
@@ -204,6 +219,19 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Empty Card for creation trigger */}
+          <button 
+              onClick={handleCreate}
+              className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
+          >
+              <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
+                  <Plus className="w-10 h-10" />
+              </div>
+              <div className="text-center">
+                  <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Redactar Nuevo Artículo</h4>
+                  <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>IA optimizada para posicionamiento Google</p>
+              </div>
+          </button>
           {localArticles.map((article) => {
              const basePageSlug = article.pageSubdomain ? article.pageSubdomain.split(".")[0] : article.pageId;
              const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${article.slug}` : '#';
@@ -337,19 +365,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                 </div>
              );
           })}
-          {/* Empty Card for creation trigger */}
-          <button 
-              onClick={handleCreate}
-              className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
-          >
-              <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
-                  <Plus className="w-10 h-10" />
-              </div>
-              <div className="text-center">
-                  <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Redactar Nuevo Artículo</h4>
-                  <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>IA optimizada para posicionamiento Google</p>
-              </div>
-          </button>
         </div>
       )}
 

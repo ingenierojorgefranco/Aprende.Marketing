@@ -163,6 +163,18 @@ export const WhatsAppLaunchManager: React.FC = () => {
                     <div className="flex justify-center p-20 text-emerald-400"><Loader2 className="w-12 h-12 animate-spin" /></div>
                 ) : launches.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <button 
+                            onClick={handleCreateNew}
+                            className="bg-gray-900 border-2 border-dashed border-white/20 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px]"
+                        >
+                            <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all">
+                                <Plus className="w-10 h-10" />
+                            </div>
+                            <div className="text-center">
+                                <h4 className="font-bold transition-colors" style={{ color: 'white', fontSize: '2em' }}>Nuevo Lanzamiento</h4>
+                                <p className="mt-2 font-medium" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>IA optimizada para cierre masivo</p>
+                            </div>
+                        </button>
                         {launches.map(launch => (
                             <div key={launch.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 p-8 hover:border-emerald-500/30 transition-all duration-300 group flex flex-col shadow-2xl relative overflow-hidden">
                                 <div className="flex justify-between items-start mb-6">
@@ -213,18 +225,6 @@ export const WhatsAppLaunchManager: React.FC = () => {
                                 </div>
                             </div>
                         ))}
-                        <button 
-                            onClick={handleCreateNew}
-                            className="bg-gray-900 border-2 border-dashed border-white/20 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px]"
-                        >
-                            <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all">
-                                <Plus className="w-10 h-10" />
-                            </div>
-                            <div className="text-center">
-                                <h4 className="font-bold transition-colors" style={{ color: 'white', fontSize: '2em' }}>Nuevo Lanzamiento</h4>
-                                <p className="mt-2 font-medium" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>IA optimizada para cierre masivo</p>
-                            </div>
-                        </button>
                     </div>
                 ) : (
                     <div className="bg-[#111] p-20 rounded-[3rem] border border-white/5 text-center space-y-8 animate-in zoom-in-95 duration-700">

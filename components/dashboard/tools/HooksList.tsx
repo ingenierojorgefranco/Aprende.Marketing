@@ -111,19 +111,14 @@ export const HooksList: React.FC = () => {
             {/* SECCIÓN: MIS GANCHOS */}
             <div className="space-y-6">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                    <div className="flex items-center gap-4 border-l-4 border-orange-500 pl-4 py-1">
+                    <div className="flex items-center gap-4 border-l-4 border-orange-500 pl-4 py-1 pb-5">
                         <div className="p-3 bg-orange-500/10 rounded-2xl text-orange-500 border border-orange-500/20 shadow-[0_0_20px_rgba(249,115,22,0.1)]">
                             <Target className="w-8 h-8" />
                         </div>
                         <div>
                             <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Ganchos</h2>
-                            <p className="text-gray-400 font-medium">Biblioteca centralizada de ángulos de venta</p>
+                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Biblioteca centralizada de ángulos de venta</p>
                         </div>
-                    </div>
-                    
-                    <div className="bg-orange-500/10 border border-orange-500/20 px-4 py-2 rounded-xl flex items-center gap-3">
-                        <Sparkles className="w-4 h-4 text-orange-400" />
-                        <span className="text-[10px] font-black text-orange-200 uppercase tracking-widest">Ángulos de Alto Impacto</span>
                     </div>
                 </div>
                 
@@ -143,6 +138,18 @@ export const HooksList: React.FC = () => {
                     </div>
                 ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <button 
+                            onClick={() => navigate('/dashboard/projects')}
+                            className="bg-gray-900 border-2 border-dashed border-white/20 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 group hover:border-orange-500/30 hover:bg-orange-500/5 transition-all duration-500 min-h-[400px]"
+                        >
+                            <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center text-gray-600 group-hover:bg-orange-500/10 group-hover:text-orange-500 transition-all">
+                                <Zap className="w-10 h-10" />
+                            </div>
+                            <div className="text-center">
+                                <h4 className="font-bold transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear Nuevo Gancho</h4>
+                                <p className="mt-2 font-medium" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Genera ángulos de alto impacto</p>
+                            </div>
+                        </button>
                         {hooks.map((hook) => (
                             <div 
                                 key={hook.id} 
