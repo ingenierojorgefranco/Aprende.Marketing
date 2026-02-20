@@ -156,8 +156,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     isGenerated: false 
   } as ProjectHook;
 
-  const isRealAdmin = user?.role === 'admin' && !isSimulating;
-  const isCurrentUnlocked = (currentHook as any).isUnlocked;
+  const isRealAdmin = user?.role === 'admin';
+  const isCurrentUnlocked = (currentHook as any).isUnlocked || !(currentHook as any).masterHookId;
   const canGenerate = isCurrentUnlocked && !currentHook.isGenerated && !isRealAdmin;
 
   const [currentPage, setCurrentPage] = useState(1);
