@@ -452,7 +452,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         {/* DETALLE Y RESULTADO */}
         <div className="lg:col-span-7 space-y-8">
             {/* VISTA DE GANCHO BLOQUEADO */}
-            {!isCurrentUnlocked && currentHook.id && (
+            {!isCurrentUnlocked && currentHook.id && !isRealAdmin && (
                 <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 md:p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl animate-in zoom-in-95">
                     <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-orange-500" /></div>
                     
@@ -544,7 +544,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 </div>
             )}
 
-            {isCurrentUnlocked && (currentHook.isGenerated || isRealAdmin) && (
+            {(isRealAdmin || (isCurrentUnlocked && currentHook.isGenerated)) && currentHook.id && (
                 <div className="animate-in slide-in-from-bottom-6 duration-700">
                     <div className="bg-[#111] border border-emerald-500/30 rounded-[3rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
                         <div className="p-8 border-b border-white/5 bg-gradient-to-r from-emerald-500/10 to-transparent flex items-center gap-4">
