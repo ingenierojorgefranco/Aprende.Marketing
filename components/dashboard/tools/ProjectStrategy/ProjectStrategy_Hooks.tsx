@@ -157,7 +157,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   } as ProjectHook;
 
   const isCurrentUnlocked = (currentHook as any).isUnlocked;
-  const canGenerate = isCurrentUnlocked && !currentHook.isGenerated;
+  const canGenerate = isCurrentUnlocked && !currentHook.isGenerated && !isRealAdmin;
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -544,7 +544,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 </div>
             )}
 
-            {isCurrentUnlocked && currentHook.isGenerated && (
+            {isCurrentUnlocked && (currentHook.isGenerated || isRealAdmin) && (
                 <div className="animate-in slide-in-from-bottom-6 duration-700">
                     <div className="bg-[#111] border border-emerald-500/30 rounded-[3rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
                         <div className="p-8 border-b border-white/5 bg-gradient-to-r from-emerald-500/10 to-transparent flex items-center gap-4">
