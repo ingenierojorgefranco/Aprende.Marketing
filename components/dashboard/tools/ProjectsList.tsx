@@ -339,7 +339,7 @@ export const ProjectsList: React.FC = () => {
                         </div>
                         <div>
                             <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Proyectos</h2>
-                            <p className="text-gray-400 font-medium">Gestiona y optimiza tus estrategias activas</p>
+                            <p className="text-gray-400 font-medium">Encuentra aquí tu lista de Proyectos creados y Proyectos Desbloqueados</p>
                         </div>
                     </div>
                     
@@ -452,7 +452,7 @@ export const ProjectsList: React.FC = () => {
                         </div>
                         <div>
                             <h2 className="text-3xl font-black text-white uppercase tracking-tight">Biblioteca Maestra</h2>
-                            <p className="text-gray-400 font-medium">Estrategias ganadoras listas para ser desbloqueadas.</p>
+                            <p className="text-gray-400 font-medium">Optimiza tu tiempo y gana dinero copiando nuestra estrategia maestra</p>
                         </div>
                     </div>
                     

@@ -198,13 +198,13 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
         <>
             <div className="space-y-24">
                 <div id="psd-web-header-container" className="max-w-[70em] mx-auto text-left space-y-8 py-10">
-                    <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg"><Monitor className="w-5 h-5" /> Web Blueprint</div>
+                    <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg"><Monitor className="w-5 h-5" /> Crea tu Página Web Profesional en Minutos</div>
                     <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl" style={{
                         lineHeight: '1.1em'
-                    }}>Activa tu Página de Captura<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400"> y atrae clientes en automático</span></h3>
+                    }}>Activa tu Página Web Profesional<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400"> y captura clientes en automático</span></h3>
                     
                     <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
-                        <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">Nuestra Inteligencia Artificial creará por ti, tu página web de Captura Perfecta (LandingPage) para que tus visitantes interesados en tu producto digital sientan la necesidad de registrarse de inmediato</p>
+                        <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">Imagina que pudieses crear tu propia página web profesional que capture clientes interesados todos los días. Hoy es ese dia, nuestra Inteligencia Artificial creará por ti, tu propia página web de Personalizada (LandingPage) en Minutos.</p>
                         <div className="hidden md:block w-px h-24 bg-cyan-500/30"></div>
                         <div 
                             onClick={() => setShowVideoModal(true)}
@@ -245,7 +245,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative">
                                 <div className="flex-1 space-y-8">
                                     <div className="space-y-4">
-                                        <h5 className="font-bold text-white text-xl">Estructura de tu Página Web</h5>
+                                        <h5 className="font-bold text-[#FF5A1F] text-xl">Estructura de tu Página Web</h5>
                                         <p className="text-white font-light text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página web 100% profesional enfocada en los dolores, necesidades y beneficios de tus potenciales clientes. <br/><br/>Haz clic en los elementos para más detalles.</p>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
@@ -271,7 +271,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                             <div className="bg-gray-900/60 backdrop-blur-md rounded-[3rem] border border-gray-800 p-8 flex flex-col h-full shadow-2xl relative">
                                 <div className="flex-1 space-y-8">
                                     <div className="space-y-4">
-                                        <h5 className="font-bold text-white text-xl">Estructura de tu Página de Gracias</h5>
+                                        <h5 className="font-bold text-[#FF5A1F] text-xl">Estructura de tu Página de Gracias</h5>
                                         <p className="text-white font-light text-[1.3rem] leading-[2.5rem]">Usaremos los siguientes elementos para construir una página de gracias persuasiva enfocada en guiar al usuario hacia tu comunidad. <br/><br/>Haz clic en los elementos para más detalles.</p>
                                     </div>
                                     <div className="flex flex-wrap gap-2">{tyTabsData && Object.keys(tyTabsData).map(tabKey => (<button key={tabKey} onClick={() => setSelectedTyTab(tabKey)} className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest border ${selectedTyTab === tabKey ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{tyTabsData[tabKey].label}</button>))}</div>
@@ -311,7 +311,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                                 </div>
                             </div>
                         ) : (
-                            <button onClick={() => setShowConfirmModal(true)} className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-xl flex items-center justify-center gap-4">Generar mis Páginas ahora con IA <ArrowRight className="w-6 h-6" /></button>
+                            <button onClick={() => setShowConfirmModal(true)} className="w-full py-6 rounded-[2.5rem] bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xl shadow-xl flex items-center justify-center gap-4">CREA TU PÁGINA WEB PROFESIONAL <ArrowRight className="w-6 h-6" /></button>
                         )}
                     </div>
                 </div>

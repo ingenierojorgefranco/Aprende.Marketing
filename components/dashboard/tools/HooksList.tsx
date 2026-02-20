@@ -96,8 +96,8 @@ export const HooksList: React.FC = () => {
                         <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group">
                             <iframe 
                                 className="w-full h-full rounded-2xl"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&controls=1&showinfo=0" 
-                                title="Tutorial Hooks" 
+                                src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                                title="Video Tutorial" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowFullScreen
                             ></iframe>
