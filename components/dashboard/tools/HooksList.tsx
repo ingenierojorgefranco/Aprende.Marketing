@@ -93,7 +93,9 @@ export const HooksList: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
-                        <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group">
+                        <div 
+                            className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
+                        >
                             <iframe 
                                 className="w-full h-full rounded-2xl"
                                 src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 

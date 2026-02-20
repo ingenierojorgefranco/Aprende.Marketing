@@ -179,19 +179,15 @@ export const MyPages: React.FC = () => {
                     <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
                         {/* Contenedor de Video Interactivo */}
                         <div 
-                            onClick={() => setShowVideoModal(true)}
-                            className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                            className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
                         >
-                            <img 
-                                src="https://img.youtube.com/vi/A_dcakdMBow/maxresdefault.jpg" 
-                                alt="Video Tutorial"
-                                className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                                    <PlayCircle className="w-10 h-10 text-primary" />
-                                </div>
-                            </div>
+                            <iframe 
+                                className="w-full h-full rounded-2xl"
+                                src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                                title="Video Tutorial" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
                         </div>
 
                         {/* Botones centrados debajo del video */}
