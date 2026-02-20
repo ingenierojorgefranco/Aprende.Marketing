@@ -156,6 +156,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     isGenerated: false 
   } as ProjectHook;
 
+  const isRealAdmin = user?.role === 'admin' && !isSimulating;
   const isCurrentUnlocked = (currentHook as any).isUnlocked;
   const canGenerate = isCurrentUnlocked && !currentHook.isGenerated && !isRealAdmin;
 
@@ -295,7 +296,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     alert("Contenido copiado al portapapeles");
   };
 
-  const isRealAdmin = user?.role === 'admin' && !isSimulating;
   const maxHooks = planLimits?.maxHooks || 5;
   const currentHooksCount = hookCount || hooks.filter(h => (h as any).isUnlocked || h.isGenerated).length;
   const usagePercent = maxHooks > 0 ? Math.min(100, (currentHooksCount / maxHooks) * 100) : 0;
