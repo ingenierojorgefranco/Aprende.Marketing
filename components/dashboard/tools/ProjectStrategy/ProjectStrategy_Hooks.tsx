@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Wand2 } from 'lucide-react';
-import { useOutletContext, useParams } from 'react-router-dom';
+import { useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { UpgradeModal } from '../../UpgradeModal';
 import { ProjectHook } from '../../../../types';
@@ -93,6 +93,18 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         setIsEditingTitle(false);
     }
   }, [activeHook, hooks]);
+
+  const [searchParams] = useSearchParams();
+  const hookIdFromUrl = searchParams.get('hookId');
+
+  useEffect(() => {
+    if (hookIdFromUrl && hooks.length > 0) {
+        const index = hooks.findIndex(h => String(h.id) === String(hookIdFromUrl));
+        if (index !== -1 && index !== activeHook) {
+            setActiveHook(index);
+        }
+    }
+  }, [hookIdFromUrl, hooks, activeHook, setActiveHook]);
 
   const handleUnlockMore = async () => {
     setUnlockingMore(true);
