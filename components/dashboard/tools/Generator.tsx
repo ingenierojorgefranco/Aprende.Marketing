@@ -66,8 +66,9 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
     const fetchProjects = async () => {
         try {
             const projects = await api.getProjects();
-            const filtered = user.role === 'admin' ? projects : projects.filter(p => !p.isMaster);
-            setUserProjects(filtered);
+            // Eliminamos el filtro que ocultaba proyectos master para permitir la selección
+            // si el usuario tiene acceso al proyecto (devuelto por la API), debe poder usarlo.
+            setUserProjects(projects);
         } catch (e) {
             console.error("Failed to load projects", e);
         }

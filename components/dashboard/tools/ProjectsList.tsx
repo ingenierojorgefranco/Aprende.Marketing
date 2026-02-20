@@ -342,11 +342,6 @@ export const ProjectsList: React.FC = () => {
                             <p className="text-gray-400 font-medium">Encuentra aquí tu lista de Proyectos creados y Proyectos Desbloqueados</p>
                         </div>
                     </div>
-                    
-                    <div className="bg-blue-500/10 border border-blue-500/20 px-4 py-2 rounded-xl flex items-center gap-3">
-                        <Sparkles className="w-4 h-4 text-blue-400" />
-                        <span className="text-[10px] font-black text-blue-200 uppercase tracking-widest">Estrategias en Ejecución</span>
-                    </div>
                 </div>
                 
                 {projects.length === 0 ? (
@@ -454,11 +449,6 @@ export const ProjectsList: React.FC = () => {
                             <h2 className="text-3xl font-black text-white uppercase tracking-tight">Biblioteca Maestra</h2>
                             <p className="text-gray-400 font-medium">Optimiza tu tiempo y gana dinero copiando nuestra estrategia maestra</p>
                         </div>
-                    </div>
-                    
-                    <div className="bg-yellow-500/10 border border-yellow-500/20 px-4 py-2 rounded-xl flex items-center gap-3">
-                        <Sparkles className="w-4 h-4 text-yellow-500" />
-                        <span className="text-[10px] font-black text-yellow-200 uppercase tracking-widest">Contenido exclusivo Nivel PRO</span>
                     </div>
                 </div>
 
