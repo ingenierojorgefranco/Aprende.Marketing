@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, ArrowRight, ChevronLeft, ChevronRight, Video, Megaphone, Layout, Image as ImageIcon, Copy, CheckCircle2, ChevronDown, ChevronUp, Download, Plus, Unlock, Save, Trash2, Lock, Shield, AlertTriangle, Wand2 } from 'lucide-react';
 import { useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
@@ -23,6 +23,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const { user, isSimulating, hookCount } = useOutletContext() as any;
   const planLimits = user?.planLimits;
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const initialSelectionDone = useRef(false);
   
   const [hooks, setHooks] = useState<ProjectHook[]>([]);
   const [loadingHooks, setLoadingHooks] = useState(true);
@@ -98,13 +99,14 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const hookIdFromUrl = searchParams.get('hookId');
 
   useEffect(() => {
-    if (hookIdFromUrl && hooks.length > 0) {
+    if (hookIdFromUrl && hooks.length > 0 && !initialSelectionDone.current) {
         const index = hooks.findIndex(h => String(h.id) === String(hookIdFromUrl));
-        if (index !== -1 && index !== activeHook) {
+        if (index !== -1) {
             setActiveHook(index);
+            initialSelectionDone.current = true;
         }
     }
-  }, [hookIdFromUrl, hooks, activeHook, setActiveHook]);
+  }, [hookIdFromUrl, hooks, setActiveHook]);
 
   const handleUnlockMore = async () => {
     setUnlockingMore(true);

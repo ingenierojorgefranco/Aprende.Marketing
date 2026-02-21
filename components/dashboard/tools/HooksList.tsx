@@ -153,7 +153,7 @@ export const HooksList: React.FC = () => {
                         {hooks.map((hook) => (
                             <div 
                                 key={hook.id} 
-                                onClick={() => navigate(`/dashboard/projects/${hook.projectId}/strategy?section=hooks&hookId=${hook.id}`)}
+                                onClick={() => navigate(`/dashboard/projects/${hook.projectId || (hook as any).project_id}/strategy?section=hooks&hookId=${hook.id}`)}
                                 className="bg-[#111] rounded-[2.5rem] border border-white/5 transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl hover:border-orange-500/30"
                             >
                                 <div className={`absolute top-0 left-0 w-full h-1 opacity-80 ${hook.isGenerated ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-orange-400 to-amber-600'}`}></div>
@@ -189,7 +189,7 @@ export const HooksList: React.FC = () => {
 
                                     <div className="mt-auto pt-6 border-t border-white/5">
                                         <button 
-                                            onClick={() => navigate(`/dashboard/projects/${hook.projectId}/strategy?section=hooks&hookId=${hook.id}`)}
+                                            onClick={() => navigate(`/dashboard/projects/${hook.projectId || (hook as any).project_id}/strategy?section=hooks&hookId=${hook.id}`)}
                                             className="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 bg-orange-600 hover:bg-orange-500 text-white shadow-orange-900/20 transform active:scale-[0.98]"
                                         >
                                             <ExternalLink className="w-4 h-4" /> Ver Gancho Completo
