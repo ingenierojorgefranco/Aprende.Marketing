@@ -172,8 +172,8 @@ export const HooksList: React.FC = () => {
                                     
                                     <h3 className="text-2xl font-black mb-1 line-clamp-1 group-hover:text-orange-400 transition-colors duration-300 text-white">{hook.title}</h3>
                                     
-                                    <div className="bg-white/5 text-gray-400 text-[0.7em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest mb-6">
-                                        <Briefcase className="w-3 h-3" />
+                                    <div className="text-gray-400 text-[0.8rem] font-bold uppercase tracking-widest mb-6 flex items-center gap-2">
+                                        <Briefcase className="w-4 h-4 text-gray-500" />
                                         Proyecto: {(hook as any).projectName || "Sin nombre"}
                                     </div>
                                     
