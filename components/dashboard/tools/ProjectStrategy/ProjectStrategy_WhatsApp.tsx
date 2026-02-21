@@ -134,7 +134,6 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const [sentMessages, setSentMessages] = useState<Set<number>>(new Set());
     const [isTypeLocked, setIsTypeLocked] = useState(true);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [showVideoModal, setShowVideoModal] = useState(false);
     const dateInputRef = useRef<HTMLInputElement>(null);
 
     // --- ESTADOS DE GENERACIÓN BAJO DEMANDA ---
@@ -433,19 +432,15 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                     </p>
                     <div className="hidden md:block w-px h-24 bg-emerald-500/30"></div>
                     <div 
-                        onClick={() => setShowVideoModal(true)}
-                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
                     >
-                        <img 
-                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
-                        alt="Video Thumbnail"
-                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                                <PlayCircle className="w-10 h-10 text-emerald-400" />
-                            </div>
-                        </div>
+                        <iframe 
+                            className="w-full h-full rounded-2xl"
+                            src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                            title="Video Tutorial" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
                     </div>
                 </div>
             </div>
@@ -563,41 +558,6 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                             <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner text-left"><div className="flex justify-between items-center mb-3"><span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Lanzamientos en tu plan</span><span className="text-white font-bold text-sm">{launchUsed} / {isRealAdmin ? '∞' : maxLaunches}</span></div><div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden p-0.5 border border-white/5"><div className={`h-full ${progressColor} rounded-full transition-all duration-[1500ms] ease-out shadow-[0_0_10px_rgba(16,185,129,0.5)]`} style={{ width: `${isRealAdmin ? (launchUsed > 0 ? 100 : 0) : usagePercent}%` }}></div></div></div>
                         </div>
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0"><button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button><button onClick={handleGenerate} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Generar</button></div>
-                    </div>
-                </div>
-            )}
-
-            {showVideoModal && (
-                <div 
-                    onClick={() => setShowVideoModal(false)}
-                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
-                >
-                    <div 
-                        onClick={(e) => e.stopPropagation()}
-                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
-                    >
-                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
-                            <h3 className="font-bold text-white flex items-center gap-2">
-                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Lanzamientos WhatsApp
-                            </h3>
-                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                                <X className="w-6 h-6"/>
-                            </button>
-                        </div>
-                        <div className="aspect-video w-full">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
-                                title="Tutorial WhatsApp" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-                        <div className="p-6 bg-gray-900">
-                            <p className="text-gray-300 text-sm leading-relaxed">
-                                Aprende cómo utilizar nuestra inteligencia artificial para redactar secuencias de mensajes que conviertan prospectos en clientes finales utilizando gatillos mentales probados.
-                            </p>
-                        </div>
                     </div>
                 </div>
             )}

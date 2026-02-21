@@ -34,7 +34,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showDomainModal, setShowDomainModal] = useState(false);
-    const [showVideoModal, setShowVideoModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [domainCount, setDomainCount] = useState(0);
@@ -207,19 +206,15 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                         <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">Imagina que pudieses crear tu propia página web profesional que capture clientes interesados todos los días. Hoy es ese dia, nuestra Inteligencia Artificial creará por ti, tu propia página web de Personalizada (LandingPage) en Minutos.</p>
                         <div className="hidden md:block w-px h-24 bg-cyan-500/30"></div>
                         <div 
-                            onClick={() => setShowVideoModal(true)}
-                            className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                            className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
                         >
-                            <img 
-                            src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
-                            alt="Video Thumbnail"
-                            className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                                    <PlayCircle className="w-10 h-10 text-blue-400" />
-                                </div>
-                            </div>
+                            <iframe 
+                                className="w-full h-full rounded-2xl"
+                                src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                                title="Video Tutorial" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
                         </div>
                     </div>
                 </div>
@@ -352,36 +347,6 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in" onClick={handleCloseAndReload}>
                     <div className="w-full max-w-[1200px] h-[95vh] rounded-[3rem] shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
                         <Generator onPageGenerated={handlePageGenerated} embeddedProjectId={projectId} onClose={handleCloseAndReload} />
-                    </div>
-                </div>
-            )}
-
-            {showVideoModal && (
-                <div 
-                    onClick={() => setShowVideoModal(false)}
-                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
-                >
-                    <div 
-                        onClick={(e) => e.stopPropagation()}
-                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
-                    >
-                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
-                            <h3 className="font-bold text-white flex items-center gap-2">
-                                <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Sistema Web
-                            </h3>
-                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                                <X className="w-6 h-6"/>
-                            </button>
-                        </div>
-                        <div className="aspect-video w-full">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
-                                title="Tutorial Web" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
                     </div>
                 </div>
             )}

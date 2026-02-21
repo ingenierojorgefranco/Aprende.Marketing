@@ -32,7 +32,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [localPurpose, setLocalPurpose] = useState('');
     const [isTypeLocked, setIsTypeLocked] = useState(true);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [showVideoModal, setShowVideoModal] = useState(false);
 
     // Estados locales para interactividad inmediata de redirección
     const [localRedirectType, setLocalRedirectType] = useState<'landing' | 'hotlink' | 'external' | undefined>(undefined);
@@ -191,19 +190,15 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     </p>
                     <div className="hidden md:block w-px h-24 bg-blue-500/30"></div>
                     <div 
-                        onClick={() => setShowVideoModal(true)}
-                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
                     >
-                        <img 
-                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
-                        alt="Video Thumbnail"
-                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                                <PlayCircle className="w-10 h-10 text-blue-400" />
-                            </div>
-                        </div>
+                        <iframe 
+                            className="w-full h-full rounded-2xl"
+                            src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                            title="Video Tutorial" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
                     </div>
                 </div>
             </div>
@@ -503,7 +498,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 </div>
             </div>
 
-            {/* --- MODAL DE CONFIRMACIÓN ESTRATÉGICA --- */}
             {showConfirmModal && (
                 <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300" onClick={() => setShowConfirmModal(false)}>
                     <div className="bg-[#0B0B0B] border border-blue-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
@@ -533,42 +527,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
                             <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
                             <button onClick={handleStartWriting} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-purple-900/20 transform hover:scale-105 active:scale-95 transition-all">Confirmar y Redactar</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* MODAL DE VIDEO TUTORIAL */}
-            {showVideoModal && (
-                <div 
-                    onClick={() => setShowVideoModal(false)}
-                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
-                >
-                    <div 
-                        onClick={(e) => e.stopPropagation()}
-                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
-                    >
-                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
-                            <h3 className="font-bold text-white flex items-center gap-2">
-                                <PlayCircle className="w-5 h-5 text-blue-500" /> Tutorial: Email Marketing Estratégico
-                            </h3>
-                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                                <X className="w-6 h-6"/>
-                            </button>
-                        </div>
-                        <div className="aspect-video w-full">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
-                                title="Tutorial Email Marketing" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-                        <div className="p-6 bg-gray-900">
-                            <p className="text-gray-300 text-sm leading-relaxed">
-                                Aprende cómo utilizar nuestra inteligencia artificial para redactar secuencias de correos que conviertan prospectos en clientes finales utilizando gatillos mentales probados.
-                            </p>
                         </div>
                     </div>
                 </div>

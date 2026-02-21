@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, X, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight, Users, Clock, Coffee, Heart, PlayCircle } from 'lucide-react';
+import React from 'react';
+import { Search, AlertCircle, Sparkles, Target, ShieldCheck, Brain, Zap, Magnet, Shield, Quote, Crown, MessageSquare, Check, Lock, GraduationCap, Flame, AlertTriangle, Rocket, ArrowRight, Users, Clock, Coffee, Heart } from 'lucide-react';
 
 interface ProjectStrategy_AvatarDiagnosisProps {
     avatars: any[];
@@ -27,8 +27,6 @@ interface ProjectStrategy_AvatarDiagnosisProps {
 }
 
 export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDiagnosisProps> = ({ avatars, psychology, benefitsItems = [] }) => {
-    const [showVideoModal, setShowVideoModal] = useState(false);
-
     const getAvatarRoleBadge = (idx: number) => {
         const badges = [
             { label: "Avatar Principal — Perfil de Atracción", gradient: "from-pink-600 to-rose-600" },
@@ -62,19 +60,15 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     </p>
                     <div className="hidden md:block w-px h-24 bg-purple-500/30"></div>
                     <div 
-                        onClick={() => setShowVideoModal(true)}
-                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
                     >
-                        <img 
-                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
-                        alt="Video Thumbnail"
-                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                                <PlayCircle className="w-10 h-10 text-pink-400" />
-                            </div>
-                        </div>
+                        <iframe 
+                            className="w-full h-full rounded-2xl"
+                            src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                            title="Video Tutorial" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
                     </div>
                 </div>
             </div>
@@ -199,37 +193,6 @@ export const ProjectStrategy_AvatarDiagnosis: React.FC<ProjectStrategy_AvatarDia
                     );
                 })}
             </div>
-
-            {/* MODAL DE VIDEO */}
-            {showVideoModal && (
-                <div 
-                    onClick={() => setShowVideoModal(false)}
-                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
-                >
-                    <div 
-                        onClick={(e) => e.stopPropagation()}
-                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
-                    >
-                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
-                            <h3 className="font-bold text-white flex items-center gap-2">
-                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Diagnóstico de Avatar
-                            </h3>
-                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                                <X className="w-6 h-6"/>
-                            </button>
-                        </div>
-                        <div className="aspect-video w-full">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
-                                title="Tutorial Avatar" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

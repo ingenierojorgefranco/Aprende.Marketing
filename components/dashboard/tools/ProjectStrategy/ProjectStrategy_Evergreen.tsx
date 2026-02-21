@@ -21,7 +21,6 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan, linkedArticles = []
 }) => {
     const navigate = useNavigate();
-    const [showVideoModal, setShowVideoModal] = useState(false);
 
     // Si no hay artículos, mostramos el estado vacío con invitación a generar contenido
     if (linkedArticles.length === 0) {
@@ -41,19 +40,15 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         </p>
                         <div className="hidden md:block w-px h-24 bg-blue-500/30"></div>
                         <div 
-                            onClick={() => setShowVideoModal(true)}
-                            className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                            className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
                         >
-                            <img 
-                            src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
-                            alt="Video Thumbnail"
-                            className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                                    <PlayCircle className="w-10 h-10 text-orange-400" />
-                                </div>
-                            </div>
+                            <iframe 
+                                className="w-full h-full rounded-2xl"
+                                src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                                title="Video Tutorial" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowFullScreen
+                            ></iframe>
                         </div>
                     </div>
                 </div>
@@ -78,37 +73,6 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         Ir a Generar Contenidos <ArrowRight className="w-5 h-5" />
                     </button>
                 </div>
-                
-                {/* MODAL DE VIDEO */}
-                {showVideoModal && (
-                    <div 
-                        onClick={() => setShowVideoModal(false)}
-                        className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
-                    >
-                        <div 
-                            onClick={(e) => e.stopPropagation()}
-                            className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
-                        >
-                            <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
-                                <h3 className="font-bold text-white flex items-center gap-2">
-                                    <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Secuencias Evergreen
-                                </h3>
-                                <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                                    <X className="w-6 h-6"/>
-                                </button>
-                            </div>
-                            <div className="aspect-video w-full">
-                                <iframe 
-                                    className="w-full h-full"
-                                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
-                                    title="Tutorial Evergreen" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowFullScreen
-                                ></iframe>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
         );
     }
@@ -142,19 +106,15 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     </p>
                     <div className="hidden md:block w-px h-24 bg-orange-500/30"></div>
                     <div 
-                        onClick={() => setShowVideoModal(true)}
-                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
                     >
-                        <img 
-                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
-                        alt="Video Thumbnail"
-                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                                <PlayCircle className="w-10 h-10 text-orange-400" />
-                            </div>
-                        </div>
+                        <iframe 
+                            className="w-full h-full rounded-2xl"
+                            src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                            title="Video Tutorial" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
                     </div>
                 </div>
             </div>
@@ -258,37 +218,6 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 </div>
             </div>
 
-            {/* MODAL DE VIDEO */}
-            {showVideoModal && (
-                <div 
-                    onClick={() => setShowVideoModal(false)}
-                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
-                >
-                    <div 
-                        onClick={(e) => e.stopPropagation()}
-                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
-                    >
-                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
-                            <h3 className="font-bold text-white flex items-center gap-2">
-                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Secuencias Evergreen
-                            </h3>
-                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                                <X className="w-6 h-6"/>
-                            </button>
-                        </div>
-                        <div className="aspect-video w-full">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
-                                title="Tutorial Evergreen" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-                    </div>
-                </div>
-            )}
-            
             {/* FOOTER INFORMATIVO */}
             <div className="max-w-[70em] mx-auto text-center pt-12 border-t border-white/5 opacity-40">
                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500">Sistema Evergreen Automatizado v2.9 — Motor de Autoridad Dinámico</p>
