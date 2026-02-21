@@ -170,20 +170,26 @@ export const HooksList: React.FC = () => {
                                         </button>
                                     </div>
                                     
-                                    <h3 className="text-2xl font-black mb-1 line-clamp-1 group-hover:text-orange-400 transition-colors duration-300 text-white">{hook.title}</h3>
+                                    <h3 className="text-[1.3rem] leading-[1.6rem] font-black mb-1 text-center group-hover:text-orange-400 transition-colors duration-300 text-white">{hook.title}</h3>
                                     
-                                    <div className="text-gray-400 text-[0.8rem] font-bold uppercase tracking-widest mb-6 flex items-center gap-2">
+                                    <a 
+                                        href={`/dashboard/projects/${hook.projectId || (hook as any).project_id}/strategy`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="text-gray-400 text-[0.8rem] font-bold uppercase tracking-widest py-4 flex items-center justify-center gap-2 hover:text-orange-400 transition-colors w-full"
+                                    >
                                         <Briefcase className="w-4 h-4 text-gray-500" />
-                                        Proyecto: {(hook as any).projectName || "Sin nombre"}
-                                    </div>
+                                        Proyecto: {(hook as any).projectName || (hook as any).project_name || "Sin nombre"}
+                                    </a>
                                     
                                     <div className="bg-orange-500/5 rounded-2xl p-4 border border-orange-500/10 mb-6 flex-1">
                                         <div className="flex items-center gap-2 mb-2">
                                             <Brain className="w-4 h-4 text-orange-400" />
                                             <span className="text-[10px] font-black uppercase text-orange-300 tracking-widest">Estrategia Psicológica</span>
                                         </div>
-                                        <p className="text-[1rem] text-gray-400 leading-relaxed line-clamp-3 italic">
-                                            "{hook.psychologicalStrategy}"
+                                        <p className="text-[1rem] text-gray-400 leading-relaxed italic">
+                                            "{hook.psychologicalStrategy || (hook as any).psychological_strategy}"
                                         </p>
                                     </div>
 
@@ -192,7 +198,7 @@ export const HooksList: React.FC = () => {
                                             onClick={() => navigate(`/dashboard/projects/${hook.projectId || (hook as any).project_id}/strategy?section=hooks&hookId=${hook.id}`)}
                                             className="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 bg-orange-600 hover:bg-orange-500 text-white shadow-orange-900/20 transform active:scale-[0.98]"
                                         >
-                                            <ExternalLink className="w-4 h-4" /> Ver Gancho Completo
+                                            <ExternalLink className="w-4 h-4" /> VER DETALLES DEL HOOK
                                         </button>
                                     </div>
                                 </div>
