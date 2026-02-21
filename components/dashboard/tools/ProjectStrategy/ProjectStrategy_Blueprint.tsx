@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, ArrowRight, ArrowDown, PlayCircle, Clapperboard, Globe, CheckCircle2, Users, MessageCircle, FileText, MonitorPlay, ShoppingCart, Zap, RefreshCw, Sparkles, Rocket, X, AlertTriangle, BarChart3, ListChecks, Brain, Target, Lightbulb, TrendingUp, ShieldCheck, Mail, BookOpen } from 'lucide-react';
+import { Layers, ArrowRight, ArrowDown, Clapperboard, Globe, CheckCircle2, Users, MessageCircle, FileText, MonitorPlay, ShoppingCart, Zap, RefreshCw, Sparkles, Rocket, X, AlertTriangle, BarChart3, ListChecks, Brain, Target, Lightbulb, TrendingUp, ShieldCheck, Mail, BookOpen } from 'lucide-react';
 
 const ACQUISITION_STEPS = [
     { 
@@ -491,12 +491,10 @@ const FlowCard: React.FC<FlowCardProps> = ({ icon: Icon, title, subtitle, descri
 interface ProjectStrategy_BlueprintProps {
     handleTooltipHover: (e: React.MouseEvent, content: string[]) => void;
     handleTooltipLeave: () => void;
-    onOpenVideo: () => void;
 }
 
-export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps> = ({ onOpenVideo }) => {
+export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps> = () => {
     const [selectedMasterclass, setSelectedMasterclass] = useState<any | null>(null);
-    const [showVideoModal, setShowVideoModal] = useState(false);
 
     return (
         <div id="psd-blueprint-container" className="space-y-12">
@@ -511,19 +509,15 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                     <p className="flex-1 border-l-4 border-emerald-500 pl-8 py-2">Nuestro sistema de ventas no depende de la suerte. Nuestra estrategia está diseñada para atraer clientes interesados en tu producto digital y llevarlos paso a paso hasta que tomen the decisión de compra con confianza.</p>
                     <div className="hidden md:block w-px h-24 bg-teal-500/30"></div>
                     <div 
-                        onClick={() => setShowVideoModal(true)}
-                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group cursor-pointer"
+                        className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
                     >
-                        <img 
-                        src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" 
-                        alt="Video Thumbnail"
-                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
-                                <PlayCircle className="w-10 h-10 text-emerald-400" />
-                            </div>
-                        </div>
+                        <iframe 
+                            className="w-full h-full rounded-2xl"
+                            src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                            title="Video Tutorial" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                        ></iframe>
                     </div>
                 </div>
             </div>
@@ -583,37 +577,6 @@ export const ProjectStrategy_Blueprint: React.FC<ProjectStrategy_BlueprintProps>
                     step={selectedMasterclass} 
                     onClose={() => setSelectedMasterclass(null)} 
                 />
-            )}
-
-            {/* MODAL DE VIDEO */}
-            {showVideoModal && (
-                <div 
-                    onClick={() => setShowVideoModal(false)}
-                    className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300"
-                >
-                    <div 
-                        onClick={(e) => e.stopPropagation()}
-                        className="relative w-full max-w-4xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800"
-                    >
-                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-850">
-                            <h3 className="font-bold text-white flex items-center gap-2">
-                                <PlayCircle className="w-5 h-5 text-emerald-500" /> Tutorial: Mapa de Ruta Estratégico
-                            </h3>
-                            <button onClick={() => setShowVideoModal(false)} className="text-gray-500 hover:text-white p-1 hover:bg-gray-800 rounded-full transition">
-                                <X className="w-6 h-6"/>
-                            </button>
-                        </div>
-                        <div className="aspect-video w-full">
-                            <iframe 
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" 
-                                title="Tutorial Blueprint" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-                    </div>
-                </div>
             )}
         </div>
     );

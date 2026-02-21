@@ -90,7 +90,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (hooks.length > 0 && hooks[activeHook]) {
         const hook = hooks[activeHook];
         setLocalTitle(hook.title || "");
-        setLocalStrategy(hook.psychologicalStrategy || "");
+        setLocalStrategy((hook as any).psychological_strategy || hook.psychologicalStrategy || "");
         setIsEditingTitle(false);
     }
   }, [activeHook, hooks]);
@@ -267,7 +267,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         try {
             const hookData = {
                 title: 'Nuevo Gancho Manual',
-                psychologicalStrategy: 'Ingresa aquí el ángulo psicológico...',
+                psychological_strategy: 'Ingresa aquí el ángulo psicológico...',
                 contentJson: defaultKitContent,
                 isGenerated: isRealAdmin
             };
@@ -538,7 +538,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     <textarea 
                                         value={localStrategy}
                                         onChange={(e) => setLocalStrategy(e.target.value)}
-                                        onBlur={() => handleUpdateMessage('psychologicalStrategy', localStrategy)}
+                                        onBlur={() => handleUpdateMessage('psychological_strategy', localStrategy)}
                                         className="w-full bg-transparent border-none text-gray-400 text-lg font-light italic outline-none resize-none h-auto min-h-[100px]"
                                         placeholder="Ingresa aquí el ángulo psicológico..."
                                     />
@@ -595,7 +595,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     <textarea 
                                         value={localStrategy}
                                         onChange={(e) => setLocalStrategy(e.target.value)}
-                                        onBlur={() => handleUpdateMessage('psychologicalStrategy', localStrategy)}
+                                        onBlur={() => handleUpdateMessage('psychological_strategy', localStrategy)}
                                         className="w-full bg-transparent border-none text-gray-400 text-lg font-light italic outline-none resize-none h-auto pl-6"
                                     />
                                 </div>

@@ -3,7 +3,7 @@ import { useNavigate, useParams, useOutletContext, useSearchParams } from 'react
 import { 
     Users, Target, MessageCircle, FileText,
     MonitorPlay, ShoppingCart, CheckCircle2,
-    BookOpen, Sparkles, Globe, Clapperboard, X, Loader2, Wand2, Rocket, AlertTriangle, RefreshCw,
+    BookOpen, Sparkles, Globe, Clapperboard, Loader2, Wand2, Rocket, AlertTriangle, RefreshCw,
     Clock, Award, MessageSquare
 } from 'lucide-react';
 
@@ -58,7 +58,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [selectedLpTab, setSelectedLpTab] = useState<string | null>(null);
     const [selectedTyTab, setSelectedTyTab] = useState<string | null>(null);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-    const [showVideoModal, setShowVideoModal] = useState(false);
 
     const [tooltipState, setTooltipState] = useState<{ visible: boolean; x: number; y: number; content: string[] }>({
         visible: false,
@@ -170,14 +169,6 @@ export const ProjectStrategyDashboard: React.FC = () => {
     return (
         <div id="psd-page-root" className="min-h-screen bg-black text-gray-200 pb-20 font-sans relative">
             <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} currentPlan={user.planLimits?.planName} />
-            {showVideoModal && (
-                <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in">
-                    <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800">
-                        <button onClick={() => setShowVideoModal(false)} className="absolute top-4 right-4 text-white z-10 bg-gray-800 p-2 rounded-full"><X /></button>
-                        <iframe className="aspect-video w-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" allowFullScreen></iframe>
-                    </div>
-                </div>
-            )}
 
             {tooltipState.visible && (
                 <div className="fixed z-[100] w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700 p-5 rounded-2xl shadow-2xl pointer-events-none" style={{ top: tooltipState.y, left: tooltipState.x }}>
@@ -194,8 +185,8 @@ export const ProjectStrategyDashboard: React.FC = () => {
                 <div className="lg:col-span-9 min-w-0">
                     <Suspense fallback={<div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>}>
                         {activeSection === 'summary' && <ProjectStrategy_Summary strategyData={strategyData} description={projectDescription} activeHeaderItem={activeHeaderItem} setActiveHeaderItem={setActiveHeaderItem} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
-                        {activeSection === 'growth' && <ProjectStrategy_BusinessGrowth chartData={chartData} onOpenVideo={() => setShowVideoModal(true)} commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)} commissionRate={strategyData.meta?.commissionRate || 0} />}
-                        {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onOpenVideo={() => setShowVideoModal(true)} />}
+                        {activeSection === 'growth' && <ProjectStrategy_BusinessGrowth chartData={chartData} commissionValue={(strategyData.meta?.price || 0) * (strategyData.meta?.commissionRate || 0)} commissionRate={strategyData.meta?.commissionRate || 0} />}
+                        {activeSection === 'blueprint' && <ProjectStrategy_Blueprint handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
                         {activeSection === 'avatar' && <ProjectStrategy_AvatarDiagnosis avatars={strategyData.avatars} psychology={strategyData.psychology} benefitsItems={strategyData.modules?.web?.landingPageTabs?.benefits?.items || []} />}
                         {activeSection === 'psychology' && <ProjectStrategy_Psychology psychology={strategyData.psychology} benefitsItems={strategyData.modules?.web?.landingPageTabs?.benefits?.items || []} />}
                         {activeSection === 'hooks' && <ProjectStrategy_Hooks strategyData={strategyData} activeHook={activeHook} setActiveHook={setActiveHook} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
