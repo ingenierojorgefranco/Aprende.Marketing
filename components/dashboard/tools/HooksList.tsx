@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
-import { ProjectHook, User } from '../../../types';
-import { Zap, Loader2, Trash2, Calendar, Sparkles, Brain, Target, Briefcase, ExternalLink, AlertTriangle } from 'lucide-react';
+import { ProjectHook, User, Project } from '../../../types';
+import { Zap, Loader2, Trash2, Calendar, Sparkles, Brain, Target, Briefcase, ExternalLink, AlertTriangle, ChevronRight, ArrowLeft, X } from 'lucide-react';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
+import { ProjectStrategy_Hooks } from './ProjectStrategy/ProjectStrategy_Hooks';
 
 interface DashboardContext {
   user: User;
@@ -16,6 +17,14 @@ export const HooksList: React.FC = () => {
     const { user, hookCount } = useOutletContext() as DashboardContext;
     const [hooks, setHooks] = useState<ProjectHook[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // --- Estados para el Wizard de Nuevo Hook ---
+    const [isWizardOpen, setIsWizardOpen] = useState(false);
+    const [wizardStep, setWizardStep] = useState(0);
+    const [userProjects, setUserProjects] = useState<Project[]>([]);
+    const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+    const [activeHookIdx, setActiveHookIdx] = useState(0);
+    // --------------------------------------------
 
     // --- Nuevo Estado para Restricción de Eliminación ---
     const [showRestrictionModal, setShowRestrictionModal] = useState(false);
@@ -29,13 +38,22 @@ export const HooksList: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const data = await api.getUserResources('hooks');
-            setHooks(data);
+            const [hooksData, projectsData] = await Promise.all([
+                api.getUserResources('hooks'),
+                api.getProjects()
+            ]);
+            setHooks(hooksData);
+            setUserProjects(projectsData || []);
         } catch (error) {
-            console.error("Error cargando ganchos:", error);
+            console.error("Error cargando datos:", error);
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleProjectSelect = (projectId: string) => {
+        setSelectedProjectId(projectId);
+        setWizardStep(1);
     };
 
     const handleDelete = async (hook: ProjectHook, e: React.MouseEvent) => {
@@ -118,9 +136,96 @@ export const HooksList: React.FC = () => {
                                 allowFullScreen
                             ></iframe>
                         </div>
+                        <button 
+                            onClick={() => setIsWizardOpen(true)}
+                            className="w-full py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 uppercase tracking-widest text-sm group"
+                        >
+                            <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
+                            Añadir Hook Magnetico
+                        </button>
                     </div>
                 </div>
             </div>
+
+            {isWizardOpen && (
+                <div className="fixed inset-0 z-[100] bg-[#050505] overflow-y-auto p-4 md:p-8 animate-in fade-in duration-500">
+                    <div className="max-w-7xl mx-auto space-y-8">
+                        <div className="flex items-center justify-between bg-gray-900/50 p-6 rounded-[2rem] border border-white/5 backdrop-blur-md">
+                            <div className="flex items-center gap-4">
+                                <button 
+                                    onClick={() => wizardStep === 0 ? setIsWizardOpen(false) : setWizardStep(0)}
+                                    className="p-3 bg-gray-800 rounded-2xl text-gray-400 hover:text-white transition shadow-inner"
+                                >
+                                    <ArrowLeft className="w-6 h-6" />
+                                </button>
+                                <div>
+                                    <h2 className="text-2xl font-black text-white uppercase tracking-tight">Generador de Hooks Magnéticos</h2>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 0 ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
+                                        <div className="w-4 h-px bg-gray-700"></div>
+                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 1 ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500'}`}>1. Ganchos</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => setIsWizardOpen(false)}
+                                className="p-3 bg-gray-800 rounded-2xl text-gray-400 hover:text-white transition shadow-inner"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {wizardStep === 0 ? (
+                            <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
+                                <div className="max-w-2xl mx-auto">
+                                    <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
+                                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Selecciona tu Proyecto</span>
+                                    </h2>
+                                    <p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra inteligencia artificial necesita conocer tu estrategia y avatar para generar los mejores ganchos.</p>
+                                </div>
+                                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                                    {userProjects.map((project) => (
+                                        <div 
+                                            key={project.id} 
+                                            className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-orange-500/50 hover:bg-orange-500/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full cursor-pointer" 
+                                            onClick={() => handleProjectSelect(project.id)}
+                                        >
+                                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                            <div className="flex items-center gap-5 mb-8">
+                                                <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-orange-500/10 group-hover:text-orange-500 transition-colors shadow-inner">
+                                                    <Briefcase className="w-8 h-8" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-white font-black text-2xl group-hover:text-orange-500 transition-colors truncate">{project.name}</h4>
+                                                    <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex-1 mb-10">
+                                                <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
+                                                <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p>
+                                            </div>
+                                            <button className="w-full py-5 bg-orange-600 hover:bg-orange-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-orange-900/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">
+                                                Seleccionar <ChevronRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="animate-in slide-in-from-right-4 duration-500">
+                                <ProjectStrategy_Hooks 
+                                    overrideProjectId={selectedProjectId!}
+                                    strategyData={null}
+                                    activeHook={activeHookIdx}
+                                    setActiveHook={setActiveHookIdx}
+                                    handleTooltipHover={() => {}}
+                                    handleTooltipLeave={() => {}}
+                                />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* SECCIÓN: MIS GANCHOS */}
             <div className="space-y-6">

@@ -11,16 +11,22 @@ interface ProjectStrategy_HooksProps {
   setActiveHook: (idx: number) => void;
   handleTooltipHover: (e: React.MouseEvent, content: string[]) => void;
   handleTooltipLeave: () => void;
+  overrideProjectId?: string;
 }
 
 export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   activeHook,
   setActiveHook,
   handleTooltipHover,
-  handleTooltipLeave
+  handleTooltipLeave,
+  overrideProjectId
 }) => {
-  const { id: projectId } = useParams() as { id: string };
-  const { user, isSimulating, hookCount } = useOutletContext() as any;
+  const { id: routeProjectId } = useParams() as { id: string };
+  const projectId = overrideProjectId || routeProjectId;
+  const context = useOutletContext() as any;
+  const user = context?.user;
+  const isSimulating = context?.isSimulating;
+  const hookCount = context?.hookCount;
   const planLimits = user?.planLimits;
   const initialSelectionDone = useRef(false);
   
