@@ -392,8 +392,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
       <div className="grid lg:grid-cols-12 gap-8">
         {/* LISTADO DE HOOKS */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="bg-[#111] p-6 rounded-[2.5rem] border border-white/5 h-full flex flex-col shadow-xl">
+        <div className="lg:col-span-5 space-y-6 sticky top-24 self-start">
+          <div className="bg-[#111] p-6 rounded-[2.5rem] border border-white/5 flex flex-col shadow-xl">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-orange-900/30 rounded-lg text-orange-400 border border-orange-900/50">
@@ -415,7 +415,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
               </div>
             </div>
             
-            <div className="space-y-4 flex-1">
+            <div className="space-y-4">
               {loadingHooks ? (
                 <div className="flex justify-center py-10"><Loader2 className="animate-spin text-orange-400" /></div>
               ) : paginatedHooks.length > 0 ? (

@@ -4,6 +4,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { ProjectHook, User } from '../../../types';
 import { Zap, Loader2, Trash2, Calendar, Sparkles, Brain, Target, Briefcase, ExternalLink, AlertTriangle } from 'lucide-react';
+import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 
 interface DashboardContext {
   user: User;
@@ -15,6 +16,11 @@ export const HooksList: React.FC = () => {
     const { user, hookCount } = useOutletContext() as DashboardContext;
     const [hooks, setHooks] = useState<ProjectHook[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // --- Nuevo Estado para Restricción de Eliminación ---
+    const [showRestrictionModal, setShowRestrictionModal] = useState(false);
+    const [hookToRestrict, setHookToRestrict] = useState<ProjectHook | null>(null);
+    // ----------------------------------------------------
 
     useEffect(() => {
         loadData();
@@ -34,6 +40,14 @@ export const HooksList: React.FC = () => {
 
     const handleDelete = async (hook: ProjectHook, e: React.MouseEvent) => {
         e.stopPropagation();
+        
+        // Si el usuario no tiene el rol admin, se interceptará la acción
+        if (user.role !== 'admin') {
+            setHookToRestrict(hook);
+            setShowRestrictionModal(true);
+            return;
+        }
+
         if (confirm(`¿Estás seguro de eliminar el gancho "${hook.title}"?`)) {
             try {
                 await api.deleteProjectHook(hook.id);
@@ -207,6 +221,15 @@ export const HooksList: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {/* MODAL RESTRICCIÓN DE ELIMINACIÓN */}
+            <DeletionRestrictionModal 
+                isOpen={showRestrictionModal} 
+                onClose={() => setShowRestrictionModal(false)}
+                itemName={hookToRestrict ? `Gancho: ${hookToRestrict.title}` : ''}
+                userEmail={user.email}
+                userName={user.name}
+            />
         </div>
     );
 };
