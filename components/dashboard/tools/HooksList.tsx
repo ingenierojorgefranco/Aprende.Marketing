@@ -56,6 +56,12 @@ export const HooksList: React.FC = () => {
         setWizardStep(1);
     };
 
+    const handleOpenWizard = () => {
+        setSelectedProjectId(null);
+        setWizardStep(0);
+        setIsWizardOpen(true);
+    };
+
     const handleDelete = async (hook: ProjectHook, e: React.MouseEvent) => {
         e.stopPropagation();
         
@@ -137,7 +143,7 @@ export const HooksList: React.FC = () => {
                             ></iframe>
                         </div>
                         <button 
-                            onClick={() => setIsWizardOpen(true)}
+                            onClick={handleOpenWizard}
                             className="w-full py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 uppercase tracking-widest text-sm group"
                         >
                             <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
@@ -147,8 +153,8 @@ export const HooksList: React.FC = () => {
                 </div>
             </div>
 
-            {isWizardOpen && (
-                <div className="fixed inset-0 z-[100] bg-[#050505] overflow-y-auto p-4 md:p-8 animate-in fade-in duration-500">
+            {isWizardOpen ? (
+                <div className="space-y-8 animate-in fade-in duration-500 pb-20">
                     <div className="max-w-7xl mx-auto space-y-8">
                         <div className="flex items-center justify-between bg-gray-900/50 p-6 rounded-[2rem] border border-white/5 backdrop-blur-md">
                             <div className="flex items-center gap-4">
@@ -225,10 +231,9 @@ export const HooksList: React.FC = () => {
                         )}
                     </div>
                 </div>
-            )}
-
-            {/* SECCIÓN: MIS GANCHOS */}
-            <div className="space-y-6">
+            ) : (
+                <div className="space-y-12">
+                    {/* SECCIÓN: MIS GANCHOS */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                     <div className="flex items-center gap-4 border-l-4 border-orange-500 pl-4 py-1 pb-5">
                         <div className="p-3 bg-orange-500/10 rounded-2xl text-orange-500 border border-orange-500/20 shadow-[0_0_20px_rgba(249,115,22,0.1)]">
@@ -326,6 +331,7 @@ export const HooksList: React.FC = () => {
                     </div>
                 )}
             </div>
+            )}
 
             {/* MODAL RESTRICCIÓN DE ELIMINACIÓN */}
             <DeletionRestrictionModal 

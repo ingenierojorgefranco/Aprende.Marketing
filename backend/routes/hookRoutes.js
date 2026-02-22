@@ -198,7 +198,8 @@ router.post('/unlock-more/:projectId', async (req, res) => {
  */
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { landingPageUrl, isGenerated, contentJson, title, psychologicalStrategy } = req.body;
+    const { landingPageUrl, isGenerated, contentJson, title, psychologicalStrategy, psychological_strategy } = req.body;
+    const finalStrategy = psychological_strategy || psychologicalStrategy;
     try {
         await pool.query(
             `UPDATE project_hooks SET 
@@ -208,7 +209,7 @@ router.put('/:id', async (req, res) => {
                 title = COALESCE(?, title),
                 psychological_strategy = COALESCE(?, psychological_strategy)
              WHERE id = ?`,
-            [landingPageUrl, isGenerated, contentJson ? (typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)) : null, title, psychologicalStrategy, id]
+            [landingPageUrl, isGenerated, contentJson ? (typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)) : null, title, finalStrategy, id]
         );
         
         res.json({ success: true });

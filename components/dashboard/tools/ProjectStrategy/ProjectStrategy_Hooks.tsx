@@ -160,7 +160,16 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (!currentHook.id) return;
     try {
         await api.updateProjectHook(currentHook.id, { [field]: value });
-        setHooks(prev => prev.map(h => h.id === currentHook.id ? { ...h, [field]: value } : h));
+        setHooks(prev => prev.map(h => {
+            if (h.id === currentHook.id) {
+                const updated = { ...h, [field]: value };
+                if (field === 'psychological_strategy') {
+                    (updated as any).psychologicalStrategy = value;
+                }
+                return updated;
+            }
+            return h;
+        }));
     } catch (e) {
         console.error("Error updating hook:", e);
     }
