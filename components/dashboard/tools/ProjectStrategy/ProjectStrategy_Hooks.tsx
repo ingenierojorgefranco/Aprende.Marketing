@@ -335,33 +335,35 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   return (
     <div className="space-y-16">
       {/* CABECERA ESTRATÉGICA */}
-      <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
-        <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
-          <Zap className="w-5 h-5 fill-current" /> Ganchos Magnéticos de Atracción
-        </div>
-        
-        <h3 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 leading-tight tracking-tight max-w-4xl">
-          Hooks de Atracción
-        </h3>
-        
-        <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
-          <p className="flex-1 border-l-4 border-orange-500 pl-8 py-2">
-            Un Hook no es solo una pregunta; es el puente que detiene el scroll de tu cliente ideal. Hemos diseñado estos ganchos para atacar directamente los deseos de libertad y crecimiento de tu avatar.
-          </p>
-          <div className="hidden md:block w-px h-24 bg-orange-500/30"></div>
-          <div 
-            className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
-          >
-              <iframe 
-                  className="w-full h-full rounded-2xl"
-                  src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
-                  title="Video Tutorial" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowFullScreen
-              ></iframe>
+      {!overrideProjectId && (
+        <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
+          <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
+            <Zap className="w-5 h-5 fill-current" /> Ganchos Magnéticos de Atracción
+          </div>
+          
+          <h3 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 leading-tight tracking-tight max-w-4xl">
+            Hooks de Atracción
+          </h3>
+          
+          <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
+            <p className="flex-1 border-l-4 border-orange-500 pl-8 py-2">
+              Un Hook no es solo una pregunta; es el puente que detiene el scroll de tu cliente ideal. Hemos diseñado estos ganchos para atacar directamente los deseos de libertad y crecimiento de tu avatar.
+            </p>
+            <div className="hidden md:block w-px h-24 bg-orange-500/30"></div>
+            <div 
+              className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
+            >
+                <iframe 
+                    className="w-full h-full rounded-2xl"
+                    src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                    title="Video Tutorial" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                ></iframe>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* --- OVERLAY DE GENERACIÓN PROFESIONAL --- */}
       {generationStatus === 'generating' && (

@@ -154,33 +154,26 @@ export const HooksList: React.FC = () => {
             </div>
 
             {isWizardOpen ? (
-                <div className="space-y-8 animate-in fade-in duration-500 pb-20">
-                    <div className="max-w-7xl mx-auto space-y-8">
-                        <div className="flex items-center justify-between bg-gray-900/50 p-6 rounded-[2rem] border border-white/5 backdrop-blur-md">
-                            <div className="flex items-center gap-4">
-                                <button 
-                                    onClick={() => wizardStep === 0 ? setIsWizardOpen(false) : setWizardStep(0)}
-                                    className="p-3 bg-gray-800 rounded-2xl text-gray-400 hover:text-white transition shadow-inner"
-                                >
-                                    <ArrowLeft className="w-6 h-6" />
-                                </button>
-                                <div>
-                                    <h2 className="text-2xl font-black text-white uppercase tracking-tight">Generador de Hooks Magnéticos</h2>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 0 ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
-                                        <div className="w-4 h-px bg-gray-700"></div>
-                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 1 ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500'}`}>1. Ganchos</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <button 
-                                onClick={() => setIsWizardOpen(false)}
-                                className="p-3 bg-gray-800 rounded-2xl text-gray-400 hover:text-white transition shadow-inner"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
+                <div className="mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 max-w-5xl animate-in fade-in duration-500">
+                    <div className="bg-orange-600/10 p-8 text-center border-b border-orange-500/10 relative">
+                        <button onClick={() => wizardStep === 0 ? setIsWizardOpen(false) : setWizardStep(0)} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+                            <ArrowLeft className="w-6 h-6" />
+                        </button>
+                        <button onClick={() => setIsWizardOpen(false)} className="absolute top-6 right-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+                            <X className="w-6 h-6" />
+                        </button>
+                        <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
+                            <Zap className="w-8 h-8 text-orange-400" />
                         </div>
+                        <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Hooks Magnéticos</h2>
+                        <div className="flex items-center justify-center gap-2 mt-4 text-sm">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 0 ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
+                            <div className="w-4 h-px bg-gray-700"></div>
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 1 ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500'}`}>1. Ganchos</span>
+                        </div>
+                    </div>
 
+                    <div className="p-8 flex-1 overflow-y-auto relative">
                         {wizardStep === 0 ? (
                             <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
                                 <div className="max-w-2xl mx-auto">
@@ -263,7 +256,7 @@ export const HooksList: React.FC = () => {
                 ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <button 
-                            onClick={() => navigate('/dashboard/projects')}
+                            onClick={handleOpenWizard}
                             className="bg-gray-900 border-2 border-dashed border-white/20 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 group hover:border-orange-500/30 hover:bg-orange-500/5 transition-all duration-500 min-h-[400px]"
                         >
                             <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center text-gray-600 group-hover:bg-orange-500/10 group-hover:text-orange-500 transition-all">
