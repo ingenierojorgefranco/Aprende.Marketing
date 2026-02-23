@@ -262,7 +262,7 @@ export const ProjectsList: React.FC = () => {
                                 <Briefcase className="w-3 h-3 text-blue-400" /> Estrategia & Nichos
                             </div>
                             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                                Gestiona tus Proyectos <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">y Construye Estrategias</span>
+                                Gestión de <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Proyectos</span>
                             </h1>
                             <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-relaxed">
                                 Los Proyectos son el centro de tu estrategia de Ventas. Define tu nicho, audiencia y enlaces de afiliado. Nuestro sistema usará Inteligencia Artificial para generar contenido que te genere grandes resultados.
@@ -279,10 +279,7 @@ export const ProjectsList: React.FC = () => {
                                 <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                             </div>
                             {isAtLimit && (
-                                <div 
-                                    onClick={() => setShowUpgradeModal(true)}
-                                    className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30 cursor-pointer hover:bg-yellow-900/30 transition-all"
-                                >
+                                <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30">
                                     <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
                                     <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
                                 </div>
@@ -313,7 +310,7 @@ export const ProjectsList: React.FC = () => {
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-2">
                                         <CornerCrown className="w-5 h-5 fill-current" /> 
-                                        Límite Alcanzado: Actualiza a PRO
+                                        Límite Alcanzado: Subir a PRO
                                     </span>
                                 </button>
                             ) : (
@@ -393,18 +390,16 @@ export const ProjectsList: React.FC = () => {
                                                 {new Date(project.createdAt).toLocaleDateString()}
                                             </div>
                                             <div className="flex gap-2">
-                                                {!isClonedFromMaster && (
-                                                    <button 
-                                                        onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/projects/edit/${project.id}`); }}
-                                                        className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
-                                                    >
-                                                        <Edit2 className="w-4 h-4" />
-                                                        <span className="text-xs font-bold">Editar</span>
-                                                    </button>
-                                                )}
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/projects/edit/${project.id}`); }}
+                                                    className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
+                                                >
+                                                    <Edit2 className="w-4 h-4" />
+                                                    <span className="text-xs font-bold">Editar</span>
+                                                </button>
                                                 <button 
                                                     onClick={(e) => handleDelete(project, e)}
-                                                    className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-emerald-600 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
+                                                    className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-red-50 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                     <span className="text-xs font-bold">Borrar</span>
@@ -490,7 +485,7 @@ export const ProjectsList: React.FC = () => {
                                                 </button>
                                                 <button 
                                                     onClick={(e) => handleDelete(item, e)}
-                                                    className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-emerald-600 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
+                                                    className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-red-50 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                     <span className="text-xs font-bold">Borrar</span>

@@ -89,7 +89,7 @@ router.post('/login', async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, password_hash, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks FROM users WHERE email = ?',
+      'SELECT id, name, email, password_hash, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url FROM users WHERE email = ?',
       [email]
     );
 
@@ -119,8 +119,7 @@ router.post('/login', async (req, res) => {
       avatarUrl: user.avatar_url,
       birthDate: user.birth_date,
       createdAt: user.created_at,
-      customRedirectUrl: user.custom_redirect_url,
-      maxHooks: user.max_hooks
+      customRedirectUrl: user.custom_redirect_url
     };
     const token = createToken(userResponse);
     res.json({ user: userResponse, token });
@@ -146,7 +145,7 @@ router.post('/logout', authMiddleware, async (req, res) => {
 router.get('/me', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks FROM users WHERE id = ?',
+      'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url FROM users WHERE id = ?',
       [req.user.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -168,8 +167,7 @@ router.get('/me', authMiddleware, async (req, res) => {
         avatarUrl: user.avatar_url,
         birthDate: user.birth_date,
         createdAt: user.created_at,
-        customRedirectUrl: user.custom_redirect_url,
-        maxHooks: user.max_hooks
+        customRedirectUrl: user.custom_redirect_url
     });
   } catch (error) {
     res.status(500).json({ error: 'Error interno' });
@@ -225,7 +223,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
         );
         
         const [rows] = await pool.query(
-            'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url, max_hooks FROM users WHERE id = ?',
+            'SELECT id, name, email, role, is_active, public_subdomain, plan_limits, avatar_url, birth_date, created_at, custom_redirect_url FROM users WHERE id = ?',
             [req.user.id]
         );
         
@@ -244,8 +242,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
             avatarUrl: user.avatar_url,
             birthDate: user.birth_date,
             createdAt: user.created_at,
-            customRedirectUrl: user.custom_redirect_url,
-            maxHooks: user.max_hooks
+            customRedirectUrl: user.custom_redirect_url
         });
 
     } catch (e) {

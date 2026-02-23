@@ -165,7 +165,6 @@ export const AdminPanel: React.FC = () => {
             await api.updateUser(editingUser.id, {
                 role: editingUser.role || 'user',
                 planLimits: tempPlanLimits,
-                maxHooks: editingUser.maxHooks,
                 isActive: true, // Assuming active for now
                 name: editingUser.name,
                 email: editingUser.email,
@@ -177,8 +176,7 @@ export const AdminPanel: React.FC = () => {
             // Refresh list
             setUsers(prev => prev.map(u => u.id === editingUser.id ? { 
                 ...editingUser, 
-                planLimits: tempPlanLimits,
-                maxHooks: editingUser.maxHooks
+                planLimits: tempPlanLimits 
             } : u));
             
             setEditingUser(null);
@@ -611,16 +609,6 @@ export const AdminPanel: React.FC = () => {
                                                     onChange={(e) => setEditingUser({...editingUser, customRedirectUrl: e.target.value})}
                                                     placeholder="URL prioritaria al login"
                                                     className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-blue-300 placeholder-gray-600"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Límite Individual Ganchos (Prioritario)</label>
-                                                <input 
-                                                    type="number" 
-                                                    value={editingUser.maxHooks || ''} 
-                                                    onChange={(e) => setEditingUser({...editingUser, maxHooks: parseInt(e.target.value) || undefined})}
-                                                    placeholder="Ej: 50"
-                                                    className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-orange-400 placeholder-gray-600"
                                                 />
                                             </div>
                                         </div>

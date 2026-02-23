@@ -459,7 +459,6 @@ const initDb = async () => {
         await addColumnSafe(connection, 'users', "avatar_url VARCHAR(500)");
         await addColumnSafe(connection, 'users', "birth_date DATE");
         await addColumnSafe(connection, 'users', "custom_redirect_url VARCHAR(500)");
-        await addColumnSafe(connection, 'users', "max_hooks INT NULL");
         
         await addColumnSafe(connection, 'users', "stripe_customer_id VARCHAR(255)");
         await addColumnSafe(connection, 'users', "subscription_id VARCHAR(255)");

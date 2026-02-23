@@ -153,7 +153,6 @@ export interface User {
   email: string;
   role?: 'admin' | 'user';
   planLimits?: PlanLimits;
-  maxHooks?: number; // New: Individual hook limit override
   avatarUrl?: string; // New
   birthDate?: string; // New
   createdAt?: Date;   // New
