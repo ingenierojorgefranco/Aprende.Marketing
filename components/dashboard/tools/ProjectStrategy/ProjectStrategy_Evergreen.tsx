@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X } from 'lucide-react';
+import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X, Loader2, Copy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, Article } from '../../../../types';
+import { api } from '../../../../services/api';
 
 interface ProjectStrategy_EvergreenProps {
     evergreenData: any[];
@@ -21,6 +22,8 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan, linkedArticles = []
 }) => {
     const navigate = useNavigate();
+    const [generatingId, setGeneratingId] = useState<string | null>(null);
+    const [copySuccess, setCopySuccess] = useState<string | null>(null);
 
     // Si no hay artículos, mostramos el estado vacío con invitación a generar contenido
     if (linkedArticles.length === 0) {
@@ -77,14 +80,69 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         );
     }
 
+    const handleGenerateEmail = async (article: Article) => {
+        if (generatingId) return;
+        setGeneratingId(article.id);
+
+        try {
+            const prompt = `
+                Actúa como un experto en Email Marketing y Copywriting de Respuesta Directa.
+                Tu objetivo es redactar un correo electrónico persuasivo para invitar a un prospecto a leer el siguiente artículo de blog:
+                
+                TÍTULO DEL ARTÍCULO: ${article.title}
+                RESUMEN/DESCRIPCIÓN: ${article.description}
+                CONTENIDO (HTML): ${article.contentHtml.substring(0, 2000)}
+                
+                INSTRUCCIONES:
+                1. El asunto debe ser intrigante, corto y con un emoji (máximo 60 caracteres).
+                2. El cuerpo del correo debe ser cercano, empático y generar curiosidad por el contenido del artículo.
+                3. Usa un tono profesional pero amigable (Tú).
+                4. No incluyas el enlace final, solo el texto del correo.
+                5. El correo debe terminar con una transición natural hacia la lectura del artículo.
+                
+                Responde estrictamente en formato JSON:
+                {
+                    "subject": "Asunto del correo",
+                    "body": "Cuerpo del correo en formato texto plano con saltos de línea \\n"
+                }
+            `;
+
+            const response = await api.generateWithIA(prompt, { responseMimeType: 'application/json' });
+            const result = JSON.parse(response.text);
+
+            await api.updateArticle(article.id, {
+                ...article,
+                emailSubject: result.subject,
+                emailBody: result.body
+            });
+
+            // Recargar la página o actualizar el estado local si fuera necesario
+            // En este caso, como linkedArticles viene de arriba, lo ideal sería que el padre refresque
+            window.location.reload(); 
+        } catch (error) {
+            console.error("Error generating email:", error);
+            alert("Hubo un error al generar el correo. Por favor intenta de nuevo.");
+        } finally {
+            setGeneratingId(null);
+        }
+    };
+
+    const handleCopy = (text: string, id: string) => {
+        navigator.clipboard.writeText(text);
+        setCopySuccess(id);
+        setTimeout(() => setCopySuccess(null), 2000);
+    };
+
     // Mapeamos los artículos reales a una secuencia dinámica
     const dynamicSequence = linkedArticles.map((article, idx) => ({
         id: article.id,
         day: `Día ${8 + (idx * 7)}`,
-        subject: `[LECTURA RECOMENDADA] ${article.title}`,
+        subject: article.emailSubject || `[LECTURA RECOMENDADA] ${article.title}`,
+        body: article.emailBody,
         type: 'Evergreen / Valor',
         objective: 'Construir autoridad de marca enviando tráfico al blog de tu landing page.',
-        articleSlug: article.slug
+        articleSlug: article.slug,
+        originalArticle: article
     }));
 
     const activeEmail = dynamicSequence[activeEvergreenEmail] || dynamicSequence[0];
@@ -155,7 +213,11 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                     </div>
                                 </div>
                                 <div className="shrink-0">
-                                    <Check className={`w-5 h-5 ${activeEvergreenEmail === idx ? 'text-orange-500' : 'text-gray-800'}`} />
+                                    {email.body ? (
+                                        <Check className={`w-5 h-5 ${activeEvergreenEmail === idx ? 'text-orange-500' : 'text-green-500/50'}`} />
+                                    ) : (
+                                        <div className="w-2 h-2 rounded-full bg-gray-700" />
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -187,23 +249,65 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                             </p>
                         </div>
 
-                        <div className="bg-white rounded-2xl shadow-2xl p-10 text-gray-900 font-serif leading-relaxed text-xl flex-1 border-2 border-gray-200 flex flex-col">
-                            <div className="border-b border-gray-100 pb-6 mb-8 text-sm text-gray-400 font-sans italic">
-                                <p>De: Tu Marca Profesional</p>
-                                <p>Asunto: {activeEmail.subject}</p>
-                            </div>
-
-                            <p className="mb-6">Hola {avatars[0]?.name.split(' ')[0] || 'amiga'},</p>                            
-                            <div className="my-10 text-center">
-                                <div className="inline-block px-10 py-5 bg-orange-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl pointer-events-none">
-                                    Hacer clic para leer el artículo
+                        <div className="bg-white rounded-2xl shadow-2xl p-10 text-gray-900 font-serif leading-relaxed text-xl flex-1 border-2 border-gray-200 flex flex-col relative group">
+                            <div className="border-b border-gray-100 pb-6 mb-8 text-sm text-gray-400 font-sans italic flex justify-between items-center">
+                                <div>
+                                    <p>De: Tu Marca Profesional</p>
+                                    <p>Asunto: {activeEmail.subject}</p>
                                 </div>
-                                <p className="text-gray-400 text-xs mt-4 font-sans italic">El enlace dirigirá automáticamente al blog de tu landing page.</p>
+                                {activeEmail.body && (
+                                    <button 
+                                        onClick={() => handleCopy(`${activeEmail.subject}\n\n${activeEmail.body}`, activeEmail.id)}
+                                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-orange-500"
+                                        title="Copiar correo completo"
+                                    >
+                                        {copySuccess === activeEmail.id ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
+                                    </button>
+                                )}
                             </div>
 
-                            <div className="mt-auto pt-8 border-t border-gray-100 font-sans">
-                                <p className="text-base text-gray-500">Un abrazo,<br/><strong>Tu Equipo.</strong></p>
-                            </div>
+                            {activeEmail.body ? (
+                                <div className="whitespace-pre-wrap">
+                                    <p className="mb-6">Hola {avatars[0]?.name.split(' ')[0] || 'amiga'},</p>                            
+                                    {activeEmail.body}
+                                    
+                                    <div className="my-10 text-center">
+                                        <div className="inline-block px-10 py-5 bg-orange-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl pointer-events-none">
+                                            Hacer clic para leer el artículo
+                                        </div>
+                                        <p className="text-gray-400 text-xs mt-4 font-sans italic">El enlace dirigirá automáticamente al blog de tu landing page.</p>
+                                    </div>
+
+                                    <div className="mt-auto pt-8 border-t border-gray-100 font-sans">
+                                        <p className="text-base text-gray-500">Un abrazo,<br/><strong>Tu Equipo.</strong></p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6 py-20">
+                                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
+                                        <PenTool className="w-10 h-10" />
+                                    </div>
+                                    <div className="max-w-xs">
+                                        <h4 className="text-xl font-bold text-gray-400">Correo no redactado</h4>
+                                        <p className="text-sm text-gray-400 mt-2">Usa el botón de abajo para que la IA redacte este correo basado en el contenido de tu artículo.</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => handleGenerateEmail(activeEmail.originalArticle)}
+                                        disabled={generatingId === activeEmail.id}
+                                        className="px-8 py-3 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-xl transition-all shadow-lg flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {generatingId === activeEmail.id ? (
+                                            <>
+                                                <Loader2 className="w-5 h-5 animate-spin" /> Redactando...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Sparkles className="w-5 h-5" /> Redactar con IA
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         <div className="mt-10">

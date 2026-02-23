@@ -27,7 +27,7 @@ const ProjectStrategy_Testimonials = React.lazy(() => import('./ProjectStrategy/
 import { UpgradeModal } from '../UpgradeModal';
 import { api } from '../../../services/api';
 import { ProjectMasterStrategy } from '../../../services/strategySchema';
-import { User, Plan } from '../../../types';
+import { User, Plan, Article } from '../../../types';
 
 const iconMap: any = {
     BookOpen, Sparkles, Users, MessageCircle, Target
@@ -58,6 +58,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [selectedLpTab, setSelectedLpTab] = useState<string | null>(null);
     const [selectedTyTab, setSelectedTyTab] = useState<string | null>(null);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
 
     const [tooltipState, setTooltipState] = useState<{ visible: boolean; x: number; y: number; content: string[] }>({
         visible: false,
@@ -71,10 +72,12 @@ export const ProjectStrategyDashboard: React.FC = () => {
         if (!id) return;
         setLoading(true);
         try {
-            const [strategy, projectDetails, plansData] = await Promise.all([
+            const [strategy, projectDetails, plansData, allPages, allArticles] = await Promise.all([
                 api.getProjectStrategy(id).catch(() => null),
                 api.getProjectById(id).catch(() => null),
-                api.getPublicPlans().catch(() => [])
+                api.getPublicPlans().catch(() => []),
+                api.getPages().catch(() => []),
+                api.getArticles().catch(() => [])
             ]);
 
             if (projectDetails) setProjectDescription(projectDetails.description || '');
@@ -87,6 +90,12 @@ export const ProjectStrategyDashboard: React.FC = () => {
                     }));
                 }
                 setStrategyData(strategy);
+            }
+
+            if (allPages && allArticles) {
+                const projectPages = allPages.filter((p: any) => String(p.projectId) === String(id));
+                const projectArts = allArticles.filter((a: any) => projectPages.some((p: any) => String(p.id) === String(a.pageId)));
+                setLinkedArticles(projectArts);
             }
 
             const currentPlanName = user.planLimits?.planName || 'starter';
@@ -194,7 +203,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                         {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules?.web?.landingPageTabs} tyTabsData={strategyData.modules?.web?.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onEditPage={(pid: string) => navigate(`/dashboard/editor/${pid}`)} pageCount={globalPageCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
                         {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
                         {activeSection === 'email' && <ProjectStrategy_Email emailData={strategyData.modules.emails.nurture} avatars={strategyData.avatars} activeEmail={activeEmail} setActiveEmail={setActiveEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} isSimulating={isSimulating} />}
-                        {activeSection === 'evergreen' && <ProjectStrategy_Evergreen evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} />}
+                        {activeSection === 'evergreen' && <ProjectStrategy_Evergreen evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
                         {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} projectId={id} isSimulating={isSimulating} planLimits={user.planLimits} strategyData={strategyData} />}
                     </Suspense>
                 </div>

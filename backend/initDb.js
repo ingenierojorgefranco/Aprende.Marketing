@@ -387,6 +387,8 @@ const initDb = async () => {
                     seo_score INT DEFAULT 0,
                     meta_title VARCHAR(255),
                     meta_description TEXT,
+                    email_subject VARCHAR(255),
+                    email_body LONGTEXT,
                     status VARCHAR(50) DEFAULT 'published',
                     published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -443,6 +445,8 @@ const initDb = async () => {
         // await addColumnSafe(connection, 'projects', "short_description VARCHAR(255)");
         /* Fin de actualización - 25/06/2024 11:30 */
 
+        await addColumnSafe(connection, 'articles', "email_subject VARCHAR(255)");
+        await addColumnSafe(connection, 'articles', "email_body LONGTEXT");
         await addColumnSafe(connection, 'articles', "slug VARCHAR(255)");
         await addColumnSafe(connection, 'articles', "featured_image VARCHAR(500)");
         await addColumnSafe(connection, 'articles', "meta_title VARCHAR(255)");

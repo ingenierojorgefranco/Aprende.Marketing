@@ -422,6 +422,8 @@ export interface Article {
   seoScore: number;
   metaTitle?: string;
   metaDescription?: string;
+  emailSubject?: string;
+  emailBody?: string;
   status: 'published' | 'draft' | 'scheduled';
   publishedAt: Date;
   createdAt: Date;

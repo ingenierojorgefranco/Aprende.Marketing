@@ -823,6 +823,8 @@ export const api = {
             seoScore: a.seo_score,
             metaTitle: a.meta_title,
             metaDescription: a.meta_description,
+            emailSubject: a.email_subject,
+            emailBody: a.email_body,
             status: a.status || 'published',
             publishedAt: new Date(a.published_at || a.created_at),
             createdAt: new Date(a.created_at)
@@ -851,6 +853,8 @@ export const api = {
                 seoScore: a.seo_score || 0,
                 metaTitle: a.meta_title,
                 metaDescription: a.meta_description,
+                emailSubject: a.email_subject,
+                emailBody: a.email_body,
                 status: a.status || 'published',
                 publishedAt: new Date(a.published_at || a.created_at),
                 createdAt: new Date(a.created_at)
@@ -882,6 +886,8 @@ export const api = {
                 meta_title: article.metaTitle,
                 // Fixed: meta_description was incorrectly trying to access meta_description instead of metaDescription
                 meta_description: article.metaDescription,
+                email_subject: article.emailSubject,
+                email_body: article.emailBody,
                 status: article.status,
                 published_at: article.publishedAt
             })
@@ -912,6 +918,8 @@ export const api = {
                 seo_score: article.seoScore,
                 meta_title: article.metaTitle,
                 meta_description: article.metaDescription,
+                email_subject: article.emailSubject,
+                email_body: article.emailBody,
                 status: article.status,
                 published_at: article.publishedAt
           })
@@ -1714,7 +1722,21 @@ export const api = {
     /* Fin de actualización */
 
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,
-    setLastGeneratedTitles: (titles: any[]) => { apiCache.lastGeneratedTitles = titles; }
+    setLastGeneratedTitles: (titles: any[]) => { apiCache.lastGeneratedTitles = titles; },
+
+    generateWithIA: async (prompt: string, config: any = {}): Promise<{ text: string }> => {
+        if (isMockMode) {
+            return { text: JSON.stringify({ subject: "Asunto Mock", body: "Cuerpo del correo mock." }) };
+        }
+        return await fetchWithFallback('/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: prompt,
+                config: config
+            })
+        });
+    },
 };
   
 function safeParseJsonList(data: any): any[] {
