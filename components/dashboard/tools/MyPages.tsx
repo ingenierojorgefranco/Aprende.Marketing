@@ -422,7 +422,7 @@ export const MyPages: React.FC = () => {
                             <div className="aspect-video w-full bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                                 <iframe 
                                     className="w-full h-full"
-                                    src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                                    src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
                                     title="Tutorial Configuración de Dominio" 
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                     allowFullScreen
@@ -568,19 +568,6 @@ export const MyPages: React.FC = () => {
                         </div>
 
                         {/* Botón WhatsApp Final Fuera del Acordeón para Accesibilidad */}
-                        <div className="mt-auto">
-                            <a 
-                                href={`https://wa.me/573146270784?text=${encodeURIComponent("Hola, me gustaria configurar un nombre de dominio a mi pagina web en www.aprende.marketing")}`}
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                className="w-full py-5 rounded-[2rem] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-lg shadow-xl shadow-blue-900/30 flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02] active:scale-95 mb-4"
-                            >
-                                <MessageCircle className="w-6 h-6" /> Quiero configurar mi dominio
-                            </a>
-                            <p className="text-center text-[10px] text-gray-600 font-bold uppercase tracking-[0.3em]">
-                                Activación técnica inmediata vía soporte
-                            </p>
-                        </div>
                     </div>
                 </div>
             )}
