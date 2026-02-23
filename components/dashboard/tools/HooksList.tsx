@@ -91,7 +91,7 @@ export const HooksList: React.FC = () => {
         );
     }
 
-    const maxHooks = user.planLimits?.maxHooks || 10;
+    const maxHooks = user.maxHooks || user.planLimits?.maxHooks || 10;
     const usagePercent = Math.min(100, (hookCount / maxHooks) * 100);
 
     let progressColor = "bg-orange-500";

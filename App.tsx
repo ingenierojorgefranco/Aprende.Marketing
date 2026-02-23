@@ -211,9 +211,11 @@ const App: React.FC = () => {
               email: authUser.email,
               role: (authUser as any).role,
               planLimits: (authUser as any).planLimits,
+              maxHooks: (authUser as any).maxHooks,
               avatarUrl: (authUser as any).avatarUrl,
               birthDate: (authUser as any).birthDate,
-              createdAt: (authUser as any).createdAt
+              createdAt: (authUser as any).createdAt,
+              customRedirectUrl: (authUser as any).customRedirectUrl
             });
           }
         } catch (error) {
