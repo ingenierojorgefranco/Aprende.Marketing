@@ -91,7 +91,7 @@ export const HooksList: React.FC = () => {
         );
     }
 
-    const maxHooks = user.planLimits?.maxHooks || 10;
+    const maxHooks = user.maxHooks || user.planLimits?.maxHooks || 10;
     const usagePercent = Math.min(100, (hookCount / maxHooks) * 100);
 
     let progressColor = "bg-orange-500";
@@ -154,7 +154,7 @@ export const HooksList: React.FC = () => {
             </div>
 
             {isWizardOpen ? (
-                <div className="mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 max-w-5xl animate-in fade-in duration-500">
+                <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${wizardStep === 0 ? 'max-w-5xl' : 'max-w-[90rem]'} animate-in fade-in duration-500`}>
                     <div className="bg-orange-600/10 p-8 text-center border-b border-orange-500/10 relative">
                         <button onClick={() => wizardStep === 0 ? setIsWizardOpen(false) : setWizardStep(0)} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
                             <ArrowLeft className="w-6 h-6" />

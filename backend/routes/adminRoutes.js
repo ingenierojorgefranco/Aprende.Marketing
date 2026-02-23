@@ -34,13 +34,14 @@ router.use('/', courseAdminRouter);
 router.get('/users', async (req, res) => {
     try {
         const [users] = await pool.query(
-            `SELECT id, name, email, role, is_active, plan_limits, created_at, last_login_at, avatar_url, birth_date, custom_redirect_url 
+            `SELECT id, name, email, role, is_active, plan_limits, created_at, last_login_at, avatar_url, birth_date, custom_redirect_url, max_hooks 
              FROM users ORDER BY created_at DESC`
         );
         const safeUsers = users.map(u => ({
             ...u,
             planLimits: typeof u.plan_limits === 'string' ? JSON.parse(u.plan_limits) : (u.plan_limits || DEFAULT_LIMITS),
-            customRedirectUrl: u.custom_redirect_url
+            customRedirectUrl: u.custom_redirect_url,
+            maxHooks: u.max_hooks
         }));
         res.json(safeUsers);
     } catch (e) {
@@ -82,7 +83,7 @@ router.get('/users/:id/stats', async (req, res) => {
 
 router.put('/users/:id', async (req, res) => {
     const { id } = req.params;
-    const { role, planLimits, isActive, name, email, avatarUrl, birthDate, customRedirectUrl } = req.body;
+    const { role, planLimits, isActive, name, email, avatarUrl, birthDate, customRedirectUrl, maxHooks } = req.body;
     try {
         await pool.query(
             `UPDATE users SET 
@@ -93,9 +94,10 @@ router.put('/users/:id', async (req, res) => {
                 email = COALESCE(?, email),
                 avatar_url = ?,
                 birth_date = ?,
-                custom_redirect_url = ?
+                custom_redirect_url = ?,
+                max_hooks = ?
              WHERE id = ?`,
-            [role, JSON.stringify(planLimits), isActive, name, email, avatarUrl, birthDate, customRedirectUrl, id]
+            [role, JSON.stringify(planLimits), isActive, name, email, avatarUrl, birthDate, customRedirectUrl, maxHooks, id]
         );
         const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
         await logSystemActivity(req.user.id, admin[0]?.name, 'UPDATE_USER', 'user', id, { role, planName: planLimits.planName });
