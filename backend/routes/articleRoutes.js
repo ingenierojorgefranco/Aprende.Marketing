@@ -36,25 +36,10 @@ router.post('/articles', authMiddleware, async (req, res) => {
   if (!finalSlug && title) { finalSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
   
   try {
-    let limits = DEFAULT_LIMITS;
-    if (page_id) {
-        const [pageRows] = await pool.query('SELECT project_id FROM landing_pages WHERE id = ?', [page_id]);
-        if (pageRows.length > 0) {
-            const [projectRows] = await pool.query('SELECT limits_config FROM projects WHERE id = ?', [pageRows[0].project_id]);
-            if (projectRows.length > 0 && projectRows[0].limits_config) {
-                limits = typeof projectRows[0].limits_config === 'string' ? JSON.parse(projectRows[0].limits_config) : projectRows[0].limits_config;
-            }
-        }
-    }
-
-    const [userData] = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
-    if (userData[0]?.role !== 'admin' && limits) {
-        const limit = limits.maxArticles || 2;
-        const [countRows] = await pool.query('SELECT COUNT(*) as total FROM articles WHERE user_id = ?', [req.user.id]);
-        if (countRows[0].total >= limit) {
-            return res.status(403).json({ error: `Has alcanzado el límite de ${limit} artículos para este proyecto.` });
-        }
-    }
+    const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
+    const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
+    const limit = limits.maxArticles || 2; 
+    
     const [resDb] = await pool.query(
       `INSERT INTO articles 
       (user_id, page_id, title, slug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, email_subject, email_body, status, published_at, created_at) 

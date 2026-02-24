@@ -522,11 +522,6 @@ export interface Project {
   
   strategy_json?: StrategyJSON | any; // Updated to accept both types
   
-  isActive?: boolean;
-  limitsConfig?: PlanLimits;
-  paymentProvider?: string;
-  externalId?: string;
-
   createdAt: Date;
   ////////// Actualización: Campos para el sistema de Proyectos Maestros - 05/03/2025 10:00 //////////
   isMaster?: boolean;

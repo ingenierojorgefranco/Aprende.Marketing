@@ -290,7 +290,7 @@ router.put('/plans/:id', async (req, res) => {
     }
 });
 
-router.delete('/plans/:id', async (req, res) => {
+router.get('/plans/:id', async (req, res) => {
     const { id } = req.params;
     try {
         await pool.query('DELETE FROM plans WHERE id = ?', [id]);

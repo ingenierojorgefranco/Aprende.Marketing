@@ -98,23 +98,20 @@ router.post('/unlock-single', async (req, res) => {
     if (!projectId || !masterHookId) return res.status(400).json({ error: "Faltan parámetros" });
 
     try {
-        const [projectData] = await pool.query('SELECT limits_config FROM projects WHERE id = ?', [projectId]);
-        if (projectData.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
-        
-        const limits = projectData[0]?.limits_config ? (typeof projectData[0].limits_config === 'string' ? JSON.parse(projectData[0].limits_config) : projectData[0].limits_config) : DEFAULT_LIMITS;
-        
-        const [userData] = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
+        const [userData] = await pool.query('SELECT plan_limits, role FROM users WHERE id = ?', [req.user.id]);
+        const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
         
         if (userData[0]?.role !== 'admin' && limits) {
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
-                FROM project_hooks
-                WHERE project_id = ?
-            `, [projectId]);
+                FROM project_hooks h
+                JOIN projects p ON h.project_id = p.id
+                WHERE p.user_id = ?
+            `, [req.user.id]);
             
             const maxAllowed = limits.maxHooks || 10;
             if (countRows[0].total >= maxAllowed) {
-                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} ganchos para este proyecto.` });
+                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} ganchos de tu plan.` });
             }
         }
 
@@ -142,29 +139,29 @@ router.post('/unlock-single', async (req, res) => {
 router.post('/unlock-more/:projectId', async (req, res) => {
     const { projectId } = req.params;
     try {
-        const [projectData] = await pool.query('SELECT master_parent_id, limits_config FROM projects WHERE id = ?', [projectId]);
-        if (projectData.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
+        const [projRows] = await pool.query('SELECT master_parent_id FROM projects WHERE id = ?', [projectId]);
+        if (projRows.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
         
-        const masterParentId = projectData[0].master_parent_id;
+        const masterParentId = projRows[0].master_parent_id;
         if (!masterParentId) return res.status(400).json({ error: "Este proyecto no está vinculado a una biblioteca maestra." });
 
-        const limits = projectData[0]?.limits_config ? (typeof projectData[0].limits_config === 'string' ? JSON.parse(projectData[0].limits_config) : projectData[0].limits_config) : DEFAULT_LIMITS;
-        
-        const [userData] = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
+        const [userData] = await pool.query('SELECT plan_limits, role FROM users WHERE id = ?', [req.user.id]);
+        const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
         
         let maxToLoad = 10;
         if (userData[0]?.role !== 'admin' && limits) {
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
-                FROM project_hooks
-                WHERE project_id = ?
-            `, [projectId]);
+                FROM project_hooks h
+                JOIN projects p ON h.project_id = p.id
+                WHERE p.user_id = ?
+            `, [req.user.id]);
             
             const maxAllowed = limits.maxHooks || 10;
             const remaining = maxAllowed - countRows[0].total;
             
             if (remaining <= 0) {
-                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} ganchos para este proyecto.` });
+                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} ganchos de tu plan.` });
             }
             maxToLoad = Math.min(10, remaining);
         }
@@ -227,23 +224,20 @@ router.put('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     const { projectId, title, psychologicalStrategy, contentJson } = req.body;
     try {
-        const [projectData] = await pool.query('SELECT limits_config FROM projects WHERE id = ?', [projectId]);
-        if (projectData.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
-
-        const limits = projectData[0]?.limits_config ? (typeof projectData[0].limits_config === 'string' ? JSON.parse(projectData[0].limits_config) : projectData[0].limits_config) : DEFAULT_LIMITS;
-        
-        const [userData] = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
+        const [userData] = await pool.query('SELECT plan_limits, role FROM users WHERE id = ?', [req.user.id]);
+        const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
         
         if (userData[0]?.role !== 'admin' && limits) {
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
-                FROM project_hooks
-                WHERE project_id = ?
-            `, [projectId]);
+                FROM project_hooks h
+                JOIN projects p ON h.project_id = p.id
+                WHERE p.user_id = ?
+            `, [req.user.id]);
             
             const maxAllowed = limits.maxHooks || 10;
             if (countRows[0].total >= maxAllowed) {
-                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} ganchos para este proyecto.` });
+                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} ganchos de tu plan.` });
             }
         }
 
