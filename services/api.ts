@@ -1721,6 +1721,15 @@ export const api = {
     },
     /* Fin de actualización */
 
+    adminUpdateProject: async (id: string, data: { limits_config: any, is_active: boolean }): Promise<void> => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback(`/admin/projects/${id}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(data)
+        });
+    },
+
     getLastGeneratedTitles: () => apiCache.lastGeneratedTitles,
     setLastGeneratedTitles: (titles: any[]) => { apiCache.lastGeneratedTitles = titles; },
 
