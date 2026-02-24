@@ -54,7 +54,11 @@ router.get('/master-library', async (req, res) => {
             affiliate_links: safeParseJson(p.affiliate_links),
             strategy_json: safeParseJson(p.strategy_json),
             isMaster: !!p.is_master,
-            isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked
+            isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked,
+            isActive: !!p.is_active,
+            limitsConfig: safeParseJson(p.limits_config),
+            paymentProvider: p.payment_provider,
+            externalId: p.external_id
         }));
         res.json(projects);
     } catch (error) {
@@ -90,8 +94,8 @@ router.post('/unlock/:id', async (req, res) => {
         // 3. Crear un nuevo proyecto independiente para el usuario (copia física del ADN base)
         // Se asegura que master_parent_id quede registrado para habilitar la visualización de ganchos del padre
         const [result] = await pool.query(
-            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, is_master, master_parent_id, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, NOW(), NOW())`,
+            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, is_master, master_parent_id, is_active, limits_config, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, 1, ?, NOW(), NOW())`,
             [
                 req.user.id, 
                 master.name, 
@@ -109,7 +113,8 @@ router.post('/unlock/:id', async (req, res) => {
                 leadMagnetType || master.lead_magnet_type, 
                 leadMagnetUrl || '',
                 master.sales_page_url, 
-                master.id
+                master.id,
+                JSON.stringify(limits)
             ]
         );
         const newProjectId = result.insertId;
@@ -218,7 +223,11 @@ router.get('/', async (req, res) => {
         strategy_json: safeParseJson(p.strategy_json),
         isMaster: !!p.is_master,
         isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked,
-        masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined
+        masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined,
+        isActive: !!p.is_active,
+        limitsConfig: safeParseJson(p.limits_config),
+        paymentProvider: p.payment_provider,
+        externalId: p.external_id
     }));
     res.json(projects);
   } catch (error) { res.status(500).json({ error: 'Error cargando proyectos' }); }
@@ -239,6 +248,10 @@ router.get('/:id', async (req, res) => {
     project.strategy_json = safeParseJson(project.strategy_json);
     project.isMaster = !!project.is_master;
     project.masterParentId = project.master_parent_id ? String(project.master_parent_id) : undefined;
+    project.isActive = !!project.is_active;
+    project.limitsConfig = safeParseJson(project.limits_config);
+    project.paymentProvider = project.payment_provider;
+    project.externalId = project.external_id;
     res.json(project);
   } catch (error) { res.status(500).json({ error: error.message }); }
 });
@@ -253,9 +266,9 @@ router.post('/', async (req, res) => {
 
     const isMasterFinal = (req.user.role === 'admin' && isMaster === true) ? 1 : 0;
     const [result] = await pool.query(
-      `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, full_price, commission_rate, lead_magnet_type, sales_page_url, is_master, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-      [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', salesPageUrl || '', isMasterFinal]
+      `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, full_price, commission_rate, lead_magnet_type, sales_page_url, is_master, is_active, limits_config, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, NOW(), NOW())`,
+      [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', salesPageUrl || '', isMasterFinal, JSON.stringify(limits)]
     );
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
     res.json({ id: result.insertId });
