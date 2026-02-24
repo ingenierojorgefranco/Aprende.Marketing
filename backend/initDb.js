@@ -347,6 +347,10 @@ const initDb = async () => {
                     affiliate_links LONGTEXT,
                     strategy_json LONGTEXT,
                     project_strategy_json LONGTEXT,
+                    is_active BOOLEAN DEFAULT TRUE,
+                    limits_config JSON NULL,
+                    payment_provider VARCHAR(50) NULL,
+                    external_id VARCHAR(255) NULL,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -434,6 +438,10 @@ const initDb = async () => {
         await addColumnSafe(connection, 'projects', "lead_magnet_type VARCHAR(100)");
         await addColumnSafe(connection, 'projects', "sales_page_url VARCHAR(500)");
         await addColumnSafe(connection, 'projects', "lead_magnet_url VARCHAR(500)");
+        await addColumnSafe(connection, 'projects', "is_active BOOLEAN DEFAULT TRUE");
+        await addColumnSafe(connection, 'projects', "limits_config JSON NULL");
+        await addColumnSafe(connection, 'projects', "payment_provider VARCHAR(50) NULL");
+        await addColumnSafe(connection, 'projects', "external_id VARCHAR(255) NULL");
         ////////// Actualización: Columna para marcar proyectos maestros - 05/03/2025 10:00 //////////
         await addColumnSafe(connection, 'projects', "is_master BOOLEAN DEFAULT FALSE");
         ////////// Fin de actualización - 05/03/2025 10:00 //////////
