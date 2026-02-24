@@ -74,18 +74,14 @@ router.post('/launches', authMiddleware, async (req, res) => {
             return res.json({ id: existing[0].id });
         }
 
-        const [projectData] = await pool.query('SELECT limits_config FROM projects WHERE id = ?', [projectId]);
-        if (projectData.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
-        
-        const limits = projectData[0]?.limits_config ? (typeof projectData[0].limits_config === 'string' ? JSON.parse(projectData[0].limits_config) : projectData[0].limits_config) : DEFAULT_LIMITS;
-        
-        const [userData] = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
+        const [userData] = await pool.query('SELECT plan_limits, role FROM users WHERE id = ?', [req.user.id]);
+        const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : null;
         
         if (userData[0]?.role !== 'admin' && limits) {
-            const [countRows] = await pool.query('SELECT COUNT(*) as total FROM whatsapp_lanzamientos WHERE project_id = ?', [projectId]);
+            const [countRows] = await pool.query('SELECT COUNT(*) as total FROM whatsapp_lanzamientos WHERE user_id = ?', [req.user.id]);
             const maxAllowed = limits.maxWhatsAppLaunches || 1;
             if (countRows[0].total >= maxAllowed) {
-                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} lanzamientos para este proyecto.` });
+                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} lanzamientos de tu plan.` });
             }
         }
 
