@@ -433,12 +433,12 @@ export const ProjectsList: React.FC = () => {
                                                 <Zap className="w-4 h-4 fill-current" /> Ver Estrategia de Proyecto
                                             </button>
 
-                                            {project.planSlug !== 'plan-max-10' && (
+                                            {project.planSlug === 'starter' && (
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); setUpgradeProjectId(project.id); setShowUpgradeModal(true); }}
                                                     className="w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 flex items-center justify-center gap-2"
                                                 >
-                                                    <Crown className="w-3 h-3" /> {project.planSlug === 'starter' ? 'Actualizar a PRO' : 'Siguiente Nivel'}
+                                                    <Crown className="w-3 h-3" /> Actualizar a PRO
                                                 </button>
                                             )}
 
@@ -889,10 +889,8 @@ export const ProjectsList: React.FC = () => {
             {showUpgradeModal && (
                 <UpgradeModal 
                     isOpen={showUpgradeModal} 
-                    onClose={() => { setShowUpgradeModal(false); setUpgradeProjectId(undefined); }} 
-                    currentPlan={projects.find(p => p.id === upgradeProjectId)?.planSlug || user.planLimits?.planName}
-                    projectId={upgradeProjectId}
-                    userId={user.id}
+                    onClose={() => setShowUpgradeModal(false)} 
+                    currentPlan={user.planLimits?.planName}
                     reason="Has alcanzado el límite de proyectos de tu plan. Actualiza para crear más estrategias."
                 />
             )}

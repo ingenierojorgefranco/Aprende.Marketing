@@ -1296,9 +1296,7 @@ export const api = {
             uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : p.ui_features,
             hotmartId: p.hotmart_id,
             hotmartOffer: p.hotmart_offer,
-            hotmartCheckoutMode: p.hotmart_checkout_mode,
-            isActive: p.is_active === 1 || p.is_active === true,
-            isRecommended: p.is_recommended === 1 || p.is_recommended === true
+            hotmartCheckoutMode: p.hotmart_checkout_mode
         }));
         apiCache.publicPlans = mappedPlans;
         return mappedPlans;

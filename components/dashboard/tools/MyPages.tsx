@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext, Link } from 'react-router-dom';
 import { api } from '../../../services/api';
-import { LandingPage, User, Project } from '../../../types';
+import { LandingPage, User } from '../../../types';
 import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info, Plus } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
@@ -16,14 +16,12 @@ export const MyPages: React.FC = () => {
     const navigate = useNavigate();
     const { user, pageCount, isSimulating } = useOutletContext() as DashboardContext;
     const [pages, setPages] = useState<LandingPage[]>([]);
-    const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [pageToDelete, setPageToDelete] = useState<LandingPage | null>(null);
     const [deleting, setDeleting] = useState(false);
 
     // Modals States
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-    const [upgradeProjectId, setUpgradeProjectId] = useState<string | undefined>(undefined);
     const [showVideoModal, setShowVideoModal] = useState(false);
     const [showDomainModal, setShowDomainModal] = useState(false);
     const [selectedPageForDomain, setSelectedPageForDomain] = useState<LandingPage | null>(null);
@@ -37,20 +35,16 @@ export const MyPages: React.FC = () => {
     const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
 
     useEffect(() => {
-        loadData();
+        loadPages();
     }, []);
 
-    const loadData = async () => {
+    const loadPages = async () => {
         setLoading(true);
         try {
-            const [pagesData, projectsData] = await Promise.all([
-                api.getPages(),
-                api.getProjects()
-            ]);
-            setPages(pagesData);
-            setProjects(projectsData);
+            const data = await api.getPages();
+            setPages(data);
         } catch (error) {
-            console.error("Failed to load data", error);
+            console.error("Failed to load pages", error);
         } finally {
             setLoading(false);
         }
@@ -91,16 +85,6 @@ export const MyPages: React.FC = () => {
     };
 
     const openDomainModal = (page: LandingPage) => {
-        // Verificar si el proyecto asociado permite dominios
-        const project = projects.find(p => p.id === page.projectId);
-        const planSlug = project?.planSlug || user.planLimits?.planName;
-
-        if (planSlug === 'starter' && !isRealAdmin) {
-            setUpgradeProjectId(page.projectId);
-            setShowUpgradeModal(true);
-            return;
-        }
-
         setSelectedPageForDomain(page);
         setShowDomainModal(true);
         setActiveAccordion(null);
@@ -366,16 +350,11 @@ export const MyPages: React.FC = () => {
             )}
 
             {/* MODALS */}
-            {showUpgradeModal && (
-                <UpgradeModal 
-                    isOpen={showUpgradeModal} 
-                    onClose={() => { setShowUpgradeModal(false); setUpgradeProjectId(undefined); }} 
-                    currentPlan={projects.find(p => p.id === upgradeProjectId)?.planSlug || user.planLimits?.planName}
-                    projectId={upgradeProjectId}
-                    userId={user.id}
-                    reason="El plan Starter no incluye dominios personalizados. Actualiza para profesionalizar tu marca."
-                />
-            )}
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => setShowUpgradeModal(false)} 
+                reason={`Has alcanzado el límite de ${user.planLimits?.maxLandings} páginas de tu plan ${user.planLimits?.planName}.`}
+            />
 
             {showVideoModal && (
                 <div 
