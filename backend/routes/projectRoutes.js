@@ -216,6 +216,8 @@ router.get('/', async (req, res) => {
         key_benefits: safeParseJson(p.key_benefits),
         affiliate_links: safeParseJson(p.affiliate_links),
         strategy_json: safeParseJson(p.strategy_json),
+        planId: p.plan_id ? String(p.plan_id) : undefined,
+        planSlug: p.plan_slug || undefined,
         isMaster: !!p.is_master,
         isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked,
         masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined
@@ -237,6 +239,8 @@ router.get('/:id', async (req, res) => {
     project.key_benefits = safeParseJson(project.key_benefits);
     project.affiliate_links = safeParseJson(project.affiliate_links);
     project.strategy_json = safeParseJson(project.strategy_json);
+    project.planId = project.plan_id ? String(project.plan_id) : undefined;
+    project.planSlug = project.plan_slug || undefined;
     project.isMaster = !!project.is_master;
     project.masterParentId = project.master_parent_id ? String(project.master_parent_id) : undefined;
     res.json(project);
@@ -252,10 +256,16 @@ router.post('/', async (req, res) => {
     if (countRows[0].total >= limits.maxProjects && req.user.role !== 'admin') return res.status(403).json({ error: `Límite alcanzado.` });
 
     const isMasterFinal = (req.user.role === 'admin' && isMaster === true) ? 1 : 0;
+    
+    // Obtener el plan Starter para el nuevo proyecto
+    const [starterPlan] = await pool.query("SELECT id, slug FROM plans WHERE slug = 'starter' LIMIT 1");
+    const planId = starterPlan[0]?.id || null;
+    const planSlug = starterPlan[0]?.slug || 'starter';
+
     const [result] = await pool.query(
-      `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, full_price, commission_rate, lead_magnet_type, sales_page_url, is_master, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-      [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', salesPageUrl || '', isMasterFinal]
+      `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, strategy_json, full_price, commission_rate, lead_magnet_type, sales_page_url, is_master, plan_id, plan_slug, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', salesPageUrl || '', isMasterFinal, planId, planSlug]
     );
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
     res.json({ id: result.insertId });

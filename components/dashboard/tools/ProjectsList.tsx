@@ -22,6 +22,7 @@ export const ProjectsList: React.FC = () => {
     
     // Modals State
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [upgradeProjectId, setUpgradeProjectId] = useState<string | undefined>(undefined);
     
     // --- Nuevo Estado para Protocolo de Desbloqueo ---
     const [showUnlockProtocol, setShowUnlockProtocol] = useState(false);
@@ -388,9 +389,15 @@ export const ProjectsList: React.FC = () => {
                                     
                                     <div className="p-8 flex-1 flex flex-col">
                                         <div className="flex justify-between items-start mb-6">
-                                            <div className="bg-white/5 text-white text-[0.8em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
-                                                <Calendar className="w-3 h-3" />
-                                                {new Date(project.createdAt).toLocaleDateString()}
+                                            <div className="flex flex-col gap-2">
+                                                <div className="bg-white/5 text-white text-[0.8em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
+                                                    <Calendar className="w-3 h-3" />
+                                                    {new Date(project.createdAt).toLocaleDateString()}
+                                                </div>
+                                                <div className={`text-[10px] font-black px-3 py-1 rounded-full border uppercase tracking-widest flex items-center gap-1.5 w-fit ${project.planSlug === 'starter' ? 'bg-gray-500/10 border-gray-500/20 text-gray-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
+                                                    <Zap className="w-3 h-3 fill-current" />
+                                                    Plan: {project.planSlug || 'Starter'}
+                                                </div>
                                             </div>
                                             <div className="flex gap-2">
                                                 {!isClonedFromMaster && (
@@ -425,6 +432,15 @@ export const ProjectsList: React.FC = () => {
                                             >
                                                 <Zap className="w-4 h-4 fill-current" /> Ver Estrategia de Proyecto
                                             </button>
+
+                                            {project.planSlug === 'starter' && (
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); setUpgradeProjectId(project.id); setShowUpgradeModal(true); }}
+                                                    className="w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 flex items-center justify-center gap-2"
+                                                >
+                                                    <Crown className="w-3 h-3" /> Actualizar a PRO
+                                                </button>
+                                            )}
 
                                             {isClonedFromMaster && (
                                                 <div className="flex justify-center pt-2">

@@ -125,7 +125,7 @@ router.get('/users/:userId/resources', async (req, res) => {
     try {
         let rows = [];
         if (type === 'projects') {
-            [rows] = await pool.query('SELECT id, name, niche, main_goal, created_at FROM projects WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+            [rows] = await pool.query('SELECT id, name, niche, main_goal, limits_config, is_active, created_at FROM projects WHERE user_id = ? ORDER BY created_at DESC', [userId]);
         } else if (type === 'pages') {
             [rows] = await pool.query('SELECT id, name, subdomain, is_published, visits, created_at FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC', [userId]);
         } else if (type === 'articles') {
@@ -290,7 +290,7 @@ router.put('/plans/:id', async (req, res) => {
     }
 });
 
-router.get('/plans/:id', async (req, res) => {
+router.delete('/plans/:id', async (req, res) => {
     const { id } = req.params;
     try {
         await pool.query('DELETE FROM plans WHERE id = ?', [id]);
@@ -367,6 +367,23 @@ router.delete('/news/:id', async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+
+router.put('/projects/:id', async (req, res) => {
+    const { id } = req.params;
+    const { limits_config, is_active } = req.body;
+    try {
+        await pool.query(
+            'UPDATE projects SET limits_config = ?, is_active = ?, updated_at = NOW() WHERE id = ?',
+            [JSON.stringify(limits_config), is_active ? 1 : 0, id]
+        );
+        const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
+        await logSystemActivity(req.user.id, admin[0]?.name, 'ADMIN_UPDATE_PROJECT', 'project', id, { limits_config, is_active });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 ////////// Fin de actualización - 07/06/2025 10:00 //////////
 
 export default router;

@@ -153,6 +153,8 @@ export interface User {
   email: string;
   role?: 'admin' | 'user';
   planLimits?: PlanLimits;
+  planId?: string; // NEW: Global plan ID for the user (legacy or base)
+  planSlug?: string; // NEW: Global plan slug
   maxHooks?: number; // New: Individual hook limit override
   avatarUrl?: string; // New
   birthDate?: string; // New
@@ -519,6 +521,9 @@ export interface Project {
   keyBenefits: string[]; // ["Certificado Incluido", "Acceso de por vida", "Baja inversión"]
   
   affiliateLinks: AffiliateLink[]; // Centralized links
+  
+  planId?: string; // NEW: Plan ID assigned to this specific project
+  planSlug?: string; // NEW: Plan slug assigned to this specific project
   
   strategy_json?: StrategyJSON | any; // Updated to accept both types
   

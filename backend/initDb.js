@@ -329,6 +329,9 @@ const initDb = async () => {
         ////////// Fin de actualización - 01/01/2026 //////////
 
         // Tablas existentes del sistema (Projects, Pages, etc.)
+        await addColumnSafe(connection, 'projects', "plan_id INT NULL");
+        await addColumnSafe(connection, 'projects', "plan_slug VARCHAR(50) NULL");
+
         const tables = [
             {
                 name: 'projects',
@@ -551,9 +554,9 @@ const initDb = async () => {
             console.log('[DB Init] 🌱 Insertando planes por defecto...');
             const plans = [
                 {
-                    name: 'Starter',
+                    name: 'Plan 1 (Starter)',
                     slug: 'starter',
-                    description: 'Ideal para empezar sin riesgo.',
+                    description: 'Plan base para todos los proyectos.',
                     price: 0,
                     stripeId: '',
                     limits: JSON.stringify({
@@ -561,7 +564,7 @@ const initDb = async () => {
                         maxProjects: 1,
                         maxLandings: 2, 
                         maxArticles: 2, 
-                        maxDomains: 1, 
+                        maxDomains: 0, 
                         maxEmailSequences: 1,
                         maxWhatsAppLaunches: 1,
                         maxHooks: 10,
@@ -574,18 +577,22 @@ const initDb = async () => {
                             evergreenStrategy: false
                         }
                     }),
-                    features: JSON.stringify(['1 Proyecto / Mes', '2 Landing Pages / Mes', '2 Artículos / Mes', 'IA Básica', 'Marca de Agua']),
+                    features: JSON.stringify(['1 Proyecto Activo', 'Contenidos Limitados', 'Sin Dominio Propio', 'Marca de Agua']),
                     is_rec: false
-                },
-                {
-                    name: 'Pro',
-                    slug: 'pro',
-                    description: 'Para Productores y Afiliados serios.',
+                }
+            ];
+
+            // Añadir planes del 2 al 10
+            for (let i = 2; i <= 10; i++) {
+                plans.push({
+                    name: `Plan ${i} (Proyecto ${i})`,
+                    slug: `plan-${i}`,
+                    description: `Desbloquea el proyecto ${i} con todas las funciones profesionales.`,
                     price: 19.99,
-                    stripeId: 'price_1SdFBGRJVKdziYWKjz1MXdy1', 
+                    stripeId: '', 
                     limits: JSON.stringify({
-                        planName: 'pro',
-                        maxProjects: 5,
+                        planName: `plan-${i}`,
+                        maxProjects: 1,
                         maxLandings: 20,
                         maxArticles: 20,
                         maxDomains: 3, 
@@ -597,41 +604,14 @@ const initDb = async () => {
                             blogGenerator: true, 
                             emailMarketing: true, 
                             removeBranding: true,
-                            emailStrategy: true, // Only 7-day enabled
-                            evergreenStrategy: false
-                        }
-                    }),
-                    features: JSON.stringify(['5 Proyectos / Mes', '20 Landings / Mes', '20 Artículos / Mes', 'Bot WhatsApp', 'IA Avanzada', 'Sin Marca de Agua', 'Estrategia Email (7 Días)']),
-                    is_rec: true
-                },
-                {
-                    name: 'Max',
-                    slug: 'max',
-                    description: 'Agencias y Escala masiva.',
-                    price: 49.99,
-                    stripeId: 'price_1SdGwIRJVKdziYWKRDtjacOl', 
-                    limits: JSON.stringify({
-                        planName: 'max',
-                        maxProjects: 100,
-                        maxLandings: 500,
-                        maxArticles: 500,
-                        maxDomains: 10, 
-                        maxEmailSequences: 50,
-                        maxWhatsAppLaunches: 50,
-                        maxHooks: 500,
-                        features: { 
-                            whatsappBot: true, 
-                            blogGenerator: true, 
-                            emailMarketing: true, 
-                            removeBranding: true,
                             emailStrategy: true,
-                            evergreenStrategy: true // Both enabled
+                            evergreenStrategy: true
                         }
                     }),
-                    features: JSON.stringify(['Ilimitado', 'Soporte Prioritario', 'API Access', 'Todo Incluido', 'Estrategia Email completa (30 Días)']),
-                    is_rec: false
-                }
-            ];
+                    features: JSON.stringify([`Proyecto ${i} Desbloqueado`, 'Dominios Personalizados', 'Sin Marca de Agua', 'IA Avanzada']),
+                    is_rec: i === 2
+                });
+            }
 
             for (const p of plans) {
                 await connection.query(

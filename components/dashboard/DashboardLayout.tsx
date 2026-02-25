@@ -172,7 +172,18 @@ export const DashboardLayout = ({
       if (!simulatedPlanSlug || user.role !== 'admin') return user;
       const plan = availablePlans.find(p => p.slug === simulatedPlanSlug);
       if (!plan) return user;
-      return { ...user, planLimits: plan.limitsConfig };
+      
+      // Aseguramos que los límites tengan el nombre del plan simulado
+      const limitsWithPlanName = { 
+          ...plan.limitsConfig, 
+          planName: plan.slug 
+      };
+      
+      return { 
+          ...user, 
+          role: 'user' as const, // Forzamos rol de usuario para simular la experiencia real
+          planLimits: limitsWithPlanName 
+      };
   }, [user, simulatedPlanSlug, availablePlans]);
 
   const menuStructure: MenuItem[] = useMemo(() => {
@@ -392,7 +403,7 @@ export const DashboardLayout = ({
                         pageCount, 
                         articleCount, 
                         hookCount,
-                        isSimulating: !!simulatedPlanSlug && user.role === 'admin',
+                        isSimulating: !!simulatedPlanSlug,
                         setShowProfileModal 
                     }} />
                 )}

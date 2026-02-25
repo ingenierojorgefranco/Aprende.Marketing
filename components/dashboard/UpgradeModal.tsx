@@ -8,12 +8,13 @@ interface UpgradeModalProps {
   onClose?: () => void;
   currentPlan?: string;
   reason?: string;
-  ////////// Se añade userId opcional a las props para tracking SRC - 25/05/2025 11:30 //////////
+  ////////// Se añade userId y projectId opcional a las props para tracking SRC - 25/05/2025 11:30 //////////
   userId?: string;
+  projectId?: string;
   ////////// Fin de actualización - 25/05/2025 11:30 //////////
 }
 
-export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, currentPlan, reason, userId }) => {
+export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, currentPlan, reason, userId, projectId }) => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   ////////// Estado para el método de pago activo del sistema - 24/05/2025 10:30 //////////
@@ -26,8 +27,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
 
   const planPitchMap: Record<string, string> = {
       'starter': "Perfecto para validar tu nicho sin costes fijos.",
-      'pro': "La suite completa para afiliados que buscan profesionalismo con dominios propios.",
-      'max': "Potencia ilimitada para escalar múltiples productos simultáneamente sin barreras."
+      'plan-2': "Desbloquea tu segundo proyecto con dominios propios y potencia profesional.",
+      'plan-3': "Escala a un tercer proyecto independiente con todas las funciones activas.",
+      'default': "Potencia ilimitada para escalar tus proyectos simultáneamente sin barreras."
   };
   // ////////// Fin de actualización - 01/06/2025 10:00 //////////
 
@@ -61,13 +63,15 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
       try {
           ////////// Lógica de redirección dinámica según el método configurado - 24/05/2025 10:30 //////////
           if (activePaymentMethod === 'hotmart') {
-              if (plan.hotmartId) {
+              if (plan.hotmartId || plan.slug !== 'starter') {
                   ////////// Obtención robusta del userId para el tracking SRC - 25/05/2025 11:30 //////////
                   // Priorizamos la prop userId, si no existe buscamos en localStorage (formato compatible con auth.ts)
                   const finalUserId = userId || localStorage.getItem('plataformadeventacom_user_id') || '0';
                   
                   ////////// Nueva lógica para construcción de URL de Hotmart con Oferta y CheckoutMode - 25/05/2025 18:45 //////////
-                  const baseUrl = `https://pay.hotmart.com/${plan.hotmartId}`;
+                  // Si no hay hotmartId configurado en el plan, usamos uno por defecto para la demo
+                  const hotmartProductId = plan.hotmartId || '2983743';
+                  const baseUrl = `https://pay.hotmart.com/${hotmartProductId}`;
                   const params = new URLSearchParams();
                   
                   // Si el plan tiene un código de oferta configurado, lo añadimos como 'off'
@@ -76,14 +80,15 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                   }
                   
                   // Si el plan tiene un modo de checkout personalizado, lo usamos. 
-                  // Si no, podemos dejar el valor por defecto que Hotmart prefiera o un estándar como '10'
                   if (plan.hotmartCheckoutMode) {
                       params.set('checkoutMode', plan.hotmartCheckoutMode);
                   } else {
                       params.set('checkoutMode', '10');
                   }
                   
-                  params.set('src', finalUserId);
+                  // El parámetro SRC ahora incluye userId y projectId para identificar qué proyecto actualizar
+                  const srcValue = projectId ? `${finalUserId}-${projectId}` : finalUserId;
+                  params.set('src', srcValue);
                   
                   const hotmartUrl = `${baseUrl}?${params.toString()}`;
                   ////////// Fin de actualización - 25/05/2025 18:45 //////////
@@ -280,10 +285,10 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
 
                                                 <div className="p-8 rounded-2xl bg-black/40 border border-white/5">
                                                     <p className="text-gray-300 text-lg leading-relaxed font-medium">
-                                                        {selectedPlanData.slug === 'starter' && "Inicia tu camino hoy mismo validando tus ofertas con la potencia de la IA sin riesgos innecesarios."}
-                                                        {selectedPlanData.slug === 'pro' && "Lleva tu negocio al estándar profesional con dominios propios, mayor capacidad de landing pages y todas las herramientas de conversión activadas."}
-                                                        {selectedPlanData.slug === 'max' && "Diseñado para agencias y productores de alto impacto. Control total, activos ilimitados y la máxima prioridad en nuestros servidores de generación."}
-                                                    </p>
+                                                    {selectedPlanData.slug === 'starter' && "Inicia tu camino hoy mismo validando tus ofertas con la potencia de la IA sin riesgos innecesarios."}
+                                                    {selectedPlanData.slug.startsWith('plan-') && `Lleva tu proyecto ${selectedPlanData.slug.split('-')[1]} al estándar profesional con dominios propios, mayor capacidad de landing pages y todas las herramientas de conversión activadas.`}
+                                                    {!selectedPlanData.slug.startsWith('plan-') && selectedPlanData.slug !== 'starter' && "Diseñado para agencias y productores de alto impacto. Control total, activos ilimitados y la máxima prioridad en nuestros servidores de generación."}
+                                                </p>
                                                 </div>
                                             </div>
 

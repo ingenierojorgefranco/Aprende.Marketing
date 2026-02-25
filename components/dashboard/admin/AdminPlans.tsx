@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { Plan, PlanLimits } from '../../../types';
+import { Plan, PlanLimits, User, Project } from '../../../types';
 import { api } from '../../../services/api';
 /* Added LayoutTemplate to fix the 'Cannot find name LayoutTemplate' error - 25/05/2025 18:45 */
-import { Loader2, Plus, Edit, Trash2, CheckCircle, XCircle, Save, X, Star, CreditCard, Tag, Sparkles, LayoutTemplate } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, CheckCircle, XCircle, Save, X, Star, CreditCard, Tag, Sparkles, LayoutTemplate, User as UserIcon, Search, Power, DollarSign } from 'lucide-react';
 
 const DEFAULT_LIMITS: PlanLimits = {
     planName: 'custom',
@@ -30,9 +30,78 @@ export const AdminPlans: React.FC = () => {
     const [editingPlan, setEditingPlan] = useState<Partial<Plan> | null>(null);
     const [activeTab, setActiveTab] = useState<'general' | 'limits' | 'features'>('general');
 
+    // --- Gestión de Proyectos de Usuarios ---
+    const [users, setUsers] = useState<User[]>([]);
+    const [selectedUserId, setSelectedUserId] = useState<string>('');
+    const [userProjects, setUserProjects] = useState<Project[]>([]);
+    const [loadingProjects, setLoadingProjects] = useState(false);
+    const [showPaymentsModal, setShowPaymentsModal] = useState<{ isOpen: boolean, userId: string, userName: string }>({ isOpen: false, userId: '', userName: '' });
+    const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+    const [loadingPayments, setLoadingPayments] = useState(false);
+
     useEffect(() => {
         loadPlans();
+        loadUsers();
     }, []);
+
+    const loadUsers = async () => {
+        try {
+            const data = await api.getUsers();
+            setUsers(data);
+        } catch (error) {
+            console.error("Error cargando usuarios", error);
+        }
+    };
+
+    const loadUserProjects = async (userId: string) => {
+        if (!userId) {
+            setUserProjects([]);
+            return;
+        }
+        setLoadingProjects(true);
+        try {
+            const projects = await api.getAdminUserResources(userId, 'projects');
+            // Ensure limitsConfig is parsed if it's a string and has defaults
+            const processedProjects = projects.map((p: any) => ({
+                ...p,
+                limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : (p.limits_config || { ...DEFAULT_LIMITS }),
+                isActive: !!p.is_active
+            }));
+            setUserProjects(processedProjects);
+        } catch (error) {
+            console.error("Error cargando proyectos del usuario", error);
+        } finally {
+            setLoadingProjects(false);
+        }
+    };
+
+    const handleUserChange = (userId: string) => {
+        setSelectedUserId(userId);
+        loadUserProjects(userId);
+    };
+
+    const handleUpdateProjectLimits = async (projectId: string, limits: PlanLimits, isActive: boolean) => {
+        try {
+            await (api as any).adminUpdateProject(projectId, { limits_config: limits, is_active: isActive });
+            alert("Proyecto actualizado correctamente");
+            loadUserProjects(selectedUserId);
+        } catch (error) {
+            alert("Error actualizando proyecto");
+        }
+    };
+
+    const handleViewPayments = async (userId: string, userName: string) => {
+        setShowPaymentsModal({ isOpen: true, userId, userName });
+        setLoadingPayments(true);
+        try {
+            const payments = await api.getUserPayments(userId);
+            setPaymentHistory(payments);
+        } catch (error) {
+            console.error("Error cargando pagos", error);
+        } finally {
+            setLoadingPayments(false);
+        }
+    };
 
     const loadPlans = async () => {
         setLoading(true);
@@ -526,6 +595,163 @@ export const AdminPlans: React.FC = () => {
                             <button onClick={handleSave} className="px-6 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg font-bold flex items-center gap-2">
                                 <Save className="w-4 h-4" /> Guardar Plan
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* SECCIÓN: GESTIÓN DE PROYECTOS DE USUARIOS */}
+            <div className="pt-10 border-t border-gray-800">
+                <div className="flex items-center gap-3 mb-6">
+                    <UserIcon className="w-6 h-6 text-primary" />
+                    <h2 className="text-2xl font-bold text-white">Gestión de Proyectos de Usuarios</h2>
+                </div>
+
+                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-8">
+                    <label className="block text-sm font-bold text-gray-400 uppercase mb-3 flex items-center gap-2">
+                        <Search className="w-4 h-4" /> Seleccionar Usuario
+                    </label>
+                    <select 
+                        value={selectedUserId}
+                        onChange={(e) => handleUserChange(e.target.value)}
+                        className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-primary outline-none transition"
+                    >
+                        <option value="">Seleccionar un usuario...</option>
+                        {users.map(u => (
+                            <option key={u.id} value={u.id}>
+                                [{u.id}] {u.name} - {u.email}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {loadingProjects ? (
+                    <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+                ) : selectedUserId && userProjects.length > 0 ? (
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {userProjects.map(project => (
+                            <div key={project.id} className="bg-gray-900 border border-gray-800 rounded-2xl p-6 space-y-6">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white">{project.name}</h3>
+                                        <p className="text-sm text-gray-500">{project.niche}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            onClick={() => handleUpdateProjectLimits(project.id, project.limitsConfig!, !project.isActive)}
+                                            className={`p-2 rounded-lg transition ${project.isActive ? 'bg-green-900/20 text-green-400' : 'bg-red-900/20 text-red-400'}`}
+                                            title={project.isActive ? 'Desactivar Proyecto' : 'Activar Proyecto'}
+                                        >
+                                            <Power className="w-5 h-5" />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleViewPayments(selectedUserId, users.find(u => u.id === selectedUserId)?.name || '')}
+                                            className="p-2 bg-blue-900/20 text-blue-400 rounded-lg hover:bg-blue-900/40 transition"
+                                            title="Ver Pagos del Usuario"
+                                        >
+                                            <DollarSign className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Landings</label>
+                                        <input 
+                                            type="number" 
+                                            value={project.limitsConfig?.maxLandings || 0}
+                                            onChange={(e) => {
+                                                const newLimits = { ...project.limitsConfig!, maxLandings: parseInt(e.target.value) };
+                                                setUserProjects(prev => prev.map(p => p.id === project.id ? { ...p, limitsConfig: newLimits } : p));
+                                            }}
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-1.5 text-white text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Artículos</label>
+                                        <input 
+                                            type="number" 
+                                            value={project.limitsConfig?.maxArticles || 0}
+                                            onChange={(e) => {
+                                                const newLimits = { ...project.limitsConfig!, maxArticles: parseInt(e.target.value) };
+                                                setUserProjects(prev => prev.map(p => p.id === project.id ? { ...p, limitsConfig: newLimits } : p));
+                                            }}
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-1.5 text-white text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Emails</label>
+                                        <input 
+                                            type="number" 
+                                            value={project.limitsConfig?.maxEmailSequences || 0}
+                                            onChange={(e) => {
+                                                const newLimits = { ...project.limitsConfig!, maxEmailSequences: parseInt(e.target.value) };
+                                                setUserProjects(prev => prev.map(p => p.id === project.id ? { ...p, limitsConfig: newLimits } : p));
+                                            }}
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-1.5 text-white text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">WhatsApp</label>
+                                        <input 
+                                            type="number" 
+                                            value={project.limitsConfig?.maxWhatsAppLaunches || 0}
+                                            onChange={(e) => {
+                                                const newLimits = { ...project.limitsConfig!, maxWhatsAppLaunches: parseInt(e.target.value) };
+                                                setUserProjects(prev => prev.map(p => p.id === project.id ? { ...p, limitsConfig: newLimits } : p));
+                                            }}
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-1.5 text-white text-sm"
+                                        />
+                                    </div>
+                                </div>
+
+                                <button 
+                                    onClick={() => handleUpdateProjectLimits(project.id, project.limitsConfig!, !!project.isActive)}
+                                    className="w-full py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition"
+                                >
+                                    <Save className="w-4 h-4" /> Guardar Cambios del Proyecto
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                ) : selectedUserId ? (
+                    <div className="text-center p-10 bg-gray-900/50 border border-dashed border-gray-800 rounded-2xl">
+                        <p className="text-gray-500">Este usuario no tiene proyectos creados.</p>
+                    </div>
+                ) : null}
+            </div>
+
+            {/* Payments Modal */}
+            {showPaymentsModal.isOpen && (
+                <div className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+                        <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-850">
+                            <h3 className="text-xl font-bold text-white">Historial de Pagos: {showPaymentsModal.userName}</h3>
+                            <button onClick={() => setShowPaymentsModal({ ...showPaymentsModal, isOpen: false })} className="text-gray-500 hover:text-white"><X className="w-6 h-6" /></button>
+                        </div>
+                        <div className="p-6 overflow-y-auto flex-1">
+                            {loadingPayments ? (
+                                <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+                            ) : paymentHistory.length > 0 ? (
+                                <div className="space-y-3">
+                                    {paymentHistory.map((p, i) => (
+                                        <div key={i} className="bg-black/40 border border-gray-800 p-4 rounded-xl flex justify-between items-center">
+                                            <div>
+                                                <p className="text-white font-bold">{p.amount} {p.currency}</p>
+                                                <p className="text-[10px] text-gray-500">{new Date(p.created_at).toLocaleString()}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.status === 'succeeded' ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'}`}>
+                                                    {p.status}
+                                                </span>
+                                                <p className="text-[10px] text-gray-500 mt-1">{p.payment_method}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-center text-gray-500 py-10">No se encontraron pagos para este usuario.</p>
+                            )}
                         </div>
                     </div>
                 </div>

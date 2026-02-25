@@ -1233,52 +1233,59 @@ export const api = {
   
     getPublicPlans: async (): Promise<Plan[]> => {
         if (isMockMode) {
-            return Promise.resolve([
+            const mockPlans: Plan[] = [
                 { 
                   id: 'starter', 
-                  name: 'Starter', 
+                  name: 'Plan 1 (Starter)', 
                   slug: 'starter', 
-                  description: '...', 
+                  description: 'Plan base para todos los proyectos.', 
                   priceMonthly: 0, 
                   currency: 'EUR', 
                   limitsConfig: { 
                     planName: 'starter', 
                     maxProjects: 1, 
-                    maxLandings: 3, 
+                    maxLandings: 2, 
                     maxArticles: 2, 
-                    maxDomains: 1, 
+                    maxDomains: 0, 
                     maxEmailSequences: 1,
                     maxWhatsAppLaunches: 1, 
                     maxHooks: 10,
                     features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } 
                   }, 
-                  uiFeatures: ['...'], 
+                  uiFeatures: ['1 Proyecto Activo', 'Contenidos Limitados', 'Sin Dominio Propio', 'Marca de Agua'], 
                   isActive: true, 
                   isRecommended: false 
-                },
-                { 
-                  id: 'pro', 
-                  name: 'Pro', 
-                  slug: 'pro', 
-                  description: '...', 
-                  priceMonthly: 19.99, 
-                  currency: 'EUR', 
-                  limitsConfig: { 
-                    planName: 'pro', 
-                    maxProjects: 5, 
-                    maxLandings: 20, 
-                    maxArticles: 20, 
-                    maxDomains: 3, 
-                    maxEmailSequences: 5,
-                    maxWhatsAppLaunches: 5, 
-                    maxHooks: 50,
-                    features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: false } 
-                  }, 
-                  uiFeatures: ['...'], 
-                  isActive: true, 
-                  isRecommended: true 
                 }
-            ]);
+            ];
+
+            for (let i = 2; i <= 10; i++) {
+                mockPlans.push({
+                    id: `plan-${i}`,
+                    name: `Plan ${i} (Proyecto ${i})`,
+                    slug: `plan-${i}`,
+                    description: `Desbloquea el proyecto ${i} con todas las funciones profesionales.`,
+                    priceMonthly: 19.99,
+                    currency: 'EUR',
+                    hotmartId: '2983743',
+                    hotmartOffer: `OFF_PLAN_${i}`,
+                    hotmartCheckoutMode: 'standard',
+                    limitsConfig: {
+                        planName: `plan-${i}`,
+                        maxProjects: 1,
+                        maxLandings: 20,
+                        maxArticles: 20,
+                        maxDomains: 3,
+                        maxEmailSequences: 5,
+                        maxWhatsAppLaunches: 5,
+                        maxHooks: 50,
+                        features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: true }
+                    },
+                    uiFeatures: [`Proyecto ${i} Desbloqueado`, 'Dominios Personalizados', 'Sin Marca de Agua', 'IA Avanzada'],
+                    isActive: true,
+                    isRecommended: i === 2
+                });
+            }
+            return Promise.resolve(mockPlans);
         }
         if (apiCache.publicPlans) return apiCache.publicPlans;
         const plans = await fetchWithFallback('/public/plans');

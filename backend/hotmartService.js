@@ -19,8 +19,20 @@ export const handleWebhook = async (payload) => {
     
     ////////// Lógica reforzada para detección de userId - 25/05/2025 11:30 //////////
     // Intentamos obtener el ID del usuario desde el parámetro 'src' que enviamos en el link
-    // Hotmart puede enviarlo en data.purchase.src o a veces en parámetros de tracking personalizados
-    let userId = data.purchase?.src || data.affiliate?.src || null;
+    // El formato esperado ahora es "userId-projectId" o simplemente "userId"
+    let rawSrc = data.purchase?.src || data.affiliate?.src || null;
+    let userId = null;
+    let projectId = null;
+
+    if (rawSrc) {
+        if (rawSrc.includes('-')) {
+            const parts = rawSrc.split('-');
+            userId = parts[0];
+            projectId = parts[1];
+        } else {
+            userId = rawSrc;
+        }
+    }
 
     if (!userId && userEmail) {
         // Fallback 1: Buscar usuario por email si no viene el SRC o es inválido
@@ -52,7 +64,7 @@ export const handleWebhook = async (payload) => {
             ? JSON.parse(plan.limits_config) 
             : plan.limits_config;
 
-        // 2. Actualizar usuario
+        // 2. Actualizar usuario (Lógica Global - Opcional si queremos mantener límites globales)
         await pool.query(
             `UPDATE users SET 
                 subscription_status = 'active',
@@ -61,7 +73,16 @@ export const handleWebhook = async (payload) => {
             [JSON.stringify(limitsConfig), userId]
         );
 
-        // 3. Log System Activity
+        // 3. Actualizar Proyecto Específico si se proporcionó projectId
+        if (projectId) {
+            console.log(`[Hotmart Webhook] Actualizando Proyecto ${projectId} con Plan ${plan.slug}`);
+            await pool.query(
+                `UPDATE projects SET plan_id = ?, plan_slug = ? WHERE id = ? AND user_id = ?`,
+                [plan.id, plan.slug, projectId, userId]
+            );
+        }
+
+        // 4. Log System Activity
         try {
             const [userRows] = await pool.query("SELECT name FROM users WHERE id = ?", [userId]);
             const userName = userRows[0]?.name || 'Usuario Hotmart';
