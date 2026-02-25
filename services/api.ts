@@ -1291,7 +1291,7 @@ export const api = {
         const plans = await fetchWithFallback('/public/plans');
         const mappedPlans = (plans || []).map((p: any) => ({
             ...p,
-            priceMonthly: Number(p.price_monthly),
+            priceMonthly: p.price_monthly,
             limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
             uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : p.ui_features,
             hotmartId: p.hotmart_id,

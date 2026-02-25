@@ -265,7 +265,7 @@ export const ProjectWizard: React.FC = () => {
         if (!name || !productName) return alert('Por favor completa el nombre del proyecto y del producto.');
         setLoading(true);
         
-        const projectData: any = {
+        const projectData = {
             name,
             productName,
             description,
@@ -284,10 +284,6 @@ export const ProjectWizard: React.FC = () => {
             isMaster: (user.role === 'admin' && !isSimulating) ? isMaster : false,
             strategy_json: id ? originalStrategyJson : undefined
         };
-
-        if (!id) {
-            projectData.planSlug = 'starter';
-        }
 
         try {
             if (id) {

@@ -47,8 +47,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
               setActivePaymentMethod(method as any);
               
               // ////////// Selección inteligente del siguiente plan en la secuencia - 25/02/2026 //////////
-              const effectiveCurrentPlan = (currentPlan && currentPlan !== "") ? currentPlan : 'starter';
-              const currentIndex = planOrder.indexOf(effectiveCurrentPlan);
+              const currentIndex = planOrder.indexOf(currentPlan || 'starter');
               const nextSlug = currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
               if (nextSlug) setSelectedPlanSlug(nextSlug);
               else if (plansData.length > 0) setSelectedPlanSlug(plansData[0].slug);
@@ -67,13 +66,14 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
       try {
           ////////// Lógica de redirección dinámica según el método configurado - 24/05/2025 10:30 //////////
           if (activePaymentMethod === 'hotmart') {
-              if (plan.hotmartId) {
+              if (plan.hotmartId || plan.slug !== 'starter') {
                   ////////// Obtención robusta del userId para el tracking SRC - 25/05/2025 11:30 //////////
                   // Priorizamos la prop userId, si no existe buscamos en localStorage (formato compatible con auth.ts)
                   const finalUserId = userId || localStorage.getItem('plataformadeventacom_user_id') || '0';
                   
                   ////////// Nueva lógica para construcción de URL de Hotmart con Oferta y CheckoutMode - 25/05/2025 18:45 //////////
-                  const hotmartProductId = plan.hotmartId;
+                  // Si no hay hotmartId configurado en el plan, usamos uno por defecto para la demo
+                  const hotmartProductId = plan.hotmartId || '2983743';
                   const baseUrl = `https://pay.hotmart.com/${hotmartProductId}`;
                   const params = new URLSearchParams();
                   
@@ -85,6 +85,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                   // Si el plan tiene un modo de checkout personalizado, lo usamos. 
                   if (plan.hotmartCheckoutMode) {
                       params.set('checkoutMode', plan.hotmartCheckoutMode);
+                  } else {
+                      params.set('checkoutMode', '10');
                   }
                   
                   // El parámetro SRC ahora incluye userId y projectId para identificar qué proyecto actualizar
@@ -199,15 +201,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto w-full">
                                 {plans
                                   .filter(p => {
-                                      const effectiveCurrentPlan = (currentPlan && currentPlan !== "") ? currentPlan : 'starter';
-                                      const currentIndex = planOrder.indexOf(effectiveCurrentPlan);
+                                      const currentIndex = planOrder.indexOf(currentPlan || 'starter');
                                       const nextSlug = currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
-                                      return p.slug === effectiveCurrentPlan || p.slug === nextSlug;
+                                      return p.slug === (currentPlan || 'starter') || p.slug === nextSlug;
                                   })
                                   .sort((a, b) => planOrder.indexOf(a.slug) - planOrder.indexOf(b.slug))
                                   .map((plan) => {
-                                    const effectiveCurrentPlan = (currentPlan && currentPlan !== "") ? currentPlan : 'starter';
-                                    const isCurrent = effectiveCurrentPlan === plan.slug;
+                                    const isCurrent = currentPlan === plan.slug || (!currentPlan && plan.slug === 'starter');
                                     const isSelected = selectedPlanSlug === plan.slug;
 
                                     const cardClasses = `
@@ -243,7 +243,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                                 <h3 className={`font-black text-xl mb-1 ${isCurrent ? 'text-emerald-400' : 'text-[#FF5A1F]'}`}>{plan.name}</h3>
                                                 <div className="flex items-baseline justify-center gap-1">
                                                     <span className="text-4xl font-black text-white tracking-tighter">
-                                                        {Number(plan.priceMonthly) === 0 ? '$0' : `$${plan.priceMonthly}`}
+                                                        {plan.priceMonthly === 0 ? '$0' : `$${plan.priceMonthly}`}
                                                     </span>
                                                     <span className="text-sm text-gray-500 font-bold uppercase">/mes</span>
                                                 </div>
