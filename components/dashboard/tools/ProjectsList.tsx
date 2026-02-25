@@ -179,7 +179,10 @@ export const ProjectsList: React.FC = () => {
 
         try {
             // Enviamos los datos del formulario al backend para que el nuevo proyecto nazca vinculado
-            const res = await api.unlockProject(selectedMasterProject.id, unlockForm);
+            const res = await api.unlockProject(selectedMasterProject.id, {
+                ...unlockForm,
+                planSlug: 'starter'
+            });
             
             clearInterval(progressInterval);
             clearInterval(timerInterval);

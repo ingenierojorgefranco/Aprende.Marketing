@@ -87,11 +87,16 @@ router.post('/unlock/:id', async (req, res) => {
             return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxProjects} proyectos en tu plan.` });
         }
 
-        // 3. Crear un nuevo proyecto independiente para el usuario (copia física del ADN base)
+        // 3. Obtener el plan Starter para el nuevo proyecto
+        const [starterPlan] = await pool.query("SELECT id, slug FROM plans WHERE slug = 'starter' LIMIT 1");
+        const planId = starterPlan[0]?.id || null;
+        const planSlug = starterPlan[0]?.slug || 'starter';
+
+        // 4. Crear un nuevo proyecto independiente para el usuario (copia física del ADN base)
         // Se asegura que master_parent_id quede registrado para habilitar la visualización de ganchos del padre
         const [result] = await pool.query(
-            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, is_master, master_parent_id, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, NOW(), NOW())`,
+            `INSERT INTO projects (user_id, name, niche, description, target_audience, brand_tone, product_name, main_goal, pain_points, key_benefits, affiliate_links, full_price, commission_rate, lead_magnet_type, lead_magnet_url, sales_page_url, is_master, master_parent_id, plan_id, plan_slug, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, NOW(), NOW())`,
             [
                 req.user.id, 
                 master.name, 
@@ -107,9 +112,11 @@ router.post('/unlock/:id', async (req, res) => {
                 master.full_price, 
                 master.commission_rate, 
                 leadMagnetType || master.lead_magnet_type, 
-                leadMagnetUrl || '',
+                leadMagnetUrl || '', 
                 master.sales_page_url, 
-                master.id
+                master.id,
+                planId,
+                planSlug
             ]
         );
         const newProjectId = result.insertId;
