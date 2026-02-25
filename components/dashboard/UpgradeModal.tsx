@@ -25,11 +25,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
   // ////////// Nuevo estado para el plan seleccionado e información persuasiva - 01/06/2025 10:00 //////////
   const [selectedPlanSlug, setSelectedPlanSlug] = useState<string | null>(null);
 
+  const planOrder = ['starter', 'plan-max-1', 'plan-max-2', 'plan-max-3', 'plan-max-4', 'plan-max-5', 'plan-max-6', 'plan-max-7', 'plan-max-8', 'plan-max-9', 'plan-max-10'];
+
   const planPitchMap: Record<string, string> = {
       'starter': "Perfecto para validar tu nicho sin costes fijos.",
-      'plan-2': "Desbloquea tu segundo proyecto con dominios propios y potencia profesional.",
-      'plan-3': "Escala a un tercer proyecto independiente con todas las funciones activas.",
-      'default': "Potencia ilimitada para escalar tus proyectos simultáneamente sin barreras."
+      'plan-max-1': "Desbloquea tu primer proyecto profesional con dominios y potencia total.",
+      'plan-max-2': "Escala a tu segundo proyecto independiente con todas las funciones activas.",
+      'default': "Potencia adicional para escalar tus proyectos simultáneamente sin barreras."
   };
   // ////////// Fin de actualización - 01/06/2025 10:00 //////////
 
@@ -44,11 +46,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
               setPlans(plansData);
               setActivePaymentMethod(method as any);
               
-              // ////////// Selección inicial inteligente - 27/05/2025 15:30 //////////
-              const recommended = plansData.find(p => p.isRecommended);
-              if (recommended) setSelectedPlanSlug(recommended.slug);
+              // ////////// Selección inteligente del siguiente plan en la secuencia - 25/02/2026 //////////
+              const effectiveCurrentPlan = (currentPlan && currentPlan !== "") ? currentPlan : 'starter';
+              const currentIndex = planOrder.indexOf(effectiveCurrentPlan);
+              const nextSlug = currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
+              if (nextSlug) setSelectedPlanSlug(nextSlug);
               else if (plansData.length > 0) setSelectedPlanSlug(plansData[0].slug);
-              // ////////// Fin de actualización - 27/05/2025 15:30 //////////
+              // ////////// Fin de actualización //////////
           })
           .catch(err => console.error("Error loading upgrade modal data", err))
           .finally(() => setLoading(false));
@@ -63,14 +67,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
       try {
           ////////// Lógica de redirección dinámica según el método configurado - 24/05/2025 10:30 //////////
           if (activePaymentMethod === 'hotmart') {
-              if (plan.hotmartId || plan.slug !== 'starter') {
+              if (plan.hotmartId) {
                   ////////// Obtención robusta del userId para el tracking SRC - 25/05/2025 11:30 //////////
                   // Priorizamos la prop userId, si no existe buscamos en localStorage (formato compatible con auth.ts)
                   const finalUserId = userId || localStorage.getItem('plataformadeventacom_user_id') || '0';
                   
                   ////////// Nueva lógica para construcción de URL de Hotmart con Oferta y CheckoutMode - 25/05/2025 18:45 //////////
-                  // Si no hay hotmartId configurado en el plan, usamos uno por defecto para la demo
-                  const hotmartProductId = plan.hotmartId || '2983743';
+                  const hotmartProductId = plan.hotmartId;
                   const baseUrl = `https://pay.hotmart.com/${hotmartProductId}`;
                   const params = new URLSearchParams();
                   
@@ -82,8 +85,6 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                   // Si el plan tiene un modo de checkout personalizado, lo usamos. 
                   if (plan.hotmartCheckoutMode) {
                       params.set('checkoutMode', plan.hotmartCheckoutMode);
-                  } else {
-                      params.set('checkoutMode', '10');
                   }
                   
                   // El parámetro SRC ahora incluye userId y projectId para identificar qué proyecto actualizar
@@ -195,23 +196,28 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                         </div>
                     ) : (
                         <>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                                {plans.map((plan) => {
-                                    const isCurrent = currentPlan === plan.slug;
-                                    const isRecommended = plan.isRecommended;
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto w-full">
+                                {plans
+                                  .filter(p => {
+                                      const effectiveCurrentPlan = (currentPlan && currentPlan !== "") ? currentPlan : 'starter';
+                                      const currentIndex = planOrder.indexOf(effectiveCurrentPlan);
+                                      const nextSlug = currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
+                                      return p.slug === effectiveCurrentPlan || p.slug === nextSlug;
+                                  })
+                                  .sort((a, b) => planOrder.indexOf(a.slug) - planOrder.indexOf(b.slug))
+                                  .map((plan) => {
+                                    const effectiveCurrentPlan = (currentPlan && currentPlan !== "") ? currentPlan : 'starter';
+                                    const isCurrent = effectiveCurrentPlan === plan.slug;
                                     const isSelected = selectedPlanSlug === plan.slug;
 
-                                    // ////////// Estilos dinámicos para resaltar Plan Actual y Recomendado - 27/05/2025 15:30 //////////
                                     const cardClasses = `
                                         relative p-8 rounded-[2.5rem] border-2 transition-all duration-500 cursor-pointer flex flex-col gap-4 group
                                         ${isSelected ? 'scale-105 z-20' : 'scale-100 z-10'}
                                         ${isCurrent 
                                             ? 'border-emerald-500/50 bg-emerald-500/5 shadow-[0_0_40px_rgba(16,185,129,0.1)]' 
-                                            : isRecommended 
-                                                ? 'border-[#FF5A1F]/50 bg-gray-900 shadow-[0_0_60px_rgba(255,90,31,0.15)]' 
-                                                : 'border-gray-800 bg-gray-900/40 hover:border-gray-700'}
-                                        ${isSelected && isRecommended ? 'ring-4 ring-[#FF5A1F]/20' : ''}
-                                        ${isSelected && isCurrent ? 'ring-4 ring-emerald-500/20' : ''}
+                                            : 'border-[#FF5A1F]/50 bg-gray-900 shadow-[0_0_60px_rgba(255,90,31,0.15)]'}
+                                        ${isSelected && !isCurrent ? 'ring-4 ring-[#FF5A1F]/20' : ''}
+                                        ${isCurrent ? 'ring-4 ring-emerald-500/20' : ''}
                                     `;
                                     // ////////// Fin de actualización - 27/05/2025 15:30 //////////
 
@@ -227,17 +233,17 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                                     Tu Plan Actual
                                                 </div>
                                             )}
-                                            {isRecommended && !isCurrent && (
+                                            {!isCurrent && (
                                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FF5A1F] text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg animate-pulse">
-                                                    Más Popular
+                                                    Siguiente Nivel
                                                 </div>
                                             )}
                                             
                                             <div className="text-center">
-                                                <h3 className={`font-black text-xl mb-1 ${isCurrent ? 'text-emerald-400' : isRecommended ? 'text-[#FF5A1F]' : 'text-gray-300'}`}>{plan.name}</h3>
+                                                <h3 className={`font-black text-xl mb-1 ${isCurrent ? 'text-emerald-400' : 'text-[#FF5A1F]'}`}>{plan.name}</h3>
                                                 <div className="flex items-baseline justify-center gap-1">
                                                     <span className="text-4xl font-black text-white tracking-tighter">
-                                                        {plan.priceMonthly === 0 ? '$0' : `$${plan.priceMonthly}`}
+                                                        {Number(plan.priceMonthly) === 0 ? '$0' : `$${plan.priceMonthly}`}
                                                     </span>
                                                     <span className="text-sm text-gray-500 font-bold uppercase">/mes</span>
                                                 </div>
@@ -246,9 +252,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                             <div className="h-px bg-white/5 w-full my-2"></div>
 
                                             <ul className="space-y-4 flex-1">
-                                                {(plan.uiFeatures || []).slice(0, 4).map((feat, idx) => (
+                                                {(plan.uiFeatures || []).slice(0, 5).map((feat, idx) => (
                                                     <li key={idx} className="flex gap-3 text-sm font-medium items-center text-gray-300">
-                                                        <div className={`p-1 rounded-full ${isCurrent ? 'bg-emerald-500/20 text-emerald-500' : isRecommended ? 'bg-[#FF5A1F]/20 text-[#FF5A1F]' : 'bg-gray-800 text-gray-500'}`}>
+                                                        <div className={`p-1 rounded-full ${isCurrent ? 'bg-emerald-500/20 text-emerald-500' : 'bg-[#FF5A1F]/20 text-[#FF5A1F]'}`}>
                                                             <Check className="w-3 h-3" />
                                                         </div>
                                                         {feat}
@@ -279,15 +285,15 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                                 <div>
                                                     <span className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.3em] mb-2 block">Análisis del Plan {selectedPlanData.name}</span>
                                                     <h4 className="text-3xl font-black text-white leading-tight">
-                                                        {planPitchMap[selectedPlanData.slug] || "Potencia tu estrategia digital."}
+                                                        {planPitchMap[selectedPlanData.slug] || planPitchMap['default']}
                                                     </h4>
                                                 </div>
 
                                                 <div className="p-8 rounded-2xl bg-black/40 border border-white/5">
                                                     <p className="text-gray-300 text-lg leading-relaxed font-medium">
                                                     {selectedPlanData.slug === 'starter' && "Inicia tu camino hoy mismo validando tus ofertas con la potencia de la IA sin riesgos innecesarios."}
-                                                    {selectedPlanData.slug.startsWith('plan-') && `Lleva tu proyecto ${selectedPlanData.slug.split('-')[1]} al estándar profesional con dominios propios, mayor capacidad de landing pages y todas las herramientas de conversión activadas.`}
-                                                    {!selectedPlanData.slug.startsWith('plan-') && selectedPlanData.slug !== 'starter' && "Diseñado para agencias y productores de alto impacto. Control total, activos ilimitados y la máxima prioridad en nuestros servidores de generación."}
+                                                    {selectedPlanData.slug.startsWith('plan-max-') && `Lleva tu proyecto ${selectedPlanData.slug.split('-').pop()} al estándar profesional con dominios propios, mayor capacidad de landing pages y todas las herramientas de conversión activadas.`}
+                                                    {!selectedPlanData.slug.startsWith('plan-max-') && selectedPlanData.slug !== 'starter' && "Diseñado para agencias y productores de alto impacto. Control total, activos ilimitados y la máxima prioridad en nuestros servidores de generación."}
                                                 </p>
                                                 </div>
                                             </div>

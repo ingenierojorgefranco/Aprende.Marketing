@@ -1289,8 +1289,19 @@ export const api = {
         }
         if (apiCache.publicPlans) return apiCache.publicPlans;
         const plans = await fetchWithFallback('/public/plans');
-        apiCache.publicPlans = plans;
-        return plans;
+        const mappedPlans = (plans || []).map((p: any) => ({
+            ...p,
+            priceMonthly: Number(p.price_monthly),
+            limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
+            uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : p.ui_features,
+            hotmartId: p.hotmart_id,
+            hotmartOffer: p.hotmart_offer,
+            hotmartCheckoutMode: p.hotmart_checkout_mode,
+            isActive: p.is_active === 1 || p.is_active === true,
+            isRecommended: p.is_recommended === 1 || p.is_recommended === true
+        }));
+        apiCache.publicPlans = mappedPlans;
+        return mappedPlans;
     },
   
     savePlan: async (plan: Plan) => {

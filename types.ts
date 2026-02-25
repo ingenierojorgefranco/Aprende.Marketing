@@ -524,6 +524,8 @@ export interface Project {
   
   planId?: string; // NEW: Plan ID assigned to this specific project
   planSlug?: string; // NEW: Plan slug assigned to this specific project
+  limitsConfig?: PlanLimits; // NEW: Specific limits for this project
+  isActive?: boolean; // NEW: Status of the project plan
   
   strategy_json?: StrategyJSON | any; // Updated to accept both types
   
