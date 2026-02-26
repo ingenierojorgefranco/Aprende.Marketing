@@ -106,10 +106,8 @@ export const HooksList: React.FC = () => {
     }
 
     const maxHooks = userProjects.reduce((sum, p) => {
-        if (p.limitsConfig?.maxHooks) return sum + p.limitsConfig.maxHooks;
-        const slug = p.planSlug || 'starter';
-        return sum + (slug === 'starter' ? 10 : 50);
-    }, userProjects.length === 0 ? (user.planLimits?.maxHooks || 10) : 0);
+        return sum + (p.limitsConfig?.maxHooks || 0);
+    }, 0);
     const usagePercent = Math.min(100, (hookCount / maxHooks) * 100);
 
     let progressColor = "bg-orange-500";
