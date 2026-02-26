@@ -62,6 +62,7 @@ export const EmailMarketing: React.FC = () => {
   };
 
   const maxSequences = projects.reduce((sum, p) => {
+      if (p.limitsConfig?.maxEmailSequences) return sum + p.limitsConfig.maxEmailSequences;
       const slug = p.planSlug || 'starter';
       return sum + (slug === 'starter' ? 1 : 5);
   }, projects.length === 0 ? (user.planLimits?.maxEmailSequences || 1) : 0);

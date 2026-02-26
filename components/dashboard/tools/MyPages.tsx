@@ -123,6 +123,7 @@ export const MyPages: React.FC = () => {
     // Plan Logic (Pages)
     const isRealAdmin = user.role === 'admin' && !isSimulating;
     const maxLandings = projects.reduce((sum, p) => {
+        if (p.limitsConfig?.maxLandings) return sum + p.limitsConfig.maxLandings;
         const slug = p.planSlug || 'starter';
         return sum + (slug === 'starter' ? 3 : 20);
     }, projects.length === 0 ? (user.planLimits?.maxLandings || 3) : 0);
@@ -132,6 +133,7 @@ export const MyPages: React.FC = () => {
     
     // Plan Logic (Domains)
     const maxDomains = projects.reduce((sum, p) => {
+        if (p.limitsConfig?.maxDomains) return sum + p.limitsConfig.maxDomains;
         const slug = p.planSlug || 'starter';
         return sum + (slug === 'starter' ? 1 : 3);
     }, projects.length === 0 ? (user.planLimits?.maxDomains || 1) : 0);

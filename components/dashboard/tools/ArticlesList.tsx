@@ -71,6 +71,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   const handleCreate = () => {
       const isRealAdmin = user.role === 'admin' && !isSimulating;
       const maxArticles = projects.reduce((sum, p) => {
+          if (p.limitsConfig?.maxArticles) return sum + p.limitsConfig.maxArticles;
           const slug = p.planSlug || 'starter';
           return sum + (slug === 'starter' ? 2 : 20);
       }, projects.length === 0 ? (user.planLimits?.maxArticles || 2) : 0);
@@ -97,6 +98,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   // Plan Logic
   const isRealAdmin = user.role === 'admin' && !isSimulating;
   const maxArticles = projects.reduce((sum, p) => {
+      if (p.limitsConfig?.maxArticles) return sum + p.limitsConfig.maxArticles;
       const slug = p.planSlug || 'starter';
       return sum + (slug === 'starter' ? 2 : 20);
   }, projects.length === 0 ? (user.planLimits?.maxArticles || 2) : 0);
