@@ -12,6 +12,7 @@ import {
 import { api } from '../../../services/api';
 import { Project, User, Plan, EmailMessage, LandingPage, AffiliateLink } from '../../../types';
 import { ProjectMasterStrategy } from '../../../services/strategySchema';
+import { UpgradeModal } from '../UpgradeModal';
 
 interface DashboardContext {
     user: User;
@@ -64,6 +65,9 @@ export const EmailSequenceWizard: React.FC = () => {
     const [isGeneratingEmail, setIsGeneratingEmail] = useState(false);
     /* Fin de actualización - 24/05/2024 21:15 */
 
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [upgradeProjectId, setUpgradeProjectId] = useState<string | undefined>(undefined);
+
     useEffect(() => {
         const loadInitialData = async () => {
             setLoading(true);
@@ -103,12 +107,27 @@ export const EmailSequenceWizard: React.FC = () => {
     /* Fin de actualización - 25/05/2024 18:15 */
 
     const handleProjectSelect = async (project: Project) => {
-        setSelectedProject(project);
         setLoading(true);
         try {
-            const strategyData = project.strategy_json;
             const allSequences = await api.getEmailSequences();
             const existingSeq = allSequences.find(s => String(s.projectId) === String(project.id));
+            
+            // Limit check for new sequences
+            if (!existingSeq && user.role !== 'admin') {
+                const planSlug = project.planSlug || 'starter';
+                const limit = planSlug === 'starter' ? 1 : 5;
+                const projectSeqCount = allSequences.filter(s => String(s.projectId) === String(project.id)).length;
+                
+                if (projectSeqCount >= limit) {
+                    setUpgradeProjectId(project.id);
+                    setShowUpgradeModal(true);
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            setSelectedProject(project);
+            const strategyData = project.strategy_json;
             
             const hasLinks = project.affiliateLinks && project.affiliateLinks.length > 0;
             const defaultHotlink = hasLinks ? project.affiliateLinks[0].url : '';
@@ -805,6 +824,14 @@ export const EmailSequenceWizard: React.FC = () => {
                     </div>
                 )}
             </div>
+            {/* MODAL DE UPGRADE */}
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => setShowUpgradeModal(false)} 
+                currentPlan={upgradeProjectId ? (projects.find(p => p.id === upgradeProjectId)?.planSlug || 'starter') : 'starter'}
+                projectId={upgradeProjectId}
+                reason="Has alcanzado el límite de secuencias de email para este proyecto. Actualiza para gestionar más nichos."
+            />
         </div>
     );
 };

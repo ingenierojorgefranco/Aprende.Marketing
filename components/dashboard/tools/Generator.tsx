@@ -39,6 +39,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
 
   // Limit Check
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeProjectId, setUpgradeProjectId] = useState<string | undefined>(undefined);
 
   const [formData, setFormData] = useState({
     goal: 'Captar Leads',
@@ -55,26 +56,16 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
 
   // Load projects & check limits
   useEffect(() => {
-    const isRealAdmin = user.role === 'admin' && !isSimulating;
-    if (user.planLimits && !isRealAdmin) {
-        const max = user.planLimits.maxLandings;
-        if (pageCount >= max) {
-            setShowUpgradeModal(true);
-        }
-    }
-
     const fetchProjects = async () => {
         try {
             const projects = await api.getProjects();
-            // Eliminamos el filtro que ocultaba proyectos master para permitir la selección
-            // si el usuario tiene acceso al proyecto (devuelto por la API), debe poder usarlo.
             setUserProjects(projects);
         } catch (e) {
             console.error("Failed to load projects", e);
         }
     };
     fetchProjects();
-  }, [user, pageCount, isSimulating]);
+  }, []);
 
   // Sync pre-selected project from URL or Props
   useEffect(() => {
@@ -91,10 +82,28 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
   }, [preSelectedProjectId, userProjects]);
 
   // Handle project selection
-  const handleProjectSelect = (projectId: string) => {
-      setSelectedProject(projectId);
+  const handleProjectSelect = async (projectId: string) => {
       const proj = userProjects.find(p => p.id === projectId);
       
+      if (proj && user.role !== 'admin' && !isSimulating) {
+          try {
+              const allPages = await api.getPages();
+              const projectPages = allPages.filter(p => String(p.projectId) === String(projectId));
+              
+              const planSlug = proj.planSlug || 'starter';
+              const limit = planSlug === 'starter' ? 3 : 20;
+
+              if (projectPages.length >= limit) {
+                  setUpgradeProjectId(projectId);
+                  setShowUpgradeModal(true);
+                  return;
+              }
+          } catch (e) {
+              console.error(e);
+          }
+      }
+
+      setSelectedProject(projectId);
       if (proj) {
           let audienceInfo = proj.targetAudience || '';
           
@@ -456,7 +465,9 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
       <UpgradeModal 
           isOpen={showUpgradeModal} 
           onClose={() => onClose ? onClose() : navigate('/dashboard/pages')} 
-          reason={`Has alcanzado el límite de ${user.planLimits?.maxLandings} páginas de tu plan ${user.planLimits?.planName}.`}
+          currentPlan={upgradeProjectId ? (userProjects.find(p => p.id === upgradeProjectId)?.planSlug || 'starter') : 'starter'}
+          projectId={upgradeProjectId}
+          reason="Has alcanzado el límite de páginas para este proyecto. Actualiza para gestionar más nichos."
       />
 
       <div className={`bg-primary/10 p-8 text-center border-b border-primary/10 relative ${(showUpgradeModal || (loading && generationStatus !== 'generating')) ? 'opacity-30 pointer-events-none' : ''}`}>

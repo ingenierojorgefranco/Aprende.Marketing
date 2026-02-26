@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lead, EmailSequence, User } from '../../../types';
+import { Lead, EmailSequence, User, Project } from '../../../types';
 import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye, Trash2, Crown, Calendar } from 'lucide-react';
 import { api } from '../../../services/api';
 /* */ /* Actualización: Importación de useNavigate para manejar redirección - 24/06/2024 15:15 */
@@ -13,7 +13,7 @@ export const EmailMarketing: React.FC = () => {
   /* */ /* Actualización: Inicialización de navigate - 24/06/2024 15:15 */
   const navigate = useNavigate();
   const { user, isSimulating } = useOutletContext() as { user: User, isSimulating: boolean };
-  const maxSequences = user.planLimits?.maxEmailSequences || 5;
+  const [projects, setProjects] = useState<Project[]>([]);
   /* Fin de actualización - 24/06/2024 15:15 */
 
   const [activeTab, setActiveTab] = useState<'sequence' | 'leads' | 'config'>('sequence');
@@ -49,7 +49,22 @@ export const EmailMarketing: React.FC = () => {
     loadSettings();
     loadLeads();
     loadSequences();
+    loadProjects();
   }, []);
+
+  const loadProjects = async () => {
+      try {
+          const data = await api.getProjects();
+          setProjects(data || []);
+      } catch (e) {
+          console.error("Error loading projects", e);
+      }
+  };
+
+  const maxSequences = projects.reduce((sum, p) => {
+      const slug = p.planSlug || 'starter';
+      return sum + (slug === 'starter' ? 1 : 5);
+  }, projects.length === 0 ? (user.planLimits?.maxEmailSequences || 1) : 0);
 
   useEffect(() => {
     if (systemeIoKey) {

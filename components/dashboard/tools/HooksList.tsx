@@ -5,6 +5,7 @@ import { api } from '../../../services/api';
 import { ProjectHook, User, Project } from '../../../types';
 import { Zap, Loader2, Trash2, Calendar, Sparkles, Brain, Target, Briefcase, ExternalLink, AlertTriangle, ChevronRight, ArrowLeft, X } from 'lucide-react';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
+import { UpgradeModal } from '../UpgradeModal';
 import { ProjectStrategy_Hooks } from './ProjectStrategy/ProjectStrategy_Hooks';
 
 interface DashboardContext {
@@ -29,6 +30,8 @@ export const HooksList: React.FC = () => {
     // --- Nuevo Estado para Restricción de Eliminación ---
     const [showRestrictionModal, setShowRestrictionModal] = useState(false);
     const [hookToRestrict, setHookToRestrict] = useState<ProjectHook | null>(null);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [upgradeProjectId, setUpgradeProjectId] = useState<string | undefined>(undefined);
     // ----------------------------------------------------
 
     useEffect(() => {
@@ -52,6 +55,17 @@ export const HooksList: React.FC = () => {
     };
 
     const handleProjectSelect = (projectId: string) => {
+        const project = userProjects.find(p => p.id === projectId);
+        const planSlug = project?.planSlug || 'starter';
+        const limit = planSlug === 'starter' ? 10 : 50;
+        const projectHookCount = hooks.filter(h => (h as any).project_id === projectId || h.projectId === projectId).length;
+
+        if (user.role !== 'admin' && projectHookCount >= limit) {
+            setUpgradeProjectId(projectId);
+            setShowUpgradeModal(true);
+            return;
+        }
+
         setSelectedProjectId(projectId);
         setWizardStep(1);
     };
@@ -91,7 +105,10 @@ export const HooksList: React.FC = () => {
         );
     }
 
-    const maxHooks = user.maxHooks || user.planLimits?.maxHooks || 10;
+    const maxHooks = userProjects.reduce((sum, p) => {
+        const slug = p.planSlug || 'starter';
+        return sum + (slug === 'starter' ? 10 : 50);
+    }, userProjects.length === 0 ? (user.planLimits?.maxHooks || 10) : 0);
     const usagePercent = Math.min(100, (hookCount / maxHooks) * 100);
 
     let progressColor = "bg-orange-500";
@@ -333,6 +350,14 @@ export const HooksList: React.FC = () => {
                 itemName={hookToRestrict ? `Gancho: ${hookToRestrict.title}` : ''}
                 userEmail={user.email}
                 userName={user.name}
+            />
+
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => setShowUpgradeModal(false)} 
+                currentPlan={upgradeProjectId ? (userProjects.find(p => p.id === upgradeProjectId)?.planSlug || 'starter') : 'starter'}
+                projectId={upgradeProjectId}
+                reason="Has alcanzado el límite de ganchos para este proyecto. Actualiza para generar más ángulos de venta."
             />
         </div>
     );

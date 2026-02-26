@@ -51,6 +51,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
   // Limit Check State
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeProjectId, setUpgradeProjectId] = useState<string | undefined>(undefined);
   const [isPageSelectorOpen, setIsPageSelectorOpen] = useState(false);
   
   const [topic, setTopic] = useState('');
@@ -98,14 +99,27 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
   // Limit Check Effect
   useEffect(() => {
-      const isRealAdmin = user.role === 'admin' && !isSimulating;
-      if (!editArticleId && user.planLimits && !isRealAdmin) {
-          const max = user.planLimits.maxArticles || 2;
-          if (articleCount >= max) {
-              setShowUpgradeModal(true);
+      const checkLimit = async () => {
+          if (editArticleId || !selectedProject || !user.planLimits || isSimulating || user.role === 'admin') return;
+
+          try {
+              const allArticles = await api.getArticles();
+              const projectArticles = allArticles.filter(a => String(a.projectId) === String(selectedProject));
+              
+              const proj = userProjects.find(p => p.id === selectedProject);
+              const planSlug = proj?.planSlug || 'starter';
+              const limit = planSlug === 'starter' ? 2 : 20;
+
+              if (projectArticles.length >= limit) {
+                  setUpgradeProjectId(selectedProject);
+                  setShowUpgradeModal(true);
+              }
+          } catch (e) {
+              console.error(e);
           }
-      }
-  }, [editArticleId, user, articleCount, isSimulating]);
+      };
+      checkLimit();
+  }, [editArticleId, user, selectedProject, isSimulating, userProjects]);
 
   useEffect(() => {
     const fetchContext = async () => {
@@ -486,7 +500,9 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       <UpgradeModal 
           isOpen={showUpgradeModal} 
           onClose={() => onClose ? onClose() : navigate('/dashboard/articles')} 
-          reason={`Has alcanzado el límite de ${maxArticles} artículos.`}
+          currentPlan={upgradeProjectId ? (userProjects.find(p => p.id === upgradeProjectId)?.planSlug || 'starter') : 'starter'}
+          projectId={upgradeProjectId}
+          reason="Has alcanzado el límite de artículos para este proyecto. Actualiza para generar más contenido."
       />
 
       <div className={`bg-purple-600/10 p-8 text-center border-b border-purple-500/10 relative ${showUpgradeModal || (loading && generationStatus !== 'generating') ? 'opacity-30 pointer-events-none' : ''}`}>

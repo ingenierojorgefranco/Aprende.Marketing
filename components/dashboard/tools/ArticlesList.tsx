@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Article, User } from '../../../types';
+import { Article, User, Project } from '../../../types';
 import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus, Briefcase } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
@@ -20,6 +20,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   const navigate = useNavigate();
   const { user, articleCount, isSimulating } = useOutletContext() as DashboardContext; 
   const [localArticles, setLocalArticles] = useState<Article[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Modals States
@@ -32,18 +33,22 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   // ----------------------------------------------------
 
   useEffect(() => {
-      const fetchArticles = async () => {
+      const fetchData = async () => {
           setLoading(true);
           try {
-              const data = await api.getArticles();
-              setLocalArticles(data);
+              const [articlesData, projectsData] = await Promise.all([
+                  api.getArticles(),
+                  api.getProjects()
+              ]);
+              setLocalArticles(articlesData);
+              setProjects(projectsData || []);
           } catch (e) {
               console.error(e);
           } finally {
               setLoading(false);
           }
       };
-      fetchArticles();
+      fetchData();
   }, []);
 
   const handleDelete = async (article: Article) => {
@@ -65,7 +70,10 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
 
   const handleCreate = () => {
       const isRealAdmin = user.role === 'admin' && !isSimulating;
-      const maxArticles = user.planLimits?.maxArticles || 2;
+      const maxArticles = projects.reduce((sum, p) => {
+          const slug = p.planSlug || 'starter';
+          return sum + (slug === 'starter' ? 2 : 20);
+      }, projects.length === 0 ? (user.planLimits?.maxArticles || 2) : 0);
       
       // Check Limit before creating (unless real admin)
       if (!isRealAdmin && articleCount >= maxArticles) {
@@ -88,7 +96,10 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
 
   // Plan Logic
   const isRealAdmin = user.role === 'admin' && !isSimulating;
-  const maxArticles = user.planLimits?.maxArticles || 2;
+  const maxArticles = projects.reduce((sum, p) => {
+      const slug = p.planSlug || 'starter';
+      return sum + (slug === 'starter' ? 2 : 20);
+  }, projects.length === 0 ? (user.planLimits?.maxArticles || 2) : 0);
   const usagePercent = Math.min(100, (articleCount / maxArticles) * 100);
   const isAtLimit = !isRealAdmin && articleCount >= maxArticles;
 

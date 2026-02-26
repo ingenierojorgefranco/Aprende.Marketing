@@ -9,6 +9,7 @@ import {
 import { api } from '../../../services/api';
 import { Project, User, WhatsAppLaunch, WhatsAppLaunchMessage } from '../../../types';
 import { generateWhatsAppMessage } from '../../../services/geminiservices/whatsappService';
+import { UpgradeModal } from '../UpgradeModal';
 
 // Estructura estática de los 14 momentos para visualización persuasiva local
 const WHATSAPP_LAUNCH_MOMENTS = [
@@ -95,6 +96,8 @@ export const WhatsAppLaunchWizard: React.FC = () => {
     const [activeMsgIdx, setActiveMsgIdx] = useState(0);
     const [saveIndicator, setSaveIndicator] = useState(false);
     const [isTypeLocked, setIsTypeLocked] = useState(true);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [upgradeProjectId, setUpgradeProjectId] = useState<string | undefined>(undefined);
 
     const waTypes = [
         'Seguridad', 'Empatía y Confianza', 'Valor Percibido', 'Conciencia del Dolor',
@@ -140,9 +143,25 @@ export const WhatsAppLaunchWizard: React.FC = () => {
     }, [launchId, urlProjectId]);
 
     const handleProjectSelect = async (project: Project) => {
-        setSelectedProject(project);
         setLoading(true);
         try {
+            const allLaunches = await api.getWhatsAppLaunches();
+            const projectLaunches = allLaunches.filter(l => String(l.projectId) === String(project.id));
+            
+            // Limit check for new launches
+            if (user.role !== 'admin') {
+                const planSlug = project.planSlug || 'starter';
+                const limit = planSlug === 'starter' ? 1 : 5;
+                
+                if (projectLaunches.length >= limit) {
+                    setUpgradeProjectId(project.id);
+                    setShowUpgradeModal(true);
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            setSelectedProject(project);
             const strategy = project.strategy_json;
             const strategyMessages = strategy?.modules?.whatsappLaunch || [];
             
@@ -445,6 +464,14 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                     </div>
                 )}
             </div>
+            {/* MODAL DE UPGRADE */}
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => setShowUpgradeModal(false)} 
+                currentPlan={upgradeProjectId ? (projects.find(p => p.id === upgradeProjectId)?.planSlug || 'starter') : 'starter'}
+                projectId={upgradeProjectId}
+                reason="Has alcanzado el límite de lanzamientos de WhatsApp para este proyecto. Actualiza para gestionar más nichos."
+            />
         </div>
     );
 };

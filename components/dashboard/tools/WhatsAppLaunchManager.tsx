@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { WhatsAppLaunch, User } from '../../../types';
+import { WhatsAppLaunch, User, Project } from '../../../types';
 import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers, Crown, X, AlertCircle } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useNavigate, useOutletContext } from 'react-router-dom';
@@ -10,6 +10,7 @@ export const WhatsAppLaunchManager: React.FC = () => {
     const navigate = useNavigate();
     const { user, isSimulating } = useOutletContext() as { user: User, isSimulating: boolean };
     const [launches, setLeads] = useState<WhatsAppLaunch[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [showVideoModal, setShowVideoModal] = useState(false);
@@ -21,7 +22,17 @@ export const WhatsAppLaunchManager: React.FC = () => {
 
     useEffect(() => {
         loadLaunches();
+        loadProjects();
     }, []);
+
+    const loadProjects = async () => {
+        try {
+            const data = await api.getProjects();
+            setProjects(data || []);
+        } catch (e) {
+            console.error("Error loading projects", e);
+        }
+    };
 
     const loadLaunches = async () => {
         setLoading(true);
@@ -55,7 +66,10 @@ export const WhatsAppLaunchManager: React.FC = () => {
 
     // Lógica de límites respetando simulación
     const isRealAdmin = user.role === 'admin' && !isSimulating;
-    const maxLaunches = user.planLimits?.maxWhatsAppLaunches || 1;
+    const maxLaunches = projects.reduce((sum, p) => {
+        const slug = p.planSlug || 'starter';
+        return sum + (slug === 'starter' ? 1 : 5);
+    }, projects.length === 0 ? (user.planLimits?.maxWhatsAppLaunches || 1) : 0);
     const currentCount = launches.length;
     const isAtLimit = !isRealAdmin && currentCount >= maxLaunches;
     const usagePercent = Math.min(100, (currentCount / maxLaunches) * 100);

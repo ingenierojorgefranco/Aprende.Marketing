@@ -413,6 +413,8 @@ export interface LandingPage {
 
 export interface Article {
   id: string;
+  projectId?: string; // NEW: Linked Project ID
+  projectName?: string; // NEW: Project Name for UI
   pageId?: string; // Link to a landing page
   pageName?: string; // Name of linked page
   pageSubdomain?: string; // Subdomain/Slug of the linked page for URL construction
