@@ -224,7 +224,7 @@ router.get('/', async (req, res) => {
         affiliate_links: safeParseJson(p.affiliate_links),
         strategy_json: safeParseJson(p.strategy_json),
         planId: p.plan_id ? String(p.plan_id) : undefined,
-        planSlug: p.plan_slug || undefined,
+        planSlug: p.plan_slug || 'starter',
         isMaster: !!p.is_master,
         isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked,
         masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined
@@ -247,7 +247,7 @@ router.get('/:id', async (req, res) => {
     project.affiliate_links = safeParseJson(project.affiliate_links);
     project.strategy_json = safeParseJson(project.strategy_json);
     project.planId = project.plan_id ? String(project.plan_id) : undefined;
-    project.planSlug = project.plan_slug || undefined;
+    project.planSlug = project.plan_slug || 'starter';
     project.isMaster = !!project.is_master;
     project.masterParentId = project.master_parent_id ? String(project.master_parent_id) : undefined;
     res.json(project);

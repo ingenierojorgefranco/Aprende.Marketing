@@ -1291,14 +1291,14 @@ export const api = {
         const plans = await fetchWithFallback('/public/plans');
         const mappedPlans = (plans || []).map((p: any) => ({
             ...p,
-            priceMonthly: Number(p.price_monthly),
-            limitsConfig: typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config,
-            uiFeatures: typeof p.ui_features === 'string' ? JSON.parse(p.ui_features) : p.ui_features,
-            hotmartId: p.hotmart_id,
-            hotmartOffer: p.hotmart_offer,
-            hotmartCheckoutMode: p.hotmart_checkout_mode,
-            isActive: p.is_active === 1 || p.is_active === true,
-            isRecommended: p.is_recommended === 1 || p.is_recommended === true
+            priceMonthly: Number(p.priceMonthly),
+            limitsConfig: typeof p.limitsConfig === 'string' ? JSON.parse(p.limitsConfig) : p.limitsConfig,
+            uiFeatures: typeof p.uiFeatures === 'string' ? JSON.parse(p.uiFeatures) : p.uiFeatures,
+            hotmartId: p.hotmartId,
+            hotmartOffer: p.hotmartOffer,
+            hotmartCheckoutMode: p.hotmartCheckoutMode,
+            isActive: p.isActive === 1 || p.isActive === true,
+            isRecommended: p.isRecommended === 1 || p.isRecommended === true
         }));
         apiCache.publicPlans = mappedPlans;
         return mappedPlans;
