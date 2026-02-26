@@ -46,12 +46,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
               setPlans(plansData);
               setActivePaymentMethod(method as any);
               
-              // ////////// Selección inteligente del siguiente plan en la secuencia - 25/02/2026 //////////
-              const effectiveCurrentPlan = (currentPlan && currentPlan !== "") ? currentPlan : 'starter';
-              const currentIndex = planOrder.indexOf(effectiveCurrentPlan);
-              const nextSlug = currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
-              if (nextSlug) setSelectedPlanSlug(nextSlug);
-              else if (plansData.length > 0) setSelectedPlanSlug(plansData[0].slug);
+              // ////////// Selección inteligente del plan actual por defecto - 26/02/2026 //////////
+              const effectiveCurrentPlan = (currentPlan && planOrder.includes(currentPlan)) ? currentPlan : 'starter';
+              setSelectedPlanSlug(effectiveCurrentPlan);
               // ////////// Fin de actualización //////////
           })
           .catch(err => console.error("Error loading upgrade modal data", err))
@@ -199,14 +196,14 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto w-full">
                                 {plans
                                   .filter(p => {
-                                      const effectiveCurrentPlan = (currentPlan && currentPlan !== "") ? currentPlan : 'starter';
+                                      const effectiveCurrentPlan = (currentPlan && planOrder.includes(currentPlan)) ? currentPlan : 'starter';
                                       const currentIndex = planOrder.indexOf(effectiveCurrentPlan);
                                       const nextSlug = currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
                                       return p.slug === effectiveCurrentPlan || p.slug === nextSlug;
                                   })
                                   .sort((a, b) => planOrder.indexOf(a.slug) - planOrder.indexOf(b.slug))
                                   .map((plan) => {
-                                    const effectiveCurrentPlan = (currentPlan && currentPlan !== "") ? currentPlan : 'starter';
+                                    const effectiveCurrentPlan = (currentPlan && planOrder.includes(currentPlan)) ? currentPlan : 'starter';
                                     const isCurrent = effectiveCurrentPlan === plan.slug;
                                     const isSelected = selectedPlanSlug === plan.slug;
 
