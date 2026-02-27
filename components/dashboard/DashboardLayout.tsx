@@ -161,13 +161,6 @@ export const DashboardLayout = ({
       loadData();
   }, [user.role, location.pathname]);
 
-  useEffect(() => {
-    const activeId = getActiveMenuId(location.pathname);
-    if (activeId) {
-      setExpandedMenu(activeId);
-    }
-  }, [location.pathname]);
-
   const effectiveUser = useMemo(() => {
       if (!simulatedPlanSlug || user.role !== 'admin') return user;
       const plan = availablePlans.find(p => p.slug === simulatedPlanSlug);
@@ -185,6 +178,17 @@ export const DashboardLayout = ({
           planLimits: limitsWithPlanName 
       };
   }, [user, simulatedPlanSlug, availablePlans]);
+
+  useEffect(() => {
+    console.log("DashboardLayout - Datos del Plan Activo:", {
+        plan: effectiveUser.planLimits?.planName,
+        limits: effectiveUser.planLimits
+    });
+    const activeId = getActiveMenuId(location.pathname);
+    if (activeId) {
+      setExpandedMenu(activeId);
+    }
+  }, [location.pathname, effectiveUser]);
 
   const menuStructure: MenuItem[] = useMemo(() => {
     // Si estamos en modo lanzamiento y no es admin, menú ultra simplificado

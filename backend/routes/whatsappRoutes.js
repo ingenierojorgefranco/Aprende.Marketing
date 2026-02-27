@@ -74,10 +74,12 @@ router.post('/launches', authMiddleware, async (req, res) => {
             return res.json({ id: existing[0].id });
         }
 
-        const [projectData] = await pool.query('SELECT limits_config FROM projects WHERE id = ?', [projectId]);
+        const [projectData] = await pool.query('SELECT plan_slug FROM projects WHERE id = ?', [projectId]);
         if (projectData.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
         
-        const limits = projectData[0]?.limits_config ? (typeof projectData[0].limits_config === 'string' ? JSON.parse(projectData[0].limits_config) : projectData[0].limits_config) : DEFAULT_LIMITS;
+        const planSlug = projectData[0].plan_slug || 'starter';
+        const [planData] = await pool.query('SELECT limits_config FROM plans WHERE slug = ?', [planSlug]);
+        const limits = planData[0]?.limits_config ? (typeof planData[0].limits_config === 'string' ? JSON.parse(planData[0].limits_config) : planData[0].limits_config) : DEFAULT_LIMITS;
         
         const [userData] = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
         

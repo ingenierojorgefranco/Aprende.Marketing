@@ -24,7 +24,6 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
 
   // ////////// Nuevo estado para el plan seleccionado e información persuasiva - 01/06/2025 10:00 //////////
   const [selectedPlanSlug, setSelectedPlanSlug] = useState<string | null>(null);
-  const [detectedPlanSlug, setDetectedPlanSlug] = useState<string | null>(null);
 
   const planOrder = ['starter', 'plan-2', 'plan-3', 'plan-4', 'plan-5', 'plan-6', 'plan-7', 'plan-8', 'plan-9', 'plan-10'];
 
@@ -38,35 +37,24 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
 
   useEffect(() => {
       if (isOpen) {
+          console.log("UpgradeModal - Parámetros recibidos:", { currentPlan, reason, userId, projectId });
           setLoading(true);
-          ////////// Se cargan los planes públicos, el método de pago activo y se detecta el plan real vía proyectos - 27/02/2026 //////////
+          ////////// Se cargan los planes públicos y el método de pago activo - 24/05/2025 10:30 //////////
           Promise.all([
               api.getPublicPlans(),
-              api.getActivePaymentMethod().catch(() => 'stripe'),
-              api.getProjects().catch(() => [])
-          ]).then(([plansData, method, projectsData]) => {
+              api.getActivePaymentMethod().catch(() => 'stripe')
+          ]).then(([plansData, method]) => {
               setPlans(plansData);
               setActivePaymentMethod(method as any);
               
-              // Detección del plan más alto entre los proyectos
-              let highestPlan = 'starter';
-              if (projectsData && projectsData.length > 0) {
-                  projectsData.forEach((p: any) => {
-                      const pSlug = p.planSlug || 'starter';
-                      if (planOrder.indexOf(pSlug) > planOrder.indexOf(highestPlan)) {
-                          highestPlan = pSlug;
-                      }
-                  });
-              }
-              setDetectedPlanSlug(highestPlan);
-              
-              // Selección inteligente del plan actual por defecto
-              const effectiveCurrentPlan = (highestPlan && planOrder.includes(highestPlan)) ? highestPlan : 'starter';
+              // ////////// Selección inteligente del plan actual por defecto - 26/02/2026 //////////
+              const effectiveCurrentPlan = (currentPlan && planOrder.includes(currentPlan)) ? currentPlan : 'starter';
               setSelectedPlanSlug(effectiveCurrentPlan);
+              // ////////// Fin de actualización //////////
           })
           .catch(err => console.error("Error loading upgrade modal data", err))
           .finally(() => setLoading(false));
-          ////////// Fin de actualización - 27/02/2026 //////////
+          ////////// Fin de actualización - 24/05/2025 10:30 //////////
       }
   }, [isOpen]);
 
@@ -179,6 +167,25 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                     <p className="text-gray-400 text-lg mb-10 leading-relaxed font-light">
                         {reason ? "Desbloquea el siguiente nivel de tu negocio. Elige la potencia necesaria para escalar tus resultados en Hotmart." : "Desbloquea el siguiente nivel de tu negocio. Elige la potencia necesaria para escalar tus resultados en Hotmart."}
                     </p>
+
+                    {/* Bloque de información técnica del plan actual */}
+                    <div className="mb-10 p-6 bg-white/5 border border-white/10 rounded-2xl">
+                        <p className="text-[10px] text-[#FF5A1F] font-black uppercase tracking-widest mb-2">Estado de tu Cuenta</p>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-500">Plan Actual:</span>
+                                <span className="text-white font-bold uppercase">{currentPlan || 'starter'}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-500">Límite Proyectos:</span>
+                                <span className="text-white font-bold">{selectedPlanData?.limitsConfig?.maxProjects || '-'}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-500">Límite Ganchos:</span>
+                                <span className="text-white font-bold">{selectedPlanData?.limitsConfig?.maxHooks || '-'}</span>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div className="space-y-4 pt-10 border-t border-white/5">
                         <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] font-black mb-4">Confianza Máxima</p>
@@ -209,14 +216,14 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto w-full">
                                 {plans
                                   .filter(p => {
-                                      const effectiveCurrentPlan = (detectedPlanSlug && planOrder.includes(detectedPlanSlug)) ? detectedPlanSlug : 'starter';
+                                      const effectiveCurrentPlan = (currentPlan && planOrder.includes(currentPlan)) ? currentPlan : 'starter';
                                       const currentIndex = planOrder.indexOf(effectiveCurrentPlan);
                                       const nextSlug = currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
                                       return p.slug === effectiveCurrentPlan || p.slug === nextSlug;
                                   })
                                   .sort((a, b) => planOrder.indexOf(a.slug) - planOrder.indexOf(b.slug))
                                   .map((plan) => {
-                                    const effectiveCurrentPlan = (detectedPlanSlug && planOrder.includes(detectedPlanSlug)) ? detectedPlanSlug : 'starter';
+                                    const effectiveCurrentPlan = (currentPlan && planOrder.includes(currentPlan)) ? currentPlan : 'starter';
                                     const isCurrent = effectiveCurrentPlan === plan.slug;
                                     const isSelected = selectedPlanSlug === plan.slug;
 
@@ -311,15 +318,15 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                             <div className="md:col-span-4 flex flex-col gap-4">
                                                 <button 
                                                     onClick={() => handleUpgrade(selectedPlanData)}
-                                                    disabled={!!processing || detectedPlanSlug === selectedPlanData.slug}
+                                                    disabled={!!processing || currentPlan === selectedPlanData.slug}
                                                     className={`w-full py-6 rounded-2xl font-black text-xl transition-all shadow-2xl transform hover:scale-[1.03] active:scale-95 flex items-center justify-center gap-3 ${
-                                                        detectedPlanSlug === selectedPlanData.slug 
+                                                        currentPlan === selectedPlanData.slug 
                                                             ? 'bg-gray-800 text-gray-500 cursor-default opacity-50' 
                                                             : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-[#FF5A1F]/20'
                                                     }`}
                                                 >
                                                     {processing === selectedPlanData.slug ? <Loader2 className="w-6 h-6 animate-spin" /> : null}
-                                                    {detectedPlanSlug === selectedPlanData.slug ? 'Tu Plan Actual' : `Activar ${selectedPlanData.name}`}
+                                                    {currentPlan === selectedPlanData.slug ? 'Tu Plan Actual' : `Activar ${selectedPlanData.name}`}
                                                     <ArrowRight className="w-6 h-6" />
                                                 </button>
                                                 <p className="text-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">

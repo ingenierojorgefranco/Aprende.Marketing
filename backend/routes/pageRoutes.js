@@ -80,8 +80,10 @@ router.get('/pages', authMiddleware, async (req, res) => {
 router.post('/pages', authMiddleware, async (req, res) => {
   const { name, niche, goal, subdomain, content, projectId } = req.body;
   try {
-    const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
-    const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
+    const [projectData] = await pool.query('SELECT plan_slug FROM projects WHERE id = ?', [projectId]);
+    const planSlug = projectData[0]?.plan_slug || 'starter';
+    const [planData] = await pool.query('SELECT limits_config FROM plans WHERE slug = ?', [planSlug]);
+    const limits = planData[0]?.limits_config ? (typeof planData[0].limits_config === 'string' ? JSON.parse(planData[0].limits_config) : planData[0].limits_config) : DEFAULT_LIMITS;
     
     const [count] = await pool.query('SELECT COUNT(*) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
     if (count[0].c >= limits.maxLandings) {

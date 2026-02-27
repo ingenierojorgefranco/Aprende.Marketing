@@ -37,6 +37,37 @@ const createToken = (user) => {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 };
 
+const getEffectiveLimits = async (userId) => {
+    try {
+        const [projectPlans] = await pool.query('SELECT DISTINCT plan_slug FROM projects WHERE user_id = ?', [userId]);
+        if (projectPlans.length === 0) return DEFAULT_LIMITS;
+
+        const [allPlans] = await pool.query('SELECT slug, limits_config FROM plans');
+        const planLimitsMap = {};
+        allPlans.forEach(p => {
+            planLimitsMap[p.slug] = p.limits_config ? (typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config) : DEFAULT_LIMITS;
+        });
+
+        let bestPlanSlug = 'starter';
+        let maxProjects = -1;
+
+        projectPlans.forEach(pp => {
+            const slug = pp.plan_slug || 'starter';
+            const limits = planLimitsMap[slug] || DEFAULT_LIMITS;
+            if (limits.maxProjects > maxProjects) {
+                maxProjects = limits.maxProjects;
+                bestPlanSlug = slug;
+            }
+        });
+
+        const finalLimits = planLimitsMap[bestPlanSlug] || DEFAULT_LIMITS;
+        return { ...finalLimits, planName: bestPlanSlug };
+    } catch (error) {
+        console.error("Error fetching effective limits:", error);
+        return DEFAULT_LIMITS;
+    }
+};
+
 export const logSystemActivity = async (userId, userName, actionType, entityType, entityId, details) => {
     try {
         await pool.query(
@@ -104,10 +135,7 @@ router.post('/login', async (req, res) => {
 
     await logSystemActivity(user.id, user.name, 'LOGIN', 'user', user.id, { ip: req.ip });
 
-    let planLimits = DEFAULT_LIMITS;
-    if (user.plan_limits) {
-        planLimits = typeof user.plan_limits === 'string' ? JSON.parse(user.plan_limits) : user.plan_limits;
-    }
+    const planLimits = await getEffectiveLimits(user.id);
 
     const userResponse = {
       id: user.id,
@@ -152,10 +180,7 @@ router.get('/me', authMiddleware, async (req, res) => {
     if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
     
     const user = rows[0];
-    let planLimits = DEFAULT_LIMITS;
-    if (user.plan_limits) {
-        planLimits = typeof user.plan_limits === 'string' ? JSON.parse(user.plan_limits) : user.plan_limits;
-    }
+    const planLimits = await getEffectiveLimits(user.id);
 
     res.json({
         id: user.id,
@@ -230,10 +255,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
         );
         
         const user = rows[0];
-        let planLimits = DEFAULT_LIMITS;
-        if (user.plan_limits) {
-            planLimits = typeof user.plan_limits === 'string' ? JSON.parse(user.plan_limits) : user.plan_limits;
-        }
+        const planLimits = await getEffectiveLimits(user.id);
 
         res.json({
             id: user.id,

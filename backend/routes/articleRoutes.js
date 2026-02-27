@@ -40,9 +40,11 @@ router.post('/articles', authMiddleware, async (req, res) => {
     if (page_id) {
         const [pageRows] = await pool.query('SELECT project_id FROM landing_pages WHERE id = ?', [page_id]);
         if (pageRows.length > 0) {
-            const [projectRows] = await pool.query('SELECT limits_config FROM projects WHERE id = ?', [pageRows[0].project_id]);
-            if (projectRows.length > 0 && projectRows[0].limits_config) {
-                limits = typeof projectRows[0].limits_config === 'string' ? JSON.parse(projectRows[0].limits_config) : projectRows[0].limits_config;
+            const [projectRows] = await pool.query('SELECT plan_slug FROM projects WHERE id = ?', [pageRows[0].project_id]);
+            if (projectRows.length > 0) {
+                const planSlug = projectRows[0].plan_slug || 'starter';
+                const [planData] = await pool.query('SELECT limits_config FROM plans WHERE slug = ?', [planSlug]);
+                limits = planData[0]?.limits_config ? (typeof planData[0].limits_config === 'string' ? JSON.parse(planData[0].limits_config) : planData[0].limits_config) : DEFAULT_LIMITS;
             }
         }
     }
