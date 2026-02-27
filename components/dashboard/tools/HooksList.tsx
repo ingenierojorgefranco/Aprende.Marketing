@@ -60,7 +60,11 @@ export const HooksList: React.FC = () => {
     const handleProjectSelect = (projectId: string) => {
         const project = userProjects.find(p => p.id === projectId);
         const planSlug = project?.planSlug || 'starter';
-        const limit = planSlug === 'starter' ? 10 : 50;
+        
+        // Buscar el plan correspondiente para obtener el límite real
+        const projectPlan = allPlans.find(p => p.slug === planSlug);
+        const limit = projectPlan?.limitsConfig?.maxHooks || (planSlug === 'starter' ? 10 : 50);
+        
         const projectHookCount = hooks.filter(h => (h as any).project_id === projectId || h.projectId === projectId).length;
 
         if (user.role !== 'admin' && projectHookCount >= limit) {

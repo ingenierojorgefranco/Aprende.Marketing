@@ -75,16 +75,18 @@ router.post('/unlock/:id', async (req, res) => {
         
         const master = projRows[0];
         
-        // 2. Verificar límites del usuario
-        const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
-        const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
+        // 2. Verificar límites del usuario de forma dinámica
+        const [userProjects] = await pool.query('SELECT plan_slug FROM projects WHERE user_id = ?', [req.user.id]);
+        const [allPlans] = await pool.query('SELECT slug, limits_config FROM plans');
         
-        const [countRows] = await pool.query(`
-            SELECT COUNT(*) as total FROM projects WHERE user_id = ?
-        `, [req.user.id]);
+        const maxProjects = userProjects.reduce((max, p) => {
+            const plan = allPlans.find(pl => pl.slug === p.plan_slug);
+            const planLimits = plan?.limits_config ? (typeof plan.limits_config === 'string' ? JSON.parse(plan.limits_config) : plan.limits_config) : null;
+            return Math.max(max, planLimits?.maxProjects || 1);
+        }, 1);
         
-        if (req.user.role !== 'admin' && countRows[0].total >= limits.maxProjects) {
-            return res.status(403).json({ error: `Has alcanzado el límite de ${limits.maxProjects} proyectos en tu plan.` });
+        if (req.user.role !== 'admin' && userProjects.length >= maxProjects) {
+            return res.status(403).json({ error: `Has alcanzado el límite de ${maxProjects} proyectos en tu plan.` });
         }
 
         // 3. Obtener el plan Starter para el nuevo proyecto
@@ -257,10 +259,19 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, salesPageUrl, isMaster } = req.body;
   try {
-    const [userData] = await pool.query('SELECT plan_limits FROM users WHERE id = ?', [req.user.id]);
-    const limits = userData[0]?.plan_limits ? (typeof userData[0].plan_limits === 'string' ? JSON.parse(userData[0].plan_limits) : userData[0].plan_limits) : DEFAULT_LIMITS;
-    const [countRows] = await pool.query(`SELECT (SELECT COUNT(*) FROM projects WHERE user_id = ?) + (SELECT COUNT(*) FROM unlocked_projects WHERE user_id = ?) as total`, [req.user.id, req.user.id]);
-    if (countRows[0].total >= limits.maxProjects && req.user.role !== 'admin') return res.status(403).json({ error: `Límite alcanzado.` });
+    // Verificar límites del usuario de forma dinámica
+    const [userProjects] = await pool.query('SELECT plan_slug FROM projects WHERE user_id = ?', [req.user.id]);
+    const [allPlans] = await pool.query('SELECT slug, limits_config FROM plans');
+    
+    const maxProjects = userProjects.reduce((max, p) => {
+        const plan = allPlans.find(pl => pl.slug === p.plan_slug);
+        const planLimits = plan?.limits_config ? (typeof plan.limits_config === 'string' ? JSON.parse(plan.limits_config) : plan.limits_config) : null;
+        return Math.max(max, planLimits?.maxProjects || 1);
+    }, 1);
+
+    if (userProjects.length >= maxProjects && req.user.role !== 'admin') {
+        return res.status(403).json({ error: `Has alcanzado el límite de ${maxProjects} proyectos en tu plan.` });
+    }
 
     const isMasterFinal = (req.user.role === 'admin' && isMaster === true) ? 1 : 0;
     
