@@ -1292,7 +1292,7 @@ export const api = {
         const mappedPlans = (plans || []).map((p: any) => ({
             ...p,
             priceMonthly: Number(p.priceMonthly),
-            limitsConfig: typeof p.limitsConfig === 'string' ? JSON.parse(p.limitsConfig) : p.limitsConfig,
+            limitsConfig: typeof (p.limits_config || p.limitsConfig) === 'string' ? JSON.parse(p.limits_config || p.limitsConfig) : (p.limits_config || p.limitsConfig),
             uiFeatures: typeof p.uiFeatures === 'string' ? JSON.parse(p.uiFeatures) : p.uiFeatures,
             hotmartId: p.hotmartId,
             hotmartOffer: p.hotmartOffer,

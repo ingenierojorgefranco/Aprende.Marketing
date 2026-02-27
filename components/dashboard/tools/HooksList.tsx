@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
-import { ProjectHook, User, Project } from '../../../types';
+import { ProjectHook, User, Project, Plan } from '../../../types';
 import { Zap, Loader2, Trash2, Calendar, Sparkles, Brain, Target, Briefcase, ExternalLink, AlertTriangle, ChevronRight, ArrowLeft, X } from 'lucide-react';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 import { UpgradeModal } from '../UpgradeModal';
@@ -23,6 +23,7 @@ export const HooksList: React.FC = () => {
     const [isWizardOpen, setIsWizardOpen] = useState(false);
     const [wizardStep, setWizardStep] = useState(0);
     const [userProjects, setUserProjects] = useState<Project[]>([]);
+    const [allPlans, setAllPlans] = useState<Plan[]>([]);
     const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
     const [activeHookIdx, setActiveHookIdx] = useState(0);
     // --------------------------------------------
@@ -41,12 +42,14 @@ export const HooksList: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [hooksData, projectsData] = await Promise.all([
+            const [hooksData, projectsData, plansData] = await Promise.all([
                 api.getUserResources('hooks'),
-                api.getProjects()
+                api.getProjects(),
+                api.getPublicPlans()
             ]);
             setHooks(hooksData);
             setUserProjects(projectsData || []);
+            setAllPlans(plansData || []);
         } catch (error) {
             console.error("Error cargando datos:", error);
         } finally {
@@ -106,9 +109,13 @@ export const HooksList: React.FC = () => {
     }
 
     const maxHooks = userProjects.reduce((sum, p) => {
-        return sum + (p.limitsConfig?.maxHooks || 0);
+        const projectPlan = allPlans.find(plan => 
+            String(plan.id) === String((p as any).plan_id || p.planId) || 
+            plan.slug === ((p as any).plan_slug || p.planSlug)
+        );
+        return sum + (projectPlan?.limitsConfig?.maxHooks || 0);
     }, 0);
-    const usagePercent = Math.min(100, (hookCount / maxHooks) * 100);
+    const usagePercent = maxHooks > 0 ? Math.min(100, (hookCount / maxHooks) * 100) : 0;
 
     let progressColor = "bg-orange-500";
     if (usagePercent > 80) progressColor = "bg-red-500";
