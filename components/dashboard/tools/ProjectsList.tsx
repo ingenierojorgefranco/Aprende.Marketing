@@ -140,10 +140,15 @@ export const ProjectsList: React.FC = () => {
         }
 
         const isRealAdmin = user.role === 'admin' && !isSimulating;
-        const maxProjects = user.planLimits?.maxProjects || 1;
+        const maxProjectsCalculated = projects.reduce((max, p) => {
+            if (!p.planSlug || p.planSlug === 'starter') return Math.max(max, 1);
+            const match = p.planSlug.match(/\d+/);
+            const capacity = match ? parseInt(match[0]) : 1;
+            return Math.max(max, capacity);
+        }, 1);
         const totalActive = projects.length;
 
-        if (totalActive >= maxProjects && !isRealAdmin) {
+        if (totalActive >= maxProjectsCalculated && !isRealAdmin) {
             setShowUnlockProtocol(false);
             setShowUpgradeModal(true);
             return;
