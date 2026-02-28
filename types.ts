@@ -121,6 +121,9 @@ export interface PlanLimits {
   maxWhatsAppLaunches: number; // Nuevo límite añadido para control de cuotas
   maxHooks: number; // Nuevo: Límite de Hooks de Atracción
   features: PlanFeatures;
+  allActivePlans?: string[]; // Nuevo: Lista de todos los planes activos del usuario
+  projectLimits?: Record<string, PlanLimits>; // Nuevo: Mapa de límites específicos por proyecto
+  fromCache?: boolean; // Nuevo: Indicador de si los datos vienen de caché
 }
 
 // NEW: Database Plan Structure

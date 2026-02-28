@@ -180,9 +180,20 @@ export const DashboardLayout = ({
   }, [user, simulatedPlanSlug, availablePlans]);
 
   useEffect(() => {
-    console.log("DashboardLayout - Datos del Plan Activo:", {
-        plan: effectiveUser.planLimits?.planName,
-        limits: effectiveUser.planLimits
+    const limits = effectiveUser.planLimits;
+    console.log("DashboardLayout - [Lógica de Planes Avanzada]:", {
+        resumenGlobal: {
+            planPrincipal: limits?.planName,
+            todosLosPlanesActivos: limits?.allActivePlans,
+            capacidadesTotales: {
+                proyectos: limits?.maxProjects,
+                landings: limits?.maxLandings,
+                articulos: limits?.maxArticles,
+                hooks: limits?.maxHooks
+            }
+        },
+        mapaDeCapacidadesPorProyecto: limits?.projectLimits,
+        estadoDeCache: limits?.fromCache ? "RECUPERADO DE MEMORIA" : "CONSULTA FRESCA A BASE DE DATOS"
     });
     const activeId = getActiveMenuId(location.pathname);
     if (activeId) {

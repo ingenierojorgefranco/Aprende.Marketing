@@ -37,31 +37,86 @@ const createToken = (user) => {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 };
 
+const limitsCache = new Map();
+
 const getEffectiveLimits = async (userId) => {
     try {
-        const [projectPlans] = await pool.query('SELECT DISTINCT plan_slug FROM projects WHERE user_id = ?', [userId]);
-        if (projectPlans.length === 0) return DEFAULT_LIMITS;
+        // Check cache first
+        if (limitsCache.has(userId)) {
+            const cached = limitsCache.get(userId);
+            if (Date.now() - cached.timestamp < 300000) { // 5 minutes cache
+                return { ...cached.data, fromCache: true };
+            }
+        }
 
+        const [projects] = await pool.query('SELECT id, plan_slug FROM projects WHERE user_id = ?', [userId]);
         const [allPlans] = await pool.query('SELECT slug, limits_config FROM plans');
-        const planLimitsMap = {};
+        
+        const planDefinitions = {};
         allPlans.forEach(p => {
-            planLimitsMap[p.slug] = p.limits_config ? (typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config) : DEFAULT_LIMITS;
+            planDefinitions[p.slug] = p.limits_config ? (typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config) : DEFAULT_LIMITS;
         });
 
-        let bestPlanSlug = 'starter';
-        let maxProjects = -1;
+        if (projects.length === 0) return { ...DEFAULT_LIMITS, projectLimits: {}, fromCache: false };
 
-        projectPlans.forEach(pp => {
-            const slug = pp.plan_slug || 'starter';
-            const limits = planLimitsMap[slug] || DEFAULT_LIMITS;
-            if (limits.maxProjects > maxProjects) {
-                maxProjects = limits.maxProjects;
-                bestPlanSlug = slug;
+        // Filter out 'starter' if there are other plans
+        const activeProjectPlans = projects.map(p => ({ id: p.id, slug: p.plan_slug || 'starter' }));
+        const hasPremiumPlans = activeProjectPlans.some(p => p.slug !== 'starter');
+        
+        const relevantPlans = hasPremiumPlans 
+            ? activeProjectPlans.filter(p => p.slug !== 'starter')
+            : activeProjectPlans;
+
+        const summary = {
+            maxProjects: 0,
+            maxLandings: 0,
+            maxArticles: 0,
+            maxDomains: 0,
+            maxEmailSequences: 0,
+            maxWhatsAppLaunches: 0,
+            maxHooks: 0,
+            features: { ...DEFAULT_LIMITS.features }
+        };
+
+        const projectLimits = {};
+        let bestPlanSlug = 'starter';
+        let highestProjectCount = -1;
+
+        relevantPlans.forEach(p => {
+            const limits = planDefinitions[p.slug] || DEFAULT_LIMITS;
+            projectLimits[p.id] = { ...limits, planName: p.slug };
+            
+            // Sum up global capacities
+            summary.maxProjects += (limits.maxProjects || 0);
+            summary.maxLandings += (limits.maxLandings || 0);
+            summary.maxArticles += (limits.maxArticles || 0);
+            summary.maxDomains += (limits.maxDomains || 0);
+            summary.maxEmailSequences += (limits.maxEmailSequences || 0);
+            summary.maxWhatsAppLaunches += (limits.maxWhatsAppLaunches || 0);
+            summary.maxHooks += (limits.maxHooks || 0);
+
+            // Merge features (if any plan has it, the user has it globally)
+            if (limits.features) {
+                Object.keys(limits.features).forEach(feat => {
+                    if (limits.features[feat]) summary.features[feat] = true;
+                });
+            }
+
+            if ((limits.maxProjects || 0) > highestProjectCount) {
+                highestProjectCount = limits.maxProjects;
+                bestPlanSlug = p.slug;
             }
         });
 
-        const finalLimits = planLimitsMap[bestPlanSlug] || DEFAULT_LIMITS;
-        return { ...finalLimits, planName: bestPlanSlug };
+        const result = {
+            ...summary,
+            planName: bestPlanSlug,
+            projectLimits,
+            allActivePlans: Array.from(new Set(relevantPlans.map(p => p.slug)))
+        };
+
+        limitsCache.set(userId, { data: result, timestamp: Date.now() });
+        return { ...result, fromCache: false };
     } catch (error) {
         console.error("Error fetching effective limits:", error);
         return DEFAULT_LIMITS;
