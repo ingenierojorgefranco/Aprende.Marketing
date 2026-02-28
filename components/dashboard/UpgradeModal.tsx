@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { X, Check, Crown, ShieldCheck, Loader2, Star, Sparkles, Zap, Rocket, Shield, ArrowRight } from 'lucide-react';
 import { api } from '../../services/api';
-import { Plan } from '../../types';
+import { Plan, User } from '../../types';
 
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose?: () => void;
+  user?: User;
   currentPlan?: string;
   reason?: string;
-  ////////// Se añade userId y projectId opcional a las props para tracking SRC - 25/05/2025 11:30 //////////
   userId?: string;
   projectId?: string;
-  ////////// Fin de actualización - 25/05/2025 11:30 //////////
 }
 
-export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, currentPlan, reason, userId, projectId }) => {
+export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, user, currentPlan, reason, userId, projectId }) => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   ////////// Estado para el método de pago activo del sistema - 24/05/2025 10:30 //////////
@@ -49,7 +48,11 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
               
               // ////////// Selección inteligente del plan actual por defecto - 26/02/2026 //////////
               const effectiveCurrentPlan = (currentPlan && planOrder.includes(currentPlan)) ? currentPlan : 'starter';
-              setSelectedPlanSlug(effectiveCurrentPlan);
+              const currentIndex = planOrder.indexOf(effectiveCurrentPlan);
+              const nextSlug = currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
+              
+              // Seleccionamos el siguiente plan por defecto para incentivar la mejora
+              setSelectedPlanSlug(nextSlug || effectiveCurrentPlan);
               // ////////// Fin de actualización //////////
           })
           .catch(err => console.error("Error loading upgrade modal data", err))
@@ -247,7 +250,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                             {/* Badges de Estado */}
                                             {isCurrent && (
                                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-emerald-500 text-black text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
-                                                    Tu Plan Actual
+                                                    Tu Nivel Actual
                                                 </div>
                                             )}
                                             {!isCurrent && (
@@ -326,7 +329,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, cur
                                                     }`}
                                                 >
                                                     {processing === selectedPlanData.slug ? <Loader2 className="w-6 h-6 animate-spin" /> : null}
-                                                    {currentPlan === selectedPlanData.slug ? 'Tu Plan Actual' : `Activar ${selectedPlanData.name}`}
+                                                    {currentPlan === selectedPlanData.slug ? 'Tu Nivel Actual' : `Activar ${selectedPlanData.name}`}
                                                     <ArrowRight className="w-6 h-6" />
                                                 </button>
                                                 <p className="text-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">
