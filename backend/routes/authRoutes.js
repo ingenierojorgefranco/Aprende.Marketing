@@ -49,6 +49,7 @@ const getEffectiveLimits = async (userId) => {
             }
         }
 
+        const [subscriptions] = await pool.query('SELECT plan_slug FROM user_subscriptions WHERE user_id = ? AND status = "active"', [userId]);
         const [projects] = await pool.query('SELECT id, plan_slug FROM projects WHERE user_id = ?', [userId]);
         const [allPlans] = await pool.query('SELECT slug, limits_config FROM plans');
         
@@ -57,15 +58,20 @@ const getEffectiveLimits = async (userId) => {
             planDefinitions[p.slug] = p.limits_config ? (typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config) : DEFAULT_LIMITS;
         });
 
-        if (projects.length === 0) return { ...DEFAULT_LIMITS, projectLimits: {}, fromCache: false };
+        // If no subscriptions, use projects as fallback (legacy) or starter
+        let activeSlugs = subscriptions.map(s => s.plan_slug);
+        if (activeSlugs.length === 0) {
+            // Fallback to project plans if no explicit subscriptions found
+            activeSlugs = Array.from(new Set(projects.map(p => p.plan_slug || 'starter')));
+        }
+
+        if (activeSlugs.length === 0) return { ...DEFAULT_LIMITS, projectLimits: {}, fromCache: false };
 
         // Filter out 'starter' if there are other plans
-        const activeProjectPlans = projects.map(p => ({ id: p.id, slug: p.plan_slug || 'starter' }));
-        const hasPremiumPlans = activeProjectPlans.some(p => p.slug !== 'starter');
-        
-        const relevantPlans = hasPremiumPlans 
-            ? activeProjectPlans.filter(p => p.slug !== 'starter')
-            : activeProjectPlans;
+        const hasPremiumPlans = activeSlugs.some(slug => slug !== 'starter');
+        const relevantSlugs = hasPremiumPlans 
+            ? activeSlugs.filter(slug => slug !== 'starter')
+            : activeSlugs;
 
         const summary = {
             maxProjects: 0,
@@ -78,15 +84,10 @@ const getEffectiveLimits = async (userId) => {
             features: { ...DEFAULT_LIMITS.features }
         };
 
-        const projectLimits = {};
-        let bestPlanSlug = 'starter';
-        let highestProjectCount = -1;
-
-        relevantPlans.forEach(p => {
-            const limits = planDefinitions[p.slug] || DEFAULT_LIMITS;
-            projectLimits[p.id] = { ...limits, planName: p.slug };
+        relevantSlugs.forEach(slug => {
+            const limits = planDefinitions[slug] || DEFAULT_LIMITS;
             
-            // Sum up global capacities
+            // Sum up global capacities (Inventory based)
             summary.maxProjects += (limits.maxProjects || 0);
             summary.maxLandings += (limits.maxLandings || 0);
             summary.maxArticles += (limits.maxArticles || 0);
@@ -95,16 +96,30 @@ const getEffectiveLimits = async (userId) => {
             summary.maxWhatsAppLaunches += (limits.maxWhatsAppLaunches || 0);
             summary.maxHooks += (limits.maxHooks || 0);
 
-            // Merge features (if any plan has it, the user has it globally)
+            // Merge features
             if (limits.features) {
                 Object.keys(limits.features).forEach(feat => {
                     if (limits.features[feat]) summary.features[feat] = true;
                 });
             }
+        });
 
+        // Project specific limits (based on the plan assigned to the project)
+        const projectLimits = {};
+        projects.forEach(proj => {
+            const slug = proj.plan_slug || 'starter';
+            const limits = planDefinitions[slug] || DEFAULT_LIMITS;
+            projectLimits[proj.id] = { ...limits, planName: slug };
+        });
+
+        // Determine "Best Plan" for UI display name
+        let bestPlanSlug = 'starter';
+        let highestProjectCount = -1;
+        relevantSlugs.forEach(slug => {
+            const limits = planDefinitions[slug] || DEFAULT_LIMITS;
             if ((limits.maxProjects || 0) > highestProjectCount) {
                 highestProjectCount = limits.maxProjects;
-                bestPlanSlug = p.slug;
+                bestPlanSlug = slug;
             }
         });
 
@@ -112,7 +127,8 @@ const getEffectiveLimits = async (userId) => {
             ...summary,
             planName: bestPlanSlug,
             projectLimits,
-            allActivePlans: Array.from(new Set(relevantPlans.map(p => p.slug)))
+            allActivePlans: relevantSlugs,
+            inventoryCount: relevantSlugs.length
         };
 
         limitsCache.set(userId, { data: result, timestamp: Date.now() });

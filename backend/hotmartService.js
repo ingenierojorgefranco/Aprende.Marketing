@@ -64,7 +64,14 @@ export const handleWebhook = async (payload) => {
             ? JSON.parse(plan.limits_config) 
             : plan.limits_config;
 
-        // 2. Actualizar usuario (Lógica Global - Opcional si queremos mantener límites globales)
+        // 2. Insertar en el "Inventario de Suscripciones" (NUEVO)
+        await pool.query(
+            `INSERT INTO user_subscriptions (user_id, plan_slug, status, hotmart_purchase_id) 
+             VALUES (?, ?, 'active', ?)`,
+            [userId, plan.slug, data.purchase?.transaction || null]
+        );
+
+        // 3. Actualizar usuario (Lógica Global - Opcional si queremos mantener límites globales)
         await pool.query(
             `UPDATE users SET 
                 subscription_status = 'active',

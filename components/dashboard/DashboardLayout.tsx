@@ -185,6 +185,7 @@ export const DashboardLayout = ({
         resumenGlobal: {
             planPrincipal: limits?.planName,
             todosLosPlanesActivos: limits?.allActivePlans,
+            totalSuscripcionesEnInventario: (limits as any)?.inventoryCount || 0,
             capacidadesTotales: {
                 proyectos: limits?.maxProjects,
                 landings: limits?.maxLandings,
