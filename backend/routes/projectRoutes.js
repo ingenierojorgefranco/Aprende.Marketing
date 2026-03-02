@@ -1,7 +1,7 @@
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
-import { logSystemActivity, DEFAULT_LIMITS, getEffectiveLimits } from './authRoutes.js';
+import { logSystemActivity, DEFAULT_LIMITS, getEffectiveLimits, clearLimitsCache } from './authRoutes.js';
 import { generateFullStrategy, analyzeWebsiteContent } from '../geminiService.js';
 import https from 'https';
 
@@ -214,18 +214,25 @@ router.get('/', async (req, res) => {
     let params = [req.user.id, req.user.id, req.user.id, req.user.id];
 
     const [rows] = await pool.query(query, params);
-    const projects = rows.map(p => ({
-        ...p,
-        pain_points: safeParseJson(p.pain_points),
-        key_benefits: safeParseJson(p.key_benefits),
-        affiliate_links: safeParseJson(p.affiliate_links),
-        strategy_json: safeParseJson(p.strategy_json),
-        planId: p.plan_id ? String(p.plan_id) : undefined,
-        planSlug: p.plan_slug || 'starter',
-        isMaster: !!p.is_master,
-        isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked,
-        masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined
-    }));
+    const effectiveLimits = await getEffectiveLimits(req.user.id);
+    const projectStatusMap = effectiveLimits.projectStatus || {};
+
+    const projects = rows.map(p => {
+        const status = projectStatusMap[p.id] || { planName: p.plan_slug || 'starter', isBlocked: false };
+        return {
+            ...p,
+            pain_points: safeParseJson(p.pain_points),
+            key_benefits: safeParseJson(p.key_benefits),
+            affiliate_links: safeParseJson(p.affiliate_links),
+            strategy_json: safeParseJson(p.strategy_json),
+            planId: p.plan_id ? String(p.plan_id) : undefined,
+            planSlug: status.planName,
+            isBlocked: status.isBlocked,
+            isMaster: !!p.is_master,
+            isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked,
+            masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined
+        };
+    });
     res.json(projects);
   } catch (error) { res.status(500).json({ error: 'Error cargando proyectos' }); }
 });
@@ -239,12 +246,17 @@ router.get('/:id', async (req, res) => {
     `, [req.user.id, req.user.id, req.params.id, req.user.id, req.user.id, req.user.role]);
     if (rows.length === 0) return res.status(404).json({ error: 'No encontrado' });
     const project = rows[0];
+    
+    const effectiveLimits = await getEffectiveLimits(req.user.id);
+    const status = (effectiveLimits.projectStatus || {})[project.id] || { planName: project.plan_slug || 'starter', isBlocked: false };
+
     project.pain_points = safeParseJson(project.pain_points);
     project.key_benefits = safeParseJson(project.key_benefits);
     project.affiliate_links = safeParseJson(project.affiliate_links);
     project.strategy_json = safeParseJson(project.strategy_json);
     project.planId = project.plan_id ? String(project.plan_id) : undefined;
-    project.planSlug = project.plan_slug || 'starter';
+    project.planSlug = status.planName;
+    project.isBlocked = status.isBlocked;
     project.isMaster = !!project.is_master;
     project.masterParentId = project.master_parent_id ? String(project.master_parent_id) : undefined;
     res.json(project);
@@ -276,6 +288,7 @@ router.post('/', async (req, res) => {
       [req.user.id, name, niche, description, targetAudience, brandTone, productName, mainGoal, JSON.stringify(painPoints || []), JSON.stringify(keyBenefits || []), JSON.stringify(affiliateLinks || []), strategy_json ? JSON.stringify(strategy_json) : null, fullPrice || 0, commissionRate || 0, leadMagnetType || '', salesPageUrl || '', isMasterFinal, planId, planSlug]
     );
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_PROJECT', 'project', result.insertId, { name });
+    clearLimitsCache(req.user.id);
     res.json({ id: result.insertId });
   } catch (error) { res.status(500).json({ error: 'Error BD' }); }
 });
@@ -321,6 +334,7 @@ router.delete('/:id', async (req, res) => {
     // 4. Log de actividad (asegurando DELETE_PROJECT)
     await logSystemActivity(req.user.id, req.user.email, 'DELETE_PROJECT', 'project', req.params.id, {});
     
+    clearLimitsCache(req.user.id);
     res.json({ message: 'Eliminado.' });
   } catch (error) { 
       res.status(500).json({ error: error.message }); 
@@ -340,6 +354,13 @@ router.post('/:id/generate-strategy', async (req, res) => {
         if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) {
             console.warn(`[AUTH WARN] Intento de acceso no autorizado o proyecto inexistente: ${req.params.id}`);
             return res.status(403).json({ error: 'No autorizado' });
+        }
+
+        // Verificar si el proyecto está bloqueado por límites de plan
+        const effectiveLimits = await getEffectiveLimits(req.user.id);
+        const status = (effectiveLimits.projectStatus || {})[req.params.id];
+        if (status?.isBlocked && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Este proyecto está bloqueado. Mejora tu plan para activarlo.' });
         }
 
         // Call pipeline passing only the ID

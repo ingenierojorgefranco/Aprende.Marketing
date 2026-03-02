@@ -385,11 +385,27 @@ export const ProjectsList: React.FC = () => {
                             return (
                                 <div 
                                     key={project.id} 
-                                    onClick={() => navigate(`/dashboard/projects/${project.id}/strategy`)}
-                                    className={`bg-[#111] rounded-[2.5rem] border transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl ${isClonedFromMaster ? 'border-yellow-500/40 hover:border-yellow-500/60 shadow-yellow-500/10' : 'border-white/5 hover:border-[#FF5A1F]/30'}`}
+                                    onClick={() => {
+                                        if (project.isBlocked && user.role !== 'admin') {
+                                            setShowUpgradeModal(true);
+                                            return;
+                                        }
+                                        navigate(`/dashboard/projects/${project.id}/strategy`);
+                                    }}
+                                    className={`bg-[#111] rounded-[2.5rem] border transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl ${project.isBlocked && user.role !== 'admin' ? 'opacity-60 grayscale-[0.5] border-red-500/20' : isClonedFromMaster ? 'border-yellow-500/40 hover:border-yellow-500/60 shadow-yellow-500/10' : 'border-white/5 hover:border-[#FF5A1F]/30'}`}
                                 >
-                                    <div className={`absolute top-0 left-0 w-full h-1 opacity-80 ${isClonedFromMaster ? 'bg-gradient-to-r from-yellow-400 to-amber-600' : 'bg-gradient-to-r from-[#FF5A1F] to-orange-600'}`}></div>
+                                    <div className={`absolute top-0 left-0 w-full h-1 opacity-80 ${project.isBlocked && user.role !== 'admin' ? 'bg-red-500' : isClonedFromMaster ? 'bg-gradient-to-r from-yellow-400 to-amber-600' : 'bg-gradient-to-r from-[#FF5A1F] to-orange-600'}`}></div>
                                     
+                                    {project.isBlocked && user.role !== 'admin' && (
+                                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                                            <div className="bg-black/80 border border-red-500/30 p-6 rounded-3xl text-center shadow-2xl transform group-hover:scale-105 transition-transform">
+                                                <Lock className="w-12 h-12 text-red-500 mx-auto mb-3" />
+                                                <p className="text-white font-black text-sm uppercase tracking-widest">Proyecto Bloqueado</p>
+                                                <p className="text-gray-400 text-[10px] mt-1 font-bold uppercase tracking-tight">Mejora tu plan para activarlo</p>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="p-8 flex-1 flex flex-col">
                                         <div className="flex justify-between items-start mb-6">
                                             <div className="flex flex-col gap-2">
@@ -402,10 +418,17 @@ export const ProjectsList: React.FC = () => {
                                                     Plan: {project.planSlug || 'Starter'}
                                                 </div>
                                             </div>
-                                            <div className="flex gap-2">
+                                            <div className="flex gap-2 relative z-20">
                                                 {!isClonedFromMaster && (
                                                     <button 
-                                                        onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/projects/edit/${project.id}`); }}
+                                                        onClick={(e) => { 
+                                                            e.stopPropagation(); 
+                                                            if (project.isBlocked && user.role !== 'admin') {
+                                                                setShowUpgradeModal(true);
+                                                                return;
+                                                            }
+                                                            navigate(`/dashboard/projects/edit/${project.id}`); 
+                                                        }}
                                                         className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
                                                     >
                                                         <Edit2 className="w-4 h-4" />
@@ -427,21 +450,29 @@ export const ProjectsList: React.FC = () => {
                                             {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción definida.")}
                                         </p>
 
-                                        <div className="mt-auto space-y-4 pt-6 border-t border-white/5">
+                                        <div className="mt-auto space-y-4 pt-6 border-t border-white/5 relative z-20">
                                             <button 
-                                                onClick={(e) => handleViewStrategy(e, project)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (project.isBlocked && user.role !== 'admin') {
+                                                        setShowUpgradeModal(true);
+                                                        return;
+                                                    }
+                                                    handleViewStrategy(e, project);
+                                                }}
                                                 disabled={generatingId === project.id}
-                                                className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98] ${isClonedFromMaster ? 'bg-yellow-600 hover:bg-yellow-500 text-black shadow-yellow-900/20' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-[#FF5A1F]/20'}`}
+                                                className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98] ${project.isBlocked && user.role !== 'admin' ? 'bg-gray-800 text-gray-500' : isClonedFromMaster ? 'bg-yellow-600 hover:bg-yellow-500 text-black shadow-yellow-900/20' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-[#FF5A1F]/20'}`}
                                             >
-                                                <Zap className="w-4 h-4 fill-current" /> Ver Estrategia de Proyecto
+                                                {project.isBlocked && user.role !== 'admin' ? <Lock className="w-4 h-4" /> : <Zap className="w-4 h-4 fill-current" />} 
+                                                {project.isBlocked && user.role !== 'admin' ? 'Proyecto Bloqueado' : 'Ver Estrategia de Proyecto'}
                                             </button>
 
-                                            {project.planSlug !== 'plan-max-10' && (
+                                            {(project.planSlug !== 'plan-max-10' || project.isBlocked) && (
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); setUpgradeProjectId(project.id); setShowUpgradeModal(true); }}
-                                                    className="w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 flex items-center justify-center gap-2"
+                                                    className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border flex items-center justify-center gap-2 ${project.isBlocked && user.role !== 'admin' ? 'bg-emerald-600 text-white border-emerald-500' : 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10'}`}
                                                 >
-                                                    <Crown className="w-3 h-3" /> {project.planSlug === 'starter' ? 'Actualizar a PRO' : 'Siguiente Nivel'}
+                                                    <Crown className="w-3 h-3" /> {project.isBlocked && user.role !== 'admin' ? 'Desbloquear Proyecto' : project.planSlug === 'starter' ? 'Actualizar a PRO' : 'Siguiente Nivel'}
                                                 </button>
                                             )}
 

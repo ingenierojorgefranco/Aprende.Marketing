@@ -39,6 +39,11 @@ const createToken = (user) => {
 
 const limitsCache = new Map();
 
+export const clearLimitsCache = (userId) => {
+    if (userId) limitsCache.delete(userId);
+    else limitsCache.clear();
+};
+
 export const PLAN_ORDER = ['starter', 'plan-max-1', 'plan-max-2', 'plan-max-3', 'plan-max-4', 'plan-max-5', 'plan-max-6', 'plan-max-7', 'plan-max-8', 'plan-max-9', 'plan-max-10'];
 
 export const getEffectiveLimits = async (userId) => {
@@ -52,7 +57,7 @@ export const getEffectiveLimits = async (userId) => {
         }
 
         const [subscriptions] = await pool.query('SELECT plan_slug FROM user_subscriptions WHERE user_id = ? AND status = "active"', [userId]);
-        const [projects] = await pool.query('SELECT id, plan_slug FROM projects WHERE user_id = ?', [userId]);
+        const [projects] = await pool.query('SELECT id, plan_slug, created_at FROM projects WHERE user_id = ? AND is_master = 0 ORDER BY created_at ASC', [userId]);
         const [allPlans] = await pool.query('SELECT slug, limits_config FROM plans');
         
         const planDefinitions = {};
@@ -60,20 +65,46 @@ export const getEffectiveLimits = async (userId) => {
             planDefinitions[p.slug] = p.limits_config ? (typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config) : DEFAULT_LIMITS;
         });
 
-        // If no subscriptions, use projects as fallback (legacy) or starter
-        let activeSlugs = subscriptions.map(s => s.plan_slug);
-        if (activeSlugs.length === 0) {
-            // Fallback to project plans if no explicit subscriptions found
-            activeSlugs = Array.from(new Set(projects.map(p => p.plan_slug || 'starter')));
-        }
+        // Active slugs from subscriptions
+        const activeSlugs = subscriptions.map(s => s.plan_slug);
+        const activeSlugsSet = new Set(activeSlugs);
 
-        if (activeSlugs.length === 0) return { ...DEFAULT_LIMITS, projectLimits: {}, fromCache: false };
+        // Project specific limits and dynamic status
+        const projectLimits = {};
+        const projectStatus = {};
 
-        // Filter out 'starter' if there are other plans
+        projects.forEach((proj, index) => {
+            const slotNumber = index + 1;
+            const slotPlanSlug = `plan-max-${slotNumber}`;
+            
+            let effectivePlanSlug = 'starter';
+            let isBlocked = false;
+
+            if (slotNumber === 1) {
+                // Slot 1 is always active. Use plan-max-1 if active, else starter.
+                effectivePlanSlug = activeSlugsSet.has('plan-max-1') ? 'plan-max-1' : 'starter';
+                isBlocked = false;
+            } else {
+                // Slots 2+ are tied to their plan-max-N
+                if (activeSlugsSet.has(slotPlanSlug)) {
+                    effectivePlanSlug = slotPlanSlug;
+                    isBlocked = false;
+                } else {
+                    effectivePlanSlug = slotPlanSlug; // Keep the name but block it
+                    isBlocked = true;
+                }
+            }
+
+            const limits = planDefinitions[effectivePlanSlug] || DEFAULT_LIMITS;
+            projectLimits[proj.id] = { ...limits, planName: effectivePlanSlug, isBlocked };
+            projectStatus[proj.id] = { planName: effectivePlanSlug, isBlocked };
+        });
+
+        // Filter out 'starter' if there are other plans for global summary
         const hasPremiumPlans = activeSlugs.some(slug => slug !== 'starter');
         const relevantSlugs = hasPremiumPlans 
             ? activeSlugs.filter(slug => slug !== 'starter')
-            : activeSlugs;
+            : (activeSlugs.length > 0 ? activeSlugs : ['starter']);
 
         const summary = {
             maxProjects: 0,
@@ -131,8 +162,9 @@ export const getEffectiveLimits = async (userId) => {
             ...summary,
             planName: bestPlanSlug,
             projectLimits,
-            allActivePlans: relevantSlugs,
-            inventoryCount: relevantSlugs.length
+            projectStatus,
+            allActivePlans: activeSlugs,
+            inventoryCount: activeSlugs.length
         };
 
         limitsCache.set(userId, { data: result, timestamp: Date.now() });

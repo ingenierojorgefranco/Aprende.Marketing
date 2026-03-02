@@ -529,6 +529,7 @@ export interface Project {
   
   planId?: string; // NEW: Plan ID assigned to this specific project
   planSlug?: string; // NEW: Plan slug assigned to this specific project
+  isBlocked?: boolean; // NEW: Status for project blocking based on slots
   limitsConfig?: PlanLimits; // NEW: Specific limits for this project
   isActive?: boolean; // NEW: Status of the project plan
   
