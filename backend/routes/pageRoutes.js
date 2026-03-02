@@ -3,7 +3,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
-import { logSystemActivity, DEFAULT_LIMITS } from './authRoutes.js';
+import { logSystemActivity, DEFAULT_LIMITS, getEffectiveLimits } from './authRoutes.js';
 import * as systemeIoService from '../systemeIoService.js';
 
 const router = express.Router();
@@ -80,14 +80,12 @@ router.get('/pages', authMiddleware, async (req, res) => {
 router.post('/pages', authMiddleware, async (req, res) => {
   const { name, niche, goal, subdomain, content, projectId } = req.body;
   try {
-    const [projectData] = await pool.query('SELECT plan_slug FROM projects WHERE id = ?', [projectId]);
-    const planSlug = projectData[0]?.plan_slug || 'starter';
-    const [planData] = await pool.query('SELECT limits_config FROM plans WHERE slug = ?', [planSlug]);
-    const limits = planData[0]?.limits_config ? (typeof planData[0].limits_config === 'string' ? JSON.parse(planData[0].limits_config) : planData[0].limits_config) : DEFAULT_LIMITS;
+    const effectiveLimits = await getEffectiveLimits(req.user.id);
+    const maxLandings = effectiveLimits.maxLandings;
     
     const [count] = await pool.query('SELECT COUNT(*) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
-    if (count[0].c >= limits.maxLandings) {
-        return res.status(403).json({ error: `Has alcanzado el límite de almacenamiento de ${limits.maxLandings} páginas.` });
+    if (count[0].c >= maxLandings && req.user.role !== 'admin') {
+        return res.status(403).json({ error: `Has alcanzado el límite de almacenamiento de ${maxLandings} páginas.` });
     }
     
     const tyPage = content.thankYouPage;

@@ -39,9 +39,9 @@ const createToken = (user) => {
 
 const limitsCache = new Map();
 
-const PLAN_ORDER = ['starter', 'plan-max-1', 'plan-max-2', 'plan-max-3', 'plan-max-4', 'plan-max-5', 'plan-max-6', 'plan-max-7', 'plan-max-8', 'plan-max-9', 'plan-max-10'];
+export const PLAN_ORDER = ['starter', 'plan-max-1', 'plan-max-2', 'plan-max-3', 'plan-max-4', 'plan-max-5', 'plan-max-6', 'plan-max-7', 'plan-max-8', 'plan-max-9', 'plan-max-10'];
 
-const getEffectiveLimits = async (userId) => {
+export const getEffectiveLimits = async (userId) => {
     try {
         // Check cache first
         if (limitsCache.has(userId)) {

@@ -140,12 +140,7 @@ export const ProjectsList: React.FC = () => {
         }
 
         const isRealAdmin = user.role === 'admin' && !isSimulating;
-        const maxProjectsCalculated = projects.reduce((max, p) => {
-            if (!p.planSlug || p.planSlug === 'starter') return Math.max(max, 1);
-            const match = p.planSlug.match(/\d+/);
-            const capacity = match ? parseInt(match[0]) : 1;
-            return Math.max(max, capacity);
-        }, 1);
+        const maxProjectsCalculated = user.planLimits?.maxProjects || 1;
         const totalActive = projects.length;
 
         if (totalActive >= maxProjectsCalculated && !isRealAdmin) {
@@ -247,12 +242,7 @@ export const ProjectsList: React.FC = () => {
 
     // Plan Logic
     const isRealAdmin = user.role === 'admin' && !isSimulating;
-    const maxProjects = projects.reduce((max, p) => {
-        if (!p.planSlug || p.planSlug === 'starter') return Math.max(max, 1);
-        const match = p.planSlug.match(/\d+/);
-        const capacity = match ? parseInt(match[0]) : 1;
-        return Math.max(max, capacity);
-    }, 1);
+    const maxProjects = user.planLimits?.maxProjects || 1;
     const currentCount = projects.length;
     const usagePercent = Math.min(100, (currentCount / maxProjects) * 100);
     const isAtLimit = !isRealAdmin && currentCount >= maxProjects;

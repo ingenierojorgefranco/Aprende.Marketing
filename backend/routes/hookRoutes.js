@@ -1,7 +1,7 @@
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
-import { DEFAULT_LIMITS } from './authRoutes.js';
+import { DEFAULT_LIMITS, getEffectiveLimits } from './authRoutes.js';
 
 const router = express.Router();
 router.use(authMiddleware);
@@ -98,23 +98,16 @@ router.post('/unlock-single', async (req, res) => {
     if (!projectId || !masterHookId) return res.status(400).json({ error: "Faltan parámetros" });
 
     try {
-        const [projectData] = await pool.query('SELECT plan_slug FROM projects WHERE id = ?', [projectId]);
-        if (projectData.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
+        const effectiveLimits = await getEffectiveLimits(req.user.id);
+        const maxAllowed = effectiveLimits.maxHooks;
         
-        const planSlug = projectData[0].plan_slug || 'starter';
-        const [planData] = await pool.query('SELECT limits_config FROM plans WHERE slug = ?', [planSlug]);
-        const limits = planData[0]?.limits_config ? (typeof planData[0].limits_config === 'string' ? JSON.parse(planData[0].limits_config) : planData[0].limits_config) : DEFAULT_LIMITS;
-        
-        const [userData] = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
-        
-        if (userData[0]?.role !== 'admin' && limits) {
+        if (req.user.role !== 'admin') {
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
                 FROM project_hooks
                 WHERE project_id = ?
             `, [projectId]);
             
-            const maxAllowed = limits.maxHooks || 10;
             if (countRows[0].total >= maxAllowed) {
                 return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} ganchos para este proyecto.` });
             }
@@ -144,27 +137,23 @@ router.post('/unlock-single', async (req, res) => {
 router.post('/unlock-more/:projectId', async (req, res) => {
     const { projectId } = req.params;
     try {
-        const [projectData] = await pool.query('SELECT master_parent_id, plan_slug FROM projects WHERE id = ?', [projectId]);
+        const [projectData] = await pool.query('SELECT master_parent_id FROM projects WHERE id = ?', [projectId]);
         if (projectData.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
         
         const masterParentId = projectData[0].master_parent_id;
         if (!masterParentId) return res.status(400).json({ error: "Este proyecto no está vinculado a una biblioteca maestra." });
 
-        const planSlug = projectData[0].plan_slug || 'starter';
-        const [planData] = await pool.query('SELECT limits_config FROM plans WHERE slug = ?', [planSlug]);
-        const limits = planData[0]?.limits_config ? (typeof planData[0].limits_config === 'string' ? JSON.parse(planData[0].limits_config) : planData[0].limits_config) : DEFAULT_LIMITS;
-        
-        const [userData] = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
+        const effectiveLimits = await getEffectiveLimits(req.user.id);
+        const maxAllowed = effectiveLimits.maxHooks;
         
         let maxToLoad = 10;
-        if (userData[0]?.role !== 'admin' && limits) {
+        if (req.user.role !== 'admin') {
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
                 FROM project_hooks
                 WHERE project_id = ?
             `, [projectId]);
             
-            const maxAllowed = limits.maxHooks || 10;
             const remaining = maxAllowed - countRows[0].total;
             
             if (remaining <= 0) {
@@ -231,23 +220,16 @@ router.put('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     const { projectId, title, psychologicalStrategy, contentJson } = req.body;
     try {
-        const [projectData] = await pool.query('SELECT plan_slug FROM projects WHERE id = ?', [projectId]);
-        if (projectData.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
-
-        const planSlug = projectData[0].plan_slug || 'starter';
-        const [planData] = await pool.query('SELECT limits_config FROM plans WHERE slug = ?', [planSlug]);
-        const limits = planData[0]?.limits_config ? (typeof planData[0].limits_config === 'string' ? JSON.parse(planData[0].limits_config) : planData[0].limits_config) : DEFAULT_LIMITS;
+        const effectiveLimits = await getEffectiveLimits(req.user.id);
+        const maxAllowed = effectiveLimits.maxHooks;
         
-        const [userData] = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
-        
-        if (userData[0]?.role !== 'admin' && limits) {
+        if (req.user.role !== 'admin') {
             const [countRows] = await pool.query(`
                 SELECT COUNT(*) as total 
                 FROM project_hooks
                 WHERE project_id = ?
             `, [projectId]);
             
-            const maxAllowed = limits.maxHooks || 10;
             if (countRows[0].total >= maxAllowed) {
                 return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} ganchos para este proyecto.` });
             }

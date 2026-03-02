@@ -2,7 +2,7 @@ import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
 import { GoogleGenAI } from "@google/genai";
-import { DEFAULT_LIMITS } from './authRoutes.js';
+import { DEFAULT_LIMITS, getEffectiveLimits } from './authRoutes.js';
 
 const router = express.Router();
 
@@ -74,20 +74,13 @@ router.post('/launches', authMiddleware, async (req, res) => {
             return res.json({ id: existing[0].id });
         }
 
-        const [projectData] = await pool.query('SELECT plan_slug FROM projects WHERE id = ?', [projectId]);
-        if (projectData.length === 0) return res.status(404).json({ error: "Proyecto no encontrado" });
+        const effectiveLimits = await getEffectiveLimits(req.user.id);
+        const maxAllowed = effectiveLimits.maxWhatsAppLaunches;
         
-        const planSlug = projectData[0].plan_slug || 'starter';
-        const [planData] = await pool.query('SELECT limits_config FROM plans WHERE slug = ?', [planSlug]);
-        const limits = planData[0]?.limits_config ? (typeof planData[0].limits_config === 'string' ? JSON.parse(planData[0].limits_config) : planData[0].limits_config) : DEFAULT_LIMITS;
-        
-        const [userData] = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
-        
-        if (userData[0]?.role !== 'admin' && limits) {
-            const [countRows] = await pool.query('SELECT COUNT(*) as total FROM whatsapp_lanzamientos WHERE project_id = ?', [projectId]);
-            const maxAllowed = limits.maxWhatsAppLaunches || 1;
+        if (req.user.role !== 'admin') {
+            const [countRows] = await pool.query('SELECT COUNT(*) as total FROM whatsapp_lanzamientos WHERE user_id = ?', [req.user.id]);
             if (countRows[0].total >= maxAllowed) {
-                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} lanzamientos para este proyecto.` });
+                return res.status(403).json({ error: `Has alcanzado el límite de ${maxAllowed} lanzamientos en tu plan.` });
             }
         }
 

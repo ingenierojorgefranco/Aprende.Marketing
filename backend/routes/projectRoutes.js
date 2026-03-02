@@ -1,7 +1,7 @@
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
-import { logSystemActivity, DEFAULT_LIMITS } from './authRoutes.js';
+import { logSystemActivity, DEFAULT_LIMITS, getEffectiveLimits } from './authRoutes.js';
 import { generateFullStrategy, analyzeWebsiteContent } from '../geminiService.js';
 import https from 'https';
 
@@ -76,14 +76,9 @@ router.post('/unlock/:id', async (req, res) => {
         const master = projRows[0];
         
         // 2. Verificar límites del usuario de forma dinámica
-        const [userProjects] = await pool.query('SELECT plan_slug FROM projects WHERE user_id = ?', [req.user.id]);
-        const [allPlans] = await pool.query('SELECT slug, limits_config FROM plans');
-        
-        const maxProjects = userProjects.reduce((max, p) => {
-            const plan = allPlans.find(pl => pl.slug === p.plan_slug);
-            const planLimits = plan?.limits_config ? (typeof plan.limits_config === 'string' ? JSON.parse(plan.limits_config) : plan.limits_config) : null;
-            return Math.max(max, planLimits?.maxProjects || 1);
-        }, 1);
+        const [userProjects] = await pool.query('SELECT id FROM projects WHERE user_id = ? AND is_master = 0', [req.user.id]);
+        const effectiveLimits = await getEffectiveLimits(req.user.id);
+        const maxProjects = effectiveLimits.maxProjects;
         
         if (req.user.role !== 'admin' && userProjects.length >= maxProjects) {
             return res.status(403).json({ error: `Has alcanzado el límite de ${maxProjects} proyectos en tu plan.` });
@@ -260,14 +255,9 @@ router.post('/', async (req, res) => {
   const { name, niche, description, targetAudience, brandTone, productName, mainGoal, painPoints, keyBenefits, affiliateLinks, strategy_json, fullPrice, commissionRate, leadMagnetType, salesPageUrl, isMaster } = req.body;
   try {
     // Verificar límites del usuario de forma dinámica
-    const [userProjects] = await pool.query('SELECT plan_slug FROM projects WHERE user_id = ?', [req.user.id]);
-    const [allPlans] = await pool.query('SELECT slug, limits_config FROM plans');
-    
-    const maxProjects = userProjects.reduce((max, p) => {
-        const plan = allPlans.find(pl => pl.slug === p.plan_slug);
-        const planLimits = plan?.limits_config ? (typeof plan.limits_config === 'string' ? JSON.parse(plan.limits_config) : plan.limits_config) : null;
-        return Math.max(max, planLimits?.maxProjects || 1);
-    }, 1);
+    const [userProjects] = await pool.query('SELECT id FROM projects WHERE user_id = ? AND is_master = 0', [req.user.id]);
+    const effectiveLimits = await getEffectiveLimits(req.user.id);
+    const maxProjects = effectiveLimits.maxProjects;
 
     if (userProjects.length >= maxProjects && req.user.role !== 'admin') {
         return res.status(403).json({ error: `Has alcanzado el límite de ${maxProjects} proyectos en tu plan.` });

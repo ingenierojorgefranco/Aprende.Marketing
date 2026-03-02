@@ -2,7 +2,7 @@
 import express from 'express';
 import pool from '../db.js';
 import { authMiddleware } from '../authMiddleware.js';
-import { logSystemActivity, DEFAULT_LIMITS } from './authRoutes.js';
+import { logSystemActivity, DEFAULT_LIMITS, getEffectiveLimits } from './authRoutes.js';
 
 const router = express.Router();
 
@@ -36,25 +36,13 @@ router.post('/articles', authMiddleware, async (req, res) => {
   if (!finalSlug && title) { finalSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
   
   try {
-    let limits = DEFAULT_LIMITS;
-    if (page_id) {
-        const [pageRows] = await pool.query('SELECT project_id FROM landing_pages WHERE id = ?', [page_id]);
-        if (pageRows.length > 0) {
-            const [projectRows] = await pool.query('SELECT plan_slug FROM projects WHERE id = ?', [pageRows[0].project_id]);
-            if (projectRows.length > 0) {
-                const planSlug = projectRows[0].plan_slug || 'starter';
-                const [planData] = await pool.query('SELECT limits_config FROM plans WHERE slug = ?', [planSlug]);
-                limits = planData[0]?.limits_config ? (typeof planData[0].limits_config === 'string' ? JSON.parse(planData[0].limits_config) : planData[0].limits_config) : DEFAULT_LIMITS;
-            }
-        }
-    }
+    const effectiveLimits = await getEffectiveLimits(req.user.id);
+    const limit = effectiveLimits.maxArticles;
 
-    const [userData] = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
-    if (userData[0]?.role !== 'admin' && limits) {
-        const limit = limits.maxArticles || 2;
+    if (req.user.role !== 'admin') {
         const [countRows] = await pool.query('SELECT COUNT(*) as total FROM articles WHERE user_id = ?', [req.user.id]);
         if (countRows[0].total >= limit) {
-            return res.status(403).json({ error: `Has alcanzado el límite de ${limit} artículos para este proyecto.` });
+            return res.status(403).json({ error: `Has alcanzado el límite de ${limit} artículos en tu plan.` });
         }
     }
     const [resDb] = await pool.query(
