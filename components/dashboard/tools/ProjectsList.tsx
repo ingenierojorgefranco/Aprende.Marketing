@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
-import { Project, User, AffiliateLink } from '../../../types';
+import { Project, User, AffiliateLink, Plan } from '../../../types';
 import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
@@ -17,6 +17,7 @@ export const ProjectsList: React.FC = () => {
     const { user, isSimulating } = useOutletContext() as DashboardContext;
     const [projects, setProjects] = useState<Project[]>([]);
     const [masterLibrary, setMasterLibrary] = useState<Project[]>([]);
+    const [plans, setPlans] = useState<Plan[]>([]);
     const [loading, setLoading] = useState(true);
     const [unlockingId, setUnlockingId] = useState<string | null>(null);
     
@@ -65,12 +66,14 @@ export const ProjectsList: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [myProjects, library] = await Promise.all([
+            const [myProjects, library, allPlans] = await Promise.all([
                 api.getProjects(),
-                api.getMasterLibrary().catch(() => [])
+                api.getMasterLibrary().catch(() => []),
+                api.getPublicPlans().catch(() => [])
             ]);
             setProjects(myProjects);
             setMasterLibrary(library);
+            setPlans(allPlans);
         } catch (error) {
             console.error(error);
         } finally {
@@ -415,7 +418,7 @@ export const ProjectsList: React.FC = () => {
                                                 </div>
                                                 <div className={`text-[10px] font-black px-3 py-1 rounded-full border uppercase tracking-widest flex items-center gap-1.5 w-fit ${project.planSlug === 'starter' ? 'bg-gray-500/10 border-gray-500/20 text-gray-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
                                                     <Zap className="w-3 h-3 fill-current" />
-                                                    Plan: {project.planSlug || 'Starter'}
+                                                    Plan: {plans.find(p => p.slug === project.planSlug)?.name || (project.planSlug === 'starter' ? 'Starter' : project.planSlug || 'Starter')}
                                                 </div>
                                             </div>
                                             <div className="flex gap-2 relative z-20">
@@ -446,7 +449,7 @@ export const ProjectsList: React.FC = () => {
                                         </div>
                                         
                                         <h3 className={`text-2xl font-black mb-3 line-clamp-1 group-hover:text-primary transition-colors duration-300 ${isClonedFromMaster ? 'text-yellow-400' : 'text-white'}`}>{project.name}</h3>
-                                        <p className="text-[1.2rem] text-white mb-8 min-h-[56px] leading-relaxed line-clamp-2">
+                                        <p className="text-[1.2rem] text-white mb-8 min-h-[56px] leading-relaxed">
                                             {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción definida.")}
                                         </p>
 
@@ -466,15 +469,6 @@ export const ProjectsList: React.FC = () => {
                                                 {project.isBlocked && user.role !== 'admin' ? <Lock className="w-4 h-4" /> : <Zap className="w-4 h-4 fill-current" />} 
                                                 {project.isBlocked && user.role !== 'admin' ? 'Proyecto Bloqueado' : 'Ver Estrategia de Proyecto'}
                                             </button>
-
-                                            {(project.planSlug !== 'plan-max-10' || project.isBlocked) && (
-                                                <button 
-                                                    onClick={(e) => { e.stopPropagation(); setUpgradeProjectId(project.id); setShowUpgradeModal(true); }}
-                                                    className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border flex items-center justify-center gap-2 ${project.isBlocked && user.role !== 'admin' ? 'bg-emerald-600 text-white border-emerald-500' : 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10'}`}
-                                                >
-                                                    <Crown className="w-3 h-3" /> {project.isBlocked && user.role !== 'admin' ? 'Desbloquear Proyecto' : project.planSlug === 'starter' ? 'Actualizar a PRO' : 'Siguiente Nivel'}
-                                                </button>
-                                            )}
 
                                             {isClonedFromMaster && (
                                                 <div className="flex justify-center pt-2">
@@ -557,7 +551,7 @@ export const ProjectsList: React.FC = () => {
                                         <h4 className={`text-2xl font-black tracking-tight leading-tight transition-colors ${isAlreadyUnlocked ? 'text-emerald-400' : 'text-white group-hover:text-yellow-400'}`}>
                                             {item.name}
                                         </h4>
-                                        <p className="text-[1.2rem] text-white mb-8 min-h-[56px] leading-relaxed line-clamp-2">
+                                        <p className="text-[1.2rem] text-white mb-8 min-h-[56px] leading-relaxed">
                                             {item.shortDescription || (item.description ? item.description.replace(/<[^>]*>?/gm, '') : "Estrategia validada para lanzamientos.")}
                                         </p>
                                     </div>
