@@ -137,14 +137,6 @@ export const getEffectiveLimits = async (userId) => {
             }
         });
 
-        // Project specific limits (based on the plan assigned to the project)
-        const projectLimits = {};
-        projects.forEach(proj => {
-            const slug = proj.plan_slug || 'starter';
-            const limits = planDefinitions[slug] || DEFAULT_LIMITS;
-            projectLimits[proj.id] = { ...limits, planName: slug };
-        });
-
         // Determine "Best Plan" for UI display name based on hierarchy
         let bestPlanSlug = 'starter';
         let maxIndex = -1;
