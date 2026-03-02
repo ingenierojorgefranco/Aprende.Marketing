@@ -592,16 +592,16 @@ const initDb = async () => {
                 }
             ];
 
-            // Añadir planes del 2 al 10
-            for (let i = 2; i <= 10; i++) {
+            // Añadir planes del 1 al 10 (Niveles 2 al 11)
+            for (let i = 1; i <= 10; i++) {
                 plans.push({
-                    name: `Plan ${i} (Proyecto ${i})`,
-                    slug: `plan-${i}`,
-                    description: `Desbloquea el proyecto ${i} con todas las funciones profesionales.`,
+                    name: `Plan Max ${i}`,
+                    slug: `plan-max-${i}`,
+                    description: `Desbloquea el proyecto ${i+1} con todas las funciones profesionales.`,
                     price: 19.99,
                     stripeId: '', 
                     limits: JSON.stringify({
-                        planName: `plan-${i}`,
+                        planName: `plan-max-${i}`,
                         maxProjects: 1,
                         maxLandings: 20,
                         maxArticles: 20,
@@ -618,8 +618,8 @@ const initDb = async () => {
                             evergreenStrategy: true
                         }
                     }),
-                    features: JSON.stringify([`Proyecto ${i} Desbloqueado`, 'Dominios Personalizados', 'Sin Marca de Agua', 'IA Avanzada']),
-                    is_rec: i === 2
+                    features: JSON.stringify([`Proyecto ${i+1} Desbloqueado`, 'Dominios Personalizados', 'Sin Marca de Agua', 'IA Avanzada']),
+                    is_rec: i === 1 // Plan Max 1 es el recomendado por defecto
                 });
             }
 

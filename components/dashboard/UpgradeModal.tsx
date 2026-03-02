@@ -24,12 +24,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, use
   // ////////// Nuevo estado para el plan seleccionado e información persuasiva - 01/06/2025 10:00 //////////
   const [selectedPlanSlug, setSelectedPlanSlug] = useState<string | null>(null);
 
-  const planOrder = ['starter', 'plan-2', 'plan-3', 'plan-4', 'plan-5', 'plan-6', 'plan-7', 'plan-8', 'plan-9', 'plan-10'];
+  const planOrder = ['starter', 'plan-max-1', 'plan-max-2', 'plan-max-3', 'plan-max-4', 'plan-max-5', 'plan-max-6', 'plan-max-7', 'plan-max-8', 'plan-max-9', 'plan-max-10'];
 
   const planPitchMap: Record<string, string> = {
       'starter': "Perfecto para validar tu nicho sin costes fijos.",
-      'plan-2': "Desbloquea tu primer proyecto profesional con dominios y potencia total.",
-      'plan-3': "Escala a tu segundo proyecto independiente con todas las funciones activas.",
+      'plan-max-1': "Desbloquea tu primer proyecto profesional con dominios y potencia total.",
+      'plan-max-2': "Escala a tu segundo proyecto independiente con todas las funciones activas.",
       'default': "Potencia adicional para escalar tus proyectos simultáneamente sin barreras."
   };
   // ////////// Fin de actualización - 01/06/2025 10:00 //////////
