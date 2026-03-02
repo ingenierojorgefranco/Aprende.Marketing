@@ -39,6 +39,8 @@ const createToken = (user) => {
 
 const limitsCache = new Map();
 
+const PLAN_ORDER = ['starter', 'plan-2', 'plan-3', 'plan-4', 'plan-5', 'plan-6', 'plan-7', 'plan-8', 'plan-9', 'plan-10'];
+
 const getEffectiveLimits = async (userId) => {
     try {
         // Check cache first
@@ -112,14 +114,16 @@ const getEffectiveLimits = async (userId) => {
             projectLimits[proj.id] = { ...limits, planName: slug };
         });
 
-        // Determine "Best Plan" for UI display name
+        // Determine "Best Plan" for UI display name based on hierarchy
         let bestPlanSlug = 'starter';
-        let highestProjectCount = -1;
+        let maxIndex = -1;
+        
         relevantSlugs.forEach(slug => {
-            const limits = planDefinitions[slug] || DEFAULT_LIMITS;
-            if ((limits.maxProjects || 0) > highestProjectCount) {
-                highestProjectCount = limits.maxProjects;
-                bestPlanSlug = slug;
+            const normalizedSlug = String(slug || '').toLowerCase().trim();
+            const index = PLAN_ORDER.indexOf(normalizedSlug);
+            if (index > maxIndex) {
+                maxIndex = index;
+                bestPlanSlug = normalizedSlug;
             }
         });
 

@@ -217,79 +217,97 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, use
                     ) : (
                         <>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto w-full">
-                                {plans
-                                  .filter(p => {
-                                      const effectiveCurrentPlan = (currentPlan && planOrder.includes(currentPlan)) ? currentPlan : 'starter';
-                                      const currentIndex = planOrder.indexOf(effectiveCurrentPlan);
-                                      const nextSlug = currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
-                                      return p.slug === effectiveCurrentPlan || p.slug === nextSlug;
-                                  })
-                                  .sort((a, b) => planOrder.indexOf(a.slug) - planOrder.indexOf(b.slug))
-                                  .map((plan) => {
-                                    const effectiveCurrentPlan = (currentPlan && planOrder.includes(currentPlan)) ? currentPlan : 'starter';
-                                    const isCurrent = effectiveCurrentPlan === plan.slug;
-                                    const isSelected = selectedPlanSlug === plan.slug;
+                                {(() => {
+                                    const normalizedCurrent = String(currentPlan || 'starter').toLowerCase().trim();
+                                    const effectiveCurrentPlan = planOrder.includes(normalizedCurrent) ? normalizedCurrent : 'starter';
+                                    const currentIndex = planOrder.indexOf(effectiveCurrentPlan);
+                                    const nextSlug = currentIndex < planOrder.length - 1 ? planOrder[currentIndex + 1] : null;
+                                    
+                                    console.log("[UpgradeModal Render] Logic:", { 
+                                        effectiveCurrentPlan, 
+                                        currentIndex, 
+                                        nextSlug, 
+                                        availableSlugs: plans.map(p => p.slug) 
+                                    });
 
-                                    const cardClasses = `
-                                        relative p-8 rounded-[2.5rem] border-2 transition-all duration-500 cursor-pointer flex flex-col gap-4 group
-                                        ${isSelected ? 'scale-105 z-20' : 'scale-100 z-10'}
-                                        ${isCurrent 
-                                            ? 'border-emerald-500/50 bg-emerald-500/5 shadow-[0_0_40px_rgba(16,185,129,0.1)]' 
-                                            : 'border-[#FF5A1F]/50 bg-gray-900 shadow-[0_0_60px_rgba(255,90,31,0.15)]'}
-                                        ${isSelected && !isCurrent ? 'ring-4 ring-[#FF5A1F]/20' : ''}
-                                        ${isCurrent ? 'ring-4 ring-emerald-500/20' : ''}
-                                    `;
-                                    // ////////// Fin de actualización - 27/05/2025 15:30 //////////
+                                    let filteredPlans = plans.filter(p => {
+                                        const pSlug = String(p.slug || '').toLowerCase().trim();
+                                        return pSlug === effectiveCurrentPlan || pSlug === nextSlug;
+                                    });
+                                    
+                                    // Fallback: Si no hay planes filtrados (ej: planes no creados en DB), mostrar los 2 primeros disponibles
+                                    if (filteredPlans.length === 0 && plans.length > 0) {
+                                        console.warn("[UpgradeModal] No plans matched filter, using fallback slice.");
+                                        filteredPlans = plans.slice(0, 2);
+                                    }
 
-                                    return (
-                                        <div 
-                                            key={plan.id}
-                                            onClick={() => setSelectedPlanSlug(plan.slug)}
-                                            className={cardClasses}
-                                        >
-                                            {/* Badges de Estado */}
-                                            {isCurrent && (
-                                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-emerald-500 text-black text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
-                                                    Tu Nivel Actual
+                                    return filteredPlans
+                                      .sort((a, b) => planOrder.indexOf(String(a.slug).toLowerCase().trim()) - planOrder.indexOf(String(b.slug).toLowerCase().trim()))
+                                      .map((plan) => {
+                                        const pSlug = String(plan.slug || '').toLowerCase().trim();
+                                        const isCurrent = effectiveCurrentPlan === pSlug;
+                                        const isSelected = selectedPlanSlug === pSlug;
+
+                                        const cardClasses = `
+                                            relative p-8 rounded-[2.5rem] border-2 transition-all duration-500 cursor-pointer flex flex-col gap-4 group
+                                            ${isSelected ? 'scale-105 z-20' : 'scale-100 z-10'}
+                                            ${isCurrent 
+                                                ? 'border-emerald-500/50 bg-emerald-500/5 shadow-[0_0_40px_rgba(16,185,129,0.1)]' 
+                                                : 'border-[#FF5A1F]/50 bg-gray-900 shadow-[0_0_60px_rgba(255,90,31,0.15)]'}
+                                            ${isSelected && !isCurrent ? 'ring-4 ring-[#FF5A1F]/20' : ''}
+                                            ${isCurrent ? 'ring-4 ring-emerald-500/20' : ''}
+                                        `;
+
+                                        return (
+                                            <div 
+                                                key={plan.id}
+                                                onClick={() => setSelectedPlanSlug(pSlug)}
+                                                className={cardClasses}
+                                            >
+                                                {/* Badges de Estado */}
+                                                {isCurrent && (
+                                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-emerald-500 text-black text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
+                                                        Tu Nivel Actual
+                                                    </div>
+                                                )}
+                                                {!isCurrent && (
+                                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FF5A1F] text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg animate-pulse">
+                                                        Siguiente Nivel
+                                                    </div>
+                                                )}
+                                                
+                                                <div className="text-center">
+                                                    <h3 className={`font-black text-xl mb-1 ${isCurrent ? 'text-emerald-400' : 'text-[#FF5A1F]'}`}>{plan.name}</h3>
+                                                    <div className="flex items-baseline justify-center gap-1">
+                                                        <span className="text-4xl font-black text-white tracking-tighter">
+                                                            {Number(plan.priceMonthly) === 0 ? '$0' : `$${plan.priceMonthly}`}
+                                                        </span>
+                                                        <span className="text-sm text-gray-500 font-bold uppercase">/mes</span>
+                                                    </div>
                                                 </div>
-                                            )}
-                                            {!isCurrent && (
-                                                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FF5A1F] text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg animate-pulse">
-                                                    Siguiente Nivel
-                                                </div>
-                                            )}
-                                            
-                                            <div className="text-center">
-                                                <h3 className={`font-black text-xl mb-1 ${isCurrent ? 'text-emerald-400' : 'text-[#FF5A1F]'}`}>{plan.name}</h3>
-                                                <div className="flex items-baseline justify-center gap-1">
-                                                    <span className="text-4xl font-black text-white tracking-tighter">
-                                                        {Number(plan.priceMonthly) === 0 ? '$0' : `$${plan.priceMonthly}`}
-                                                    </span>
-                                                    <span className="text-sm text-gray-500 font-bold uppercase">/mes</span>
+
+                                                <div className="h-px bg-white/5 w-full my-2"></div>
+
+                                                <ul className="space-y-4 flex-1">
+                                                    {(plan.uiFeatures || []).slice(0, 5).map((feat, idx) => (
+                                                        <li key={idx} className="flex gap-3 text-sm font-medium items-center text-gray-300">
+                                                            <div className={`p-1 rounded-full ${isCurrent ? 'bg-emerald-500/20 text-emerald-500' : 'bg-[#FF5A1F]/20 text-[#FF5A1F]'}`}>
+                                                                <Check className="w-3 h-3" />
+                                                            </div>
+                                                            {feat}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                                
+                                                <div className="pt-4">
+                                                    <div className={`w-full py-2 rounded-xl text-center text-[10px] font-black uppercase tracking-widest transition-colors ${isSelected ? 'bg-white/10 text-white border border-white/20' : 'text-gray-600'}`}>
+                                                        {isSelected ? 'Seleccionado' : 'Hacer clic para ver detalles'}
+                                                    </div>
                                                 </div>
                                             </div>
-
-                                            <div className="h-px bg-white/5 w-full my-2"></div>
-
-                                            <ul className="space-y-4 flex-1">
-                                                {(plan.uiFeatures || []).slice(0, 5).map((feat, idx) => (
-                                                    <li key={idx} className="flex gap-3 text-sm font-medium items-center text-gray-300">
-                                                        <div className={`p-1 rounded-full ${isCurrent ? 'bg-emerald-500/20 text-emerald-500' : 'bg-[#FF5A1F]/20 text-[#FF5A1F]'}`}>
-                                                            <Check className="w-3 h-3" />
-                                                        </div>
-                                                        {feat}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                            
-                                            <div className="pt-4">
-                                                <div className={`w-full py-2 rounded-xl text-center text-[10px] font-black uppercase tracking-widest transition-colors ${isSelected ? 'bg-white/10 text-white border border-white/20' : 'text-gray-600'}`}>
-                                                    {isSelected ? 'Seleccionado' : 'Hacer clic para ver detalles'}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                        );
+                                      });
+                                })()}
                             </div>
 
                             {/* ////////// Reemplazo de estadísticas técnicas por argumentos de venta persuasivos en el panel de detalles - 01/06/2025 10:00 ////////// */}
