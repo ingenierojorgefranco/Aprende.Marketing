@@ -359,6 +359,7 @@ export const HooksList: React.FC = () => {
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
                 onClose={() => setShowUpgradeModal(false)} 
+                userId={user.id}
                 currentPlan={upgradeProjectId ? (userProjects.find(p => p.id === upgradeProjectId)?.planSlug || 'starter') : 'starter'}
                 projectId={upgradeProjectId}
                 reason="Has alcanzado el límite de ganchos para este proyecto. Actualiza para generar más ángulos de venta."

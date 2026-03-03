@@ -89,7 +89,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, use
                   }
                   
                   // El parámetro SRC ahora incluye userId y projectId para identificar qué proyecto actualizar
-                  const srcValue = projectId ? `${finalUserId}-${projectId}` : finalUserId;
+                  const srcValue = finalUserId;
                   params.set('src', srcValue);
                   
                   const hotmartUrl = `${baseUrl}?${params.toString()}`;

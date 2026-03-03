@@ -93,6 +93,7 @@ export const WhatsAppLaunchManager: React.FC = () => {
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
                 onClose={() => setShowUpgradeModal(false)} 
+                userId={user.id}
                 currentPlan={user.planLimits?.planName}
                 reason={`Has alcanzado el límite de ${maxLaunches} lanzamientos de tu plan.`}
             />

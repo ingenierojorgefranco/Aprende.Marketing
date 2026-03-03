@@ -468,6 +468,7 @@ export const WhatsAppLaunchWizard: React.FC = () => {
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
                 onClose={() => setShowUpgradeModal(false)} 
+                userId={user.id}
                 currentPlan={upgradeProjectId ? (projects.find(p => p.id === upgradeProjectId)?.planSlug || 'starter') : 'starter'}
                 projectId={upgradeProjectId}
                 reason="Has alcanzado el límite de lanzamientos de WhatsApp para este proyecto. Actualiza para gestionar más nichos."

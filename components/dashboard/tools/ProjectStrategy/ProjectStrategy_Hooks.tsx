@@ -869,7 +869,12 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
               </div>
           </div>
       )}
-      <UpgradeModal isOpen={showUpgradeModalLocal} onClose={() => setShowUpgradeModalLocal(false)} currentPlan={planLimits?.planName} />
+      <UpgradeModal 
+          isOpen={showUpgradeModalLocal} 
+          onClose={() => setShowUpgradeModalLocal(false)} 
+          userId={user.id}
+          currentPlan={planLimits?.planName} 
+      />
     </div>
   );
 };
