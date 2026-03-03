@@ -535,7 +535,6 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
             <UpgradeModal 
                 isOpen={showUpgrade} 
                 onClose={() => setShowUpgrade(false)} 
-                userId={user.id}
                 currentPlan={user.planLimits?.planName}
             />
         </div>

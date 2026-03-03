@@ -527,7 +527,6 @@ export const DashboardLayout = ({
       <UpgradeModal 
         isOpen={showUpgradeModal} 
         onClose={() => setShowUpgradeModal(false)} 
-        userId={effectiveUser.id}
         user={effectiveUser}
         currentPlan={effectiveUser.planLimits?.planName} 
       />

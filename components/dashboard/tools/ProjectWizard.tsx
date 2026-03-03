@@ -324,7 +324,6 @@ export const ProjectWizard: React.FC = () => {
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
                 onClose={() => navigate('/dashboard/projects')} 
-                userId={user.id}
                 reason={`Has alcanzado el límite de ${user.planLimits?.maxProjects} proyectos de tu plan ${user.planLimits?.planName}.`}
             />
             {loadingStatus && (

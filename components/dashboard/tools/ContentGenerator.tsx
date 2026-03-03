@@ -500,7 +500,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       <UpgradeModal 
           isOpen={showUpgradeModal} 
           onClose={() => onClose ? onClose() : navigate('/dashboard/articles')} 
-          userId={user.id}
           currentPlan={upgradeProjectId ? (userProjects.find(p => p.id === upgradeProjectId)?.planSlug || 'starter') : 'starter'}
           projectId={upgradeProjectId}
           reason="Has alcanzado el límite de artículos para este proyecto. Actualiza para generar más contenido."

@@ -465,7 +465,6 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
       <UpgradeModal 
           isOpen={showUpgradeModal} 
           onClose={() => onClose ? onClose() : navigate('/dashboard/pages')} 
-          userId={user.id}
           currentPlan={upgradeProjectId ? (userProjects.find(p => p.id === upgradeProjectId)?.planSlug || 'starter') : 'starter'}
           projectId={upgradeProjectId}
           reason="Has alcanzado el límite de páginas para este proyecto. Actualiza para gestionar más nichos."

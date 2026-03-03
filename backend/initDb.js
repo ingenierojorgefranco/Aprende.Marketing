@@ -588,9 +588,7 @@ const initDb = async () => {
                         }
                     }),
                     features: JSON.stringify(['1 Proyecto Activo', 'Contenidos Limitados', 'Sin Dominio Propio', 'Marca de Agua']),
-                    is_rec: false,
-                    hotmart_id: null,
-                    hotmart_offer: null
+                    is_rec: false
                 }
             ];
 
@@ -621,23 +619,18 @@ const initDb = async () => {
                         }
                     }),
                     features: JSON.stringify([`Proyecto ${i+1} Desbloqueado`, 'Dominios Personalizados', 'Sin Marca de Agua', 'IA Avanzada']),
-                    is_rec: i === 1, // Plan Max 1 es el recomendado por defecto
-                    hotmart_id: (i === 1 || i === 2) ? '1147577' : null,
-                    hotmart_offer: i === 1 ? 'udz8rafl' : (i === 2 ? 'ss0xxukj' : null)
+                    is_rec: i === 1 // Plan Max 1 es el recomendado por defecto
                 });
             }
 
             for (const p of plans) {
                 await connection.query(
-                    `INSERT INTO plans (name, slug, description, price_monthly, stripe_price_id, limits_config, ui_features, is_recommended, hotmart_id, hotmart_offer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [p.name, p.slug, p.description, p.price, p.stripeId, p.limits, p.features, p.is_rec, p.hotmart_id, p.hotmart_offer]
+                    `INSERT INTO plans (name, slug, description, price_monthly, stripe_price_id, limits_config, ui_features, is_recommended) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [p.name, p.slug, p.description, p.price, p.stripeId, p.limits, p.features, p.is_rec]
                 );
             }
         } else {
             await connection.query(`UPDATE plans SET stripe_price_id = 'price_1SdGwIRJVKdziYWKRDtjacOl' WHERE slug = 'max' AND (stripe_price_id IS NULL OR stripe_price_id = '')`);
-            // Actualización para vincular planes existentes con Hotmart
-            await connection.query(`UPDATE plans SET hotmart_id = '1147577', hotmart_offer = 'udz8rafl' WHERE slug = 'plan-max-1' AND (hotmart_id IS NULL OR hotmart_id = '')`);
-            await connection.query(`UPDATE plans SET hotmart_id = '1147577', hotmart_offer = 'ss0xxukj' WHERE slug = 'plan-max-2' AND (hotmart_id IS NULL OR hotmart_id = '')`);
         }
 
         // --- DATOS SEMILLA (SEED DATA) ---
