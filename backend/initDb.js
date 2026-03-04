@@ -481,6 +481,7 @@ const initDb = async () => {
         
         await addColumnSafe(connection, 'user_subscriptions', "subscriber_code VARCHAR(255)");
         await addColumnSafe(connection, 'user_subscriptions', "offer_code VARCHAR(255)");
+        await addColumnSafe(connection, 'user_subscriptions', "expires_at DATETIME NULL");
         
         await addColumnSafe(connection, 'user_payments', "transaction_id VARCHAR(255)");
         // --------------------------------------------------

@@ -26,6 +26,7 @@ export const handleWebhook = async (payload) => {
     const currency = data.purchase?.price?.currency_value;
     const paymentType = data.purchase?.payment?.type;
     const subscriberCode = data.subscription?.subscriber?.code || data.subscriber?.code;
+    const nextChargeDate = data.purchase?.date_next_charge || data.date_next_charge;
     const buyerData = data.buyer || {};
     
     ////////// Lógica reforzada para detección de userId - 25/05/2025 11:30 //////////
@@ -67,49 +68,46 @@ export const handleWebhook = async (payload) => {
 
     // --- Lógica para CANCELACIÓN de suscripción (Evento específico de Hotmart) ---
     if (event === 'SUBSCRIPTION_CANCELLATION') {
-        console.log(`[Hotmart Webhook] Procesando CANCELACIÓN de suscripción para User ${userId} (Producto ${productId})`);
+        console.log(`[Hotmart Webhook] Procesando CANCELACIÓN PROGRAMADA para User ${userId} (Producto ${productId})`);
         
         // 1. Identificar el plan por el ID de producto
         const [planRows] = await pool.query("SELECT slug FROM plans WHERE hotmart_id = ? LIMIT 1", [productId]);
         const planSlug = planRows.length > 0 ? planRows[0].slug : null;
 
         if (planSlug) {
-            // 2. Marcar UNA suscripción activa como cancelada en el inventario
-            // Usamos LIMIT 1 para que si tiene varios planes iguales, solo se cancele uno
-            await pool.query(
-                `UPDATE user_subscriptions 
-                 SET status = 'canceled', updated_at = NOW() 
-                 WHERE user_id = ? AND plan_slug = ? AND status = 'active' 
-                 LIMIT 1`,
-                [userId, planSlug]
-            );
-
-            // 3. Verificar cuántas suscripciones ACTIVAS le quedan al usuario (excluyendo starter)
-            const [activeSubs] = await pool.query(
-                "SELECT COUNT(*) as count FROM user_subscriptions WHERE user_id = ? AND status = 'active' AND plan_slug != 'starter'",
-                [userId]
-            );
-
-            const remainingCount = activeSubs[0].count;
-            console.log(`[Hotmart Webhook] Suscripciones activas restantes para User ${userId}: ${remainingCount}`);
-
-            if (remainingCount === 0) {
-                // 4. Si no quedan planes activos, degradar a Starter inmediatamente
-                console.log(`[Hotmart Webhook] No quedan planes activos. Degradando usuario a Starter.`);
-                const [starterPlan] = await pool.query("SELECT limits_config FROM plans WHERE slug = 'starter'");
-                if (starterPlan.length > 0) {
-                    const limits = typeof starterPlan[0].limits_config === 'string'
-                        ? JSON.parse(starterPlan[0].limits_config)
-                        : starterPlan[0].limits_config;
-
-                    await pool.query(
-                        `UPDATE users SET subscription_status = 'canceled', plan_limits = ? WHERE id = ?`,
-                        [JSON.stringify(limits), userId]
-                    );
-                }
-            } else {
-                console.log(`[Hotmart Webhook] El usuario aún tiene ${remainingCount} suscripciones activas. Se mantiene el nivel actual.`);
+            // Convertir timestamp de Hotmart a formato MySQL DATETIME
+            let expiresAt = null;
+            if (nextChargeDate) {
+                expiresAt = new Date(nextChargeDate).toISOString().slice(0, 19).replace('T', ' ');
             }
+
+            // 2. Marcar la suscripción como 'pending_cancellation' y guardar fecha de expiración
+            // Intentamos primero por subscriber_code (precisión total)
+            let updateResult;
+            if (subscriberCode) {
+                console.log(`[Hotmart Webhook] Intentando cancelar por subscriber_code: ${subscriberCode}`);
+                [updateResult] = await pool.query(
+                    `UPDATE user_subscriptions 
+                     SET status = 'pending_cancellation', expires_at = ?, updated_at = NOW() 
+                     WHERE user_id = ? AND subscriber_code = ? AND status = 'active' 
+                     LIMIT 1`,
+                    [expiresAt, userId, subscriberCode]
+                );
+            }
+
+            // Si no se actualizó nada (o no había code), intentamos por plan_slug (compatibilidad con suscripciones viejas)
+            if (!updateResult || updateResult.affectedRows === 0) {
+                console.log(`[Hotmart Webhook] No se encontró suscripción por subscriber_code, intentando por plan_slug: ${planSlug}`);
+                await pool.query(
+                    `UPDATE user_subscriptions 
+                     SET status = 'pending_cancellation', expires_at = ?, updated_at = NOW() 
+                     WHERE user_id = ? AND plan_slug = ? AND status = 'active' 
+                     LIMIT 1`,
+                    [expiresAt, userId, planSlug]
+                );
+            }
+
+            console.log(`[Hotmart Webhook] Suscripción procesada para cancelación programada. Expira el: ${expiresAt}`);
             
             // Log de actividad del sistema
             try {
@@ -117,14 +115,14 @@ export const handleWebhook = async (payload) => {
                 const userName = userRows[0]?.name || 'Usuario Hotmart';
                 await pool.query(
                     `INSERT INTO system_activity_logs (user_id, user_name, action_type, entity_type, entity_id, details, created_at) 
-                     VALUES (?, ?, 'SUBSCRIPTION_CANCELED_HOTMART', 'plan', ?, ?, NOW())`,
-                    [userId, userName, planSlug, JSON.stringify({ hotmart_product_id: productId, event: event })]
+                     VALUES (?, ?, 'SUBSCRIPTION_PENDING_CANCEL_HOTMART', 'plan', ?, ?, NOW())`,
+                    [userId, userName, planSlug, JSON.stringify({ hotmart_product_id: productId, expires_at: expiresAt })]
                 );
             } catch (e) {
                 console.error("Error logging cancellation activity:", e.message);
             }
         }
-        return; // Finalizar procesamiento para este evento
+        return; 
     }
 
     // Lógica de activación si la compra es aprobada o renovación exitosa
@@ -154,12 +152,31 @@ export const handleWebhook = async (payload) => {
             ? JSON.parse(plan.limits_config) 
             : plan.limits_config;
 
-        // 2. Insertar en el "Inventario de Suscripciones" (NUEVO)
-        await pool.query(
-            `INSERT INTO user_subscriptions (user_id, plan_slug, status, hotmart_purchase_id, subscriber_code, offer_code) 
-             VALUES (?, ?, 'active', ?, ?, ?)`,
-            [userId, plan.slug, data.purchase?.transaction || null, subscriberCode, offerCode]
+        // 2. Gestionar el "Inventario de Suscripciones" (Reactivación Fair Play)
+        // Buscamos si ya tiene una suscripción para este plan que esté activa o pendiente de cancelar
+        const [existingSub] = await pool.query(
+            "SELECT id FROM user_subscriptions WHERE user_id = ? AND plan_slug = ? AND status IN ('active', 'pending_cancellation') LIMIT 1",
+            [userId, plan.slug]
         );
+
+        if (existingSub.length > 0) {
+            // Reactivamos la suscripción existente
+            console.log(`[Hotmart Webhook] Reactivando suscripción existente ${existingSub[0].id} para el plan ${plan.slug}`);
+            await pool.query(
+                `UPDATE user_subscriptions 
+                 SET status = 'active', expires_at = NULL, hotmart_purchase_id = ?, subscriber_code = ?, offer_code = ?, updated_at = NOW() 
+                 WHERE id = ?`,
+                [data.purchase?.transaction || null, subscriberCode, offerCode, existingSub[0].id]
+            );
+        } else {
+            // Insertar una nueva suscripción
+            console.log(`[Hotmart Webhook] Creando nueva suscripción para el plan ${plan.slug}`);
+            await pool.query(
+                `INSERT INTO user_subscriptions (user_id, plan_slug, status, hotmart_purchase_id, subscriber_code, offer_code) 
+                 VALUES (?, ?, 'active', ?, ?, ?)`,
+                [userId, plan.slug, data.purchase?.transaction || null, subscriberCode, offerCode]
+            );
+        }
 
         // 3. Actualizar usuario (Lógica Global + CRM Data)
         await pool.query(

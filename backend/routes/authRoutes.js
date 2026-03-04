@@ -56,7 +56,28 @@ export const getEffectiveLimits = async (userId) => {
             }
         }
 
-        const [subscriptions] = await pool.query('SELECT plan_slug FROM user_subscriptions WHERE user_id = ? AND status = "active"', [userId]);
+        // --- Lógica de Expiración (Fair Play) ---
+        // 1. Buscar suscripciones que están en 'pending_cancellation' o 'active' pero tienen fecha de expiración
+        const [subsToCheck] = await pool.query(
+            "SELECT id, plan_slug, status, expires_at FROM user_subscriptions WHERE user_id = ? AND status IN ('active', 'pending_cancellation')", 
+            [userId]
+        );
+
+        const now = new Date();
+        const activeSlugs = [];
+
+        for (const sub of subsToCheck) {
+            if (sub.expires_at && new Date(sub.expires_at) < now) {
+                // Ha expirado realmente. Marcar como cancelado definitivamente.
+                console.log(`[Limits] Suscripción ${sub.id} (${sub.plan_slug}) ha expirado. Marcando como canceled.`);
+                await pool.query("UPDATE user_subscriptions SET status = 'canceled' WHERE id = ?", [sub.id]);
+                // No la añadimos a activeSlugs
+            } else {
+                // Sigue activa o está pendiente de cancelar pero aún no vence
+                activeSlugs.push(sub.plan_slug);
+            }
+        }
+
         const [projects] = await pool.query('SELECT id, plan_slug, created_at FROM projects WHERE user_id = ? AND is_master = 0 ORDER BY created_at ASC', [userId]);
         const [allPlans] = await pool.query('SELECT slug, limits_config FROM plans');
         
@@ -65,8 +86,7 @@ export const getEffectiveLimits = async (userId) => {
             planDefinitions[p.slug] = p.limits_config ? (typeof p.limits_config === 'string' ? JSON.parse(p.limits_config) : p.limits_config) : DEFAULT_LIMITS;
         });
 
-        // Active slugs from subscriptions
-        const activeSlugs = subscriptions.map(s => s.plan_slug);
+        // Active slugs set for quick lookup
         const activeSlugsSet = new Set(activeSlugs);
 
         // Project specific limits and dynamic status
