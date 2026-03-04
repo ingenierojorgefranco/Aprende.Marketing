@@ -378,6 +378,7 @@ export const MyPages: React.FC = () => {
                 <UpgradeModal 
                     isOpen={showUpgradeModal} 
                     onClose={() => { setShowUpgradeModal(false); setUpgradeProjectId(undefined); }} 
+                    user={user}
                     currentPlan={projects.find(p => p.id === upgradeProjectId)?.planSlug || user.planLimits?.planName}
                     projectId={upgradeProjectId}
                     userId={user.id}

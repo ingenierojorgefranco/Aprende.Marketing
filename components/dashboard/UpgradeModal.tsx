@@ -70,8 +70,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, use
           if (activePaymentMethod === 'hotmart') {
               if (plan.hotmartId) {
                   ////////// Obtención robusta del userId para el tracking SRC - 25/05/2025 11:30 //////////
-                  // Priorizamos la prop userId, si no existe buscamos en localStorage (formato compatible con auth.ts)
-                  const finalUserId = userId || localStorage.getItem('plataformadeventacom_user_id') || '0';
+                  // Priorizamos el ID del objeto user, luego la prop userId, y finalmente localStorage
+                  const finalUserId = user?.id || userId || localStorage.getItem('plataformadeventacom_user_id') || '0';
                   
                   ////////// Nueva lógica para construcción de URL de Hotmart con Oferta y CheckoutMode - 25/05/2025 18:45 //////////
                   const hotmartProductId = plan.hotmartId;

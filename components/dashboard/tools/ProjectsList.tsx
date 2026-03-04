@@ -918,13 +918,14 @@ export const ProjectsList: React.FC = () => {
                 <UpgradeModal 
                     isOpen={showUpgradeModal} 
                     onClose={() => { setShowUpgradeModal(false); setUpgradeProjectId(undefined); }} 
+                    user={user}
+                    userId={user.id}
                     currentPlan={upgradeProjectId ? (projects.find(p => p.id === upgradeProjectId)?.planSlug || 'starter') : (projects.reduce((best: string, p) => {
                         const order = ['starter', 'plan-2', 'plan-3', 'plan-4', 'plan-5', 'plan-6', 'plan-7', 'plan-8', 'plan-9', 'plan-10'];
                         const pSlug = p.planSlug || 'starter';
                         return order.indexOf(pSlug) > order.indexOf(best) ? pSlug : best;
                     }, 'starter'))}
                     projectId={upgradeProjectId}
-                    userId={user.id}
                     reason="Has alcanzado el límite de proyectos de tu plan. Actualiza para crear más estrategias."
                 />
             )}

@@ -828,6 +828,8 @@ export const EmailSequenceWizard: React.FC = () => {
             <UpgradeModal 
                 isOpen={showUpgradeModal} 
                 onClose={() => setShowUpgradeModal(false)} 
+                user={user}
+                userId={user.id}
                 currentPlan={upgradeProjectId ? (projects.find(p => p.id === upgradeProjectId)?.planSlug || 'starter') : 'starter'}
                 projectId={upgradeProjectId}
                 reason="Has alcanzado el límite de secuencias de email para este proyecto. Actualiza para gestionar más nichos."

@@ -177,7 +177,13 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     return (
         <div id="psd-page-root" className="min-h-screen bg-black text-gray-200 pb-20 font-sans relative">
-            <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} currentPlan={user.planLimits?.planName} />
+            <UpgradeModal 
+                isOpen={showUpgradeModal} 
+                onClose={() => setShowUpgradeModal(false)} 
+                user={user}
+                userId={user.id}
+                currentPlan={user.planLimits?.planName} 
+            />
 
             {tooltipState.visible && (
                 <div className="fixed z-[100] w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700 p-5 rounded-2xl shadow-2xl pointer-events-none" style={{ top: tooltipState.y, left: tooltipState.x }}>

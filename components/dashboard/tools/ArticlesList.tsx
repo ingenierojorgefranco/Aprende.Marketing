@@ -116,6 +116,8 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       <UpgradeModal 
           isOpen={showUpgradeModal} 
           onClose={() => setShowUpgradeModal(false)} 
+          user={user}
+          userId={user.id}
           currentPlan={user.planLimits?.planName}
           reason="Has alcanzado tu cupo mensual de artículos. Actualiza tu plan para seguir generando contenido SEO."
       />

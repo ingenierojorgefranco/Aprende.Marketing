@@ -528,6 +528,7 @@ export const DashboardLayout = ({
         isOpen={showUpgradeModal} 
         onClose={() => setShowUpgradeModal(false)} 
         user={effectiveUser}
+        userId={effectiveUser.id}
         currentPlan={effectiveUser.planLimits?.planName} 
       />
       {showSuccessModal && <SubscriptionSuccessModal onClose={() => setShowSuccessModal(false)} planName={effectiveUser.planLimits?.planName} />}
