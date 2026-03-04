@@ -238,28 +238,6 @@ const App: React.FC = () => {
     setUser(loggedInUser);
   };
 
-  const refreshUserSession = async () => {
-    try {
-      const authUser = await api.getCurrentUser(true); // Forzamos refresco desde servidor
-      if (authUser) {
-        setUser({
-          id: authUser.id.toString(),
-          name: authUser.name,
-          email: authUser.email,
-          role: (authUser as any).role,
-          planLimits: (authUser as any).planLimits,
-          maxHooks: (authUser as any).maxHooks,
-          avatarUrl: (authUser as any).avatarUrl,
-          birthDate: (authUser as any).birthDate,
-          createdAt: (authUser as any).createdAt,
-          customRedirectUrl: (authUser as any).customRedirectUrl
-        });
-      }
-    } catch (error) {
-      console.error("Error refrescando sesión:", error);
-    }
-  };
-
   const handleLogout = async () => {
     try { await api.logout(); } catch (e) {}
     logout();
@@ -350,7 +328,6 @@ const App: React.FC = () => {
                 onLogout={handleLogout}
                 isOffline={isOffline}
                 onUpdateUser={setUser}
-                onRefreshUser={refreshUserSession}
               />
             </ProtectedRoute>
           }

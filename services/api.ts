@@ -316,18 +316,10 @@ export const api = {
       }
   },
 
-  getCurrentUser: async (forceRefresh: boolean = false): Promise<User | null> => {
+  getCurrentUser: async (): Promise<User | null> => {
       if (isMockMode) return MOCK_USER;
-      
-      // Si no es forzado y tenemos caché, devolverla
-      if (!forceRefresh && apiCache.currentUser && apiCache.currentUser.length > 0) {
-          return apiCache.currentUser[0];
-      }
-
       try {
           const user = await fetchWithFallback('/auth/me', { headers: getAuthHeaders() });
-          // Guardar en caché (usamos array para compatibilidad con el tipo definido)
-          apiCache.currentUser = [user];
           return user;
       } catch (e) {
           return null;
