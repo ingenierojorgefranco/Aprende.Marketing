@@ -17,6 +17,7 @@ interface DashboardLayoutProps {
   onLogout: () => void;
   isOffline?: boolean;
   onUpdateUser?: (updatedUser: User) => void;
+  onRefreshUser?: () => void;
 }
 
 type MenuItem = {
@@ -32,10 +33,18 @@ export const DashboardLayout = ({
   user,
   onLogout,
   isOffline,
-  onUpdateUser
+  onUpdateUser,
+  onRefreshUser
 }: DashboardLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Refrescar datos de usuario al entrar al dashboard para detectar cambios de plan (Hotmart)
+  useEffect(() => {
+    if (onRefreshUser) {
+      onRefreshUser();
+    }
+  }, []);
 
   const [systemMode, setSystemMode] = useState<'production' | 'launch'>('production');
   const [loadingMode, setLoadingMode] = useState(true);
