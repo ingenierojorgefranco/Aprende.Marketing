@@ -18,6 +18,16 @@ export const handleWebhook = async (payload) => {
     const userEmail = data.buyer?.email || data.subscriber?.email;
     const offerCode = data.purchase?.offer?.code;
     
+    // Datos adicionales para el historial (Enfoque Híbrido)
+    const buyerPhone = data.buyer?.checkout_phone;
+    const buyerCountry = data.buyer?.address?.country_iso;
+    const transactionId = data.purchase?.transaction;
+    const amount = data.purchase?.price?.value;
+    const currency = data.purchase?.price?.currency_value;
+    const paymentType = data.purchase?.payment?.type;
+    const subscriberCode = data.subscription?.subscriber?.code || data.subscriber?.code;
+    const buyerData = data.buyer || {};
+    
     ////////// Lógica reforzada para detección de userId - 25/05/2025 11:30 //////////
     // Intentamos obtener el ID del usuario desde el parámetro 'src' que enviamos en el link
     // El formato esperado ahora es "userId-projectId" o simplemente "userId"
@@ -146,21 +156,33 @@ export const handleWebhook = async (payload) => {
 
         // 2. Insertar en el "Inventario de Suscripciones" (NUEVO)
         await pool.query(
-            `INSERT INTO user_subscriptions (user_id, plan_slug, status, hotmart_purchase_id) 
-             VALUES (?, ?, 'active', ?)`,
-            [userId, plan.slug, data.purchase?.transaction || null]
+            `INSERT INTO user_subscriptions (user_id, plan_slug, status, hotmart_purchase_id, subscriber_code, offer_code) 
+             VALUES (?, ?, 'active', ?, ?, ?)`,
+            [userId, plan.slug, data.purchase?.transaction || null, subscriberCode, offerCode]
         );
 
-        // 3. Actualizar usuario (Lógica Global - Opcional si queremos mantener límites globales)
+        // 3. Actualizar usuario (Lógica Global + CRM Data)
         await pool.query(
             `UPDATE users SET 
                 subscription_status = 'active',
-                plan_limits = ?
+                plan_limits = ?,
+                phone = ?,
+                country = ?,
+                hotmart_metadata = ?
              WHERE id = ?`,
-            [JSON.stringify(limitsConfig), userId]
+            [JSON.stringify(limitsConfig), buyerPhone, buyerCountry, JSON.stringify(buyerData), userId]
         );
 
-        // 3. Actualizar Proyecto Específico si se proporcionó projectId
+        // 4. Registrar el pago en el historial financiero
+        if (transactionId) {
+            await pool.query(
+                `INSERT INTO user_payments (user_id, transaction_id, amount, currency, status, payment_method) 
+                 VALUES (?, ?, ?, ?, 'approved', ?)`,
+                [userId, transactionId, amount, currency, paymentType]
+            );
+        }
+
+        // 5. Actualizar Proyecto Específico si se proporcionó projectId
         if (projectId) {
             console.log(`[Hotmart Webhook] Actualizando Proyecto ${projectId} con Plan ${plan.slug}`);
             await pool.query(

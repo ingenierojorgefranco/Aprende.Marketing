@@ -474,6 +474,17 @@ const initDb = async () => {
         await addColumnSafe(connection, 'users', "custom_redirect_url VARCHAR(500)");
         await addColumnSafe(connection, 'users', "max_hooks INT NULL");
         
+        // --- Migraciones para Hotmart (Enfoque Híbrido) ---
+        await addColumnSafe(connection, 'users', "phone VARCHAR(50)");
+        await addColumnSafe(connection, 'users', "country VARCHAR(100)");
+        await addColumnSafe(connection, 'users', "hotmart_metadata JSON");
+        
+        await addColumnSafe(connection, 'user_subscriptions', "subscriber_code VARCHAR(255)");
+        await addColumnSafe(connection, 'user_subscriptions', "offer_code VARCHAR(255)");
+        
+        await addColumnSafe(connection, 'user_payments', "transaction_id VARCHAR(255)");
+        // --------------------------------------------------
+        
         await addColumnSafe(connection, 'users', "stripe_customer_id VARCHAR(255)");
         await addColumnSafe(connection, 'users', "subscription_id VARCHAR(255)");
         await addColumnSafe(connection, 'users', "subscription_status VARCHAR(50)");
