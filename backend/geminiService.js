@@ -288,10 +288,17 @@ export const generateFullStrategy = async (projectId) => {
         - Añade el nicho del producto al que se dedica por ejemplo Gracias al Curso de Diseño de Cejas, El curso de Resina de Suelos, El curso de adiestramiento de mascotas...
         - Lenguaje natural, corto (máximo 50 palabras) y con tono de mensaje de agradecimiento.
 
+
+        En landingPageTabs, genera copy persuasivo para 3 momentos:
+            h1: "Añade un titulo Profesional altamente persuasivo que llame la atención de la audiencia enfocado en el beneficio del usuario (Añade el nicho del producto al que se dedica)",
+            h2: "añade un subtitulo de 150 caracteres que de la solucion al titulo profesional anterior y haga que el usuario se sienta identificada en la solucion que brinda el producto (Añade el nicho del producto al que se dedica)."
+
+
+
         En thankYouPageTabs, genera copy persuasivo para 3 momentos:
             header: Un titular de confirmación inmediata (ej: '¡Lugar Reservado!').
             action: Una instrucción directa para unirse al grupo de WhatsApp (ej: 'Únete a la comunidad para recibir soporte').
-            magnet: Copy específico para la entrega del Lead Magnet (PDF o Clase) con un titular que genere deseo de consumo inmediato.
+            magnet: Copy específico para la entrega del Lead Magnet (PDF o Clase) que resuelva un dolor de la audiencia con un titular que genere deseo de consumo inmediato.
 
 
 
@@ -442,8 +449,8 @@ export const generateFullStrategy = async (projectId) => {
                 label: "1. Encabezado",
                 title: "Promesa de Valor (Hero Section)",
                 type: 'hero',
-                h1: "Añade un titulo Profesional altamente persuasivo que llame la atención de la audiencia enfocado en el beneficio del usuario",
-                h2: "añade un subtitulo de 150 caracteres que de la solucion al titulo profesional anterior y haga que el usuario se sienta identificada en la solucion que brinda el producto."
+                h1: "titulo Profesional que atrae audiencia cualificada",
+                h2: "Subtitulo que justifica el titulo profesional."
             }
         },
         thankYouPageTabs: {

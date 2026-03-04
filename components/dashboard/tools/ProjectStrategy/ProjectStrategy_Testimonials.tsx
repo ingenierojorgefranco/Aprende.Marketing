@@ -27,9 +27,9 @@ export const ProjectStrategy_Testimonials: React.FC<TestimonialsProps> = ({ stra
 
   // Mensajes de respuesta del experto (Fijos)
   const expertReplies = [
-    "¡Qué increíble resultado! 🎉 Ese es el poder de la IA cuando tiene la estrategia correcta detrás. ¡A seguir escalando ese proyecto! 🚀",
-    "Exacto, la velocidad es la clave en Hotmart. Me alegra mucho que te esté ahorrando tanto tiempo. ¡A por más ventas! 💰",
-    "¡Esa es la meta! El tráfico gratis es el más rentable de todos. Sigue así, el sistema seguirá trabajando para ti. 💎"
+    "¡Qué increíble resultado! 🎉 Cuando tienes una meta y vas por ella seguro logras grandes resultados. ¡A seguir escalando ese proyecto! 🚀",
+    "Nos encanta saber que estás aplicando lo aprendido. ¡Felicitaciones y sigue por más resultados! 💰",
+    "¡Esa es la meta! Estás en una de las mejores oportunidades de los últimos tiempos. Sigue así y la recompensa llegará. 💎"
   ];
 
   // Bibliotecas de imágenes por género (Definidas por el ingeniero)
