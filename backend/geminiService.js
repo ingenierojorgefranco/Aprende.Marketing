@@ -285,7 +285,8 @@ export const generateFullStrategy = async (projectId) => {
         Genera exactamente 3 testimonios. 
         - Debes usar los nombres exactos de los 3 AVATARES generados arriba.
         - El texto de cada testimonio debe narrar en primera persona cómo el producto solucionó el "pain" (dolor) específico que definiste para ese avatar.
-        - Lenguaje natural, corto (máximo 25 palabras) y con tono de mensaje de agradecimiento.
+        - Añade el nicho del producto al que se dedica por ejemplo Gracias al Curso de Diseño de Cejas, El curso de Resina de Suelos, El curso de adiestramiento de mascotas...
+        - Lenguaje natural, corto (máximo 50 palabras) y con tono de mensaje de agradecimiento.
 
         En thankYouPageTabs, genera copy persuasivo para 3 momentos:
             header: Un titular de confirmación inmediata (ej: '¡Lugar Reservado!').
@@ -345,7 +346,7 @@ export const generateFullStrategy = async (projectId) => {
           "avatars": [
             {
               "id": 1,
-              "name": "Nombre Realista Latino del Avatar 1",
+              "name": "Nombre Realista Latino del Avatar 1 (Inventa un Nombre Nuevo)",
               "archetype": "Emprendedor Activo",
               "age": "Rango de edad",
               "quote": "Frase que define su mentalidad",
@@ -356,11 +357,11 @@ export const generateFullStrategy = async (projectId) => {
               "objection": "Miedo principal al éxito o al fallo",
               "interests": "Intereses específicos",
               "behavior": "Comportamiento en canales digitales",
-              "motivations": { "dinero": 90, "tiempo": 80, "estatus": 70, "seguridad": 60 }
+              "motivations": { "dinero": da un número de 30 a 100 con base en Avatar 1 y enfoque en dinero, "tiempo": da un número de 30 a 100 con base en Avatar 1 y enfoque en tiempo, "estatus": da un número  de 30 a 100 con base en Avatar 1 y enfoque en status, "seguridad": da un número de 30 a 100 con base en Avatar 1 y enfoque en seguridad }
             },
             {
               "id": 2,
-              "name": "Nombre Realista Latino del Avatar 2",
+              "name": "Nombre Realista Latino del Avatar 2  (Inventa un Nombre Nuevo)",
               "archetype": "Escéptico con Miedo",
               "age": "Rango de edad",
               "quote": "Frase de duda o desconfianza",
@@ -371,11 +372,11 @@ export const generateFullStrategy = async (projectId) => {
               "objection": "Miedo al fraude o mala inversión",
               "interests": "Intereses específicos",
               "behavior": "Comportamiento en canales digitales",
-              "motivations": { "dinero": 70, "tiempo": 60, "estatus": 50, "seguridad": 95 }
+              "motivations": { "dinero": da un número de 30 a 100 con base en Avatar 2 y enfoque en dinero, "tiempo": da un número de 30 a 100 con base en Avatar 2 y enfoque en tiempo, "estatus": da un número  de 30 a 100 con base en Avatar 2 y enfoque en status, "seguridad": da un número de 30 a 100 con base en Avatar 2 y enfoque en seguridad }
             },
             {
               "id": 3,
-              "name": "Nombre Realista Latino del Avatar 3",
+              "name": "Nombre Realista Latino del Avatar 3 (Inventa un Nombre Nuevo)",
               "archetype": "Persona buscando Reinvención",
               "age": "Rango de edad",
               "quote": "Frase de cansancio y esperanza",
@@ -386,7 +387,7 @@ export const generateFullStrategy = async (projectId) => {
               "objection": "Miedo a empezar de cero",
               "interests": "Intereses específicos",
               "behavior": "Comportamiento en canales digitales",
-              "motivations": { "dinero": 80, "tiempo": 95, "estatus": 60, "seguridad": 70 }
+              "motivations": { "dinero": da un número  de 30 a 100 con base en Avatar 3 y enfoque en dinero, "tiempo": da un número de 30 a 100 con base en Avatar 3 y enfoque en tiempo, "estatus": da un número  de 30 a 100 con base en Avatar 3 y enfoque en status, "seguridad": da un número de 30 a 100 con base en Avatar 3 y enfoque en seguridad }
             }
           ],
 
@@ -441,8 +442,8 @@ export const generateFullStrategy = async (projectId) => {
                 label: "1. Encabezado",
                 title: "Promesa de Valor (Hero Section)",
                 type: 'hero',
-                h1: "Domina el Arte del Microblading y Genera Ingresos Propios de Alto Valor",
-                h2: "La oportunidad perfecta para emprendedoras del sector belleza que buscan independencia financiera sin trucos ni promesas vacías."
+                h1: "Añade un titulo Profesional altamente persuasivo que llame la atención de la audiencia enfocado en el beneficio del usuario",
+                h2: "añade un subtitulo de 150 caracteres que de la solucion al titulo profesional anterior y haga que el usuario se sienta identificada en la solucion que brinda el producto."
             }
         },
         thankYouPageTabs: {
