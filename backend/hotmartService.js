@@ -21,13 +21,15 @@ export const handleWebhook = async (payload) => {
     ////////// Lógica reforzada para detección de userId - 25/05/2025 11:30 //////////
     // Intentamos obtener el ID del usuario desde el parámetro 'src' que enviamos en el link
     // El formato esperado ahora es "userId-projectId" o simplemente "userId"
-    let rawSrc = data.purchase?.src || data.affiliate?.src || null;
+    // Hotmart puede enviarlo en purchase.src o purchase.origin.src
+    let rawSrc = data.purchase?.src || data.purchase?.origin?.src || data.affiliate?.src || null;
     let userId = null;
     let projectId = null;
 
     if (rawSrc) {
-        if (rawSrc.includes('-')) {
-            const parts = rawSrc.split('-');
+        console.log(`[Hotmart Webhook] SRC detectado: ${rawSrc}`);
+        if (String(rawSrc).includes('-')) {
+            const parts = String(rawSrc).split('-');
             userId = parts[0];
             projectId = parts[1];
         } else {
@@ -37,10 +39,15 @@ export const handleWebhook = async (payload) => {
 
     if (!userId && userEmail) {
         // Fallback 1: Buscar usuario por email si no viene el SRC o es inválido
-        console.log(`[Hotmart Webhook] SRC no encontrado, intentando fallback por email: ${userEmail}`);
+        console.log(`[Hotmart Webhook] SRC no encontrado o inválido, intentando fallback por email: ${userEmail}`);
         const [uRows] = await pool.query("SELECT id FROM users WHERE email = ?", [userEmail]);
-        if (uRows.length > 0) userId = uRows[0].id;
+        if (uRows.length > 0) {
+            userId = uRows[0].id;
+            console.log(`[Hotmart Webhook] Usuario encontrado por email: ${userId}`);
+        }
     }
+
+    console.log(`[Hotmart Webhook] Resultado identificación: UserID=${userId || 'No encontrado'}, ProjectID=${projectId || 'N/A'}`);
     ////////// Fin de actualización - 25/05/2025 11:30 //////////
 
     if (!userId) {
@@ -62,12 +69,15 @@ export const handleWebhook = async (payload) => {
             [productId, offerCode, offerCode]
         );
         
+        console.log(`[Hotmart Webhook] Planes encontrados en DB para Producto ${productId}: ${planRows.length}`);
+        
         if (planRows.length === 0) {
             console.error(`[Hotmart Error] No hay ningún plan configurado con el Hotmart ID: ${productId} y Oferta: ${offerCode}`);
             return;
         }
 
         const plan = planRows[0];
+        console.log(`[Hotmart Webhook] Plan seleccionado: ${plan.slug} (ID: ${plan.id})`);
         const limitsConfig = typeof plan.limits_config === 'string' 
             ? JSON.parse(plan.limits_config) 
             : plan.limits_config;
