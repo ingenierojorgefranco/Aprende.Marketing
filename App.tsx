@@ -22,6 +22,7 @@ import { PrivacyPage } from "./components/PrivacyPage";
 // Dashboard Core
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
 import { DashboardHome } from "./components/dashboard/DashboardHome";
+import { WelcomePage } from "./components/dashboard/WelcomePage";
 
 // Dashboard Admin
 import { AdminPanel } from "./components/dashboard/admin/AdminPanel";
@@ -333,6 +334,7 @@ const App: React.FC = () => {
           }
         >
           <Route index element={<DashboardHome />} />
+          <Route path="bienvenido" element={<WelcomePage />} />
 
           {/* ADMIN */}
           <Route path="admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
