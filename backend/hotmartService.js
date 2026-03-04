@@ -15,7 +15,7 @@ export const handleWebhook = async (payload) => {
     // Status de compra en Hotmart: approved, canceled, billet_printed, etc.
     const status = data.purchase?.status?.toLowerCase();
     const productId = data.product?.id?.toString();
-    const userEmail = data.buyer?.email;
+    const userEmail = data.buyer?.email || data.subscriber?.email;
     const offerCode = data.purchase?.offer?.code;
     
     ////////// Lógica reforzada para detección de userId - 25/05/2025 11:30 //////////
@@ -53,6 +53,68 @@ export const handleWebhook = async (payload) => {
     if (!userId) {
         console.warn("[Hotmart Webhook] No se pudo identificar al usuario (ni por SRC ni por Email).");
         return;
+    }
+
+    // --- Lógica para CANCELACIÓN de suscripción (Evento específico de Hotmart) ---
+    if (event === 'SUBSCRIPTION_CANCELLATION') {
+        console.log(`[Hotmart Webhook] Procesando CANCELACIÓN de suscripción para User ${userId} (Producto ${productId})`);
+        
+        // 1. Identificar el plan por el ID de producto
+        const [planRows] = await pool.query("SELECT slug FROM plans WHERE hotmart_id = ? LIMIT 1", [productId]);
+        const planSlug = planRows.length > 0 ? planRows[0].slug : null;
+
+        if (planSlug) {
+            // 2. Marcar UNA suscripción activa como cancelada en el inventario
+            // Usamos LIMIT 1 para que si tiene varios planes iguales, solo se cancele uno
+            await pool.query(
+                `UPDATE user_subscriptions 
+                 SET status = 'canceled', updated_at = NOW() 
+                 WHERE user_id = ? AND plan_slug = ? AND status = 'active' 
+                 LIMIT 1`,
+                [userId, planSlug]
+            );
+
+            // 3. Verificar cuántas suscripciones ACTIVAS le quedan al usuario (excluyendo starter)
+            const [activeSubs] = await pool.query(
+                "SELECT COUNT(*) as count FROM user_subscriptions WHERE user_id = ? AND status = 'active' AND plan_slug != 'starter'",
+                [userId]
+            );
+
+            const remainingCount = activeSubs[0].count;
+            console.log(`[Hotmart Webhook] Suscripciones activas restantes para User ${userId}: ${remainingCount}`);
+
+            if (remainingCount === 0) {
+                // 4. Si no quedan planes activos, degradar a Starter inmediatamente
+                console.log(`[Hotmart Webhook] No quedan planes activos. Degradando usuario a Starter.`);
+                const [starterPlan] = await pool.query("SELECT limits_config FROM plans WHERE slug = 'starter'");
+                if (starterPlan.length > 0) {
+                    const limits = typeof starterPlan[0].limits_config === 'string'
+                        ? JSON.parse(starterPlan[0].limits_config)
+                        : starterPlan[0].limits_config;
+
+                    await pool.query(
+                        `UPDATE users SET subscription_status = 'canceled', plan_limits = ? WHERE id = ?`,
+                        [JSON.stringify(limits), userId]
+                    );
+                }
+            } else {
+                console.log(`[Hotmart Webhook] El usuario aún tiene ${remainingCount} suscripciones activas. Se mantiene el nivel actual.`);
+            }
+            
+            // Log de actividad del sistema
+            try {
+                const [userRows] = await pool.query("SELECT name FROM users WHERE id = ?", [userId]);
+                const userName = userRows[0]?.name || 'Usuario Hotmart';
+                await pool.query(
+                    `INSERT INTO system_activity_logs (user_id, user_name, action_type, entity_type, entity_id, details, created_at) 
+                     VALUES (?, ?, 'SUBSCRIPTION_CANCELED_HOTMART', 'plan', ?, ?, NOW())`,
+                    [userId, userName, planSlug, JSON.stringify({ hotmart_product_id: productId, event: event })]
+                );
+            } catch (e) {
+                console.error("Error logging cancellation activity:", e.message);
+            }
+        }
+        return; // Finalizar procesamiento para este evento
     }
 
     // Lógica de activación si la compra es aprobada o renovación exitosa
