@@ -16,6 +16,7 @@ export const handleWebhook = async (payload) => {
     const status = data.purchase?.status?.toLowerCase();
     const productId = data.product?.id?.toString();
     const userEmail = data.buyer?.email;
+    const offerCode = data.purchase?.offer?.code;
     
     ////////// Lógica reforzada para detección de userId - 25/05/2025 11:30 //////////
     // Intentamos obtener el ID del usuario desde el parámetro 'src' que enviamos en el link
@@ -49,13 +50,20 @@ export const handleWebhook = async (payload) => {
 
     // Lógica de activación si la compra es aprobada o renovación exitosa
     if (status === 'approved' || status === 'complete' || event === 'PURCHASE_APPROVED') {
-        console.log(`[Hotmart Webhook] Activando plan para User ${userId} (Producto ${productId})`);
+        console.log(`[Hotmart Webhook] Activando plan para User ${userId} (Producto ${productId}, Oferta ${offerCode || 'N/A'})`);
 
-        // 1. Buscar el plan que coincide con este Hotmart ID
-        const [planRows] = await pool.query("SELECT limits_config, slug FROM plans WHERE hotmart_id = ?", [productId]);
+        // 1. Buscar el plan que coincide con este Hotmart ID y Oferta
+        // Priorizamos la coincidencia exacta de la oferta si existe
+        const [planRows] = await pool.query(
+            `SELECT id, limits_config, slug FROM plans 
+             WHERE hotmart_id = ? 
+             AND (hotmart_offer = ? OR hotmart_offer IS NULL OR hotmart_offer = '')
+             ORDER BY (hotmart_offer = ?) DESC LIMIT 1`, 
+            [productId, offerCode, offerCode]
+        );
         
         if (planRows.length === 0) {
-            console.error(`[Hotmart Error] No hay ningún plan configurado con el Hotmart ID: ${productId}`);
+            console.error(`[Hotmart Error] No hay ningún plan configurado con el Hotmart ID: ${productId} y Oferta: ${offerCode}`);
             return;
         }
 
