@@ -22,10 +22,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   const [localArticles, setLocalArticles] = useState<Article[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterProjectId, setFilterProjectId] = useState<string>('all');
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalArticles, setTotalArticles] = useState(0);
   
   // Modals States
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -37,46 +33,23 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   // ----------------------------------------------------
 
   useEffect(() => {
-    loadInitialData();
+      const fetchData = async () => {
+          setLoading(true);
+          try {
+              const [articlesData, projectsData] = await Promise.all([
+                  api.getArticles(),
+                  api.getProjects()
+              ]);
+              setLocalArticles(articlesData);
+              setProjects(projectsData || []);
+          } catch (e) {
+              console.error(e);
+          } finally {
+              setLoading(false);
+          }
+      };
+      fetchData();
   }, []);
-
-  useEffect(() => {
-    loadArticles();
-  }, [page, filterProjectId]);
-
-  const loadInitialData = async () => {
-    try {
-      const projectsData = await api.getProjects();
-      setProjects(projectsData || []);
-    } catch (error) {
-      console.error("Error cargando proyectos:", error);
-    }
-  };
-
-  const loadArticles = async () => {
-    setLoading(true);
-    try {
-      const response = await api.getUserResources('articles', { 
-        projectId: filterProjectId === 'all' ? undefined : filterProjectId,
-        page,
-        limit: 8
-      });
-      
-      if (response && response.data) {
-        setLocalArticles(response.data);
-        setTotalPages(response.pagination.totalPages);
-        setTotalArticles(response.pagination.total);
-      } else if (Array.isArray(response)) {
-        setLocalArticles(response);
-        setTotalPages(1);
-        setTotalArticles(response.length);
-      }
-    } catch (error) {
-      console.error("Error cargando artículos:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (article: Article) => {
       if (user.role !== 'admin') {
@@ -230,7 +203,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
 
       {/* SECCIÓN: MIS ARTÍCULOS */}
       <div className="space-y-6">
-          <div className="flex flex-col items-start gap-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
               <div className="flex items-center gap-4 border-l-4 border-purple-500 pl-4 py-1 pb-5">
                   <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500 border border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
                       <FileText className="w-8 h-8" />
@@ -238,26 +211,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   <div>
                       <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Artículos</h2>
                       <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tu contenido SEO y posicionamiento orgánico</p>
-                  </div>
-              </div>
-
-              {/* FILTRO POR PROYECTO - CENTRADO Y MÁS GRANDE */}
-              <div className="w-full flex justify-center">
-                  <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
-                      <label className="text-[12px] font-black text-gray-400 uppercase tracking-[0.3em]">Selecciona un Proyecto para Filtrar</label>
-                      <select 
-                          value={filterProjectId}
-                          onChange={(e) => {
-                              setFilterProjectId(e.target.value);
-                              setPage(1);
-                          }}
-                          className="w-full bg-gray-900/50 border-2 border-white/10 rounded-[2rem] px-8 py-5 text-white text-xl font-bold outline-none focus:border-purple-500 transition-all shadow-2xl appearance-none text-center cursor-pointer hover:bg-gray-900"
-                      >
-                          <option value="all">✨ Todos los Proyectos</option>
-                          {projects.map(p => (
-                              <option key={p.id} value={p.id}>{p.name}</option>
-                          ))}
-                      </select>
                   </div>
               </div>
           </div>
@@ -428,27 +381,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
              );
           })}
         </div>
-      )}
-
-      {/* PAGINACIÓN */}
-      {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4 mt-12">
-              <button 
-                  onClick={() => setPage(prev => Math.max(1, prev - 1))}
-                  disabled={page === 1}
-                  className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-purple-600 disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
-              >
-                  Anterior
-              </button>
-              <span className="text-gray-400 font-black text-xs uppercase tracking-widest">Página {page} de {totalPages}</span>
-              <button 
-                  onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={page === totalPages}
-                  className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-purple-600 disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
-              >
-                  Siguiente
-              </button>
-          </div>
       )}
 
       {/* VIDEO MODAL */}
