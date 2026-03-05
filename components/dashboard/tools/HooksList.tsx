@@ -66,7 +66,7 @@ export const HooksList: React.FC = () => {
             const response = await api.getUserResources('hooks', { 
                 projectId: filterProjectId === 'all' ? undefined : filterProjectId,
                 page,
-                limit: 8
+                limit: 5
             });
             
             if (response && response.data) {
