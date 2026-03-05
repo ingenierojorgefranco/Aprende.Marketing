@@ -811,24 +811,24 @@ export const api = {
         const articles = await fetchWithFallback('/articles', { method: 'GET', headers: getAuthHeaders() });
         const mapped = articles.map((a: any) => ({
             id: a.id.toString(),
-            projectId: a.project_id ? a.project_id.toString() : undefined,
+            projectId: (a.project_id || a.projectId) ? String(a.project_id || a.projectId) : undefined,
             pageId: a.page_id ? a.page_id.toString() : undefined,
             pageSubdomain: a.page_subdomain,
             pageName: a.page_name,
             title: a.title,
             slug: a.slug,
-            description: a.description,
+            description: a.description || '',
             contentHtml: a.content_html,
             featuredImage: a.featured_image,
             keyword: a.keyword,
             seoScore: a.seo_score,
             metaTitle: a.meta_title,
-            metaDescription: a.meta_description,
+            metaDescription: a.meta_description || '',
             emailSubject: a.email_subject,
             emailBody: a.email_body,
             status: a.status || 'published',
-            publishedAt: new Date(a.published_at || a.created_at),
-            createdAt: new Date(a.created_at)
+            publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
+            createdAt: a.created_at ? new Date(a.created_at) : new Date()
         }));
         apiCache.articles = mapped;
         return mapped;
@@ -844,22 +844,22 @@ export const api = {
           const a = await fetchWithFallback(`/articles/${id}`, { headers: getAuthHeaders() });
           const mapped: Article = {
                 id: a.id.toString(),
-                projectId: a.project_id ? a.project_id.toString() : undefined,
+                projectId: (a.project_id || a.projectId) ? String(a.project_id || a.projectId) : undefined,
                 pageId: a.page_id ? a.page_id.toString() : undefined,
                 title: a.title,
                 slug: a.slug,
-                description: a.description,
+                description: a.description || '',
                 contentHtml: a.content_html,
                 featuredImage: a.featured_image,
                 keyword: a.keyword,
                 seoScore: a.seo_score || 0,
                 metaTitle: a.meta_title,
-                metaDescription: a.meta_description,
+                metaDescription: a.meta_description || '',
                 emailSubject: a.email_subject,
                 emailBody: a.email_body,
                 status: a.status || 'published',
-                publishedAt: new Date(a.published_at || a.created_at),
-                createdAt: new Date(a.created_at)
+                publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
+                createdAt: a.created_at ? new Date(a.created_at) : new Date()
           };
           apiCache.articleDetails[id] = mapped;
           return mapped;

@@ -23,8 +23,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterProjectId, setFilterProjectId] = useState<string>('all');
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   
   // Modals States
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -36,63 +34,23 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   // ----------------------------------------------------
 
   useEffect(() => {
-      const loadProjects = async () => {
-          try {
-              const projectsData = await api.getProjects();
-              setProjects(projectsData || []);
-          } catch (e) {
-              console.error(e);
-          }
-      };
-      loadProjects();
-  }, []);
-
-  useEffect(() => {
-      const fetchArticles = async () => {
+      const fetchData = async () => {
           setLoading(true);
           try {
-              const response = await api.getUserResources('articles', { 
-                  projectId: filterProjectId === 'all' ? undefined : filterProjectId,
-                  page,
-                  limit: 5
-              });
-              
-              if (response && response.data) {
-                  const mapped = response.data.map((a: any) => ({
-                      id: a.id.toString(),
-                      projectId: a.project_id ? a.project_id.toString() : undefined,
-                      pageId: a.page_id ? a.page_id.toString() : undefined,
-                      pageSubdomain: a.page_subdomain,
-                      pageName: a.page_name,
-                      title: a.title,
-                      slug: a.slug,
-                      description: a.description,
-                      contentHtml: a.content_html,
-                      featuredImage: a.featured_image,
-                      keyword: a.keyword,
-                      seoScore: a.seo_score,
-                      metaTitle: a.meta_title,
-                      metaDescription: a.meta_description,
-                      emailSubject: a.email_subject,
-                      emailBody: a.email_body,
-                      status: a.status || 'published',
-                      publishedAt: new Date(a.published_at || a.created_at),
-                      createdAt: new Date(a.created_at)
-                  }));
-                  setLocalArticles(mapped);
-                  setTotalPages(response.pagination.totalPages);
-              } else if (Array.isArray(response)) {
-                  setLocalArticles(response);
-                  setTotalPages(1);
-              }
+              const [articlesData, projectsData] = await Promise.all([
+                  api.getArticles(),
+                  api.getProjects()
+              ]);
+              setLocalArticles(articlesData);
+              setProjects(projectsData || []);
           } catch (e) {
               console.error(e);
           } finally {
               setLoading(false);
           }
       };
-      fetchArticles();
-  }, [page, filterProjectId]);
+      fetchData();
+  }, []);
 
   const handleDelete = async (article: Article) => {
       if (user.role !== 'admin') {
@@ -266,7 +224,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                       value={filterProjectId}
                       onChange={(e) => {
                           setFilterProjectId(e.target.value);
-                          setPage(1);
                       }}
                       className="w-full bg-gray-900/50 border-2 border-white/10 rounded-[2rem] px-8 py-5 text-white text-xl font-bold outline-none focus:border-purple-500 transition-all shadow-2xl appearance-none text-center cursor-pointer hover:bg-gray-900"
                   >
@@ -310,7 +267,13 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>IA optimizada para posicionamiento Google</p>
               </div>
           </button>
-          {localArticles.map((article) => {
+          {localArticles
+            .filter(article => {
+              if (filterProjectId === 'all') return true;
+              const articleProjId = article.projectId || (article as any).project_id;
+              return String(articleProjId) === String(filterProjectId);
+            })
+            .map((article) => {
              const basePageSlug = article.pageSubdomain ? article.pageSubdomain.split(".")[0] : article.pageId;
              const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${article.slug}` : '#';
              const landingUrl = basePageSlug ? `/admin/lp/${basePageSlug}` : '#';
@@ -364,16 +327,10 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                         )}
                     </div>
                     
-                    <h3 
-                        onClick={() => navigate(`/dashboard/articles/edit/${article.id}`)}
-                        className="text-xl font-black text-[#FF5A1F] mb-3 line-clamp-2 group-hover:text-[#FF5A1F] transition-colors duration-300 leading-[1.6] cursor-pointer"
-                    >
+                    <h3 className="text-xl font-black text-[#FF5A1F] mb-3 line-clamp-2 group-hover:text-[#FF5A1F] transition-colors duration-300 leading-[1.6]">
                     {article.title}
                     </h3>
-                    <p 
-                        onClick={() => navigate(`/dashboard/articles/edit/${article.id}`)}
-                        className="text-white text-[1.2rem] line-clamp-3 mb-8 flex-1 leading-relaxed cursor-pointer"
-                    >
+                    <p className="text-white text-[1.2rem] line-clamp-3 mb-8 flex-1 leading-relaxed">
                     {article.metaDescription || article.description}
                     </p>
                     
@@ -450,27 +407,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
              );
           })}
         </div>
-      )}
-
-      {/* PAGINACIÓN */}
-      {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4 mt-12">
-              <button 
-                  onClick={() => setPage(prev => Math.max(1, prev - 1))}
-                  disabled={page === 1}
-                  className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-purple-600 disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
-              >
-                  Anterior
-              </button>
-              <span className="text-gray-400 font-black text-xs uppercase tracking-widest">Página {page} de {totalPages}</span>
-              <button 
-                  onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={page === totalPages}
-                  className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-purple-600 disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
-              >
-                  Siguiente
-              </button>
-          </div>
       )}
 
       {/* VIDEO MODAL */}
