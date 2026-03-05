@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { ProjectHook, User, Project, Plan } from '../../../types';
-import { Zap, Loader2, Trash2, Calendar, Sparkles, Brain, Target, Briefcase, ExternalLink, AlertTriangle, ChevronRight, ArrowLeft, X } from 'lucide-react';
+import { Zap, Loader2, Trash2, Calendar, Sparkles, Brain, Target, Briefcase, ExternalLink, AlertTriangle, ChevronRight, ArrowLeft, X, Plus } from 'lucide-react';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 import { UpgradeModal } from '../UpgradeModal';
 import { ProjectStrategy_Hooks } from './ProjectStrategy/ProjectStrategy_Hooks';
@@ -232,6 +232,18 @@ export const HooksList: React.FC = () => {
                                     <p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra inteligencia artificial necesita conocer tu estrategia y avatar para generar los mejores ganchos.</p>
                                 </div>
                                 <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                                    {/* CARD: CREAR NUEVO PROYECTO */}
+                                    <div 
+                                        className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-orange-500/50 hover:bg-orange-500/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
+                                        onClick={() => navigate('/dashboard/projects')}
+                                    >
+                                        <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-orange-500/10 group-hover:text-orange-500 transition-all shadow-lg mb-6">
+                                            <Plus className="w-10 h-10" />
+                                        </div>
+                                        <h4 className="text-white font-black text-2xl group-hover:text-orange-500 transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                                        <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar ganchos</p>
+                                    </div>
+
                                     {userProjects.map((project) => (
                                         <div 
                                             key={project.id} 
@@ -300,6 +312,7 @@ export const HooksList: React.FC = () => {
                                 className="w-full bg-gray-900/50 border-2 border-white/10 rounded-[2rem] px-8 py-5 text-white text-xl font-bold outline-none focus:border-orange-500 transition-all shadow-2xl appearance-none text-center cursor-pointer hover:bg-gray-900"
                             >
                                 <option value="all">✨ Todos los Proyectos</option>
+                                <option value="none">🚫 Sin Proyecto</option>
                                 {userProjects.map(p => (
                                     <option key={p.id} value={p.id}>{p.name}</option>
                                 ))}
@@ -316,10 +329,10 @@ export const HooksList: React.FC = () => {
                         <h3 className="text-xl font-bold text-white mb-2">No tienes ganchos aún</h3>
                         <p className="text-gray-400 max-w-md mx-auto mb-8">Ve a tus proyectos y desbloquea ganchos desde la sección de estrategia.</p>
                         <button 
-                            onClick={() => navigate('/dashboard/projects')}
+                            onClick={handleOpenWizard}
                             className="text-orange-400 border border-orange-500/50 hover:bg-orange-600 hover:text-white px-6 py-2.5 rounded-lg transition font-medium"
                         >
-                            Ir a Mis Proyectos
+                            Añadir Hook Magnetico
                         </button>
                     </div>
                 ) : (
