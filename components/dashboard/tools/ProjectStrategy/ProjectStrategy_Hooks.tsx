@@ -47,6 +47,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const [saving, setSaving] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   const [localTitle, setLocalTitle] = useState("");
   const [localStrategy, setLocalStrategy] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -108,10 +111,13 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         const index = hooks.findIndex(h => String(h.id) === String(hookIdFromUrl));
         if (index !== -1) {
             setActiveHook(index);
+            // Calcular y establecer la página correcta para la lista interna
+            const calculatedPage = Math.floor(index / itemsPerPage) + 1;
+            setCurrentPage(calculatedPage);
             initialSelectionDone.current = true;
         }
     }
-  }, [hookIdFromUrl, hooks, setActiveHook]);
+  }, [hookIdFromUrl, hooks, setActiveHook, itemsPerPage]);
 
   const handleUnlockMore = async () => {
     setUnlockingMore(true);
@@ -188,8 +194,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const isCurrentUnlocked = (currentHook as any).isUnlocked || !(currentHook as any).masterHookId;
   const canGenerate = isCurrentUnlocked && !currentHook.isGenerated && !isRealAdmin;
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
   const totalPages = Math.ceil(hooks.length / itemsPerPage);
   const paginatedHooks = hooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 

@@ -66,7 +66,7 @@ export const HooksList: React.FC = () => {
             const response = await api.getUserResources('hooks', { 
                 projectId: filterProjectId === 'all' ? undefined : filterProjectId,
                 page,
-                limit: 12
+                limit: 8
             });
             
             if (response && response.data) {
@@ -276,35 +276,56 @@ export const HooksList: React.FC = () => {
             ) : (
                 <div className="space-y-12">
                     {/* SECCIÓN: MIS GANCHOS */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                <div className="flex flex-col items-center gap-10">
                     <div className="flex items-center gap-4 border-l-4 border-orange-500 pl-4 py-1 pb-5">
                         <div className="p-3 bg-orange-500/10 rounded-2xl text-orange-500 border border-orange-500/20 shadow-[0_0_20px_rgba(249,115,22,0.1)]">
                             <Target className="w-8 h-8" />
                         </div>
-                        <div>
+                        <div className="text-center md:text-left">
                             <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Ganchos</h2>
                             <p className="text-white font-medium pt-2.5 text-[1.2em]">Biblioteca centralizada de ángulos de venta</p>
                         </div>
                     </div>
 
-                    {/* FILTRO POR PROYECTO */}
-                    <div className="flex flex-col gap-2 w-full md:w-auto">
-                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Filtrar por Proyecto</label>
+                    {/* FILTRO POR PROYECTO - CENTRADO Y MÁS GRANDE */}
+                    <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
+                        <label className="text-[12px] font-black text-gray-400 uppercase tracking-[0.3em]">Selecciona un Proyecto para Filtrar</label>
                         <select 
                             value={filterProjectId}
                             onChange={(e) => {
                                 setFilterProjectId(e.target.value);
                                 setPage(1);
                             }}
-                            className="bg-gray-900 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-orange-500 transition shadow-lg min-w-[250px]"
+                            className="w-full bg-gray-900/50 border-2 border-white/10 rounded-[2rem] px-8 py-5 text-white text-xl font-bold outline-none focus:border-orange-500 transition-all shadow-2xl appearance-none text-center cursor-pointer hover:bg-gray-900"
                         >
-                            <option value="all">Todos los Proyectos</option>
+                            <option value="all">✨ Todos los Proyectos</option>
                             {userProjects.map(p => (
                                 <option key={p.id} value={p.id}>{p.name}</option>
                             ))}
                         </select>
                     </div>
                 </div>
+
+                {/* PAGINACIÓN SUPERIOR */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 py-4">
+                        <button 
+                            onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                            disabled={page === 1}
+                            className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-orange-600 disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
+                        >
+                            Anterior
+                        </button>
+                        <span className="text-gray-400 font-black text-xs uppercase tracking-widest">Página {page} de {totalPages}</span>
+                        <button 
+                            onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
+                            disabled={page === totalPages}
+                            className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-orange-600 disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                )}
                 
                 {hooks.length === 0 ? (
                     <div className="text-center py-20 bg-gray-900 rounded-[2.5rem] border border-dashed border-gray-700">
@@ -372,7 +393,7 @@ export const HooksList: React.FC = () => {
                                             <Brain className="w-4 h-4 text-orange-400" />
                                             <span className="text-[10px] font-black uppercase text-orange-300 tracking-widest">Estrategia Psicológica</span>
                                         </div>
-                                        <p className="text-[1rem] text-gray-400 leading-relaxed italic">
+                                        <p className="text-[1rem] text-white leading-relaxed font-medium">
                                             "{(hook as any).psychological_strategy || hook.psychologicalStrategy}"
                                         </p>
                                     </div>

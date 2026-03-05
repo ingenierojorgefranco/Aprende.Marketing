@@ -209,7 +209,7 @@ router.get('/', async (req, res) => {
       SELECT p.*, (p.user_id = ?) as is_owner,
              EXISTS(SELECT 1 FROM unlocked_projects up WHERE up.project_id = p.id AND up.user_id = ?) as is_unlocked
       FROM projects p LEFT JOIN unlocked_projects up ON p.id = up.project_id AND up.user_id = ?
-      WHERE p.user_id = ? AND p.is_master = 0 ORDER BY p.updated_at DESC
+      WHERE p.user_id = ? ${req.user.role === 'admin' ? '' : 'AND p.is_master = 0'} ORDER BY p.updated_at DESC
     `;
     let params = [req.user.id, req.user.id, req.user.id, req.user.id];
 
