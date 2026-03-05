@@ -382,7 +382,7 @@ export const ProjectsList: React.FC = () => {
                                 <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Define un nuevo nicho o producto</p>
                             </div>
                         </button>
-                        {projects.filter(p => user.role === 'admin' || !p.isMaster).map((project) => {
+                        {projects.filter(p => !p.isMaster).map((project) => {
                             const isClonedFromMaster = !!project.masterParentId;
                             
                             return (
