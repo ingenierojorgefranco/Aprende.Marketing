@@ -22,6 +22,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   const [localArticles, setLocalArticles] = useState<Article[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterProjectId, setFilterProjectId] = useState<string>('all');
   
   // Modals States
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -214,6 +215,25 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   </div>
               </div>
           </div>
+
+          {/* FILTRO POR PROYECTO - CENTRADO Y MÁS GRANDE */}
+          <div className="w-full flex justify-center">
+              <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
+                  <label className="text-[12px] font-black text-gray-400 uppercase tracking-[0.3em]">Selecciona un Proyecto para Filtrar</label>
+                  <select 
+                      value={filterProjectId}
+                      onChange={(e) => {
+                          setFilterProjectId(e.target.value);
+                      }}
+                      className="w-full bg-gray-900/50 border-2 border-white/10 rounded-[2rem] px-8 py-5 text-white text-xl font-bold outline-none focus:border-purple-500 transition-all shadow-2xl appearance-none text-center cursor-pointer hover:bg-gray-900"
+                  >
+                      <option value="all">✨ Todos los Proyectos</option>
+                      {projects.map(p => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                  </select>
+              </div>
+          </div>
       </div>
 
       {/* CONTENT GRID */}
@@ -247,7 +267,9 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>IA optimizada para posicionamiento Google</p>
               </div>
           </button>
-          {localArticles.map((article) => {
+          {localArticles
+            .filter(article => filterProjectId === 'all' || String(article.projectId) === String(filterProjectId))
+            .map((article) => {
              const basePageSlug = article.pageSubdomain ? article.pageSubdomain.split(".")[0] : article.pageId;
              const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${article.slug}` : '#';
              const landingUrl = basePageSlug ? `/admin/lp/${basePageSlug}` : '#';
