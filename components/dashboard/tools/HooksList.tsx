@@ -18,6 +18,10 @@ export const HooksList: React.FC = () => {
     const { user, hookCount } = useOutletContext() as DashboardContext;
     const [hooks, setHooks] = useState<ProjectHook[]>([]);
     const [loading, setLoading] = useState(true);
+    const [filterProjectId, setFilterProjectId] = useState<string>('all');
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalHooks, setTotalHooks] = useState(0);
 
     // --- Estados para el Wizard de Nuevo Hook ---
     const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -36,22 +40,46 @@ export const HooksList: React.FC = () => {
     // ----------------------------------------------------
 
     useEffect(() => {
-        loadData();
+        loadInitialData();
     }, []);
 
-    const loadData = async () => {
-        setLoading(true);
+    useEffect(() => {
+        loadHooks();
+    }, [page, filterProjectId]);
+
+    const loadInitialData = async () => {
         try {
-            const [hooksData, projectsData, plansData] = await Promise.all([
-                api.getUserResources('hooks'),
+            const [projectsData, plansData] = await Promise.all([
                 api.getProjects(),
                 api.getPublicPlans()
             ]);
-            setHooks(hooksData);
             setUserProjects(projectsData || []);
             setAllPlans(plansData || []);
         } catch (error) {
-            console.error("Error cargando datos:", error);
+            console.error("Error cargando datos iniciales:", error);
+        }
+    };
+
+    const loadHooks = async () => {
+        setLoading(true);
+        try {
+            const response = await api.getUserResources('hooks', { 
+                projectId: filterProjectId === 'all' ? undefined : filterProjectId,
+                page,
+                limit: 12
+            });
+            
+            if (response && response.data) {
+                setHooks(response.data);
+                setTotalPages(response.pagination.totalPages);
+                setTotalHooks(response.pagination.total);
+            } else if (Array.isArray(response)) {
+                setHooks(response);
+                setTotalPages(1);
+                setTotalHooks(response.length);
+            }
+        } catch (error) {
+            console.error("Error cargando ganchos:", error);
         } finally {
             setLoading(false);
         }
@@ -258,6 +286,24 @@ export const HooksList: React.FC = () => {
                             <p className="text-white font-medium pt-2.5 text-[1.2em]">Biblioteca centralizada de ángulos de venta</p>
                         </div>
                     </div>
+
+                    {/* FILTRO POR PROYECTO */}
+                    <div className="flex flex-col gap-2 w-full md:w-auto">
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Filtrar por Proyecto</label>
+                        <select 
+                            value={filterProjectId}
+                            onChange={(e) => {
+                                setFilterProjectId(e.target.value);
+                                setPage(1);
+                            }}
+                            className="bg-gray-900 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-orange-500 transition shadow-lg min-w-[250px]"
+                        >
+                            <option value="all">Todos los Proyectos</option>
+                            {userProjects.map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
                 
                 {hooks.length === 0 ? (
@@ -342,6 +388,27 @@ export const HooksList: React.FC = () => {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                )}
+
+                {/* PAGINACIÓN */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 mt-12">
+                        <button 
+                            onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                            disabled={page === 1}
+                            className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-orange-600 disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
+                        >
+                            Anterior
+                        </button>
+                        <span className="text-gray-400 font-black text-xs uppercase tracking-widest">Página {page} de {totalPages}</span>
+                        <button 
+                            onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
+                            disabled={page === totalPages}
+                            className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-orange-600 disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
+                        >
+                            Siguiente
+                        </button>
                     </div>
                 )}
             </div>

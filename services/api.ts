@@ -1057,9 +1057,15 @@ export const api = {
         return stats;
     },
 
-    getUserResources: async (type: string): Promise<any[]> => {
+    getUserResources: async (type: string, params?: { projectId?: string, page?: number, limit?: number }): Promise<any> => {
         if (isMockMode) return Promise.resolve([]);
-        return await fetchWithFallback(`/auth/me/resources?type=${type}`, { headers: getAuthHeaders() });
+        let url = `/auth/me/resources?type=${type}`;
+        if (params) {
+            if (params.projectId) url += `&projectId=${params.projectId}`;
+            if (params.page) url += `&page=${params.page}`;
+            if (params.limit) url += `&limit=${params.limit}`;
+        }
+        return await fetchWithFallback(url, { headers: getAuthHeaders() });
     },
   
     getCoursesList: async (): Promise<{id: string, title: string, slug: string}[]> => {

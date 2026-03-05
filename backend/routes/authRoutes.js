@@ -337,13 +337,57 @@ router.get('/me/resources', authMiddleware, async (req, res) => {
         } else if (type === 'whatsapp') {
             [rows] = await pool.query('SELECT id, name, created_at FROM whatsapp_lanzamientos WHERE user_id = ? ORDER BY created_at DESC', [userId]);
         } else if (type === 'hooks') {
-            [rows] = await pool.query(`
-                SELECT ph.id, ph.title, ph.psychological_strategy, ph.created_at, p.name as project_name, ph.project_id
-                FROM project_hooks ph 
-                JOIN projects p ON ph.project_id = p.id 
-                WHERE p.user_id = ? 
-                ORDER BY ph.created_at DESC
-            `, [userId]);
+            const { projectId, page, limit = 12 } = req.query;
+            const pNum = parseInt(page);
+            const lNum = parseInt(limit);
+            const offset = (pNum - 1) * lNum;
+
+            let whereClause = "WHERE p.user_id = ?";
+            const params = [userId];
+
+            if (projectId && projectId !== 'all' && projectId !== 'null' && projectId !== 'undefined') {
+                whereClause += " AND ph.project_id = ?";
+                params.push(projectId);
+            }
+
+            if (page) {
+                // Return paginated response
+                const [countRows] = await pool.query(`
+                    SELECT COUNT(*) as total 
+                    FROM project_hooks ph 
+                    JOIN projects p ON ph.project_id = p.id 
+                    ${whereClause}
+                `, params);
+                const total = countRows[0].total;
+
+                const [hookRows] = await pool.query(`
+                    SELECT ph.id, ph.title, ph.psychological_strategy, ph.created_at, p.name as project_name, ph.project_id, ph.is_generated
+                    FROM project_hooks ph 
+                    JOIN projects p ON ph.project_id = p.id 
+                    ${whereClause}
+                    ORDER BY ph.created_at DESC
+                    LIMIT ? OFFSET ?
+                `, [...params, lNum, offset]);
+
+                return res.json({
+                    data: hookRows,
+                    pagination: {
+                        total,
+                        page: pNum,
+                        limit: lNum,
+                        totalPages: Math.ceil(total / lNum)
+                    }
+                });
+            } else {
+                // Backward compatibility: return full array
+                [rows] = await pool.query(`
+                    SELECT ph.id, ph.title, ph.psychological_strategy, ph.created_at, p.name as project_name, ph.project_id, ph.is_generated
+                    FROM project_hooks ph 
+                    JOIN projects p ON ph.project_id = p.id 
+                    ${whereClause}
+                    ORDER BY ph.created_at DESC
+                `, params);
+            }
         } else {
             return res.status(400).json({ error: 'Tipo de recurso no válido' });
         }
