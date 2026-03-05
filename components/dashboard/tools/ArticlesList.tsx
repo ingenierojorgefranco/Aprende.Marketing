@@ -37,44 +37,46 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   // ----------------------------------------------------
 
   useEffect(() => {
-      const fetchProjects = async () => {
-          try {
-              const projectsData = await api.getProjects();
-              setProjects(projectsData || []);
-          } catch (e) {
-              console.error(e);
-          }
-      };
-      fetchProjects();
+    loadInitialData();
   }, []);
 
   useEffect(() => {
-      const fetchArticles = async () => {
-          setLoading(true);
-          try {
-              const response = await api.getUserResources('articles', { 
-                  projectId: filterProjectId === 'all' ? undefined : filterProjectId,
-                  page,
-                  limit: 8
-              });
-              
-              if (response && response.data) {
-                  setLocalArticles(response.data);
-                  setTotalPages(response.pagination.totalPages);
-                  setTotalArticles(response.pagination.total);
-              } else if (Array.isArray(response)) {
-                  setLocalArticles(response);
-                  setTotalPages(1);
-                  setTotalArticles(response.length);
-              }
-          } catch (e) {
-              console.error(e);
-          } finally {
-              setLoading(false);
-          }
-      };
-      fetchArticles();
+    loadArticles();
   }, [page, filterProjectId]);
+
+  const loadInitialData = async () => {
+    try {
+      const projectsData = await api.getProjects();
+      setProjects(projectsData || []);
+    } catch (error) {
+      console.error("Error cargando proyectos:", error);
+    }
+  };
+
+  const loadArticles = async () => {
+    setLoading(true);
+    try {
+      const response = await api.getUserResources('articles', { 
+        projectId: filterProjectId === 'all' ? undefined : filterProjectId,
+        page,
+        limit: 8
+      });
+      
+      if (response && response.data) {
+        setLocalArticles(response.data);
+        setTotalPages(response.pagination.totalPages);
+        setTotalArticles(response.pagination.total);
+      } else if (Array.isArray(response)) {
+        setLocalArticles(response);
+        setTotalPages(1);
+        setTotalArticles(response.length);
+      }
+    } catch (error) {
+      console.error("Error cargando artículos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (article: Article) => {
       if (user.role !== 'admin') {
@@ -227,13 +229,13 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       </div>
 
       {/* SECCIÓN: MIS ARTÍCULOS */}
-      <div className="space-y-12">
+      <div className="space-y-6">
           <div className="flex flex-col items-start gap-10">
               <div className="flex items-center gap-4 border-l-4 border-purple-500 pl-4 py-1 pb-5">
                   <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500 border border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
                       <FileText className="w-8 h-8" />
                   </div>
-                  <div className="text-left">
+                  <div>
                       <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Artículos</h2>
                       <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tu contenido SEO y posicionamiento orgánico</p>
                   </div>
@@ -252,7 +254,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                           className="w-full bg-gray-900/50 border-2 border-white/10 rounded-[2rem] px-8 py-5 text-white text-xl font-bold outline-none focus:border-purple-500 transition-all shadow-2xl appearance-none text-center cursor-pointer hover:bg-gray-900"
                       >
                           <option value="all">✨ Todos los Proyectos</option>
-                          <option value="none">🚫 Sin Proyecto</option>
                           {projects.map(p => (
                               <option key={p.id} value={p.id}>{p.name}</option>
                           ))}

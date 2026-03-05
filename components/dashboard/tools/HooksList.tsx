@@ -312,7 +312,6 @@ export const HooksList: React.FC = () => {
                                 className="w-full bg-gray-900/50 border-2 border-white/10 rounded-[2rem] px-8 py-5 text-white text-xl font-bold outline-none focus:border-orange-500 transition-all shadow-2xl appearance-none text-center cursor-pointer hover:bg-gray-900"
                             >
                                 <option value="all">✨ Todos los Proyectos</option>
-                                <option value="none">🚫 Sin Proyecto</option>
                                 {userProjects.map(p => (
                                     <option key={p.id} value={p.id}>{p.name}</option>
                                 ))}
