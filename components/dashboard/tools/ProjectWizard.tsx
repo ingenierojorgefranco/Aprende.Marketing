@@ -208,7 +208,7 @@ export const ProjectWizard: React.FC = () => {
                 setMainGoal(proj.mainGoal || 'Venta Directa');
                 setPainPoints(proj.painPoints || []);
                 setKeyBenefits(proj.keyBenefits || []);
-                setAffiliateLinks(affiliateLinks && affiliateLinks.length > 0 ? affiliateLinks : [
+                setAffiliateLinks(proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks : [
                     { label: 'Hotlink Principal Precio Full', url: '' },
                     { label: 'Hotlink con Descuento', url: '' }
                 ]);
@@ -288,7 +288,7 @@ export const ProjectWizard: React.FC = () => {
             mainGoal: mainGoal || 'Venta Directa',
             painPoints: painPoints,
             keyBenefits: keyBenefits,
-            affiliateLinks: affiliateLinks.filter(l => l.url.trim() !== ''),
+            affiliateLinks: affiliateLinks.filter(l => (l.url || '').trim() !== ''),
             isMaster: (user.role === 'admin' && !isSimulating) ? isMaster : false,
             multimedia_json: (user.role === 'admin' && !isSimulating) ? multimedia : undefined,
             strategy_json: id ? originalStrategyJson : undefined
