@@ -534,6 +534,11 @@ export interface Project {
   isActive?: boolean; // NEW: Status of the project plan
   
   strategy_json?: StrategyJSON | any; // Updated to accept both types
+  multimedia_json?: {
+    heroImages: string[];
+    videoUrl: string;
+    descriptiveImages: string[];
+  };
   
   createdAt: Date;
   ////////// Actualización: Campos para el sistema de Proyectos Maestros - 05/03/2025 10:00 //////////

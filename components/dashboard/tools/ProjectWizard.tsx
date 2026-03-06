@@ -147,6 +147,11 @@ export const ProjectWizard: React.FC = () => {
         { label: 'Hotlink con Descuento', url: '' }
     ]);
     const [originalStrategyJson, setOriginalStrategyJson] = useState<any>(null);
+    const [multimedia, setMultimedia] = useState<{ heroImages: string[], videoUrl: string, descriptiveImages: string[] }>({
+        heroImages: [],
+        videoUrl: '',
+        descriptiveImages: []
+    });
 
     const commissionRate = fullPrice > 0 ? (commissionValue / fullPrice) * 100 : 0;
 
@@ -209,6 +214,9 @@ export const ProjectWizard: React.FC = () => {
                 ]);
                 setIsMaster(!!proj.isMaster);
                 setOriginalStrategyJson(proj.strategy_json);
+                if (proj.multimedia_json) {
+                    setMultimedia(proj.multimedia_json);
+                }
             }
         } catch (error) {
             console.error("Error loading project", error);
@@ -282,6 +290,7 @@ export const ProjectWizard: React.FC = () => {
             keyBenefits: keyBenefits,
             affiliateLinks: affiliateLinks.filter(l => l.url.trim() !== ''),
             isMaster: (user.role === 'admin' && !isSimulating) ? isMaster : false,
+            multimedia_json: (user.role === 'admin' && !isSimulating) ? multimedia : undefined,
             strategy_json: id ? originalStrategyJson : undefined
         };
 
@@ -439,6 +448,111 @@ export const ProjectWizard: React.FC = () => {
                                             >
                                                 NO, PRIVADO
                                             </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* GESTIÓN DE MULTIMEDIA (SOLO ADMIN REAL) */}
+                            {user.role === 'admin' && !isSimulating && (
+                                <div className="bg-blue-500/10 border border-blue-500/30 p-8 rounded-[3rem] space-y-8 shadow-[0_0_50px_rgba(59,130,246,0.1)]">
+                                    <div className="flex items-center gap-4 border-b border-blue-500/20 pb-4">
+                                        <div className="p-3 bg-blue-500/20 rounded-2xl text-blue-400">
+                                            <Palette className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-white font-black text-xl uppercase tracking-tighter italic">Recursos Multimedia del Proyecto</h4>
+                                            <p className="text-blue-400/70 text-[10px] font-black uppercase tracking-widest">Configuración exclusiva para administradores</p>
+                                        </div>
+                                    </div>
+
+                                    {/* HERO IMAGES */}
+                                    <div className="space-y-4">
+                                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Imágenes Hero (Parte Superior - Máx 5)</label>
+                                        <div className="grid gap-3">
+                                            {multimedia.heroImages.map((img, idx) => (
+                                                <div key={idx} className="flex gap-2">
+                                                    <input 
+                                                        type="text" 
+                                                        value={img} 
+                                                        onChange={(e) => {
+                                                            const newImgs = [...multimedia.heroImages];
+                                                            newImgs[idx] = e.target.value;
+                                                            setMultimedia({ ...multimedia, heroImages: newImgs });
+                                                        }}
+                                                        className="flex-1 bg-black border border-gray-800 rounded-xl px-4 py-2 text-xs text-blue-300 outline-none focus:border-blue-500"
+                                                        placeholder="URL de imagen hero..."
+                                                    />
+                                                    <button 
+                                                        onClick={() => {
+                                                            const newImgs = multimedia.heroImages.filter((_, i) => i !== idx);
+                                                            setMultimedia({ ...multimedia, heroImages: newImgs });
+                                                        }}
+                                                        className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {multimedia.heroImages.length < 5 && (
+                                                <button 
+                                                    onClick={() => setMultimedia({ ...multimedia, heroImages: [...multimedia.heroImages, ''] })}
+                                                    className="w-full py-2 border border-dashed border-gray-800 rounded-xl text-[10px] font-bold text-gray-500 hover:text-blue-400 hover:border-blue-500/30 transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    <Plus className="w-3 h-3" /> Añadir Imagen Hero
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* VIDEO URL */}
+                                    <div className="space-y-4">
+                                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Video Principal (YouTube / MP4)</label>
+                                        <input 
+                                            type="text" 
+                                            value={multimedia.videoUrl} 
+                                            onChange={(e) => setMultimedia({ ...multimedia, videoUrl: e.target.value })}
+                                            className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-xs text-blue-300 outline-none focus:border-blue-500"
+                                            placeholder="URL de video de YouTube o enlace directo..."
+                                        />
+                                    </div>
+
+                                    {/* DESCRIPTIVE IMAGES */}
+                                    <div className="space-y-4">
+                                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Imágenes Descriptivas (Más Información - Máx 3)</label>
+                                        <div className="grid gap-3">
+                                            {multimedia.descriptiveImages.map((img, idx) => (
+                                                <div key={idx} className="flex gap-2">
+                                                    <input 
+                                                        type="text" 
+                                                        value={img} 
+                                                        onChange={(e) => {
+                                                            const newImgs = [...multimedia.descriptiveImages];
+                                                            newImgs[idx] = e.target.value;
+                                                            setMultimedia({ ...multimedia, descriptiveImages: newImgs });
+                                                        }}
+                                                        className="flex-1 bg-black border border-gray-800 rounded-xl px-4 py-2 text-xs text-blue-300 outline-none focus:border-blue-500"
+                                                        placeholder="URL de imagen descriptiva..."
+                                                    />
+                                                    <button 
+                                                        onClick={() => {
+                                                            const newImgs = multimedia.descriptiveImages.filter((_, i) => i !== idx);
+                                                            setMultimedia({ ...multimedia, descriptiveImages: newImgs });
+                                                        }}
+                                                        className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {multimedia.descriptiveImages.length < 3 && (
+                                                <button 
+                                                    onClick={() => setMultimedia({ ...multimedia, descriptiveImages: [...multimedia.descriptiveImages, ''] })}
+                                                    className="w-full py-2 border border-dashed border-gray-800 rounded-xl text-[10px] font-bold text-gray-500 hover:text-blue-400 hover:border-blue-500/30 transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    <Plus className="w-3 h-3" /> Añadir Imagen Descriptiva
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

@@ -586,6 +586,7 @@ export const api = {
               keyBenefits: safeParseJsonList(p.key_benefits),
               affiliate_links: safeParseJsonList(p.affiliate_links),
               strategy_json: strategyObj,
+              multimedia_json: safeJsonParse(p.multimedia_json, 'proj.multimediaJson') || { heroImages: [], videoUrl: '', descriptiveImages: [] },
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               productName: p.product_name || p.productName,
