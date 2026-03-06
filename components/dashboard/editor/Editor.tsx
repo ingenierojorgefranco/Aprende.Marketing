@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { LandingPage, GeneratedPageContent, ColorPalette, StructureType, DestinationConfig, DestinationType, ThankYouPageConfig, Project } from '../../../types';
-import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift, AlertTriangle, Book, ShoppingBag, XCircle } from 'lucide-react';
+import { Save, Globe, ArrowLeft, CheckCircle, LayoutTemplate, Palette, Type, Settings, Smartphone, Monitor, Sparkles, FileText, Maximize, Minimize2, MessageCircle, Link as LinkIcon, Target, Plus, Trash2, ChevronDown, ChevronUp, Image, HelpCircle, User, Award, Anchor, Menu, MousePointerClick, Facebook, Instagram, Twitter, Bold, Italic, List, AlignCenter, AlignLeft, Star, DollarSign, Briefcase, Users, Zap, BookOpen, ScanFace, Feather, Rocket, Grid, ExternalLink, PlayCircle, Gift, AlertTriangle, Book, ShoppingBag, XCircle, Library, X, Search } from 'lucide-react';
 import { LivePage } from '../../LivePage';
 import { useLocation } from 'react-router-dom';
 import { api } from '../../../services/api';
@@ -232,6 +232,80 @@ interface EditorProps {
   onBack: () => void;
 }
 
+// --- LIBRARY MODAL ---
+const LibraryModal = ({ 
+    isOpen, 
+    onClose, 
+    resources, 
+    onSelect 
+}: { 
+    isOpen: boolean, 
+    onClose: () => void, 
+    resources: string[], 
+    onSelect: (url: string) => void 
+}) => {
+    if (!isOpen) return null;
+    
+    const validResources = resources.filter(r => r && r.trim() !== '');
+
+    return (
+        <div className="fixed inset-0 z-[500] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={onClose}>
+            <div className="bg-gray-900 border border-gray-800 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
+                <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-gray-800/50">
+                    <h3 className="text-xl font-black text-white uppercase tracking-tighter italic flex items-center gap-2">
+                        <Library className="w-5 h-5 text-primary" /> Biblioteca del Proyecto
+                    </h3>
+                    <button onClick={onClose} className="p-2 hover:bg-gray-700 rounded-full text-gray-400 transition-colors">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+                <div className="p-6 overflow-y-auto custom-scrollbar">
+                    {validResources.length === 0 ? (
+                        <div className="py-20 text-center space-y-4">
+                            <div className="w-16 h-16 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto text-gray-600">
+                                <Search className="w-8 h-8" />
+                            </div>
+                            <p className="text-gray-500 font-medium">No hay recursos multimedia guardados en este proyecto.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            {validResources.map((url, i) => {
+                                const isVideo = url.includes('youtube.com') || url.includes('youtu.be') || url.includes('vimeo.com') || url.match(/\.(mp4|webm|ogg)$/i);
+                                return (
+                                    <button
+                                        key={i}
+                                        type="button"
+                                        onClick={() => {
+                                            onSelect(url);
+                                            onClose();
+                                        }}
+                                        className="relative aspect-square rounded-2xl border border-gray-800 overflow-hidden hover:border-primary transition-all group bg-black shadow-lg"
+                                    >
+                                        {isVideo ? (
+                                            <div className="w-full h-full flex flex-col items-center justify-center bg-primary/10 gap-2">
+                                                <PlayCircle className="w-10 h-10 text-primary group-hover:scale-110 transition" />
+                                                <span className="text-[10px] font-black text-primary uppercase tracking-widest">Video</span>
+                                            </div>
+                                        ) : (
+                                            <img src={url} alt={`Resource ${i}`} className="w-full h-full object-cover group-hover:scale-110 transition" referrerPolicy="no-referrer" />
+                                        )}
+                                        <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                            <Plus className="w-8 h-8 text-white drop-shadow-md" />
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+                <div className="p-4 bg-gray-800/30 border-t border-gray-800 text-center">
+                    <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Selecciona un recurso para usarlo en tu página</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   // Ensure capture and thankYouPage structure exists
   const initialContent = {
@@ -277,6 +351,11 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const [openSection, setOpenSection] = useState<string | null>('header');
 
   const linkedProject = userProjects.find(p => String(p.id) === String(linkedProjectId));
+  const [libraryModal, setLibraryModal] = useState<{ isOpen: boolean, resources: string[], onSelect: (url: string) => void }>({
+      isOpen: false,
+      resources: [],
+      onSelect: () => {}
+  });
 
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? null : section);
@@ -567,6 +646,13 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
 
   return (
     <div className="fixed inset-0 bg-black flex flex-col z-50">
+      {/* Modal de Biblioteca Multimedia */}
+      <LibraryModal 
+          isOpen={libraryModal.isOpen}
+          onClose={() => setLibraryModal({ ...libraryModal, isOpen: false })}
+          resources={libraryModal.resources}
+          onSelect={libraryModal.onSelect}
+      />
       {/* Top Bar */}
       <div className="h-16 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-6 shadow-md z-20">
         <div className="flex items-center gap-4">
@@ -706,25 +792,22 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         onChange={(e) => handleHeroMediaChange(e.target.value)} 
                                         placeholder="Pega el link de tu imagen o video..." 
                                     />
-                                    {(content.hero.heroImage && !content.hero.videoUrl) && (
-                                        <img src={content.hero.heroImage} alt="Preview" className="w-10 h-10 rounded border border-gray-700 object-cover" />
-                                    )}
-                                    {content.hero.videoUrl && (
-                                        <div className="w-10 h-10 rounded border border-gray-700 bg-primary/20 flex items-center justify-center">
-                                            <PlayCircle className="w-5 h-5 text-primary"/>
-                                        </div>
-                                    )}
+                                    <button 
+                                        type="button"
+                                        onClick={() => setLibraryModal({
+                                            isOpen: true,
+                                            resources: [
+                                                ...(linkedProject?.multimedia_json?.heroImages || []),
+                                                ...(linkedProject?.multimedia_json?.videoUrls || [])
+                                            ],
+                                            onSelect: handleHeroMediaChange
+                                        })}
+                                        className="px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-gray-400 hover:text-white transition-all flex items-center gap-2 shrink-0 text-xs font-bold uppercase tracking-widest"
+                                    >
+                                        <Library className="w-4 h-4 text-primary" /> Biblioteca
+                                    </button>
                                 </div>
                                 
-                                {/* Selector de Multimedia del Proyecto */}
-                                <MultimediaSelector 
-                                    resources={[
-                                        ...(linkedProject?.multimedia_json?.heroImages || []),
-                                        ...(linkedProject?.multimedia_json?.videoUrls || [])
-                                    ]} 
-                                    onSelect={handleHeroMediaChange}
-                                />
-
                                 <p className="text-[10px] text-gray-500 mt-1">
                                     * Si pegas un video, la imagen previa se mantendrá como portada/miniatura.
                                 </p>
@@ -884,16 +967,18 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         onChange={(e) => updateNestedField('intro', 'imageUrl', e.target.value)} 
                                         placeholder="Pega la URL de la imagen..." 
                                     />
-                                    {content.intro.imageUrl && (
-                                        <img src={content.intro.imageUrl} alt="Preview" className="w-10 h-10 rounded border border-gray-700 object-cover" />
-                                    )}
+                                    <button 
+                                        type="button"
+                                        onClick={() => setLibraryModal({
+                                            isOpen: true,
+                                            resources: linkedProject?.multimedia_json?.descriptiveImages || [],
+                                            onSelect: (url) => updateNestedField('intro', 'imageUrl', url)
+                                        })}
+                                        className="px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-gray-400 hover:text-white transition-all flex items-center gap-2 shrink-0 text-xs font-bold uppercase tracking-widest h-[38px]"
+                                    >
+                                        <Library className="w-4 h-4 text-primary" /> Biblioteca
+                                    </button>
                                 </div>
-
-                                {/* Selector de Multimedia del Proyecto (Introducción) */}
-                                <MultimediaSelector 
-                                    resources={linkedProject?.multimedia_json?.descriptiveImages || []} 
-                                    onSelect={(url) => updateNestedField('intro', 'imageUrl', url)}
-                                />
                             </div>
                             
                             <div className="pt-4 border-t border-gray-800">
