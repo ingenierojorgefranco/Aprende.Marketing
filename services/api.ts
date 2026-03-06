@@ -511,6 +511,7 @@ export const api = {
               keyBenefits: safeParseJsonList(p.key_benefits),
               affiliate_links: safeParseJsonList(p.affiliate_links),
               strategy_json: strategyObj, 
+              multimedia_json: safeJsonParse(p.multimedia_json, 'proj.multimediaJson') || { heroImages: [], videoUrl: '', descriptiveImages: [] },
               targetAudience: p.target_audience || p.targetAudience,
               brandTone: p.brand_tone || p.brandTone,
               product_name: p.product_name || p.productName,
@@ -546,6 +547,7 @@ export const api = {
             keyBenefits: safeParseJsonList(p.key_benefits),
             affiliate_links: safeParseJsonList(p.affiliate_links),
             strategy_json: strategyObj,
+            multimedia_json: safeJsonParse(p.multimedia_json, 'proj.multimediaJson') || { heroImages: [], videoUrl: '', descriptiveImages: [] },
             shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
             isMaster: true,
             createdAt: new Date(p.created_at)

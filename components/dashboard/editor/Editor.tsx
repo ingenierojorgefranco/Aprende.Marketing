@@ -177,6 +177,55 @@ const RichTextArea = ({ value, onChange, className, ...props }: RichTextAreaProp
     );
 };
 
+// --- MULTIMEDIA SELECTOR ---
+const MultimediaSelector = ({ 
+    resources, 
+    onSelect, 
+    type = 'image' 
+}: { 
+    resources: string[], 
+    onSelect: (url: string) => void,
+    type?: 'image' | 'video'
+}) => {
+    // Filtrar recursos vacíos
+    const validResources = resources.filter(r => r && r.trim() !== '');
+    if (validResources.length === 0) return null;
+    
+    return (
+        <div className="mt-3 space-y-2 animate-in fade-in duration-500">
+            <label className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1">
+                <Sparkles className="w-3 h-3" /> Recursos del Proyecto
+            </label>
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {validResources.map((url, i) => {
+                    const isVideo = url.includes('youtube.com') || url.includes('youtu.be') || url.includes('vimeo.com') || url.match(/\.(mp4|webm|ogg)$/i);
+                    return (
+                        <button
+                            key={i}
+                            type="button"
+                            onClick={() => onSelect(url)}
+                            className="relative min-w-[70px] h-[70px] rounded-xl border border-gray-800 overflow-hidden hover:border-primary transition-all group shrink-0 bg-black shadow-lg"
+                            title="Haz clic para usar este recurso"
+                        >
+                            {isVideo ? (
+                                <div className="w-full h-full flex flex-col items-center justify-center bg-primary/10 gap-1">
+                                    <PlayCircle className="w-6 h-6 text-primary group-hover:scale-110 transition" />
+                                    <span className="text-[8px] font-black text-primary uppercase">Video</span>
+                                </div>
+                            ) : (
+                                <img src={url} alt={`Resource ${i}`} className="w-full h-full object-cover group-hover:scale-110 transition" referrerPolicy="no-referrer" />
+                            )}
+                            <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                <Plus className="w-5 h-5 text-white drop-shadow-md" />
+                            </div>
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
 interface EditorProps {
   page: LandingPage;
   onSave: (updatedPage: LandingPage) => Promise<void>;
@@ -226,6 +275,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   
   const [openSection, setOpenSection] = useState<string | null>('header');
+
+  const linkedProject = userProjects.find(p => String(p.id) === String(linkedProjectId));
 
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? null : section);
@@ -664,6 +715,16 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         </div>
                                     )}
                                 </div>
+                                
+                                {/* Selector de Multimedia del Proyecto */}
+                                <MultimediaSelector 
+                                    resources={[
+                                        ...(linkedProject?.multimedia_json?.heroImages || []),
+                                        ...(linkedProject?.multimedia_json?.videoUrl ? [linkedProject.multimedia_json.videoUrl] : [])
+                                    ]} 
+                                    onSelect={handleHeroMediaChange}
+                                />
+
                                 <p className="text-[10px] text-gray-500 mt-1">
                                     * Si pegas un video, la imagen previa se mantendrá como portada/miniatura.
                                 </p>
@@ -827,6 +888,12 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         <img src={content.intro.imageUrl} alt="Preview" className="w-10 h-10 rounded border border-gray-700 object-cover" />
                                     )}
                                 </div>
+
+                                {/* Selector de Multimedia del Proyecto (Introducción) */}
+                                <MultimediaSelector 
+                                    resources={linkedProject?.multimedia_json?.descriptiveImages || []} 
+                                    onSelect={(url) => updateNestedField('intro', 'imageUrl', url)}
+                                />
                             </div>
                             
                             <div className="pt-4 border-t border-gray-800">
