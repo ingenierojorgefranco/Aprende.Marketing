@@ -236,17 +236,21 @@ interface EditorProps {
 const LibraryModal = ({ 
     isOpen, 
     onClose, 
-    resources, 
+    images = [], 
+    videos = [], 
     onSelect 
 }: { 
     isOpen: boolean, 
     onClose: () => void, 
-    resources: string[], 
+    images?: string[], 
+    videos?: string[], 
     onSelect: (url: string) => void 
 }) => {
     if (!isOpen) return null;
     
-    const validResources = resources.filter(r => r && r.trim() !== '');
+    const validImages = images.filter(r => r && r.trim() !== '');
+    const validVideos = videos.filter(r => r && r.trim() !== '');
+    const hasAny = validImages.length > 0 || validVideos.length > 0;
 
     return (
         <div className="fixed inset-0 z-[500] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in" onClick={onClose}>
@@ -259,8 +263,8 @@ const LibraryModal = ({
                         <X className="w-5 h-5" />
                     </button>
                 </div>
-                <div className="p-6 overflow-y-auto custom-scrollbar">
-                    {validResources.length === 0 ? (
+                <div className="p-6 overflow-y-auto custom-scrollbar space-y-8">
+                    {!hasAny ? (
                         <div className="py-20 text-center space-y-4">
                             <div className="w-16 h-16 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto text-gray-600">
                                 <Search className="w-8 h-8" />
@@ -268,34 +272,64 @@ const LibraryModal = ({
                             <p className="text-gray-500 font-medium">No hay recursos multimedia guardados en este proyecto.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                            {validResources.map((url, i) => {
-                                const isVideo = url.includes('youtube.com') || url.includes('youtu.be') || url.includes('vimeo.com') || url.match(/\.(mp4|webm|ogg)$/i);
-                                return (
-                                    <button
-                                        key={i}
-                                        type="button"
-                                        onClick={() => {
-                                            onSelect(url);
-                                            onClose();
-                                        }}
-                                        className="relative aspect-square rounded-2xl border border-gray-800 overflow-hidden hover:border-primary transition-all group bg-black shadow-lg"
-                                    >
-                                        {isVideo ? (
-                                            <div className="w-full h-full flex flex-col items-center justify-center bg-primary/10 gap-2">
-                                                <PlayCircle className="w-10 h-10 text-primary group-hover:scale-110 transition" />
-                                                <span className="text-[10px] font-black text-primary uppercase tracking-widest">Video</span>
-                                            </div>
-                                        ) : (
-                                            <img src={url} alt={`Resource ${i}`} className="w-full h-full object-cover group-hover:scale-110 transition" referrerPolicy="no-referrer" />
-                                        )}
-                                        <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                                            <Plus className="w-8 h-8 text-white drop-shadow-md" />
-                                        </div>
-                                    </button>
-                                );
-                            })}
-                        </div>
+                        <>
+                            {/* Bloque de Imágenes */}
+                            {validImages.length > 0 && (
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-black text-primary uppercase tracking-[0.2em] flex items-center gap-2">
+                                        <Image className="w-4 h-4" /> Imágenes Disponibles
+                                    </h4>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                        {validImages.map((url, i) => (
+                                            <button
+                                                key={`img-${i}`}
+                                                type="button"
+                                                onClick={() => {
+                                                    onSelect(url);
+                                                    onClose();
+                                                }}
+                                                className="relative aspect-square rounded-2xl border border-gray-800 overflow-hidden hover:border-primary transition-all group bg-black shadow-lg"
+                                            >
+                                                <img src={url} alt={`Resource ${i}`} className="w-full h-full object-cover group-hover:scale-110 transition" referrerPolicy="no-referrer" />
+                                                <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                                    <Plus className="w-8 h-8 text-white drop-shadow-md" />
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Bloque de Videos */}
+                            {validVideos.length > 0 && (
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-black text-primary uppercase tracking-[0.2em] flex items-center gap-2">
+                                        <PlayCircle className="w-4 h-4" /> Videos Disponibles
+                                    </h4>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                        {validVideos.map((url, i) => (
+                                            <button
+                                                key={`vid-${i}`}
+                                                type="button"
+                                                onClick={() => {
+                                                    onSelect(url);
+                                                    onClose();
+                                                }}
+                                                className="relative aspect-square rounded-2xl border border-gray-800 overflow-hidden hover:border-primary transition-all group bg-black shadow-lg"
+                                            >
+                                                <div className="w-full h-full flex flex-col items-center justify-center bg-primary/10 gap-2">
+                                                    <PlayCircle className="w-10 h-10 text-primary group-hover:scale-110 transition" />
+                                                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">Video</span>
+                                                </div>
+                                                <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                                    <Plus className="w-8 h-8 text-white drop-shadow-md" />
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
                 <div className="p-4 bg-gray-800/30 border-t border-gray-800 text-center">
@@ -351,9 +385,10 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const [openSection, setOpenSection] = useState<string | null>('header');
 
   const linkedProject = userProjects.find(p => String(p.id) === String(linkedProjectId));
-  const [libraryModal, setLibraryModal] = useState<{ isOpen: boolean, resources: string[], onSelect: (url: string) => void }>({
+  const [libraryModal, setLibraryModal] = useState<{ isOpen: boolean, images: string[], videos: string[], onSelect: (url: string) => void }>({
       isOpen: false,
-      resources: [],
+      images: [],
+      videos: [],
       onSelect: () => {}
   });
 
@@ -650,7 +685,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
       <LibraryModal 
           isOpen={libraryModal.isOpen}
           onClose={() => setLibraryModal({ ...libraryModal, isOpen: false })}
-          resources={libraryModal.resources}
+          images={libraryModal.images}
+          videos={libraryModal.videos}
           onSelect={libraryModal.onSelect}
       />
       {/* Top Bar */}
@@ -796,10 +832,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         type="button"
                                         onClick={() => setLibraryModal({
                                             isOpen: true,
-                                            resources: [
-                                                ...(linkedProject?.multimedia_json?.heroImages || []),
-                                                ...(linkedProject?.multimedia_json?.videoUrls || [])
-                                            ],
+                                            images: linkedProject?.multimedia_json?.heroImages || [],
+                                            videos: linkedProject?.multimedia_json?.videoUrls || [],
                                             onSelect: handleHeroMediaChange
                                         })}
                                         className="px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-gray-400 hover:text-white transition-all flex items-center gap-2 shrink-0 text-xs font-bold uppercase tracking-widest"
@@ -971,7 +1005,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         type="button"
                                         onClick={() => setLibraryModal({
                                             isOpen: true,
-                                            resources: linkedProject?.multimedia_json?.descriptiveImages || [],
+                                            images: linkedProject?.multimedia_json?.descriptiveImages || [],
+                                            videos: [],
                                             onSelect: (url) => updateNestedField('intro', 'imageUrl', url)
                                         })}
                                         className="px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-gray-400 hover:text-white transition-all flex items-center gap-2 shrink-0 text-xs font-bold uppercase tracking-widest h-[38px]"
