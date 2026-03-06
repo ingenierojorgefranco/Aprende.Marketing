@@ -521,6 +521,7 @@ export const api = {
               fullPrice: p.full_price ? parseFloat(p.full_price) : (p.fullPrice || 0),
               commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
               leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
+              leadMagnetUrl: p.lead_magnet_url || p.leadMagnetUrl,
               createdAt: new Date(p.created_at || p.createdAt),
               isMaster: !!p.is_master,
               isUnlocked: !!p.is_unlocked
@@ -550,6 +551,7 @@ export const api = {
             multimedia_json: safeJsonParse(p.multimedia_json, 'proj.multimediaJson') || { heroImages: [], videoUrl: '', descriptiveImages: [] },
             shortDescription: strategyObj?.meta?.shortDescription || p.short_description,
             isMaster: true,
+            leadMagnetUrl: p.lead_magnet_url || p.leadMagnetUrl,
             createdAt: new Date(p.created_at)
         };
     });
@@ -598,6 +600,7 @@ export const api = {
               fullPrice: p.full_price ? parseFloat(p.full_price) : (p.fullPrice || 0),
               commissionRate: p.commission_rate ? parseFloat(p.commission_rate) : (p.commissionRate || 0),
               leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
+              leadMagnetUrl: p.lead_magnet_url || p.leadMagnetUrl,
               createdAt: new Date(p.created_at || p.createdAt),
               isMaster: !!p.is_master
           };

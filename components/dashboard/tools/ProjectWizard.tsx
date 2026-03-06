@@ -258,7 +258,7 @@ export const ProjectWizard: React.FC = () => {
             if (!name.trim()) newErrors.name = "Este campo es obligatorio para que la IA genere tu estrategia";
             if (!productName.trim()) newErrors.productName = "Este campo es obligatorio para que la IA genere tu estrategia";
             if (!leadMagnetType) newErrors.leadMagnetType = "Este campo es obligatorio para que la IA genere tu estrategia";
-            if (leadMagnetType && !leadMagnetUrl.trim()) newErrors.leadMagnetUrl = "Este campo es obligatorio para que la IA genere tu estrategia";
+            if (leadMagnetType && !(leadMagnetUrl || '').trim()) newErrors.leadMagnetUrl = "Este campo es obligatorio para que la IA genere tu estrategia";
             
             if (Object.keys(newErrors).length > 0) {
                 setErrors(newErrors);

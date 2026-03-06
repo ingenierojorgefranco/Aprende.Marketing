@@ -447,6 +447,7 @@ const initDb = async () => {
         await addColumnSafe(connection, 'projects', "lead_magnet_type VARCHAR(100)");
         await addColumnSafe(connection, 'projects', "sales_page_url VARCHAR(500)");
         await addColumnSafe(connection, 'projects', "lead_magnet_url VARCHAR(500)");
+        await addColumnSafe(connection, 'projects', "multimedia_json JSON");
         ////////// Actualización: Columna para marcar proyectos maestros - 05/03/2025 10:00 //////////
         await addColumnSafe(connection, 'projects', "is_master BOOLEAN DEFAULT FALSE");
         ////////// Fin de actualización - 05/03/2025 10:00 //////////
