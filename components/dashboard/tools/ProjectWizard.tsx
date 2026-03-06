@@ -147,9 +147,9 @@ export const ProjectWizard: React.FC = () => {
         { label: 'Hotlink con Descuento', url: '' }
     ]);
     const [originalStrategyJson, setOriginalStrategyJson] = useState<any>(null);
-    const [multimedia, setMultimedia] = useState<{ heroImages: string[], videoUrl: string, descriptiveImages: string[] }>({
+    const [multimedia, setMultimedia] = useState<{ heroImages: string[], videoUrls: string[], descriptiveImages: string[] }>({
         heroImages: [],
-        videoUrl: '',
+        videoUrls: [],
         descriptiveImages: []
     });
 
@@ -215,7 +215,11 @@ export const ProjectWizard: React.FC = () => {
                 setIsMaster(!!proj.isMaster);
                 setOriginalStrategyJson(proj.strategy_json);
                 if (proj.multimedia_json) {
-                    setMultimedia(proj.multimedia_json);
+                    setMultimedia({
+                        heroImages: proj.multimedia_json.heroImages || [],
+                        videoUrls: proj.multimedia_json.videoUrls || ((proj.multimedia_json as any).videoUrl ? [(proj.multimedia_json as any).videoUrl] : []),
+                        descriptiveImages: proj.multimedia_json.descriptiveImages || []
+                    });
                 }
             }
         } catch (error) {
@@ -468,7 +472,7 @@ export const ProjectWizard: React.FC = () => {
 
                                     {/* HERO IMAGES */}
                                     <div className="space-y-4">
-                                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Imágenes Hero (Parte Superior - Máx 5)</label>
+                                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Imágenes Hero (Parte Superior)</label>
                                         <div className="grid gap-3">
                                             {multimedia.heroImages.map((img, idx) => (
                                                 <div key={idx} className="flex gap-2">
@@ -494,32 +498,55 @@ export const ProjectWizard: React.FC = () => {
                                                     </button>
                                                 </div>
                                             ))}
-                                            {multimedia.heroImages.length < 5 && (
-                                                <button 
-                                                    onClick={() => setMultimedia({ ...multimedia, heroImages: [...multimedia.heroImages, ''] })}
-                                                    className="w-full py-2 border border-dashed border-gray-800 rounded-xl text-[10px] font-bold text-gray-500 hover:text-blue-400 hover:border-blue-500/30 transition-all flex items-center justify-center gap-2"
-                                                >
-                                                    <Plus className="w-3 h-3" /> Añadir Imagen Hero
-                                                </button>
-                                            )}
+                                            <button 
+                                                onClick={() => setMultimedia({ ...multimedia, heroImages: [...multimedia.heroImages, ''] })}
+                                                className="w-full py-2 border border-dashed border-gray-800 rounded-xl text-[10px] font-bold text-gray-500 hover:text-blue-400 hover:border-blue-500/30 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <Plus className="w-3 h-3" /> Añadir Imagen Hero
+                                            </button>
                                         </div>
                                     </div>
 
-                                    {/* VIDEO URL */}
+                                    {/* VIDEO URLS */}
                                     <div className="space-y-4">
-                                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Video Principal (YouTube / MP4)</label>
-                                        <input 
-                                            type="text" 
-                                            value={multimedia.videoUrl} 
-                                            onChange={(e) => setMultimedia({ ...multimedia, videoUrl: e.target.value })}
-                                            className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-xs text-blue-300 outline-none focus:border-blue-500"
-                                            placeholder="URL de video de YouTube o enlace directo..."
-                                        />
+                                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Videos Hero (YouTube / MP4)</label>
+                                        <div className="grid gap-3">
+                                            {multimedia.videoUrls.map((url, idx) => (
+                                                <div key={idx} className="flex gap-2">
+                                                    <input 
+                                                        type="text" 
+                                                        value={url} 
+                                                        onChange={(e) => {
+                                                            const newUrls = [...multimedia.videoUrls];
+                                                            newUrls[idx] = e.target.value;
+                                                            setMultimedia({ ...multimedia, videoUrls: newUrls });
+                                                        }}
+                                                        className="flex-1 bg-black border border-gray-800 rounded-xl px-4 py-2 text-xs text-blue-300 outline-none focus:border-blue-500"
+                                                        placeholder="URL de video..."
+                                                    />
+                                                    <button 
+                                                        onClick={() => {
+                                                            const newUrls = multimedia.videoUrls.filter((_, i) => i !== idx);
+                                                            setMultimedia({ ...multimedia, videoUrls: newUrls });
+                                                        }}
+                                                        className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <button 
+                                                onClick={() => setMultimedia({ ...multimedia, videoUrls: [...multimedia.videoUrls, ''] })}
+                                                className="w-full py-2 border border-dashed border-gray-800 rounded-xl text-[10px] font-bold text-gray-500 hover:text-blue-400 hover:border-blue-500/30 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <Plus className="w-3 h-3" /> Añadir Video Hero
+                                            </button>
+                                        </div>
                                     </div>
 
                                     {/* DESCRIPTIVE IMAGES */}
                                     <div className="space-y-4">
-                                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Imágenes Descriptivas (Más Información - Máx 3)</label>
+                                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Imágenes Descriptivas (Más Información)</label>
                                         <div className="grid gap-3">
                                             {multimedia.descriptiveImages.map((img, idx) => (
                                                 <div key={idx} className="flex gap-2">
@@ -545,14 +572,12 @@ export const ProjectWizard: React.FC = () => {
                                                     </button>
                                                 </div>
                                             ))}
-                                            {multimedia.descriptiveImages.length < 3 && (
-                                                <button 
-                                                    onClick={() => setMultimedia({ ...multimedia, descriptiveImages: [...multimedia.descriptiveImages, ''] })}
-                                                    className="w-full py-2 border border-dashed border-gray-800 rounded-xl text-[10px] font-bold text-gray-500 hover:text-blue-400 hover:border-blue-500/30 transition-all flex items-center justify-center gap-2"
-                                                >
-                                                    <Plus className="w-3 h-3" /> Añadir Imagen Descriptiva
-                                                </button>
-                                            )}
+                                            <button 
+                                                onClick={() => setMultimedia({ ...multimedia, descriptiveImages: [...multimedia.descriptiveImages, ''] })}
+                                                className="w-full py-2 border border-dashed border-gray-800 rounded-xl text-[10px] font-bold text-gray-500 hover:text-blue-400 hover:border-blue-500/30 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <Plus className="w-3 h-3" /> Añadir Imagen Descriptiva
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

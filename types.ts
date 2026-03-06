@@ -536,7 +536,7 @@ export interface Project {
   strategy_json?: StrategyJSON | any; // Updated to accept both types
   multimedia_json?: {
     heroImages: string[];
-    videoUrl: string;
+    videoUrls: string[];
     descriptiveImages: string[];
   };
   

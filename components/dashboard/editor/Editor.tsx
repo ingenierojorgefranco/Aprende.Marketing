@@ -720,7 +720,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                 <MultimediaSelector 
                                     resources={[
                                         ...(linkedProject?.multimedia_json?.heroImages || []),
-                                        ...(linkedProject?.multimedia_json?.videoUrl ? [linkedProject.multimedia_json.videoUrl] : [])
+                                        ...(linkedProject?.multimedia_json?.videoUrls || [])
                                     ]} 
                                     onSelect={handleHeroMediaChange}
                                 />
