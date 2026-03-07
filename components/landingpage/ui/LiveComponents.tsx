@@ -68,6 +68,39 @@ export const HeroMedia = ({ url, poster, ds, className = "" }: { url?: string, p
     );
 };
 
+// --- Urgency Bar (Sticky) ---
+export const UrgencyBar = ({ content, ds }: { content: GeneratedPageContent, ds: any }) => {
+    const capture = content.capture || {};
+    const initialMinutes = capture.timerDuration !== undefined ? capture.timerDuration : 15;
+    const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setTimeLeft(prev => prev > 0 ? prev - 1 : 0);
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    const s = (timeLeft % 60).toString().padStart(2, '0');
+
+    return (
+        <div className="fixed top-0 left-0 w-full z-[100] bg-black/90 backdrop-blur-md border-b border-white/10 py-2 px-4 flex items-center justify-center gap-4 shadow-2xl">
+            <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                <span className="text-[10px] md:text-xs font-black text-white uppercase tracking-[0.2em]">
+                    {capture.timerLabel || "La oferta termina en:"}
+                </span>
+            </div>
+            <div className="flex items-center gap-1 font-mono text-sm md:text-base font-black text-primary">
+                <span className="bg-white/5 px-2 py-0.5 rounded border border-white/10">{m}</span>
+                <span className="animate-pulse">:</span>
+                <span className="bg-white/5 px-2 py-0.5 rounded border border-white/10">{s}</span>
+            </div>
+        </div>
+    );
+};
+
 // --- Navbar ---
 export const Navbar = ({ 
     content, 
@@ -76,7 +109,8 @@ export const Navbar = ({
     pageId, 
     basePath, 
     hasBlogArticles, 
-    isThankYouPage = false 
+    isThankYouPage = false,
+    hasUrgencyBar = false
 }: { 
     content: GeneratedPageContent, 
     ds: any, 
@@ -84,7 +118,8 @@ export const Navbar = ({
     pageId?: string, 
     basePath?: string, 
     hasBlogArticles: boolean,
-    isThankYouPage?: boolean 
+    isThankYouPage?: boolean,
+    hasUrgencyBar?: boolean
 }) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -172,7 +207,7 @@ export const Navbar = ({
       <>
       <nav 
         id="barra-navegacion"
-        className={`w-full z-50 transition-all duration-300 ${currentBg} ${isScrolled ? 'fixed top-0 left-0' : 'absolute top-0 left-0'}`}
+        className={`w-full z-50 transition-all duration-300 ${currentBg} ${isScrolled ? 'fixed top-0 left-0' : 'absolute top-0 left-0'} ${hasUrgencyBar ? 'pt-[3em]' : ''}`}
       >
           <div className={`w-full max-w-[75em] mx-auto px-6 py-4 flex ${isThankYouPage ? 'justify-center' : 'justify-between'} items-center relative gap-4`}>
             <a href={basePath || '/'} id="nav-brand-container" className={`flex items-center gap-2 md:gap-3 font-bold tracking-tight transition-colors duration-300 ${currentTextColor} ${isThankYouPage ? 'flex-none' : 'flex-1 min-w-0 mr-2'} hover:opacity-80`}>
@@ -360,24 +395,6 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
     const dest = content.destination;
     const capture = content.capture || {};
     
-    // --- Lógica del Contador de Urgencia ---
-    const initialMinutes = capture.timerDuration !== undefined ? capture.timerDuration : 15;
-    const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
-
-    useEffect(() => {
-        setTimeLeft(initialMinutes * 60);
-    }, [initialMinutes]);
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setTimeLeft(prev => prev > 0 ? prev - 1 : 0);
-        }, 1000);
-        return () => clearInterval(timer);
-    }, []);
-
-    const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-    const s = (timeLeft % 60).toString().padStart(2, '0');
-    
     const handleClick = () => {
         if (dest.type === 'whatsapp') {
             const msg = encodeURIComponent(dest.whatsappMessage || 'Hola');
@@ -427,37 +444,11 @@ export const SmartCTA = ({ content, ds, isMobilePreview, fullWidth = false, cent
                 {content.hero.spotsLeft || "¡Cupos Limitados!"}
             </div>
 
-            {/* Reloj Digital Digital Premium (Flip Clock Style) */}
-            <div className="flex flex-col items-center mb-8 pt-4">
-                <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4">{capture.timerLabel || "No te quedes por fuera, empezamos en:"}</p>
-                <div className="flex gap-4 items-center">
-                    {/* Bloque Minutos */}
-                    <div className="flex flex-col items-center gap-2">
-                        <div className="relative bg-gradient-to-b from-[#1a1a1a] to-black border border-white/10 rounded-xl p-4 min-w-[75px] text-center shadow-[0_8px_16px_rgba(0,0,0,0.5)] overflow-hidden">
-                            <div className="absolute top-1/2 left-0 w-full h-px bg-white/5 z-10 shadow-[0_0_5px_rgba(255,255,255,0.1)]"></div>
-                            <span className="relative z-0 text-white text-3xl md:text-5xl font-black tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{m}</span>
-                        </div>
-                        <span className="text-[9px] text-black font-black uppercase tracking-widest">Minutos</span>
-                    </div>
-
-                    <div className="text-white text-3xl md:text-5xl font-black mb-6 animate-pulse">:</div>
-
-                    {/* Bloque Segundos */}
-                    <div className="flex flex-col items-center gap-2">
-                        <div className="relative bg-gradient-to-b from-[#1a1a1a] to-black border border-white/10 rounded-xl p-4 min-w-[75px] text-center shadow-[0_8px_16px_rgba(0,0,0,0.5)] overflow-hidden">
-                            <div className="absolute top-1/2 left-0 w-full h-px bg-white/5 z-10 shadow-[0_0_5px_rgba(255,255,255,0.1)]"></div>
-                            <span className="relative z-0 text-white text-3xl md:text-5xl font-black tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{s}</span>
-                        </div>
-                        <span className="text-[9px] text-black font-black uppercase tracking-widest">Segundos</span>
-                    </div>
-                </div>
-            </div>
-
             {/* Header */}
             <h3 id="smart-cta-title" className={`font-black mb-2 text-center leading-tight ${ds.cta.cardTitleColor} ${isMobilePreview ? 'text-2xl' : 'text-2xl md:text-3xl'}`}>
                 {cardTitle}
             </h3>
-            <p id="smart-cta-desc" className={`text-center mb-8 text-base opacity-80 ${ds.cta.cardTextColor}`}>
+            <p id="smart-cta-desc" className={`text-center mb-8 text-[1.2rem] leading-[1.6rem] text-black`}>
                 {cardDesc}
             </p>
 

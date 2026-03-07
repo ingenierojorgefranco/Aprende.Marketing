@@ -1,7 +1,7 @@
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { PlayCircle } from 'lucide-react';
-import { Navbar, HeroMedia, Footer } from '../ui/LiveComponents';
+import { Navbar, HeroMedia, Footer, UrgencyBar } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { IntroModule } from './modules/IntroModule';
@@ -32,7 +32,8 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
 
   return (
     <div id="classic-template-root" className={`min-h-screen font-sans ${ds.selectionColor} ${ds.bg} scroll-smooth`}>
-        <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />
+        <UrgencyBar content={content} ds={ds} />
+        <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} hasUrgencyBar={true} />
         
         <header id="hero-section" className={`relative pb-12 overflow-hidden ${ds.hero.bgGradient} ${isMobilePreview ? 'pt-28' : 'pt-24 lg:pt-36 lg:pb-20'}`}>
           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] ${ds.blobOpacity} pointer-events-none ${ds.blobColor}`}></div>
@@ -45,16 +46,16 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                           <span className="text-xs md:text-sm font-black uppercase tracking-wider">{content.topTagline || "🔥 Oferta por tiempo limitado"}</span>
                       </div>
                  </div>
-                 {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-tight max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-4xl md:text-7xl'}`, ds.hero.highlightGradient)}
+                 {renderStyledHeadline(content.hero.headline, `font-extrabold tracking-tight mb-6 leading-[1.2] max-w-4xl mx-auto ${ds.hero.titleColor} ${isMobilePreview ? 'text-4xl' : 'text-4xl md:text-[4rem]'}`, ds.hero.highlightGradient)}
                  
                  <div id="subtitulo-principal">
-                    {renderRichText(content.hero.subheadline, `font-light opacity-90 max-w-3xl mx-auto leading-tight ${isDark ? 'text-white' : ds.hero.subtitleColor} ${isMobilePreview ? 'text-lg' : 'text-lg md:text-2xl'}`)}
+                    {renderRichText(content.hero.subheadline, `font-light opacity-90 max-w-3xl mx-auto leading-tight text-white ${isMobilePreview ? 'text-lg' : 'text-lg md:text-2xl'}`)}
                  </div>
              </div>
 
-             <div className={`grid gap-8 items-start ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-12 lg:gap-12'}`}>
-                <div id="hero-content-left" className={`${isMobilePreview ? 'w-full order-2' : 'lg:col-span-7 text-left order-2 lg:order-1'}`}>
-                    <div className={`backdrop-blur-sm border rounded-2xl p-6 md:p-8 shadow-lg ${ds.features.cardBg} ${ds.features.cardBorder}`}>
+             <div className={`grid gap-8 items-start ${isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-12'}`}>
+                <div id="hero-content-left" className={`${isMobilePreview ? 'w-full order-2' : 'lg:col-span-8 text-left order-2 lg:order-1'}`}>
+                    <div className={`backdrop-blur-sm border rounded-2xl shadow-lg ${ds.features.cardBg} ${ds.features.cardBorder}`}>
                         <div id="hero-video-card" className={`relative w-full aspect-video h-auto rounded-2xl overflow-hidden shadow-2xl border cursor-pointer group ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
                             <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} />
                             {!content.hero.videoUrl && (
@@ -74,7 +75,7 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                         </div>
                     </div>
                 </div>
-                <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-5 lg:sticky lg:top-24 order-1 lg:order-2'}`}>
+                <div id="hero-content-right" className={`${isMobilePreview ? 'w-full order-1' : 'lg:col-span-4 lg:sticky lg:top-24 order-1 lg:order-2'}`}>
                      <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
                 </div>
              </div>
@@ -82,15 +83,6 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
         </header>
 
         <PainPointsModule content={content} ds={ds} />
-
-        <WhatsAppTestimonials 
-            testimonials={content.testimonials} 
-            title={content.testimonialTitle} 
-            subtitle={content.testimonialSubtitle} 
-            isMobilePreview={isMobilePreview} 
-            ds={ds} 
-        />
-        <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
         
         <BenefitsModule 
             content={content} 
@@ -99,8 +91,9 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
             showSeparator={true}
         />
 
-        <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} description="En solo 3 simples pasos estarás dentro de la clase que puede cambiar tu carrera." steps={classicSteps} />
+        <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
         <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
+        <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} description="En solo 3 simples pasos estarás dentro de la clase que puede cambiar tu carrera." steps={classicSteps} />
         <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
         <FaqModule content={content} ds={ds} />
         <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
