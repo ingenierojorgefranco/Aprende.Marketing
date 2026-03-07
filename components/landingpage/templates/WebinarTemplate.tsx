@@ -1,7 +1,7 @@
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { User, Target } from 'lucide-react';
-import { Navbar, Footer } from '../ui/LiveComponents';
+import { Navbar, Footer, UrgencyBar } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { IntroModule } from './modules/IntroModule';
@@ -32,7 +32,8 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
 
   return (
     <div id="webinar-template-root" className={`min-h-screen font-sans ${ds.bg} scroll-smooth`}>
-         <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />
+         <UrgencyBar content={content} ds={ds} />
+         <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} hasUrgencyBar={true} />
          
          <header id="webinar-hero" className={`relative py-24 lg:py-32 ${ds.hero.bgGradient}`}>
             <div className="w-full max-w-5xl mx-auto px-6 flex flex-col items-center text-center gap-10">

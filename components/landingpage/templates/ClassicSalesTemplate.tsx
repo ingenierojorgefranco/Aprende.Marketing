@@ -39,9 +39,9 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] ${ds.blobOpacity} pointer-events-none ${ds.blobColor}`}></div>
           {content.palette === 'minimal-mono' && <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>}
 
-          <div className="w-full max-w-[75em] mx-auto px-6 relative z-10">
+          <div className="w-full max-w-[81em] mx-auto px-6 relative z-10">
              <div id="hero-headlines" className="text-center max-w-5xl mx-auto mb-10 lg:mb-16">
-                 <div id="hero-tagline-wrapper" className="flex justify-center mb-6 lg:mb-8">
+                 <div id="hero-tagline-wrapper" className="flex justify-center mb-6 lg:mb-8 mt-[2em]">
                      <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border backdrop-blur-md shadow-lg ${ds.hero.badgeBg} ${ds.hero.badgeText} ${ds.hero.badgeBorder}`}>
                           <span className="text-xs md:text-sm font-black uppercase tracking-wider">{content.topTagline || "🔥 Oferta por tiempo limitado"}</span>
                       </div>

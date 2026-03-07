@@ -1,6 +1,6 @@
 import React from 'react';
 import { GeneratedPageContent } from '../../../types';
-import { Navbar, Footer } from '../ui/LiveComponents';
+import { Navbar, Footer, UrgencyBar } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { IntroModule } from './modules/IntroModule';
@@ -31,7 +31,8 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
 
   return (
     <div id="minimal-template-root" className={`min-h-screen font-sans flex flex-col ${ds.bg}`}>
-        <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles || false} />
+        <UrgencyBar content={content} ds={ds} />
+        <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles || false} hasUrgencyBar={true} />
 
         <div className="flex-1">
              <header className={`relative py-32 px-6 text-center overflow-hidden ${ds.hero.bgGradient}`}>

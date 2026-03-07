@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GeneratedPageContent } from '../../../types';
 import { CheckCircle, ArrowRight } from 'lucide-react';
-import { Navbar, HeroMedia, RegistrationModal, Footer } from '../ui/LiveComponents';
+import { Navbar, HeroMedia, RegistrationModal, Footer, UrgencyBar } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { IntroModule } from './modules/IntroModule';
@@ -33,7 +33,8 @@ export const VslTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePrev
 
   return (
         <div id="vsl-template-root" className={`min-h-screen font-sans ${ds.bg} scroll-smooth`}>
-            <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} />
+            <UrgencyBar content={content} ds={ds} />
+            <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles} hasUrgencyBar={true} />
             
             <header className={`pt-32 pb-16 px-6 ${ds.hero.bgGradient} relative overflow-hidden border-b ${ds.nav.stickyBorder}`}>
                 <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] rounded-full blur-[120px] opacity-30 pointer-events-none ${ds.blobColor}`}></div>
