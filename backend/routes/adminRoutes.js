@@ -156,6 +156,45 @@ router.get('/users/:userId/payments', async (req, res) => {
 });
 
 // ======================================================
+//  GESTIÓN DE SUSCRIPCIONES (NUEVO)
+// ======================================================
+
+router.get('/users/:userId/subscriptions', async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const [rows] = await pool.query(`
+            SELECT 
+                us.id, 
+                us.user_id as userId, 
+                us.plan_slug as planSlug, 
+                us.status, 
+                us.created_at as createdAt, 
+                us.expires_at as nextBillingAt, 
+                p.name as planName,
+                p.id as planId
+            FROM user_subscriptions us
+            LEFT JOIN plans p ON us.plan_slug = p.slug
+            WHERE us.user_id = ?
+            ORDER BY us.created_at DESC
+        `, [userId]);
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+router.put('/subscriptions/:id', async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    try {
+        await pool.query('UPDATE user_subscriptions SET status = ? WHERE id = ?', [status, id]);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// ======================================================
 //  SOPORTE Y TICKETS (Admin)
 // ======================================================
 
