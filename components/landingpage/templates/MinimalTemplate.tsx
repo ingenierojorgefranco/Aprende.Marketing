@@ -3,6 +3,7 @@ import { GeneratedPageContent } from '../../../types';
 import { Navbar, Footer, UrgencyBar, RegistrationModal, HeroMedia } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline, getIcon } from '../utils';
 import { Check, ArrowRight, Star, MessageCircle, User, Target, HelpCircle, Sparkles, ShieldCheck, Zap } from 'lucide-react';
+import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 
 interface TemplateProps {
   content: GeneratedPageContent;
@@ -27,14 +28,14 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
     <div id="minimal-template-root" className="min-h-screen font-sans flex flex-col bg-white text-slate-900 scroll-smooth">
         <UrgencyBar content={content} ds={ds} />
         <div className="sticky top-0 z-[60] bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
-            <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles || false} hasUrgencyBar={true} />
+            <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles || false} hasUrgencyBar={true} forcePrimaryLinks={true} />
         </div>
 
         <main className="flex-1 flex flex-col">
              {/* 1. Hero Section */}
-             <header className="max-w-4xl mx-auto px-6 py-16 md:py-24 text-center">
+             <header className="max-w-4xl mx-auto px-6 pt-16 md:pt-24 pb-8 md:pb-12 text-center">
                   {content.topTagline && (
-                      <div className="mb-6">
+                      <div className="mb-6 pt-[3em]">
                           <span className="text-primary font-bold uppercase tracking-widest text-sm">
                               {content.topTagline}
                           </span>
@@ -60,7 +61,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
              </header>
 
              <div className="max-w-3xl mx-auto px-6">
-                 <hr className="my-16 border-slate-100" />
+                 <hr className="mb-16 border-slate-100" />
 
                  {/* 2. Pain Points */}
                  <section className="mb-24">
@@ -100,72 +101,54 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
              </section>
 
              <div className="max-w-3xl mx-auto px-6">
-                 {/* 4. Testimonials - Enhanced WhatsApp Style */}
-                 <section className="my-24">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">{content.testimonialTitle || "Ellas ya cambiaron su historia"}</h2>
-                        <p className="text-lg text-slate-500">{content.testimonialSubtitle || "Resultados reales de alumnas que empezaron desde cero."}</p>
-                    </div>
-                    <div className="space-y-6">
-                        {content.testimonials.map((t, i) => (
-                            <div key={i} className="bg-[#E7FFDB] p-5 rounded-2xl shadow-md border border-[#D0E8C4] max-w-[90%] md:max-w-[85%] relative">
-                                <div className="absolute top-0 -left-2 w-4 h-4 bg-[#E7FFDB] transform rotate-45 border-l border-t border-[#D0E8C4] hidden md:block"></div>
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="font-bold text-emerald-900 text-sm">{t.name}</span>
-                                    <div className="flex gap-0.5">
-                                        {[...Array(5)].map((_, starI) => (
-                                            <Star key={starI} className="w-3 h-3 fill-amber-400 text-amber-400" />
-                                        ))}
-                                    </div>
-                                </div>
-                                <p className="text-slate-800 text-base md:text-lg leading-relaxed">{t.text}</p>
-                                <div className="flex justify-end mt-2 items-center gap-1">
-                                    <span className="text-[10px] text-emerald-600 font-medium">12:45 PM</span>
-                                    <span className="text-blue-500 font-bold text-xs">✓✓</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                 </section>
+                 {/* 4. Testimonials - WhatsApp Module */}
+                 <WhatsAppTestimonials 
+                    testimonials={content.testimonials} 
+                    title={content.testimonialTitle} 
+                    subtitle={content.testimonialSubtitle} 
+                    isMobilePreview={isMobilePreview} 
+                    ds={ds} 
+                 />
+             </div>
 
-                 {/* 5. Intro / Detailed Section */}
-                 <section className="mb-24">
-                    <div className="bg-slate-900 text-white rounded-[3rem] overflow-hidden shadow-2xl">
-                        <div className="flex flex-col lg:flex-row">
-                            <div className="lg:w-1/2 p-10 md:p-14">
-                                <span className="text-primary font-bold uppercase tracking-widest text-xs mb-4 block">Descubre Más</span>
-                                <h2 className="text-3xl md:text-4xl font-black mb-8 leading-tight">{content.intro.title}</h2>
-                                <div className="prose prose-invert prose-lg max-w-none opacity-90 mb-10">
-                                    {renderRichText(content.intro.description, "leading-relaxed")}
-                                </div>
-                                
-                                <div className="space-y-6">
-                                    {(content.intro.items || []).map((item, idx) => (
-                                        <div key={idx} className="flex gap-4 items-start group">
-                                            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary transition-colors">
-                                                <Sparkles className="w-5 h-5 text-primary group-hover:text-white" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-lg mb-1">{item.title}</h4>
-                                                <p className="text-sm text-white/60 leading-relaxed">{item.description}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+             {/* 5. Intro / Detailed Section - Wider and better image */}
+             <section className="mb-24 max-w-6xl mx-auto px-6">
+                <div className="bg-slate-900 text-white rounded-[3rem] overflow-hidden shadow-2xl">
+                    <div className="flex flex-col lg:flex-row">
+                        <div className="lg:w-1/2 p-10 md:p-14">
+                            <span className="text-primary font-bold uppercase tracking-widest text-xs mb-4 block">Descubre Más</span>
+                            <h2 className="text-3xl md:text-4xl font-black mb-8 leading-tight">{content.intro.title}</h2>
+                            <div className="prose prose-invert prose-lg max-w-none opacity-90 mb-10">
+                                {renderRichText(content.intro.description, "leading-relaxed")}
                             </div>
-                            <div className="lg:w-1/2 relative min-h-[400px]">
-                                <img 
-                                    src={content.intro.imageUrl || "https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=800&q=80"} 
-                                    className="absolute inset-0 w-full h-full object-cover" 
-                                    alt="Intro" 
-                                    referrerPolicy="no-referrer"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent lg:bg-gradient-to-l"></div>
+                            
+                            <div className="space-y-6">
+                                {(content.intro.items || []).map((item, idx) => (
+                                    <div key={idx} className="flex gap-4 items-start group">
+                                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary transition-colors">
+                                            <Sparkles className="w-5 h-5 text-primary group-hover:text-white" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-lg mb-1">{item.title}</h4>
+                                            <p className="text-sm text-white/60 leading-relaxed">{item.description}</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
+                        <div className="lg:w-1/2 relative min-h-[500px]">
+                            <img 
+                                src={content.intro.imageUrl || "https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=800&q=80"} 
+                                className="absolute inset-0 w-full h-full object-cover" 
+                                alt="Intro" 
+                                referrerPolicy="no-referrer"
+                            />
+                        </div>
                     </div>
-                 </section>
+                </div>
+             </section>
 
+             <div className="max-w-3xl mx-auto px-6">
                  {/* 6. Instructor */}
                  <section className="mb-24 flex flex-col md:flex-row gap-10 items-center bg-slate-50 p-10 rounded-3xl border border-slate-100">
                     <div className="w-40 h-40 rounded-full overflow-hidden flex-shrink-0 border-4 border-white shadow-xl">

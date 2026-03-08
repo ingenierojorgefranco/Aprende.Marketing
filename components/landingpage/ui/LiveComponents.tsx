@@ -110,7 +110,8 @@ export const Navbar = ({
     basePath, 
     hasBlogArticles, 
     isThankYouPage = false,
-    hasUrgencyBar = false
+    hasUrgencyBar = false,
+    forcePrimaryLinks = false
 }: { 
     content: GeneratedPageContent, 
     ds: any, 
@@ -119,7 +120,8 @@ export const Navbar = ({
     basePath?: string, 
     hasBlogArticles: boolean,
     isThankYouPage?: boolean,
-    hasUrgencyBar?: boolean
+    hasUrgencyBar?: boolean,
+    forcePrimaryLinks?: boolean
 }) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -223,7 +225,7 @@ export const Navbar = ({
             
             {!isThankYouPage && (
                 <>
-                    <div id="nav-links-desktop" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-[1.05rem] leading-[1.25rem] font-medium transition-colors duration-300 ${currentTextColor} opacity-90 flex-shrink-0`}>
+                    <div id="nav-links-desktop" className={`${isMobilePreview ? 'hidden' : 'hidden md:flex'} gap-8 text-[1.05rem] leading-[1.25rem] font-medium transition-colors duration-300 ${forcePrimaryLinks ? 'text-primary' : currentTextColor} opacity-90 flex-shrink-0`}>
                     {navLinks.map((link, i) => (
                         <a 
                             key={i} 

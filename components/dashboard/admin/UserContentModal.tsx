@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
-import { User } from '../../../types';
+import { User, UserSubscription } from '../../../types';
 import { api } from '../../../services/api';
-import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap, CreditCard, Power, Edit } from 'lucide-react';
 
 ////////// Actualización: Creación de archivo independiente para carga dinámica - 05/06/2025 21:30 //////////
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
     const [loadedData, setLoadedData] = useState<{
+        plans: UserSubscription[] | null;
         projects: any[] | null;
         pages: any[] | null;
         articles: any[] | null;
         emails: any[] | null;
         whatsapp: any[] | null;
         hooks: any[] | null;
-    }>({ projects: null, pages: null, articles: null, emails: null, whatsapp: null, hooks: null });
+    }>({ plans: null, projects: null, pages: null, articles: null, emails: null, whatsapp: null, hooks: null });
 
-    const [expandedSection, setExpandedSection] = useState<'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | null>(null);
+    const [expandedSection, setExpandedSection] = useState<'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | null>(null);
     const [loadingSection, setLoadingSection] = useState<string | null>(null);
 
-    const toggleSection = async (section: 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks') => {
+    const toggleSection = async (section: 'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks') => {
         if (expandedSection === section) {
             setExpandedSection(null);
             return;
@@ -29,13 +30,33 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
         if (loadedData[section] === null) {
             setLoadingSection(section);
             try {
-                const data = await api.getAdminUserResources(user.id, section);
+                let data;
+                if (section === 'plans') {
+                    data = await api.getUserSubscriptions(user.id);
+                } else {
+                    data = await api.getAdminUserResources(user.id, section);
+                }
                 setLoadedData(prev => ({ ...prev, [section]: data }));
             } catch (error) {
                 console.error(`Error loading ${section}`, error);
             } finally {
                 setLoadingSection(null);
             }
+        }
+    };
+
+    const handleToggleSubscription = async (sub: UserSubscription) => {
+        const newStatus = sub.status === 'active' ? 'inactive' : 'active';
+        if (!window.confirm(`¿Estás seguro de ${newStatus === 'active' ? 'activar' : 'deshabilitar'} este plan?`)) return;
+
+        try {
+            await api.adminUpdateSubscription(sub.id, { status: newStatus });
+            setLoadedData(prev => ({
+                ...prev,
+                plans: prev.plans?.map(s => s.id === sub.id ? { ...s, status: newStatus } : s) || null
+            }));
+        } catch (error) {
+            alert("Error al actualizar la suscripción.");
         }
     };
 
@@ -81,6 +102,75 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
 
                 <div className="p-6 overflow-y-auto space-y-4 flex-1">
                     
+                    {/* Planes Section */}
+                    <div className="border border-gray-700 rounded-xl overflow-hidden">
+                        <button 
+                            onClick={() => toggleSection('plans')}
+                            className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition text-left"
+                        >
+                            <div className="flex items-center gap-3 font-bold text-white">
+                                <CreditCard className="w-5 h-5 text-indigo-400" /> Planes
+                            </div>
+                            {expandedSection === 'plans' ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+                        </button>
+                        
+                        {expandedSection === 'plans' && (
+                            <div className="bg-black/50 p-4 border-t border-gray-700 animate-in slide-in-from-top-2">
+                                {loadingSection === 'plans' ? (
+                                    <div className="flex justify-center py-4"><Loader2 className="w-6 h-6 animate-spin text-blue-500" /></div>
+                                ) : (
+                                    <table className="w-full text-xs text-left">
+                                        <thead className="text-gray-500 uppercase">
+                                            <tr>
+                                                <th className="pb-2 pl-2">Id</th>
+                                                <th className="pb-2">Título de Plan</th>
+                                                <th className="pb-2">Fecha Creación</th>
+                                                <th className="pb-2">Prox Facturación</th>
+                                                <th className="pb-2 text-right pr-2">Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="text-gray-300 divide-y divide-gray-800">
+                                            {/* Always show Starter plan */}
+                                            <tr className="hover:bg-white/[0.02]">
+                                                <td className="py-2 pl-2 font-mono text-[10px] text-gray-500">base-starter</td>
+                                                <td className="py-2 font-bold text-indigo-400">Plan Starter (Registro)</td>
+                                                <td className="py-2">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
+                                                <td className="py-2 text-gray-500">Gratuito / Permanente</td>
+                                                <td className="py-2 text-right pr-2">
+                                                    <span className="text-[10px] px-1.5 py-0.5 bg-green-900/30 text-green-400 rounded font-bold uppercase">Activo</span>
+                                                </td>
+                                            </tr>
+                                            {/* Other active plans */}
+                                            {loadedData.plans && loadedData.plans.map((sub: UserSubscription) => (
+                                                <tr key={sub.id} className="hover:bg-white/[0.02]">
+                                                    <td className="py-2 pl-2 font-mono text-[10px] text-gray-500">{sub.id}</td>
+                                                    <td className="py-2 font-medium">{sub.planName}</td>
+                                                    <td className="py-2">{new Date(sub.createdAt).toLocaleDateString()}</td>
+                                                    <td className="py-2 text-blue-400">{sub.nextBillingAt ? new Date(sub.nextBillingAt).toLocaleDateString() : 'N/A'}</td>
+                                                    <td className="py-2 text-right pr-2 flex justify-end gap-1">
+                                                        <button 
+                                                            className="p-1.5 text-blue-400 hover:bg-blue-900/20 rounded transition"
+                                                            title="Editar Suscripción"
+                                                        >
+                                                            <Edit className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleToggleSubscription(sub)}
+                                                            className={`p-1.5 rounded transition ${sub.status === 'active' ? 'text-red-500 hover:bg-red-900/20' : 'text-green-500 hover:bg-green-900/20'}`}
+                                                            title={sub.status === 'active' ? 'Deshabilitar Plan' : 'Activar Plan'}
+                                                        >
+                                                            <Power className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
                     {/* Projects Section */}
                     <div className="border border-gray-700 rounded-xl overflow-hidden">
                         <button 

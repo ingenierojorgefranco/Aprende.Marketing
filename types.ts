@@ -150,6 +150,20 @@ export interface Plan {
   isRecommended: boolean;
 }
 
+// NEW: User Subscription Type for Admin Management
+export interface UserSubscription {
+    id: string;
+    userId: string;
+    planId: string;
+    planName: string;
+    planSlug: string;
+    status: 'active' | 'inactive' | 'canceled';
+    createdAt: string | Date;
+    nextBillingAt?: string | Date;
+    amount?: number;
+    currency?: string;
+}
+
 export interface User {
   id: string;
   name: string;

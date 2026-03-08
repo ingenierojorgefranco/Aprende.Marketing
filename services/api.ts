@@ -69,6 +69,7 @@ const apiCache: {
     publicArticleDetails: Record<string, Article | null>;
     userUsageStats: Record<string, UserUsageStats | null>;
     userPayments: Record<string, any[] | null>;
+    userSubscriptions: Record<string, any[] | null>;
     siteAnalysis: Record<string, any | null>;
     publicPages: Record<string, LandingPage | null>;
     masterStrategies: Record<string, ProjectMasterStrategy | null>;
@@ -112,6 +113,7 @@ const apiCache: {
     publicArticleDetails: {},
     userUsageStats: {},
     userPayments: {},
+    userSubscriptions: {},
     siteAnalysis: {},
     publicPages: {},
     masterStrategies: {},
@@ -122,10 +124,10 @@ const apiCache: {
 
 const clearCache = (key?: keyof typeof apiCache, id?: string) => {
     if (key) {
-        if (id && (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis' || key === 'publicPages' || key === 'masterStrategies')) {
+        if (id && (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'userSubscriptions' || key === 'siteAnalysis' || key === 'publicPages' || key === 'masterStrategies')) {
             delete (apiCache[key] as any)[id];
         } else {
-            if (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'siteAnalysis' || key === 'publicPages' || key === 'masterStrategies') {
+            if (key === 'pageDetails' || key === 'projectDetails' || key === 'articleDetails' || key === 'courseDetails' || key === 'moduleLessons' || key === 'lessonComments' || key === 'adminUserResources' || key === 'systemLogs' || key === 'contactHistory' || key === 'publicBlogArticles' || key === 'publicArticleDetails' || key === 'userUsageStats' || key === 'userPayments' || key === 'userSubscriptions' || key === 'siteAnalysis' || key === 'publicPages' || key === 'masterStrategies') {
                 (apiCache[key] as any) = {};
             } else if (key === 'newsHistory') {
                 apiCache.newsHistory = {};
@@ -182,6 +184,7 @@ const clearCache = (key?: keyof typeof apiCache, id?: string) => {
         apiCache.publicArticleDetails = {};
         apiCache.userUsageStats = {};
         apiCache.userPayments = {};
+        apiCache.userSubscriptions = {};
         apiCache.siteAnalysis = {};
         apiCache.publicPages = {};
         apiCache.masterStrategies = {};
@@ -1041,8 +1044,26 @@ export const api = {
         if (isMockMode) return Promise.resolve([]);
         if (apiCache.userPayments[userId]) return apiCache.userPayments[userId];
         const payments = await fetchWithFallback(`/admin/users/${userId}/payments`, { headers: getAuthHeaders() });
-        apiCache.userPayments[userId] = payments;
+        apiCache.userSubscriptions[userId] = payments;
         return payments;
+    },
+
+    getUserSubscriptions: async (userId: string): Promise<any[]> => {
+        if (isMockMode) return Promise.resolve([]);
+        if (apiCache.userSubscriptions[userId]) return apiCache.userSubscriptions[userId];
+        const subscriptions = await fetchWithFallback(`/admin/users/${userId}/subscriptions`, { headers: getAuthHeaders() });
+        apiCache.userSubscriptions[userId] = subscriptions;
+        return subscriptions;
+    },
+
+    adminUpdateSubscription: async (subscriptionId: string, data: any): Promise<void> => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback(`/admin/subscriptions/${subscriptionId}`, { 
+            method: 'PUT', 
+            headers: getAuthHeaders(), 
+            body: JSON.stringify(data) 
+        });
+        clearCache('userSubscriptions');
     },
   
     getSystemLogs: async (page: number, filters: { action?: string, search?: string }): Promise<SystemLog[]> => {
