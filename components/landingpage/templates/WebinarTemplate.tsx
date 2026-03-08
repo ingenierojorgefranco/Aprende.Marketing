@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GeneratedPageContent } from '../../../types';
-import { User, Target } from 'lucide-react';
-import { Navbar, Footer, UrgencyBar } from '../ui/LiveComponents';
+import { User, Target, ArrowRight } from 'lucide-react';
+import { Navbar, Footer, UrgencyBar, HeroMedia, RegistrationModal } from '../ui/LiveComponents';
 import { renderRichText, renderStyledHeadline } from '../utils';
 import { WhatsAppTestimonials } from './modules/WhatsAppTestimonials';
 import { IntroModule } from './modules/IntroModule';
@@ -24,6 +24,7 @@ interface TemplateProps {
 }
 
 export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobilePreview, pageId, basePath, hasBlogArticles }) => {
+  const [showModal, setShowModal] = useState(false);
   const webinarSteps = [
     { num: 1, title: "Regístrate Gratis", text: "Usa el formulario para apartar tu lugar." },
     { num: 2, title: "Revisa tu Correo", text: "Te enviaremos el link de acceso único." },
@@ -39,7 +40,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
             <div className="w-full max-w-5xl mx-auto px-6 flex flex-col items-center text-center gap-10">
                 
                 {/* 1. Badges */}
-                <div className="flex flex-wrap gap-3 justify-center items-center">
+                <div className="flex flex-wrap gap-3 justify-center items-center pt-[3em]">
                     <div id="webinar-live-badge" className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold ${ds.badges.liveBg} ${ds.badges.liveText} ${ds.badges.liveBorder}`}>
                         <span className="flex h-2 w-2 rounded-full bg-current animate-pulse"></span> EN VIVO
                     </div>
@@ -59,37 +60,32 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                     </div>
                 </div>
                 
-                {/* 3. Details Row */}
-                <div id="webinar-details" className="flex flex-wrap justify-center gap-6 text-sm md:text-base">
-                        <div className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-black/5 ${ds.hero.subtitleColor}`}>
-                            <User className="w-5 h-5 opacity-70" /> 
-                            <span>Por: <strong>{content.instructor.name}</strong></span>
-                        </div>
-                        <div className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-black/5 ${ds.hero.subtitleColor}`}>
-                            <Target className="w-5 h-5 opacity-70" />
-                            <span>Para: <strong>{content.targetAudience || "Emprendedores"}</strong></span>
-                        </div>
+                {/* 3. Hero Media */}
+                <div className={`w-full max-w-4xl aspect-video rounded-2xl shadow-2xl overflow-hidden relative border-4 ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
+                    <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} />
                 </div>
 
-                {/* 4. CTA Block */}
+                {/* 4. CTA Button */}
                 <div id="hero-cta" className="w-full max-w-md mt-4 animate-in slide-in-from-bottom-4 duration-700">
-                    <CtaBlockModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} sticky={false} />
+                    <button 
+                        onClick={() => setShowModal(true)}
+                        className={`w-full py-5 rounded-2xl font-black text-xl transition transform hover:scale-[1.05] active:scale-[0.98] shadow-2xl flex items-center justify-center gap-3 animate-bounce-subtle ${ds.buttons.primary}`}
+                    >
+                        REGÍSTRATE A LA CLASE GRATIS
+                        <ArrowRight className="w-6 h-6" />
+                    </button>
                 </div>
             </div>
          </header>
 
          <PainPointsModule content={content} ds={ds} />
 
-         <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
-         <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
-         
          <BenefitsModule 
             content={content} 
             ds={ds} 
             isMobilePreview={isMobilePreview}
          />
 
-         <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} title="Asegura tu Cupo en 3 Pasos" steps={webinarSteps} />
          <WhatsAppTestimonials 
             testimonials={content.testimonials} 
             title={content.testimonialTitle} 
@@ -97,9 +93,24 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
             isMobilePreview={isMobilePreview} 
             ds={ds} 
         />
+
+         <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
+         <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
+         
+         <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} title="Asegura tu Cupo en 3 Pasos" steps={webinarSteps} />
          <FaqModule content={content} ds={ds} />
          <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
          <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
+
+         {showModal && (
+            <RegistrationModal 
+                content={content} 
+                ds={ds} 
+                onClose={() => setShowModal(false)} 
+                pageId={pageId} 
+                basePath={basePath} 
+            />
+         )}
     </div>
   );
 };

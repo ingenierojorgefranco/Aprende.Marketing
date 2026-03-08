@@ -91,11 +91,19 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
             showSeparator={true}
         />
 
+        <WhatsAppTestimonials 
+            testimonials={content.testimonials} 
+            title={content.testimonialTitle} 
+            subtitle={content.testimonialSubtitle} 
+            isMobilePreview={isMobilePreview} 
+            ds={ds} 
+        />
+
         <IntroModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
         <InstructorModule content={content} ds={ds} isMobilePreview={isMobilePreview} />
         <StepsModule content={content} ds={ds} isMobilePreview={isMobilePreview} description="En solo 3 simples pasos estarás dentro de la clase que puede cambiar tu carrera." steps={classicSteps} />
-        <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
         <FaqModule content={content} ds={ds} />
+        <FinalCtaModule content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} />
         <Footer content={content} ds={ds} isMobilePreview={isMobilePreview} basePath={basePath} />
     </div>
   );

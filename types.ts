@@ -538,6 +538,7 @@ export interface Project {
     heroImages: string[];
     videoUrls: string[];
     descriptiveImages: string[];
+    instructorImage?: string;
   };
   
   createdAt: Date;

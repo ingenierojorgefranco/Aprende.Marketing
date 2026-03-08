@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Link as LinkIcon, Briefcase, Plus, Trash2, Loader2, Sparkles, DollarSign, Target, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, X, AlertTriangle, Crown, CheckCircle2, Star, User as UserIcon } from 'lucide-react';
 import { api } from '../../../services/api';
 import { AffiliateLink, User, Project } from '../../../types';
 import { UpgradeModal } from '../UpgradeModal';
@@ -147,10 +147,11 @@ export const ProjectWizard: React.FC = () => {
         { label: 'Hotlink con Descuento', url: '' }
     ]);
     const [originalStrategyJson, setOriginalStrategyJson] = useState<any>(null);
-    const [multimedia, setMultimedia] = useState<{ heroImages: string[], videoUrls: string[], descriptiveImages: string[] }>({
+    const [multimedia, setMultimedia] = useState<{ heroImages: string[], videoUrls: string[], descriptiveImages: string[], instructorImage?: string }>({
         heroImages: [],
         videoUrls: [],
-        descriptiveImages: []
+        descriptiveImages: [],
+        instructorImage: ''
     });
 
     const commissionRate = fullPrice > 0 ? (commissionValue / fullPrice) * 100 : 0;
@@ -218,7 +219,8 @@ export const ProjectWizard: React.FC = () => {
                     setMultimedia({
                         heroImages: proj.multimedia_json.heroImages || [],
                         videoUrls: proj.multimedia_json.videoUrls || ((proj.multimedia_json as any).videoUrl ? [(proj.multimedia_json as any).videoUrl] : []),
-                        descriptiveImages: proj.multimedia_json.descriptiveImages || []
+                        descriptiveImages: proj.multimedia_json.descriptiveImages || [],
+                        instructorImage: proj.multimedia_json.instructorImage || ''
                     });
                 }
             }
@@ -579,6 +581,30 @@ export const ProjectWizard: React.FC = () => {
                                                 <Plus className="w-3 h-3" /> Añadir Imagen Descriptiva
                                             </button>
                                         </div>
+                                    </div>
+
+                                    {/* INSTRUCTOR IMAGE */}
+                                    <div className="space-y-4 pt-4 border-t border-blue-500/10">
+                                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Foto del Profesor / Tutor (Biblioteca)</label>
+                                        <div className="flex gap-3 items-center">
+                                            <div className="w-16 h-16 rounded-xl bg-black border border-gray-800 overflow-hidden flex-shrink-0">
+                                                {multimedia.instructorImage ? (
+                                                    <img src={multimedia.instructorImage} alt="Profesor" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-700">
+                                                        <UserIcon className="w-8 h-8" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                value={multimedia.instructorImage || ''} 
+                                                onChange={(e) => setMultimedia({ ...multimedia, instructorImage: e.target.value })}
+                                                className="flex-1 bg-black border border-gray-800 rounded-xl px-4 py-3 text-xs text-blue-300 outline-none focus:border-blue-500"
+                                                placeholder="URL de la foto del profesor..."
+                                            />
+                                        </div>
+                                        <p className="text-[10px] text-gray-500 italic">Esta imagen aparecerá en la "Biblioteca" del editor web para que el usuario pueda seleccionarla fácilmente.</p>
                                     </div>
                                 </div>
                             )}
