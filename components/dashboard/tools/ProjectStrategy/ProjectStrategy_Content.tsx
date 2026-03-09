@@ -43,54 +43,55 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const totalPages = Math.ceil(mergedContentData.length / itemsPerPage);
     const paginatedData = mergedContentData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+    const loadLocalData = async () => {
+        if (!projectId) return;
+        setLoadingLocal(true);
+        try {
+            const [pages, articles] = await Promise.all([
+                api.getPages(),
+                api.getArticles()
+            ]);
+            const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
+            setLinkedPages(projectPages);
+            
+            // Artículos vinculados al proyecto (por ID de proyecto o por página del proyecto)
+            const projectArts = articles.filter(a => 
+                String(a.projectId) === String(projectId) || 
+                projectPages.some(p => String(p.id) === String(a.pageId))
+            );
+            setLinkedArticles(projectArts);
+
+            // Lógica Híbrida: Combinar JSON con Base de Datos
+            const jsonContent = contentData || [];
+            const dbContent = projectArts.map(a => ({
+                id: a.id,
+                title: a.title,
+                strategy: a.psychologicalStrategy?.focus || a.description || '',
+                keyword: a.keyword || a.psychologicalStrategy?.keyword || '',
+                searchVolume: a.psychologicalStrategy?.searchVolume || '',
+                isFromDb: true,
+                isGenerated: !!a.isGenerated,
+                slug: a.slug
+            }));
+
+            // Priorizar DB Content (ordenado por creación en backend)
+            const combined = [...dbContent];
+            jsonContent.forEach(jsonItem => {
+                const exists = dbContent.some(db => db.title === jsonItem.title);
+                if (!exists) {
+                    combined.push(jsonItem);
+                }
+            });
+
+            setMergedContentData(combined);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoadingLocal(false);
+        }
+    };
+
     useEffect(() => {
-        const loadLocalData = async () => {
-            if (!projectId) return;
-            setLoadingLocal(true);
-            try {
-                const [pages, articles] = await Promise.all([
-                    api.getPages(),
-                    api.getArticles()
-                ]);
-                const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
-                setLinkedPages(projectPages);
-                
-                // Artículos vinculados al proyecto (por ID de proyecto o por página del proyecto)
-                const projectArts = articles.filter(a => 
-                    String(a.projectId) === String(projectId) || 
-                    projectPages.some(p => String(p.id) === String(a.pageId))
-                );
-                setLinkedArticles(projectArts);
-
-                // Lógica Híbrida: Combinar JSON con Base de Datos
-                const jsonContent = contentData || [];
-                const dbContent = projectArts.map(a => ({
-                    id: a.id,
-                    title: a.title,
-                    strategy: a.psychologicalStrategy?.focus || a.description || '',
-                    keyword: a.keyword || a.psychologicalStrategy?.keyword || '',
-                    searchVolume: a.psychologicalStrategy?.searchVolume || '',
-                    isFromDb: true,
-                    isGenerated: !!a.isGenerated
-                }));
-
-                const combined = [...jsonContent];
-                dbContent.forEach(dbItem => {
-                    const existsIdx = combined.findIndex(c => c.title === dbItem.title);
-                    if (existsIdx !== -1) {
-                        combined[existsIdx] = { ...combined[existsIdx], ...dbItem };
-                    } else {
-                        combined.push(dbItem);
-                    }
-                });
-
-                setMergedContentData(combined);
-            } catch (e) {
-                console.error(e);
-            } finally {
-                setLoadingLocal(false);
-            }
-        };
         loadLocalData();
     }, [projectId, contentData]);
 
@@ -151,7 +152,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     }
                 };
                 await api.saveArticle(newItem as any);
-                window.location.reload();
+                await loadLocalData();
+                setActiveArticle(0); // Seleccionar el nuevo (que estará al principio)
             } catch (e: any) {
                 alert("Error: " + e.message);
             } finally {
@@ -163,6 +165,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const handleSelectOne = (idx: number) => {
         // Al seleccionar uno solo de forma atómica evitamos el bucle que causaba falsos positivos en la validación de límites
         toggleArticleSelection(idx, true);
+        setActiveArticle(idx);
     };
 
     const handleCloseAndReload = () => {
@@ -250,7 +253,6 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <div 
                                             key={art.id || `merged-${indexInPage}`} 
                                             onClick={() => handleSelectOne(globalIdx)}
-                                            onMouseEnter={() => setActiveArticle(globalIdx)}
                                             className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isSelected ? 'bg-blue-600 border-blue-500 text-white' : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
                                         >
                                             <div className="flex-1">
@@ -282,10 +284,6 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4">
                                     <div className="flex justify-between items-center mb-6">
                                         <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">Editando Estrategia</span>
-                                        <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                                            Autoguardado activo
-                                        </div>
                                     </div>
 
                                     <div className="space-y-6 flex-1">
