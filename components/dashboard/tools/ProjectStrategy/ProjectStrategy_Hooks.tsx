@@ -342,7 +342,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
       {!overrideProjectId && (
         <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
           <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
-            <Zap className="w-5 h-5 fill-current" /> Ganchos Magnéticos de Atracción
+            <Zap className="w-5 h-5 fill-current" /> Hooks Magnéticos de Atracción de Audiencia
           </div>
           
           <h3 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 leading-tight tracking-tight max-w-4xl">
@@ -422,9 +422,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-white">Ganchos Sugeridos</h4>
-                  <div className="mt-1 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20">
-                    Tienes disponibles {maxHooks} Hooks para este Proyecto
-                  </div>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -489,15 +486,28 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 md:p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl animate-in zoom-in-95">
                     <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-orange-500" /></div>
                     
+                    {/* Barra de Progreso Centrada (Solo en vista bloqueada) */}
+                    <div className="w-full flex justify-center mb-10">
+                      <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full max-w-md shadow-inner">
+                        <div className="flex justify-between items-center mb-2 text-sm">
+                          <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Ganchos Desbloqueados</span>
+                          <span className="text-white font-bold">{currentHooksCount} / {maxHooks}</span>
+                        </div>
+                        <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                          <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-orange-500" style={{ width: `${usagePercent}%` }}></div>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="w-full text-left mb-8">
-                      <h3 className="text-3xl font-black text-white mb-6 uppercase tracking-tight">{currentHook.title}</h3>
+                      <h3 className="text-white mb-6 font-medium tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>{currentHook.title}</h3>
                       
                       <div className="bg-orange-500/5 rounded-2xl p-6 border border-orange-500/20 backdrop-blur-sm mb-8">
                         <div className="flex items-center gap-2 mb-3">
                           <Brain className="w-5 h-5 text-orange-400" />
                           <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
                         </div>
-                        <p className="text-gray-300 text-lg font-light italic leading-relaxed">
+                        <p className="text-white text-lg font-light leading-relaxed">
                           {currentHook.psychologicalStrategy}
                         </p>
                       </div>
@@ -507,8 +517,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         <Lock className="w-10 h-10 text-orange-500" />
                     </div>
 
-                    <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Gancho Disponible en Biblioteca</h4>
-                    <p className="text-gray-400 text-base leading-relaxed max-w-md mx-auto mb-10">Nuestro sistema ha generado este Hook Magnético por ti. Haz clic en Desbloquear para ver todo el contenido.</p>
+                    <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Hooks Disponibles para Desbloquear</h4>
+                    <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro sistema ha generado este Hook Magnético por ti. Haz clic en Desbloquear para ver todo el contenido.</p>
 
                     <button 
                         onClick={handleUnlockSingle}
@@ -612,7 +622,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                             onClick={() => setIsEditingTitle(true)}
                                             className="group/title-edit cursor-pointer w-full flex items-center justify-between"
                                         >
-                                            <h3 className="text-white font-black text-xl leading-tight">{localTitle}</h3>
+                                            <h3 className="text-white font-medium leading-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>{localTitle}</h3>
                                             <div className="opacity-0 group-hover/title-edit:opacity-100 transition-opacity text-[8px] font-black uppercase text-gray-500 bg-gray-800 px-1.5 py-0.5 rounded ml-4 whitespace-nowrap">Editar Título</div>
                                         </div>
                                     )}
@@ -629,7 +639,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         value={localStrategy}
                                         onChange={(e) => setLocalStrategy(e.target.value)}
                                         onBlur={() => handleUpdateMessage('psychological_strategy', localStrategy)}
-                                        className="w-full bg-transparent border-none text-gray-400 text-lg font-light italic outline-none resize-none h-auto pl-6"
+                                        className="w-full bg-transparent border-none text-white text-lg font-light outline-none resize-none h-auto pl-6"
                                     />
                                 </div>
                             </div>
@@ -638,8 +648,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         <div className="px-8 py-6 bg-black/20 border-b border-white/5">
                             <div className="w-full flex flex-wrap bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-inner">
                                 <button onClick={() => setActiveKitTab('video')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'video' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>GUION</button>
-                                <button onClick={() => setActiveKitTab('ads')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'ads' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Descripción</button>
                                 <button onClick={() => setActiveKitTab('thumbs')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'thumbs' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Video</button>
+                                <button onClick={() => setActiveKitTab('ads')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'ads' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Descripción</button>
                                 <button onClick={() => setActiveKitTab('publish')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'publish' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Publicar</button>
                             </div>
                         </div>
