@@ -441,6 +441,7 @@ export interface Article {
   contentHtml: string;
   featuredImage?: string;
   keyword: string;
+  searchVolume?: string;
   seoScore: number;
   metaTitle?: string;
   metaDescription?: string;

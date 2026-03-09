@@ -463,6 +463,7 @@ const initDb = async () => {
         await addColumnSafe(connection, 'articles', "email_body LONGTEXT");
         await addColumnSafe(connection, 'articles', "slug VARCHAR(255)");
         await addColumnSafe(connection, 'articles', "featured_image VARCHAR(500)");
+        await addColumnSafe(connection, 'articles', "search_volume VARCHAR(255)");
         await addColumnSafe(connection, 'articles', "meta_title VARCHAR(255)");
         await addColumnSafe(connection, 'articles', "meta_description TEXT");
         await addColumnSafe(connection, 'articles', "status VARCHAR(50) DEFAULT 'published'");

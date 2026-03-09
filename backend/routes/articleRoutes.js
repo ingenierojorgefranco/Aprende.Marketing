@@ -31,7 +31,7 @@ router.get('/articles/:id', authMiddleware, async (req, res) => {
 });
 
 router.post('/articles', authMiddleware, async (req, res) => {
-  const { title, description, content_html, keyword, seo_score, page_id, slug, featured_image, meta_title, meta_description, email_subject, email_body, status, published_at } = req.body;
+  const { title, description, content_html, keyword, search_volume, seo_score, page_id, slug, featured_image, meta_title, meta_description, email_subject, email_body, status, published_at } = req.body;
   let finalSlug = slug;
   if (!finalSlug && title) { finalSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
   
@@ -47,9 +47,9 @@ router.post('/articles', authMiddleware, async (req, res) => {
     }
     const [resDb] = await pool.query(
       `INSERT INTO articles 
-      (user_id, page_id, title, slug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, email_subject, email_body, status, published_at, created_at) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [req.user.id, page_id || null, title, finalSlug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, email_subject || null, email_body || null, status || 'published', published_at ? new Date(published_at) : new Date()]
+      (user_id, page_id, title, slug, description, content_html, keyword, search_volume, seo_score, featured_image, meta_title, meta_description, email_subject, email_body, status, published_at, created_at) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [req.user.id, page_id || null, title, finalSlug, description, content_html, keyword, search_volume || null, seo_score, featured_image, meta_title, meta_description, email_subject || null, email_body || null, status || 'published', published_at ? new Date(published_at) : new Date()]
     );
     
     await logSystemActivity(req.user.id, req.user.email, 'CREATE_ARTICLE', 'article', resDb.insertId, { title });
@@ -59,7 +59,7 @@ router.post('/articles', authMiddleware, async (req, res) => {
 
 router.put('/articles/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
-  const { title, description, content_html, keyword, seo_score, page_id, slug, featured_image, meta_title, meta_description, email_subject, email_body, status, published_at } = req.body;
+  const { title, description, content_html, keyword, search_volume, seo_score, page_id, slug, featured_image, meta_title, meta_description, email_subject, email_body, status, published_at } = req.body;
   try {
     const [check] = await pool.query('SELECT id FROM articles WHERE id = ? AND user_id = ?', [id, req.user.id]);
     if (check.length === 0) return res.status(403).json({ error: 'No autorizado' });
@@ -67,9 +67,9 @@ router.put('/articles/:id', authMiddleware, async (req, res) => {
     if (!finalSlug && title) { finalSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
     await pool.query(
       `UPDATE articles SET 
-        page_id=?, title=?, slug=?, description=?, content_html=?, featured_image=?, keyword=?, seo_score=?, meta_title=?, meta_description=?, email_subject=?, email_body=?, status=?, published_at=?
+        page_id=?, title=?, slug=?, description=?, content_html=?, featured_image=?, keyword=?, search_volume=?, seo_score=?, meta_title=?, meta_description=?, email_subject=?, email_body=?, status=?, published_at=?
        WHERE id=? AND user_id=?`,
-      [page_id || null, title, finalSlug, description, content_html, featured_image, keyword, seo_score, meta_title, meta_description, email_subject, email_body, status, published_at ? new Date(published_at) : new Date(), id, req.user.id]
+      [page_id || null, title, finalSlug, description, content_html, featured_image, keyword, search_volume || null, seo_score, meta_title, meta_description, email_subject, email_body, status, published_at ? new Date(published_at) : new Date(), id, req.user.id]
     );
     res.json({ message: 'Artículo actualizado' });
   } catch (e) { res.status(500).json({ error: e.message }); }
