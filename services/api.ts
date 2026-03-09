@@ -824,6 +824,8 @@ export const api = {
             pageId: a.page_id ? a.page_id.toString() : undefined,
             pageSubdomain: a.page_subdomain,
             pageName: a.page_name,
+            isGenerated: !!a.is_generated,
+            psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
             title: a.title,
             slug: a.slug,
             description: a.description || '',
@@ -886,16 +888,17 @@ export const api = {
             headers: getAuthHeaders(),
             body: JSON.stringify({
                 page_id: article.pageId,
+                project_id: article.projectId,
+                is_generated: article.isGenerated,
+                psychological_strategy: article.psychologicalStrategy,
                 title: article.title,
                 slug: article.slug,
                 description: article.description,
                 content_html: article.contentHtml,
-                // Fixing snake_case keys correctly mapped to article's camelCase properties
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,
                 meta_title: article.metaTitle,
-                // Fixed: meta_description was incorrectly trying to access meta_description instead of metaDescription
                 meta_description: article.metaDescription,
                 email_subject: article.emailSubject,
                 email_body: article.emailBody,
@@ -918,12 +921,13 @@ export const api = {
           headers: getAuthHeaders(),
           body: JSON.stringify({
                 page_id: article.pageId,
+                project_id: article.projectId,
+                is_generated: article.isGenerated,
+                psychological_strategy: article.psychologicalStrategy,
                 title: article.title,
                 slug: article.slug,
                 description: article.description,
-                // Fix: Access article.contentHtml instead of non-existent article.content_html
                 content_html: article.contentHtml,
-                // Fixing snake_case keys correctly mapped to article's camelCase properties
                 featured_image: article.featuredImage,
                 keyword: article.keyword,
                 seo_score: article.seoScore,

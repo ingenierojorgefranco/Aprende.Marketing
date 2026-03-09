@@ -34,6 +34,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
+    const [mergedContentData, setMergedContentData] = useState<any[]>([]);
     const [isCreatingManual, setIsCreatingManual] = useState(false);
     const [manualTitle, setManualTitle] = useState("escribe aquí el titulo del articulo");
     const [manualStrategy, setManualStrategy] = useState("");
@@ -44,8 +45,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     // Lógica de Paginación
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 7;
-    const totalPages = Math.ceil(contentData.length / itemsPerPage);
-    const paginatedData = contentData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const totalPages = Math.ceil(mergedContentData.length / itemsPerPage);
+    const paginatedData = mergedContentData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     useEffect(() => {
         const loadLocalData = async () => {
@@ -58,8 +59,37 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 ]);
                 const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
                 setLinkedPages(projectPages);
-                const projectArts = articles.filter(a => projectPages.some(p => String(p.id) === String(a.pageId)));
+                
+                // Artículos vinculados al proyecto (por ID de proyecto o por página del proyecto)
+                const projectArts = articles.filter(a => 
+                    String(a.projectId) === String(projectId) || 
+                    projectPages.some(p => String(p.id) === String(a.pageId))
+                );
                 setLinkedArticles(projectArts);
+
+                // Lógica Híbrida: Combinar JSON con Base de Datos
+                const jsonContent = contentData || [];
+                const dbContent = projectArts.map(a => ({
+                    id: a.id,
+                    title: a.title,
+                    strategy: a.psychologicalStrategy?.focus || a.description || '',
+                    keyword: a.keyword || a.psychologicalStrategy?.keyword || '',
+                    searchVolume: a.psychologicalStrategy?.searchVolume || '',
+                    isFromDb: true,
+                    isGenerated: !!a.isGenerated
+                }));
+
+                const combined = [...jsonContent];
+                dbContent.forEach(dbItem => {
+                    const existsIdx = combined.findIndex(c => c.title === dbItem.title);
+                    if (existsIdx !== -1) {
+                        combined[existsIdx] = { ...combined[existsIdx], ...dbItem };
+                    } else {
+                        combined.push(dbItem);
+                    }
+                });
+
+                setMergedContentData(combined);
             } catch (e) {
                 console.error(e);
             } finally {
@@ -67,39 +97,30 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             }
         };
         loadLocalData();
-    }, [projectId]);
+    }, [projectId, contentData]);
 
     const handleSaveManualStrategy = async () => {
         if (!projectId) return;
         setSavingManual(true);
         try {
-            const project = await api.getProjectById(projectId);
-            if (!project) throw new Error("Proyecto no encontrado");
-
-            const strategy = project.strategy_json || { modules: { content: [] } };
-            if (!strategy.modules) strategy.modules = {};
-            if (!strategy.modules.content) strategy.modules.content = [];
-
-            const newId = strategy.modules.content.length > 0 
-                ? Math.max(...strategy.modules.content.map((c: any) => c.id || 0)) + 1 
-                : 1;
-
             const newItem = {
-                id: newId,
+                projectId: projectId,
                 title: manualTitle,
-                strategy: manualStrategy,
+                description: manualStrategy,
                 keyword: manualKeyword,
-                searchVolume: manualSearchVolume,
-                traffic: 0,
-                difficulty: 0,
-                objective: "Manual"
+                isGenerated: false,
+                status: 'draft',
+                psychologicalStrategy: {
+                    focus: manualStrategy,
+                    keyword: manualKeyword,
+                    searchVolume: manualSearchVolume,
+                    targetUrl: ''
+                }
             };
 
-            strategy.modules.content.push(newItem);
-
-            await api.updateProject(projectId, { ...project, strategy_json: strategy } as any);
+            await api.saveArticle(newItem as any);
             
-            alert("Estrategia guardada exitosamente.");
+            alert("Estrategia guardada exitosamente en la tabla de artículos.");
             setIsCreatingManual(false);
             
             // Recargar para mostrar el nuevo item
@@ -204,17 +225,18 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     const globalIdx = (currentPage - 1) * itemsPerPage + indexInPage;
                                     const isSelected = selectedArticles.includes(globalIdx);
                                     const isActive = activeArticle === globalIdx;
-                                    const isGenerated = linkedArticles.some(a => a.title === art.title);
+                                    const isGenerated = art.isGenerated || linkedArticles.some(a => a.title === art.title);
 
                                     return (
                                         <div 
-                                            key={art.id} 
+                                            key={art.id || `merged-${indexInPage}`} 
                                             onClick={() => handleSelectOne(globalIdx)}
                                             onMouseEnter={() => setActiveArticle(globalIdx)}
                                             className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isSelected ? 'bg-blue-600 border-blue-500 text-white' : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
                                         >
                                             <div className="flex-1">
                                                 <h4 className={`font-medium text-lg leading-snug ${isGenerated || isSelected ? 'text-white' : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'}`}>{art.title}</h4>
+                                                {art.isFromDb && !art.isGenerated && <span className="text-[9px] font-bold uppercase tracking-tighter opacity-60">Estrategia Manual</span>}
                                             </div>
                                             <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? 'bg-white border-white' : isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
                                                 {(isGenerated || isSelected) && <Check className={`w-4 h-4 font-bold ${isGenerated ? 'text-emerald-600' : 'text-blue-600'}`} />}
@@ -306,19 +328,19 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         ) : (
                             <div className="relative z-10 flex flex-col h-full">
                                 <div className="mb-auto">
-                                    <div className="flex justify-between items-center mb-4"><span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">Análisis de IA</span>{linkedArticles.some(a => a.title === contentData[activeArticle]?.title) && (<span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20"><Check className="w-3 h-3" /> Generado</span>)}</div>
-                                    <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">{contentData[activeArticle]?.title}</h3>
-                                    <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6"><h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 text-purple-400"/> Enfoque Estratégico del Artículo</h5><div className="max-h-[180px] overflow-y-auto custom-scrollbar"><p className="text-gray-300 text-xl leading-relaxed font-light">{contentData[activeArticle]?.strategy}</p></div></div>
+                                    <div className="flex justify-between items-center mb-4"><span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">{mergedContentData[activeArticle]?.isFromDb && !mergedContentData[activeArticle]?.isGenerated ? 'Estrategia Manual' : 'Análisis de IA'}</span>{(mergedContentData[activeArticle]?.isGenerated || linkedArticles.some(a => a.title === mergedContentData[activeArticle]?.title)) && (<span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20"><Check className="w-3 h-3" /> Generado</span>)}</div>
+                                    <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">{mergedContentData[activeArticle]?.title}</h3>
+                                    <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6"><h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 text-purple-400"/> Enfoque Estratégico del Artículo</h5><div className="max-h-[180px] overflow-y-auto custom-scrollbar"><p className="text-gray-300 text-xl leading-relaxed font-light">{mergedContentData[activeArticle]?.strategy}</p></div></div>
                                     <div className="space-y-4">
-                                        <div className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative" onMouseEnter={(e) => handleTooltipHover(e, ["Este artículo aparecerá en Google cuando tu cliente busque exactamente esta frase."])} onMouseLeave={handleTooltipLeave}><p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1"><Search className="w-3 h-3"/> Keyword SEO</p><p className="text-purple-300 font-bold text-lg leading-tight break-words">{contentData[activeArticle]?.keyword}</p></div>
-                                        <div className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative" onMouseEnter={(e) => handleTooltipHover(e, ["Indica cuántas personas buscan esta frase al mes en promedio."])} onMouseLeave={handleTooltipLeave}><p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1"><BarChart className="w-3 h-3"/> Vol. Búsqueda</p><p className="text-emerald-300 font-bold text-lg leading-tight break-words">{contentData[activeArticle]?.searchVolume || 'N/A'}</p></div>
+                                        <div className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative" onMouseEnter={(e) => handleTooltipHover(e, ["Este artículo aparecerá en Google cuando tu cliente busque exactamente esta frase."])} onMouseLeave={handleTooltipLeave}><p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1"><Search className="w-3 h-3"/> Keyword SEO</p><p className="text-purple-300 font-bold text-lg leading-tight break-words">{mergedContentData[activeArticle]?.keyword}</p></div>
+                                        <div className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative" onMouseEnter={(e) => handleTooltipHover(e, ["Indica cuántas personas buscan esta frase al mes en promedio."])} onMouseLeave={handleTooltipLeave}><p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1"><BarChart className="w-3 h-3"/> Vol. Búsqueda</p><p className="text-emerald-300 font-bold text-lg leading-tight break-words">{mergedContentData[activeArticle]?.searchVolume || 'N/A'}</p></div>
                                     </div>
                                 </div>
                                 <div className="mt-8 pt-8 border-t border-gray-800 space-y-4">
-                                    {linkedArticles.find(a => a.title === contentData[activeArticle]?.title) ? (
+                                    {(mergedContentData[activeArticle]?.isGenerated || linkedArticles.find(a => a.title === mergedContentData[activeArticle]?.title)) ? (
                                         <>
-                                            <a href={`/admin/lp/${linkedPages[0]?.subdomain?.split('.')[0] || 'page'}/blog/${linkedArticles.find(a => a.title === contentData[activeArticle]?.title)?.slug}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20 hover:scale-[1.02]"><Eye className="w-6 h-6" /> Ver Artículo Online</a>
-                                            <a href={window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${linkedArticles.find(a => a.title === contentData[activeArticle]?.title)?.id}` : `/dashboard/articles/edit/${linkedArticles.find(a => a.title === contentData[activeArticle]?.title)?.id}`} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"><PenTool className="w-4 h-4" /> Editar Contenido Profesional</a>
+                                            <a href={`/admin/lp/${linkedPages[0]?.subdomain?.split('.')[0] || 'page'}/blog/${(mergedContentData[activeArticle]?.isGenerated ? mergedContentData[activeArticle] : linkedArticles.find(a => a.title === mergedContentData[activeArticle]?.title))?.slug}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20 hover:scale-[1.02]"><Eye className="w-6 h-6" /> Ver Artículo Online</a>
+                                            <a href={window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${(mergedContentData[activeArticle]?.isGenerated ? mergedContentData[activeArticle] : linkedArticles.find(a => a.title === mergedContentData[activeArticle]?.title))?.id}` : `/dashboard/articles/edit/${(mergedContentData[activeArticle]?.isGenerated ? mergedContentData[activeArticle] : linkedArticles.find(a => a.title === mergedContentData[activeArticle]?.title))?.id}`} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"><PenTool className="w-4 h-4" /> Editar Contenido Profesional</a>
                                         </>
                                     ) : (
                                         isAtLimit ? (
@@ -368,9 +390,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     <div className="w-full max-w-[1200px] h-[95vh] overflow-y-auto rounded-[3rem] shadow-2xl relative border border-white/10 custom-scrollbar" onClick={e => e.stopPropagation()}>
                         <ContentGenerator 
                             preFilledData={{
-                                topic: contentData[selectedArticles[0]]?.title || '',
-                                objective: contentData[selectedArticles[0]]?.strategy || '',
-                                keyword: contentData[selectedArticles[0]]?.keyword || '',
+                                topic: mergedContentData[selectedArticles[0]]?.title || '',
+                                objective: mergedContentData[selectedArticles[0]]?.strategy || '',
+                                keyword: mergedContentData[selectedArticles[0]]?.keyword || '',
                                 pageId: linkedPages[0]?.id || ''
                             }}
                             embeddedProjectId={projectId}
