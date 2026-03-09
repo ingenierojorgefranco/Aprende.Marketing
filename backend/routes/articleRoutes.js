@@ -13,20 +13,49 @@ const router = express.Router();
 router.get('/articles', authMiddleware, async (req, res) => {
   try {
     const [rows] = await pool.query(
-        `SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name 
-         FROM articles a LEFT JOIN landing_pages lp ON a.page_id = lp.id 
+        `SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
+         FROM articles a 
+         LEFT JOIN landing_pages lp ON a.page_id = lp.id 
+         LEFT JOIN projects p ON a.project_id = p.id
          WHERE a.user_id = ? ORDER BY a.created_at DESC`, 
         [req.user.id]
     );
-    res.json(rows);
+    const mapped = rows.map(a => ({
+        ...a,
+        projectId: a.project_id ? String(a.project_id) : undefined,
+        masterArticleId: a.master_article_id ? String(a.master_article_id) : undefined,
+        projectName: a.project_name,
+        pageId: a.page_id ? String(a.page_id) : undefined,
+        pageName: a.page_name,
+        pageSubdomain: a.page_subdomain,
+        isGenerated: !!a.is_generated,
+        psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
+    }));
+    res.json(mapped);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 router.get('/articles/:id', authMiddleware, async (req, res) => {
     try {
-        const [rows] = await pool.query(`SELECT * FROM articles WHERE id = ? AND user_id = ?`, [req.params.id, req.user.id]);
+        const [rows] = await pool.query(
+            `SELECT a.*, p.name as project_name 
+             FROM articles a
+             LEFT JOIN projects p ON a.project_id = p.id
+             WHERE a.id = ? AND a.user_id = ?`, 
+            [req.params.id, req.user.id]
+        );
         if (rows.length === 0) return res.status(404).json({ error: 'Artículo no encontrado' });
-        res.json(rows[0]);
+        const a = rows[0];
+        const mapped = {
+            ...a,
+            projectId: a.project_id ? String(a.project_id) : undefined,
+            masterArticleId: a.master_article_id ? String(a.master_article_id) : undefined,
+            projectName: a.project_name,
+            pageId: a.page_id ? String(a.page_id) : undefined,
+            isGenerated: !!a.is_generated,
+            psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
+        };
+        res.json(mapped);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

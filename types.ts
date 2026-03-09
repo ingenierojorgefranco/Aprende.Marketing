@@ -431,6 +431,7 @@ export interface LandingPage {
 export interface Article {
   id: string;
   projectId?: string; // NEW: Linked Project ID
+  masterArticleId?: string; // NEW: Reference to master article
   projectName?: string; // NEW: Project Name for UI
   pageId?: string; // Link to a landing page
   pageName?: string; // Name of linked page
@@ -446,7 +447,14 @@ export interface Article {
   metaDescription?: string;
   emailSubject?: string;
   emailBody?: string;
+  psychologicalStrategy?: {
+    focus: string;
+    keyword: string;
+    searchVolume: string;
+    targetUrl: string;
+  };
   status: 'published' | 'draft' | 'scheduled';
+  isGenerated?: boolean;
   publishedAt: Date;
   createdAt: Date;
 }

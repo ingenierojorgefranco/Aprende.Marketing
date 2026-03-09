@@ -390,6 +390,8 @@ const initDb = async () => {
                 query: `CREATE TABLE IF NOT EXISTS articles (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     user_id ${userIdType} NOT NULL,
+                    project_id INT NULL,
+                    master_article_id INT NULL,
                     page_id INT NULL,
                     title VARCHAR(255),
                     slug VARCHAR(255),
@@ -402,7 +404,9 @@ const initDb = async () => {
                     meta_description TEXT,
                     email_subject VARCHAR(255),
                     email_body LONGTEXT,
+                    psychological_strategy JSON NULL,
                     status VARCHAR(50) DEFAULT 'published',
+                    is_generated BOOLEAN DEFAULT FALSE,
                     published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -468,6 +472,10 @@ const initDb = async () => {
         await addColumnSafe(connection, 'articles', "status VARCHAR(50) DEFAULT 'published'");
         await addColumnSafe(connection, 'articles', "published_at DATETIME DEFAULT CURRENT_TIMESTAMP");
         await addColumnSafe(connection, 'articles', "page_id INT NULL");
+        await addColumnSafe(connection, 'articles', "project_id INT NULL");
+        await addColumnSafe(connection, 'articles', "master_article_id INT NULL");
+        await addColumnSafe(connection, 'articles', "is_generated BOOLEAN DEFAULT FALSE");
+        await addColumnSafe(connection, 'articles', "psychological_strategy JSON NULL");
         await addColumnSafe(connection, 'users', "role VARCHAR(50) DEFAULT 'user'");
         await addColumnSafe(connection, 'users', "plan_limits JSON NULL");
         await addColumnSafe(connection, 'users', "avatar_url VARCHAR(500)");
@@ -543,6 +551,12 @@ const initDb = async () => {
             await connection.query(`ALTER TABLE landing_pages ADD CONSTRAINT fk_landing_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL`);
         } catch (e) {
             // Ignore constraint already exists or similar safe errors
+        }
+
+        try {
+            await connection.query(`ALTER TABLE articles ADD CONSTRAINT fk_articles_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL`);
+        } catch (e) {
+            // Ignore
         }
 
         // --- OPTIMIZACIÓN: CREACIÓN DE ÍNDICES PARA ELIMINAR "Out of sort memory" ---
