@@ -107,37 +107,38 @@ router.post('/articles', authMiddleware, async (req, res) => {
 
 router.put('/articles/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
-  const { title, description, content_html, keyword, seo_score, page_id, project_id, is_generated, psychological_strategy, slug, featured_image, meta_title, meta_description, email_subject, email_body, status, published_at } = req.body;
+  const body = req.body;
   try {
     const [check] = await pool.query('SELECT id FROM articles WHERE id = ? AND user_id = ?', [id, req.user.id]);
     if (check.length === 0) return res.status(403).json({ error: 'No autorizado' });
-    let finalSlug = slug;
-    if (!finalSlug && title) { finalSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
+
+    const updates = [];
+    const values = [];
+
+    const allowedFields = [
+      'page_id', 'project_id', 'is_generated', 'psychological_strategy', 
+      'title', 'slug', 'description', 'content_html', 'featured_image', 
+      'keyword', 'seo_score', 'meta_title', 'meta_description', 
+      'email_subject', 'email_body', 'status', 'published_at'
+    ];
+
+    for (const field of allowedFields) {
+      if (body.hasOwnProperty(field)) {
+        updates.push(`${field} = ?`);
+        let val = body[field];
+        if (field === 'is_generated') val = val ? 1 : 0;
+        if (field === 'psychological_strategy' && typeof val === 'object') val = JSON.stringify(val);
+        if (field === 'published_at' && val) val = new Date(val);
+        values.push(val);
+      }
+    }
+
+    if (updates.length === 0) return res.json({ message: 'Nada que actualizar' });
+
+    values.push(id, req.user.id);
     await pool.query(
-      `UPDATE articles SET 
-        page_id=?, project_id=?, is_generated=?, psychological_strategy=?, title=?, slug=?, description=?, content_html=?, featured_image=?, keyword=?, seo_score=?, meta_title=?, meta_description=?, email_subject=?, email_body=?, status=?, published_at=?
-       WHERE id=? AND user_id=?`,
-      [
-        page_id || null, 
-        project_id || null, 
-        is_generated !== undefined ? (is_generated ? 1 : 0) : null,
-        typeof psychological_strategy === 'object' ? JSON.stringify(psychological_strategy) : (psychological_strategy || null),
-        title, 
-        finalSlug, 
-        description, 
-        content_html, 
-        featured_image, 
-        keyword, 
-        seo_score, 
-        meta_title, 
-        meta_description, 
-        email_subject, 
-        email_body, 
-        status, 
-        published_at ? new Date(published_at) : new Date(), 
-        id, 
-        req.user.id
-      ]
+      `UPDATE articles SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`,
+      values
     );
     res.json({ message: 'Artículo actualizado' });
   } catch (e) { res.status(500).json({ error: e.message }); }

@@ -35,12 +35,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [mergedContentData, setMergedContentData] = useState<any[]>([]);
-    const [isCreatingManual, setIsCreatingManual] = useState(false);
-    const [manualTitle, setManualTitle] = useState("escribe aquí el titulo del articulo");
-    const [manualStrategy, setManualStrategy] = useState("");
-    const [manualKeyword, setManualKeyword] = useState("");
-    const [manualSearchVolume, setManualSearchVolume] = useState("");
-    const [savingManual, setSavingManual] = useState(false);
+    const [localEdit, setLocalEdit] = useState<any>(null);
 
     // Lógica de Paginación
     const [currentPage, setCurrentPage] = useState(1);
@@ -99,36 +94,69 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         loadLocalData();
     }, [projectId, contentData]);
 
-    const handleSaveManualStrategy = async () => {
-        if (!projectId) return;
-        setSavingManual(true);
-        try {
-            const newItem = {
-                projectId: projectId,
-                title: manualTitle,
-                description: manualStrategy,
-                keyword: manualKeyword,
-                isGenerated: false,
-                status: 'draft',
-                psychologicalStrategy: {
-                    focus: manualStrategy,
-                    keyword: manualKeyword,
-                    searchVolume: manualSearchVolume,
-                    targetUrl: ''
-                }
-            };
+    useEffect(() => {
+        const active = mergedContentData[activeArticle];
+        if (active && active.isFromDb && !active.isGenerated) {
+            setLocalEdit({
+                title: active.title,
+                strategy: active.strategy,
+                keyword: active.keyword,
+                searchVolume: active.searchVolume
+            });
+        } else {
+            setLocalEdit(null);
+        }
+    }, [activeArticle, mergedContentData]);
 
-            await api.saveArticle(newItem as any);
-            
-            alert("Estrategia guardada exitosamente en la tabla de artículos.");
-            setIsCreatingManual(false);
-            
-            // Recargar para mostrar el nuevo item
-            window.location.reload();
-        } catch (e: any) {
-            alert("Error al guardar: " + e.message);
-        } finally {
-            setSavingManual(false);
+    useEffect(() => {
+        if (!localEdit || !mergedContentData[activeArticle]?.id) return;
+        
+        const timer = setTimeout(async () => {
+            const active = mergedContentData[activeArticle];
+            if (!active || !active.id) return;
+
+            try {
+                await api.updateArticle(active.id, {
+                    title: localEdit.title,
+                    psychologicalStrategy: {
+                        focus: localEdit.strategy,
+                        keyword: localEdit.keyword,
+                        searchVolume: localEdit.searchVolume,
+                        targetUrl: ""
+                    }
+                } as any);
+            } catch (e) {
+                console.error("Auto-save error:", e);
+            }
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [localEdit]);
+
+    const handleAddManual = async () => {
+        if (!projectId) return;
+        if (window.confirm("¿Deseas crear una nueva estrategia de contenido?")) {
+            setLoadingLocal(true);
+            try {
+                const newItem = {
+                    projectId: projectId,
+                    title: "Nuevo Contenido",
+                    isGenerated: false,
+                    status: 'draft',
+                    psychologicalStrategy: {
+                        focus: "",
+                        keyword: "",
+                        searchVolume: "",
+                        targetUrl: ""
+                    }
+                };
+                await api.saveArticle(newItem as any);
+                window.location.reload();
+            } catch (e: any) {
+                alert("Error: " + e.message);
+            } finally {
+                setLoadingLocal(false);
+            }
         }
     };
 
@@ -203,16 +231,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     </div>
                                 </div>
                                 <button 
-                                    onClick={() => {
-                                        if (window.confirm("¿Deseas crear el contenido manualmente?")) {
-                                            setIsCreatingManual(true);
-                                            setActiveArticle(-1); // Deseleccionar actual
-                                            setManualTitle("escribe aquí el titulo del articulo");
-                                            setManualStrategy("");
-                                            setManualKeyword("");
-                                            setManualSearchVolume("");
-                                        }
-                                    }}
+                                    onClick={handleAddManual}
                                     className="p-2 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-xl hover:bg-purple-500 hover:text-white transition-all group"
                                     title="Añadir Manualmente"
                                 >
@@ -225,7 +244,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     const globalIdx = (currentPage - 1) * itemsPerPage + indexInPage;
                                     const isSelected = selectedArticles.includes(globalIdx);
                                     const isActive = activeArticle === globalIdx;
-                                    const isGenerated = art.isGenerated || linkedArticles.some(a => a.title === art.title);
+                                    const isGenerated = art.isGenerated;
 
                                     return (
                                         <div 
@@ -236,7 +255,6 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         >
                                             <div className="flex-1">
                                                 <h4 className={`font-medium text-lg leading-snug ${isGenerated || isSelected ? 'text-white' : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'}`}>{art.title}</h4>
-                                                {art.isFromDb && !art.isGenerated && <span className="text-[9px] font-bold uppercase tracking-tighter opacity-60">Estrategia Manual</span>}
                                             </div>
                                             <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? 'bg-white border-white' : isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
                                                 {(isGenerated || isSelected) && <Check className={`w-4 h-4 font-bold ${isGenerated ? 'text-emerald-600' : 'text-blue-600'}`} />}
@@ -259,76 +277,75 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     <div id="psd-content-detail-card" className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/10 border border-gray-800 rounded-2xl p-8 flex flex-col relative overflow-hidden h-full min-h-[500px] shadow-2xl">
                         <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Target className="w-40 h-40 text-purple-500" /></div>
                         
-                        {isCreatingManual ? (
-                            <div className="relative z-10 flex flex-col h-full animate-in fade-in slide-in-from-right-4">
-                                <div className="flex justify-between items-center mb-6">
-                                    <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">Creación Manual</span>
-                                    <button onClick={() => setIsCreatingManual(false)} className="text-gray-500 hover:text-white transition-colors">
-                                        <X className="w-6 h-6" />
-                                    </button>
-                                </div>
-
-                                <div className="space-y-6 flex-1">
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Título del Artículo</label>
-                                        <input 
-                                            type="text"
-                                            value={manualTitle}
-                                            onChange={(e) => setManualTitle(e.target.value)}
-                                            className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold text-xl outline-none focus:border-purple-500 transition-all"
-                                            placeholder="escribe aquí el titulo del articulo"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Enfoque Estratégico</label>
-                                        <textarea 
-                                            value={manualStrategy}
-                                            onChange={(e) => setManualStrategy(e.target.value)}
-                                            className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-gray-300 text-lg font-light outline-none focus:border-purple-500 transition-all min-h-[150px] resize-none"
-                                            placeholder="Describe el ángulo o propósito de este artículo..."
-                                        />
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Keyword SEO</label>
-                                            <input 
-                                                type="text"
-                                                value={manualKeyword}
-                                                onChange={(e) => setManualKeyword(e.target.value)}
-                                                className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-purple-300 font-bold outline-none focus:border-purple-500 transition-all"
-                                                placeholder="Ej: como vender mas"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Vol. Búsqueda</label>
-                                            <input 
-                                                type="text"
-                                                value={manualSearchVolume}
-                                                onChange={(e) => setManualSearchVolume(e.target.value)}
-                                                className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-emerald-300 font-bold outline-none focus:border-purple-500 transition-all"
-                                                placeholder="Ej: 1500"
-                                            />
+                        <div className="relative z-10 flex flex-col h-full">
+                            {localEdit ? (
+                                <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">Editando Estrategia</span>
+                                        <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                            Autoguardado activo
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="mt-8 pt-8 border-t border-gray-800">
-                                    <button 
-                                        onClick={handleSaveManualStrategy}
-                                        disabled={savingManual || !manualTitle}
-                                        className="w-full py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-lg flex items-center justify-center gap-3 transition-all shadow-lg shadow-purple-900/20 disabled:opacity-50"
-                                    >
-                                        {savingManual ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
-                                        Guardar Estrategia Manual
-                                    </button>
+                                    <div className="space-y-6 flex-1">
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Título del Artículo</label>
+                                            <input 
+                                                type="text"
+                                                value={localEdit.title}
+                                                onChange={(e) => setLocalEdit({ ...localEdit, title: e.target.value })}
+                                                className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold text-xl outline-none focus:border-purple-500 transition-all"
+                                                placeholder="Título del artículo..."
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Enfoque Estratégico</label>
+                                            <textarea 
+                                                value={localEdit.strategy}
+                                                onChange={(e) => setLocalEdit({ ...localEdit, strategy: e.target.value })}
+                                                className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-gray-300 text-lg font-light outline-none focus:border-purple-500 transition-all min-h-[150px] resize-none"
+                                                placeholder="Describe el ángulo o propósito de este artículo..."
+                                            />
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Keyword SEO</label>
+                                                <input 
+                                                    type="text"
+                                                    value={localEdit.keyword}
+                                                    onChange={(e) => setLocalEdit({ ...localEdit, keyword: e.target.value })}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-purple-300 font-bold outline-none focus:border-purple-500 transition-all"
+                                                    placeholder="Ej: como vender mas"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Vol. Búsqueda</label>
+                                                <input 
+                                                    type="text"
+                                                    value={localEdit.searchVolume}
+                                                    onChange={(e) => setLocalEdit({ ...localEdit, searchVolume: e.target.value })}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-emerald-300 font-bold outline-none focus:border-purple-500 transition-all"
+                                                    placeholder="Ej: 1500"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-8 pt-8 border-t border-gray-800">
+                                        {isAtLimit ? (
+                                            <button onClick={onUpgrade} className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"><Crown className="w-6 h-6 fill-current" /> Límite Alcanzado: Subir a PRO</button>
+                                        ) : (
+                                            <button onClick={() => setShowConfirmModal(true)} disabled={selectedArticles.length === 0} className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg ${selectedArticles.length === 0 ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50 grayscale' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]'}`}><PenTool className="w-6 h-6" /> Escribir Artículo Seleccionado</button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ) : (
-                            <div className="relative z-10 flex flex-col h-full">
+                            ) : (
+                                <>
                                 <div className="mb-auto">
-                                    <div className="flex justify-between items-center mb-4"><span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">{mergedContentData[activeArticle]?.isFromDb && !mergedContentData[activeArticle]?.isGenerated ? 'Estrategia Manual' : 'Análisis de IA'}</span>{(mergedContentData[activeArticle]?.isGenerated || linkedArticles.some(a => a.title === mergedContentData[activeArticle]?.title)) && (<span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20"><Check className="w-3 h-3" /> Generado</span>)}</div>
+                                    <div className="flex justify-between items-center mb-4"><span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">Análisis de IA</span>{mergedContentData[activeArticle]?.isGenerated && (<span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20"><Check className="w-3 h-3" /> Generado</span>)}</div>
                                     <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">{mergedContentData[activeArticle]?.title}</h3>
                                     <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6"><h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 text-purple-400"/> Enfoque Estratégico del Artículo</h5><div className="max-h-[180px] overflow-y-auto custom-scrollbar"><p className="text-gray-300 text-xl leading-relaxed font-light">{mergedContentData[activeArticle]?.strategy}</p></div></div>
                                     <div className="space-y-4">
@@ -337,21 +354,22 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     </div>
                                 </div>
                                 <div className="mt-8 pt-8 border-t border-gray-800 space-y-4">
-                                    {(mergedContentData[activeArticle]?.isGenerated || linkedArticles.find(a => a.title === mergedContentData[activeArticle]?.title)) ? (
+                                    {mergedContentData[activeArticle]?.isGenerated ? (
                                         <>
-                                            <a href={`/admin/lp/${linkedPages[0]?.subdomain?.split('.')[0] || 'page'}/blog/${(mergedContentData[activeArticle]?.isGenerated ? mergedContentData[activeArticle] : linkedArticles.find(a => a.title === mergedContentData[activeArticle]?.title))?.slug}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20 hover:scale-[1.02]"><Eye className="w-6 h-6" /> Ver Artículo Online</a>
-                                            <a href={window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${(mergedContentData[activeArticle]?.isGenerated ? mergedContentData[activeArticle] : linkedArticles.find(a => a.title === mergedContentData[activeArticle]?.title))?.id}` : `/dashboard/articles/edit/${(mergedContentData[activeArticle]?.isGenerated ? mergedContentData[activeArticle] : linkedArticles.find(a => a.title === mergedContentData[activeArticle]?.title))?.id}`} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"><PenTool className="w-4 h-4" /> Editar Contenido Profesional</a>
+                                            <a href={`/admin/lp/${linkedPages[0]?.subdomain?.split('.')[0] || 'page'}/blog/${mergedContentData[activeArticle]?.slug}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20 hover:scale-[1.02]"><Eye className="w-6 h-6" /> Ver Artículo Online</a>
+                                            <a href={window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${mergedContentData[activeArticle]?.id}` : `/dashboard/articles/edit/${mergedContentData[activeArticle]?.id}`} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"><PenTool className="w-4 h-4" /> Editar Contenido Profesional</a>
                                         </>
                                     ) : (
                                         isAtLimit ? (
                                             <button onClick={onUpgrade} className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"><Crown className="w-6 h-6 fill-current" /> Límite Alcanzado: Subir a PRO</button>
                                         ) : (
-                                            <button onClick={() => setShowConfirmModal(true)} disabled={selectedArticles.length === 0} className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg ${selectedArticles.length === 0 ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50 grayscale' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]'}`}><PenTool className="w-6 h-6" /> Escribir Articulo Seleccionado</button>
+                                            <button onClick={() => setShowConfirmModal(true)} disabled={selectedArticles.length === 0} className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg ${selectedArticles.length === 0 ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50 grayscale' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]'}`}><PenTool className="w-6 h-6" /> Escribir Artículo Seleccionado</button>
                                         )
                                     )}
                                 </div>
-                            </div>
-                        )}
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
@@ -390,15 +408,20 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     <div className="w-full max-w-[1200px] h-[95vh] overflow-y-auto rounded-[3rem] shadow-2xl relative border border-white/10 custom-scrollbar" onClick={e => e.stopPropagation()}>
                         <ContentGenerator 
                             preFilledData={{
-                                topic: mergedContentData[selectedArticles[0]]?.title || '',
-                                objective: mergedContentData[selectedArticles[0]]?.strategy || '',
-                                keyword: mergedContentData[selectedArticles[0]]?.keyword || '',
-                                pageId: linkedPages[0]?.id || ''
+                                topic: mergedContentData[activeArticle]?.title || '',
+                                objective: mergedContentData[activeArticle]?.strategy || '',
+                                keyword: mergedContentData[activeArticle]?.keyword || '',
+                                pageId: linkedPages[0]?.id || '',
+                                articleId: mergedContentData[activeArticle]?.id
                             }}
                             embeddedProjectId={projectId}
                             onClose={handleCloseAndReload}
                             onSave={async (article) => {
-                                await api.saveArticle(article);
+                                if (article.id) {
+                                    await api.updateArticle(article.id, article);
+                                } else {
+                                    await api.saveArticle(article);
+                                }
                                 handleCloseAndReload();
                             }}
                         />

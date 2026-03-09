@@ -20,6 +20,7 @@ interface ContentGeneratorProps {
         objective: string;
         keyword: string;
         pageId: string;
+        articleId?: string;
     };
     embeddedProjectId?: string;
     onClose?: () => void;
@@ -344,10 +345,17 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
           metaTitle: topic,
           metaDescription: result.metaDescription || '',
           status: 'published' as const,
-          publishedAt: new Date()
+          publishedAt: new Date(),
+          isGenerated: true
         };
 
-        const saved = await api.saveArticle(articlePayload);
+        let saved;
+        if (preFilledData?.articleId) {
+            await api.updateArticle(preFilledData.articleId, articlePayload as any);
+            saved = await api.getArticleById(preFilledData.articleId);
+        } else {
+            saved = await api.saveArticle(articlePayload as any);
+        }
         setSavedArticleResult(saved);
 
         clearInterval(progressInterval);
@@ -414,7 +422,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     addLog("Iniciando secuencia de guardado...");
 
     const articlePayload = {
-      id: editArticleId,
+      id: editArticleId || preFilledData?.articleId,
       pageId: selectedPageId || undefined,
       title: articleTitle,
       slug: slug || generateCleanSlug(articleTitle),
@@ -426,7 +434,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       metaTitle: metaTitle,
       metaDescription: metaDescription,
       status: status,
-      publishedAt: new Date(publishDate)
+      publishedAt: new Date(publishDate),
+      isGenerated: true
     };
 
     try {

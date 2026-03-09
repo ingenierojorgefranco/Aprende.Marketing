@@ -916,28 +916,30 @@ export const api = {
           localArticles = localArticles.map(a => a.id === id ? { ...a, ...article } : a);
           return Promise.resolve();
       }
+
+      const body: any = {};
+      if (article.pageId !== undefined) body.page_id = article.pageId;
+      if (article.projectId !== undefined) body.project_id = article.projectId;
+      if (article.isGenerated !== undefined) body.is_generated = article.isGenerated;
+      if (article.psychologicalStrategy !== undefined) body.psychological_strategy = article.psychologicalStrategy;
+      if (article.title !== undefined) body.title = article.title;
+      if (article.slug !== undefined) body.slug = article.slug;
+      if (article.description !== undefined) body.description = article.description;
+      if (article.contentHtml !== undefined) body.content_html = article.contentHtml;
+      if (article.featuredImage !== undefined) body.featured_image = article.featuredImage;
+      if (article.keyword !== undefined) body.keyword = article.keyword;
+      if (article.seoScore !== undefined) body.seo_score = article.seoScore;
+      if (article.metaTitle !== undefined) body.meta_title = article.metaTitle;
+      if (article.metaDescription !== undefined) body.meta_description = article.metaDescription;
+      if (article.emailSubject !== undefined) body.email_subject = article.emailSubject;
+      if (article.emailBody !== undefined) body.email_body = article.emailBody;
+      if (article.status !== undefined) body.status = article.status;
+      if (article.publishedAt !== undefined) body.published_at = article.publishedAt;
+
       await fetchWithFallback(`/articles/${id}`, {
           method: 'PUT',
           headers: getAuthHeaders(),
-          body: JSON.stringify({
-                page_id: article.pageId,
-                project_id: article.projectId,
-                is_generated: article.isGenerated,
-                psychological_strategy: article.psychologicalStrategy,
-                title: article.title,
-                slug: article.slug,
-                description: article.description,
-                content_html: article.contentHtml,
-                featured_image: article.featuredImage,
-                keyword: article.keyword,
-                seo_score: article.seoScore,
-                meta_title: article.metaTitle,
-                meta_description: article.metaDescription,
-                email_subject: article.emailSubject,
-                email_body: article.emailBody,
-                status: article.status,
-                published_at: article.publishedAt
-          })
+          body: JSON.stringify(body)
       });
       clearCache('articles');
       clearCache('articleDetails', id);
