@@ -183,7 +183,7 @@ export const generateFullStrategy = async (projectId) => {
     // 2. LOG DE ACCESO A BASE DE DATOS
     process.stdout.write(`[PIPELINE DB] Consultando base de datos para ID: ${projectId}...\n`);
     const [rows] = await pool.query(
-        "SELECT niche, product_name, brand_tone, full_price, commission_rate, lead_magnet_type, description, master_parent_id FROM projects WHERE id = ?",
+        "SELECT niche, product_name, brand_tone, full_price, commission_rate, lead_magnet_type, description FROM projects WHERE id = ?",
         [projectId]
     );
 
@@ -193,7 +193,7 @@ export const generateFullStrategy = async (projectId) => {
     }
     
     const projectData = rows[0];
-    const { niche, product_name: productName, brand_tone: brandTone, full_price: fullPrice, commission_rate: commissionRate, lead_magnet_type: leadMagnetType, master_parent_id: masterParentId } = projectData;
+    const { niche, product_name: productName, brand_tone: brandTone, full_price: fullPrice, commission_rate: commissionRate, lead_magnet_type: leadMagnetType  } = projectData;
 
     let step1Data;
 
@@ -738,20 +738,6 @@ export const generateFullStrategy = async (projectId) => {
         // 5. CONSOLIDACIÓN FINAL
         process.stdout.write(`[PIPELINE DEBUG] Ensamblando JSON final...\n`);
         
-        // Inyección de Artículos Maestros si es un clon
-        if (masterParentId) {
-            const [masterArticles] = await pool.query(
-                "SELECT title, description as strategy, keyword, search_volume as searchVolume FROM articles WHERE project_id = ?",
-                [masterParentId]
-            );
-            if (masterArticles.length > 0) {
-                step1Data.content = masterArticles.map((ma, idx) => ({
-                    id: idx + 1,
-                    ...ma
-                }));
-            }
-        }
-
         const finalJson = { 
             meta: step1Data.meta,
             avatars: step1Data.avatars,

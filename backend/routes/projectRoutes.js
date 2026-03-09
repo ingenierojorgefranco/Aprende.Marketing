@@ -217,30 +217,14 @@ router.get('/', async (req, res) => {
     const effectiveLimits = await getEffectiveLimits(req.user.id);
     const projectStatusMap = effectiveLimits.projectStatus || {};
 
-    const projects = await Promise.all(rows.map(async p => {
+    const projects = rows.map(p => {
         const status = projectStatusMap[p.id] || { planName: p.plan_slug || 'starter', isBlocked: false };
-        let strategy = safeParseJson(p.strategy_json);
-
-        // Inyección de Artículos Maestros si es un clon
-        if (p.master_parent_id) {
-            const [masterArticles] = await pool.query(
-                "SELECT title, description as strategy, keyword, search_volume as searchVolume FROM articles WHERE project_id = ?",
-                [p.master_parent_id]
-            );
-            if (masterArticles.length > 0 && strategy) {
-                strategy.content = masterArticles.map((ma, idx) => ({
-                    id: idx + 1,
-                    ...ma
-                }));
-            }
-        }
-
         return {
             ...p,
             pain_points: safeParseJson(p.pain_points),
             key_benefits: safeParseJson(p.key_benefits),
             affiliate_links: safeParseJson(p.affiliate_links),
-            strategy_json: strategy,
+            strategy_json: safeParseJson(p.strategy_json),
             planId: p.plan_id ? String(p.plan_id) : undefined,
             planSlug: status.planName,
             isBlocked: status.isBlocked,
@@ -248,7 +232,7 @@ router.get('/', async (req, res) => {
             isUnlocked: req.user.role === 'admin' ? true : !!p.is_unlocked,
             masterParentId: p.master_parent_id ? String(p.master_parent_id) : undefined
         };
-    }));
+    });
     res.json(projects);
   } catch (error) { res.status(500).json({ error: 'Error cargando proyectos' }); }
 });
@@ -266,26 +250,10 @@ router.get('/:id', async (req, res) => {
     const effectiveLimits = await getEffectiveLimits(req.user.id);
     const status = (effectiveLimits.projectStatus || {})[project.id] || { planName: project.plan_slug || 'starter', isBlocked: false };
 
-    let strategy = safeParseJson(project.strategy_json);
-
-    // Inyección de Artículos Maestros si es un clon
-    if (project.master_parent_id) {
-        const [masterArticles] = await pool.query(
-            "SELECT title, description as strategy, keyword, search_volume as searchVolume FROM articles WHERE project_id = ?",
-            [project.master_parent_id]
-        );
-        if (masterArticles.length > 0 && strategy) {
-            strategy.content = masterArticles.map((ma, idx) => ({
-                id: idx + 1,
-                ...ma
-            }));
-        }
-    }
-
     project.pain_points = safeParseJson(project.pain_points);
     project.key_benefits = safeParseJson(project.key_benefits);
     project.affiliate_links = safeParseJson(project.affiliate_links);
-    project.strategy_json = strategy;
+    project.strategy_json = safeParseJson(project.strategy_json);
     project.planId = project.plan_id ? String(project.plan_id) : undefined;
     project.planSlug = status.planName;
     project.isBlocked = status.isBlocked;
