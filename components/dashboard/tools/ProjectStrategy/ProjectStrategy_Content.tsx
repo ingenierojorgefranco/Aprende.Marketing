@@ -62,7 +62,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             );
             setLinkedArticles(projectArts);
 
-            // Lógica Híbrida: Combinar JSON con Base de Datos
+            // Lógica Exclusiva: Priorizar Base de Datos sobre JSON
             const jsonContent = contentData || [];
             const dbContent = projectArts.map(a => ({
                 id: a.id,
@@ -75,16 +75,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 slug: a.slug
             }));
 
-            // Priorizar DB Content (ordenado por creación en backend)
-            const combined = [...dbContent];
-            jsonContent.forEach(jsonItem => {
-                const exists = dbContent.some(db => db.title === jsonItem.title);
-                if (!exists) {
-                    combined.push(jsonItem);
-                }
-            });
-
-            setMergedContentData(combined);
+            // Si hay artículos en DB, mostrar solo esos. Si no, mostrar los del JSON.
+            const finalData = dbContent.length > 0 ? dbContent : jsonContent;
+            setMergedContentData(finalData);
         } catch (e) {
             console.error(e);
         } finally {
