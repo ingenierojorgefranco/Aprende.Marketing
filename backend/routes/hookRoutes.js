@@ -28,6 +28,9 @@ router.get('/project/:projectId', async (req, res) => {
 
         let hooks = [];
         if (masterParentId) {
+            const effectiveLimits = await getEffectiveLimits(req.user.id);
+            const isStarter = effectiveLimits.planName === 'starter';
+
             // Traer ganchos reales del usuario (clonados o manuales)
             const [userRows] = await pool.query(
                 'SELECT * FROM project_hooks WHERE project_id = ? ORDER BY created_at ASC',
@@ -35,13 +38,13 @@ router.get('/project/:projectId', async (req, res) => {
             );
 
             // Traer ganchos del maestro que no han sido clonados todavía
-            const [masterRows] = await pool.query(
-                `SELECT * FROM project_hooks 
+            // Si es starter, limitamos a 15 aleatorios
+            const masterQuery = `SELECT * FROM project_hooks 
                  WHERE project_id = ? 
                  AND id NOT IN (SELECT master_hook_id FROM project_hooks WHERE project_id = ? AND master_hook_id IS NOT NULL)
-                 ORDER BY created_at ASC`,
-                [masterParentId, projectId]
-            );
+                 ${isStarter ? 'ORDER BY RAND() LIMIT 15' : 'ORDER BY created_at ASC'}`;
+
+            const [masterRows] = await pool.query(masterQuery, [masterParentId, projectId]);
             
             const userHooks = userRows.map(h => ({
                 id: String(h.id),

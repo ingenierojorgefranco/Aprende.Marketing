@@ -422,6 +422,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-white">Ganchos Sugeridos</h4>
+                  <div className="mt-1 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                    Tienes disponibles {maxHooks} Hooks para este Proyecto
+                  </div>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -486,12 +489,26 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 md:p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl animate-in zoom-in-95">
                     <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-orange-500" /></div>
                     
-                    <div className="w-24 h-24 bg-orange-500/10 rounded-[2.5rem] flex items-center justify-center mb-8 border border-orange-500/20 shadow-lg shadow-orange-900/10 animate-pulse">
-                        <Lock className="w-12 h-12 text-orange-500" />
+                    <div className="w-full text-left mb-8">
+                      <h3 className="text-3xl font-black text-white mb-6 uppercase tracking-tight">{currentHook.title}</h3>
+                      
+                      <div className="bg-orange-500/5 rounded-2xl p-6 border border-orange-500/20 backdrop-blur-sm mb-8">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Brain className="w-5 h-5 text-orange-400" />
+                          <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
+                        </div>
+                        <p className="text-gray-300 text-lg font-light italic leading-relaxed">
+                          {currentHook.psychologicalStrategy}
+                        </p>
+                      </div>
                     </div>
 
-                    <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tight">Gancho Disponible en Biblioteca</h3>
-                    <p className="text-gray-400 text-lg leading-relaxed max-w-md mx-auto mb-10">Este ángulo estratégico pertenece a la biblioteca maestra de tu nicho. Desbloquéalo para generar el kit completo de contenido.</p>
+                    <div className="w-20 h-20 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6 border border-orange-500/20 shadow-lg animate-pulse">
+                        <Lock className="w-10 h-10 text-orange-500" />
+                    </div>
+
+                    <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Gancho Disponible en Biblioteca</h4>
+                    <p className="text-gray-400 text-base leading-relaxed max-w-md mx-auto mb-10">Nuestro sistema ha generado este Hook Magnético por ti. Haz clic en Desbloquear para ver todo el contenido.</p>
 
                     <button 
                         onClick={handleUnlockSingle}
