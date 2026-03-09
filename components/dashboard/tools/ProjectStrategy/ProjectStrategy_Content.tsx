@@ -36,6 +36,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [mergedContentData, setMergedContentData] = useState<any[]>([]);
     const [localEdit, setLocalEdit] = useState<any>(null);
+    const [editingField, setEditingField] = useState<string | null>(null);
 
     // Lógica de Paginación
     const [currentPage, setCurrentPage] = useState(1);
@@ -145,9 +146,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     isGenerated: false,
                     status: 'draft',
                     psychologicalStrategy: {
-                        focus: "",
-                        keyword: "",
-                        searchVolume: "",
+                        focus: "Describe el enfoque aquí...",
+                        keyword: "Keyword...",
+                        searchVolume: "0",
                         targetUrl: ""
                     }
                 };
@@ -280,75 +281,116 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Target className="w-40 h-40 text-purple-500" /></div>
                         
                         <div className="relative z-10 flex flex-col h-full">
-                            {localEdit ? (
-                                <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4">
-                                    <div className="flex justify-between items-center mb-6">
-                                        <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">Editando Estrategia</span>
-                                    </div>
-
-                                    <div className="space-y-6 flex-1">
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Título del Artículo</label>
-                                            <input 
-                                                type="text"
-                                                value={localEdit.title}
-                                                onChange={(e) => setLocalEdit({ ...localEdit, title: e.target.value })}
-                                                className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold text-xl outline-none focus:border-purple-500 transition-all"
-                                                placeholder="Título del artículo..."
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Enfoque Estratégico</label>
-                                            <textarea 
-                                                value={localEdit.strategy}
-                                                onChange={(e) => setLocalEdit({ ...localEdit, strategy: e.target.value })}
-                                                className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-gray-300 text-lg font-light outline-none focus:border-purple-500 transition-all min-h-[150px] resize-none"
-                                                placeholder="Describe el ángulo o propósito de este artículo..."
-                                            />
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Keyword SEO</label>
-                                                <input 
-                                                    type="text"
-                                                    value={localEdit.keyword}
-                                                    onChange={(e) => setLocalEdit({ ...localEdit, keyword: e.target.value })}
-                                                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-purple-300 font-bold outline-none focus:border-purple-500 transition-all"
-                                                    placeholder="Ej: como vender mas"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Vol. Búsqueda</label>
-                                                <input 
-                                                    type="text"
-                                                    value={localEdit.searchVolume}
-                                                    onChange={(e) => setLocalEdit({ ...localEdit, searchVolume: e.target.value })}
-                                                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-emerald-300 font-bold outline-none focus:border-purple-500 transition-all"
-                                                    placeholder="Ej: 1500"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-8 pt-8 border-t border-gray-800">
-                                        {isAtLimit ? (
-                                            <button onClick={onUpgrade} className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"><Crown className="w-6 h-6 fill-current" /> Límite Alcanzado: Subir a PRO</button>
-                                        ) : (
-                                            <button onClick={() => setShowConfirmModal(true)} disabled={selectedArticles.length === 0} className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg ${selectedArticles.length === 0 ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50 grayscale' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]'}`}><PenTool className="w-6 h-6" /> Escribir Artículo Seleccionado</button>
-                                        )}
-                                    </div>
-                                </div>
-                            ) : (
+                            {mergedContentData[activeArticle] ? (
                                 <>
                                 <div className="mb-auto">
-                                    <div className="flex justify-between items-center mb-4"><span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">Análisis de IA</span>{mergedContentData[activeArticle]?.isGenerated && (<span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20"><Check className="w-3 h-3" /> Generado</span>)}</div>
-                                    <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">{mergedContentData[activeArticle]?.title}</h3>
-                                    <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6"><h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 text-purple-400"/> Enfoque Estratégico del Artículo</h5><div className="max-h-[180px] overflow-y-auto custom-scrollbar"><p className="text-gray-300 text-xl leading-relaxed font-light">{mergedContentData[activeArticle]?.strategy}</p></div></div>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">
+                                            {mergedContentData[activeArticle].isFromDb && !mergedContentData[activeArticle].isGenerated ? 'Estrategia Manual' : 'Análisis de IA'}
+                                        </span>
+                                        {mergedContentData[activeArticle]?.isGenerated && (
+                                            <span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                                                <Check className="w-3 h-3" /> Generado
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {editingField === 'title' ? (
+                                        <input 
+                                            autoFocus
+                                            type="text"
+                                            value={localEdit?.title || ''}
+                                            onChange={(e) => setLocalEdit({ ...localEdit, title: e.target.value })}
+                                            onBlur={() => setEditingField(null)}
+                                            className="w-full bg-black/40 border border-purple-500/50 rounded-xl px-4 py-2 text-3xl md:text-4xl font-bold text-white mb-6 outline-none"
+                                        />
+                                    ) : (
+                                        <h3 
+                                            onClick={() => setEditingField('title')}
+                                            className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight cursor-pointer hover:text-purple-300 transition-colors"
+                                        >
+                                            {localEdit?.title || mergedContentData[activeArticle]?.title}
+                                        </h3>
+                                    )}
+
+                                    <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6">
+                                        <h5 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                                            <Sparkles className="w-4 h-4 text-purple-400"/> Enfoque Estratégico del Artículo
+                                        </h5>
+                                        <div className="max-h-[180px] overflow-y-auto custom-scrollbar">
+                                            {editingField === 'strategy' ? (
+                                                <textarea 
+                                                    autoFocus
+                                                    value={localEdit?.strategy || ''}
+                                                    onChange={(e) => setLocalEdit({ ...localEdit, strategy: e.target.value })}
+                                                    onBlur={() => setEditingField(null)}
+                                                    className="w-full bg-transparent text-gray-300 text-xl leading-relaxed font-light outline-none resize-none min-h-[100px]"
+                                                />
+                                            ) : (
+                                                <p 
+                                                    onClick={() => setEditingField('strategy')}
+                                                    className="text-gray-300 text-xl leading-relaxed font-light cursor-pointer hover:text-white transition-colors"
+                                                >
+                                                    {localEdit?.strategy || mergedContentData[activeArticle]?.strategy}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+
                                     <div className="space-y-4">
-                                        <div className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative" onMouseEnter={(e) => handleTooltipHover(e, ["Este artículo aparecerá en Google cuando tu cliente busque exactamente esta frase."])} onMouseLeave={handleTooltipLeave}><p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1"><Search className="w-3 h-3"/> Keyword SEO</p><p className="text-purple-300 font-bold text-lg leading-tight break-words">{mergedContentData[activeArticle]?.keyword}</p></div>
-                                        <div className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative" onMouseEnter={(e) => handleTooltipHover(e, ["Indica cuántas personas buscan esta frase al mes en promedio."])} onMouseLeave={handleTooltipLeave}><p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1"><BarChart className="w-3 h-3"/> Vol. Búsqueda</p><p className="text-emerald-300 font-bold text-lg leading-tight break-words">{mergedContentData[activeArticle]?.searchVolume || 'N/A'}</p></div>
+                                        <div 
+                                            className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative" 
+                                            onMouseEnter={(e) => handleTooltipHover(e, ["Este artículo aparecerá en Google cuando tu cliente busque exactamente esta frase."])} 
+                                            onMouseLeave={handleTooltipLeave}
+                                        >
+                                            <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
+                                                <Search className="w-3 h-3"/> Keyword SEO
+                                            </p>
+                                            {editingField === 'keyword' ? (
+                                                <input 
+                                                    autoFocus
+                                                    type="text"
+                                                    value={localEdit?.keyword || ''}
+                                                    onChange={(e) => setLocalEdit({ ...localEdit, keyword: e.target.value })}
+                                                    onBlur={() => setEditingField(null)}
+                                                    className="w-full bg-transparent text-purple-300 font-bold text-lg text-center outline-none"
+                                                />
+                                            ) : (
+                                                <p 
+                                                    onClick={() => setEditingField('keyword')}
+                                                    className="text-purple-300 font-bold text-lg leading-tight break-words cursor-pointer hover:text-purple-100 transition-colors"
+                                                >
+                                                    {localEdit?.keyword || mergedContentData[activeArticle]?.keyword}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div 
+                                            className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative" 
+                                            onMouseEnter={(e) => handleTooltipHover(e, ["Indica cuántas personas buscan esta frase al mes en promedio."])} 
+                                            onMouseLeave={handleTooltipLeave}
+                                        >
+                                            <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
+                                                <BarChart className="w-3 h-3"/> Vol. Búsqueda
+                                            </p>
+                                            {editingField === 'searchVolume' ? (
+                                                <input 
+                                                    autoFocus
+                                                    type="text"
+                                                    value={localEdit?.searchVolume || ''}
+                                                    onChange={(e) => setLocalEdit({ ...localEdit, searchVolume: e.target.value })}
+                                                    onBlur={() => setEditingField(null)}
+                                                    className="w-full bg-transparent text-emerald-300 font-bold text-lg text-center outline-none"
+                                                />
+                                            ) : (
+                                                <p 
+                                                    onClick={() => setEditingField('searchVolume')}
+                                                    className="text-emerald-300 font-bold text-lg leading-tight break-words cursor-pointer hover:text-emerald-100 transition-colors"
+                                                >
+                                                    {localEdit?.searchVolume || mergedContentData[activeArticle]?.searchVolume || 'N/A'}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="mt-8 pt-8 border-t border-gray-800 space-y-4">
@@ -366,6 +408,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     )}
                                 </div>
                                 </>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-40">
+                                    <FileText className="w-16 h-16 text-gray-600" />
+                                    <p className="text-gray-500 font-medium">Selecciona una estrategia para ver los detalles</p>
+                                </div>
                             )}
                         </div>
                     </div>

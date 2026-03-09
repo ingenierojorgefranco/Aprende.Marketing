@@ -60,10 +60,7 @@ router.get('/articles/:id', authMiddleware, async (req, res) => {
 });
 
 router.post('/articles', authMiddleware, async (req, res) => {
-  const { title, description, content_html, keyword, seo_score, page_id, project_id, is_generated, psychological_strategy, slug, featured_image, meta_title, meta_description, email_subject, email_body, status, published_at } = req.body;
-  let finalSlug = slug;
-  if (!finalSlug && title) { finalSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
-  
+  const body = req.body;
   try {
     const effectiveLimits = await getEffectiveLimits(req.user.id);
     const limit = effectiveLimits.maxArticles;
@@ -74,33 +71,43 @@ router.post('/articles', authMiddleware, async (req, res) => {
             return res.status(403).json({ error: `Has alcanzado el límite de ${limit} artículos en tu plan.` });
         }
     }
+
+    const fields = ['user_id', 'created_at'];
+    const placeholders = ['?', 'NOW()'];
+    const values = [req.user.id];
+
+    const allowedFields = [
+      'page_id', 'project_id', 'is_generated', 'psychological_strategy', 
+      'title', 'slug', 'description', 'content_html', 'featured_image', 
+      'keyword', 'seo_score', 'meta_title', 'meta_description', 
+      'email_subject', 'email_body', 'status', 'published_at'
+    ];
+
+    for (const field of allowedFields) {
+      if (body.hasOwnProperty(field)) {
+        fields.push(field);
+        placeholders.push('?');
+        let val = body[field];
+        if (field === 'is_generated') val = val ? 1 : 0;
+        if (field === 'psychological_strategy' && typeof val === 'object') val = JSON.stringify(val);
+        if (field === 'published_at' && val) val = new Date(val);
+        values.push(val);
+      }
+    }
+
+    // Default status if not provided
+    if (!body.hasOwnProperty('status')) {
+      fields.push('status');
+      placeholders.push('?');
+      values.push('published');
+    }
+
     const [resDb] = await pool.query(
-      `INSERT INTO articles 
-      (user_id, page_id, project_id, is_generated, psychological_strategy, title, slug, description, content_html, keyword, seo_score, featured_image, meta_title, meta_description, email_subject, email_body, status, published_at, created_at) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [
-        req.user.id, 
-        page_id || null, 
-        project_id || null, 
-        is_generated ? 1 : 0, 
-        typeof psychological_strategy === 'object' ? JSON.stringify(psychological_strategy) : (psychological_strategy || null),
-        title, 
-        finalSlug, 
-        description, 
-        content_html, 
-        keyword, 
-        seo_score, 
-        featured_image, 
-        meta_title, 
-        meta_description, 
-        email_subject || null, 
-        email_body || null, 
-        status || 'published', 
-        published_at ? new Date(published_at) : new Date()
-      ]
+      `INSERT INTO articles (${fields.join(', ')}) VALUES (${placeholders.join(', ')})`,
+      values
     );
     
-    await logSystemActivity(req.user.id, req.user.email, 'CREATE_ARTICLE', 'article', resDb.insertId, { title });
+    await logSystemActivity(req.user.id, req.user.email, 'CREATE_ARTICLE', 'article', resDb.insertId, { title: body.title || 'Sin título' });
     res.json({ id: resDb.insertId });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
