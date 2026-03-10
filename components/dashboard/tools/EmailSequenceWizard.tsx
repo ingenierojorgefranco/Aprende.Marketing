@@ -19,12 +19,17 @@ interface DashboardContext {
     pageCount: number;
 }
 
-export const EmailSequenceWizard: React.FC = () => {
+interface EmailSequenceWizardProps {
+    embeddedProjectId?: string;
+    onClose?: () => void;
+}
+
+export const EmailSequenceWizard: React.FC<EmailSequenceWizardProps> = ({ embeddedProjectId, onClose }) => {
     const navigate = useNavigate();
     const { user } = useOutletContext() as DashboardContext;
     /* */ /* Actualización: Extracción de parámetros de búsqueda para navegación profunda - 25/05/2024 18:15 */
     const [searchParams] = useSearchParams();
-    const urlProjectId = searchParams.get('projectId');
+    const urlProjectId = embeddedProjectId || searchParams.get('projectId');
     const urlDay = searchParams.get('day');
     /* Fin de actualización - 25/05/2024 18:15 */
 

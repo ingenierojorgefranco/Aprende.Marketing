@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { WhatsAppLaunch, User, Project } from '../../../types';
-import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers, Crown, X, AlertCircle } from 'lucide-react';
+import { Smartphone, Plus, Loader2, Trash2, Calendar, Edit3, Smartphone as WaIcon, CheckCircle2, PlayCircle, Layers, Crown, X, AlertCircle, ArrowLeft, ChevronRight, Briefcase } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
+import { WhatsAppLaunchWizard } from './WhatsAppLaunchWizard';
 
 export const WhatsAppLaunchManager: React.FC = () => {
     const navigate = useNavigate();
@@ -19,6 +20,12 @@ export const WhatsAppLaunchManager: React.FC = () => {
     const [showRestrictionModal, setShowRestrictionModal] = useState(false);
     const [launchToRestrict, setLaunchToRestrict] = useState<WhatsAppLaunch | null>(null);
     // ----------------------------------------------------
+
+    // --- Estados para el Wizard Embebido ---
+    const [isWizardOpen, setIsWizardOpen] = useState(false);
+    const [wizardStep, setWizardStep] = useState(0);
+    const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+    // --------------------------------------
 
     useEffect(() => {
         loadLaunches();
@@ -85,7 +92,14 @@ export const WhatsAppLaunchManager: React.FC = () => {
             setShowUpgradeModal(true);
             return;
         }
-        navigate('/dashboard/whatsapp-launch/create');
+        setSelectedProjectId(null);
+        setWizardStep(0);
+        setIsWizardOpen(true);
+    };
+
+    const handleProjectSelect = (projectId: string) => {
+        setSelectedProjectId(projectId);
+        setWizardStep(1);
     };
 
     return (
@@ -100,97 +114,183 @@ export const WhatsAppLaunchManager: React.FC = () => {
             />
 
             {/* HEADER */}
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-white/5 shadow-2xl">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-                <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div className="flex-1 space-y-4 text-center md:text-left">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] shadow-sm">
-                            <Smartphone className="w-3 h-3" /> WhatsApp: Lanzamientos Meteóricos
-                        </div>
-                        <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
-                            Genera Picos de <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-400">Ventas Masivas</span>
-                        </h1>
-                        <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-2xl leading-[1.625] font-medium">
-                            Crea la secuencia perfecta de 14 mensajes estratégicos para grupos de WhatsApp. Activa los gatillos de comunidad, escasez y urgencia en tiempo real.
-                        </p>
-                        
-                        <div className="pt-4 max-w-md mx-auto md:mx-0">
-                            <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 shadow-inner space-y-4">
-                                <div>
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Lanzamientos Activos</span>
-                                        <span className="text-white font-bold">{currentCount} / {isRealAdmin ? '∞' : maxLaunches}</span>
+            {!isWizardOpen && (
+                <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-white/5 shadow-2xl">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                    <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+                        <div className="flex-1 space-y-4 text-center md:text-left">
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] shadow-sm">
+                                <Smartphone className="w-3 h-3" /> WhatsApp: Lanzamientos Meteóricos
+                            </div>
+                            <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
+                                Genera Picos de <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-400">Ventas Masivas</span>
+                            </h1>
+                            <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-2xl leading-[1.625] font-medium">
+                                Crea la secuencia perfecta de 14 mensajes estratégicos para grupos de WhatsApp. Activa los gatillos de comunidad, escasez y urgencia en tiempo real.
+                            </p>
+                            
+                            <div className="pt-4 max-w-md mx-auto md:mx-0">
+                                <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 shadow-inner space-y-4">
+                                    <div>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Lanzamientos Activos</span>
+                                            <span className="text-white font-bold">{currentCount} / {isRealAdmin ? '∞' : maxLaunches}</span>
+                                        </div>
+                                        <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                            <div 
+                                                className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} 
+                                                style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}
+                                            ></div>
+                                        </div>
                                     </div>
-                                    <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                        <div 
-                                            className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} 
-                                            style={{ width: `${isRealAdmin ? (currentCount > 0 ? 100 : 0) : usagePercent}%` }}
-                                        ></div>
-                                    </div>
+                                    {isAtLimit && (
+                                        <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30">
+                                            <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                                            <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
+                                        </div>
+                                    )}
                                 </div>
-                                {isAtLimit && (
-                                    <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30">
-                                        <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
-                                        <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
-                                    </div>
+                            </div>
+                        </div>
+
+                        <div className="shrink-0 flex flex-col gap-6 w-full md:w-[400px]">
+                            {/* Contenedor de Video Interactivo */}
+                            <div 
+                                className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
+                            >
+                                <iframe 
+                                    className="w-full h-full rounded-2xl"
+                                    src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                                    title="Video Tutorial" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowFullScreen
+                                ></iframe>
+                            </div>
+
+                            {/* Botones centrados debajo del video */}
+                            <div className="flex flex-col gap-3">
+                                {isAtLimit ? (
+                                    <button 
+                                        onClick={() => setShowUpgradeModal(true)}
+                                        className="w-full px-8 py-4 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98]"
+                                    >
+                                        <Crown className="w-5 h-5 fill-current" /> Límite Alcanzado: Subir a PRO
+                                    </button>
+                                ) : (
+                                    <button 
+                                        onClick={handleCreateNew}
+                                        className="w-full px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
+                                    >
+                                        <Plus className="w-4 h-4" /> Nuevo Lanzamiento
+                                    </button>
                                 )}
                             </div>
                         </div>
                     </div>
+                </div>
+            )}
 
-                    <div className="shrink-0 flex flex-col gap-6 w-full md:w-[400px]">
-                        {/* Contenedor de Video Interactivo */}
-                        <div 
-                            className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
-                        >
-                            <iframe 
-                                className="w-full h-full rounded-2xl"
-                                src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
-                                title="Video Tutorial" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                            ></iframe>
+            {isWizardOpen && (
+                <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${wizardStep === 0 ? 'max-w-5xl' : 'max-w-[90rem]'} animate-in fade-in duration-500`}>
+                    <div className="bg-emerald-600/10 p-8 text-center border-b border-emerald-500/10 relative">
+                        <button onClick={() => wizardStep === 0 ? setIsWizardOpen(false) : setWizardStep(0)} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+                            <ArrowLeft className="w-6 h-6" />
+                        </button>
+                        <button onClick={() => setIsWizardOpen(false)} className="absolute top-6 right-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+                            <X className="w-6 h-6" />
+                        </button>
+                        <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
+                            <Smartphone className="w-8 h-8 text-emerald-400" />
                         </div>
-
-                        {/* Botones centrados debajo del video */}
-                        <div className="flex flex-col gap-3">
-                            {isAtLimit ? (
-                                <button 
-                                    onClick={() => setShowUpgradeModal(true)}
-                                    className="w-full px-8 py-4 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98]"
-                                >
-                                    <Crown className="w-5 h-5 fill-current" /> Límite Alcanzado: Subir a PRO
-                                </button>
-                            ) : (
-                                <button 
-                                    onClick={handleCreateNew}
-                                    className="w-full px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
-                                >
-                                    <Plus className="w-4 h-4" /> Nuevo Lanzamiento
-                                </button>
-                            )}
+                        <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Lanzamientos WhatsApp</h2>
+                        <div className="flex items-center justify-center gap-2 mt-4 text-sm">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 0 ? 'bg-emerald-600 text-white' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
+                            <div className="w-4 h-px bg-gray-700"></div>
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 1 ? 'bg-emerald-600 text-white' : 'bg-gray-800 text-gray-500'}`}>1. Configuración</span>
                         </div>
                     </div>
+
+                    <div className="p-8 flex-1 overflow-y-auto relative">
+                        {wizardStep === 0 ? (
+                            <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
+                                <div className="max-w-2xl mx-auto">
+                                    <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
+                                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-green-500">Selecciona tu Proyecto</span>
+                                    </h2>
+                                    <p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra IA generará una secuencia de 14 mensajes basada en la estrategia de tu proyecto.</p>
+                                </div>
+                                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                                    {/* CARD: CREAR NUEVO PROYECTO - PRIMERO */}
+                                    <div 
+                                        className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
+                                        onClick={() => navigate('/dashboard/projects')}
+                                    >
+                                        <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-emerald-500/10 group-hover:text-emerald-500 transition-all shadow-lg mb-6">
+                                            <Plus className="w-10 h-10" />
+                                        </div>
+                                        <h4 className="text-white font-black text-2xl group-hover:text-emerald-500 transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                                        <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para tu lanzamiento</p>
+                                    </div>
+
+                                    {projects.map((project) => (
+                                        <div 
+                                            key={project.id} 
+                                            className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full cursor-pointer" 
+                                            onClick={() => handleProjectSelect(project.id)}
+                                        >
+                                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                            <div className="flex items-center gap-5 mb-8">
+                                                <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-emerald-500/10 group-hover:text-emerald-500 transition-colors shadow-inner">
+                                                    <Briefcase className="w-8 h-8" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-white font-black text-2xl group-hover:text-emerald-500 transition-colors truncate">{project.name}</h4>
+                                                    <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex-1 mb-10">
+                                                <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
+                                                <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p>
+                                            </div>
+                                            <button className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">
+                                                Seleccionar <ChevronRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="animate-in slide-in-from-right-4 duration-500">
+                                <WhatsAppLaunchWizard 
+                                    embeddedProjectId={selectedProjectId!}
+                                    onClose={() => setIsWizardOpen(false)}
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* SECCIÓN: MIS LANZAMIENTOS */}
-            <div className="space-y-6">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                    <div className="flex items-center gap-4 border-l-4 border-emerald-500 pl-4 py-1 pb-5">
-                        <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-500 border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
-                            <Smartphone className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Lanzamientos</h2>
-                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tus estrategias de cierre masivo por WhatsApp</p>
+            {!isWizardOpen && (
+                <div className="space-y-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                        <div className="flex items-center gap-4 border-l-4 border-emerald-500 pl-4 py-1 pb-5">
+                            <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-500 border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+                                <Smartphone className="w-8 h-8" />
+                            </div>
+                            <div>
+                                <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Lanzamientos</h2>
+                                <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tus estrategias de cierre masivo por WhatsApp</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* GRID DE LANZAMIENTOS */}
-            <div className="space-y-8">
+            {!isWizardOpen && (
+                <div className="space-y-8">
                 {loading ? (
                     <div className="flex justify-center p-20 text-emerald-400"><Loader2 className="w-12 h-12 animate-spin" /></div>
                 ) : launches.length > 0 ? (
@@ -278,6 +378,7 @@ export const WhatsAppLaunchManager: React.FC = () => {
                     </div>
                 )}
             </div>
+            )}
 
             {showVideoModal && (
                 <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-300">
