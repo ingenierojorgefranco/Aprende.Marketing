@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, useParams, useOutletContext } from 'react-router-dom';
 import { 
     Smartphone, Briefcase, ChevronRight, ArrowLeft, 
-    Zap, Loader2, Sparkles, Wand2, Copy, 
+    Zap, Loader2, Sparkles, Wand2, Copy, Plus,
     CheckCircle2, Clock, Info, Save, X, Trash2, Edit3, MessageCircle,
     Lightbulb, Settings2, User as UserIcon, Smartphone as WaIcon, ChevronDown, Check, Lock
 } from 'lucide-react';
@@ -80,11 +80,13 @@ interface DashboardContext {
     user: User;
 }
 
-export const WhatsAppLaunchWizard: React.FC = () => {
+export const WhatsAppLaunchWizard: React.FC<{ onClose?: () => void; editLaunchId?: string }> = ({ onClose, editLaunchId }) => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { user } = useOutletContext() as DashboardContext;
-    const { launchId } = useParams() as { launchId?: string };
+    const { launchId: routeLaunchId } = useParams() as { launchId?: string };
+    const launchId = editLaunchId || routeLaunchId;
+    
     const urlProjectId = searchParams.get('projectId');
     
     const [step, setStep] = useState(0); // 0: Select Project, 1: Edit
@@ -262,7 +264,7 @@ export const WhatsAppLaunchWizard: React.FC = () => {
     }
 
     return (
-        <div className="max-w-[1400px] mx-auto bg-gray-900 rounded-[3rem] shadow-2xl border border-white/5 overflow-hidden min-h-[600px] flex flex-col relative animate-in fade-in duration-500">
+        <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step === 0 ? 'max-w-5xl' : 'max-w-[90rem]'} animate-in fade-in duration-500`}>
             {generating && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md">
                     <div className="bg-[#0B0B0B] border border-white/10 p-12 rounded-[3rem] shadow-2xl flex flex-col items-center gap-6 animate-in zoom-in-95">
@@ -275,6 +277,16 @@ export const WhatsAppLaunchWizard: React.FC = () => {
             <div className="bg-emerald-500/10 p-8 text-center border-b border-emerald-500/10 shrink-0 relative">
                 <button 
                     onClick={() => { 
+                        if (onClose) {
+                            if (step === 0 || launchId || urlProjectId) {
+                                onClose();
+                            } else {
+                                setStep(0);
+                                setSelectedProject(null);
+                                setActiveLaunch(null);
+                            }
+                            return;
+                        }
                         if (step === 0 || launchId || urlProjectId) {
                             navigate('/dashboard/whatsapp-launch'); 
                         } else {
@@ -292,33 +304,62 @@ export const WhatsAppLaunchWizard: React.FC = () => {
                     <Smartphone className="w-8 h-8 text-emerald-400" />
                 </div>
                 <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Asistente de Lanzamiento de WhatsApp</h2>
+                <div className="flex items-center justify-center gap-2 mt-4 text-sm">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 0 ? 'bg-emerald-600 text-white' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
+                    <div className="w-4 h-px bg-gray-700"></div>
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 1 ? 'bg-emerald-600 text-white' : 'bg-gray-800 text-gray-500'}`}>1. Mensajes</span>
+                </div>
                 {selectedProject && <p className="text-[10px] text-emerald-400 font-black uppercase tracking-[0.3em] mt-2">Proyecto: {selectedProject.name}</p>}
             </div>
 
             <div className="p-8 md:p-12 flex-1 overflow-y-auto">
                 {step === 0 ? (
-                    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto py-10">
-                        {projects.map((project) => (
+                    <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
+                        <div className="max-w-2xl mx-auto">
+                            <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-green-500">Selecciona tu Proyecto</span>
+                            </h2>
+                            <p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra inteligencia artificial necesita conocer tu estrategia y avatar para generar los mejores ganchos.</p>
+                        </div>
+                        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                            {/* CARD: CREAR NUEVO PROYECTO */}
                             <div 
-                                key={project.id}
-                                onClick={() => handleProjectSelect(project)}
-                                className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-left group flex flex-col shadow-2xl cursor-pointer relative overflow-hidden h-full"
+                                className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
+                                onClick={() => navigate('/dashboard/projects')}
                             >
-                                <div className="flex items-center gap-5 mb-8">
-                                    <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-emerald-500/10 group-hover:text-emerald-500 transition-colors shadow-inner">
-                                        <Briefcase className="w-8 h-8" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h4 className="text-white font-black text-2xl group-hover:text-emerald-500 transition-colors truncate">{project.name}</h4>
-                                        <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
-                                    </div>
+                                <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-emerald-500/10 group-hover:text-emerald-500 transition-all shadow-lg mb-6">
+                                    <Plus className="w-10 h-10" />
                                 </div>
-                                <p className="text-gray-400 text-lg leading-relaxed font-medium mb-10 line-clamp-2">{project.shortDescription || "Sin descripción estratégica."}</p>
-                                <button className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all flex items-center justify-center gap-3">
-                                    Configurar Secuencia <ChevronRight className="w-5 h-5" />
-                                </button>
+                                <h4 className="text-white font-black text-2xl group-hover:text-emerald-500 transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                                <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar ganchos</p>
                             </div>
-                        ))}
+
+                            {projects.map((project) => (
+                                <div 
+                                    key={project.id}
+                                    onClick={() => handleProjectSelect(project)}
+                                    className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-left group flex flex-col shadow-2xl cursor-pointer relative overflow-hidden h-full"
+                                >
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="flex items-center gap-5 mb-8">
+                                        <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-emerald-500/10 group-hover:text-emerald-500 transition-colors shadow-inner">
+                                            <Briefcase className="w-8 h-8" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="text-white font-black text-2xl group-hover:text-emerald-500 transition-colors truncate">{project.name}</h4>
+                                            <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 mb-10">
+                                        <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
+                                        <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción estratégica.")}</p>
+                                    </div>
+                                    <button className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">
+                                        Seleccionar <ChevronRight className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 ) : activeLaunch && (
                     <div className="grid lg:grid-cols-12 gap-10 items-stretch">

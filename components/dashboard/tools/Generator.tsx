@@ -440,7 +440,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
   ];
 
   return (
-    <div className={`max-w-5xl mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative ${onClose ? 'max-h-[90vh]' : ''}`}>
+    <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step === 0 ? 'max-w-5xl' : 'max-w-[90rem]'} ${onClose ? 'max-h-[90vh]' : ''}`}>
       <style>{`
         @keyframes confetti-fall {
           0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
@@ -486,11 +486,11 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
         </div>
         <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Landing Pages IA</h2>
         <div className="flex items-center justify-center gap-2 mt-4 text-sm">
-           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 0 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
+           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 0 ? 'bg-primary text-white' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
            <div className="w-4 h-px bg-gray-700"></div>
-           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 1 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>1. Configuración</span>
+           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 1 ? 'bg-primary text-white' : 'bg-gray-800 text-gray-500'}`}>1. Configuración</span>
            <div className="w-4 h-px bg-gray-700"></div>
-           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 2 ? 'bg-primary text-white font-bold' : 'bg-gray-800 text-gray-500'}`}>2. Estructura y Diseño</span>
+           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${step === 2 ? 'bg-primary text-white' : 'bg-gray-800 text-gray-500'}`}>2. Diseño</span>
         </div>
       </div>
 
@@ -629,7 +629,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                 )}
 
                 {step === 0 && (
-                <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center">
+                <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
                     <div className="max-w-2xl mx-auto">
                         <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500">
@@ -642,65 +642,50 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
                     </div>
 
                     <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
-                        {userProjects.length > 0 ? (
-                            userProjects.map((project) => (
-                                <div 
-                                    key={project.id}
-                                    className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full"
-                                >
-                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="flex items-center gap-5 mb-8">
-                                        <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors shadow-inner">
-                                            <Briefcase className="w-8 h-8" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors truncate">{project.name}</h4>
-                                            <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
-                                        </div>
+                        {/* CARD: CREAR NUEVO PROYECTO */}
+                        <div 
+                            className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
+                            onClick={() => navigate('/dashboard/projects')}
+                        >
+                            <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg mb-6">
+                                <Plus className="w-10 h-10" />
+                            </div>
+                            <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                            <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar ganchos</p>
+                        </div>
+
+                        {userProjects.map((project) => (
+                            <div 
+                                key={project.id}
+                                onClick={() => {
+                                    handleProjectSelect(project.id);
+                                    setStep(1);
+                                }}
+                                className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex flex-col shadow-2xl cursor-pointer relative overflow-hidden h-full"
+                            >
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="flex items-center gap-5 mb-8">
+                                    <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors shadow-inner">
+                                        <Briefcase className="w-8 h-8" />
                                     </div>
-                                    <div className="flex-1 mb-10">
-                                        <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
-                                        <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                                            {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}
-                                        </p>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors truncate">{project.name}</h4>
+                                        <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
                                     </div>
-                                    <button 
-                                        onClick={() => {
-                                            handleProjectSelect(project.id);
-                                            setStep(1);
-                                        }}
-                                        className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95"
-                                    >
-                                        Seleccionar <ChevronRight className="w-5 h-5" />
-                                    </button>
                                 </div>
-                            ))
-                        ) : (
-                            <div className="md:col-span-2 py-20 bg-black/20 border border-dashed border-gray-800 rounded-[3rem] text-center w-full">
-                                <p className="text-gray-500 mb-6 font-medium">Aún no tienes proyectos creados con estrategia.</p>
+                                <div className="flex-1 mb-10">
+                                    <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
+                                    <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                        {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción estratégica.")}
+                                    </p>
+                                </div>
                                 <button 
-                                    onClick={() => navigate('/dashboard/projects/create')}
-                                    className="px-8 py-3 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20"
+                                    className="w-full py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95"
                                 >
-                                    Crear mi primer proyecto
+                                    Seleccionar <ChevronRight className="w-5 h-5" />
                                 </button>
                             </div>
-                        )}
-                        
-                        {userProjects.length > 0 && (
-                            <button 
-                                onClick={() => navigate('/dashboard/projects/create')}
-                                className="p-10 bg-transparent border-2 border-dashed border-gray-800 rounded-[3rem] hover:border-gray-600 hover:text-white transition-all text-gray-500 group flex flex-col items-center justify-center gap-6 shadow-2xl min-h-[400px]"
-                            >
-                                <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center shadow-lg group-hover:bg-gray-700 transition-colors">
-                                    <Plus className="w-8 h-8 text-gray-400 group-hover:text-white" />
-                                </div>
-                                <div className="text-center">
-                                    <h4 className="text-xl font-black uppercase tracking-widest">Crear un nuevo proyecto</h4>
-                                    <p className="text-xs font-bold uppercase tracking-widest mt-2 opacity-60">Define un nuevo nicho o producto</p>
-                                </div>
-                            </button>
-                        )}
+                        ))}
                     </div>
                 </div>
                 )}
