@@ -455,6 +455,7 @@ export interface Article {
   };
   status: 'published' | 'draft' | 'scheduled';
   isGenerated?: boolean;
+  isUnlocked?: boolean;
   publishedAt: Date;
   createdAt: Date;
 }

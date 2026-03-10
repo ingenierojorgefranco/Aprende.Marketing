@@ -45,31 +45,137 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
         const [proj] = await pool.query('SELECT master_parent_id FROM projects WHERE id = ?', [projectId]);
         const masterParentId = proj[0]?.master_parent_id;
 
-        // 2. Consultar artículos del proyecto actual O del proyecto maestro
-        let query = `
-            SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
-            FROM articles a
-            LEFT JOIN landing_pages lp ON a.page_id = lp.id
-            LEFT JOIN projects p ON a.project_id = p.id
-            WHERE (a.project_id = ? OR (a.project_id = ? AND ? IS NOT NULL))
-            ORDER BY a.created_at DESC
-        `;
-        
-        const [rows] = await pool.query(query, [projectId, masterParentId, masterParentId]);
+        let articles = [];
+        if (masterParentId) {
+            // Traer artículos reales del usuario (clonados o manuales)
+            const [userRows] = await pool.query(
+                `SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
+                 FROM articles a 
+                 LEFT JOIN landing_pages lp ON a.page_id = lp.id 
+                 LEFT JOIN projects p ON a.project_id = p.id
+                 WHERE a.project_id = ? ORDER BY a.created_at DESC`,
+                [projectId]
+            );
 
-        const mapped = rows.map(a => ({
-            ...a,
-            projectId: a.project_id ? String(a.project_id) : undefined,
-            masterArticleId: a.master_article_id ? String(a.master_article_id) : undefined,
-            projectName: a.project_name,
-            pageId: a.page_id ? String(a.page_id) : undefined,
-            pageName: a.page_name,
-            pageSubdomain: a.page_subdomain,
-            isGenerated: !!a.is_generated,
-            psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
-        }));
+            // Traer artículos del maestro que no han sido clonados todavía
+            const [masterRows] = await pool.query(
+                `SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
+                 FROM articles a
+                 LEFT JOIN landing_pages lp ON a.page_id = lp.id
+                 LEFT JOIN projects p ON a.project_id = p.id
+                 WHERE a.project_id = ? 
+                 AND a.id NOT IN (SELECT master_article_id FROM articles WHERE project_id = ? AND master_article_id IS NOT NULL)
+                 ORDER BY a.created_at DESC`,
+                [masterParentId, projectId]
+            );
 
-        res.json(mapped);
+            const userArticles = userRows.map(a => ({
+                ...a,
+                id: String(a.id),
+                projectId: String(projectId),
+                masterArticleId: a.master_article_id ? String(a.master_article_id) : undefined,
+                projectName: a.project_name,
+                pageId: a.page_id ? String(a.page_id) : undefined,
+                pageName: a.page_name,
+                pageSubdomain: a.page_subdomain,
+                isUnlocked: true,
+                isGenerated: !!a.is_generated,
+                psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
+            }));
+
+            const availableArticles = masterRows.map(a => ({
+                ...a,
+                id: `available-${a.id}`,
+                masterArticleId: String(a.id),
+                projectId: String(projectId),
+                projectName: a.project_name,
+                pageId: undefined,
+                pageName: undefined,
+                pageSubdomain: undefined,
+                isUnlocked: false,
+                isGenerated: false,
+                psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
+                content_html: null // No enviamos el contenido hasta que se desbloquee
+            }));
+
+            articles = [...userArticles, ...availableArticles];
+        } else {
+            const [rows] = await pool.query(
+                `SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
+                 FROM articles a 
+                 LEFT JOIN landing_pages lp ON a.page_id = lp.id 
+                 LEFT JOIN projects p ON a.project_id = p.id
+                 WHERE a.project_id = ? ORDER BY a.created_at DESC`,
+                [projectId]
+            );
+            articles = rows.map(a => ({
+                ...a,
+                id: String(a.id),
+                projectId: String(a.project_id),
+                masterArticleId: a.master_article_id ? String(a.master_article_id) : undefined,
+                projectName: a.project_name,
+                pageId: a.page_id ? String(a.page_id) : undefined,
+                pageName: a.page_name,
+                pageSubdomain: a.page_subdomain,
+                isUnlocked: true,
+                isGenerated: !!a.is_generated,
+                psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
+            }));
+        }
+
+        res.json(articles);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+/**
+ * Desbloquea un artículo individual desde la biblioteca maestra (Copia física)
+ */
+router.post('/unlock-article', authMiddleware, async (req, res) => {
+    const { projectId, masterArticleId } = req.body;
+    if (!projectId || !masterArticleId) return res.status(400).json({ error: "Faltan parámetros" });
+
+    try {
+        const effectiveLimits = await getEffectiveLimits(req.user.id);
+        const limit = effectiveLimits.maxArticles;
+
+        if (req.user.role !== 'admin') {
+            const [countRows] = await pool.query('SELECT COUNT(*) as total FROM articles WHERE user_id = ?', [req.user.id]);
+            if (countRows[0].total >= limit) {
+                return res.status(403).json({ error: `Has alcanzado el límite de ${limit} artículos en tu plan.` });
+            }
+        }
+
+        const [masterRows] = await pool.query('SELECT * FROM articles WHERE id = ?', [masterArticleId]);
+        if (masterRows.length === 0) return res.status(404).json({ error: "Artículo maestro no encontrado" });
+        const master = masterRows[0];
+
+        const fields = ['user_id', 'project_id', 'master_article_id', 'created_at', 'status'];
+        const placeholders = ['?', '?', '?', 'NOW()', '?'];
+        const values = [req.user.id, projectId, master.id, 'published'];
+
+        const allowedFields = [
+            'psychological_strategy', 'title', 'slug', 'description', 'content_html', 
+            'featured_image', 'keyword', 'seo_score', 'meta_title', 'meta_description', 
+            'email_subject', 'email_body'
+        ];
+
+        for (const field of allowedFields) {
+            if (master[field] !== null && master[field] !== undefined) {
+                fields.push(field);
+                placeholders.push('?');
+                values.push(master[field]);
+            }
+        }
+
+        const [result] = await pool.query(
+            `INSERT INTO articles (${fields.join(', ')}) VALUES (${placeholders.join(', ')})`,
+            values
+        );
+
+        await logSystemActivity(req.user.id, req.user.email, 'UNLOCK_ARTICLE', 'article', result.insertId, { title: master.title });
+        res.json({ id: String(result.insertId), success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }

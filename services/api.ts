@@ -855,6 +855,7 @@ export const api = {
             pageSubdomain: a.page_subdomain,
             pageName: a.page_name,
             isGenerated: !!a.is_generated,
+            isUnlocked: !!a.isUnlocked,
             psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
             title: a.title,
             slug: a.slug,
@@ -871,6 +872,15 @@ export const api = {
             publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
             createdAt: a.created_at ? new Date(a.created_at) : new Date()
         }));
+    },
+
+    unlockArticle: async (projectId: string, masterArticleId: string): Promise<{ id: string }> => {
+        if (isMockMode) return { id: `unlocked-${Date.now()}` };
+        return await fetchWithFallback('/articles/unlock-article', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ projectId, masterArticleId })
+        });
     },
   
     getArticleById: async (id: string): Promise<Article | null> => {

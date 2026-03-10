@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, CheckCircle2, ChevronLeft, ChevronRight, TrendingUp, Loader2, Plus, Save } from 'lucide-react';
+import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, CheckCircle2, ChevronLeft, ChevronRight, TrendingUp, Loader2, Plus, Save, Unlock, Brain, Shield } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PlanLimits, Plan, LandingPage, Article } from '../../../../types';
 import { ContentGenerator } from '../ContentGenerator';
@@ -37,6 +37,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [mergedContentData, setMergedContentData] = useState<any[]>([]);
     const [localEdit, setLocalEdit] = useState<any>(null);
     const [editingField, setEditingField] = useState<string | null>(null);
+    const [unlockingSingle, setUnlockingSingle] = useState(false);
 
     // Lógica de Paginación
     const [currentPage, setCurrentPage] = useState(1);
@@ -80,11 +81,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 searchVolume: a.psychologicalStrategy?.searchVolume || '',
                 isFromDb: true,
                 isGenerated: !!a.isGenerated,
+                isUnlocked: !!a.isUnlocked,
                 slug: a.slug
             }));
 
             // Si hay artículos en DB, mostrar solo esos. Si no, mostrar los del JSON.
-            const finalData = dbContent.length > 0 ? dbContent : jsonContent;
+            const finalData = dbContent.length > 0 ? dbContent : jsonContent.map(j => ({ ...j, isUnlocked: true }));
             setMergedContentData(finalData);
         } catch (e) {
             console.error(e);
@@ -179,6 +181,29 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         window.location.reload();
     };
 
+    const handleUnlockArticle = async () => {
+        const active = mergedContentData[activeArticle];
+        if (!active || !active.id || !active.id.startsWith('available-')) return;
+        
+        const masterId = active.id.replace('available-', '');
+        setUnlockingSingle(true);
+        try {
+            const res = await api.unlockArticle(projectId, masterId);
+            await loadLocalData();
+            
+            // Buscar el nuevo índice del artículo desbloqueado
+            // loadLocalData actualizará mergedContentData, necesitamos encontrar el nuevo ID
+            // Pero como loadLocalData es async y actualiza estado, lo mejor es dejar que el useEffect de loadLocalData haga su trabajo
+            // y nosotros simplemente informar al usuario o intentar pre-seleccionar si el ID es predecible.
+            // En este caso, loadLocalData recargará todo.
+            alert("¡Artículo desbloqueado con éxito!");
+        } catch (e: any) {
+            alert("Error al desbloquear: " + e.message);
+        } finally {
+            setUnlockingSingle(false);
+        }
+    };
+
     const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
     const maxArticles = planLimits?.maxArticles || 2;
     const isAtLimit = !isRealAdmin && !api.isUsingMockData() && articleCount >= maxArticles;
@@ -250,15 +275,19 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     const isSelected = selectedArticles.includes(globalIdx);
                                     const isActive = activeArticle === globalIdx;
                                     const isGenerated = art.isGenerated;
+                                    const isUnlocked = art.isUnlocked !== false;
 
                                     return (
                                         <div 
                                             key={art.id || `merged-${indexInPage}`} 
                                             onClick={() => handleSelectOne(globalIdx)}
-                                            className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isSelected ? 'bg-blue-600 border-blue-500 text-white' : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
+                                            className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isSelected ? 'bg-blue-600 border-blue-500 text-white' : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
                                         >
                                             <div className="flex-1">
-                                                <h4 className={`font-medium text-lg leading-snug ${isGenerated || isSelected ? 'text-white' : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'}`}>{art.title}</h4>
+                                                <h4 className={`font-medium text-lg leading-snug ${isGenerated || isSelected ? 'text-white' : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
+                                                    {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
+                                                    {art.title}
+                                                </h4>
                                             </div>
                                             <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? 'bg-white border-white' : isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
                                                 {(isGenerated || isSelected) && <Check className={`w-4 h-4 font-bold ${isGenerated ? 'text-emerald-600' : 'text-blue-600'}`} />}
@@ -283,6 +312,43 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         
                         <div className="relative z-10 flex flex-col h-full">
                             {mergedContentData[activeArticle] ? (
+                                mergedContentData[activeArticle].isUnlocked === false && !isRealAdmin ? (
+                                    <div className="flex flex-col items-center text-center py-10 animate-in zoom-in-95">
+                                        <div className="w-20 h-20 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 border border-purple-500/20 shadow-lg animate-pulse">
+                                            <Lock className="w-10 h-10 text-purple-500" />
+                                        </div>
+                                        
+                                        <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-tight">Artículo de Biblioteca Maestra</h3>
+                                        
+                                        <div className="w-full text-left bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-8">
+                                            <h4 className="text-white text-xl font-bold mb-4">{mergedContentData[activeArticle].title}</h4>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <Brain className="w-4 h-4 text-purple-400" />
+                                                <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
+                                            </div>
+                                            <p className="text-gray-300 text-lg font-light leading-relaxed italic">
+                                                {mergedContentData[activeArticle].strategy}
+                                            </p>
+                                        </div>
+
+                                        <p className="text-gray-400 font-medium leading-relaxed max-w-md mx-auto mb-10">
+                                            Este artículo ha sido diseñado por expertos. Desbloquéalo para obtener una copia editable y generar el contenido completo.
+                                        </p>
+
+                                        <button 
+                                            onClick={handleUnlockArticle}
+                                            disabled={unlockingSingle}
+                                            className="w-full py-5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-purple-900/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70"
+                                        >
+                                            {unlockingSingle ? <Loader2 className="w-6 h-6 animate-spin" /> : <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
+                                            {unlockingSingle ? 'Desbloqueando...' : 'Desbloquear este Artículo'}
+                                        </button>
+                                        
+                                        <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
+                                            <Shield className="w-3 h-3" /> Acceso Instantáneo tras Desbloqueo
+                                        </div>
+                                    </div>
+                                ) : (
                                 <>
                                 <div className="mb-auto">
                                     <div className="flex justify-between items-center mb-4">
@@ -409,6 +475,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     )}
                                 </div>
                                 </>
+                                )
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-40">
                                     <FileText className="w-16 h-16 text-gray-600" />
