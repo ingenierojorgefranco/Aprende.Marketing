@@ -12,7 +12,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'DEV_ONLY_CHANGE_THIS_IN_PROD';
 export const DEFAULT_LIMITS = {
     planName: 'starter',
     maxProjects: 1,
-    maxLandings: 2,
+    maxLandings: 1,
     maxArticles: 2,
     maxDomains: 1,
     maxEmailSequences: 1,

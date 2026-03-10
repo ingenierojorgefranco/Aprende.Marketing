@@ -122,21 +122,13 @@ export const MyPages: React.FC = () => {
 
     // Plan Logic (Pages)
     const isRealAdmin = user.role === 'admin' && !isSimulating;
-    const maxLandings = projects.reduce((sum, p) => {
-        if (p.limitsConfig?.maxLandings) return sum + p.limitsConfig.maxLandings;
-        const slug = p.planSlug || 'starter';
-        return sum + (slug === 'starter' ? 3 : 20);
-    }, projects.length === 0 ? (user.planLimits?.maxLandings || 3) : 0);
+    const maxLandings = user.planLimits?.maxLandings || 1;
     const currentCount = pages.length;
     const usagePercent = Math.min(100, (currentCount / maxLandings) * 100);
     const isAtLimit = !isRealAdmin && currentCount >= maxLandings;
     
     // Plan Logic (Domains)
-    const maxDomains = projects.reduce((sum, p) => {
-        if (p.limitsConfig?.maxDomains) return sum + p.limitsConfig.maxDomains;
-        const slug = p.planSlug || 'starter';
-        return sum + (slug === 'starter' ? 1 : 3);
-    }, projects.length === 0 ? (user.planLimits?.maxDomains || 1) : 0);
+    const maxDomains = user.planLimits?.maxDomains || 1;
     const currentDomainsCount = pages.filter(p => p.customDomain).length;
     const domainUsagePercent = Math.min(100, (currentDomainsCount / maxDomains) * 100);
 

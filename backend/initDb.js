@@ -599,9 +599,9 @@ const initDb = async () => {
                     limits: JSON.stringify({
                         planName: 'starter',
                         maxProjects: 1,
-                        maxLandings: 2, 
+                        maxLandings: 1, 
                         maxArticles: 2, 
-                        maxDomains: 0, 
+                        maxDomains: 1, 
                         maxEmailSequences: 1,
                         maxWhatsAppLaunches: 1,
                         maxHooks: 10,
