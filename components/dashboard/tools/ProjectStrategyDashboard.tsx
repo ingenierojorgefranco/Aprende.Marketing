@@ -39,6 +39,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const { user, pageCount: globalPageCount, articleCount: globalArticleCount, isSimulating } = useOutletContext() as any;
 
     const [strategyData, setStrategyData] = useState<ProjectMasterStrategy | null>(null);
+    const [effectiveProjectId, setEffectiveProjectId] = useState<string>(id);
     const [projectDescription, setProjectDescription] = useState<string>('');
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
@@ -72,15 +73,18 @@ export const ProjectStrategyDashboard: React.FC = () => {
         if (!id) return;
         setLoading(true);
         try {
-            const [strategy, projectDetails, plansData, allPages, allArticles] = await Promise.all([
-                api.getProjectStrategy(id).catch(() => null),
-                api.getProjectById(id).catch(() => null),
+            const projectDetails = await api.getProjectById(id).catch(() => null);
+            if (projectDetails) setProjectDescription(projectDetails.description || '');
+            
+            const effId = projectDetails?.masterParentId || (projectDetails as any)?.master_parent_id || id;
+            setEffectiveProjectId(effId);
+
+            const [strategy, plansData, allPages, allArticles] = await Promise.all([
+                api.getProjectStrategy(effId).catch(() => null),
                 api.getPublicPlans().catch(() => []),
                 api.getPages().catch(() => []),
                 api.getArticles().catch(() => [])
             ]);
-
-            if (projectDetails) setProjectDescription(projectDetails.description || '');
 
             if (strategy && strategy.meta && strategy.meta.insights) {
                 if (strategy.meta.insights.overview?.items) {
@@ -93,8 +97,11 @@ export const ProjectStrategyDashboard: React.FC = () => {
             }
 
             if (allPages && allArticles) {
-                const projectPages = allPages.filter((p: any) => String(p.projectId) === String(id));
-                const projectArts = allArticles.filter((a: any) => projectPages.some((p: any) => String(p.id) === String(a.pageId)));
+                const projectPages = allPages.filter((p: any) => String(p.projectId) === String(effId));
+                const projectArts = allArticles.filter((a: any) => 
+                    String(a.projectId) === String(effId) || 
+                    projectPages.some((p: any) => String(p.id) === String(a.pageId))
+                );
                 setLinkedArticles(projectArts);
             }
 
@@ -207,7 +214,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                         {activeSection === 'hooks' && <ProjectStrategy_Hooks strategyData={strategyData} activeHook={activeHook} setActiveHook={setActiveHook} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} />}
                         {activeSection === 'testimonials' && <ProjectStrategy_Testimonials strategyData={strategyData} />}
                         {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules?.web?.landingPageTabs} tyTabsData={strategyData.modules?.web?.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onEditPage={(pid: string) => navigate(`/dashboard/editor/${pid}`)} pageCount={globalPageCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
-                        {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
+                        {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} effectiveProjectId={effectiveProjectId} />}
                         {activeSection === 'email' && <ProjectStrategy_Email emailData={strategyData.modules.emails.nurture} avatars={strategyData.avatars} activeEmail={activeEmail} setActiveEmail={setActiveEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} isSimulating={isSimulating} />}
                         {activeSection === 'evergreen' && <ProjectStrategy_Evergreen evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
                         {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} projectId={id} isSimulating={isSimulating} planLimits={user.planLimits} strategyData={strategyData} />}
