@@ -101,7 +101,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
     useEffect(() => {
         const active = mergedContentData[activeArticle];
-        if (active && active.isFromDb && !active.isGenerated) {
+        // Solo permitimos editar si es de DB, no está generado y está DESBLOQUEADO
+        if (active && active.isFromDb && !active.isGenerated && active.isUnlocked !== false) {
             setLocalEdit({
                 title: active.title,
                 strategy: active.strategy,
@@ -114,12 +115,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     }, [activeArticle, mergedContentData]);
 
     useEffect(() => {
-        if (!localEdit || !mergedContentData[activeArticle]?.id) return;
+        const active = mergedContentData[activeArticle];
+        // Bloqueo de seguridad: No auto-guardar si no hay edición local, si no hay ID, o si es un ID de biblioteca maestra
+        if (!localEdit || !active?.id || active.id.startsWith('available-') || active.isUnlocked === false) return;
         
         const timer = setTimeout(async () => {
-            const active = mergedContentData[activeArticle];
-            if (!active || !active.id) return;
-
             try {
                 await api.updateArticle(active.id, {
                     title: localEdit.title,
