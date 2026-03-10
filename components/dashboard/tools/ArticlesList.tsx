@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Article, User, Project } from '../../../types';
-import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus, Briefcase, ArrowLeft, ChevronRight } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus, Briefcase } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
-import { ContentGenerator } from './ContentGenerator';
 
 interface DashboardContext {
   user: User;
@@ -31,12 +30,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   // Modals States
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
-
-  // --- Estados para el Wizard de Nuevo Artículo ---
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
-  const [wizardStep, setWizardStep] = useState(0);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  // --------------------------------------------
   
   // --- Nuevo Estado para Restricción de Eliminación ---
   const [showRestrictionModal, setShowRestrictionModal] = useState(false);
@@ -135,14 +128,8 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
           return;
       }
 
-      setSelectedProjectId(null);
-      setWizardStep(0);
-      setIsWizardOpen(true);
-  };
-
-  const handleProjectSelect = (projectId: string) => {
-      setSelectedProjectId(projectId);
-      setWizardStep(1);
+      if (onCreateNew) onCreateNew();
+      else navigate("/dashboard/content-creator");
   };
 
   if (loading) {
@@ -182,207 +169,118 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       />
 
       {/* HERO HEADER */}
-      {!isWizardOpen && (
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-purple-950/20 to-black border border-gray-800 shadow-2xl">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-              
-              <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                  <div className="flex-1 space-y-6 text-center md:text-left">
-                      <div>
-                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-900/30 border border-purple-800 text-xs font-bold text-purple-300 uppercase tracking-wider mb-3 shadow-sm">
-                              <Sparkles className="w-3 h-3 text-purple-400" /> Motor de Contenidos IA
-                          </div>
-                          <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                              Generador de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Artículos SEO</span>
-                          </h1>
-                          <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-[1.625]">
-                              Genera artículos optimizados para buscadores que atraen tráfico orgánico a tus ofertas las 24 horas.
-                          </p>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-purple-950/20 to-black border border-gray-800 shadow-2xl">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+          
+          <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="flex-1 space-y-6 text-center md:text-left">
+                  <div>
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-900/30 border border-purple-800 text-xs font-bold text-purple-300 uppercase tracking-wider mb-3 shadow-sm">
+                          <Sparkles className="w-3 h-3 text-purple-400" /> Motor de Contenidos IA
                       </div>
-                      
-                      {/* Plan Usage Bar */}
-                      <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
-                          <div className="flex justify-between items-center mb-2 text-sm">
-                              <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span>
-                              <span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
-                          </div>
-                          <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                              <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
-                          </div>
-                          {isAtLimit && (
-                              <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
-                                  <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                                  <span className="text-[1rem] leading-[1.5rem]">Límite mensual alcanzado. Actualiza para generar contenido ilimitado.</span>
-                              </div>
-                          )}
+                      <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
+                          Generador de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Artículos SEO</span>
+                      </h1>
+                      <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-[1.625]">
+                          Genera artículos optimizados para buscadores que atraen tráfico orgánico a tus ofertas las 24 horas.
+                      </p>
+                  </div>
+                  
+                  {/* Plan Usage Bar */}
+                  <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
+                      <div className="flex justify-between items-center mb-2 text-sm">
+                          <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span>
+                          <span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                       </div>
+                      <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                          <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                      </div>
+                      {isAtLimit && (
+                          <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
+                              <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
+                              <span className="text-[1rem] leading-[1.5rem]">Límite mensual alcanzado. Actualiza para generar contenido ilimitado.</span>
+                          </div>
+                      )}
+                  </div>
+              </div>
+
+              <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
+                  {/* Contenedor de Video Interactivo */}
+                  <div 
+                      className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
+                  >
+                      <iframe 
+                          className="w-full h-full rounded-2xl"
+                          src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                          title="Video Tutorial" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowFullScreen
+                      ></iframe>
                   </div>
 
-                  <div className="flex flex-col gap-6 shrink-0 w-full md:w-[400px]">
-                      {/* Contenedor de Video Interactivo */}
-                      <div 
-                          className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
-                      >
-                          <iframe 
-                              className="w-full h-full rounded-2xl"
-                              src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
-                              title="Video Tutorial" 
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                              allowFullScreen
-                          ></iframe>
-                      </div>
-
-                      {/* Botones centrados debajo del video */}
-                      <div className="flex flex-col gap-3">
-                          {isAtLimit ? (
-                            <button
-                                onClick={() => setShowUpgradeModal(true)}
-                                className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
-                            >
-                                <span className="relative z-10 flex items-center justify-center gap-2">
-                                    <Crown className="w-5 h-5 fill-current" /> 
-                                    Límite Alcanzado: Subir a PRO
-                                </span>
-                            </button>
-                          ) : (
-                            <button
-                                onClick={handleCreate}
-                                className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:-translate-y-1 w-full"
-                            >
-                                <span className="relative z-10 flex items-center justify-center gap-2">
-                                    <PenTool className="w-5 h-5" /> 
-                                    Redactar Nuevo
-                                </span>
-                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                            </button>
-                          )}
-                      </div>
+                  {/* Botones centrados debajo del video */}
+                  <div className="flex flex-col gap-3">
+                      {isAtLimit ? (
+                        <button
+                            onClick={() => setShowUpgradeModal(true)}
+                            className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-xl transition-all overflow-hidden bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02] border border-yellow-400/20 w-full"
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                <Crown className="w-5 h-5 fill-current" /> 
+                                Límite Alcanzado: Subir a PRO
+                            </span>
+                        </button>
+                      ) : (
+                        <button
+                            onClick={handleCreate}
+                            className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:-translate-y-1 w-full"
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                <PenTool className="w-5 h-5" /> 
+                                Redactar Nuevo
+                            </span>
+                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        </button>
+                      )}
                   </div>
               </div>
           </div>
-      )}
-
-      {isWizardOpen && (
-          <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${wizardStep === 0 ? 'max-w-5xl' : 'max-w-[90rem]'} animate-in fade-in duration-500`}>
-              <div className="bg-purple-600/10 p-8 text-center border-b border-purple-500/10 relative">
-                  <button onClick={() => wizardStep === 0 ? setIsWizardOpen(false) : setWizardStep(0)} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
-                      <ArrowLeft className="w-6 h-6" />
-                  </button>
-                  <button onClick={() => setIsWizardOpen(false)} className="absolute top-6 right-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
-                      <X className="w-6 h-6" />
-                  </button>
-                  <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
-                      <Sparkles className="w-8 h-8 text-purple-400" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Artículos SEO</h2>
-                  <div className="flex items-center justify-center gap-2 mt-4 text-sm">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 0 ? 'bg-purple-600 text-white' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
-                      <div className="w-4 h-px bg-gray-700"></div>
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 1 ? 'bg-purple-600 text-white' : 'bg-gray-800 text-gray-500'}`}>1. Configuración</span>
-                  </div>
-              </div>
-
-              <div className="p-8 flex-1 overflow-y-auto relative">
-                  {wizardStep === 0 ? (
-                      <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
-                          <div className="max-w-2xl mx-auto">
-                              <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
-                                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Selecciona tu Proyecto</span>
-                              </h2>
-                              <p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra inteligencia artificial necesita conocer tu estrategia y avatar para generar el mejor contenido SEO.</p>
-                          </div>
-                          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
-                              {/* CARD: CREAR NUEVO PROYECTO - PRIMERO */}
-                              <div 
-                                  className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
-                                  onClick={() => navigate('/dashboard/projects')}
-                              >
-                                  <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-purple-500/10 group-hover:text-purple-500 transition-all shadow-lg mb-6">
-                                      <Plus className="w-10 h-10" />
-                                  </div>
-                                  <h4 className="text-white font-black text-2xl group-hover:text-purple-500 transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
-                                  <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar artículos</p>
-                              </div>
-
-                              {projects.map((project) => (
-                                  <div 
-                                      key={project.id} 
-                                      className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full cursor-pointer" 
-                                      onClick={() => handleProjectSelect(project.id)}
-                                  >
-                                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                      <div className="flex items-center gap-5 mb-8">
-                                          <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-purple-500/10 group-hover:text-purple-500 transition-colors shadow-inner">
-                                              <Briefcase className="w-8 h-8" />
-                                          </div>
-                                          <div className="flex-1 min-w-0">
-                                              <h4 className="text-white font-black text-2xl group-hover:text-purple-500 transition-colors truncate">{project.name}</h4>
-                                              <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
-                                          </div>
-                                      </div>
-                                      <div className="flex-1 mb-10">
-                                          <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
-                                          <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p>
-                                      </div>
-                                      <button className="w-full py-5 bg-purple-600 hover:bg-purple-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-purple-900/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">
-                                          Seleccionar <ChevronRight className="w-5 h-5" />
-                                      </button>
-                                  </div>
-                              ))}
-                          </div>
-                      </div>
-                  ) : (
-                      <div className="animate-in slide-in-from-right-4 duration-500">
-                          <ContentGenerator 
-                              embeddedProjectId={selectedProjectId!}
-                              onSave={async (newArticle) => {
-                                  setLocalArticles(prev => [newArticle, ...prev]);
-                                  setIsWizardOpen(false);
-                              }}
-                              onClose={() => setIsWizardOpen(false)}
-                          />
-                      </div>
-                  )}
-              </div>
-          </div>
-      )}
+      </div>
 
       {/* SECCIÓN: MIS ARTÍCULOS */}
-      {!isWizardOpen && (
-          <div className="space-y-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                  <div className="flex items-center gap-4 border-l-4 border-purple-500 pl-4 py-1 pb-5">
-                      <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500 border border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
-                          <FileText className="w-8 h-8" />
-                      </div>
-                      <div>
-                          <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Artículos</h2>
-                          <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tu contenido SEO y posicionamiento orgánico</p>
-                      </div>
+      <div className="space-y-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+              <div className="flex items-center gap-4 border-l-4 border-purple-500 pl-4 py-1 pb-5">
+                  <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500 border border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
+                      <FileText className="w-8 h-8" />
                   </div>
-              </div>
-
-              {/* FILTRO POR PROYECTO - CENTRADO Y MÁS GRANDE */}
-              <div className="w-full flex justify-center">
-                  <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
-                      <label className="text-[12px] font-black text-gray-400 uppercase tracking-[0.3em]">Selecciona un Proyecto para Filtrar</label>
-                      <select 
-                          value={filterProjectId}
-                          onChange={(e) => {
-                              setFilterProjectId(e.target.value);
-                              setPage(1);
-                          }}
-                          className="w-full bg-gray-900/50 border-2 border-white/10 rounded-[2rem] px-8 py-5 text-white text-xl font-bold outline-none focus:border-purple-500 transition-all shadow-2xl appearance-none text-center cursor-pointer hover:bg-gray-900"
-                      >
-                          <option value="all">✨ Todos los Proyectos</option>
-                          {projects.map(p => (
-                              <option key={p.id} value={p.id}>{p.name}</option>
-                          ))}
-                      </select>
+                  <div>
+                      <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Artículos</h2>
+                      <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tu contenido SEO y posicionamiento orgánico</p>
                   </div>
               </div>
           </div>
-      )}
+
+          {/* FILTRO POR PROYECTO - CENTRADO Y MÁS GRANDE */}
+          <div className="w-full flex justify-center">
+              <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
+                  <label className="text-[12px] font-black text-gray-400 uppercase tracking-[0.3em]">Selecciona un Proyecto para Filtrar</label>
+                  <select 
+                      value={filterProjectId}
+                      onChange={(e) => {
+                          setFilterProjectId(e.target.value);
+                          setPage(1);
+                      }}
+                      className="w-full bg-gray-900/50 border-2 border-white/10 rounded-[2rem] px-8 py-5 text-white text-xl font-bold outline-none focus:border-purple-500 transition-all shadow-2xl appearance-none text-center cursor-pointer hover:bg-gray-900"
+                  >
+                      <option value="all">✨ Todos los Proyectos</option>
+                      {projects.map(p => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                  </select>
+              </div>
+          </div>
+      </div>
 
       {/* CONTENT GRID */}
       {/* */ /* Actualización: Rediseño Premium Dark con cuadrícula de 3 columnas (LG), bordes redondeados [2.5rem], fondo #111 y línea de acento naranja superior para una estética coherente y profesional - 22/05/2024 19:45 */ }

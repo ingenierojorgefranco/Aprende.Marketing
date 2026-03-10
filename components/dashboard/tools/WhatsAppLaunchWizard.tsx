@@ -80,17 +80,12 @@ interface DashboardContext {
     user: User;
 }
 
-interface WhatsAppLaunchWizardProps {
-    embeddedProjectId?: string;
-    onClose?: () => void;
-}
-
-export const WhatsAppLaunchWizard: React.FC<WhatsAppLaunchWizardProps> = ({ embeddedProjectId, onClose }) => {
+export const WhatsAppLaunchWizard: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { user } = useOutletContext() as DashboardContext;
     const { launchId } = useParams() as { launchId?: string };
-    const urlProjectId = embeddedProjectId || searchParams.get('projectId');
+    const urlProjectId = searchParams.get('projectId');
     
     const [step, setStep] = useState(0); // 0: Select Project, 1: Edit
     const [projects, setProjects] = useState<Project[]>([]);

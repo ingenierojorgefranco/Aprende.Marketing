@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Lead, EmailSequence, User, Project } from '../../../types';
-import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye, Trash2, Crown, Calendar, ArrowLeft, ChevronRight, Briefcase, Edit2 } from 'lucide-react';
+import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye, Trash2, Crown, Calendar } from 'lucide-react';
 import { api } from '../../../services/api';
+/* */ /* Actualización: Importación de useNavigate para manejar redirección - 24/06/2024 15:15 */
 import { useNavigate, Link, useOutletContext } from 'react-router-dom';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
-import { UpgradeModal } from '../UpgradeModal';
-import { EmailSequenceWizard } from './EmailSequenceWizard';
+/* Fin de actualización - 24/06/2024 15:15 */
 
 export const EmailMarketing: React.FC = () => {
   /* */ /* Actualización: Revisión de consistencia en el acceso a datos del proyecto para la gestión de secuencias - 25/06/2024 11:50 */
@@ -45,16 +45,6 @@ export const EmailMarketing: React.FC = () => {
   const [sequenceToRestrict, setSequenceToRestrict] = useState<EmailSequence | null>(null);
   // ----------------------------------------------------
 
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [upgradeProjectId, setUpgradeProjectId] = useState<string | undefined>(undefined);
-
-  // --- Estados para el Wizard Embebido ---
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
-  const [wizardStep, setWizardStep] = useState(0);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [filterProjectId, setFilterProjectId] = useState<string>('all');
-  // --------------------------------------
-
   useEffect(() => {
     loadSettings();
     loadLeads();
@@ -69,17 +59,6 @@ export const EmailMarketing: React.FC = () => {
       } catch (e) {
           console.error("Error loading projects", e);
       }
-  };
-
-  const handleCreate = () => {
-      setSelectedProjectId(null);
-      setWizardStep(0);
-      setIsWizardOpen(true);
-  };
-
-  const handleProjectSelect = (projectId: string) => {
-      setSelectedProjectId(projectId);
-      setWizardStep(1);
   };
 
   const maxSequences = projects.reduce((sum, p) => {
@@ -254,158 +233,74 @@ export const EmailMarketing: React.FC = () => {
     <div className="space-y-10 animate-in fade-in duration-500 pb-20">
       
       {/* HEADER DE SECCIÓN */}
-      {!isWizardOpen && (
-          <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-white/5 shadow-2xl">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF5A1F]/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-              <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-                  <div className="flex-1 space-y-4 text-center md:text-left">
-                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.2em] shadow-sm">
-                          <Mail className="w-3 h-3" /> Email Marketing Automático
-                      </div>
-                      <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
-                          Vende en <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-orange-400">Piloto Automático</span>
-                      </h1>
-                      <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-2xl leading-[1.625] font-medium">
-                          Sincroniza tus prospectos con Systeme.io y activa secuencias de correos persuasivos diseñados para cerrar ventas mientras duermes.
-                      </p>
-                      
-                      {/* Barra de Límite de Secuencias Premium - Sincronizada con MyPages */}
-                      <div className="pt-4 max-w-md mx-auto md:mx-0">
-                          <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 shadow-inner space-y-4">
-                              <div>
-                                  <div className="flex justify-between items-center mb-2">
-                                      <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Secuencias Creadas</span>
-                                      <span className="text-white font-bold">{sequences.length} / {isRealAdmin ? '∞' : maxSequences}</span>
-                                  </div>
-                                  <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                      <div 
-                                        className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} 
-                                        style={{ width: `${isRealAdmin ? (sequences.length > 0 ? 100 : 0) : usagePercent}%` }}
-                                      ></div>
-                                  </div>
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-white/5 shadow-2xl">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF5A1F]/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+          <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="flex-1 space-y-4 text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.2em] shadow-sm">
+                      <Mail className="w-3 h-3" /> Email Marketing Automático
+                  </div>
+                  <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
+                      Vende en <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-orange-400">Piloto Automático</span>
+                  </h1>
+                  <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-2xl leading-[1.625] font-medium">
+                      Sincroniza tus prospectos con Systeme.io y activa secuencias de correos persuasivos diseñados para cerrar ventas mientras duermes.
+                  </p>
+                  
+                  {/* Barra de Límite de Secuencias Premium - Sincronizada con MyPages */}
+                  <div className="pt-4 max-w-md mx-auto md:mx-0">
+                      <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 shadow-inner space-y-4">
+                          <div>
+                              <div className="flex justify-between items-center mb-2">
+                                  <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Secuencias Creadas</span>
+                                  <span className="text-white font-bold">{sequences.length} / {isRealAdmin ? '∞' : maxSequences}</span>
                               </div>
-                              {isAtLimit && (
-                                  <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30">
-                                      <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
-                                      <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
-                                  </div>
-                              )}
-                          </div>
-                      </div>
-                  </div>
-
-                  <div className="shrink-0 flex flex-col gap-6 w-full md:w-[400px]">
-                      {/* Contenedor de Video Interactivo */}
-                      <div 
-                          className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
-                      >
-                          <iframe 
-                              className="w-full h-full rounded-2xl"
-                              src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
-                              title="Video Tutorial" 
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                              allowFullScreen
-                          ></iframe>
-                      </div>
-
-                      {/* Botones centrados debajo del video */}
-                      <div className="flex flex-col gap-3">
-                          <button 
-                            onClick={handleCreate}
-                            className="w-full px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
-                          >
-                            <Plus className="w-4 h-4" /> Crear Nueva Secuencia
-                          </button>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      )}
-
-      {isWizardOpen && (
-          <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${wizardStep === 0 ? 'max-w-5xl' : 'max-w-[90rem]'} animate-in fade-in duration-500`}>
-              <div className="bg-blue-600/10 p-8 text-center border-b border-blue-500/10 relative">
-                  <button onClick={() => wizardStep === 0 ? setIsWizardOpen(false) : setWizardStep(0)} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
-                      <ArrowLeft className="w-6 h-6" />
-                  </button>
-                  <button onClick={() => setIsWizardOpen(false)} className="absolute top-6 right-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
-                      <X className="w-6 h-6" />
-                  </button>
-                  <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
-                      <Mail className="w-8 h-8 text-blue-400" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Secuencias Email</h2>
-                  <div className="flex items-center justify-center gap-2 mt-4 text-sm">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 0 ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
-                      <div className="w-4 h-px bg-gray-700"></div>
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 1 ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-500'}`}>1. Configuración</span>
-                  </div>
-              </div>
-
-              <div className="p-8 flex-1 overflow-y-auto relative">
-                  {wizardStep === 0 ? (
-                      <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
-                          <div className="max-w-2xl mx-auto">
-                              <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
-                                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">Selecciona tu Proyecto</span>
-                              </h2>
-                              <p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra IA generará una secuencia de correos basada en la estrategia de tu proyecto.</p>
-                          </div>
-                          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
-                              {/* CARD: CREAR NUEVO PROYECTO - PRIMERO */}
-                              <div 
-                                  className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-blue-500/50 hover:bg-blue-500/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
-                                  onClick={() => navigate('/dashboard/projects')}
-                              >
-                                  <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-blue-500/10 group-hover:text-blue-500 transition-all shadow-lg mb-6">
-                                      <Plus className="w-10 h-10" />
-                                  </div>
-                                  <h4 className="text-white font-black text-2xl group-hover:text-blue-500 transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
-                                  <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para tus correos</p>
-                              </div>
-
-                              {projects.map((project) => (
+                              <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
                                   <div 
-                                      key={project.id} 
-                                      className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-blue-500/50 hover:bg-blue-500/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full cursor-pointer" 
-                                      onClick={() => handleProjectSelect(project.id)}
-                                  >
-                                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                      <div className="flex items-center gap-5 mb-8">
-                                          <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-blue-500/10 group-hover:text-blue-500 transition-colors shadow-inner">
-                                              <Briefcase className="w-8 h-8" />
-                                          </div>
-                                          <div className="flex-1 min-w-0">
-                                              <h4 className="text-white font-black text-2xl group-hover:text-blue-500 transition-colors truncate">{project.name}</h4>
-                                              <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
-                                          </div>
-                                      </div>
-                                      <div className="flex-1 mb-10">
-                                          <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
-                                          <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p>
-                                      </div>
-                                      <button className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">
-                                          Seleccionar <ChevronRight className="w-5 h-5" />
-                                      </button>
-                                  </div>
-                              ))}
+                                    className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} 
+                                    style={{ width: `${isRealAdmin ? (sequences.length > 0 ? 100 : 0) : usagePercent}%` }}
+                                  ></div>
+                              </div>
                           </div>
+                          {isAtLimit && (
+                              <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30">
+                                  <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                                  <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
+                              </div>
+                          )}
                       </div>
-                  ) : (
-                      <div className="animate-in slide-in-from-right-4 duration-500">
-                          <EmailSequenceWizard 
-                              embeddedProjectId={selectedProjectId!}
-                              onClose={() => setIsWizardOpen(false)}
-                          />
-                      </div>
-                  )}
+                  </div>
+              </div>
+
+              <div className="shrink-0 flex flex-col gap-6 w-full md:w-[400px]">
+                  {/* Contenedor de Video Interactivo */}
+                  <div 
+                      className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
+                  >
+                      <iframe 
+                          className="w-full h-full rounded-2xl"
+                          src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                          title="Video Tutorial" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowFullScreen
+                      ></iframe>
+                  </div>
+
+                  {/* Botones centrados debajo del video */}
+                  <div className="flex flex-col gap-3">
+                      <button 
+                        onClick={() => navigate('/dashboard/email/create')}
+                        className="w-full px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
+                      >
+                        <Plus className="w-4 h-4" /> Crear Nueva Secuencia
+                      </button>
+                  </div>
               </div>
           </div>
-      )}
+      </div>
 
       {/* NAVEGACIÓN POR PESTAÑAS */}
-      {!isWizardOpen && (
-          <div className="flex flex-wrap gap-4 border-b border-white/5 pb-2">
+      <div className="flex flex-wrap gap-4 border-b border-white/5 pb-2">
           <button 
               onClick={() => setActiveTab('sequence')}
               className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'sequence' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
@@ -428,37 +323,20 @@ export const EmailMarketing: React.FC = () => {
               {activeTab === 'config' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
           </button>
       </div>
-      )}
 
       {/* CONTENIDO DE PESTAÑAS */}
       <div className="animate-in fade-in duration-500">
         
         {/* PESTAÑA: SECUENCIAS */}
-        {activeTab === 'sequence' && !isWizardOpen && (
+        {activeTab === 'sequence' && (
             <div className="space-y-8 animate-in slide-in-from-left-4">
-                {/* FILTRO POR PROYECTO */}
-                <div className="w-full flex justify-center">
-                    <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
-                        <label className="text-[12px] font-black text-gray-400 uppercase tracking-[0.3em]">Selecciona un Proyecto para Filtrar</label>
-                        <select 
-                            value={filterProjectId}
-                            onChange={(e) => setFilterProjectId(e.target.value)}
-                            className="w-full bg-gray-900/50 border-2 border-white/10 rounded-[2rem] px-8 py-5 text-white text-xl font-bold outline-none focus:border-[#FF5A1F] transition-all shadow-2xl appearance-none text-center cursor-pointer hover:bg-gray-900"
-                        >
-                            <option value="all">✨ Todos los Proyectos</option>
-                            {projects.map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
                 {loadingSequences ? (
                     <div className="flex justify-center p-20 text-[#FF5A1F]"><Loader2 className="w-12 h-12 animate-spin" /></div>
                 ) : sequences.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Tarjeta de añadir nueva */}
                         <button 
-                            onClick={handleCreate}
+                            onClick={() => navigate('/dashboard/email/create')}
                             className="bg-gray-900 border-2 border-dashed border-white/20 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px]"
                         >
                             <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all">
@@ -469,9 +347,7 @@ export const EmailMarketing: React.FC = () => {
                                 <p className="mt-2 font-medium" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Vincula un nuevo proyecto para automatizar ventas</p>
                             </div>
                         </button>
-                        {sequences
-                            .filter(seq => filterProjectId === 'all' || String(seq.projectId) === String(filterProjectId))
-                            .map(seq => (
+                        {sequences.map(seq => (
                             <div key={seq.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 p-6 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col shadow-2xl relative overflow-hidden">
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="flex-1">
@@ -540,7 +416,7 @@ export const EmailMarketing: React.FC = () => {
                             </p>
                         </div>
                         <button 
-                            onClick={handleCreate}
+                            onClick={() => navigate('/dashboard/email/create')}
                             className="px-12 py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg uppercase tracking-widest rounded-2xl transition-all shadow-2xl shadow-[#FF5A1F]/20 transform hover:scale-105 active:scale-95"
                         >
                             Crear mi primera secuencia
