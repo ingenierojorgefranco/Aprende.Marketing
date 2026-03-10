@@ -473,7 +473,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
       />
 
       <div className={`bg-primary/10 p-8 text-center border-b border-primary/10 relative ${(showUpgradeModal || (loading && generationStatus !== 'generating')) ? 'opacity-30 pointer-events-none' : ''}`}>
-        <button onClick={() => navigate('/dashboard/pages')} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+        <button onClick={() => onClose ? onClose() : navigate('/dashboard/pages')} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
             <ArrowLeft className="w-6 h-6" />
         </button>
         {onClose && (

@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext, Link } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { LandingPage, User, Project } from '../../../types';
-import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info, Plus } from 'lucide-react';
+import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info, Plus, ArrowLeft } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
+import { Generator } from './Generator';
 
 interface DashboardContext {
   user: User;
@@ -20,6 +21,7 @@ export const MyPages: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [pageToDelete, setPageToDelete] = useState<LandingPage | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
 
     // Modals States
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -220,7 +222,7 @@ export const MyPages: React.FC = () => {
                                 </button>
                             ) : (
                                 <button
-                                    onClick={() => navigate("/dashboard/generator")}
+                                    onClick={() => setIsGeneratorOpen(true)}
                                     className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-primary hover:bg-indigo-600 text-white shadow-primary/25 hover:-translate-y-1 w-full"
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-2">
@@ -251,7 +253,17 @@ export const MyPages: React.FC = () => {
             </div>
 
             {/* Content Area */}
-            {pages.length === 0 ? (
+            {isGeneratorOpen ? (
+                <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                    <Generator 
+                        onPageGenerated={(savedPage) => {
+                            setPages(prev => [savedPage, ...prev]);
+                            setIsGeneratorOpen(false);
+                        }} 
+                        onClose={() => setIsGeneratorOpen(false)}
+                    />
+                </div>
+            ) : pages.length === 0 ? (
                 <div className="text-center py-20 bg-gray-900 rounded-2xl border border-dashed border-gray-700">
                     <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
                         <LayoutTemplate className="w-10 h-10 text-gray-600" />
@@ -259,7 +271,7 @@ export const MyPages: React.FC = () => {
                     <h3 className="text-xl font-bold text-white mb-2">Tu lienzo está en blanco</h3>
                     <p className="text-gray-400 max-w-md mx-auto mb-8">Aún no has creado ninguna página. Usa nuestra Inteligencia Artificial para generar tu primera estructura de ventas en segundos.</p>
                     <button 
-                        onClick={() => navigate("/dashboard/generator")}
+                        onClick={() => setIsGeneratorOpen(true)}
                         className="text-primary border border-primary px-6 py-2.5 rounded-lg hover:bg-primary hover:text-white transition font-medium"
                     >
                         Empezar Ahora
@@ -268,7 +280,7 @@ export const MyPages: React.FC = () => {
             ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <button 
-                        onClick={() => navigate("/dashboard/generator")}
+                        onClick={() => setIsGeneratorOpen(true)}
                         className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
                     >
                         <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">

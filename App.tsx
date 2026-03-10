@@ -46,10 +46,6 @@ import { Editor } from "./components/dashboard/editor/Editor";
 // Dashboard Tools
 import { Generator } from "./components/dashboard/tools/Generator";
 import { EmailMarketing } from "./components/dashboard/tools/EmailMarketing";
-/* */ /* Actualización: Importación del nuevo asistente de secuencias de email - 24/06/2024 15:15 */
-import { EmailSequenceWizard } from "./components/dashboard/tools/EmailSequenceWizard";
-/* Fin de actualización - 24/06/2024 15:15 */
-
 ////////// Actualización: Importación de WhatsApp Lanzamientos - 10/06/2025 10:00 //////////
 import { WhatsAppLaunchManager } from "./components/dashboard/tools/WhatsAppLaunchManager";
 import { WhatsAppLaunchWizard } from "./components/dashboard/tools/WhatsAppLaunchWizard";
@@ -368,15 +364,12 @@ const App: React.FC = () => {
           <Route path="editor/:id" element={<EditorRouteWrapper />} />
 
           {/* CONTENIDO SEO */}
-          <Route path="articles" element={<ArticlesList onCreateNew={() => navigate("/dashboard/content-creator")} />} />
+          <Route path="articles" element={<ArticlesList />} />
           <Route path="content-creator" element={<ContentGenerator onSave={handleArticleSave} />} />
           <Route path="articles/edit/:id" element={<ContentGenerator onSave={handleArticleSave} />} />
 
           {/* HERRAMIENTAS ADICIONALES */}
           <Route path="email" element={<EmailMarketing />} />
-          {/* */ /* Actualización: Registro de la ruta para el asistente de secuencias - 24/06/2024 15:15 */ }
-          <Route path="email/create" element={<EmailSequenceWizard />} />
-          {/* Fin de actualización - 24/06/2024 15:15 */}
           
           {/* ////////// Actualización: Registro de rutas para WhatsApp Lanzamientos - 10/06/2025 10:00 ////////// */}
           <Route path="whatsapp-launch" element={<WhatsAppLaunchManager />} />

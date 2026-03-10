@@ -3,8 +3,9 @@ import { Lead, EmailSequence, User, Project } from '../../../types';
 import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye, Trash2, Crown, Calendar } from 'lucide-react';
 import { api } from '../../../services/api';
 /* */ /* Actualización: Importación de useNavigate para manejar redirección - 24/06/2024 15:15 */
-import { useNavigate, Link, useOutletContext } from 'react-router-dom';
+import { useNavigate, Link, useOutletContext, useSearchParams } from 'react-router-dom';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
+import { EmailSequenceWizard } from './EmailSequenceWizard';
 /* Fin de actualización - 24/06/2024 15:15 */
 
 export const EmailMarketing: React.FC = () => {
@@ -12,6 +13,7 @@ export const EmailMarketing: React.FC = () => {
   
   /* */ /* Actualización: Inicialización de navigate - 24/06/2024 15:15 */
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, isSimulating } = useOutletContext() as { user: User, isSimulating: boolean };
   const [projects, setProjects] = useState<Project[]>([]);
   /* Fin de actualización - 24/06/2024 15:15 */
@@ -39,6 +41,7 @@ export const EmailMarketing: React.FC = () => {
   const [newTagName, setNewTagName] = useState('');
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
 
   // --- Nuevo Estado para Restricción de Eliminación ---
   const [showRestrictionModal, setShowRestrictionModal] = useState(false);
@@ -50,6 +53,11 @@ export const EmailMarketing: React.FC = () => {
     loadLeads();
     loadSequences();
     loadProjects();
+
+    // Check if we should open the wizard based on URL params
+    if (searchParams.get('projectId') || searchParams.get('day')) {
+      setIsWizardOpen(true);
+    }
   }, []);
 
   const loadProjects = async () => {
@@ -289,7 +297,7 @@ export const EmailMarketing: React.FC = () => {
                   {/* Botones centrados debajo del video */}
                   <div className="flex flex-col gap-3">
                       <button 
-                        onClick={() => navigate('/dashboard/email/create')}
+                        onClick={() => setIsWizardOpen(true)}
                         className="w-full px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
                       >
                         <Plus className="w-4 h-4" /> Crear Nueva Secuencia
@@ -300,35 +308,46 @@ export const EmailMarketing: React.FC = () => {
       </div>
 
       {/* NAVEGACIÓN POR PESTAÑAS */}
-      <div className="flex flex-wrap gap-4 border-b border-white/5 pb-2">
-          <button 
-              onClick={() => setActiveTab('sequence')}
-              className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'sequence' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
-          >
-              <LayoutTemplate className="w-4 h-4" /> Secuencias
-              {activeTab === 'sequence' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
-          </button>
-          <button 
-              onClick={() => setActiveTab('leads')}
-              className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'leads' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
-          >
-              <Users className="w-4 h-4" /> Leads
-              {activeTab === 'leads' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
-          </button>
-          <button 
-              onClick={() => setActiveTab('config')}
-              className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'config' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
-          >
-              <Settings className="w-4 h-4" /> Configuración
-              {activeTab === 'config' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
-          </button>
-      </div>
+      {!isWizardOpen && (
+        <div className="flex flex-wrap gap-4 border-b border-white/5 pb-2">
+            <button 
+                onClick={() => setActiveTab('sequence')}
+                className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'sequence' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
+            >
+                <LayoutTemplate className="w-4 h-4" /> Secuencias
+                {activeTab === 'sequence' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
+            </button>
+            <button 
+                onClick={() => setActiveTab('leads')}
+                className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'leads' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
+            >
+                <Users className="w-4 h-4" /> Leads
+                {activeTab === 'leads' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
+            </button>
+            <button 
+                onClick={() => setActiveTab('config')}
+                className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'config' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
+            >
+                <Settings className="w-4 h-4" /> Configuración
+                {activeTab === 'config' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
+            </button>
+        </div>
+      )}
 
-      {/* CONTENIDO DE PESTAÑAS */}
+      {/* CONTENIDO DE PESTAÑAS O WIZARD */}
       <div className="animate-in fade-in duration-500">
-        
-        {/* PESTAÑA: SECUENCIAS */}
-        {activeTab === 'sequence' && (
+        {isWizardOpen ? (
+          <EmailSequenceWizard 
+            onClose={() => {
+              setIsWizardOpen(false);
+              setSearchParams({}); // Clear params when closing
+              loadSequences(); // Refresh list
+            }} 
+          />
+        ) : (
+          <>
+            {/* PESTAÑA: SECUENCIAS */}
+            {activeTab === 'sequence' && (
             <div className="space-y-8 animate-in slide-in-from-left-4">
                 {loadingSequences ? (
                     <div className="flex justify-center p-20 text-[#FF5A1F]"><Loader2 className="w-12 h-12 animate-spin" /></div>
@@ -336,7 +355,7 @@ export const EmailMarketing: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Tarjeta de añadir nueva */}
                         <button 
-                            onClick={() => navigate('/dashboard/email/create')}
+                            onClick={() => setIsWizardOpen(true)}
                             className="bg-gray-900 border-2 border-dashed border-white/20 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px]"
                         >
                             <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all">
@@ -382,7 +401,10 @@ export const EmailMarketing: React.FC = () => {
                                             {[0, 1, 2, 3, 4, 5, 6].map(day => (
                                                 <div 
                                                     key={day} 
-                                                    onClick={() => navigate(`/dashboard/email/create?projectId=${seq.projectId}&day=${day}`)}
+                                                    onClick={() => {
+                                                      setSearchParams({ projectId: seq.projectId, day: day.toString() });
+                                                      setIsWizardOpen(true);
+                                                    }}
                                                     className={`flex-1 h-10 rounded-lg transition-all duration-500 flex items-center justify-center cursor-pointer hover:opacity-80 active:scale-95 min-w-[60px] ${seq.generatedDays.includes(day) ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-gray-800'}`}
                                                 >
                                                     <span className="text-[10px] font-black text-white px-1 text-center leading-tight">Día {day + 1}</span>
@@ -395,7 +417,10 @@ export const EmailMarketing: React.FC = () => {
                                 {/* Acciones de la Tarjeta */}
                                 <div className="flex flex-col gap-3 mt-10">
                                     <button 
-                                        onClick={() => navigate(`/dashboard/email/create?projectId=${seq.projectId}`)}
+                                        onClick={() => {
+                                          setSearchParams({ projectId: seq.projectId });
+                                          setIsWizardOpen(true);
+                                        }}
                                         className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg"
                                     >
                                         <Edit3 className="w-5 h-5" /> Ver / Editar Correos Electronicos
@@ -416,7 +441,7 @@ export const EmailMarketing: React.FC = () => {
                             </p>
                         </div>
                         <button 
-                            onClick={() => navigate('/dashboard/email/create')}
+                            onClick={() => setIsWizardOpen(true)}
                             className="px-12 py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg uppercase tracking-widest rounded-2xl transition-all shadow-2xl shadow-[#FF5A1F]/20 transform hover:scale-105 active:scale-95"
                         >
                             Crear mi primera secuencia
@@ -617,6 +642,8 @@ export const EmailMarketing: React.FC = () => {
                     </div>
                 </div>
             </div>
+        )}
+          </>
         )}
       </div>
 

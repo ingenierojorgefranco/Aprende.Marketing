@@ -19,7 +19,7 @@ interface DashboardContext {
     pageCount: number;
 }
 
-export const EmailSequenceWizard: React.FC = () => {
+export const EmailSequenceWizard: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
     const navigate = useNavigate();
     const { user } = useOutletContext() as DashboardContext;
     /* */ /* Actualización: Extracción de parámetros de búsqueda para navegación profunda - 25/05/2024 18:15 */
@@ -343,7 +343,9 @@ export const EmailSequenceWizard: React.FC = () => {
             <div className="bg-[#FF5A1F]/10 p-8 text-center border-b border-[#FF5A1F]/10 shrink-0 relative">
                 <button 
                     onClick={() => { 
-                        if (step === 0 || urlProjectId) {
+                        if (onClose) {
+                            onClose();
+                        } else if (step === 0 || urlProjectId) {
                             navigate('/dashboard/email');
                         } else {
                             setStep(0); 

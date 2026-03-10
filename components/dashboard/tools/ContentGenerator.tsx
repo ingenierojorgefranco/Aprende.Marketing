@@ -517,7 +517,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       />
 
       <div className={`bg-purple-600/10 p-8 text-center border-b border-purple-500/10 relative ${showUpgradeModal || (loading && generationStatus !== 'generating') ? 'opacity-30 pointer-events-none' : ''}`}>
-        <button onClick={() => navigate('/dashboard/articles')} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+        <button onClick={() => onClose ? onClose() : navigate('/dashboard/articles')} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
             <ArrowLeft className="w-6 h-6" />
         </button>
         {onClose && (

@@ -5,6 +5,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
+import { ContentGenerator } from './ContentGenerator';
 
 interface DashboardContext {
   user: User;
@@ -34,6 +35,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   // --- Nuevo Estado para Restricción de Eliminación ---
   const [showRestrictionModal, setShowRestrictionModal] = useState(false);
   const [articleToRestrict, setArticleToRestrict] = useState<Article | null>(null);
+  const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
   // ----------------------------------------------------
 
   useEffect(() => {
@@ -129,7 +131,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
       }
 
       if (onCreateNew) onCreateNew();
-      else navigate("/dashboard/content-creator");
+      else setIsGeneratorOpen(true);
   };
 
   if (loading) {
@@ -247,227 +249,253 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
           </div>
       </div>
 
-      {/* SECCIÓN: MIS ARTÍCULOS */}
-      <div className="space-y-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-              <div className="flex items-center gap-4 border-l-4 border-purple-500 pl-4 py-1 pb-5">
-                  <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500 border border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
-                      <FileText className="w-8 h-8" />
-                  </div>
-                  <div>
-                      <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Artículos</h2>
-                      <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tu contenido SEO y posicionamiento orgánico</p>
-                  </div>
-              </div>
-          </div>
-
-          {/* FILTRO POR PROYECTO - CENTRADO Y MÁS GRANDE */}
-          <div className="w-full flex justify-center">
-              <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
-                  <label className="text-[12px] font-black text-gray-400 uppercase tracking-[0.3em]">Selecciona un Proyecto para Filtrar</label>
-                  <select 
-                      value={filterProjectId}
-                      onChange={(e) => {
-                          setFilterProjectId(e.target.value);
+      {/* SECCIÓN: MIS ARTÍCULOS O GENERADOR */}
+      {isGeneratorOpen ? (
+          <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+              <ContentGenerator 
+                  onSave={async (articleData) => {
+                      try {
+                          if (articleData.id) {
+                              await api.updateArticle(articleData.id, articleData);
+                          } else {
+                              await api.saveArticle(articleData);
+                          }
+                          setIsGeneratorOpen(false);
+                          // El useEffect de ArticlesList recargará la lista automáticamente al desmontar el generador
+                          // si forzamos un refresco o si el componente se vuelve a montar.
+                          // Para asegurar el refresco, podemos resetear la página a 1.
                           setPage(1);
-                      }}
-                      className="w-full bg-gray-900/50 border-2 border-white/10 rounded-[2rem] px-8 py-5 text-white text-xl font-bold outline-none focus:border-purple-500 transition-all shadow-2xl appearance-none text-center cursor-pointer hover:bg-gray-900"
-                  >
-                      <option value="all">✨ Todos los Proyectos</option>
-                      {projects.map(p => (
-                          <option key={p.id} value={p.id}>{p.name}</option>
-                      ))}
-                  </select>
-              </div>
+                      } catch (e) {
+                          throw e;
+                      }
+                  }}
+                  onClose={() => setIsGeneratorOpen(false)}
+              />
           </div>
-      </div>
-
-      {/* CONTENT GRID */}
-      {/* */ /* Actualización: Rediseño Premium Dark con cuadrícula de 3 columnas (LG), bordes redondeados [2.5rem], fondo #111 y línea de acento naranja superior para una estética coherente y profesional - 22/05/2024 19:45 */ }
-      {localArticles.length === 0 ? (
-        <div className="text-center py-20 bg-gray-900 rounded-[2.5rem] border border-dashed border-gray-700 flex flex-col items-center justify-center">
-          <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-gray-700">
-            <BookOpen className="w-10 h-10 text-gray-600" />
-          </div>
-          <h3 className="text-xl font-bold text-white mb-2">Tu blog está vacío</h3>
-          <p className="text-gray-400 max-w-md mx-auto mb-8">Usa la IA para generar tu primer artículo optimizado para SEO y empieza a atraer tráfico.</p>
-          <button 
-            onClick={handleCreate}
-            className="text-purple-400 border border-purple-500/50 hover:bg-purple-600 hover:text-white px-6 py-2.5 rounded-lg transition font-medium"
-          >
-            Generar Primer Artículo
-          </button>
-        </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Empty Card for creation trigger */}
-          <button 
-              onClick={handleCreate}
-              className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
-          >
-              <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
-                  <Plus className="w-10 h-10" />
-              </div>
-              <div className="text-center">
-                  <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Redactar Nuevo Artículo</h4>
-                  <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>IA optimizada para posicionamiento Google</p>
-              </div>
-          </button>
-          {localArticles.map((article) => {
-             const basePageSlug = article.pageSubdomain ? article.pageSubdomain.split(".")[0] : article.pageId;
-             const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${article.slug}` : '#';
-             const landingUrl = basePageSlug ? `/admin/lp/${basePageSlug}` : '#';
-
-             return (
-                <div key={article.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col h-full overflow-hidden shadow-2xl relative cursor-pointer">
-                {/* Accent Line - Unificado con el diseño global */}
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600 opacity-80"></div>
-
-                {article.featuredImage ? (
-                    <div className="h-48 w-full bg-gray-800 relative overflow-hidden">
-                        <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition duration-700 group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
-                        <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                             <div className={`text-[10px] font-black px-3 py-1 rounded-full backdrop-blur-md uppercase tracking-widest border ${
-                                article.seoScore >= 80 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                                article.seoScore >= 50 ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
-                                'bg-red-500/10 text-red-400 border-red-500/20'
-                            }`}>
-                                SEO: {article.seoScore}
-                            </div>
+          <>
+            <div className="space-y-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                    <div className="flex items-center gap-4 border-l-4 border-purple-500 pl-4 py-1 pb-5">
+                        <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500 border border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
+                            <FileText className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Artículos</h2>
+                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tu contenido SEO y posicionamiento orgánico</p>
                         </div>
                     </div>
-                ) : (
-                    <div className="h-48 bg-gray-800 flex items-center justify-center text-gray-600 relative">
-                        <FileText className="w-8 h-8" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
+                </div>
+
+                {/* FILTRO POR PROYECTO - CENTRADO Y MÁS GRANDE */}
+                <div className="w-full flex justify-center">
+                    <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
+                        <label className="text-[12px] font-black text-gray-400 uppercase tracking-[0.3em]">Selecciona un Proyecto para Filtrar</label>
+                        <select 
+                            value={filterProjectId}
+                            onChange={(e) => {
+                                setFilterProjectId(e.target.value);
+                                setPage(1);
+                            }}
+                            className="w-full bg-gray-900/50 border-2 border-white/10 rounded-[2rem] px-8 py-5 text-white text-xl font-bold outline-none focus:border-purple-500 transition-all shadow-2xl appearance-none text-center cursor-pointer hover:bg-gray-900"
+                        >
+                            <option value="all">✨ Todos los Proyectos</option>
+                            {projects.map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
                     </div>
-                )}
-                
-                <div className="p-8 flex-1 flex flex-col">
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="bg-white/5 text-white text-[0.8em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
-                            <Calendar className="w-3 h-3" />
-                            {new Date(article.publishedAt || article.createdAt).toLocaleDateString()}
-                        </div>
-                        {article.status === 'scheduled' && (
-                            <span className="text-[10px] text-orange-400 bg-orange-900/20 px-2 py-1 rounded border border-orange-900/30 font-black uppercase tracking-widest flex items-center gap-1">
-                                <Clock className="w-3 h-3" /> Para hoy
-                            </span>
-                        )}
-                        {article.status === 'published' && (
-                            <span className="text-[10px] text-emerald-400 bg-emerald-900/20 px-2 py-1 rounded border border-emerald-900/30 font-black uppercase tracking-widest flex items-center gap-1">
-                                <Globe className="w-3 h-3" /> Publicado
-                            </span>
-                        )}
-                        {article.status === 'draft' && (
-                            <span className="text-[10px] text-gray-400 bg-gray-800 px-2 py-1 rounded border border-gray-700 font-black uppercase tracking-widest">
-                                Borrador
-                            </span>
-                        )}
+                </div>
+            </div>
+
+            {/* CONTENT GRID */}
+            {/* */ /* Actualización: Rediseño Premium Dark con cuadrícula de 3 columnas (LG), bordes redondeados [2.5rem], fondo #111 y línea de acento naranja superior para una estética coherente y profesional - 22/05/2024 19:45 */ }
+            {localArticles.length === 0 ? (
+                <div className="text-center py-20 bg-gray-900 rounded-[2.5rem] border border-dashed border-gray-700 flex flex-col items-center justify-center">
+                <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-gray-700">
+                    <BookOpen className="w-10 h-10 text-gray-600" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Tu blog está vacío</h3>
+                <p className="text-gray-400 max-w-md mx-auto mb-8">Usa la IA para generar tu primer artículo optimizado para SEO y empieza a atraer tráfico.</p>
+                <button 
+                    onClick={handleCreate}
+                    className="text-purple-400 border border-purple-500/50 hover:bg-purple-600 hover:text-white px-6 py-2.5 rounded-lg transition font-medium"
+                >
+                    Generar Primer Artículo
+                </button>
+                </div>
+            ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* Empty Card for creation trigger */}
+                <button 
+                    onClick={handleCreate}
+                    className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
+                >
+                    <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
+                        <Plus className="w-10 h-10" />
                     </div>
-                    
-                    <h3 className="text-xl font-black text-[#FF5A1F] mb-3 line-clamp-2 group-hover:text-[#FF5A1F] transition-colors duration-300 leading-[1.6]">
-                    {article.title}
-                    </h3>
-                    <p className="text-white text-[1.2rem] line-clamp-3 mb-8 flex-1 leading-relaxed">
-                    {article.metaDescription || article.description}
-                    </p>
-                    
-                    <div className="space-y-4 mt-auto pt-6 border-t border-white/5">
-                        {article.pageId ? (
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
-                                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
-                                        <Briefcase className="w-3.5 h-3.5" />
+                    <div className="text-center">
+                        <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Redactar Nuevo Artículo</h4>
+                        <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>IA optimizada para posicionamiento Google</p>
+                    </div>
+                </button>
+                {localArticles.map((article) => {
+                    const basePageSlug = article.pageSubdomain ? article.pageSubdomain.split(".")[0] : article.pageId;
+                    const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${article.slug}` : '#';
+                    const landingUrl = basePageSlug ? `/admin/lp/${basePageSlug}` : '#';
+
+                    return (
+                        <div key={article.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col h-full overflow-hidden shadow-2xl relative cursor-pointer">
+                        {/* Accent Line - Unificado con el diseño global */}
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600 opacity-80"></div>
+
+                        {article.featuredImage ? (
+                            <div className="h-48 w-full bg-gray-800 relative overflow-hidden">
+                                <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition duration-700 group-hover:scale-105" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
+                                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                                    <div className={`text-[10px] font-black px-3 py-1 rounded-full backdrop-blur-md uppercase tracking-widest border ${
+                                        article.seoScore >= 80 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                        article.seoScore >= 50 ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
+                                        'bg-red-500/10 text-red-400 border-red-500/20'
+                                    }`}>
+                                        SEO: {article.seoScore}
                                     </div>
-                                    <a 
-                                        href="/dashboard/projects"
-                                        target="_blank"
-                                        rel="noopener noreferrer" 
-                                        className="hover:text-[#FF5A1F] transition-colors"
-                                    >
-                                        Proyecto: {article.pageName || "General"}
-                                    </a>
-                                </div>
-                                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
-                                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
-                                        <Globe className="w-3.5 h-3.5" />
-                                    </div>
-                                    <a 
-                                        href={landingUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer" 
-                                        className="hover:text-[#FF5A1F] transition-colors"
-                                    >
-                                        LandingPage: {article.pageName || "Landing Page"}
-                                    </a>
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-600">
-                                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5">
-                                    <Globe className="w-3.5 h-3.5" />
-                                </div>
-                                <span>Sin vincular</span>
+                            <div className="h-48 bg-gray-800 flex items-center justify-center text-gray-600 relative">
+                                <FileText className="w-8 h-8" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
                             </div>
                         )}
-                    </div>
-                </div>
-                
-                <div className="p-6 bg-black/20 border-t border-white/5 flex items-center gap-3">
-                    <button 
-                        onClick={() => navigate(`/dashboard/articles/edit/${article.id}`)}
-                        className="flex-1 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-xl py-3 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-white/5"
-                    >
-                        <Edit2 className="w-3.5 h-3.5" /> Editar
-                    </button>
-                    
-                    {article.pageId && basePageSlug && article.status === 'published' && (
-                        <a 
-                            href={articleUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="p-3 bg-[#FF5A1F]/10 hover:bg-[#FF5A1F] text-[#FF5A1F] hover:text-white rounded-xl transition border border-[#FF5A1F]/20 shadow-lg"
-                            title="Ver artículo online"
-                        >
-                            <ExternalLink className="w-4 h-4" />
-                        </a>
-                    )}
+                        
+                        <div className="p-8 flex-1 flex flex-col">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="bg-white/5 text-white text-[0.8em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
+                                    <Calendar className="w-3 h-3" />
+                                    {new Date(article.publishedAt || article.createdAt).toLocaleDateString()}
+                                </div>
+                                {article.status === 'scheduled' && (
+                                    <span className="text-[10px] text-orange-400 bg-orange-900/20 px-2 py-1 rounded border border-orange-900/30 font-black uppercase tracking-widest flex items-center gap-1">
+                                        <Clock className="w-3 h-3" /> Para hoy
+                                    </span>
+                                )}
+                                {article.status === 'published' && (
+                                    <span className="text-[10px] text-emerald-400 bg-emerald-900/20 px-2 py-1 rounded border border-emerald-900/30 font-black uppercase tracking-widest flex items-center gap-1">
+                                        <Globe className="w-3 h-3" /> Publicado
+                                    </span>
+                                )}
+                                {article.status === 'draft' && (
+                                    <span className="text-[10px] text-gray-400 bg-gray-800 px-2 py-1 rounded border border-gray-700 font-black uppercase tracking-widest">
+                                        Borrador
+                                    </span>
+                                )}
+                            </div>
+                            
+                            <h3 className="text-xl font-black text-[#FF5A1F] mb-3 line-clamp-2 group-hover:text-[#FF5A1F] transition-colors duration-300 leading-[1.6]">
+                            {article.title}
+                            </h3>
+                            <p className="text-white text-[1.2rem] line-clamp-3 mb-8 flex-1 leading-relaxed">
+                            {article.metaDescription || article.description}
+                            </p>
+                            
+                            <div className="space-y-4 mt-auto pt-6 border-t border-white/5">
+                                {article.pageId ? (
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
+                                            <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                                <Briefcase className="w-3.5 h-3.5" />
+                                            </div>
+                                            <a 
+                                                href="/dashboard/projects"
+                                                target="_blank"
+                                                rel="noopener noreferrer" 
+                                                className="hover:text-[#FF5A1F] transition-colors"
+                                            >
+                                                Proyecto: {article.pageName || "General"}
+                                            </a>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
+                                            <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                                <Globe className="w-3.5 h-3.5" />
+                                            </div>
+                                            <a 
+                                                href={landingUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer" 
+                                                className="hover:text-[#FF5A1F] transition-colors"
+                                            >
+                                                LandingPage: {article.pageName || "Landing Page"}
+                                            </a>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-600">
+                                        <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5">
+                                            <Globe className="w-3.5 h-3.5" />
+                                        </div>
+                                        <span>Sin vincular</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        
+                        <div className="p-6 bg-black/20 border-t border-white/5 flex items-center gap-3">
+                            <button 
+                                onClick={() => navigate(`/dashboard/articles/edit/${article.id}`)}
+                                className="flex-1 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-xl py-3 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-white/5"
+                            >
+                                <Edit2 className="w-3.5 h-3.5" /> Editar
+                            </button>
+                            
+                            {article.pageId && basePageSlug && article.status === 'published' && (
+                                <a 
+                                    href={articleUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="p-3 bg-[#FF5A1F]/10 hover:bg-[#FF5A1F] text-[#FF5A1F] hover:text-white rounded-xl transition border border-[#FF5A1F]/20 shadow-lg"
+                                    title="Ver artículo online"
+                                >
+                                    <ExternalLink className="w-4 h-4" />
+                                </a>
+                            )}
 
+                            <button 
+                                onClick={() => handleDelete(article)}
+                                className="p-3 text-red-500/40 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition"
+                                title="Eliminar artículo"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </div>
+                        </div>
+                    );
+                })}
+                </div>
+            )}
+
+            {/* PAGINACIÓN */}
+            {totalPages > 1 && !isGeneratorOpen && (
+                <div className="flex justify-center items-center gap-4 mt-12">
                     <button 
-                        onClick={() => handleDelete(article)}
-                        className="p-3 text-red-500/40 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition"
-                        title="Eliminar artículo"
+                        onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                        disabled={page === 1}
+                        className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-[#FF5A1F] disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
                     >
-                        <Trash2 className="w-4 h-4" />
+                        Anterior
+                    </button>
+                    <span className="text-gray-400 font-black text-xs uppercase tracking-widest">Página {page} de {totalPages}</span>
+                    <button 
+                        onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
+                        disabled={page === totalPages}
+                        className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-[#FF5A1F] disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
+                    >
+                        Siguiente
                     </button>
                 </div>
-                </div>
-             );
-          })}
-        </div>
-      )}
-
-      {/* PAGINACIÓN */}
-      {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4 mt-12">
-              <button 
-                  onClick={() => setPage(prev => Math.max(1, prev - 1))}
-                  disabled={page === 1}
-                  className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-[#FF5A1F] disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
-              >
-                  Anterior
-              </button>
-              <span className="text-gray-400 font-black text-xs uppercase tracking-widest">Página {page} de {totalPages}</span>
-              <button 
-                  onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={page === totalPages}
-                  className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-[#FF5A1F] disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
-              >
-                  Siguiente
-              </button>
-          </div>
+            )}
+          </>
       )}
 
       {/* VIDEO MODAL */}
