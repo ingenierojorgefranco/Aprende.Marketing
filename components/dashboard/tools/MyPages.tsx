@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext, Link } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { LandingPage, User, Project } from '../../../types';
-import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info, Plus } from 'lucide-react';
+import { Loader2, LayoutTemplate, PenTool, Globe, Trash2, AlertTriangle, X, Zap, Crown, Settings, MessageCircle, ExternalLink, CheckCircle, PlayCircle, Briefcase, ChevronDown, ChevronUp, Info, Plus, Sparkles, ArrowLeft, ChevronRight } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
+import { Generator } from './Generator';
 
 interface DashboardContext {
   user: User;
@@ -35,6 +36,12 @@ export const MyPages: React.FC = () => {
 
     // Accordion State
     const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
+
+    // --- Estados para el Wizard de Nueva Página ---
+    const [isWizardOpen, setIsWizardOpen] = useState(false);
+    const [wizardStep, setWizardStep] = useState(0);
+    const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+    // --------------------------------------------
 
     useEffect(() => {
         loadData();
@@ -109,6 +116,17 @@ export const MyPages: React.FC = () => {
     const closeDomainModal = () => {
         setShowDomainModal(false);
         setSelectedPageForDomain(null);
+    };
+
+    const handleOpenWizard = () => {
+        setSelectedProjectId(null);
+        setWizardStep(0);
+        setIsWizardOpen(true);
+    };
+
+    const handleProjectSelect = (projectId: string) => {
+        setSelectedProjectId(projectId);
+        setWizardStep(1);
     };
 
     if (loading) {
@@ -220,7 +238,7 @@ export const MyPages: React.FC = () => {
                                 </button>
                             ) : (
                                 <button
-                                    onClick={() => navigate("/dashboard/generator")}
+                                    onClick={handleOpenWizard}
                                     className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-primary hover:bg-indigo-600 text-white shadow-primary/25 hover:-translate-y-1 w-full"
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-2">
@@ -235,134 +253,222 @@ export const MyPages: React.FC = () => {
                 </div>
             </div>
 
-            {/* SECCIÓN: MIS PÁGINAS */}
-            <div className="space-y-6">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                    <div className="flex items-center gap-4 border-l-4 border-primary pl-4 py-1 pb-5">
-                        <div className="p-3 bg-primary/10 rounded-2xl text-primary border border-primary/20 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
-                            <LayoutTemplate className="w-8 h-8" />
+            {isWizardOpen ? (
+                <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${wizardStep === 0 ? 'max-w-5xl' : 'max-w-[90rem]'} animate-in fade-in duration-500`}>
+                    <div className="bg-primary/10 p-8 text-center border-b border-primary/10 relative">
+                        <button onClick={() => wizardStep === 0 ? setIsWizardOpen(false) : setWizardStep(0)} className="absolute top-6 left-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+                            <ArrowLeft className="w-6 h-6" />
+                        </button>
+                        <button onClick={() => setIsWizardOpen(false)} className="absolute top-6 right-6 p-2 bg-gray-800 rounded-full text-gray-400 hover:text-white transition">
+                            <X className="w-6 h-6" />
+                        </button>
+                        <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
+                            <Sparkles className="w-8 h-8 text-primary" />
                         </div>
-                        <div>
-                            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Páginas</h2>
-                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tus embudos de venta y páginas de aterrizaje</p>
+                        <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Landing Pages IA</h2>
+                        <div className="flex items-center justify-center gap-2 mt-4 text-sm">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 0 ? 'bg-primary text-white' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
+                            <div className="w-4 h-px bg-gray-700"></div>
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 1 ? 'bg-primary text-white' : 'bg-gray-800 text-gray-500'}`}>1. Configuración</span>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            {/* Content Area */}
-            {pages.length === 0 ? (
-                <div className="text-center py-20 bg-gray-900 rounded-2xl border border-dashed border-gray-700">
-                    <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
-                        <LayoutTemplate className="w-10 h-10 text-gray-600" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Tu lienzo está en blanco</h3>
-                    <p className="text-gray-400 max-w-md mx-auto mb-8">Aún no has creado ninguna página. Usa nuestra Inteligencia Artificial para generar tu primera estructura de ventas en segundos.</p>
-                    <button 
-                        onClick={() => navigate("/dashboard/generator")}
-                        className="text-primary border border-primary px-6 py-2.5 rounded-lg hover:bg-primary hover:text-white transition font-medium"
-                    >
-                        Empezar Ahora
-                    </button>
-                </div>
-            ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <button 
-                        onClick={() => navigate("/dashboard/generator")}
-                        className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
-                    >
-                        <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
-                            <Plus className="w-10 h-10" />
-                        </div>
-                        <div className="text-center">
-                            <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear Nueva Página</h4>
-                            <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Diseño de alta conversión generado por IA</p>
-                        </div>
-                    </button>
-                    {pages.map((page) => {
-                        // ACTUALIZADO: El subdominio ya contiene el ID antepuesto por el backend.
-                        // Limpiamos el subdominio para obtener el slug exacto para el enlace.
-                        const baseSlug = page.subdomain ? page.subdomain.split(".")[0] : page.id;
-                        const publicUrl = `/admin/lp/${baseSlug}`;
+                    <div className="p-8 flex-1 overflow-y-auto relative">
+                        {wizardStep === 0 ? (
+                            <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center py-10">
+                                <div className="max-w-2xl mx-auto">
+                                    <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase">
+                                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Selecciona tu Proyecto</span>
+                                    </h2>
+                                    <p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra inteligencia artificial necesita conocer tu estrategia y avatar para generar la mejor landing page.</p>
+                                </div>
+                                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                                    {/* CARD: CREAR NUEVO PROYECTO - AHORA PRIMERO */}
+                                    <div 
+                                        className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-primary/50 hover:bg-primary/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
+                                        onClick={() => navigate('/dashboard/projects')}
+                                    >
+                                        <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-primary/10 group-hover:text-primary transition-all shadow-lg mb-6">
+                                            <Plus className="w-10 h-10" />
+                                        </div>
+                                        <h4 className="text-white font-black text-2xl group-hover:text-primary transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                                        <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar tu página</p>
+                                    </div>
 
-                        return (
-                            /* Actualización: Rediseño Premium Dark con bordes redondeados [2.5rem], fondo #111 y efectos de iluminación suaves al pasar el ratón para una experiencia de usuario más sofisticada */
-                            /* 22/05/2024 19:15 */
-                            <div key={page.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl">
-                                {/* Accent Line - Unificado con Email Marketing */}
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600 opacity-80"></div>
-
-                                <div className="p-8 flex-1 flex flex-col">
-                                    <div className="flex justify-between items-start mb-6">
-                                        <div className="flex-1 min-w-0 pr-3">
-                                            <Link to={`/dashboard/editor/${page.id}`}>
-                                                <h3 className="text-2xl font-black text-white truncate group-hover:text-[#FF5A1F] transition-colors duration-300">{page.name}</h3>
-                                            </Link>
-                                            <div className="flex items-center gap-2 mt-2">
-                                                <Briefcase className="w-4 h-4 text-gray-500" />
-                                                <Link 
-                                                    to={page.projectId ? `/dashboard/projects/${page.projectId}/strategy` : "/dashboard/projects"}
-                                                    target="_blank"
-                                                    className="text-base font-medium text-gray-400 truncate hover:text-[#FF5A1F] transition-colors"
-                                                >
-                                                    Proyecto: {page.projectName || 'Sin Proyecto'}
-                                                </Link>
+                                    {projects.map((project) => (
+                                        <div 
+                                            key={project.id} 
+                                            className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-primary/50 hover:bg-primary/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full cursor-pointer" 
+                                            onClick={() => handleProjectSelect(project.id)}
+                                        >
+                                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                            <div className="flex items-center gap-5 mb-8">
+                                                <div className="p-4 bg-gray-800 rounded-2xl group-hover:bg-primary/10 group-hover:text-primary transition-colors shadow-inner">
+                                                    <Briefcase className="w-8 h-8" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-white font-black text-2xl group-hover:text-primary transition-colors truncate">{project.name}</h4>
+                                                    <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <span className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${page.isPublished ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>
-                                            {page.isPublished ? "Publicada" : "Borrador"}
-                                        </span>
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-2 gap-2 mb-8 bg-black/40 p-4 rounded-2xl border border-white/5 overflow-hidden">
-                                        <div className="text-center p-1">
-                                            <p className="text-xl font-black text-white">{page.visits}</p>
-                                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Visitas</p>
-                                        </div>
-                                        <Link 
-                                            to={`/dashboard/crm?pageId=${page.id}&pageName=${encodeURIComponent(page.name)}`}
-                                            className="text-center p-1 border-l border-white/10 hover:bg-[#FF5A1F]/10 transition-all cursor-pointer group/stat"
-                                        >
-                                            <p className="text-xl font-black text-white group-hover:text-[#FF5A1F] transition-colors">{page.conversions}</p>
-                                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest group-hover:text-[#FF5A1F] transition-colors">Leads</p>
-                                        </Link>
-                                    </div>
-
-                                    <div className="mt-auto space-y-3 pt-6 border-t border-white/5">
-                                        <button onClick={() => navigate(`/dashboard/editor/${page.id}`)} className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-gray-300 font-black text-xs uppercase tracking-widest hover:bg-white/10 hover:text-white flex items-center justify-center gap-2 transition group-hover:border-[#FF5A1F]/30 shadow-lg">
-                                            <PenTool className="w-4 h-4" /> Editar Diseño
-                                        </button>
-                                        
-                                        <button 
-                                            onClick={() => openDomainModal(page)}
-                                            className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition border ${
-                                                page.customDomain 
-                                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20" 
-                                                : "bg-transparent text-gray-500 border-white/5 hover:text-white hover:border-white/20"
-                                            }`}
-                                        >
-                                            {page.customDomain ? <CheckCircle className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
-                                            {page.customDomain ? "Ver Dominio" : "Añadir Dominio"}
-                                        </button>
-
-                                        <div className="flex gap-2">
-                                            <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 border border-white/5 bg-white/5 rounded-xl text-gray-500 hover:bg-white/10 hover:text-white flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest">
-                                                <LayoutTemplate className="w-3.5 h-3.5" /> Ver Online
-                                            </a>
-                                            <button onClick={() => handleTogglePublish(page)} className={`flex-1 py-3 border rounded-xl flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest ${page.isPublished ? "border-orange-500/20 text-orange-500/80 hover:bg-orange-500/10" : "border-emerald-500/20 text-emerald-400/80 hover:bg-emerald-500/10"}`}>
-                                                <Globe className="w-3.5 h-3.5" /> {page.isPublished ? "Pausar" : "Publicar"}
+                                            <div className="flex-1 mb-10">
+                                                <p className="text-[11px] text-gray-600 font-black uppercase tracking-widest mb-3">Descripción del Proyecto</p>
+                                                <p className="text-gray-400 text-lg leading-relaxed font-medium">{project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción.")}</p>
+                                            </div>
+                                            <button className="w-full py-5 bg-primary hover:bg-indigo-600 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3 transform group-hover:scale-[1.02] active:scale-95">
+                                                Seleccionar <ChevronRight className="w-5 h-5" />
                                             </button>
                                         </div>
-
-                                        <button onClick={() => handleDeleteAttempt(page)} className="w-full py-3 text-red-500/40 hover:text-red-400 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition hover:bg-red-500/5 rounded-xl">
-                                            <Trash2 className="w-3.5 h-3.5" /> Eliminar Página
-                                        </button>
-                                    </div>
+                                    ))}
                                 </div>
                             </div>
-                        );
-                    })}
+                        ) : (
+                            <div className="animate-in slide-in-from-right-4 duration-500">
+                                <Generator 
+                                    embeddedProjectId={selectedProjectId!}
+                                    onPageGenerated={(newPage) => {
+                                        setPages(prev => [newPage, ...prev]);
+                                        setIsWizardOpen(false);
+                                    }}
+                                    onClose={() => setIsWizardOpen(false)}
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
+            ) : (
+                <div className="space-y-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                        <div className="flex items-center gap-4 border-l-4 border-primary pl-4 py-1 pb-5">
+                            <div className="p-3 bg-primary/10 rounded-2xl text-primary border border-primary/20 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
+                                <LayoutTemplate className="w-8 h-8" />
+                            </div>
+                            <div>
+                                <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Páginas</h2>
+                                <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tus embudos de venta y páginas de aterrizaje</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Content Area */}
+            {!isWizardOpen && (
+                <>
+                    {pages.length === 0 ? (
+                        <div className="text-center py-20 bg-gray-900 rounded-2xl border border-dashed border-gray-700">
+                            <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                                <LayoutTemplate className="w-10 h-10 text-gray-600" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-2">Tu lienzo está en blanco</h3>
+                            <p className="text-gray-400 max-w-md mx-auto mb-8">Aún no has creado ninguna página. Usa nuestra Inteligencia Artificial para generar tu primera estructura de ventas en segundos.</p>
+                            <button 
+                                onClick={handleOpenWizard}
+                                className="text-primary border border-primary px-6 py-2.5 rounded-lg hover:bg-primary hover:text-white transition font-medium"
+                            >
+                                Empezar Ahora
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            <button 
+                                onClick={handleOpenWizard}
+                                className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
+                            >
+                                <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
+                                    <Plus className="w-10 h-10" />
+                                </div>
+                                <div className="text-center">
+                                    <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear Nueva Página</h4>
+                                    <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Diseño de alta conversión generado por IA</p>
+                                </div>
+                            </button>
+                            {pages.map((page) => {
+                                // ACTUALIZADO: El subdominio ya contiene el ID antepuesto por el backend.
+                                // Limpiamos el subdominio para obtener el slug exacto para el enlace.
+                                const baseSlug = page.subdomain ? page.subdomain.split(".")[0] : page.id;
+                                const publicUrl = `/admin/lp/${baseSlug}`;
+
+                                return (
+                                    /* Actualización: Rediseño Premium Dark con bordes redondeados [2.5rem], fondo #111 y efectos de iluminación suaves al pasar el ratón para una experiencia de usuario más sofisticada */
+                                    /* 22/05/2024 19:15 */
+                                    <div key={page.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl">
+                                        {/* Accent Line - Unificado con Email Marketing */}
+                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600 opacity-80"></div>
+
+                                        <div className="p-8 flex-1 flex flex-col">
+                                            <div className="flex justify-between items-start mb-6">
+                                                <div className="flex-1 min-w-0 pr-3">
+                                                    <Link to={`/dashboard/editor/${page.id}`}>
+                                                        <h3 className="text-2xl font-black text-white truncate group-hover:text-[#FF5A1F] transition-colors duration-300">{page.name}</h3>
+                                                    </Link>
+                                                    <div className="flex items-center gap-2 mt-2">
+                                                        <Briefcase className="w-4 h-4 text-gray-500" />
+                                                        <Link 
+                                                            to={page.projectId ? `/dashboard/projects/${page.projectId}/strategy` : "/dashboard/projects"}
+                                                            target="_blank"
+                                                            className="text-base font-medium text-gray-400 truncate hover:text-[#FF5A1F] transition-colors"
+                                                        >
+                                                            Proyecto: {page.projectName || 'Sin Proyecto'}
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                                <span className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${page.isPublished ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>
+                                                    {page.isPublished ? "Publicada" : "Borrador"}
+                                                </span>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 gap-2 mb-8 bg-black/40 p-4 rounded-2xl border border-white/5 overflow-hidden">
+                                                <div className="text-center p-1">
+                                                    <p className="text-xl font-black text-white">{page.visits}</p>
+                                                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Visitas</p>
+                                                </div>
+                                                <Link 
+                                                    to={`/dashboard/crm?pageId=${page.id}&pageName=${encodeURIComponent(page.name)}`}
+                                                    className="text-center p-1 border-l border-white/10 hover:bg-[#FF5A1F]/10 transition-all cursor-pointer group/stat"
+                                                >
+                                                    <p className="text-xl font-black text-white group-hover:text-[#FF5A1F] transition-colors">{page.conversions}</p>
+                                                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest group-hover:text-[#FF5A1F] transition-colors">Leads</p>
+                                                </Link>
+                                            </div>
+
+                                            <div className="mt-auto space-y-3 pt-6 border-t border-white/5">
+                                                <button onClick={() => navigate(`/dashboard/editor/${page.id}`)} className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-gray-300 font-black text-xs uppercase tracking-widest hover:bg-white/10 hover:text-white flex items-center justify-center gap-2 transition group-hover:border-[#FF5A1F]/30 shadow-lg">
+                                                    <PenTool className="w-4 h-4" /> Editar Diseño
+                                                </button>
+                                                
+                                                <button 
+                                                    onClick={() => openDomainModal(page)}
+                                                    className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition border ${
+                                                        page.customDomain 
+                                                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20" 
+                                                        : "bg-transparent text-gray-500 border-white/5 hover:text-white hover:border-white/20"
+                                                    }`}
+                                                >
+                                                    {page.customDomain ? <CheckCircle className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
+                                                    {page.customDomain ? "Ver Dominio" : "Añadir Dominio"}
+                                                </button>
+
+                                                <div className="flex gap-2">
+                                                    <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 border border-white/5 bg-white/5 rounded-xl text-gray-500 hover:bg-white/10 hover:text-white flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest">
+                                                        <LayoutTemplate className="w-3.5 h-3.5" /> Ver Online
+                                                    </a>
+                                                    <button onClick={() => handleTogglePublish(page)} className={`flex-1 py-3 border rounded-xl flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest ${page.isPublished ? "border-orange-500/20 text-orange-500/80 hover:bg-orange-500/10" : "border-emerald-500/20 text-emerald-400/80 hover:bg-emerald-500/10"}`}>
+                                                        <Globe className="w-3.5 h-3.5" /> {page.isPublished ? "Pausar" : "Publicar"}
+                                                    </button>
+                                                </div>
+
+                                                <button onClick={() => handleDeleteAttempt(page)} className="w-full py-3 text-red-500/40 hover:text-red-400 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition hover:bg-red-500/5 rounded-xl">
+                                                    <Trash2 className="w-3.5 h-3.5" /> Eliminar Página
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </>
             )}
 
             {/* MODALS */}
