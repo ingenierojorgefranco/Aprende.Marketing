@@ -35,6 +35,46 @@ router.get('/articles', authMiddleware, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+/**
+ * Obtiene artículos vinculados a un proyecto (incluyendo los del proyecto maestro padre)
+ */
+router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
+    const { projectId } = req.params;
+    try {
+        // 1. Obtener el master_parent_id del proyecto
+        const [proj] = await pool.query('SELECT master_parent_id FROM projects WHERE id = ?', [projectId]);
+        const masterParentId = proj[0]?.master_parent_id;
+
+        // 2. Consultar artículos del proyecto actual O del proyecto maestro
+        let query = `
+            SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
+            FROM articles a
+            LEFT JOIN landing_pages lp ON a.page_id = lp.id
+            LEFT JOIN projects p ON a.project_id = p.id
+            WHERE (a.project_id = ? OR (a.project_id = ? AND ? IS NOT NULL))
+            ORDER BY a.created_at DESC
+        `;
+        
+        const [rows] = await pool.query(query, [projectId, masterParentId, masterParentId]);
+
+        const mapped = rows.map(a => ({
+            ...a,
+            projectId: a.project_id ? String(a.project_id) : undefined,
+            masterArticleId: a.master_article_id ? String(a.master_article_id) : undefined,
+            projectName: a.project_name,
+            pageId: a.page_id ? String(a.page_id) : undefined,
+            pageName: a.page_name,
+            pageSubdomain: a.page_subdomain,
+            isGenerated: !!a.is_generated,
+            psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
+        }));
+
+        res.json(mapped);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 router.get('/articles/:id', authMiddleware, async (req, res) => {
     try {
         const [rows] = await pool.query(

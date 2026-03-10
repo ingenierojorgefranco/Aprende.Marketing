@@ -48,20 +48,20 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         if (!projectId) return;
         setLoadingLocal(true);
         try {
-            const [pages, articles, project] = await Promise.all([
+    const [pages, articles, project] = await Promise.all([
                 api.getPages(),
-                api.getArticles(),
+                api.getArticlesByProject(projectId),
                 api.getProjectById(projectId)
             ]);
 
             console.log("DEBUG - Project ID:", projectId);
             console.log("DEBUG - Master Parent ID:", project?.masterParentId);
-            console.log("DEBUG - All Articles from DB:", articles);
+            console.log("DEBUG - Articles from Project/Master:", articles);
 
             const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
             setLinkedPages(projectPages);
             
-            // Artículos vinculados al proyecto (por ID de proyecto, por masterParentId o por página del proyecto)
+            // Artículos vinculados al proyecto (ya vienen filtrados por el servidor, pero mantenemos lógica de seguridad)
             const projectArts = articles.filter(a => 
                 String(a.projectId) === String(projectId) || 
                 (project?.masterParentId && String(a.projectId) === String(project.masterParentId)) ||

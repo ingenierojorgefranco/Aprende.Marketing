@@ -844,6 +844,34 @@ export const api = {
         apiCache.articles = mapped;
         return mapped;
     },
+
+    getArticlesByProject: async (projectId: string): Promise<Article[]> => {
+        if (isMockMode) return Promise.resolve(localArticles.filter(a => String(a.projectId) === String(projectId)));
+        const articles = await fetchWithFallback(`/articles/project/${projectId}`, { method: 'GET', headers: getAuthHeaders() });
+        return articles.map((a: any) => ({
+            id: a.id.toString(),
+            projectId: (a.project_id || a.projectId) ? String(a.project_id || a.projectId) : undefined,
+            pageId: a.page_id ? a.page_id.toString() : undefined,
+            pageSubdomain: a.page_subdomain,
+            pageName: a.page_name,
+            isGenerated: !!a.is_generated,
+            psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
+            title: a.title,
+            slug: a.slug,
+            description: a.description || '',
+            contentHtml: a.content_html,
+            featuredImage: a.featured_image,
+            keyword: a.keyword,
+            seoScore: a.seo_score,
+            metaTitle: a.meta_title,
+            metaDescription: a.meta_description || '',
+            emailSubject: a.email_subject,
+            emailBody: a.email_body,
+            status: a.status || 'published',
+            publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
+            createdAt: a.created_at ? new Date(a.created_at) : new Date()
+        }));
+    },
   
     getArticleById: async (id: string): Promise<Article | null> => {
       if (isMockMode) {
