@@ -64,6 +64,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   const mapped = response.data.map((a: any) => ({
                       id: a.id.toString(),
                       projectId: (a.project_id || a.projectId) ? String(a.project_id || a.projectId) : undefined,
+                      projectName: a.project_name || a.projectName,
                       pageId: a.page_id ? a.page_id.toString() : undefined,
                       pageSubdomain: a.page_subdomain,
                       pageName: a.page_name,
@@ -306,6 +307,27 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                         </select>
                     </div>
                 </div>
+
+                {/* PAGINACIÓN SUPERIOR */}
+                {!isGeneratorOpen && localArticles.length > 0 && (
+                    <div className="w-full flex justify-center items-center gap-4">
+                        <button 
+                            onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                            disabled={page === 1}
+                            className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-[#FF5A1F] disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
+                        >
+                            Anterior
+                        </button>
+                        <span className="text-gray-400 font-black text-xs uppercase tracking-widest">Página {page} de {totalPages || 1}</span>
+                        <button 
+                            onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
+                            disabled={page === totalPages || totalPages === 0}
+                            className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-[#FF5A1F] disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* CONTENT GRID */}
@@ -374,7 +396,10 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                             <div className="flex justify-between items-start mb-4">
                                 <div className="bg-white/5 text-white text-[0.8em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
                                     <Calendar className="w-3 h-3" />
-                                    {new Date(article.publishedAt || article.createdAt).toLocaleDateString()}
+                                    {(() => {
+                                        const d = article.publishedAt instanceof Date ? article.publishedAt : new Date(article.publishedAt);
+                                        return isNaN(d.getTime()) ? 'Reciente' : d.toLocaleDateString();
+                                    })()}
                                 </div>
                                 {article.status === 'scheduled' && (
                                     <span className="text-[10px] text-orange-400 bg-orange-900/20 px-2 py-1 rounded border border-orange-900/30 font-black uppercase tracking-widest flex items-center gap-1">
@@ -397,38 +422,42 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                             {article.title}
                             </h3>
                             <p className="text-white text-[1.2rem] line-clamp-3 mb-8 flex-1 leading-relaxed">
-                            {article.metaDescription || article.description}
+                            {article.metaDescription || article.description || "Sin descripción disponible."}
                             </p>
                             
                             <div className="space-y-4 mt-auto pt-6 border-t border-white/5">
-                                {article.pageId ? (
+                                {article.projectId || article.pageId ? (
                                     <div className="flex flex-col gap-3">
-                                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
-                                            <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
-                                                <Briefcase className="w-3.5 h-3.5" />
+                                        {article.projectId && (
+                                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
+                                                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                                    <Briefcase className="w-3.5 h-3.5" />
+                                                </div>
+                                                <a 
+                                                    href="/dashboard/projects"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer" 
+                                                    className="hover:text-[#FF5A1F] transition-colors"
+                                                >
+                                                    Proyecto: {article.projectName || projects.find(p => p.id === article.projectId)?.name || "General"}
+                                                </a>
                                             </div>
-                                            <a 
-                                                href="/dashboard/projects"
-                                                target="_blank"
-                                                rel="noopener noreferrer" 
-                                                className="hover:text-[#FF5A1F] transition-colors"
-                                            >
-                                                Proyecto: {article.pageName || "General"}
-                                            </a>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
-                                            <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
-                                                <Globe className="w-3.5 h-3.5" />
+                                        )}
+                                        {article.pageId && (
+                                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
+                                                <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                                    <Globe className="w-3.5 h-3.5" />
+                                                </div>
+                                                <a 
+                                                    href={landingUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer" 
+                                                    className="hover:text-[#FF5A1F] transition-colors"
+                                                >
+                                                    Web: {article.pageName || "Landing Page"}
+                                                </a>
                                             </div>
-                                            <a 
-                                                href={landingUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer" 
-                                                className="hover:text-[#FF5A1F] transition-colors"
-                                            >
-                                                LandingPage: {article.pageName || "Landing Page"}
-                                            </a>
-                                        </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-600">
@@ -463,10 +492,11 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
 
                             <button 
                                 onClick={() => handleDelete(article)}
-                                className="p-3 text-red-500/40 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition"
+                                className="flex items-center gap-2 px-3 py-2 text-red-500/40 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition border border-transparent hover:border-red-500/20"
                                 title="Eliminar artículo"
                             >
                                 <Trash2 className="w-4 h-4" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Borrar</span>
                             </button>
                         </div>
                         </div>
@@ -475,8 +505,8 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                 </div>
             )}
 
-            {/* PAGINACIÓN */}
-            {totalPages > 1 && !isGeneratorOpen && (
+            {/* PAGINACIÓN INFERIOR */}
+            {!isGeneratorOpen && localArticles.length > 0 && (
                 <div className="flex justify-center items-center gap-4 mt-12">
                     <button 
                         onClick={() => setPage(prev => Math.max(1, prev - 1))}
@@ -485,10 +515,10 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                     >
                         Anterior
                     </button>
-                    <span className="text-gray-400 font-black text-xs uppercase tracking-widest">Página {page} de {totalPages}</span>
+                    <span className="text-gray-400 font-black text-xs uppercase tracking-widest">Página {page} de {totalPages || 1}</span>
                     <button 
                         onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
-                        disabled={page === totalPages}
+                        disabled={page === totalPages || totalPages === 0}
                         className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-[#FF5A1F] disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
                     >
                         Siguiente
