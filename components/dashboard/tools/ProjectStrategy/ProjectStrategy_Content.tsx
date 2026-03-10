@@ -21,12 +21,11 @@ interface ProjectStrategy_ContentProps {
     planLimits?: PlanLimits;
     nextPlan?: Plan | null;
     isSimulating?: boolean;
-    effectiveProjectId?: string;
 }
 
 export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = ({
     contentData, activeArticle, setActiveArticle, selectedArticles, toggleArticleSelection, handleTooltipHover, handleTooltipLeave, onUpgrade,
-    articleCount = 0, planLimits, nextPlan, isSimulating = false, effectiveProjectId
+    articleCount = 0, planLimits, nextPlan, isSimulating = false
 }) => {
     const navigate = useNavigate();
     const { id: projectId } = useParams() as { id: string };
@@ -46,20 +45,21 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const paginatedData = mergedContentData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const loadLocalData = async () => {
-        const targetId = effectiveProjectId || projectId;
-        if (!targetId) return;
+        if (!projectId) return;
         setLoadingLocal(true);
         try {
-            const [pages, articles] = await Promise.all([
+            const [pages, articles, project] = await Promise.all([
                 api.getPages(),
-                api.getArticles()
+                api.getArticles(),
+                api.getProjectById(projectId)
             ]);
-            const projectPages = pages.filter(p => String(p.projectId) === String(targetId));
+            const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
             setLinkedPages(projectPages);
             
-            // Artículos vinculados al proyecto (por ID de proyecto o por página del proyecto)
+            // Artículos vinculados al proyecto (por ID de proyecto, por masterParentId o por página del proyecto)
             const projectArts = articles.filter(a => 
-                String(a.projectId) === String(targetId) || 
+                String(a.projectId) === String(projectId) || 
+                (project?.masterParentId && String(a.projectId) === String(project.masterParentId)) ||
                 projectPages.some(p => String(p.id) === String(a.pageId))
             );
             setLinkedArticles(projectArts);
@@ -89,7 +89,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
     useEffect(() => {
         loadLocalData();
-    }, [projectId, effectiveProjectId, contentData]);
+    }, [projectId, contentData]);
 
     useEffect(() => {
         const active = mergedContentData[activeArticle];
@@ -131,13 +131,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     }, [localEdit]);
 
     const handleAddManual = async () => {
-        const targetId = effectiveProjectId || projectId;
-        if (!targetId) return;
+        if (!projectId) return;
         if (window.confirm("¿Deseas crear una nueva estrategia de contenido?")) {
             setLoadingLocal(true);
             try {
                 const newItem = {
-                    projectId: targetId,
+                    projectId: projectId,
                     title: "Nuevo Contenido",
                     isGenerated: false,
                     status: 'draft',
@@ -455,7 +454,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 pageId: linkedPages[0]?.id || '',
                                 articleId: mergedContentData[activeArticle]?.id
                             }}
-                            embeddedProjectId={effectiveProjectId || projectId}
+                            embeddedProjectId={projectId}
                             onClose={handleCloseAndReload}
                             onSave={async (article) => {
                                 if (article.id) {
