@@ -573,6 +573,18 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                 <div className="space-y-12 animate-in fade-in zoom-in-95 duration-500 text-center flex flex-col items-center">
                     <div className="max-w-2xl mx-auto"><h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight uppercase"><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-amber-500">Selecciona tu Proyecto</span></h2><p className="text-gray-400 text-lg leading-relaxed font-medium">Nuestra inteligencia artificial necesita conocer tu estrategia y avatar. Selecciona un proyecto para comenzar.</p></div>
                     <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                        {/* CARD: CREAR NUEVO PROYECTO */}
+                        <div 
+                            className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
+                            onClick={() => navigate('/dashboard/projects')}
+                        >
+                            <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg mb-6">
+                                <Plus className="w-10 h-10" />
+                            </div>
+                            <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                            <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar ganchos</p>
+                        </div>
+
                         {userProjects.map((project) => (
                             <div key={project.id} className="p-10 bg-[#0B0B0B] border border-white/5 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-left group flex flex-col shadow-2xl relative overflow-hidden h-full" onClick={() => handleProjectSelect(project.id)}>
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>

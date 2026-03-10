@@ -392,6 +392,18 @@ export const EmailSequenceWizard: React.FC<{ onClose?: () => void }> = ({ onClos
                         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
                             {projects.length > 0 ? (
                                 <>
+                                    {/* CARD: CREAR NUEVO PROYECTO */}
+                                    <div 
+                                        className="p-10 bg-[#0B0B0B] border-2 border-dashed border-white/10 rounded-[3rem] hover:border-[#FF5A1F]/50 hover:bg-[#FF5A1F]/5 transition-all text-center group flex flex-col items-center justify-center shadow-2xl relative overflow-hidden h-full cursor-pointer min-h-[400px]" 
+                                        onClick={() => navigate('/dashboard/projects')}
+                                    >
+                                        <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg mb-6">
+                                            <Plus className="w-10 h-10" />
+                                        </div>
+                                        <h4 className="text-white font-black text-2xl group-hover:text-[#FF5A1F] transition-colors uppercase tracking-tight">Crear Nuevo Proyecto</h4>
+                                        <p className="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Define un nuevo nicho para generar ganchos</p>
+                                    </div>
+
                                     {projects.map((project) => (
                                         <div 
                                             key={project.id}
@@ -419,18 +431,6 @@ export const EmailSequenceWizard: React.FC<{ onClose?: () => void }> = ({ onClos
                                             </button>
                                         </div>
                                     ))}
-                                    <button 
-                                        onClick={() => navigate('/dashboard/projects/create')}
-                                        className="p-10 bg-transparent border-2 border-dashed border-gray-800 rounded-[3rem] hover:border-gray-600 hover:text-white transition-all text-gray-500 group flex flex-col items-center justify-center gap-6 shadow-2xl min-h-[400px]"
-                                    >
-                                        <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center shadow-lg group-hover:bg-gray-700 transition-colors">
-                                            <Plus className="w-8 h-8 text-gray-400 group-hover:text-white" />
-                                        </div>
-                                        <div className="text-center">
-                                            <h4 className="text-xl font-black uppercase tracking-widest">Crear un nuevo proyecto</h4>
-                                            <p className="text-xs font-bold uppercase tracking-widest mt-2 opacity-60">Define un nuevo nicho o producto</p>
-                                        </div>
-                                    </button>
                                 </>
                             ) : (
                                 <div className="md:col-span-3 py-20 bg-black/20 border border-dashed border-gray-800 rounded-[2rem] text-center">

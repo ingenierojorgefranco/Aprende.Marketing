@@ -440,7 +440,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
   ];
 
   return (
-    <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step === 0 ? 'max-w-5xl' : 'max-w-[90rem]'} ${onClose ? 'max-h-[90vh]' : ''}`}>
+    <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step === 0 ? 'max-w-5xl' : 'max-w-[90rem]'} ${onClose && step !== 0 ? 'max-h-[90vh]' : ''}`}>
       <style>{`
         @keyframes confetti-fall {
           0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }

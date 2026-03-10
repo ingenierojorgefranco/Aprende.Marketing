@@ -160,7 +160,7 @@ export const HooksList: React.FC = () => {
                                 <Zap className="w-3 h-3 text-orange-400" /> Atracción & Copywriting
                             </div>
                             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                                Ganchos <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">Magnéticos</span>
+                                Hooks <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">Magnéticos</span>
                             </h1>
                             <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-relaxed">
                                 Los Hooks son el primer impacto de tu estrategia. Aquí puedes gestionar todos los ganchos generados para tus diferentes proyectos y optimizar tu comunicación.
@@ -302,7 +302,7 @@ export const HooksList: React.FC = () => {
                     {/* FILTRO POR PROYECTO - CENTRADO Y MÁS GRANDE */}
                     <div className="w-full flex justify-center">
                         <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
-                            <label className="text-[12px] font-black text-gray-400 uppercase tracking-[0.3em]">Selecciona un Proyecto para Filtrar</label>
+                            <label className="text-[12px] font-black text-gray-400 uppercase tracking-[0.3em]">Haz clic para Filtrar tus Hooks Magnéticos por Proyectos</label>
                             <select 
                                 value={filterProjectId}
                                 onChange={(e) => {
@@ -318,6 +318,27 @@ export const HooksList: React.FC = () => {
                             </select>
                         </div>
                     </div>
+
+                    {/* PAGINACIÓN SUPERIOR */}
+                    {totalPages > 1 && (
+                        <div className="w-full flex justify-center items-center gap-4">
+                            <button 
+                                onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                                disabled={page === 1}
+                                className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-orange-600 disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
+                            >
+                                Anterior
+                            </button>
+                            <span className="text-gray-400 font-black text-xs uppercase tracking-widest">Página {page} de {totalPages}</span>
+                            <button 
+                                onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={page === totalPages}
+                                className="px-6 py-2 bg-gray-900 border border-white/10 rounded-xl text-white font-bold text-xs uppercase tracking-widest hover:bg-orange-600 disabled:opacity-30 disabled:hover:bg-gray-900 transition-all"
+                            >
+                                Siguiente
+                            </button>
+                        </div>
+                    )}
                 </div>
                 
                 {hooks.length === 0 ? (
@@ -368,20 +389,9 @@ export const HooksList: React.FC = () => {
                                         </button>
                                     </div>
                                     
-                                    <h3 className="text-[1.3rem] leading-[1.6rem] font-black mb-1 text-center group-hover:text-orange-400 transition-colors duration-300 text-white">{hook.title}</h3>
+                                    <h3 className="text-[1.3rem] leading-[1.8rem] font-medium mb-4 text-center group-hover:text-orange-400 transition-colors duration-300 text-white">{hook.title}</h3>
                                     
-                                    <a 
-                                        href={`/dashboard/projects/${(hook as any).project_id || hook.projectId}/strategy`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="text-gray-400 text-[0.8rem] font-bold uppercase tracking-widest py-6 flex items-center justify-center gap-2 hover:text-orange-400 transition-colors w-full"
-                                    >
-                                        <Briefcase className="w-4 h-4 text-gray-500" />
-                                        Proyecto: {(hook as any).project_name || (hook as any).projectName || "Sin nombre"}
-                                    </a>
-                                    
-                                    <div className="bg-orange-500/5 rounded-2xl p-4 border border-orange-500/10 mb-6 flex-1">
+                                    <div className="bg-orange-500/5 rounded-2xl p-4 border border-orange-500/10 mb-4 flex-1">
                                         <div className="flex items-center gap-2 mb-2">
                                             <Brain className="w-4 h-4 text-orange-400" />
                                             <span className="text-[10px] font-black uppercase text-orange-300 tracking-widest">Estrategia Psicológica</span>
@@ -390,6 +400,17 @@ export const HooksList: React.FC = () => {
                                             "{(hook as any).psychological_strategy || hook.psychologicalStrategy}"
                                         </p>
                                     </div>
+
+                                    <a 
+                                        href={`/dashboard/projects/${(hook as any).project_id || hook.projectId}/strategy`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="bg-white/5 rounded-xl p-3 border border-white/5 mb-6 flex items-center justify-center gap-2 text-gray-400 text-[0.8rem] font-bold uppercase tracking-widest hover:text-orange-400 transition-colors w-full"
+                                    >
+                                        <Briefcase className="w-4 h-4 text-gray-500" />
+                                        Proyecto: {(hook as any).project_name || (hook as any).projectName || "Sin nombre"}
+                                    </a>
 
                                     <div className="mt-auto pt-6 border-t border-white/5">
                                         <button 
