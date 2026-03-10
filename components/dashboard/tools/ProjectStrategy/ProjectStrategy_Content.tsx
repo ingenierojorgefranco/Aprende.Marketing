@@ -53,6 +53,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 api.getArticles(),
                 api.getProjectById(projectId)
             ]);
+
+            console.log("DEBUG - Project ID:", projectId);
+            console.log("DEBUG - Master Parent ID:", project?.masterParentId);
+            console.log("DEBUG - All Articles from DB:", articles);
+
             const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
             setLinkedPages(projectPages);
             
@@ -62,6 +67,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 (project?.masterParentId && String(a.projectId) === String(project.masterParentId)) ||
                 projectPages.some(p => String(p.id) === String(a.pageId))
             );
+            console.log("DEBUG - Filtered Project Articles:", projectArts);
             setLinkedArticles(projectArts);
 
             // Lógica Exclusiva: Priorizar Base de Datos sobre JSON
