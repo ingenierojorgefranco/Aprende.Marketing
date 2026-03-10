@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { Project, User, AffiliateLink, Plan } from '../../../types';
-import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info, ArrowLeft, Save, DollarSign, Globe, MessageSquare, Brain, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, Code, Star, User as UserIcon } from 'lucide-react';
+import { Briefcase, Plus, Loader2, Trash2, Target, Link as LinkIcon, Calendar, Edit2, Zap, Crown, AlertTriangle, PlayCircle, X, Sparkles, Lock, Unlock, Library, CheckCircle2, ArrowRight, PenTool, Layout, Rocket, MessageCircle, Wand2, Check, Gift, ShoppingCart as CartIcon, Info } from 'lucide-react';
 import { UpgradeModal } from '../UpgradeModal';
 import { DeletionRestrictionModal } from '../DeletionRestrictionModal';
 
@@ -11,40 +11,6 @@ interface DashboardContext {
   user: User;
   isSimulating: boolean;
 }
-
-// --- COMPONENTE INTERNO: EDITOR VISUAL ---
-const VisualEditor: React.FC<{
-    value: string;
-    onChange: (val: string) => void;
-    placeholder?: string;
-}> = ({ value, onChange, placeholder }) => {
-    const execCommand = (command: string, value?: string) => {
-        document.execCommand(command, false, value);
-    };
-
-    return (
-        <div className="w-full bg-black/40 border border-white/10 rounded-2xl overflow-hidden focus-within:border-[#FF5A1F]/50 transition-all">
-            <div className="flex flex-wrap items-center gap-1 p-2 bg-white/5 border-b border-white/10">
-                <button type="button" onClick={() => execCommand('bold')} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Negrita"><Bold className="w-4 h-4" /></button>
-                <button type="button" onClick={() => execCommand('italic')} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Cursiva"><Italic className="w-4 h-4" /></button>
-                <button type="button" onClick={() => execCommand('underline')} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Subrayado"><Underline className="w-4 h-4" /></button>
-                <div className="w-px h-4 bg-white/10 mx-1" />
-                <button type="button" onClick={() => execCommand('justifyLeft')} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Alinear Izquierda"><AlignLeft className="w-4 h-4" /></button>
-                <button type="button" onClick={() => execCommand('justifyCenter')} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Centrar"><AlignCenter className="w-4 h-4" /></button>
-                <button type="button" onClick={() => execCommand('justifyRight')} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Alinear Derecha"><AlignRight className="w-4 h-4" /></button>
-                <div className="w-px h-4 bg-white/10 mx-1" />
-                <button type="button" onClick={() => execCommand('insertUnorderedList')} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Lista"><List className="w-4 h-4" /></button>
-            </div>
-            <div 
-                contentEditable
-                onBlur={(e) => onChange(e.currentTarget.innerHTML)}
-                dangerouslySetInnerHTML={{ __html: value }}
-                className="p-6 min-h-[200px] outline-none text-white text-base leading-relaxed prose prose-invert max-w-none"
-                placeholder={placeholder}
-            />
-        </div>
-    );
-};
 
 export const ProjectsList: React.FC = () => {
     const navigate = useNavigate();
@@ -93,47 +59,6 @@ export const ProjectsList: React.FC = () => {
     // Generating state per project ID
     const [generatingId, setGeneratingId] = useState<string | null>(null);
 
-    // --- ESTADOS DEL WIZARD DE PROYECTOS ---
-    const [isWizardOpen, setIsWizardOpen] = useState(false);
-    const [wizardStep, setWizardStep] = useState(1);
-    const [isEditing, setIsEditing] = useState(false);
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [analyzing, setAnalyzing] = useState(false);
-    const [saving, setSaving] = useState(false);
-    const [loadingStatus, setLoadingStatus] = useState('');
-    
-    const [formData, setFormData] = useState({
-        name: '',
-        productName: '',
-        description: '',
-        niche: '',
-        targetAudience: '',
-        brandTone: 'Profesional y Persuasivo',
-        salesPageUrl: '',
-        fullPrice: 0,
-        commissionRate: 50,
-        leadMagnetType: 'Clase Gratis / VSL',
-        leadMagnetUrl: '',
-        affiliateLinks: [
-            { label: 'Checkout Principal', url: '' },
-            { label: 'Checkout con Descuento', url: '' }
-        ] as AffiliateLink[],
-        isMaster: false,
-        multimedia_json: {
-            heroImages: [] as string[],
-            videoUrls: [] as string[],
-            descriptiveImages: [] as string[],
-            instructorImage: ''
-        }
-    });
-
-    const [errors, setErrors] = useState<Record<string, string>>({});
-
-    // --- Nuevo Estado para Eliminación ---
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
-    const [isDeletingProject, setIsDeletingProject] = useState(false);
-
     useEffect(() => {
         loadData();
     }, []);
@@ -156,7 +81,7 @@ export const ProjectsList: React.FC = () => {
         }
     };
 
-    const handleDelete = (project: Project, e: React.MouseEvent) => {
+    const handleDelete = async (project: Project, e: React.MouseEvent) => {
         e.stopPropagation();
         
         // Si el usuario no tiene el rol admin, se interceptará la acción
@@ -166,23 +91,9 @@ export const ProjectsList: React.FC = () => {
             return;
         }
 
-        setProjectToDelete(project);
-        setShowDeleteConfirm(true);
-    };
-
-    const confirmDelete = async () => {
-        if (!projectToDelete) return;
-        setIsDeletingProject(true);
-        try {
-            await api.deleteProject(projectToDelete.id);
-            setProjects(projects.filter(p => p.id !== projectToDelete.id));
-            setShowDeleteConfirm(false);
-            setProjectToDelete(null);
-        } catch (error) {
-            console.error(error);
-            alert('Error al eliminar el proyecto');
-        } finally {
-            setIsDeletingProject(false);
+        if (confirm(`¿Estás seguro de eliminar el proyecto "${project.name}" y toda su estrategia?`)) {
+            await api.deleteProject(project.id);
+            setProjects(projects.filter(p => p.id !== project.id));
         }
     };
 
@@ -316,144 +227,6 @@ export const ProjectsList: React.FC = () => {
         const newLinks = unlockForm.affiliateLinks.filter((_, i) => i !== idx);
         setUnlockForm({ ...unlockForm, affiliateLinks: newLinks });
     };
-
-    // --- Lógica del Wizard de Proyectos ---
-    const resetWizard = () => {
-        setIsWizardOpen(false);
-        setWizardStep(1);
-        setIsEditing(false);
-        setEditingId(null);
-        setFormData({
-            name: '',
-            productName: '',
-            description: '',
-            niche: '',
-            targetAudience: '',
-            brandTone: 'Profesional y Persuasivo',
-            salesPageUrl: '',
-            fullPrice: 0,
-            commissionRate: 50,
-            leadMagnetType: 'Clase Gratis / VSL',
-            leadMagnetUrl: '',
-            affiliateLinks: [
-                { label: 'Checkout Principal', url: '' },
-                { label: 'Checkout con Descuento', url: '' }
-            ],
-            isMaster: false,
-            multimedia_json: {
-                heroImages: [],
-                videoUrls: [],
-                descriptiveImages: [],
-                instructorImage: ''
-            }
-        });
-        setErrors({});
-    };
-
-    const handleAnalyzeSite = async () => {
-        if (!formData.salesPageUrl) {
-            setErrors({ ...errors, salesPageUrl: 'Ingresa una URL para analizar' });
-            return;
-        }
-        setAnalyzing(true);
-        setErrors({});
-        try {
-            const data = await api.analyzeSite(formData.salesPageUrl);
-            setFormData({
-                ...formData,
-                name: data.projectName || formData.name,
-                productName: data.productName || formData.productName,
-                description: data.description || formData.description,
-                niche: data.niche || formData.niche,
-                targetAudience: data.targetAudience || formData.targetAudience,
-                brandTone: data.brandTone || formData.brandTone
-            });
-        } catch (error) {
-            console.error(error);
-            setErrors({ ...errors, salesPageUrl: 'No pudimos analizar este sitio. Intenta completar los datos manualmente.' });
-        } finally {
-            setAnalyzing(false);
-        }
-    };
-
-    const nextStep = () => {
-        const newErrors: Record<string, string> = {};
-        if (wizardStep === 1) {
-            if (!formData.name) newErrors.name = 'El nombre del proyecto es obligatorio';
-            if (!formData.productName) newErrors.productName = 'El nombre del producto es obligatorio';
-        }
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
-        setErrors({});
-        setWizardStep(prev => prev + 1);
-    };
-
-    const saveProject = async () => {
-        setSaving(true);
-        setLoadingStatus('Guardando proyecto...');
-        try {
-            let savedProject: Project;
-            if (isEditing && editingId) {
-                savedProject = await api.updateProject(editingId, formData);
-            } else {
-                savedProject = await api.createProject(formData);
-                
-                // Si es un proyecto nuevo, disparamos la generación de estrategia completa
-                setLoadingStatus('Diseñando Estrategia Maestra con IA...');
-                setGenerationStatus('generating');
-                setProgress(0);
-                setSecondsElapsed(0);
-
-                const timerInterval = setInterval(() => {
-                    setSecondsElapsed(prev => prev + 1);
-                }, 1000);
-
-                const messages = [
-                    "Analizando nicho y competencia...",
-                    "Creando avatar psicológico...",
-                    "Diseñando ángulos de venta...",
-                    "Generando secuencias de email...",
-                    "Configurando ganchos magnéticos...",
-                    "Finalizando Estrategia Maestra..."
-                ];
-
-                let currentProgress = 0;
-                const progressInterval = setInterval(() => {
-                    if (currentProgress < 99) {
-                        currentProgress += 1;
-                        setProgress(currentProgress);
-                        const msgIdx = Math.min(Math.floor((currentProgress / 100) * messages.length), messages.length - 1);
-                        setLoadingMessage(messages[msgIdx]);
-                    }
-                }, 150);
-
-                try {
-                    await api.generateProjectStrategyFull(savedProject.id);
-                    clearInterval(progressInterval);
-                    clearInterval(timerInterval);
-                    setProgress(100);
-                    setGeneratedProjectId(savedProject.id);
-                    setGenerationStatus('success');
-                } catch (err) {
-                    clearInterval(progressInterval);
-                    clearInterval(timerInterval);
-                    console.error("Error generating strategy", err);
-                    setGenerationStatus('idle');
-                }
-            }
-            await loadData();
-            if (!(!isEditing && savedProject!)) {
-                resetWizard();
-            }
-        } catch (error) {
-            console.error(error);
-            alert('Error al guardar el proyecto');
-        } finally {
-            setSaving(false);
-        }
-    };
     // ----------------------------------------------
 
     const handleViewStrategy = async (e: React.MouseEvent, project: Project) => {
@@ -552,11 +325,7 @@ export const ProjectsList: React.FC = () => {
                                 </button>
                             ) : (
                                 <button
-                                    onClick={() => {
-                                        setIsWizardOpen(true);
-                                        setWizardStep(1);
-                                        setIsEditing(false);
-                                    }}
+                                    onClick={() => navigate('/dashboard/projects/create')}
                                     className="group relative px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all overflow-hidden bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:-translate-y-1 w-full"
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-2">
@@ -572,501 +341,151 @@ export const ProjectsList: React.FC = () => {
             </div>
 
             {/* SECCIÓN 1: MIS PROYECTOS */}
-            {isWizardOpen ? (
-                <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-500 bg-[#0B0B0B] border border-white/5 rounded-[2.5rem] p-8 md:p-12 shadow-2xl">
-                    <div className="flex items-center justify-between border-b border-white/5 pb-8">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-[#FF5A1F]/10 rounded-2xl flex items-center justify-center text-[#FF5A1F]">
-                                <Sparkles className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-black text-white uppercase tracking-tight">
-                                    {isEditing ? 'Editar Proyecto' : 'Generador de Proyectos Magnéticos'}
-                                </h2>
-                                <p className="text-xs text-gray-500 font-black uppercase tracking-widest mt-1">Paso {wizardStep} de 3</p>
-                            </div>
+            <div className="space-y-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                    <div className="flex items-center gap-4 border-l-4 border-blue-500 pl-4 py-1 pb-5">
+                        <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-500 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+                            <Briefcase className="w-8 h-8" />
                         </div>
-                        <button onClick={resetWizard} className="p-3 hover:bg-white/5 rounded-full text-gray-500 hover:text-white transition-all">
-                            <X className="w-6 h-6" />
-                        </button>
+                        <div>
+                            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Proyectos</h2>
+                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Encuentra aquí tu lista de Proyectos creados y Proyectos Desbloqueados</p>
+                        </div>
                     </div>
-
-                    {/* WIZARD STEPS */}
-                    <div className="max-w-4xl mx-auto py-8">
-                        {wizardStep === 1 && (
-                            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div className="space-y-3">
-                                        <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2">
-                                            <Briefcase className="w-4 h-4" /> Nombre del Proyecto
-                                        </label>
-                                        <input 
-                                            type="text" 
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            placeholder="Ej: Curso de Uñas Pro"
-                                            className={`w-full bg-black border ${errors.name ? 'border-red-500' : 'border-white/10'} rounded-2xl py-4 px-6 text-white text-lg outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner`}
-                                        />
-                                        {errors.name && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.name}</p>}
-                                    </div>
-                                    <div className="space-y-3">
-                                        <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2">
-                                            <Target className="w-4 h-4" /> Nombre del Producto
-                                        </label>
-                                        <input 
-                                            type="text" 
-                                            value={formData.productName}
-                                            onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
-                                            placeholder="Ej: Masterclass Uñas Perfectas"
-                                            className={`w-full bg-black border ${errors.productName ? 'border-red-500' : 'border-white/10'} rounded-2xl py-4 px-6 text-white text-lg outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner`}
-                                        />
-                                        {errors.productName && <p className="text-red-500 text-xs font-bold mt-1 ml-2">{errors.productName}</p>}
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2">
-                                        <Globe className="w-4 h-4" /> Analizar Página de Ventas (Opcional)
-                                    </label>
-                                    <div className="flex gap-3">
-                                        <input 
-                                            type="text" 
-                                            value={formData.salesPageUrl}
-                                            onChange={(e) => setFormData({ ...formData, salesPageUrl: e.target.value })}
-                                            placeholder="https://pagina-de-ventas.com"
-                                            className="flex-1 bg-black border border-white/10 rounded-2xl py-4 px-6 text-white text-lg outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner"
-                                        />
-                                        <button 
-                                            onClick={handleAnalyzeSite}
-                                            disabled={analyzing || !formData.salesPageUrl}
-                                            className="px-8 bg-white/5 hover:bg-white/10 text-white font-black text-sm uppercase tracking-widest rounded-2xl border border-white/10 transition-all flex items-center gap-3 disabled:opacity-50"
-                                        >
-                                            {analyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Wand2 className="w-5 h-5" />}
-                                            Analizar
-                                        </button>
-                                    </div>
-                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2 italic">Nuestra IA leerá el sitio y completará los datos por ti</p>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2">
-                                        <PenTool className="w-4 h-4" /> Descripción del Proyecto
-                                    </label>
-                                    <VisualEditor 
-                                        value={formData.description}
-                                        onChange={(val) => setFormData({ ...formData, description: val })}
-                                        placeholder="Describe de qué trata el producto, qué soluciona y por qué es único..."
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div className="space-y-3">
-                                        <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2">
-                                            <Layout className="w-4 h-4" /> Nicho de Mercado
-                                        </label>
-                                        <input 
-                                            type="text" 
-                                            value={formData.niche}
-                                            onChange={(e) => setFormData({ ...formData, niche: e.target.value })}
-                                            placeholder="Ej: Belleza / Manicure"
-                                            className="w-full bg-black border border-white/10 rounded-2xl py-4 px-6 text-white text-lg outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner"
-                                        />
-                                    </div>
-                                    <div className="space-y-3">
-                                        <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2">
-                                            <UserIcon className="w-4 h-4" /> Público Objetivo
-                                        </label>
-                                        <input 
-                                            type="text" 
-                                            value={formData.targetAudience}
-                                            onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
-                                            placeholder="Ej: Mujeres de 25-40 años que quieren emprender"
-                                            className="w-full bg-black border border-white/10 rounded-2xl py-4 px-6 text-white text-lg outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner"
-                                        />
-                                    </div>
-                                </div>
-
-                                {user.role === 'admin' && (
-                                    <div className="p-6 bg-[#FF5A1F]/5 border border-[#FF5A1F]/20 rounded-[2rem] space-y-6">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-[#FF5A1F]/20 rounded-xl flex items-center justify-center text-[#FF5A1F]">
-                                                    <Crown className="w-5 h-5" />
-                                                </div>
-                                                <div>
-                                                    <h4 className="text-white font-black uppercase tracking-tight">Configuración de Administrador</h4>
-                                                    <p className="text-[10px] text-[#FF5A1F] font-black uppercase tracking-widest">Solo visible para ti</p>
-                                                </div>
-                                            </div>
-                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={formData.isMaster} 
-                                                    onChange={(e) => setFormData({ ...formData, isMaster: e.target.checked })}
-                                                    className="sr-only peer" 
-                                                />
-                                                <div className="w-14 h-7 bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#FF5A1F]"></div>
-                                                <span className="ml-3 text-sm font-black text-white uppercase tracking-widest">Proyecto Maestro</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {wizardStep === 2 && (
-                            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div className="space-y-3">
-                                        <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2">
-                                            <DollarSign className="w-4 h-4" /> Precio del Producto (USD)
-                                        </label>
-                                        <input 
-                                            type="number" 
-                                            value={formData.fullPrice}
-                                            onChange={(e) => setFormData({ ...formData, fullPrice: Number(e.target.value) })}
-                                            className="w-full bg-black border border-white/10 rounded-2xl py-4 px-6 text-white text-lg outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner"
-                                        />
-                                    </div>
-                                    <div className="space-y-3">
-                                        <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2">
-                                            <Zap className="w-4 h-4" /> Comisión de Afiliado (%)
-                                        </label>
-                                        <input 
-                                            type="number" 
-                                            value={formData.commissionRate}
-                                            onChange={(e) => setFormData({ ...formData, commissionRate: Number(e.target.value) })}
-                                            className="w-full bg-black border border-white/10 rounded-2xl py-4 px-6 text-white text-lg outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2">
-                                        <MessageSquare className="w-4 h-4" /> Tono de la Marca
-                                    </label>
-                                    <select 
-                                        value={formData.brandTone}
-                                        onChange={(e) => setFormData({ ...formData, brandTone: e.target.value })}
-                                        className="w-full bg-black border border-white/10 rounded-2xl py-4 px-6 text-white text-lg outline-none focus:border-[#FF5A1F]/50 transition-all appearance-none cursor-pointer"
-                                    >
-                                        <option value="Profesional y Persuasivo">Profesional y Persuasivo</option>
-                                        <option value="Amigable y Cercano">Amigable y Cercano</option>
-                                        <option value="Urgente y Agresivo">Urgente y Agresivo</option>
-                                        <option value="Inspirador y Emocional">Inspirador y Emocional</option>
-                                        <option value="Técnico y Detallado">Técnico y Detallado</option>
-                                    </select>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2">
-                                        <Gift className="w-4 h-4" /> Tipo de Lead Magnet (Regalo)
-                                    </label>
-                                    <select 
-                                        value={formData.leadMagnetType}
-                                        onChange={(e) => setFormData({ ...formData, leadMagnetType: e.target.value })}
-                                        className="w-full bg-black border border-white/10 rounded-2xl py-4 px-6 text-white text-lg outline-none focus:border-[#FF5A1F]/50 transition-all appearance-none cursor-pointer"
-                                    >
-                                        <option value="Ebook / Guía PDF">Ebook / Guía PDF</option>
-                                        <option value="Clase Gratis / VSL">Clase Gratis / VSL</option>
-                                        <option value="Masterclass en Vivo">Masterclass en Vivo</option>
-                                        <option value="Plantilla / Checklist">Plantilla / Checklist</option>
-                                    </select>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest ml-1 flex items-center gap-2">
-                                        <LinkIcon className="w-4 h-4" /> URL del Lead Magnet
-                                    </label>
-                                    <input 
-                                        type="text" 
-                                        value={formData.leadMagnetUrl}
-                                        onChange={(e) => setFormData({ ...formData, leadMagnetUrl: e.target.value })}
-                                        placeholder="https://tu-regalo.com"
-                                        className="w-full bg-black border border-white/10 rounded-2xl py-4 px-6 text-white text-lg outline-none focus:border-[#FF5A1F]/50 transition-all shadow-inner"
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {wizardStep === 3 && (
-                            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                                <div className="flex items-center justify-between px-1">
-                                    <label className="text-sm font-black text-[#FF5A1F] uppercase tracking-widest flex items-center gap-2">
-                                        <LinkIcon className="w-4 h-4" /> Enlaces de Afiliado (Hotlinks)
-                                    </label>
-                                    <button 
-                                        onClick={() => setFormData({ ...formData, affiliateLinks: [...formData.affiliateLinks, { label: 'Nuevo Enlace', url: '' }] })}
-                                        className="text-[10px] font-black text-[#FF5A1F] bg-[#FF5A1F]/10 px-4 py-2 rounded-xl border border-[#FF5A1F]/20 hover:bg-[#FF5A1F] hover:text-white transition-all"
-                                    >
-                                        + Añadir Enlace
-                                    </button>
-                                </div>
-
-                                <div className="space-y-4">
-                                    {formData.affiliateLinks.map((link, idx) => (
-                                        <div key={idx} className="bg-black/40 border border-white/5 rounded-[2rem] p-6 space-y-4 relative group/link">
-                                            <button 
-                                                onClick={() => setFormData({ ...formData, affiliateLinks: formData.affiliateLinks.filter((_, i) => i !== idx) })}
-                                                className="absolute top-4 right-4 p-2 text-gray-500 hover:text-red-500 transition-colors opacity-0 group-hover/link:opacity-100"
-                                            >
-                                                <X className="w-5 h-5" />
-                                            </button>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div className="space-y-2">
-                                                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">Etiqueta del Botón</p>
-                                                    <input 
-                                                        type="text" 
-                                                        value={link.label}
-                                                        onChange={(e) => {
-                                                            const newLinks = [...formData.affiliateLinks];
-                                                            newLinks[idx].label = e.target.value;
-                                                            setFormData({ ...formData, affiliateLinks: newLinks });
-                                                        }}
-                                                        placeholder="Ej: Checkout Principal"
-                                                        className="w-full bg-black border border-white/10 rounded-xl py-3 px-4 text-white text-sm outline-none focus:border-[#FF5A1F]/50"
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest ml-1">URL de Afiliado</p>
-                                                    <input 
-                                                        type="text" 
-                                                        value={link.url}
-                                                        onChange={(e) => {
-                                                            const newLinks = [...formData.affiliateLinks];
-                                                            newLinks[idx].url = e.target.value;
-                                                            setFormData({ ...formData, affiliateLinks: newLinks });
-                                                        }}
-                                                        placeholder="https://go.hotmart.com/..."
-                                                        className="w-full bg-black border border-white/10 rounded-xl py-3 px-4 text-emerald-400 font-mono text-sm outline-none focus:border-[#FF5A1F]/50"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="p-8 bg-[#FF5A1F]/5 border border-[#FF5A1F]/20 rounded-[2.5rem] flex items-center gap-6">
-                                    <div className="w-16 h-16 bg-[#FF5A1F]/20 rounded-2xl flex items-center justify-center text-[#FF5A1F] shrink-0">
-                                        <Brain className="w-8 h-8" />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-white font-black uppercase tracking-tight">Generación de Estrategia con IA</h4>
-                                        <p className="text-sm text-gray-400 leading-relaxed">Al guardar, nuestra IA diseñará automáticamente tu avatar, psicología de ventas, secuencias de email y ganchos magnéticos.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* WIZARD FOOTER */}
-                    <div className="flex items-center justify-between border-t border-white/5 pt-8">
+                </div>
+                
+                {projects.length === 0 ? (
+                    <div className="text-center py-20 bg-gray-900 rounded-[2.5rem] border border-dashed border-gray-700">
+                        <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-gray-700">
+                            <Briefcase className="w-10 h-10 text-gray-600" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">Comienza tu Estrategia</h3>
+                        <p className="text-gray-400 max-w-md mx-auto mb-8">Define tu primer proyecto o desbloquea una estrategia de la biblioteca inferior.</p>
                         <button 
-                            onClick={() => wizardStep > 1 ? setWizardStep(prev => prev - 1) : resetWizard()}
-                            className="px-8 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest transition-all border border-white/5 flex items-center gap-3"
+                            onClick={() => navigate('/dashboard/projects/create')}
+                            className="text-blue-400 border border-blue-500/50 hover:bg-blue-600 hover:text-white px-6 py-2.5 rounded-lg transition font-medium"
                         >
-                            <ArrowLeft className="w-4 h-4" /> {wizardStep === 1 ? 'Cancelar' : 'Anterior'}
+                            Crear Primer Proyecto
                         </button>
-                        
-                        {wizardStep < 3 ? (
-                            <button 
-                                onClick={nextStep}
-                                className="px-10 py-4 rounded-xl bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#FF5A1F]/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3"
-                            >
-                                Siguiente Paso <ArrowRight className="w-4 h-4" />
-                            </button>
-                        ) : (
-                            <button 
-                                onClick={saveProject}
-                                disabled={saving}
-                                className="px-10 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-emerald-900/20 transform hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3 disabled:opacity-50"
-                            >
-                                {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                                {isEditing ? 'Guardar Cambios' : 'Generar Proyecto & Estrategia'}
-                            </button>
-                        )}
                     </div>
-                </div>
-            ) : (
-                <div className="space-y-6">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                        <div className="flex items-center gap-4 border-l-4 border-blue-500 pl-4 py-1 pb-5">
-                            <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-500 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
-                                <Briefcase className="w-8 h-8" />
+                ) : (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <button 
+                            onClick={() => navigate('/dashboard/projects/create')}
+                            className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
+                        >
+                            <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
+                                <Plus className="w-10 h-10" />
                             </div>
-                            <div>
-                                <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Proyectos</h2>
-                                <p className="text-white font-medium pt-2.5 text-[1.2em]">Encuentra aquí tu lista de Proyectos creados y Proyectos Desbloqueados</p>
+                            <div className="text-center">
+                                <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear un nuevo proyecto</h4>
+                                <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Define un nuevo nicho o producto</p>
                             </div>
-                        </div>
-                    </div>
-                    
-                    {projects.length === 0 ? (
-                        <div className="text-center py-20 bg-gray-900 rounded-[2.5rem] border border-dashed border-gray-700">
-                            <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-gray-700">
-                                <Briefcase className="w-10 h-10 text-gray-600" />
-                            </div>
-                            <h3 className="text-xl font-bold text-white mb-2">Comienza tu Estrategia</h3>
-                            <p className="text-gray-400 max-w-md mx-auto mb-8">Define tu primer proyecto o desbloquea una estrategia de la biblioteca inferior.</p>
-                            <button 
-                                onClick={() => { setIsWizardOpen(true); setWizardStep(1); setIsEditing(false); }}
-                                className="text-blue-400 border border-blue-500/50 hover:bg-blue-600 hover:text-white px-6 py-2.5 rounded-lg transition font-medium"
-                            >
-                                Crear Primer Proyecto
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            <button 
-                                onClick={() => {
-                                    if (isAtLimit) {
-                                        setShowUpgradeModal(true);
-                                    } else {
-                                        setIsWizardOpen(true);
-                                        setWizardStep(1);
-                                        setIsEditing(false);
-                                    }
-                                }}
-                                className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
-                            >
-                                <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
-                                    <Plus className="w-10 h-10" />
-                                </div>
-                                <div className="text-center">
-                                    <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear un nuevo proyecto</h4>
-                                    <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Define un nuevo nicho o producto</p>
-                                </div>
-                            </button>
-                            {projects.filter(p => !p.isMaster).map((project) => {
-                                const isClonedFromMaster = !!project.masterParentId;
-                                
-                                return (
-                                    <div 
-                                        key={project.id} 
-                                        onClick={() => {
-                                            if (project.isBlocked && user.role !== 'admin') {
-                                                setShowUpgradeModal(true);
-                                                return;
-                                            }
-                                            navigate(`/dashboard/projects/${project.id}/strategy`);
-                                        }}
-                                        className={`bg-[#111] rounded-[2.5rem] border transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl ${project.isBlocked && user.role !== 'admin' ? 'opacity-60 grayscale-[0.5] border-red-500/20' : isClonedFromMaster ? 'border-yellow-500/40 hover:border-yellow-500/60 shadow-yellow-500/10' : 'border-white/5 hover:border-[#FF5A1F]/30'}`}
-                                    >
-                                        <div className={`absolute top-0 left-0 w-full h-1 opacity-80 ${project.isBlocked && user.role !== 'admin' ? 'bg-red-500' : isClonedFromMaster ? 'bg-gradient-to-r from-yellow-400 to-amber-600' : 'bg-gradient-to-r from-[#FF5A1F] to-orange-600'}`}></div>
-                                        
-                                        {project.isBlocked && user.role !== 'admin' && (
-                                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-                                                <div className="bg-black/80 border border-red-500/30 p-6 rounded-3xl text-center shadow-2xl transform group-hover:scale-105 transition-transform">
-                                                    <Lock className="w-12 h-12 text-red-500 mx-auto mb-3" />
-                                                    <p className="text-white font-black text-sm uppercase tracking-widest">Proyecto Bloqueado</p>
-                                                    <p className="text-gray-400 text-[10px] mt-1 font-bold uppercase tracking-tight">Mejora tu plan para activarlo</p>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        <div className="p-8 flex-1 flex flex-col">
-                                            <div className="flex justify-between items-start mb-6">
-                                                <div className="flex flex-col gap-2">
-                                                    <div className="bg-white/5 text-white text-[0.8em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
-                                                        <Calendar className="w-3 h-3" />
-                                                        {new Date(project.createdAt).toLocaleDateString()}
-                                                    </div>
-                                                    <div className={`text-[10px] font-black px-3 py-1 rounded-full border uppercase tracking-widest flex items-center gap-1.5 w-fit ${project.planSlug === 'starter' ? 'bg-gray-500/10 border-gray-500/20 text-gray-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
-                                                        <Zap className="w-3 h-3 fill-current" />
-                                                        Plan: {plans.find(p => p.slug === project.planSlug)?.name || (project.planSlug === 'starter' ? 'Starter' : project.planSlug || 'Starter')}
-                                                    </div>
-                                                </div>
-                                                <div className="flex gap-2 relative z-20">
-                                                    {!isClonedFromMaster && (
-                                                        <button 
-                                                            onClick={(e) => { 
-                                                                e.stopPropagation(); 
-                                                                if (project.isBlocked && user.role !== 'admin') {
-                                                                    setShowUpgradeModal(true);
-                                                                    return;
-                                                                }
-                                                                // Cargar datos en el wizard para editar
-                                                                setFormData({
-                                                                    name: project.name,
-                                                                    productName: project.productName,
-                                                                    description: project.description,
-                                                                    niche: project.niche,
-                                                                    targetAudience: project.targetAudience,
-                                                                    brandTone: project.brandTone,
-                                                                    salesPageUrl: project.salesPageUrl || '',
-                                                                    fullPrice: project.fullPrice || 0,
-                                                                    commissionRate: project.commissionRate || 50,
-                                                                    leadMagnetType: project.leadMagnetType || 'Clase Gratis / VSL',
-                                                                    leadMagnetUrl: project.leadMagnetUrl || '',
-                                                                    affiliateLinks: project.affiliateLinks || [],
-                                                                    isMaster: project.isMaster || false,
-                                                                    multimedia_json: project.multimedia_json || {
-                                                                        heroImages: [],
-                                                                        videoUrls: [],
-                                                                        descriptiveImages: [],
-                                                                        instructorImage: ''
-                                                                    }
-                                                                });
-                                                                setEditingId(project.id);
-                                                                setIsEditing(true);
-                                                                setIsWizardOpen(true);
-                                                                setWizardStep(1);
-                                                            }}
-                                                            className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
-                                                        >
-                                                            <Edit2 className="w-4 h-4" />
-                                                            <span className="text-xs font-bold">Editar</span>
-                                                        </button>
-                                                    )}
-                                                    <button 
-                                                        onClick={(e) => handleDelete(project, e)}
-                                                        className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-emerald-600 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                        <span className="text-xs font-bold">Borrar</span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            
-                                            <h3 className={`text-2xl font-black mb-3 line-clamp-1 group-hover:text-primary transition-colors duration-300 ${isClonedFromMaster ? 'text-yellow-400' : 'text-white'}`}>{project.name}</h3>
-                                            <p className="text-[1.2rem] text-white mb-8 min-h-[56px] leading-relaxed">
-                                                {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción definida.")}
-                                            </p>
-
-                                            <div className="mt-auto space-y-4 pt-6 border-t border-white/5 relative z-20">
-                                                <button 
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        if (project.isBlocked && user.role !== 'admin') {
-                                                            setShowUpgradeModal(true);
-                                                            return;
-                                                        }
-                                                        handleViewStrategy(e, project);
-                                                    }}
-                                                    disabled={generatingId === project.id}
-                                                    className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98] ${project.isBlocked && user.role !== 'admin' ? 'bg-gray-800 text-gray-500' : isClonedFromMaster ? 'bg-yellow-600 hover:bg-yellow-500 text-black shadow-yellow-900/20' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-[#FF5A1F]/20'}`}
-                                                >
-                                                    {project.isBlocked && user.role !== 'admin' ? <Lock className="w-4 h-4" /> : <Zap className="w-4 h-4 fill-current" />} 
-                                                    {project.isBlocked && user.role !== 'admin' ? 'Proyecto Bloqueado' : 'Ver Estrategia de Proyecto'}
-                                                </button>
-
-                                                {isClonedFromMaster && (
-                                                    <div className="flex justify-center pt-2">
-                                                        <div className="bg-yellow-500/10 text-yellow-500 text-[10px] font-black px-4 py-2 rounded-full border border-yellow-500/20 font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
-                                                            <CornerCrown className="w-3.5 h-3.5 fill-current" />
-                                                            Estrategia Desbloqueada
-                                                        </div>
-                                                    </div>
-                                                )}
+                        </button>
+                        {projects.filter(p => !p.isMaster).map((project) => {
+                            const isClonedFromMaster = !!project.masterParentId;
+                            
+                            return (
+                                <div 
+                                    key={project.id} 
+                                    onClick={() => {
+                                        if (project.isBlocked && user.role !== 'admin') {
+                                            setShowUpgradeModal(true);
+                                            return;
+                                        }
+                                        navigate(`/dashboard/projects/${project.id}/strategy`);
+                                    }}
+                                    className={`bg-[#111] rounded-[2.5rem] border transition-all duration-300 group flex flex-col h-full relative overflow-hidden cursor-pointer shadow-2xl ${project.isBlocked && user.role !== 'admin' ? 'opacity-60 grayscale-[0.5] border-red-500/20' : isClonedFromMaster ? 'border-yellow-500/40 hover:border-yellow-500/60 shadow-yellow-500/10' : 'border-white/5 hover:border-[#FF5A1F]/30'}`}
+                                >
+                                    <div className={`absolute top-0 left-0 w-full h-1 opacity-80 ${project.isBlocked && user.role !== 'admin' ? 'bg-red-500' : isClonedFromMaster ? 'bg-gradient-to-r from-yellow-400 to-amber-600' : 'bg-gradient-to-r from-[#FF5A1F] to-orange-600'}`}></div>
+                                    
+                                    {project.isBlocked && user.role !== 'admin' && (
+                                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                                            <div className="bg-black/80 border border-red-500/30 p-6 rounded-3xl text-center shadow-2xl transform group-hover:scale-105 transition-transform">
+                                                <Lock className="w-12 h-12 text-red-500 mx-auto mb-3" />
+                                                <p className="text-white font-black text-sm uppercase tracking-widest">Proyecto Bloqueado</p>
+                                                <p className="text-gray-400 text-[10px] mt-1 font-bold uppercase tracking-tight">Mejora tu plan para activarlo</p>
                                             </div>
                                         </div>
+                                    )}
+
+                                    <div className="p-8 flex-1 flex flex-col">
+                                        <div className="flex justify-between items-start mb-6">
+                                            <div className="flex flex-col gap-2">
+                                                <div className="bg-white/5 text-white text-[0.8em] px-3 py-1 rounded-full flex items-center gap-1.5 w-fit border border-white/5 font-black uppercase tracking-widest">
+                                                    <Calendar className="w-3 h-3" />
+                                                    {new Date(project.createdAt).toLocaleDateString()}
+                                                </div>
+                                                <div className={`text-[10px] font-black px-3 py-1 rounded-full border uppercase tracking-widest flex items-center gap-1.5 w-fit ${project.planSlug === 'starter' ? 'bg-gray-500/10 border-gray-500/20 text-gray-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
+                                                    <Zap className="w-3 h-3 fill-current" />
+                                                    Plan: {plans.find(p => p.slug === project.planSlug)?.name || (project.planSlug === 'starter' ? 'Starter' : project.planSlug || 'Starter')}
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2 relative z-20">
+                                                {!isClonedFromMaster && (
+                                                    <button 
+                                                        onClick={(e) => { 
+                                                            e.stopPropagation(); 
+                                                            if (project.isBlocked && user.role !== 'admin') {
+                                                                setShowUpgradeModal(true);
+                                                                return;
+                                                            }
+                                                            navigate(`/dashboard/projects/edit/${project.id}`); 
+                                                        }}
+                                                        className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all shadow-lg"
+                                                    >
+                                                        <Edit2 className="w-4 h-4" />
+                                                        <span className="text-xs font-bold">Editar</span>
+                                                    </button>
+                                                )}
+                                                <button 
+                                                    onClick={(e) => handleDelete(project, e)}
+                                                    className="flex items-center gap-2 px-3 py-2 bg-red-900/20 hover:bg-emerald-600 rounded-xl text-red-500 hover:text-white transition-all shadow-lg"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                    <span className="text-xs font-bold">Borrar</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <h3 className={`text-2xl font-black mb-3 line-clamp-1 group-hover:text-primary transition-colors duration-300 ${isClonedFromMaster ? 'text-yellow-400' : 'text-white'}`}>{project.name}</h3>
+                                        <p className="text-[1.2rem] text-white mb-8 min-h-[56px] leading-relaxed">
+                                            {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción definida.")}
+                                        </p>
+
+                                        <div className="mt-auto space-y-4 pt-6 border-t border-white/5 relative z-20">
+                                            <button 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (project.isBlocked && user.role !== 'admin') {
+                                                        setShowUpgradeModal(true);
+                                                        return;
+                                                    }
+                                                    handleViewStrategy(e, project);
+                                                }}
+                                                disabled={generatingId === project.id}
+                                                className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 transform active:scale-[0.98] ${project.isBlocked && user.role !== 'admin' ? 'bg-gray-800 text-gray-500' : isClonedFromMaster ? 'bg-yellow-600 hover:bg-yellow-500 text-black shadow-yellow-900/20' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-[#FF5A1F]/20'}`}
+                                            >
+                                                {project.isBlocked && user.role !== 'admin' ? <Lock className="w-4 h-4" /> : <Zap className="w-4 h-4 fill-current" />} 
+                                                {project.isBlocked && user.role !== 'admin' ? 'Proyecto Bloqueado' : 'Ver Estrategia de Proyecto'}
+                                            </button>
+
+                                            {isClonedFromMaster && (
+                                                <div className="flex justify-center pt-2">
+                                                    <div className="bg-yellow-500/10 text-yellow-500 text-[10px] font-black px-4 py-2 rounded-full border border-yellow-500/20 font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                                                        <CornerCrown className="w-3.5 h-3.5 fill-current" />
+                                                        Estrategia Desbloqueada
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                );
-                            })}
-                        </div>
-                    )}
-                </div>
-            )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
 
             {/* SECCIÓN 2: BIBLIOTECA DE ESTRATEGIAS MAESTRAS (NUEVA) */}
             <div className="space-y-8 pt-12 border-t border-white/5">
@@ -1477,7 +896,6 @@ export const ProjectsList: React.FC = () => {
                         <button 
                             onClick={() => {
                                 setGenerationStatus('idle');
-                                resetWizard();
                                 navigate(`/dashboard/projects/${generatedProjectId}/strategy`);
                             }}
                             className="w-full py-6 bg-[#FF5A1F] text-white font-black text-xl uppercase tracking-[0.2em] rounded-[2.5rem] shadow-2xl shadow-[#FF5A1F]/20 transform hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center gap-4"
@@ -1487,10 +905,7 @@ export const ProjectsList: React.FC = () => {
                     </div>
 
                     <button 
-                        onClick={() => {
-                            setGenerationStatus('idle');
-                            resetWizard();
-                        }}
+                        onClick={() => setGenerationStatus('idle')}
                         className="text-gray-500 hover:text-white font-bold text-sm transition-colors pt-8 underline"
                     >
                         Cerrar y volver
@@ -1523,38 +938,6 @@ export const ProjectsList: React.FC = () => {
                 userEmail={user.email}
                 userName={user.name}
             />
-
-            {/* MODAL CONFIRMACIÓN DE ELIMINACIÓN */}
-            {showDeleteConfirm && projectToDelete && (
-                <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-[#111] border border-white/10 rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300">
-                        <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center text-red-500 mx-auto mb-6">
-                            <AlertTriangle className="w-8 h-8" />
-                        </div>
-                        <h3 className="text-2xl font-black text-white text-center mb-2 uppercase tracking-tight">¿Eliminar Proyecto?</h3>
-                        <p className="text-gray-400 text-center mb-8 leading-relaxed">
-                            Estás a punto de eliminar <span className="text-white font-bold">"{projectToDelete.name}"</span>. Esta acción borrará permanentemente toda la estrategia, avatares y ganchos generados. Esta acción no se puede deshacer.
-                        </p>
-                        <div className="flex flex-col gap-3">
-                            <button 
-                                onClick={confirmDelete}
-                                disabled={isDeletingProject}
-                                className="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                            >
-                                {isDeletingProject ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                                Sí, Eliminar Permanentemente
-                            </button>
-                            <button 
-                                onClick={() => { setShowDeleteConfirm(false); setProjectToDelete(null); }}
-                                disabled={isDeletingProject}
-                                className="w-full py-4 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all border border-white/5"
-                            >
-                                Cancelar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
