@@ -151,9 +151,9 @@ router.post('/articles/unlock-article', authMiddleware, async (req, res) => {
         if (masterRows.length === 0) return res.status(404).json({ error: "Artículo maestro no encontrado" });
         const master = masterRows[0];
 
-        const fields = ['user_id', 'project_id', 'master_article_id', 'created_at', 'status'];
-        const placeholders = ['?', '?', '?', 'NOW()', '?'];
-        const values = [req.user.id, projectId, master.id, 'published'];
+        const fields = ['user_id', 'project_id', 'master_article_id', 'created_at', 'status', 'is_generated'];
+        const placeholders = ['?', '?', '?', 'NOW()', '?', '?'];
+        const values = [req.user.id, projectId, master.id, 'draft', 0];
 
         const allowedFields = [
             'psychological_strategy', 'title', 'slug', 'description', 'content_html', 

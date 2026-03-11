@@ -80,9 +80,10 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                       emailSubject: a.email_subject,
                       emailBody: a.email_body,
                       status: a.status || 'published',
+                      isGenerated: !!a.is_generated,
                       publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
                       createdAt: a.created_at ? new Date(a.created_at) : new Date()
-                  }));
+                  })).filter((a: any) => a.isGenerated);
                   setLocalArticles(mapped);
                   setTotalPages(response.pagination.totalPages);
                   setTotalArticles(response.pagination.total);

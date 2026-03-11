@@ -165,7 +165,7 @@ router.get('/analytics/summary', authMiddleware, async (req, res) => {
   try {
     const [visitsRes] = await pool.query('SELECT SUM(visits) as v, SUM(conversions) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
     const [pagesRes] = await pool.query('SELECT COUNT(*) as c FROM landing_pages WHERE user_id = ?', [req.user.id]);
-    const [articlesRes] = await pool.query('SELECT COUNT(*) as c FROM articles WHERE user_id = ?', [req.user.id]);
+    const [articlesRes] = await pool.query('SELECT COUNT(*) as c FROM articles WHERE user_id = ? AND is_generated = 1', [req.user.id]);
     const [projectsRes] = await pool.query('SELECT COUNT(*) as c FROM projects WHERE user_id = ?', [req.user.id]);
     // Nuevo: Conteo de ganchos (hooks) asociados a los proyectos del usuario
     const [hooksRes] = await pool.query(`
