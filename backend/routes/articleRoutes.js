@@ -165,7 +165,11 @@ router.post('/articles/unlock-article', authMiddleware, async (req, res) => {
             if (master[field] !== null && master[field] !== undefined) {
                 fields.push(field);
                 placeholders.push('?');
-                values.push(master[field]);
+                let val = master[field];
+                if (field === 'psychological_strategy' && typeof val === 'object') {
+                    val = JSON.stringify(val);
+                }
+                values.push(val);
             }
         }
 
