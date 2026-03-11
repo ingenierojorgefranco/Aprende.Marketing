@@ -114,6 +114,50 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         }
     }, [activeArticle, mergedContentData]);
 
+    const handleBlurSave = async () => {
+        const active = mergedContentData[activeArticle];
+        if (!localEdit || !active?.id || active.id.startsWith('available-') || active.isUnlocked === false) return;
+
+        // Evitar guardado si no hay cambios reales
+        if (
+            localEdit.title === active.title && 
+            localEdit.strategy === active.strategy && 
+            localEdit.keyword === (active.keyword || '') && 
+            localEdit.searchVolume === (active.searchVolume || 0)
+        ) return;
+
+        try {
+            await api.updateArticle(active.id, {
+                title: localEdit.title,
+                psychologicalStrategy: {
+                    focus: localEdit.strategy,
+                    keyword: localEdit.keyword,
+                    searchVolume: localEdit.searchVolume,
+                    targetUrl: ""
+                }
+            } as any);
+        } catch (e) {
+            console.error("Blur save error:", e);
+        }
+    };
+
+    const handleFieldChange = (field: string, value: any) => {
+        // 1. Actualizar estado de edición local
+        const newEdit = { ...localEdit, [field]: value };
+        setLocalEdit(newEdit);
+
+        // 2. Actualizar UI inmediatamente (mergedContentData) para que las pestañas cambien al escribir
+        const updatedMerged = [...mergedContentData];
+        const active = updatedMerged[activeArticle];
+        if (active) {
+            updatedMerged[activeArticle] = {
+                ...active,
+                [field === 'strategy' ? 'strategy' : field]: value
+            };
+            setMergedContentData(updatedMerged);
+        }
+    };
+
     useEffect(() => {
         const active = mergedContentData[activeArticle];
         // Bloqueo de seguridad: No auto-guardar si no hay edición local, si no hay ID, o si es un ID de biblioteca maestra
@@ -171,7 +215,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             } catch (e) {
                 console.error("Auto-save error:", e);
             }
-        }, 1500); // Aumentamos un poco el delay para ser más "passive"
+        }, 800); // Reducimos el delay para mayor agilidad
 
         return () => clearTimeout(timer);
     }, [localEdit]);
@@ -452,8 +496,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             autoFocus
                                             type="text"
                                             value={localEdit?.title || ''}
-                                            onChange={(e) => setLocalEdit({ ...localEdit, title: e.target.value })}
-                                            onBlur={() => setEditingField(null)}
+                                            onChange={(e) => handleFieldChange('title', e.target.value)}
+                                            onBlur={() => { setEditingField(null); handleBlurSave(); }}
                                             className="w-full bg-black/40 border border-purple-500/50 rounded-xl px-4 py-2 text-3xl md:text-4xl font-bold text-white mb-6 outline-none"
                                         />
                                     ) : (
@@ -474,8 +518,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                 <textarea 
                                                     autoFocus
                                                     value={localEdit?.strategy || ''}
-                                                    onChange={(e) => setLocalEdit({ ...localEdit, strategy: e.target.value })}
-                                                    onBlur={() => setEditingField(null)}
+                                                    onChange={(e) => handleFieldChange('strategy', e.target.value)}
+                                                    onBlur={() => { setEditingField(null); handleBlurSave(); }}
                                                     className="w-full bg-transparent text-gray-300 text-xl leading-relaxed font-light outline-none resize-none min-h-[100px]"
                                                 />
                                             ) : (
@@ -503,8 +547,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     autoFocus
                                                     type="text"
                                                     value={localEdit?.keyword || ''}
-                                                    onChange={(e) => setLocalEdit({ ...localEdit, keyword: e.target.value })}
-                                                    onBlur={() => setEditingField(null)}
+                                                    onChange={(e) => handleFieldChange('keyword', e.target.value)}
+                                                    onBlur={() => { setEditingField(null); handleBlurSave(); }}
                                                     className="w-full bg-transparent text-purple-300 font-bold text-lg text-center outline-none"
                                                 />
                                             ) : (
@@ -530,8 +574,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     autoFocus
                                                     type="text"
                                                     value={localEdit?.searchVolume || ''}
-                                                    onChange={(e) => setLocalEdit({ ...localEdit, searchVolume: e.target.value })}
-                                                    onBlur={() => setEditingField(null)}
+                                                    onChange={(e) => handleFieldChange('searchVolume', e.target.value)}
+                                                    onBlur={() => { setEditingField(null); handleBlurSave(); }}
                                                     className="w-full bg-transparent text-emerald-300 font-bold text-lg text-center outline-none"
                                                 />
                                             ) : (
