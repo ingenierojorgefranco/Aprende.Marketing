@@ -3,6 +3,7 @@ import { Zap, Sparkles, Check, Target, Loader2, PlayCircle, X, PenTool, Brain, A
 import { useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { UpgradeModal } from '../../UpgradeModal';
+import { DeletionRestrictionModal } from '../../DeletionRestrictionModal';
 import { ProjectHook } from '../../../../types';
 
 interface ProjectStrategy_HooksProps {
@@ -38,6 +39,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [isMaster, setIsMaster] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showUpgradeModalLocal, setShowUpgradeModalLocal] = useState(false);
+  const [showRestrictionModal, setShowRestrictionModal] = useState(false);
   
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -308,6 +310,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const handleDeleteHook = async () => {
+    if (user?.role !== 'admin') {
+      setShowRestrictionModal(true);
+      return;
+    }
+
     if (window.confirm("¿Estás seguro de que que deseas eliminar este hook permanentemente? Esta acción no se puede deshacer.")) {
         setSaving(true);
         try {
@@ -901,6 +908,13 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
           </div>
       )}
       <UpgradeModal isOpen={showUpgradeModalLocal} onClose={() => setShowUpgradeModalLocal(false)} currentPlan={planLimits?.planName} />
+      <DeletionRestrictionModal 
+        isOpen={showRestrictionModal}
+        onClose={() => setShowRestrictionModal(false)}
+        itemName={currentHook.title}
+        userEmail={user?.email || ''}
+        userName={user?.name || ''}
+      />
     </div>
   );
 };

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, CheckCircle2, ChevronLeft, ChevronRight, TrendingUp, Loader2, Plus, Save, Unlock, Brain, Shield } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { FileText, Sparkles, Check, Target, Search, PenTool, Lock, PlayCircle, X, Crown, ArrowRight, Eye, BarChart, CheckCircle2, ChevronLeft, ChevronRight, TrendingUp, Loader2, Plus, Save, Unlock, Brain, Shield, Trash2 } from 'lucide-react';
+import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { PlanLimits, Plan, LandingPage, Article } from '../../../../types';
 import { ContentGenerator } from '../ContentGenerator';
 import { api } from '../../../../services/api';
 import { UpgradeModal } from '../../UpgradeModal';
+import { DeletionRestrictionModal } from '../../DeletionRestrictionModal';
 
 interface ProjectStrategy_ContentProps {
     contentData: any[];
@@ -28,9 +29,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     articleCount = 0, planLimits, nextPlan, isSimulating = false
 }) => {
     const navigate = useNavigate();
+    const context = useOutletContext() as any;
+    const user = context?.user;
     const { id: projectId } = useParams() as { id: string };
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showRestrictionModal, setShowRestrictionModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
@@ -204,6 +208,30 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         }
     };
 
+    const handleDeleteArticle = async () => {
+        const active = mergedContentData[activeArticle];
+        if (!active || !active.id) return;
+
+        if (user?.role !== 'admin') {
+            setShowRestrictionModal(true);
+            return;
+        }
+
+        if (window.confirm("¿Estás seguro de que deseas eliminar este artículo permanentemente? Esta acción no se puede deshacer.")) {
+            setLoadingLocal(true);
+            try {
+                await api.deleteArticle(active.id);
+                await loadLocalData();
+                setActiveArticle(0);
+                alert("Artículo eliminado correctamente.");
+            } catch (e: any) {
+                alert("Error al eliminar: " + e.message);
+            } finally {
+                setLoadingLocal(false);
+            }
+        }
+    };
+
     const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
     const maxArticles = planLimits?.maxArticles || 2;
     const isAtLimit = !isRealAdmin && !api.isUsingMockData() && articleCount >= maxArticles;
@@ -355,11 +383,22 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">
                                             {mergedContentData[activeArticle].isFromDb && !mergedContentData[activeArticle].isGenerated ? 'Estrategia Manual' : 'Análisis de IA'}
                                         </span>
-                                        {mergedContentData[activeArticle]?.isGenerated && (
-                                            <span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                                                <Check className="w-3 h-3" /> Generado
-                                            </span>
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                            {mergedContentData[activeArticle]?.isGenerated && (
+                                                <span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                                                    <Check className="w-3 h-3" /> Generado
+                                                </span>
+                                            )}
+                                            {mergedContentData[activeArticle]?.id && !mergedContentData[activeArticle].id.startsWith('available-') && (
+                                                <button 
+                                                    onClick={handleDeleteArticle}
+                                                    className="p-1.5 text-gray-500 hover:text-red-500 transition-colors bg-white/5 hover:bg-red-500/10 rounded-lg border border-white/10 hover:border-red-500/20"
+                                                    title="Eliminar Artículo"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {editingField === 'title' ? (
@@ -541,6 +580,14 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     </div>
                 </div>
             )}
+
+            <DeletionRestrictionModal 
+                isOpen={showRestrictionModal}
+                onClose={() => setShowRestrictionModal(false)}
+                itemName={mergedContentData[activeArticle]?.title || 'Artículo'}
+                userEmail={user?.email || ''}
+                userName={user?.name || ''}
+            />
         </div>
     );
 };
