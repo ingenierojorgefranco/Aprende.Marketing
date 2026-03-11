@@ -13,7 +13,7 @@ export const DEFAULT_LIMITS = {
     planName: 'starter',
     maxProjects: 1,
     maxLandings: 1,
-    maxArticles: 2,
+    maxArticles: 1,
     maxDomains: 1,
     maxEmailSequences: 1,
     maxWhatsAppLaunches: 1,

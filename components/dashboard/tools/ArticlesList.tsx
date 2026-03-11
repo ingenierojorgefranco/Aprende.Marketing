@@ -124,11 +124,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
 
   const handleCreate = () => {
       const isRealAdmin = user.role === 'admin' && !isSimulating;
-      const maxArticles = projects.reduce((sum, p) => {
-          if (p.limitsConfig?.maxArticles) return sum + p.limitsConfig.maxArticles;
-          const slug = p.planSlug || 'starter';
-          return sum + (slug === 'starter' ? 2 : 20);
-      }, projects.length === 0 ? (user.planLimits?.maxArticles || 2) : 0);
+      const maxArticles = user.planLimits?.maxArticles || 1;
       
       // Check Limit before creating (unless real admin)
       if (!isRealAdmin && articleCount >= maxArticles) {
@@ -151,11 +147,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
 
   // Plan Logic
   const isRealAdmin = user.role === 'admin' && !isSimulating;
-  const maxArticles = projects.reduce((sum, p) => {
-      if (p.limitsConfig?.maxArticles) return sum + p.limitsConfig.maxArticles;
-      const slug = p.planSlug || 'starter';
-      return sum + (slug === 'starter' ? 2 : 20);
-  }, projects.length === 0 ? (user.planLimits?.maxArticles || 2) : 0);
+  const maxArticles = user.planLimits?.maxArticles || 1;
   const usagePercent = Math.min(100, (articleCount / maxArticles) * 100);
   const isAtLimit = !isRealAdmin && articleCount >= maxArticles;
 
@@ -315,7 +307,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
 
                 {/* PAGINACIÓN SUPERIOR */}
                 {!isGeneratorOpen && localArticles.length > 0 && (
-                    <div className="w-full flex justify-center items-center gap-4">
+                    <div className="w-full flex justify-center items-center gap-4 pt-8 pb-4">
                         <button 
                             onClick={() => setPage(prev => Math.max(1, prev - 1))}
                             disabled={page === 1}
@@ -423,12 +415,17 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                                 )}
                             </div>
                             
-                            <h3 className="text-xl font-black text-[#FF5A1F] mb-3 line-clamp-2 group-hover:text-[#FF5A1F] transition-colors duration-300 leading-[1.6]">
-                            {article.title}
-                            </h3>
-                            <p className="text-white text-[1.2rem] line-clamp-3 mb-8 flex-1 leading-relaxed">
-                            {article.metaDescription || article.description || "Sin descripción disponible."}
-                            </p>
+                            <div 
+                                onClick={() => navigate(`/dashboard/articles/edit/${article.id}`)}
+                                className="cursor-pointer group/content"
+                            >
+                                <h3 className="text-xl font-black text-[#FF5A1F] mb-3 line-clamp-2 group-hover/content:text-orange-400 transition-colors duration-300 leading-[1.6]">
+                                {article.title}
+                                </h3>
+                                <p className="text-white text-[1.2rem] line-clamp-3 mb-8 flex-1 leading-relaxed opacity-80 group-hover/content:opacity-100 transition-opacity">
+                                {article.metaDescription || article.description || "Sin descripción disponible."}
+                                </p>
+                            </div>
                             
                             <div className="space-y-4 mt-auto pt-6 border-t border-white/5">
                                 {article.projectId || article.pageId ? (
@@ -475,33 +472,32 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                             </div>
                         </div>
                         
-                        <div className="p-6 bg-black/20 border-t border-white/5 flex items-center gap-3">
-                            <button 
-                                onClick={() => navigate(`/dashboard/articles/edit/${article.id}`)}
-                                className="flex-1 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-xl py-3 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-white/5"
-                            >
-                                <Edit2 className="w-3.5 h-3.5" /> Editar
-                            </button>
-                            
-                            {article.pageId && basePageSlug && article.status === 'published' && (
-                                <a 
-                                    href={articleUrl} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="p-3 bg-[#FF5A1F]/10 hover:bg-[#FF5A1F] text-[#FF5A1F] hover:text-white rounded-xl transition border border-[#FF5A1F]/20 shadow-lg"
-                                    title="Ver artículo online"
+                        <div className="p-6 bg-black/40 border-t border-white/5 flex flex-col gap-3">
+                            <div className="flex items-center gap-3">
+                                <button 
+                                    onClick={() => navigate(`/dashboard/articles/edit/${article.id}`)}
+                                    className="flex-1 bg-purple-600 hover:bg-purple-500 text-white rounded-xl py-3 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/20"
                                 >
-                                    <ExternalLink className="w-4 h-4" />
-                                </a>
-                            )}
+                                    <Edit2 className="w-3.5 h-3.5" /> Editar
+                                </button>
+                                
+                                {article.pageId && basePageSlug && article.status === 'published' && (
+                                    <a 
+                                        href={articleUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex-1 bg-orange-600 hover:bg-orange-500 text-white rounded-xl py-3 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-900/20"
+                                    >
+                                        <Globe className="w-3.5 h-3.5" /> Ver artículo
+                                    </a>
+                                )}
+                            </div>
 
                             <button 
                                 onClick={() => handleDelete(article)}
-                                className="flex items-center gap-2 px-3 py-2 text-red-500/40 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition border border-transparent hover:border-red-500/20"
-                                title="Eliminar artículo"
+                                className="w-full flex items-center justify-center gap-2 py-2 text-red-500/60 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition-all border border-transparent hover:border-red-500/20 text-[10px] font-black uppercase tracking-widest"
                             >
-                                <Trash2 className="w-4 h-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Borrar</span>
+                                <Trash2 className="w-3.5 h-3.5" /> Borrar
                             </button>
                         </div>
                         </div>
@@ -512,7 +508,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
 
             {/* PAGINACIÓN INFERIOR */}
             {!isGeneratorOpen && localArticles.length > 0 && (
-                <div className="flex justify-center items-center gap-4 mt-12">
+                <div className="flex justify-center items-center gap-4 mt-12 pt-8 pb-4">
                     <button 
                         onClick={() => setPage(prev => Math.max(1, prev - 1))}
                         disabled={page === 1}
