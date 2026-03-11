@@ -1772,6 +1772,18 @@ export const api = {
         return await fetchWithFallback(`/hooks/project/${projectId}`, { headers: getAuthHeaders() });
     },
 
+    getHooksLibrary: async (page: number, limit: number): Promise<{ hooks: any[], total: number }> => {
+        if (isMockMode) {
+            const start = (page - 1) * limit;
+            const end = start + limit;
+            return {
+                hooks: MOCK_PROJECT_HOOKS.slice(start, end),
+                total: MOCK_PROJECT_HOOKS.length
+            };
+        }
+        return await fetchWithFallback(`/hooks/library?page=${page}&limit=${limit}`, { headers: getAuthHeaders() });
+    },
+
     unlockSingleHook: async (projectId: string, masterHookId: string): Promise<{ id: string }> => {
         if (isMockMode) return { id: `unlocked-${Date.now()}` };
         return await fetchWithFallback('/hooks/unlock-single', {

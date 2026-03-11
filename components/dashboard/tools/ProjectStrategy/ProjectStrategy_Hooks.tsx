@@ -52,6 +52,13 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  const [activeTab, setActiveTab] = useState<'library' | 'generated'>('library');
+  const [libraryHooks, setLibraryHooks] = useState<any[]>([]);
+  const [libraryTotal, setLibraryTotal] = useState(0);
+  const [loadingLibrary, setLoadingLibrary] = useState(false);
+  const [libraryPage, setLibraryPage] = useState(1);
+  const [activeLibraryHook, setActiveLibraryHook] = useState(0);
+
   const [localTitle, setLocalTitle] = useState("");
   const [localStrategy, setLocalStrategy] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -83,6 +90,20 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
+  const loadLibrary = async (page: number) => {
+    if (!projectId) return;
+    setLoadingLibrary(true);
+    try {
+        const res = await api.getHooksLibrary(page, 5);
+        setLibraryHooks(res.hooks);
+        setLibraryTotal(res.total);
+    } catch (e) {
+        console.error("Error cargando biblioteca:", e);
+    } finally {
+        setLoadingLibrary(false);
+    }
+  };
+
   useEffect(() => {
     const checkProject = async () => {
         if (!projectId) return;
@@ -93,17 +114,25 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         } catch (e) {}
     };
     checkProject();
-    loadHooks();
-  }, [projectId]);
+    
+    if (activeTab === 'library') {
+        loadLibrary(libraryPage);
+    } else {
+        loadHooks();
+    }
+  }, [projectId, activeTab, libraryPage]);
 
   useEffect(() => {
-    if (hooks.length > 0 && hooks[activeHook]) {
-        const hook = hooks[activeHook];
+    const currentList = activeTab === 'library' ? libraryHooks : hooks;
+    const currentIndex = activeTab === 'library' ? activeLibraryHook : activeHook;
+    
+    if (currentList.length > 0 && currentList[currentIndex]) {
+        const hook = currentList[currentIndex];
         setLocalTitle(hook.title || "");
         setLocalStrategy((hook as any).psychological_strategy || hook.psychologicalStrategy || "");
         setIsEditingTitle(false);
     }
-  }, [activeHook, hooks]);
+  }, [activeHook, activeLibraryHook, hooks, libraryHooks, activeTab]);
 
   const [searchParams] = useSearchParams();
   const hookIdFromUrl = searchParams.get('hookId');
@@ -139,7 +168,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const executeUnlock = async () => {
-    const hook = hooks[activeHook];
+    const currentList = activeTab === 'library' ? libraryHooks : hooks;
+    const currentIndex = activeTab === 'library' ? activeLibraryHook : activeHook;
+    const hook = currentList[currentIndex];
+    
     if (!hook || !projectId || !(hook as any).masterHookId) return;
     
     if (!isRealAdmin && currentHooksCount >= maxHooks) {
@@ -154,7 +186,19 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     try {
         const res = await api.unlockSingleHook(projectId, (hook as any).masterHookId);
         await handleGenerateKit(res.id);
-        await loadHooks();
+        
+        // Cargar los ganchos generados y cambiar a esa pestaña
+        const freshHooks = await loadHooks();
+        setActiveTab('generated');
+        
+        // Seleccionar el nuevo gancho
+        const newIndex = freshHooks.findIndex((h: any) => String(h.id) === String(res.id));
+        if (newIndex !== -1) {
+            setActiveHook(newIndex);
+            const calculatedPage = Math.floor(newIndex / itemsPerPage) + 1;
+            setCurrentPage(calculatedPage);
+        }
+        
         setGenerationStatus('success');
     } catch (e: any) {
         alert("Error al desbloquear gancho: " + e.message);
@@ -183,7 +227,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const currentHook: ProjectHook = hooks[activeHook] || { 
+  const currentHook: ProjectHook = (activeTab === 'library' ? libraryHooks[activeLibraryHook] : hooks[activeHook]) || { 
     id: '', 
     projectId: '', 
     title: "Selecciona un gancho", 
@@ -196,8 +240,13 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const isCurrentUnlocked = (currentHook as any).isUnlocked || !(currentHook as any).masterHookId;
   const canGenerate = isCurrentUnlocked && !currentHook.isGenerated && !isRealAdmin;
 
-  const totalPages = Math.ceil(hooks.length / itemsPerPage);
-  const paginatedHooks = hooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = activeTab === 'library' 
+    ? Math.ceil(libraryTotal / 5) 
+    : Math.ceil(hooks.length / itemsPerPage);
+    
+  const paginatedHooks = activeTab === 'library' 
+    ? libraryHooks 
+    : hooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const defaultKitContent = {
     script: "Aquí ingresa el guion del video persuasivo...",
@@ -445,31 +494,47 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 </button>
               </div>
             </div>
+
+            {/* Selector de Pestañas */}
+            <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
+              <button 
+                onClick={() => { setActiveTab('library'); setActiveLibraryHook(0); }}
+                className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-orange-600 text-white' : 'text-gray-500 hover:text-white'}`}
+              >
+                Biblioteca de Hooks
+              </button>
+              <button 
+                onClick={() => { setActiveTab('generated'); setActiveHook(0); }}
+                className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white' : 'text-gray-500 hover:text-white'}`}
+              >
+                Hooks Generados
+              </button>
+            </div>
             
             <div className="space-y-4">
-              {loadingHooks ? (
+              {(activeTab === 'library' ? loadingLibrary : loadingHooks) ? (
                 <div className="flex justify-center py-10"><Loader2 className="animate-spin text-orange-400" /></div>
               ) : paginatedHooks.length > 0 ? (
                 paginatedHooks.map((hook: ProjectHook, idxInPage: number) => {
-                  const globalIdx = (currentPage - 1) * itemsPerPage + idxInPage;
-                  const isActive = activeHook === globalIdx;
-                  const isUnlocked = (hook as any).isUnlocked;
+                  const globalIdx = activeTab === 'library' ? idxInPage : (currentPage - 1) * itemsPerPage + idxInPage;
+                  const isActive = activeTab === 'library' ? activeLibraryHook === globalIdx : activeHook === globalIdx;
+                  const isUnlocked = (hook as any).isUnlocked || activeTab === 'generated';
                   const isGenerated = hook.isGenerated;
 
                   return (
                     <div 
                       key={hook.id} 
-                      onClick={() => setActiveHook(globalIdx)}
-                      className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-900/20 border-emerald-500/50' : (isActive ? 'bg-orange-900/20 border-orange-500/50' : 'bg-black/20 border-gray-800 hover:border-gray-700')} ${isActive ? 'translate-x-2' : ''} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
+                      onClick={() => activeTab === 'library' ? setActiveLibraryHook(globalIdx) : setActiveHook(globalIdx)}
+                      className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-900/20 border-emerald-500/50' : (isActive ? (activeTab === 'library' ? 'bg-orange-900/20 border-orange-500/50' : 'bg-emerald-900/20 border-emerald-500/50') : 'bg-black/20 border-gray-800 hover:border-gray-700')} ${isActive ? 'translate-x-2' : ''} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
                     >
                       <div className="flex-1">
-                        <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${isActive ? (isGenerated ? 'text-emerald-400' : 'text-orange-300') : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
+                        <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${isActive ? (isGenerated ? 'text-emerald-400' : (activeTab === 'library' ? 'text-orange-300' : 'text-emerald-300')) : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
                             {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
                             {hook.title}
                         </h4>
                       </div>
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isActive ? (isGenerated ? 'bg-emerald-500 border-emerald-500' : 'bg-orange-500 border-orange-500') : 'border-gray-600 group-hover:border-emerald-400'}`}>
-                        {(isActive || hook.isGenerated) && <Check className={`w-4 h-4 font-bold ${hook.isGenerated ? 'text-white' : 'text-black'}`} />}
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isActive ? (isGenerated ? 'bg-emerald-500 border-emerald-500' : (activeTab === 'library' ? 'bg-orange-500 border-orange-500' : 'bg-emerald-500 border-emerald-500')) : 'border-gray-600 group-hover:border-emerald-400'}`}>
+                        {(isActive || hook.isGenerated) && <Check className={`w-4 h-4 font-bold ${hook.isGenerated || activeTab === 'generated' ? 'text-white' : 'text-black'}`} />}
                       </div>
                     </div>
                   );
@@ -481,9 +546,23 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-800">
-                <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"><ChevronLeft className="w-5 h-5" /></button>
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Pág. {currentPage}</span>
-                <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)} className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"><ChevronRight className="w-5 h-5" /></button>
+                <button 
+                  disabled={activeTab === 'library' ? libraryPage === 1 : currentPage === 1} 
+                  onClick={() => activeTab === 'library' ? setLibraryPage(prev => prev - 1) : setCurrentPage(prev => prev - 1)} 
+                  className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                  Pág. {activeTab === 'library' ? libraryPage : currentPage}
+                </span>
+                <button 
+                  disabled={activeTab === 'library' ? libraryPage === totalPages : currentPage === totalPages} 
+                  onClick={() => activeTab === 'library' ? setLibraryPage(prev => prev + 1) : setCurrentPage(prev => prev + 1)} 
+                  className="p-2 rounded-lg bg-black/40 border border-white/5 text-gray-500 hover:text-orange-400 disabled:opacity-20 transition-all"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
               </div>
             )}
           </div>
