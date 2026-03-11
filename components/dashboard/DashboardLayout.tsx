@@ -229,7 +229,7 @@ export const DashboardLayout = ({
         { id: 'training', label: 'Entrenamiento', icon: GraduationCap, subItems: courseItems },
         { id: 'sistema', label: 'Tu Sistema', icon: Layers, subItems: [
             { label: 'Mis Proyectos', path: '/dashboard/projects', icon: Briefcase },
-            { label: 'Hooks Magnéticos', path: '/dashboard/hooks', icon: Zap },
+            { label: 'Hooks de Atracción', path: '/dashboard/hooks', icon: Zap },
             { label: 'Páginas de Captura', path: '/dashboard/pages', icon: FileText },
             { label: 'Contenidos SEO', path: '/dashboard/articles', icon: BookOpen },
             { label: 'Email Marketing', path: '/dashboard/email', icon: Mail },

@@ -71,8 +71,26 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
 
   /* Actualización: Función para interceptar el inicio de la acción y abrir el selector de página estratégica - 25/05/2024 10:10 */
   const handleInitiateAction = (action: 'ia' | 'manual') => {
-    setPendingAction(action);
-    setShowPageSelector(true);
+    if (filteredPages.length === 1) {
+      const pageId = filteredPages[0].id;
+      onSelectPage(pageId);
+      if (action === 'ia') {
+        if (isPreFilled) {
+          onSelectRecommendation({
+              title: topic,
+              strategy: objective,
+              keyword: keyword
+          });
+        } else {
+          setSelectionMode('ia');
+        }
+      } else if (action === 'manual') {
+        onGenerate();
+      }
+    } else {
+      setPendingAction(action);
+      setShowPageSelector(true);
+    }
   };
 
   const handlePageSelect = (pageId: string) => {

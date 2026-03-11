@@ -80,6 +80,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     setLoadingHooks(true);
     try {
         const data = await api.getProjectHooks(projectId);
+        console.log("Hooks del proyecto cargados:", data);
         setHooks(data);
         setLoadingHooks(false);
         return data;
@@ -95,6 +96,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     setLoadingLibrary(true);
     try {
         const res = await api.getHooksLibrary(page, 5);
+        console.log("Biblioteca cargada (página " + page + "):", res);
         setLibraryHooks(res.hooks);
         setLibraryTotal(res.total);
     } catch (e) {
@@ -104,6 +106,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
+  console.log("Filtrando biblioteca. libraryHooks:", libraryHooks, "hooks:", hooks);
   const displayLibraryHooks = libraryHooks.filter(lh => !hooks.some(h => String(h.masterHookId) === String(lh.id)));
   const displayGeneratedHooks = hooks.filter(h => h.isGenerated);
 
@@ -118,10 +121,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     };
     checkProject();
     
+    // Cargar siempre los hooks del proyecto para tener la referencia de filtrado
+    loadHooks();
+    
     if (activeTab === 'library') {
         loadLibrary(libraryPage);
-    } else {
-        loadHooks();
     }
   }, [projectId, activeTab, libraryPage]);
 
