@@ -132,7 +132,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
 /**
  * Desbloquea un artículo individual desde la biblioteca maestra (Copia física)
  */
-router.post('/unlock-article', authMiddleware, async (req, res) => {
+router.post('/articles/unlock-article', authMiddleware, async (req, res) => {
     const { projectId, masterArticleId } = req.body;
     if (!projectId || !masterArticleId) return res.status(400).json({ error: "Faltan parámetros" });
 
