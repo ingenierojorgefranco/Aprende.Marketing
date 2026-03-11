@@ -60,8 +60,9 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   limit: 5
               });
 
-              if (response && response.data) {
-                  const mapped = response.data.map((a: any) => ({
+              if (response) {
+                  const dataToMap = response.data || (Array.isArray(response) ? response : []);
+                  const mapped = dataToMap.map((a: any) => ({
                       id: a.id.toString(),
                       projectId: (a.project_id || a.projectId) ? String(a.project_id || a.projectId) : undefined,
                       projectName: a.project_name || a.projectName,
@@ -84,13 +85,16 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                       publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
                       createdAt: a.created_at ? new Date(a.created_at) : new Date()
                   })).filter((a: any) => a.isGenerated);
+
                   setLocalArticles(mapped);
-                  setTotalPages(response.pagination.totalPages);
-                  setTotalArticles(response.pagination.total);
-              } else if (Array.isArray(response)) {
-                  setLocalArticles(response);
-                  setTotalPages(1);
-                  setTotalArticles(response.length);
+                  
+                  if (response.pagination) {
+                      setTotalPages(response.pagination.totalPages);
+                      setTotalArticles(response.pagination.total);
+                  } else {
+                      setTotalPages(1);
+                      setTotalArticles(mapped.length);
+                  }
               }
           } catch (e) {
               console.error(e);

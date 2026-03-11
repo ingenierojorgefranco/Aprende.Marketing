@@ -331,7 +331,56 @@ router.get('/me/resources', authMiddleware, async (req, res) => {
         } else if (type === 'pages') {
             [rows] = await pool.query('SELECT id, name, subdomain, created_at FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC', [userId]);
         } else if (type === 'articles') {
-            [rows] = await pool.query('SELECT id, title, slug, created_at FROM articles WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+            const { projectId, page, limit = 5 } = req.query;
+            const pNum = parseInt(page);
+            const lNum = parseInt(limit);
+            const offset = (pNum - 1) * lNum;
+
+            let whereClause = "WHERE a.user_id = ? AND a.is_generated = 1";
+            const params = [userId];
+
+            if (projectId && projectId !== 'all' && projectId !== 'null' && projectId !== 'undefined') {
+                whereClause += " AND a.project_id = ?";
+                params.push(projectId);
+            }
+
+            if (page) {
+                const [countRows] = await pool.query(`
+                    SELECT COUNT(*) as total 
+                    FROM articles a
+                    ${whereClause}
+                `, params);
+                const total = countRows[0].total;
+
+                const [articleRows] = await pool.query(`
+                    SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
+                    FROM articles a
+                    LEFT JOIN landing_pages lp ON a.page_id = lp.id
+                    LEFT JOIN projects p ON a.project_id = p.id
+                    ${whereClause}
+                    ORDER BY a.created_at DESC
+                    LIMIT ? OFFSET ?
+                `, [...params, lNum, offset]);
+
+                return res.json({
+                    data: articleRows,
+                    pagination: {
+                        total,
+                        page: pNum,
+                        limit: lNum,
+                        totalPages: Math.ceil(total / lNum)
+                    }
+                });
+            } else {
+                [rows] = await pool.query(`
+                    SELECT a.*, lp.subdomain as page_subdomain, lp.name as page_name, p.name as project_name
+                    FROM articles a
+                    LEFT JOIN landing_pages lp ON a.page_id = lp.id
+                    LEFT JOIN projects p ON a.project_id = p.id
+                    ${whereClause}
+                    ORDER BY a.created_at DESC
+                `, params);
+            }
         } else if (type === 'emails') {
             [rows] = await pool.query('SELECT id, name, created_at FROM email_sequences WHERE user_id = ? ORDER BY created_at DESC', [userId]);
         } else if (type === 'whatsapp') {
