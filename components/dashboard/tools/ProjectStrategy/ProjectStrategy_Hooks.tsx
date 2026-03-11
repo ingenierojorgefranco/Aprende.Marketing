@@ -104,6 +104,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
+  const displayLibraryHooks = libraryHooks.filter(lh => !hooks.some(h => String(h.masterHookId) === String(lh.id)));
+  const displayGeneratedHooks = hooks.filter(h => h.isGenerated);
+
   useEffect(() => {
     const checkProject = async () => {
         if (!projectId) return;
@@ -123,7 +126,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   }, [projectId, activeTab, libraryPage]);
 
   useEffect(() => {
-    const currentList = activeTab === 'library' ? libraryHooks : hooks;
+    const currentList = activeTab === 'library' ? displayLibraryHooks : displayGeneratedHooks;
     const currentIndex = activeTab === 'library' ? activeLibraryHook : activeHook;
     
     if (currentList.length > 0 && currentList[currentIndex]) {
@@ -168,7 +171,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const executeUnlock = async () => {
-    const currentList = activeTab === 'library' ? libraryHooks : hooks;
+    const currentList = activeTab === 'library' ? displayLibraryHooks : displayGeneratedHooks;
     const currentIndex = activeTab === 'library' ? activeLibraryHook : activeHook;
     const hook = currentList[currentIndex];
     
@@ -191,8 +194,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         const freshHooks = await loadHooks();
         setActiveTab('generated');
         
-        // Seleccionar el nuevo gancho
-        const newIndex = freshHooks.findIndex((h: any) => String(h.id) === String(res.id));
+        // Seleccionar el nuevo gancho en la lista filtrada de generados
+        const generatedOnly = freshHooks.filter((h: any) => h.isGenerated);
+        const newIndex = generatedOnly.findIndex((h: any) => String(h.id) === String(res.id));
         if (newIndex !== -1) {
             setActiveHook(newIndex);
             const calculatedPage = Math.floor(newIndex / itemsPerPage) + 1;
@@ -227,7 +231,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const currentHook: ProjectHook = (activeTab === 'library' ? libraryHooks[activeLibraryHook] : hooks[activeHook]) || { 
+  const currentHook: ProjectHook = (activeTab === 'library' ? displayLibraryHooks[activeLibraryHook] : displayGeneratedHooks[activeHook]) || { 
     id: '', 
     projectId: '', 
     title: "Selecciona un gancho", 
@@ -242,11 +246,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const totalPages = activeTab === 'library' 
     ? Math.ceil(libraryTotal / 5) 
-    : Math.ceil(hooks.length / itemsPerPage);
+    : Math.ceil(displayGeneratedHooks.length / itemsPerPage);
     
   const paginatedHooks = activeTab === 'library' 
-    ? libraryHooks 
-    : hooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    ? displayLibraryHooks 
+    : displayGeneratedHooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const defaultKitContent = {
     script: "Aquí ingresa el guion del video persuasivo...",
@@ -338,15 +342,19 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 title: 'Nuevo Gancho Manual',
                 psychological_strategy: 'Ingresa aquí el ángulo psicológico...',
                 contentJson: defaultKitContent,
-                isGenerated: isRealAdmin
+                isGenerated: true
             };
             const res = await api.createProjectHook(projectId, hookData);
             const freshHooks = await loadHooks();
             
-            // Selección automática del nuevo gancho y navegación al editor
-            const newIndex = freshHooks.findIndex((h: any) => String(h.id) === String(res.id));
+            // Selección automática del nuevo gancho en la lista de generados
+            setActiveTab('generated');
+            const generatedOnly = freshHooks.filter((h: any) => h.isGenerated);
+            const newIndex = generatedOnly.findIndex((h: any) => String(h.id) === String(res.id));
             if (newIndex !== -1) {
                 setActiveHook(newIndex);
+                const calculatedPage = Math.floor(newIndex / itemsPerPage) + 1;
+                setCurrentPage(calculatedPage);
             }
             
             alert("¡Gancho creado exitosamente!");
@@ -495,6 +503,19 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
               </div>
             </div>
 
+            {/* Barra de Progreso de Hooks */}
+            <div className="w-full mb-6">
+              <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
+                <div className="flex justify-between items-center mb-2 text-sm">
+                  <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Hooks Desbloqueados</span>
+                  <span className="text-white font-bold">{currentHooksCount} / {maxHooks}</span>
+                </div>
+                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                  <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-orange-500" style={{ width: `${usagePercent}%` }}></div>
+                </div>
+              </div>
+            </div>
+
             {/* Selector de Pestañas */}
             <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
               <button 
@@ -575,19 +596,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                 <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-gray-800 rounded-[2.5rem] p-8 md:p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl animate-in zoom-in-95">
                     <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-orange-500" /></div>
                     
-                    {/* Barra de Progreso Centrada (Solo en vista bloqueada) */}
-                    <div className="w-full flex justify-center mb-10">
-                      <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full max-w-md shadow-inner">
-                        <div className="flex justify-between items-center mb-2 text-sm">
-                          <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Hooks Desbloqueados</span>
-                          <span className="text-white font-bold">{currentHooksCount} / {maxHooks}</span>
-                        </div>
-                        <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                          <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-orange-500" style={{ width: `${usagePercent}%` }}></div>
-                        </div>
-                      </div>
-                    </div>
-
                     <div className="w-full text-left mb-8">
                       <h3 className="text-white mb-6 font-medium tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>{currentHook.title}</h3>
                       
