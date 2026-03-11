@@ -344,27 +344,42 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         <div className="relative z-10 flex flex-col h-full">
                             {mergedContentData[activeArticle] ? (
                                 mergedContentData[activeArticle].isUnlocked === false && !isRealAdmin ? (
-                                    <div className="flex flex-col items-center text-center py-10 animate-in zoom-in-95">
+                                    <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/10 border border-gray-800 rounded-[2.5rem] p-8 md:p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl animate-in zoom-in-95">
+                                        <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-purple-500" /></div>
+                                        
+                                        {/* Barra de Progreso Centrada (Solo en vista bloqueada) */}
+                                        <div className="w-full flex justify-center mb-10">
+                                            <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full max-w-md shadow-inner">
+                                                <div className="flex justify-between items-center mb-2 text-sm">
+                                                    <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Artículos Desbloqueados</span>
+                                                    <span className="text-white font-bold">{articleCount} / {maxArticles}</span>
+                                                </div>
+                                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                                    <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-purple-500" style={{ width: `${usagePercent}%` }}></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="w-full text-left mb-8">
+                                            <h3 className="text-white mb-6 font-medium tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>{mergedContentData[activeArticle].title}</h3>
+                                            
+                                            <div className="bg-purple-500/5 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm mb-8">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <Brain className="w-5 h-5 text-purple-400" />
+                                                    <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
+                                                </div>
+                                                <p className="text-white text-lg font-light leading-relaxed">
+                                                    {mergedContentData[activeArticle].strategy}
+                                                </p>
+                                            </div>
+                                        </div>
+
                                         <div className="w-20 h-20 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 border border-purple-500/20 shadow-lg animate-pulse">
                                             <Lock className="w-10 h-10 text-purple-500" />
                                         </div>
-                                        
-                                        <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-tight">Artículo de Biblioteca Maestra</h3>
-                                        
-                                        <div className="w-full text-left bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-8">
-                                            <h4 className="text-white text-xl font-bold mb-4">{mergedContentData[activeArticle].title}</h4>
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <Brain className="w-4 h-4 text-purple-400" />
-                                                <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
-                                            </div>
-                                            <p className="text-gray-300 text-lg font-light leading-relaxed italic">
-                                                {mergedContentData[activeArticle].strategy}
-                                            </p>
-                                        </div>
 
-                                        <p className="text-gray-400 font-medium leading-relaxed max-w-md mx-auto mb-10">
-                                            Este artículo ha sido diseñado por expertos. Desbloquéalo para obtener una copia editable y generar el contenido completo.
-                                        </p>
+                                        <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Artículos Disponibles para Desbloquear</h4>
+                                        <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro sistema ha generado este Artículo Estratégico por ti. Haz clic en Desbloquear para ver todo el contenido.</p>
 
                                         <button 
                                             onClick={handleUnlockArticle}
@@ -372,7 +387,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             className="w-full py-5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-purple-900/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70"
                                         >
                                             {unlockingSingle ? <Loader2 className="w-6 h-6 animate-spin" /> : <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
-                                            {unlockingSingle ? 'Desbloqueando...' : 'Desbloquear este Artículo'}
+                                            {unlockingSingle ? 'Desbloqueando...' : 'Desbloquear Artículo'}
                                         </button>
                                         
                                         <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
