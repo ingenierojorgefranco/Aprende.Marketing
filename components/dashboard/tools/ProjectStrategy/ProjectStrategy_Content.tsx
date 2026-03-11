@@ -34,6 +34,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const { id: projectId } = useParams() as { id: string };
     const [showGeneratorModal, setShowGeneratorModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showUnlockConfirmModal, setShowUnlockConfirmModal] = useState(false);
     const [showRestrictionModal, setShowRestrictionModal] = useState(false);
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
@@ -53,15 +54,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         if (!projectId) return;
         setLoadingLocal(true);
         try {
-    const [pages, articles, project] = await Promise.all([
+            const [pages, articles, project] = await Promise.all([
                 api.getPages(),
                 api.getArticlesByProject(projectId),
                 api.getProjectById(projectId)
             ]);
-
-            console.log("DEBUG - Project ID:", projectId);
-            console.log("DEBUG - Master Parent ID:", project?.masterParentId);
-            console.log("DEBUG - Articles from Project/Master:", articles);
 
             const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
             setLinkedPages(projectPages);
@@ -72,7 +69,6 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 (project?.masterParentId && String(a.projectId) === String(project.masterParentId)) ||
                 projectPages.some(p => String(p.id) === String(a.pageId))
             );
-            console.log("DEBUG - Filtered Project Articles:", projectArts);
             setLinkedArticles(projectArts);
 
             // Lógica Exclusiva: Priorizar Base de Datos sobre JSON
@@ -123,6 +119,14 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         // Bloqueo de seguridad: No auto-guardar si no hay edición local, si no hay ID, o si es un ID de biblioteca maestra
         if (!localEdit || !active?.id || active.id.startsWith('available-') || active.isUnlocked === false) return;
         
+        // Evitar guardado si no hay cambios reales
+        if (
+            localEdit.title === active.title && 
+            localEdit.strategy === active.strategy && 
+            localEdit.keyword === (active.keyword || '') && 
+            localEdit.searchVolume === (active.searchVolume || 0)
+        ) return;
+
         const timer = setTimeout(async () => {
             try {
                 await api.updateArticle(active.id, {
@@ -134,10 +138,40 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         targetUrl: ""
                     }
                 } as any);
+                // Actualizar localmente los datos para que el siguiente ciclo detecte que ya está guardado
+                // Esto ayuda a reducir "Violations" al evitar re-renders innecesarios
+                const updatedLinked = [...linkedArticles];
+                const linkedIndex = updatedLinked.findIndex(a => a.id === active.id);
+                if (linkedIndex !== -1) {
+                    updatedLinked[linkedIndex] = {
+                        ...updatedLinked[linkedIndex],
+                        title: localEdit.title,
+                        psychologicalStrategy: {
+                            focus: localEdit.strategy,
+                            keyword: localEdit.keyword,
+                            searchVolume: localEdit.searchVolume,
+                            targetUrl: updatedLinked[linkedIndex].psychologicalStrategy?.targetUrl || ""
+                        }
+                    };
+                    setLinkedArticles(updatedLinked);
+                }
+
+                const updatedMerged = [...mergedContentData];
+                const mergedIndex = updatedMerged.findIndex(a => a.id === active.id);
+                if (mergedIndex !== -1) {
+                    updatedMerged[mergedIndex] = {
+                        ...updatedMerged[mergedIndex],
+                        title: localEdit.title,
+                        strategy: localEdit.strategy,
+                        keyword: localEdit.keyword,
+                        searchVolume: localEdit.searchVolume
+                    };
+                    setMergedContentData(updatedMerged);
+                }
             } catch (e) {
                 console.error("Auto-save error:", e);
             }
-        }, 1000);
+        }, 1500); // Aumentamos un poco el delay para ser más "passive"
 
         return () => clearTimeout(timer);
     }, [localEdit]);
@@ -189,17 +223,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         const active = mergedContentData[activeArticle];
         if (!active || !active.id || !active.id.startsWith('available-')) return;
         
+        setShowUnlockConfirmModal(false);
         const masterId = active.id.replace('available-', '');
         setUnlockingSingle(true);
         try {
             const res = await api.unlockArticle(projectId, masterId);
             await loadLocalData();
-            
-            // Buscar el nuevo índice del artículo desbloqueado
-            // loadLocalData actualizará mergedContentData, necesitamos encontrar el nuevo ID
-            // Pero como loadLocalData es async y actualiza estado, lo mejor es dejar que el useEffect de loadLocalData haga su trabajo
-            // y nosotros simplemente informar al usuario o intentar pre-seleccionar si el ID es predecible.
-            // En este caso, loadLocalData recargará todo.
             alert("¡Artículo desbloqueado con éxito!");
         } catch (e: any) {
             alert("Error al desbloquear: " + e.message);
@@ -278,8 +307,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             {loadingLocal ? (
                 <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary" /></div>
             ) : (
-                <div id="psd-content-grid" className="grid lg:grid-cols-2 gap-8">
-                    <div id="psd-content-list-col" className="space-y-6">
+                <div id="psd-content-grid" className="grid lg:grid-cols-12 gap-8">
+                    <div id="psd-content-list-col" className="lg:col-span-5 space-y-6">
                         <div id="psd-content-list-card" className="bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-xl">
                             <div className="flex items-center justify-between gap-3 mb-6">
                                 <div className="flex items-center gap-3">
@@ -337,8 +366,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             )}
                         </div>
                     </div>
-
-                    <div id="psd-content-detail-card" className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/10 border border-gray-800 rounded-2xl p-8 flex flex-col relative overflow-hidden h-full min-h-[500px] shadow-2xl">
+                    <div id="psd-content-detail-card" className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/10 border border-gray-800 rounded-2xl p-8 flex flex-col relative overflow-hidden h-full min-h-[500px] shadow-2xl">
                         <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Target className="w-40 h-40 text-purple-500" /></div>
                         
                         <div className="relative z-10 flex flex-col h-full">
@@ -382,7 +410,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro sistema ha generado este Artículo Estratégico por ti. Haz clic en Desbloquear para ver todo el contenido.</p>
 
                                         <button 
-                                            onClick={handleUnlockArticle}
+                                            onClick={() => setShowUnlockConfirmModal(true)}
                                             disabled={unlockingSingle}
                                             className="w-full py-5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-purple-900/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70"
                                         >
@@ -539,6 +567,38 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     <p className="text-gray-500 font-medium">Selecciona una estrategia para ver los detalles</p>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showUnlockConfirmModal && (
+                <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowUnlockConfirmModal(false)}>
+                    <div className="bg-[#0B0B0B] border border-purple-500/20 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-rose-500"></div>
+                        <div className="p-8 md:p-10 space-y-8 flex-1 overflow-y-auto">
+                            <div className="flex flex-col items-center text-center space-y-6">
+                                <div className="w-20 h-20 bg-purple-500/10 text-purple-400 rounded-3xl flex items-center justify-center mx-auto border border-purple-500/20 shadow-lg shadow-purple-900/10 animate-pulse"><Sparkles className="w-10 h-10" /></div>
+                                <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
+                                    Confirmar Consumo de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Créditos</span>
+                                </h1>
+                                <p className="text-white text-lg leading-relaxed font-normal">
+                                    Al desbloquear este artículo estratégico se consumirá 1 crédito de tu plan actual.
+                                </p>
+                            </div>
+                            <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-inner text-left">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Créditos de Artículos</span>
+                                    <span className="text-white font-bold text-sm">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
+                                </div>
+                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
+                                    <div className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
+                            <button onClick={() => setShowUnlockConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
+                            <button onClick={handleUnlockArticle} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-rose-600 text-white font-black text-[10px] uppercase shadow-xl transform hover:scale-105 transition-all">Confirmar y Desbloquear</button>
                         </div>
                     </div>
                 </div>
