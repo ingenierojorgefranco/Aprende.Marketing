@@ -94,6 +94,51 @@ router.get('/project/:projectId', async (req, res) => {
 });
 
 /**
+ * Obtiene la biblioteca de ganchos maestros
+ */
+router.get('/library', async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const offset = (page - 1) * limit;
+
+    try {
+        // Contar total de ganchos maestros
+        const [countRows] = await pool.query(`
+            SELECT COUNT(*) as total 
+            FROM project_hooks ph
+            JOIN projects p ON ph.project_id = p.id
+            WHERE p.is_master = 1
+        `);
+        const total = countRows[0].total;
+
+        // Obtener ganchos maestros paginados
+        const [rows] = await pool.query(`
+            SELECT ph.*, p.name as project_name 
+            FROM project_hooks ph
+            JOIN projects p ON ph.project_id = p.id
+            WHERE p.is_master = 1
+            ORDER BY ph.created_at DESC
+            LIMIT ? OFFSET ?
+        `, [limit, offset]);
+
+        const hooks = rows.map(h => ({
+            id: String(h.id),
+            masterHookId: String(h.id),
+            title: h.title,
+            psychologicalStrategy: h.psychological_strategy,
+            projectName: h.project_name,
+            contentJson: safeParseJson(h.content_json),
+            isUnlocked: false,
+            isGenerated: !!h.is_generated
+        }));
+
+        res.json({ hooks, total });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+/**
  * Desbloquea un gancho individual desde la biblioteca maestra (Copia física)
  */
 router.post('/unlock-single', async (req, res) => {

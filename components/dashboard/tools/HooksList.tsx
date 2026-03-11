@@ -135,7 +135,7 @@ export const HooksList: React.FC = () => {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-gray-400">
                 <Loader2 className="w-10 h-10 animate-spin mb-4 text-orange-500" />
-                <p>Cargando tus ganchos magnéticos...</p>
+                <p>Cargando tus ganchos de atracción...</p>
             </div>
         );
     }
@@ -160,7 +160,7 @@ export const HooksList: React.FC = () => {
                                 <Zap className="w-3 h-3 text-orange-400" /> Atracción & Copywriting
                             </div>
                             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                                Hooks <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">Magnéticos</span>
+                                Hooks <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">de Atracción</span>
                             </h1>
                             <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-relaxed">
                                 Los Hooks son el primer impacto de tu estrategia. Aquí puedes gestionar todos los ganchos generados para tus diferentes proyectos y optimizar tu comunicación.
@@ -196,7 +196,7 @@ export const HooksList: React.FC = () => {
                             className="w-full py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 uppercase tracking-widest text-sm group"
                         >
                             <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
-                            Añadir Hook Magnetico
+                            Añadir Hook de Atracción
                         </button>
                     </div>
                 </div>
@@ -214,7 +214,7 @@ export const HooksList: React.FC = () => {
                         <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-700">
                             <Zap className="w-8 h-8 text-orange-400" />
                         </div>
-                        <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Hooks Magnéticos</h2>
+                        <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Generador de Hooks de Atracción</h2>
                         <div className="flex items-center justify-center gap-2 mt-4 text-sm">
                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${wizardStep === 0 ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-500'}`}>0. Proyecto</span>
                             <div className="w-4 h-px bg-gray-700"></div>
@@ -302,7 +302,7 @@ export const HooksList: React.FC = () => {
                     {/* FILTRO POR PROYECTO - CENTRADO Y MÁS GRANDE */}
                     <div className="w-full flex justify-center">
                         <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
-                            <label className="text-[12px] font-black text-gray-400 uppercase tracking-[0.3em]">Haz clic para Filtrar tus Hooks Magnéticos por Proyectos</label>
+                            <label className="text-[12px] font-black text-gray-400 uppercase tracking-[0.3em]">Haz clic para Filtrar tus Hooks de Atracción por Proyectos</label>
                             <select 
                                 value={filterProjectId}
                                 onChange={(e) => {
@@ -352,7 +352,7 @@ export const HooksList: React.FC = () => {
                             onClick={handleOpenWizard}
                             className="text-orange-400 border border-orange-500/50 hover:bg-orange-600 hover:text-white px-6 py-2.5 rounded-lg transition font-medium"
                         >
-                            Añadir Hook Magnetico
+                            Añadir Hook de Atracción
                         </button>
                     </div>
                 ) : (

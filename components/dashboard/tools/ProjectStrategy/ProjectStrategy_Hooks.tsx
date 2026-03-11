@@ -413,7 +413,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
       {!overrideProjectId && (
         <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
           <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-orange-500/5">
-            <Zap className="w-5 h-5 fill-current" /> Hooks Magnéticos de Atracción de Audiencia
+            <Zap className="w-5 h-5 fill-current" /> Hooks de Atracción de Audiencia
           </div>
           
           <h3 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 leading-tight tracking-tight max-w-4xl">
@@ -619,7 +619,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     </div>
 
                     <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Hooks Disponibles para Desbloquear</h4>
-                    <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro sistema ha generado este Hook Magnético por ti. Haz clic en Desbloquear para ver todo el contenido.</p>
+                    <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro sistema ha generado este Hook de Atracción por ti. Haz clic en Desbloquear para ver todo el contenido.</p>
 
                     <button 
                         onClick={handleUnlockSingle}
