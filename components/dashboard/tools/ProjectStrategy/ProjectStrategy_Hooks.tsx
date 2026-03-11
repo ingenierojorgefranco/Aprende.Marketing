@@ -310,12 +310,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const handleDeleteHook = async () => {
-    if (user?.role !== 'admin') {
+    const isGenerated = currentHook.isGenerated;
+    const isAdmin = user?.role === 'admin';
+
+    if (!isAdmin && isGenerated) {
       setShowRestrictionModal(true);
       return;
     }
 
-    if (window.confirm("¿Estás seguro de que que deseas eliminar este hook permanentemente? Esta acción no se puede deshacer.")) {
+    if (window.confirm("¿Deseas eliminar este hook? No se puede recuperar")) {
         setSaving(true);
         try {
             await api.deleteProjectHook(currentHook.id);
@@ -428,7 +431,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                   <Target className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-white">Ganchos Sugeridos</h4>
+                  <h4 className="text-xl font-bold text-white">Hooks de Atracción</h4>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -497,7 +500,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     <div className="w-full flex justify-center mb-10">
                       <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full max-w-md shadow-inner">
                         <div className="flex justify-between items-center mb-2 text-sm">
-                          <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Ganchos Desbloqueados</span>
+                          <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Hooks Desbloqueados</span>
                           <span className="text-white font-bold">{currentHooksCount} / {maxHooks}</span>
                         </div>
                         <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -533,7 +536,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         className="w-full py-5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-900/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70"
                     >
                         {unlockingSingle ? <Loader2 className="w-6 h-6 animate-spin" /> : <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
-                        {unlockingSingle ? 'Desbloqueando...' : 'Desbloquear este Gancho'}
+                        {unlockingSingle ? 'Desbloqueando...' : 'Desbloquear Hook'}
                     </button>
                     
                     <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">

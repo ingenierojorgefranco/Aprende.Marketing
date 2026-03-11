@@ -212,12 +212,15 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         const active = mergedContentData[activeArticle];
         if (!active || !active.id) return;
 
-        if (user?.role !== 'admin') {
+        const isGenerated = active.isGenerated;
+        const isAdmin = user?.role === 'admin';
+
+        if (!isAdmin && isGenerated) {
             setShowRestrictionModal(true);
             return;
         }
 
-        if (window.confirm("¿Estás seguro de que deseas eliminar este artículo permanentemente? Esta acción no se puede deshacer.")) {
+        if (window.confirm("¿Deseas eliminar este artículo? No se puede recuperar")) {
             setLoadingLocal(true);
             try {
                 await api.deleteArticle(active.id);
