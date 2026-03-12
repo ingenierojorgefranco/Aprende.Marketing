@@ -121,7 +121,14 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const displayLibraryHooks = libraryHooks;
+  const manualHooks = hooks.filter(h => !h.isGenerated && !h.masterHookId)
+    .sort((a, b) => {
+        const dateA = new Date((a as any).createdAt || 0).getTime();
+        const dateB = new Date((b as any).createdAt || 0).getTime();
+        return dateB - dateA;
+    });
+
+  const displayLibraryHooks = libraryPage === 1 ? [...manualHooks, ...libraryHooks] : libraryHooks;
 
   const displayGeneratedHooks = hooks
     .filter(h => h.isGenerated)
@@ -271,7 +278,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     : Math.ceil(displayGeneratedHooks.length / itemsPerPage);
     
   const paginatedHooks = activeTab === 'library' 
-    ? libraryHooks 
+    ? displayLibraryHooks 
     : displayGeneratedHooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const defaultKitContent = {
@@ -365,20 +372,20 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             const now = new Date().toISOString();
             const hookData = {
                 title: 'Nuevo Gancho Manual',
-                psychological_strategy: 'Ingresa aquí el ángulo psicológico...',
+                psychological_strategy: 'Ingresa aquí el enfoque estratégico...',
                 contentJson: defaultKitContent,
-                isGenerated: true,
+                isGenerated: false,
                 updatedAt: now
             };
             const res = await api.createProjectHook(projectId, hookData);
-            const freshHooks = await loadHooks();
+            await loadHooks();
             
-            // Selección automática del primer gancho (el más nuevo) en la primera página
-            setActiveTab('generated');
-            setActiveHook(0);
-            setCurrentPage(1);
+            // Selección automática en la biblioteca
+            setActiveTab('library');
+            setActiveLibraryHook(0);
+            setLibraryPage(1);
             
-            alert("¡Gancho creado exitosamente!");
+            alert("¡Gancho manual creado! Edítalo en la biblioteca y luego genera el kit.");
         } catch (e: any) {
             alert("Error al crear gancho: " + e.message);
         } finally {
@@ -571,7 +578,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         isActive 
                           ? (activeTab === 'library' ? 'bg-orange-900/40 border-orange-500/50' : 'bg-emerald-900/40 border-emerald-500/50') 
                           : 'bg-black/20 border-gray-800 hover:border-gray-700'
-                      } ${isActive ? 'translate-x-2' : ''} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
+                      } ${isActive ? 'translate-x-2' : ''} ${(!isUnlocked && (hook as any).masterHookId) ? 'opacity-60 grayscale' : ''}`}
                     >
                       <div className="flex-1">
                         <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${
@@ -763,7 +770,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                             onClick={() => setIsEditingTitle(true)}
                                             className="group/title-edit cursor-pointer w-full flex items-center justify-between"
                                         >
-                                            <h3 className="text-white font-medium leading-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>{localTitle}</h3>
+                                            <h3 className="text-white font-medium leading-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem', paddingBottom: '1em' }}>{localTitle}</h3>
                                             <div className="opacity-0 group-hover/title-edit:opacity-100 transition-opacity text-[8px] font-black uppercase text-gray-500 bg-gray-800 px-1.5 py-0.5 rounded ml-4 whitespace-nowrap">Editar Título</div>
                                         </div>
                                     )}
@@ -780,7 +787,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         value={localStrategy}
                                         onChange={(e) => setLocalStrategy(e.target.value)}
                                         onBlur={() => handleUpdateMessage('psychological_strategy', localStrategy)}
-                                        className="w-full bg-transparent border-none text-white text-lg font-light outline-none resize-none h-auto pl-6"
+                                        className="w-full bg-transparent border-none text-white text-lg font-light outline-none pl-6"
+                                        style={{ height: '140px' }}
                                     />
                                 </div>
                             </div>
@@ -788,8 +796,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
                         <div className="px-8 py-6 bg-black/20 border-b border-white/5">
                             <div className="w-full flex flex-wrap bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-inner">
-                                <button onClick={() => setActiveKitTab('video')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'video' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>GUION</button>
                                 <button onClick={() => setActiveKitTab('thumbs')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'thumbs' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Video</button>
+                                <button onClick={() => setActiveKitTab('video')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'video' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>GUION</button>
                                 <button onClick={() => setActiveKitTab('ads')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'ads' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Descripción</button>
                                 <button onClick={() => setActiveKitTab('publish')} className={`flex-1 min-w-[100px] px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeKitTab === 'publish' ? 'bg-[#10B981] text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>Publicar</button>
                             </div>
