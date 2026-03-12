@@ -93,11 +93,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const loadLibrary = async (page: number, masterId?: string | null) => {
     if (!projectId) return;
-    console.log("Hooks Debug - Cargando Biblioteca para Master:", masterId);
     setLoadingLibrary(true);
     try {
         const res = await api.getHooksLibrary(page, 5, masterId || undefined);
-        console.log("Hooks Debug - Resultado Biblioteca:", res);
         setLibraryHooks(res.hooks);
         setLibraryTotal(res.total);
     } catch (e) {
@@ -107,33 +105,24 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const displayLibraryHooks = libraryHooks.filter(lh => {
-    const alreadyExists = hooks.some(h => String(h.masterHookId) === String(lh.id));
-    return !alreadyExists;
-  });
-  console.log("Hooks Debug - Ganchos después de filtrar:", displayLibraryHooks.length);
+  const displayLibraryHooks = libraryHooks;
   const displayGeneratedHooks = hooks.filter(h => h.isGenerated);
 
   useEffect(() => {
     const checkProject = async () => {
         if (!projectId) return;
-        console.log("Hooks Debug - Proyecto Actual:", projectId);
         try {
             const p = await api.getProjectById(projectId);
-            console.log("Hooks Debug - Master Parent ID detectado:", p?.masterParentId);
             if (p?.masterParentId) {
                 setIsClone(true);
                 setMasterParentId(String(p.masterParentId));
             }
             if (p?.isMaster) setIsMaster(true);
             
-            // Cargar la biblioteca después de tener el masterParentId
             loadLibrary(libraryPage, p?.masterParentId ? String(p.masterParentId) : null);
         } catch (e) {}
     };
     checkProject();
-    
-    // Cargar siempre los hooks del proyecto para tener la referencia de filtrado
     loadHooks();
   }, [projectId, activeTab, libraryPage]);
 
