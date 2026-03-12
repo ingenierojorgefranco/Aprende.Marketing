@@ -37,6 +37,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [unlockingSingle, setUnlockingSingle] = useState(false);
   const [isClone, setIsClone] = useState(false);
   const [isMaster, setIsMaster] = useState(false);
+  const [masterParentId, setMasterParentId] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showUpgradeModalLocal, setShowUpgradeModalLocal] = useState(false);
   const [showRestrictionModal, setShowRestrictionModal] = useState(false);
@@ -80,7 +81,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     setLoadingHooks(true);
     try {
         const data = await api.getProjectHooks(projectId);
-        console.log("Hooks del proyecto cargados:", data);
         setHooks(data);
         setLoadingHooks(false);
         return data;
@@ -91,12 +91,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const loadLibrary = async (page: number) => {
+  const loadLibrary = async (page: number, masterId?: string | null) => {
     if (!projectId) return;
     setLoadingLibrary(true);
     try {
-        const res = await api.getHooksLibrary(page, 5);
-        console.log("Biblioteca cargada (página " + page + "):", res);
+        const res = await api.getHooksLibrary(page, 5, masterId || undefined);
         setLibraryHooks(res.hooks);
         setLibraryTotal(res.total);
     } catch (e) {
@@ -106,7 +105,6 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  console.log("Filtrando biblioteca. libraryHooks:", libraryHooks, "hooks:", hooks);
   const displayLibraryHooks = libraryHooks.filter(lh => !hooks.some(h => String(h.masterHookId) === String(lh.id)));
   const displayGeneratedHooks = hooks.filter(h => h.isGenerated);
 
@@ -115,18 +113,20 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         if (!projectId) return;
         try {
             const p = await api.getProjectById(projectId);
-            if (p?.masterParentId) setIsClone(true);
+            if (p?.masterParentId) {
+                setIsClone(true);
+                setMasterParentId(String(p.masterParentId));
+            }
             if (p?.isMaster) setIsMaster(true);
+            
+            // Cargar la biblioteca después de tener el masterParentId
+            loadLibrary(libraryPage, p?.masterParentId ? String(p.masterParentId) : null);
         } catch (e) {}
     };
     checkProject();
     
     // Cargar siempre los hooks del proyecto para tener la referencia de filtrado
     loadHooks();
-    
-    if (activeTab === 'library') {
-        loadLibrary(libraryPage);
-    }
   }, [projectId, activeTab, libraryPage]);
 
   useEffect(() => {

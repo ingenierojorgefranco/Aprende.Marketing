@@ -99,27 +99,39 @@ router.get('/project/:projectId', async (req, res) => {
 router.get('/library', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
+    const masterProjectId = req.query.masterProjectId;
     const offset = (page - 1) * limit;
 
     try {
-        // Contar total de ganchos maestros
-        const [countRows] = await pool.query(`
+        let countQuery = `
             SELECT COUNT(*) as total 
             FROM project_hooks ph
             JOIN projects p ON ph.project_id = p.id
             WHERE p.is_master = 1
-        `);
-        const total = countRows[0].total;
-
-        // Obtener ganchos maestros paginados
-        const [rows] = await pool.query(`
+        `;
+        let dataQuery = `
             SELECT ph.*, p.name as project_name 
             FROM project_hooks ph
             JOIN projects p ON ph.project_id = p.id
             WHERE p.is_master = 1
-            ORDER BY ph.created_at DESC
-            LIMIT ? OFFSET ?
-        `, [limit, offset]);
+        `;
+        const params = [];
+
+        if (masterProjectId) {
+            countQuery += ` AND p.id = ?`;
+            dataQuery += ` AND p.id = ?`;
+            params.push(masterProjectId);
+        }
+
+        dataQuery += ` ORDER BY ph.created_at DESC LIMIT ? OFFSET ?`;
+        const dataParams = [...params, limit, offset];
+
+        // Contar total de ganchos maestros
+        const [countRows] = await pool.query(countQuery, params);
+        const total = countRows[0].total;
+
+        // Obtener ganchos maestros paginados
+        const [rows] = await pool.query(dataQuery, dataParams);
 
         const hooks = rows.map(h => ({
             id: String(h.id),
