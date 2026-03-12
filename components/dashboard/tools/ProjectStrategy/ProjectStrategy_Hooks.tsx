@@ -97,13 +97,13 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (diffInSeconds < 60) return `hace ${diffInSeconds} segundos`;
+    if (diffInSeconds < 60) return `Hace ${diffInSeconds} segundos`;
     const diffInMinutes = Math.floor(diffInSeconds / 60);
-    if (diffInMinutes < 60) return `hace ${diffInMinutes} ${diffInMinutes === 1 ? 'minuto' : 'minutos'}`;
+    if (diffInMinutes < 60) return `Hace ${diffInMinutes} ${diffInMinutes === 1 ? 'minuto' : 'minutos'}`;
     const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `hace ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`;
+    if (diffInHours < 24) return `Hace ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`;
     const diffInDays = Math.floor(diffInHours / 24);
-    return `hace ${diffInDays} ${diffInDays === 1 ? 'día' : 'días'}`;
+    return `Hace ${diffInDays} ${diffInDays === 1 ? 'día' : 'días'}`;
   };
 
   const loadLibrary = async (page: number, masterId?: string | null) => {
@@ -355,8 +355,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }, 1200);
 
     try {
+        const now = new Date().toISOString();
         await api.updateProjectHook(hookId, { isGenerated: true });
-        setHooks(prev => prev.map(h => h.id === hookId ? { ...h, isGenerated: true } : h));
+        setHooks(prev => prev.map(h => h.id === hookId ? { ...h, isGenerated: true, updatedAt: now } : h));
         await new Promise(resolve => setTimeout(resolve, 4000));
         clearInterval(interval);
     } catch (e) {
@@ -587,7 +588,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         </h4>
                         {isGenerated && activeTab === 'generated' && (
                           <span className="text-[10px] text-emerald-500/60 font-medium uppercase tracking-wider">
-                            Generado {formatRelativeTime((hook as any).updatedAt || (hook as any).createdAt)}
+                            {formatRelativeTime((hook as any).updatedAt || (hook as any).createdAt)}
                           </span>
                         )}
                       </div>
