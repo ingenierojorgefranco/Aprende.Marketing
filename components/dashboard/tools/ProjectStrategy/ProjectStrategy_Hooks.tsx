@@ -105,7 +105,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const displayLibraryHooks = libraryHooks;
+  const displayLibraryHooks = libraryHooks.filter(lh => {
+    // Buscamos si este gancho de la biblioteca ya existe en el proyecto local
+    const localHook = hooks.find(h => String(h.masterHookId) === String(lh.id));
+    // Si existe y ya está generado, lo ocultamos de la biblioteca
+    if (localHook && localHook.isGenerated) {
+        return false;
+    }
+    return true;
+  });
   const displayGeneratedHooks = hooks.filter(h => h.isGenerated);
 
   useEffect(() => {
