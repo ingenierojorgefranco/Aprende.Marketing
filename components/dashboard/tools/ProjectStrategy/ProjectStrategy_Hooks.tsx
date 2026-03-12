@@ -572,10 +572,18 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     <div 
                       key={hook.id} 
                       onClick={() => activeTab === 'library' ? setActiveLibraryHook(globalIdx) : setActiveHook(globalIdx)}
-                      className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-900/20 border-emerald-500/50' : (isActive ? (activeTab === 'library' ? 'bg-orange-900/20 border-orange-500/50' : 'bg-emerald-900/20 border-emerald-500/50') : 'bg-black/20 border-gray-800 hover:border-gray-700')} ${isActive ? 'translate-x-2' : ''} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
+                      className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${
+                        isActive 
+                          ? (activeTab === 'library' ? 'bg-orange-900/40 border-orange-500/50' : 'bg-emerald-900/40 border-emerald-500/50') 
+                          : 'bg-black/20 border-gray-800 hover:border-gray-700'
+                      } ${isActive ? 'translate-x-2' : ''} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
                     >
                       <div className="flex-1">
-                        <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${isActive ? (isGenerated ? 'text-emerald-400' : (activeTab === 'library' ? 'text-orange-300' : 'text-emerald-300')) : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
+                        <h4 className={`text-white text-[1.2rem] leading-[1.8rem] font-light ${
+                          isActive 
+                            ? (activeTab === 'library' ? 'text-orange-300' : 'text-emerald-300') 
+                            : 'text-white group-hover:text-white'
+                        } flex items-center gap-2`}>
                             {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
                             {hook.title}
                         </h4>
@@ -585,8 +593,18 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                           </span>
                         )}
                       </div>
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isActive ? (isGenerated ? 'bg-emerald-500 border-emerald-500' : (activeTab === 'library' ? 'bg-orange-500 border-orange-500' : 'bg-emerald-500 border-emerald-500')) : 'border-gray-600 group-hover:border-emerald-400'}`}>
-                        {(isActive || hook.isGenerated) && <Check className={`w-4 h-4 font-bold ${hook.isGenerated || activeTab === 'generated' ? 'text-white' : 'text-black'}`} />}
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                        isActive 
+                          ? (activeTab === 'library' ? 'bg-orange-500 border-orange-500' : 'bg-emerald-500 border-emerald-500') 
+                          : (hook.isGenerated ? 'bg-emerald-500/10 border-emerald-500/20' : 'border-gray-600 group-hover:border-gray-500')
+                      }`}>
+                        {(isActive || hook.isGenerated) && (
+                          <Check className={`w-4 h-4 font-bold ${
+                            isActive 
+                              ? 'text-white' 
+                              : (hook.isGenerated ? 'text-emerald-500/40' : 'text-transparent')
+                          }`} />
+                        )}
                       </div>
                     </div>
                   );
