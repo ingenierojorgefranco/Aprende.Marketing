@@ -107,7 +107,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const displayLibraryHooks = libraryHooks.filter(lh => !hooks.some(h => String(h.masterHookId) === String(lh.id)));
+  const displayLibraryHooks = libraryHooks.filter(lh => {
+    const alreadyExists = hooks.some(h => String(h.masterHookId) === String(lh.id));
+    return !alreadyExists;
+  });
+  console.log("Hooks Debug - Ganchos después de filtrar:", displayLibraryHooks.length);
   const displayGeneratedHooks = hooks.filter(h => h.isGenerated);
 
   useEffect(() => {
