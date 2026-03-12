@@ -425,6 +425,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const maxHooks = user?.maxHooks || planLimits?.maxHooks || 30;
   const currentHooksCount = hooks.filter(h => h.isGenerated).length;
+  const isLimitReached = !isRealAdmin && currentHooksCount >= maxHooks;
   const usagePercent = maxHooks > 0 ? Math.min(100, (currentHooksCount / maxHooks) * 100) : 0;
   
   let progressColor = "bg-green-500";
@@ -669,12 +670,18 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                     <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro sistema ha generado este Hook de Atracción por ti. Haz clic en Desbloquear para ver todo el contenido.</p>
 
                     <button 
-                        onClick={handleUnlockSingle}
+                        onClick={isLimitReached ? () => setShowUpgradeModalLocal(true) : handleUnlockSingle}
                         disabled={unlockingSingle}
-                        className="w-full py-5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-orange-900/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70"
+                        className={`w-full py-5 rounded-2xl ${isLimitReached ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-orange-600 hover:bg-orange-500'} text-white font-black text-xl uppercase tracking-widest shadow-xl transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70`}
                     >
-                        {unlockingSingle ? <Loader2 className="w-6 h-6 animate-spin" /> : <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
-                        {unlockingSingle ? 'Desbloqueando...' : 'Desbloquear Hook'}
+                        {unlockingSingle ? (
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                        ) : isLimitReached ? (
+                            <Sparkles className="w-6 h-6 group-hover:animate-pulse" />
+                        ) : (
+                            <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                        )}
+                        {unlockingSingle ? 'Desbloqueando...' : isLimitReached ? 'Actualiza tu Plan' : 'Desbloquear Hook'}
                     </button>
                     
                     <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
