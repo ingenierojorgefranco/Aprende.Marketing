@@ -356,7 +356,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
     try {
         const now = new Date().toISOString();
-        await api.updateProjectHook(hookId, { isGenerated: true });
+        // Guardamos explícitamente el timestamp en la base de datos
+        await api.updateProjectHook(hookId, { isGenerated: true, updatedAt: now });
         setHooks(prev => prev.map(h => h.id === hookId ? { ...h, isGenerated: true, updatedAt: now } : h));
         await new Promise(resolve => setTimeout(resolve, 4000));
         clearInterval(interval);
@@ -371,18 +372,25 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (window.confirm("¿Deseas crear el hook manualmente?")) {
         setSaving(true);
         try {
+            const now = new Date().toISOString();
             const hookData = {
                 title: 'Nuevo Gancho Manual',
                 psychological_strategy: 'Ingresa aquí el ángulo psicológico...',
                 contentJson: defaultKitContent,
-                isGenerated: true
+                isGenerated: true,
+                updatedAt: now
             };
             const res = await api.createProjectHook(projectId, hookData);
             const freshHooks = await loadHooks();
             
             // Selección automática del nuevo gancho en la lista de generados
             setActiveTab('generated');
-            const generatedOnly = freshHooks.filter((h: any) => h.isGenerated);
+            const generatedOnly = freshHooks.filter((h: any) => h.isGenerated)
+                .sort((a, b) => {
+                    const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+                    const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+                    return dateB - dateA;
+                });
             const newIndex = generatedOnly.findIndex((h: any) => String(h.id) === String(res.id));
             if (newIndex !== -1) {
                 setActiveHook(newIndex);
