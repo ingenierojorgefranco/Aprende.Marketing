@@ -91,11 +91,27 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
+  const formatRelativeTime = (dateInput: any) => {
+    if (!dateInput) return "";
+    const date = new Date(dateInput);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return `hace ${diffInSeconds} segundos`;
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) return `hace ${diffInMinutes} ${diffInMinutes === 1 ? 'minuto' : 'minutos'}`;
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `hace ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `hace ${diffInDays} ${diffInDays === 1 ? 'día' : 'días'}`;
+  };
+
   const loadLibrary = async (page: number, masterId?: string | null) => {
     if (!projectId) return;
     setLoadingLibrary(true);
     try {
-        const res = await api.getHooksLibrary(page, 5, masterId || undefined);
+        // Traemos 15 para tener margen de filtrado y que siempre se vean 5
+        const res = await api.getHooksLibrary(page, 15, masterId || undefined);
         setLibraryHooks(res.hooks);
         setLibraryTotal(res.total);
     } catch (e) {
@@ -113,8 +129,15 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         return false;
     }
     return true;
-  });
-  const displayGeneratedHooks = hooks.filter(h => h.isGenerated);
+  }).slice(0, 5);
+
+  const displayGeneratedHooks = hooks
+    .filter(h => h.isGenerated)
+    .sort((a, b) => {
+        const dateA = new Date((a as any).updatedAt || (a as any).createdAt || 0).getTime();
+        const dateB = new Date((b as any).updatedAt || (b as any).createdAt || 0).getTime();
+        return dateB - dateA;
+    });
 
   useEffect(() => {
     const checkProject = async () => {
@@ -404,8 +427,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     alert("Contenido copiado al portapapeles");
   };
 
-  const maxHooks = user?.maxHooks || planLimits?.maxHooks || 10;
-  const currentHooksCount = hookCount || hooks.filter(h => (h as any).isUnlocked || h.isGenerated).length;
+  const maxHooks = user?.maxHooks || planLimits?.maxHooks || 30;
+  const currentHooksCount = hooks.filter(h => h.isGenerated).length;
   const usagePercent = maxHooks > 0 ? Math.min(100, (currentHooksCount / maxHooks) * 100) : 0;
   
   let progressColor = "bg-green-500";
@@ -562,6 +585,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                             {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
                             {hook.title}
                         </h4>
+                        {isGenerated && activeTab === 'generated' && (
+                          <span className="text-[10px] text-emerald-500/60 font-medium uppercase tracking-wider">
+                            Generado {formatRelativeTime((hook as any).updatedAt || (hook as any).createdAt)}
+                          </span>
+                        )}
                       </div>
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isActive ? (isGenerated ? 'bg-emerald-500 border-emerald-500' : (activeTab === 'library' ? 'bg-orange-500 border-orange-500' : 'bg-emerald-500 border-emerald-500')) : 'border-gray-600 group-hover:border-emerald-400'}`}>
                         {(isActive || hook.isGenerated) && <Check className={`w-4 h-4 font-bold ${hook.isGenerated || activeTab === 'generated' ? 'text-white' : 'text-black'}`} />}
