@@ -226,14 +226,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         const freshHooks = await loadHooks();
         setActiveTab('generated');
         
-        // Seleccionar el nuevo gancho en la lista filtrada de generados
-        const generatedOnly = freshHooks.filter((h: any) => h.isGenerated);
-        const newIndex = generatedOnly.findIndex((h: any) => String(h.id) === String(res.id));
-        if (newIndex !== -1) {
-            setActiveHook(newIndex);
-            const calculatedPage = Math.floor(newIndex / itemsPerPage) + 1;
-            setCurrentPage(calculatedPage);
-        }
+        // Seleccionar el primer gancho (el más nuevo) en la primera página
+        setActiveHook(0);
+        setCurrentPage(1);
         
         setGenerationStatus('success');
     } catch (e: any) {
@@ -383,20 +378,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             const res = await api.createProjectHook(projectId, hookData);
             const freshHooks = await loadHooks();
             
-            // Selección automática del nuevo gancho en la lista de generados
+            // Selección automática del primer gancho (el más nuevo) en la primera página
             setActiveTab('generated');
-            const generatedOnly = freshHooks.filter((h: any) => h.isGenerated)
-                .sort((a, b) => {
-                    const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
-                    const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
-                    return dateB - dateA;
-                });
-            const newIndex = generatedOnly.findIndex((h: any) => String(h.id) === String(res.id));
-            if (newIndex !== -1) {
-                setActiveHook(newIndex);
-                const calculatedPage = Math.floor(newIndex / itemsPerPage) + 1;
-                setCurrentPage(calculatedPage);
-            }
+            setActiveHook(0);
+            setCurrentPage(1);
             
             alert("¡Gancho creado exitosamente!");
         } catch (e: any) {
