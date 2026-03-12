@@ -527,7 +527,8 @@ export const api = {
               leadMagnetUrl: p.lead_magnet_url || p.leadMagnetUrl,
               createdAt: new Date(p.created_at || p.createdAt),
               isMaster: !!p.is_master,
-              isUnlocked: !!p.is_unlocked
+              isUnlocked: !!p.is_unlocked,
+              masterParentId: p.master_parent_id
           };
       });
       apiCache.projects = mapped;
@@ -605,7 +606,8 @@ export const api = {
               leadMagnetType: p.lead_magnet_type || p.leadMagnetType,
               leadMagnetUrl: p.lead_magnet_url || p.leadMagnetUrl,
               createdAt: new Date(p.created_at || p.createdAt),
-              isMaster: !!p.is_master
+              isMaster: !!p.is_master,
+              masterParentId: p.master_parent_id
           };
           apiCache.projectDetails[id] = mappedProject;
           return mappedProject;

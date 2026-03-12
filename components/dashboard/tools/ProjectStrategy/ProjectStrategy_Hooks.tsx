@@ -93,9 +93,11 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   const loadLibrary = async (page: number, masterId?: string | null) => {
     if (!projectId) return;
+    console.log("Hooks Debug - Cargando Biblioteca para Master:", masterId);
     setLoadingLibrary(true);
     try {
         const res = await api.getHooksLibrary(page, 5, masterId || undefined);
+        console.log("Hooks Debug - Resultado Biblioteca:", res);
         setLibraryHooks(res.hooks);
         setLibraryTotal(res.total);
     } catch (e) {
@@ -111,8 +113,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   useEffect(() => {
     const checkProject = async () => {
         if (!projectId) return;
+        console.log("Hooks Debug - Proyecto Actual:", projectId);
         try {
             const p = await api.getProjectById(projectId);
+            console.log("Hooks Debug - Master Parent ID detectado:", p?.masterParentId);
             if (p?.masterParentId) {
                 setIsClone(true);
                 setMasterParentId(String(p.masterParentId));

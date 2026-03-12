@@ -102,6 +102,8 @@ router.get('/library', async (req, res) => {
     const masterProjectId = req.query.masterProjectId;
     const offset = (page - 1) * limit;
 
+    console.log("API Library - Query Params:", req.query);
+
     try {
         let countQuery = `
             SELECT COUNT(*) as total 
