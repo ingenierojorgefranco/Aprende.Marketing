@@ -1774,7 +1774,7 @@ export const api = {
         return await fetchWithFallback(`/hooks/project/${projectId}`, { headers: getAuthHeaders() });
     },
 
-    getHooksLibrary: async (page: number, limit: number, masterProjectId?: string): Promise<{ hooks: any[], total: number }> => {
+    getHooksLibrary: async (page: number, limit: number, masterProjectId?: string, projectId?: string): Promise<{ hooks: any[], total: number }> => {
         if (isMockMode) {
             const start = (page - 1) * limit;
             const end = start + limit;
@@ -1785,6 +1785,7 @@ export const api = {
         }
         let url = `/hooks/library?page=${page}&limit=${limit}`;
         if (masterProjectId) url += `&masterProjectId=${masterProjectId}`;
+        if (projectId) url += `&projectId=${projectId}`;
         return await fetchWithFallback(url, { headers: getAuthHeaders() });
     },
 

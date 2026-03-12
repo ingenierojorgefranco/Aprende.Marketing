@@ -110,8 +110,8 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     if (!projectId) return;
     setLoadingLibrary(true);
     try {
-        // Traemos 15 para tener margen de filtrado y que siempre se vean 5
-        const res = await api.getHooksLibrary(page, 15, masterId || undefined);
+        // Ahora pedimos exactamente 5 filtrados por el servidor para asegurar páginas llenas
+        const res = await api.getHooksLibrary(page, 5, masterId || undefined, projectId);
         setLibraryHooks(res.hooks);
         setLibraryTotal(res.total);
     } catch (e) {
@@ -121,15 +121,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     }
   };
 
-  const displayLibraryHooks = libraryHooks.filter(lh => {
-    // Buscamos si este gancho de la biblioteca ya existe en el proyecto local
-    const localHook = hooks.find(h => String(h.masterHookId) === String(lh.id));
-    // Si existe y ya está generado, lo ocultamos de la biblioteca
-    if (localHook && localHook.isGenerated) {
-        return false;
-    }
-    return true;
-  }).slice(0, 5);
+  const displayLibraryHooks = libraryHooks;
 
   const displayGeneratedHooks = hooks
     .filter(h => h.isGenerated)
@@ -222,6 +214,9 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
         const res = await api.unlockSingleHook(projectId, (hook as any).masterHookId);
         await handleGenerateKit(res.id);
         
+        // Recargar biblioteca para que los huecos se llenen
+        loadLibrary(libraryPage, masterParentId);
+        
         // Cargar los ganchos generados y cambiar a esa pestaña
         const freshHooks = await loadHooks();
         setActiveTab('generated');
@@ -276,7 +271,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
     : Math.ceil(displayGeneratedHooks.length / itemsPerPage);
     
   const paginatedHooks = activeTab === 'library' 
-    ? displayLibraryHooks 
+    ? libraryHooks 
     : displayGeneratedHooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const defaultKitContent = {

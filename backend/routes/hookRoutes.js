@@ -104,6 +104,7 @@ router.get('/library', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
     const masterProjectId = req.query.masterProjectId;
+    const projectId = req.query.projectId; // Nuevo parámetro para filtrar
     const offset = (page - 1) * limit;
 
     try {
@@ -127,10 +128,17 @@ router.get('/library', async (req, res) => {
             params.push(masterProjectId);
         }
 
+        if (projectId) {
+            const filterClause = ` AND ph.id NOT IN (SELECT master_hook_id FROM project_hooks WHERE project_id = ? AND master_hook_id IS NOT NULL)`;
+            countQuery += filterClause;
+            dataQuery += filterClause;
+            params.push(projectId);
+        }
+
         dataQuery += ` ORDER BY ph.created_at DESC LIMIT ? OFFSET ?`;
         const dataParams = [...params, limit, offset];
 
-        // Contar total de ganchos maestros
+        // Contar total de ganchos maestros filtrados
         const [countRows] = await pool.query(countQuery, params);
         const total = countRows[0].total;
 
