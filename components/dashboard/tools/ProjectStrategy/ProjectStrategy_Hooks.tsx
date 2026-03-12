@@ -596,7 +596,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                         </h4>
                         {isGenerated && activeTab === 'generated' && (
                           <span className="text-[10px] text-emerald-500/60 font-medium uppercase tracking-wider">
-                            {formatRelativeTime((hook as any).updatedAt || (hook as any).createdAt)}
+                            Creado: {formatRelativeTime((hook as any).createdAt || (hook as any).updatedAt)}
                           </span>
                         )}
                       </div>

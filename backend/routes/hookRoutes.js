@@ -54,7 +54,9 @@ router.get('/project/:projectId', async (req, res) => {
                 psychologicalStrategy: h.psychological_strategy,
                 contentJson: safeParseJson(h.content_json),
                 isUnlocked: true,
-                isGenerated: !!h.is_generated
+                isGenerated: !!h.is_generated,
+                createdAt: h.created_at,
+                updatedAt: h.updated_at
             }));
 
             const availableHooks = masterRows.map(h => ({
@@ -83,7 +85,9 @@ router.get('/project/:projectId', async (req, res) => {
                 landingPageUrl: h.landing_page_url,
                 contentJson: safeParseJson(h.content_json),
                 isUnlocked: true,
-                isGenerated: !!h.is_generated
+                isGenerated: !!h.is_generated,
+                createdAt: h.created_at,
+                updatedAt: h.updated_at
             }));
         }
 
@@ -141,7 +145,9 @@ router.get('/library', async (req, res) => {
             projectName: h.project_name,
             contentJson: safeParseJson(h.content_json),
             isUnlocked: false,
-            isGenerated: !!h.is_generated
+            isGenerated: !!h.is_generated,
+            createdAt: h.created_at,
+            updatedAt: h.updated_at
         }));
 
         res.json({ hooks, total });
