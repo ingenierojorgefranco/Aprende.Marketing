@@ -359,9 +359,10 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
     const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
     const maxArticles = planLimits?.maxArticles || 2;
-    const isAtLimit = !isRealAdmin && !api.isUsingMockData() && articleCount >= maxArticles;
+    const currentArticleCount = linkedArticles.length;
+    const isAtLimit = !isRealAdmin && !api.isUsingMockData() && currentArticleCount >= maxArticles;
 
-    const usagePercent = Math.min(100, (articleCount / maxArticles) * 100);
+    const usagePercent = Math.min(100, (currentArticleCount / maxArticles) * 100);
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";
     if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
@@ -427,7 +428,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                                     <div className="flex justify-between items-center mb-2 text-sm">
                                         <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Artículos Desbloqueados</span>
-                                        <span className="text-white font-bold">{articleCount} / {maxArticles}</span>
+                                        <span className="text-white font-bold">{currentArticleCount} / {maxArticles}</span>
                                     </div>
                                     <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
                                         <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-purple-500" style={{ width: `${usagePercent}%` }}></div>
@@ -458,15 +459,16 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     const isActive = activeArticleIdx === globalIdx;
                                     const isGenerated = art.isGenerated;
                                     const isUnlocked = art.isUnlocked !== false;
+                                    const isUnlockedButNotGenerated = isUnlocked && !isGenerated;
 
                                     return (
                                         <div 
                                             key={art.id || `merged-${indexInPage}`} 
                                             onClick={() => handleSelectOne(globalIdx)}
-                                            className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isSelected ? 'bg-blue-600 border-blue-500 text-white' : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
+                                            className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isSelected ? 'bg-blue-600 border-blue-500 text-white' : isUnlockedButNotGenerated ? (isActive ? 'bg-yellow-500/20 border-yellow-500 translate-x-2' : 'bg-yellow-500/10 border-yellow-500/50') : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
                                         >
                                             <div className="flex-1">
-                                                <h4 className={`font-medium text-lg leading-snug ${isGenerated || isSelected ? 'text-white' : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
+                                                <h4 className={`font-medium text-lg leading-snug ${isGenerated || isSelected ? 'text-white' : isUnlockedButNotGenerated ? (isActive ? 'text-yellow-300' : 'text-yellow-400/80') : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
                                                     {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
                                                     {art.title}
                                                 </h4>
@@ -497,19 +499,6 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/10 border border-gray-800 rounded-[2.5rem] p-8 md:p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl animate-in zoom-in-95">
                                         <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-purple-500" /></div>
                                         
-                                        {/* Barra de Progreso Centrada (Solo en vista bloqueada) */}
-                                        <div className="w-full flex justify-center mb-10">
-                                            <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full max-w-md shadow-inner">
-                                                <div className="flex justify-between items-center mb-2 text-sm">
-                                                    <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Artículos Desbloqueados</span>
-                                                    <span className="text-white font-bold">{articleCount} / {maxArticles}</span>
-                                                </div>
-                                                <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                                    <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-purple-500" style={{ width: `${usagePercent}%` }}></div>
-                                                </div>
-                                            </div>
-                                        </div>
-
                                         <div className="w-full text-left mb-8">
                                             <h3 className="text-white mb-6 font-medium tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>{currentData[activeArticleIdx].title}</h3>
                                             
@@ -711,10 +700,10 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-inner text-left">
                                 <div className="flex justify-between items-center mb-3">
                                     <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Créditos de Artículos</span>
-                                    <span className="text-white font-bold text-sm">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
+                                    <span className="text-white font-bold text-sm">{currentArticleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
-                                    <div className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                    <div className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (currentArticleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                 </div>
                             </div>
                         </div>
@@ -743,10 +732,10 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-inner text-left">
                                 <div className="flex justify-between items-center mb-3">
                                     <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Consumo de Artículos</span>
-                                    <span className="text-white font-bold text-sm">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
+                                    <span className="text-white font-bold text-sm">{currentArticleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
-                                    <div className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                    <div className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (currentArticleCount > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                 </div>
                             </div>
                         </div>
