@@ -35,17 +35,38 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                     data = await api.getUserSubscriptions(user.id);
                 } else if (section === 'articles') {
                     // Carga especial: Artículos DB + Proyectos (para extraer JSON)
+                    console.log("Admin: Cargando artículos para usuario", user.id);
                     const [dbArticles, projects] = await Promise.all([
                         api.getAdminUserResources(user.id, 'articles'),
                         api.getAdminUserResources(user.id, 'projects')
                     ]);
 
+                    console.log("Admin: Artículos en DB:", dbArticles.length);
+                    console.log("Admin: Proyectos encontrados:", projects.length);
+
                     // Procesar artículos del JSON de cada proyecto
                     const jsonArticles: any[] = [];
                     projects.forEach((p: any) => {
-                        const strategy = p.strategy_json;
-                        if (strategy?.modules?.content) {
-                            strategy.modules.content.forEach((art: any) => {
+                        console.log(`Admin: Procesando proyecto [${p.id}] ${p.name}`);
+                        let strategy = p.strategy_json;
+                        
+                        // Asegurar que sea objeto (aunque ya lo haga el backend, por si acaso)
+                        if (typeof strategy === 'string') {
+                            try {
+                                strategy = JSON.parse(strategy);
+                            } catch (e) {
+                                console.error(`Admin: Error al parsear strategy_json del proyecto ${p.id}`, e);
+                                strategy = null;
+                            }
+                        }
+
+                        // Intentar encontrar los artículos en diferentes rutas posibles
+                        // El usuario indica que están en 'content' directamente o en 'modules.content'
+                        const contentList = strategy?.modules?.content || strategy?.content;
+                        
+                        if (contentList && Array.isArray(contentList)) {
+                            console.log(`Admin: Encontrados ${contentList.length} artículos en el JSON del proyecto ${p.id}`);
+                            contentList.forEach((art: any) => {
                                 jsonArticles.push({
                                     ...art,
                                     id: `${p.id}_${art.id || art.title}`, // ID compuesto para identificarlo
@@ -55,6 +76,8 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                     seo_score: art.seo_score || 0
                                 });
                             });
+                        } else {
+                            console.log(`Admin: No se encontraron artículos en el JSON del proyecto ${p.id}. Estructura:`, strategy);
                         }
                     });
 
@@ -66,6 +89,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                         }
                     });
 
+                    console.log("Admin: Total artículos combinados:", combined.length);
                     data = combined;
                     // También guardamos los proyectos si no estaban cargados
                     if (loadedData.projects === null) {
