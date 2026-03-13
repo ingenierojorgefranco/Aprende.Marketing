@@ -33,6 +33,44 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                 let data;
                 if (section === 'plans') {
                     data = await api.getUserSubscriptions(user.id);
+                } else if (section === 'articles') {
+                    // Carga especial: Artículos DB + Proyectos (para extraer JSON)
+                    const [dbArticles, projects] = await Promise.all([
+                        api.getAdminUserResources(user.id, 'articles'),
+                        api.getAdminUserResources(user.id, 'projects')
+                    ]);
+
+                    // Procesar artículos del JSON de cada proyecto
+                    const jsonArticles: any[] = [];
+                    projects.forEach((p: any) => {
+                        const strategy = p.strategy_json;
+                        if (strategy?.modules?.content) {
+                            strategy.modules.content.forEach((art: any) => {
+                                jsonArticles.push({
+                                    ...art,
+                                    id: `${p.id}_${art.id || art.title}`, // ID compuesto para identificarlo
+                                    projectId: p.id,
+                                    isJson: true,
+                                    is_generated: false,
+                                    seo_score: art.seo_score || 0
+                                });
+                            });
+                        }
+                    });
+
+                    // Combinar y evitar duplicados si ya están en DB (por título)
+                    const combined = [...dbArticles.map((a: any) => ({ ...a, isFromDb: true }))];
+                    jsonArticles.forEach(ja => {
+                        if (!combined.some(ca => ca.title === ja.title)) {
+                            combined.push(ja);
+                        }
+                    });
+
+                    data = combined;
+                    // También guardamos los proyectos si no estaban cargados
+                    if (loadedData.projects === null) {
+                        setLoadedData(prev => ({ ...prev, projects }));
+                    }
                 } else {
                     data = await api.getAdminUserResources(user.id, section);
                 }
@@ -66,7 +104,27 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
         try {
             if (type === 'pages') await api.deletePage(id);
             else if (type === 'projects') await api.deleteProject(id);
-            else if (type === 'articles') await api.deleteArticle(id);
+            else if (type === 'articles') {
+                const article = loadedData.articles?.find(a => String(a.id) === String(id));
+                if (article?.isJson) {
+                    // Borrado de JSON: Actualizar el proyecto
+                    const project = loadedData.projects?.find(p => String(p.id) === String(article.projectId));
+                    if (project) {
+                        const newStrategy = { ...project.strategy_json };
+                        if (newStrategy.modules?.content) {
+                            newStrategy.modules.content = newStrategy.modules.content.filter((a: any) => (a.id || a.title) !== (article.id.split('_')[1]));
+                            await api.updateProject(project.id, { ...project, strategy_json: newStrategy });
+                            // Actualizar cache local de proyectos si es necesario
+                            setLoadedData(prev => ({
+                                ...prev,
+                                projects: prev.projects?.map(p => p.id === project.id ? { ...p, strategy_json: newStrategy } : p) || null
+                            }));
+                        }
+                    }
+                } else {
+                    await api.deleteArticle(id);
+                }
+            }
             else if (type === 'emails') await api.deleteEmailSequence(id);
             else if (type === 'whatsapp') await api.deleteWhatsAppLaunch(id);
             else if (type === 'hooks') await api.deleteProjectHook(id);
@@ -77,6 +135,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                 [type]: prev[type]?.filter((item: any) => String(item.id) !== String(id)) || null
             }));
         } catch (error) {
+            console.error("Delete error:", error);
             alert("Error al eliminar el activo.");
         }
     };
@@ -305,8 +364,8 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                                 <tr key={a.id} className="hover:bg-white/[0.02]">
                                                     <td className="py-2 pl-2 font-medium truncate max-w-[200px]">{a.title}</td>
                                                     <td className="py-2">
-                                                        <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.master_article_id ? 'bg-purple-900/30 text-purple-400' : 'bg-blue-900/30 text-blue-400'}`}>
-                                                            {a.master_article_id ? 'JSON' : 'Base de Datos'}
+                                                        <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.isJson ? 'bg-purple-900/30 text-purple-400' : 'bg-blue-900/30 text-blue-400'}`}>
+                                                            {a.isJson ? 'JSON' : 'Base de Datos'}
                                                         </span>
                                                     </td>
                                                     <td className="py-2">

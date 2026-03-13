@@ -125,7 +125,7 @@ router.get('/users/:userId/resources', async (req, res) => {
     try {
         let rows = [];
         if (type === 'projects') {
-            [rows] = await pool.query('SELECT id, name, niche, main_goal, limits_config, is_active, created_at FROM projects WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+            [rows] = await pool.query('SELECT id, name, niche, main_goal, limits_config, is_active, strategy_json, created_at FROM projects WHERE user_id = ? ORDER BY created_at DESC', [userId]);
         } else if (type === 'pages') {
             [rows] = await pool.query('SELECT id, name, subdomain, is_published, visits, created_at FROM landing_pages WHERE user_id = ? ORDER BY created_at DESC', [userId]);
         } else if (type === 'articles') {
