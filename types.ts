@@ -460,6 +460,7 @@ export interface Article {
   isUnlocked?: boolean;
   publishedAt: Date;
   createdAt: Date;
+  updatedAt?: Date | string;
 }
 
 export interface Lead {

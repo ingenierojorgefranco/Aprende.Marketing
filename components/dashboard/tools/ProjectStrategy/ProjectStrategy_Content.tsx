@@ -32,14 +32,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const context = useOutletContext() as any;
     const user = context?.user;
     const { id: projectId } = useParams() as { id: string };
-    const [showGeneratorModal, setShowGeneratorModal] = useState(false);
-    const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [showUnlockConfirmModal, setShowUnlockConfirmModal] = useState(false);
-    const [showRestrictionModal, setShowRestrictionModal] = useState(false);
-    const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
-    const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
+    const [activeTab, setActiveTab] = useState<'library' | 'generated'>('library');
+    const [activeLibraryArticle, setActiveLibraryArticle] = useState(0);
+    const [activeGeneratedArticle, setActiveGeneratedArticle] = useState(0);
+    const [libraryData, setLibraryData] = useState<any[]>([]);
+    const [generatedData, setGeneratedData] = useState<any[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
-    const [mergedContentData, setMergedContentData] = useState<any[]>([]);
     const [localEdit, setLocalEdit] = useState<any>(null);
     const [editingField, setEditingField] = useState<string | null>(null);
     const [unlockingSingle, setUnlockingSingle] = useState(false);
@@ -47,8 +45,20 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     // Lógica de Paginación
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 7;
-    const totalPages = Math.ceil(mergedContentData.length / itemsPerPage);
-    const paginatedData = mergedContentData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const currentData = activeTab === 'library' ? libraryData : generatedData;
+    const activeArticleIdx = activeTab === 'library' ? activeLibraryArticle : activeGeneratedArticle;
+    const setActiveArticleIdx = activeTab === 'library' ? setActiveLibraryArticle : setActiveGeneratedArticle;
+
+    const totalPages = Math.ceil(currentData.length / itemsPerPage);
+    const paginatedData = currentData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const [showGeneratorModal, setShowGeneratorModal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showUnlockConfirmModal, setShowUnlockConfirmModal] = useState(false);
+    const [showRestrictionModal, setShowRestrictionModal] = useState(false);
+    const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
+    const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
 
     const loadLocalData = async () => {
         if (!projectId) return;
@@ -63,7 +73,6 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
             setLinkedPages(projectPages);
             
-            // Artículos vinculados al proyecto (ya vienen filtrados por el servidor, pero mantenemos lógica de seguridad)
             const projectArts = articles.filter(a => 
                 String(a.projectId) === String(projectId) || 
                 (project?.masterParentId && String(a.projectId) === String(project.masterParentId)) ||
@@ -71,23 +80,52 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             );
             setLinkedArticles(projectArts);
 
-            // Lógica Exclusiva: Priorizar Base de Datos sobre JSON
             const jsonContent = contentData || [];
-            const dbContent = projectArts.map(a => ({
-                id: a.id,
-                title: a.title,
-                strategy: a.psychologicalStrategy?.focus || a.description || '',
-                keyword: a.keyword || a.psychologicalStrategy?.keyword || '',
-                searchVolume: a.psychologicalStrategy?.searchVolume || '',
-                isFromDb: true,
-                isGenerated: !!a.isGenerated,
-                isUnlocked: !!a.isUnlocked,
-                slug: a.slug
-            }));
+            
+            // 1. Contenidos Generados (isGenerated: true)
+            const generated = projectArts
+                .filter(a => a.isGenerated)
+                .map(a => ({
+                    id: a.id,
+                    title: a.title,
+                    strategy: a.psychologicalStrategy?.focus || a.description || '',
+                    keyword: a.keyword || a.psychologicalStrategy?.keyword || '',
+                    searchVolume: a.psychologicalStrategy?.searchVolume || '',
+                    isFromDb: true,
+                    isGenerated: true,
+                    isUnlocked: true,
+                    slug: a.slug,
+                    updatedAt: a.updatedAt,
+                    createdAt: a.createdAt
+                }))
+                .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime());
 
-            // Si hay artículos en DB, mostrar solo esos. Si no, mostrar los del JSON.
-            const finalData = dbContent.length > 0 ? dbContent : jsonContent.map(j => ({ ...j, isUnlocked: true }));
-            setMergedContentData(finalData);
+            setGeneratedData(generated);
+
+            // 2. Biblioteca (Manuales + Sugerencias del JSON)
+            const manualFromDb = projectArts
+                .filter(a => !a.isGenerated)
+                .map(a => ({
+                    id: a.id,
+                    title: a.title,
+                    strategy: a.psychologicalStrategy?.focus || a.description || '',
+                    keyword: a.keyword || a.psychologicalStrategy?.keyword || '',
+                    searchVolume: a.psychologicalStrategy?.searchVolume || '',
+                    isFromDb: true,
+                    isGenerated: false,
+                    isUnlocked: !!a.isUnlocked,
+                    slug: a.slug,
+                    updatedAt: a.updatedAt,
+                    createdAt: a.createdAt
+                }));
+
+            // Filtrar sugerencias del JSON que ya existen en la DB (por título o keyword)
+            const suggestions = jsonContent.filter(j => 
+                !manualFromDb.some(m => m.title === j.title || m.keyword === j.keyword)
+            ).map(j => ({ ...j, isUnlocked: true }));
+
+            setLibraryData([...manualFromDb, ...suggestions]);
+
         } catch (e) {
             console.error(e);
         } finally {
@@ -100,7 +138,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     }, [projectId, contentData]);
 
     useEffect(() => {
-        const active = mergedContentData[activeArticle];
+        const active = currentData[activeArticleIdx];
         // Solo permitimos editar si es de DB, no está generado y está DESBLOQUEADO
         if (active && active.isFromDb && !active.isGenerated && active.isUnlocked !== false) {
             setLocalEdit({
@@ -112,11 +150,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         } else {
             setLocalEdit(null);
         }
-    }, [activeArticle, mergedContentData]);
+    }, [activeArticleIdx, activeTab, currentData]);
 
     const handleBlurSave = async () => {
-        const active = mergedContentData[activeArticle];
-        if (!localEdit || !active?.id || active.id.startsWith('available-') || active.isUnlocked === false) return;
+        const active = currentData[activeArticleIdx];
+        if (!localEdit || !active?.id || String(active.id).startsWith('available-') || active.isUnlocked === false) return;
 
         // Evitar guardado si no hay cambios reales
         if (
@@ -146,22 +184,34 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         const newEdit = { ...localEdit, [field]: value };
         setLocalEdit(newEdit);
 
-        // 2. Actualizar UI inmediatamente (mergedContentData) para que las pestañas cambien al escribir
-        const updatedMerged = [...mergedContentData];
-        const active = updatedMerged[activeArticle];
-        if (active) {
-            updatedMerged[activeArticle] = {
-                ...active,
-                [field === 'strategy' ? 'strategy' : field]: value
-            };
-            setMergedContentData(updatedMerged);
+        // 2. Actualizar UI inmediatamente para que las pestañas cambien al escribir
+        if (activeTab === 'library') {
+            const updated = [...libraryData];
+            const active = updated[activeLibraryArticle];
+            if (active) {
+                updated[activeLibraryArticle] = {
+                    ...active,
+                    [field === 'strategy' ? 'strategy' : field]: value
+                };
+                setLibraryData(updated);
+            }
+        } else {
+            const updated = [...generatedData];
+            const active = updated[activeGeneratedArticle];
+            if (active) {
+                updated[activeGeneratedArticle] = {
+                    ...active,
+                    [field === 'strategy' ? 'strategy' : field]: value
+                };
+                setGeneratedData(updated);
+            }
         }
     };
 
     useEffect(() => {
-        const active = mergedContentData[activeArticle];
+        const active = currentData[activeArticleIdx];
         // Bloqueo de seguridad: No auto-guardar si no hay edición local, si no hay ID, o si es un ID de biblioteca maestra
-        if (!localEdit || !active?.id || active.id.startsWith('available-') || active.isUnlocked === false) return;
+        if (!localEdit || !active?.id || String(active.id).startsWith('available-') || active.isUnlocked === false) return;
         
         // Evitar guardado si no hay cambios reales
         if (
@@ -182,40 +232,39 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         targetUrl: ""
                     }
                 } as any);
-                // Actualizar localmente los datos para que el siguiente ciclo detecte que ya está guardado
-                // Esto ayuda a reducir "Violations" al evitar re-renders innecesarios
-                const updatedLinked = [...linkedArticles];
-                const linkedIndex = updatedLinked.findIndex(a => a.id === active.id);
-                if (linkedIndex !== -1) {
-                    updatedLinked[linkedIndex] = {
-                        ...updatedLinked[linkedIndex],
-                        title: localEdit.title,
-                        psychologicalStrategy: {
-                            focus: localEdit.strategy,
+                
+                // Actualizar localmente los datos
+                if (activeTab === 'library') {
+                    const updated = [...libraryData];
+                    const idx = updated.findIndex(a => a.id === active.id);
+                    if (idx !== -1) {
+                        updated[idx] = {
+                            ...updated[idx],
+                            title: localEdit.title,
+                            strategy: localEdit.strategy,
                             keyword: localEdit.keyword,
-                            searchVolume: localEdit.searchVolume,
-                            targetUrl: updatedLinked[linkedIndex].psychologicalStrategy?.targetUrl || ""
-                        }
-                    };
-                    setLinkedArticles(updatedLinked);
-                }
-
-                const updatedMerged = [...mergedContentData];
-                const mergedIndex = updatedMerged.findIndex(a => a.id === active.id);
-                if (mergedIndex !== -1) {
-                    updatedMerged[mergedIndex] = {
-                        ...updatedMerged[mergedIndex],
-                        title: localEdit.title,
-                        strategy: localEdit.strategy,
-                        keyword: localEdit.keyword,
-                        searchVolume: localEdit.searchVolume
-                    };
-                    setMergedContentData(updatedMerged);
+                            searchVolume: localEdit.searchVolume
+                        };
+                        setLibraryData(updated);
+                    }
+                } else {
+                    const updated = [...generatedData];
+                    const idx = updated.findIndex(a => a.id === active.id);
+                    if (idx !== -1) {
+                        updated[idx] = {
+                            ...updated[idx],
+                            title: localEdit.title,
+                            strategy: localEdit.strategy,
+                            keyword: localEdit.keyword,
+                            searchVolume: localEdit.searchVolume
+                        };
+                        setGeneratedData(updated);
+                    }
                 }
             } catch (e) {
                 console.error("Auto-save error:", e);
             }
-        }, 800); // Reducimos el delay para mayor agilidad
+        }, 800);
 
         return () => clearTimeout(timer);
     }, [localEdit]);
@@ -249,9 +298,9 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     };
 
     const handleSelectOne = (idx: number) => {
-        // Al seleccionar uno solo de forma atómica evitamos el bucle que causaba falsos positivos en la validación de límites
-        toggleArticleSelection(idx, true);
-        setActiveArticle(idx);
+        const globalIdx = (currentPage - 1) * itemsPerPage + idx;
+        setActiveArticleIdx(globalIdx);
+        setActiveArticle(globalIdx);
     };
 
     const handleCloseAndReload = () => {
@@ -264,14 +313,14 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     };
 
     const handleUnlockArticle = async () => {
-        const active = mergedContentData[activeArticle];
-        if (!active || !active.id || !active.id.startsWith('available-')) return;
+        const active = currentData[activeArticleIdx];
+        if (!active || !active.id || !String(active.id).startsWith('available-')) return;
         
         setShowUnlockConfirmModal(false);
         const masterId = active.id.replace('available-', '');
         setUnlockingSingle(true);
         try {
-            const res = await api.unlockArticle(projectId, masterId);
+            await api.unlockArticle(projectId!, masterId);
             await loadLocalData();
             alert("¡Artículo desbloqueado con éxito!");
         } catch (e: any) {
@@ -282,7 +331,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     };
 
     const handleDeleteArticle = async () => {
-        const active = mergedContentData[activeArticle];
+        const active = currentData[activeArticleIdx];
         if (!active || !active.id) return;
 
         const isGenerated = active.isGenerated;
@@ -298,7 +347,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             try {
                 await api.deleteArticle(active.id);
                 await loadLocalData();
-                setActiveArticle(0);
+                setActiveArticleIdx(0);
                 alert("Artículo eliminado correctamente.");
             } catch (e: any) {
                 alert("Error al eliminar: " + e.message);
@@ -372,12 +421,41 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     <Plus className="w-5 h-5" />
                                 </button>
                             </div>
+
+                            {/* Barra de Progreso de Artículos */}
+                            <div className="w-full mb-6">
+                                <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
+                                    <div className="flex justify-between items-center mb-2 text-sm">
+                                        <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Artículos Desbloqueados</span>
+                                        <span className="text-white font-bold">{articleCount} / {maxArticles}</span>
+                                    </div>
+                                    <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                        <div className="h-full transition-all duration-1000 ease-out shadow-lg bg-purple-500" style={{ width: `${usagePercent}%` }}></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Selector de Pestañas */}
+                            <div className="flex bg-black/40 p-1 rounded-xl border border-white/5 mb-6">
+                                <button 
+                                    onClick={() => setActiveTab('library')}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'library' ? 'bg-purple-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                                >
+                                    Biblioteca de Contenidos
+                                </button>
+                                <button 
+                                    onClick={() => setActiveTab('generated')}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeTab === 'generated' ? 'bg-emerald-600 text-white' : 'text-gray-500 hover:text-white'}`}
+                                >
+                                    Contenidos Generados
+                                </button>
+                            </div>
                             
                             <div id="psd-content-items-list" className="space-y-4 flex-1">
                                 {paginatedData.map((art: any, indexInPage: number) => {
                                     const globalIdx = (currentPage - 1) * itemsPerPage + indexInPage;
                                     const isSelected = selectedArticles.includes(globalIdx);
-                                    const isActive = activeArticle === globalIdx;
+                                    const isActive = activeArticleIdx === globalIdx;
                                     const isGenerated = art.isGenerated;
                                     const isUnlocked = art.isUnlocked !== false;
 
@@ -414,8 +492,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Target className="w-40 h-40 text-purple-500" /></div>
                         
                         <div className="relative z-10 flex flex-col h-full">
-                            {mergedContentData[activeArticle] ? (
-                                mergedContentData[activeArticle].isUnlocked === false && !isRealAdmin ? (
+                            {currentData[activeArticleIdx] ? (
+                                currentData[activeArticleIdx].isUnlocked === false && !isRealAdmin ? (
                                     <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/10 border border-gray-800 rounded-[2.5rem] p-8 md:p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl animate-in zoom-in-95">
                                         <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-purple-500" /></div>
                                         
@@ -433,7 +511,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         </div>
 
                                         <div className="w-full text-left mb-8">
-                                            <h3 className="text-white mb-6 font-medium tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>{mergedContentData[activeArticle].title}</h3>
+                                            <h3 className="text-white mb-6 font-medium tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>{currentData[activeArticleIdx].title}</h3>
                                             
                                             <div className="bg-purple-500/5 rounded-2xl p-6 border border-purple-500/20 backdrop-blur-sm mb-8">
                                                 <div className="flex items-center gap-2 mb-3">
@@ -441,7 +519,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
                                                 </div>
                                                 <p className="text-white text-lg font-light leading-relaxed">
-                                                    {mergedContentData[activeArticle].strategy}
+                                                    {currentData[activeArticleIdx].strategy}
                                                 </p>
                                             </div>
                                         </div>
@@ -471,15 +549,15 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 <div className="mb-auto">
                                     <div className="flex justify-between items-center mb-4">
                                         <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">
-                                            {mergedContentData[activeArticle].isFromDb && !mergedContentData[activeArticle].isGenerated ? 'Estrategia Manual' : 'Análisis de IA'}
+                                            {currentData[activeArticleIdx].isFromDb && !currentData[activeArticleIdx].isGenerated ? 'Estrategia Manual' : 'Análisis de IA'}
                                         </span>
                                         <div className="flex items-center gap-2">
-                                            {mergedContentData[activeArticle]?.isGenerated && (
+                                            {currentData[activeArticleIdx]?.isGenerated && (
                                                 <span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
                                                     <Check className="w-3 h-3" /> Generado
                                                 </span>
                                             )}
-                                            {mergedContentData[activeArticle]?.id && !mergedContentData[activeArticle].id.startsWith('available-') && (
+                                            {currentData[activeArticleIdx]?.id && !String(currentData[activeArticleIdx].id).startsWith('available-') && (
                                                 <button 
                                                     onClick={handleDeleteArticle}
                                                     className="p-1.5 text-gray-500 hover:text-red-500 transition-colors bg-white/5 hover:bg-red-500/10 rounded-lg border border-white/10 hover:border-red-500/20"
@@ -505,7 +583,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             onClick={() => setEditingField('title')}
                                             className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight cursor-pointer hover:text-purple-300 transition-colors"
                                         >
-                                            {localEdit?.title || mergedContentData[activeArticle]?.title}
+                                            {localEdit?.title || currentData[activeArticleIdx]?.title}
                                         </h3>
                                     )}
 
@@ -527,7 +605,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     onClick={() => setEditingField('strategy')}
                                                     className="text-gray-300 text-xl leading-relaxed font-light cursor-pointer hover:text-white transition-colors"
                                                 >
-                                                    {localEdit?.strategy || mergedContentData[activeArticle]?.strategy}
+                                                    {localEdit?.strategy || currentData[activeArticleIdx]?.strategy}
                                                 </p>
                                             )}
                                         </div>
@@ -556,7 +634,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     onClick={() => setEditingField('keyword')}
                                                     className="text-purple-300 font-bold text-lg leading-tight break-words cursor-pointer hover:text-purple-100 transition-colors"
                                                 >
-                                                    {localEdit?.keyword || mergedContentData[activeArticle]?.keyword}
+                                                    {localEdit?.keyword || currentData[activeArticleIdx]?.keyword}
                                                 </p>
                                             )}
                                         </div>
@@ -583,23 +661,23 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     onClick={() => setEditingField('searchVolume')}
                                                     className="text-emerald-300 font-bold text-lg leading-tight break-words cursor-pointer hover:text-emerald-100 transition-colors"
                                                 >
-                                                    {localEdit?.searchVolume || mergedContentData[activeArticle]?.searchVolume || 'N/A'}
+                                                    {localEdit?.searchVolume || currentData[activeArticleIdx]?.searchVolume || 'N/A'}
                                                 </p>
                                             )}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="mt-8 pt-8 border-t border-gray-800 space-y-4">
-                                    {mergedContentData[activeArticle]?.isGenerated ? (
+                                    {currentData[activeArticleIdx]?.isGenerated ? (
                                         <>
-                                            <a href={`/admin/lp/${linkedPages[0]?.subdomain?.split('.')[0] || 'page'}/blog/${mergedContentData[activeArticle]?.slug}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20 hover:scale-[1.02]"><Eye className="w-6 h-6" /> Ver Artículo Online</a>
-                                            <a href={window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${mergedContentData[activeArticle]?.id}` : `/dashboard/articles/edit/${mergedContentData[activeArticle]?.id}`} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"><PenTool className="w-4 h-4" /> Editar Contenido Profesional</a>
+                                            <a href={`/admin/lp/${linkedPages[0]?.subdomain?.split('.')[0] || 'page'}/blog/${currentData[activeArticleIdx]?.slug}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20 hover:scale-[1.02]"><Eye className="w-6 h-6" /> Ver Artículo Online</a>
+                                            <a href={window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${currentData[activeArticleIdx]?.id}` : `/dashboard/articles/edit/${currentData[activeArticleIdx]?.id}`} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"><PenTool className="w-4 h-4" /> Editar Contenido Profesional</a>
                                         </>
                                     ) : (
                                         isAtLimit ? (
                                             <button onClick={onUpgrade} className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"><Crown className="w-6 h-6 fill-current" /> Límite Alcanzado: Subir a PRO</button>
                                         ) : (
-                                            <button onClick={() => setShowConfirmModal(true)} disabled={selectedArticles.length === 0} className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg ${selectedArticles.length === 0 ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-50 grayscale' : 'bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]'}`}><PenTool className="w-6 h-6" /> Escribir Artículo Seleccionado</button>
+                                            <button onClick={() => setShowConfirmModal(true)} className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]`}><PenTool className="w-6 h-6" /> Escribir Artículo Seleccionado</button>
                                         )
                                     )}
                                 </div>
@@ -682,11 +760,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     <div className="w-full max-w-[1200px] h-[95vh] overflow-y-auto rounded-[3rem] shadow-2xl relative border border-white/10 custom-scrollbar" onClick={e => e.stopPropagation()}>
                         <ContentGenerator 
                             preFilledData={{
-                                topic: mergedContentData[activeArticle]?.title || '',
-                                objective: mergedContentData[activeArticle]?.strategy || '',
-                                keyword: mergedContentData[activeArticle]?.keyword || '',
+                                topic: currentData[activeArticleIdx]?.title || '',
+                                objective: currentData[activeArticleIdx]?.strategy || '',
+                                keyword: currentData[activeArticleIdx]?.keyword || '',
                                 pageId: linkedPages[0]?.id || '',
-                                articleId: mergedContentData[activeArticle]?.id
+                                articleId: currentData[activeArticleIdx]?.id
                             }}
                             embeddedProjectId={projectId}
                             onClose={handleCloseAndReload}
@@ -706,7 +784,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             <DeletionRestrictionModal 
                 isOpen={showRestrictionModal}
                 onClose={() => setShowRestrictionModal(false)}
-                itemName={mergedContentData[activeArticle]?.title || 'Artículo'}
+                itemName={currentData[activeArticleIdx]?.title || 'Artículo'}
                 userEmail={user?.email || ''}
                 userName={user?.name || ''}
             />
