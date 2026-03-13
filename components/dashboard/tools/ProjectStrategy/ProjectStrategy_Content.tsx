@@ -459,15 +459,16 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                     const isActive = activeArticleIdx === globalIdx;
                                     const isGenerated = art.isGenerated;
                                     const isUnlocked = art.isUnlocked !== false;
+                                    const isUnlockedButNotGenerated = isUnlocked && !isGenerated;
 
                                     return (
                                         <div 
                                             key={art.id || `merged-${indexInPage}`} 
                                             onClick={() => handleSelectOne(globalIdx)}
-                                            className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isSelected ? 'bg-blue-600 border-blue-500 text-white' : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
+                                            className={`w-full text-left p-4 rounded-xl border transition-all group cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isSelected ? 'bg-blue-600 border-blue-500 text-white' : isUnlockedButNotGenerated ? (isActive ? 'bg-yellow-500/20 border-yellow-500 translate-x-2' : 'bg-yellow-500/10 border-yellow-500/50') : isActive ? 'bg-purple-900/20 border-purple-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'} ${!isUnlocked ? 'opacity-60 grayscale' : ''}`}
                                         >
                                             <div className="flex-1">
-                                                <h4 className={`font-medium text-lg leading-snug ${isGenerated || isSelected ? 'text-white' : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
+                                                <h4 className={`font-medium text-lg leading-snug ${isGenerated || isSelected ? 'text-white' : isUnlockedButNotGenerated ? (isActive ? 'text-yellow-300' : 'text-yellow-400/80') : isActive ? 'text-purple-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
                                                     {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
                                                     {art.title}
                                                 </h4>
@@ -653,20 +654,25 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                 </p>
                                             )}
                                         </div>
+
+                                        {/* Botón de Acción Reubicado */}
+                                        {!currentData[activeArticleIdx]?.isGenerated && (
+                                            <div className="pt-2">
+                                                {isAtLimit ? (
+                                                    <button onClick={onUpgrade} className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"><Crown className="w-6 h-6 fill-current" /> Límite Alcanzado: Subir a PRO</button>
+                                                ) : (
+                                                    <button onClick={() => setShowConfirmModal(true)} className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]`}><PenTool className="w-6 h-6" /> Escribir Artículo Seleccionado</button>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="mt-8 pt-8 border-t border-gray-800 space-y-4">
-                                    {currentData[activeArticleIdx]?.isGenerated ? (
+                                    {currentData[activeArticleIdx]?.isGenerated && (
                                         <>
                                             <a href={`/admin/lp/${linkedPages[0]?.subdomain?.split('.')[0] || 'page'}/blog/${currentData[activeArticleIdx]?.slug}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20 hover:scale-[1.02]"><Eye className="w-6 h-6" /> Ver Artículo Online</a>
                                             <a href={window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${currentData[activeArticleIdx]?.id}` : `/dashboard/articles/edit/${currentData[activeArticleIdx]?.id}`} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"><PenTool className="w-4 h-4" /> Editar Contenido Profesional</a>
                                         </>
-                                    ) : (
-                                        isAtLimit ? (
-                                            <button onClick={onUpgrade} className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"><Crown className="w-6 h-6 fill-current" /> Límite Alcanzado: Subir a PRO</button>
-                                        ) : (
-                                            <button onClick={() => setShowConfirmModal(true)} className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]`}><PenTool className="w-6 h-6" /> Escribir Artículo Seleccionado</button>
-                                        )
                                     )}
                                 </div>
                                 </>

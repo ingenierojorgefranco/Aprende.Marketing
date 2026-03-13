@@ -294,6 +294,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                         <thead className="text-gray-500 uppercase">
                                             <tr>
                                                 <th className="pb-2 pl-2">Título</th>
+                                                <th className="pb-2">Procedencia</th>
                                                 <th className="pb-2">Estado</th>
                                                 <th className="pb-2 text-right">SEO</th>
                                                 <th className="pb-2 text-right pr-2">Acción</th>
@@ -304,8 +305,13 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                                 <tr key={a.id} className="hover:bg-white/[0.02]">
                                                     <td className="py-2 pl-2 font-medium truncate max-w-[200px]">{a.title}</td>
                                                     <td className="py-2">
-                                                        <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.status === 'published' ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
-                                                            {a.status}
+                                                        <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.master_article_id ? 'bg-purple-900/30 text-purple-400' : 'bg-blue-900/30 text-blue-400'}`}>
+                                                            {a.master_article_id ? 'JSON' : 'Base de Datos'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-2">
+                                                        <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.is_generated ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
+                                                            {a.is_generated ? 'Published' : 'Draft'}
                                                         </span>
                                                     </td>
                                                     <td className="py-2 text-right font-mono">{a.seo_score}</td>
