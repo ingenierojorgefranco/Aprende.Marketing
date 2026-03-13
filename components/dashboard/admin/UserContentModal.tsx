@@ -134,15 +134,42 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                     // Borrado de JSON: Actualizar el proyecto
                     const project = loadedData.projects?.find(p => String(p.id) === String(article.projectId));
                     if (project) {
-                        const newStrategy = { ...project.strategy_json };
-                        if (newStrategy.modules?.content) {
-                            newStrategy.modules.content = newStrategy.modules.content.filter((a: any) => (a.id || a.title) !== (article.id.split('_')[1]));
-                            await api.updateProject(project.id, { ...project, strategy_json: newStrategy });
-                            // Actualizar cache local de proyectos si es necesario
-                            setLoadedData(prev => ({
-                                ...prev,
-                                projects: prev.projects?.map(p => p.id === project.id ? { ...p, strategy_json: newStrategy } : p) || null
-                            }));
+                        // Asegurar que strategy_json sea un objeto
+                        let strategy = project.strategy_json;
+                        if (typeof strategy === 'string') {
+                            try { strategy = JSON.parse(strategy); } catch (e) { console.error(e); }
+                        }
+                        
+                        if (strategy) {
+                            const newStrategy = { ...strategy };
+                            const articleIdInJson = article.id.split('_')[1];
+                            let foundAndRemoved = false;
+
+                            // Intentar borrar en modules.content
+                            if (newStrategy.modules?.content && Array.isArray(newStrategy.modules.content)) {
+                                const initialLen = newStrategy.modules.content.length;
+                                newStrategy.modules.content = newStrategy.modules.content.filter((a: any) => String(a.id || a.title) !== String(articleIdInJson));
+                                if (newStrategy.modules.content.length < initialLen) foundAndRemoved = true;
+                            }
+
+                            // Intentar borrar en content (raíz) si no se borró antes
+                            if (!foundAndRemoved && newStrategy.content && Array.isArray(newStrategy.content)) {
+                                const initialLen = newStrategy.content.length;
+                                newStrategy.content = newStrategy.content.filter((a: any) => String(a.id || a.title) !== String(articleIdInJson));
+                                if (newStrategy.content.length < initialLen) foundAndRemoved = true;
+                            }
+
+                            if (foundAndRemoved) {
+                                console.log("Admin: Artículo eliminado del JSON, guardando proyecto...");
+                                await api.adminUpdateProject(project.id, { strategy_json: newStrategy });
+                                // Actualizar cache local de proyectos
+                                setLoadedData(prev => ({
+                                    ...prev,
+                                    projects: prev.projects?.map(p => p.id === project.id ? { ...p, strategy_json: newStrategy } : p) || null
+                                }));
+                            } else {
+                                console.warn("Admin: No se encontró el artículo en el JSON para borrar", articleIdInJson);
+                            }
                         }
                     }
                 } else {

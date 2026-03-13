@@ -1111,6 +1111,16 @@ export const api = {
         });
         clearCache('userSubscriptions');
     },
+
+    adminUpdateProject: async (projectId: string, data: any): Promise<void> => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback(`/admin/projects/${projectId}`, { 
+            method: 'PUT', 
+            headers: getAuthHeaders(), 
+            body: JSON.stringify(data) 
+        });
+        clearCache('projects');
+    },
   
     getSystemLogs: async (page: number, filters: { action?: string, search?: string }): Promise<SystemLog[]> => {
         if (isMockMode) return Promise.resolve([]);

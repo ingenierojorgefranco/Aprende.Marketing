@@ -413,14 +413,35 @@ router.delete('/news/:id', async (req, res) => {
 
 router.put('/projects/:id', async (req, res) => {
     const { id } = req.params;
-    const { limits_config, is_active } = req.body;
+    const { limits_config, is_active, strategy_json } = req.body;
     try {
-        await pool.query(
-            'UPDATE projects SET limits_config = ?, is_active = ?, updated_at = NOW() WHERE id = ?',
-            [JSON.stringify(limits_config), is_active ? 1 : 0, id]
-        );
+        let updateFields = [];
+        let params = [];
+
+        if (limits_config !== undefined) {
+            updateFields.push('limits_config = ?');
+            params.push(JSON.stringify(limits_config));
+        }
+        if (is_active !== undefined) {
+            updateFields.push('is_active = ?');
+            params.push(is_active ? 1 : 0);
+        }
+        if (strategy_json !== undefined) {
+            updateFields.push('strategy_json = ?');
+            params.push(typeof strategy_json === 'string' ? strategy_json : JSON.stringify(strategy_json));
+        }
+
+        if (updateFields.length === 0) {
+            return res.json({ success: true, message: 'No fields to update' });
+        }
+
+        const query = `UPDATE projects SET ${updateFields.join(', ')}, updated_at = NOW() WHERE id = ?`;
+        params.push(id);
+
+        await pool.query(query, params);
+        
         const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
-        await logSystemActivity(req.user.id, admin[0]?.name, 'ADMIN_UPDATE_PROJECT', 'project', id, { limits_config, is_active });
+        await logSystemActivity(req.user.id, admin[0]?.name, 'ADMIN_UPDATE_PROJECT', 'project', id, { limits_config, is_active, has_strategy: !!strategy_json });
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
