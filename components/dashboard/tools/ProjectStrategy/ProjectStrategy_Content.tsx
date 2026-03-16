@@ -117,7 +117,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     slug: a.slug,
                     updatedAt: a.updatedAt,
                     createdAt: a.createdAt
-                }));
+                }))
+                .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
             // Filtrar sugerencias del JSON que ya existen en la DB (por título o keyword)
             // Guardamos el índice original para poder editar/eliminar en el JSON del proyecto
@@ -330,6 +331,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 };
                 await api.saveArticle(newItem as any);
                 await loadLocalData();
+                setCurrentPage(1);
+                setActiveLibraryArticle(0);
                 setActiveArticle(0); // Seleccionar el nuevo (que estará al principio)
             } catch (e: any) {
                 alert("Error: " + e.message);
@@ -656,9 +659,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
                                     <div className="space-y-4">
                                         <div 
-                                            className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative" 
-                                            onMouseEnter={(e) => handleTooltipHover(e, ["Este artículo aparecerá en Google cuando tu cliente busque exactamente esta frase."])} 
-                                            onMouseLeave={handleTooltipLeave}
+                                            className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group" 
                                         >
                                             <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
                                                 <Search className="w-3 h-3"/> Keyword SEO
@@ -683,9 +684,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         </div>
 
                                         <div 
-                                            className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group cursor-help relative" 
-                                            onMouseEnter={(e) => handleTooltipHover(e, ["Indica cuántas personas buscan esta frase al mes en promedio."])} 
-                                            onMouseLeave={handleTooltipLeave}
+                                            className="px-4 py-4 bg-gray-800/50 rounded-xl border border-gray-700 w-full text-center group" 
                                         >
                                             <p className="text-xs text-gray-500 uppercase font-bold mb-1 flex items-center justify-center gap-1">
                                                 <BarChart className="w-3 h-3"/> Vol. Búsqueda
