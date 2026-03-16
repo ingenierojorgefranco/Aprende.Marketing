@@ -213,38 +213,44 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             } else if (typeof active.jsonIndex === 'number') {
                 await saveJsonArticle(active.jsonIndex, localEdit);
             }
+
+            // Actualizar localmente los datos para que la UI refleje el cambio
+            if (activeTab === 'library') {
+                const updated = [...libraryData];
+                const idx = updated.findIndex(a => a.id === active.id);
+                if (idx !== -1) {
+                    updated[idx] = {
+                        ...updated[idx],
+                        title: localEdit.title,
+                        strategy: localEdit.strategy,
+                        keyword: localEdit.keyword,
+                        searchVolume: localEdit.searchVolume
+                    };
+                    setLibraryData(updated);
+                }
+            } else {
+                const updated = [...generatedData];
+                const idx = updated.findIndex(a => a.id === active.id);
+                if (idx !== -1) {
+                    updated[idx] = {
+                        ...updated[idx],
+                        title: localEdit.title,
+                        strategy: localEdit.strategy,
+                        keyword: localEdit.keyword,
+                        searchVolume: localEdit.searchVolume
+                    };
+                    setGeneratedData(updated);
+                }
+            }
         } catch (e) {
             console.error("Blur save error:", e);
         }
     };
 
     const handleFieldChange = (field: string, value: any) => {
-        // 1. Actualizar estado de edición local
+        // Actualizar solo el estado de edición local mientras el usuario escribe
         const newEdit = { ...localEdit, [field]: value };
         setLocalEdit(newEdit);
-
-        // 2. Actualizar UI inmediatamente para que las pestañas cambien al escribir
-        if (activeTab === 'library') {
-            const updated = [...libraryData];
-            const active = updated[activeLibraryArticle];
-            if (active) {
-                updated[activeLibraryArticle] = {
-                    ...active,
-                    [field === 'strategy' ? 'strategy' : field]: value
-                };
-                setLibraryData(updated);
-            }
-        } else {
-            const updated = [...generatedData];
-            const active = updated[activeGeneratedArticle];
-            if (active) {
-                updated[activeGeneratedArticle] = {
-                    ...active,
-                    [field === 'strategy' ? 'strategy' : field]: value
-                };
-                setGeneratedData(updated);
-            }
-        }
     };
 
     useEffect(() => {
