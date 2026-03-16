@@ -173,8 +173,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
 
   useEffect(() => {
     if (hookIdFromUrl && hooks.length > 0 && !initialSelectionDone.current) {
-        const index = hooks.findIndex(h => String(h.id) === String(hookIdFromUrl));
+        // Buscamos específicamente en los ganchos generados
+        const index = displayGeneratedHooks.findIndex(h => String(h.id) === String(hookIdFromUrl));
         if (index !== -1) {
+            setActiveTab('generated');
             setActiveHook(index);
             // Calcular y establecer la página correcta para la lista interna
             const calculatedPage = Math.floor(index / itemsPerPage) + 1;
@@ -182,7 +184,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
             initialSelectionDone.current = true;
         }
     }
-  }, [hookIdFromUrl, hooks, setActiveHook, itemsPerPage]);
+  }, [hookIdFromUrl, hooks, setActiveHook, itemsPerPage, displayGeneratedHooks, setActiveTab]);
 
   const handleUnlockMore = async () => {
     setUnlockingMore(true);

@@ -348,8 +348,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         }
     };
 
-    const handleSelectOne = (idx: number) => {
-        const globalIdx = (currentPage - 1) * itemsPerPage + idx;
+    const handleSelectOne = (globalIdx: number) => {
         setActiveArticleIdx(globalIdx);
         setActiveArticle(globalIdx);
     };
