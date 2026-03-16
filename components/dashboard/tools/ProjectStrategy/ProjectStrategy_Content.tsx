@@ -385,9 +385,10 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         if (!active || !active.id) return;
 
         const isGenerated = active.isGenerated;
+        const isUnlocked = active.isUnlocked;
         const isAdmin = user?.role === 'admin';
 
-        if (!isAdmin && isGenerated) {
+        if (!isAdmin && (isGenerated || isUnlocked)) {
             setShowRestrictionModal(true);
             return;
         }
@@ -421,7 +422,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
     const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
     const maxArticles = planLimits?.maxArticles || 2;
-    const currentArticleCount = linkedArticles.filter(a => a.isGenerated).length;
+    const currentArticleCount = linkedArticles.filter(a => a.isGenerated || a.isUnlocked).length;
     const isAtLimit = !isRealAdmin && !api.isUsingMockData() && currentArticleCount >= maxArticles;
 
     const usagePercent = Math.min(100, (currentArticleCount / maxArticles) * 100);
@@ -558,7 +559,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                         <div className="relative z-10 flex flex-col h-full">
                             {currentData[activeArticleIdx] ? (
                                 currentData[activeArticleIdx].isUnlocked === false && !isRealAdmin ? (
-                                    <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/10 border border-gray-800 rounded-[2.5rem] p-8 md:p-12 flex flex-col items-center text-center relative overflow-hidden shadow-2xl animate-in zoom-in-95">
+                                    <div className="flex flex-col items-center text-center relative animate-in zoom-in-95 w-full">
                                         <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Lock className="w-40 h-40 text-purple-500" /></div>
                                         
                                         <div className="w-full text-left mb-8">
@@ -583,12 +584,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10" style={{ fontSize: '1.1rem' }}>Nuestro sistema ha generado este Artículo Estratégico por ti. Haz clic en Desbloquear para ver todo el contenido.</p>
 
                                         <button 
-                                            onClick={() => setShowUnlockConfirmModal(true)}
+                                            onClick={isAtLimit ? onUpgrade : () => setShowUnlockConfirmModal(true)}
                                             disabled={unlockingSingle}
-                                            className="w-full py-5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-purple-900/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70"
+                                            className={`w-full py-5 rounded-2xl ${isAtLimit ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-purple-600 hover:bg-purple-500'} text-white font-black text-xl uppercase tracking-widest shadow-xl shadow-purple-900/40 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3 group disabled:opacity-70`}
                                         >
-                                            {unlockingSingle ? <Loader2 className="w-6 h-6 animate-spin" /> : <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
-                                            {unlockingSingle ? 'Desbloqueando...' : 'Desbloquear Artículo'}
+                                            {unlockingSingle ? <Loader2 className="w-6 h-6 animate-spin" /> : isAtLimit ? <Crown className="w-6 h-6 fill-current" /> : <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" />}
+                                            {unlockingSingle ? 'Desbloqueando...' : isAtLimit ? 'Límite Alcanzado: Subir a PRO' : 'Desbloquear Artículo'}
                                         </button>
                                         
                                         <div className="mt-8 flex items-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
