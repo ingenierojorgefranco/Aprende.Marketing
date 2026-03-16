@@ -18,6 +18,21 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
     const [expandedSection, setExpandedSection] = useState<'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | null>(null);
     const [loadingSection, setLoadingSection] = useState<string | null>(null);
 
+    const formatRelativeTime = (dateInput: any) => {
+        if (!dateInput) return "N/A";
+        const date = new Date(dateInput);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+        if (diffInSeconds < 60) return `Hace ${diffInSeconds} segundos`;
+        const diffInMinutes = Math.floor(diffInSeconds / 60);
+        if (diffInMinutes < 60) return `Hace ${diffInMinutes} ${diffInMinutes === 1 ? 'minuto' : 'minutos'}`;
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `Hace ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`;
+        const diffInDays = Math.floor(diffInHours / 24);
+        return `Hace ${diffInDays} ${diffInDays === 1 ? 'día' : 'días'}`;
+    };
+
     // Pagination and Filtering states
     const [selectedProjectArticles, setSelectedProjectArticles] = useState<string>('all');
     const [selectedProjectHooks, setSelectedProjectHooks] = useState<string>('all');
@@ -441,7 +456,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                                     <th className="pb-2 pl-2">Título</th>
                                                     <th className="pb-2">Procedencia</th>
                                                     <th className="pb-2">Estado</th>
-                                                    <th className="pb-2 text-right">SEO</th>
+                                                    <th className="pb-2">Fecha</th>
                                                     <th className="pb-2 text-right pr-2">Acción</th>
                                                 </tr>
                                             </thead>
@@ -462,7 +477,7 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                                                     {a.is_generated ? 'Published' : 'Draft'}
                                                                 </span>
                                                             </td>
-                                                            <td className="py-2 text-right font-mono">{a.seo_score}</td>
+                                                            <td className="py-2 text-gray-400">{formatRelativeTime(a.created_at || a.createdAt)}</td>
                                                             <td className="py-2 text-right pr-2">
                                                                 <button 
                                                                     onClick={() => handleDeleteAsset('articles', a.id, a.title)}
@@ -546,8 +561,9 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                             <thead className="text-gray-500 uppercase">
                                                 <tr>
                                                     <th className="pb-2 pl-2">Título del Gancho</th>
-                                                    <th className="pb-2">Estrategia</th>
-                                                    <th className="pb-2">Proyecto</th>
+                                                    <th className="pb-2">Procedencia</th>
+                                                    <th className="pb-2">Estado</th>
+                                                    <th className="pb-2">Fecha</th>
                                                     <th className="pb-2 text-right pr-2">Acción</th>
                                                 </tr>
                                             </thead>
@@ -557,9 +573,18 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                                     .slice((currentPageHooks - 1) * itemsPerPage, currentPageHooks * itemsPerPage)
                                                     .map((h: any) => (
                                                         <tr key={h.id} className="hover:bg-white/[0.02]">
-                                                            <td className="py-2 pl-2 font-medium truncate max-w-[200px]">{h.title}</td>
-                                                            <td className="py-2 truncate max-w-[200px] text-gray-400">{h.psychological_strategy}</td>
-                                                            <td className="py-2 text-orange-400">{h.project_name}</td>
+                                                            <td className="py-2 pl-2 font-medium">{h.title}</td>
+                                                            <td className="py-2">
+                                                                <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${h.is_json || h.master_hook_id ? 'bg-purple-900/30 text-purple-400' : 'bg-blue-900/30 text-blue-400'}`}>
+                                                                    {h.is_json || h.master_hook_id ? 'JSON' : 'Base de Datos'}
+                                                                </span>
+                                                            </td>
+                                                            <td className="py-2">
+                                                                <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${h.is_generated ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
+                                                                    {h.is_generated ? 'Generado' : 'No Generado'}
+                                                                </span>
+                                                            </td>
+                                                            <td className="py-2 text-gray-400">{formatRelativeTime(h.created_at || h.createdAt)}</td>
                                                             <td className="py-2 text-right pr-2">
                                                                 <button 
                                                                     onClick={() => handleDeleteAsset('hooks', h.id, h.title)}

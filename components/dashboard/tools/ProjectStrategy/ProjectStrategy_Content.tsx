@@ -120,9 +120,17 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 }));
 
             // Filtrar sugerencias del JSON que ya existen en la DB (por título o keyword)
-            const suggestions = jsonContent.filter(j => 
+            // Guardamos el índice original para poder editar/eliminar en el JSON del proyecto
+            const suggestions = jsonContent.map((j, originalIdx) => ({
+                ...j,
+                jsonIndex: originalIdx,
+                id: `json-${originalIdx}`,
+                isUnlocked: true,
+                isFromDb: false,
+                isGenerated: false
+            })).filter(j => 
                 !manualFromDb.some(m => m.title === j.title || m.keyword === j.keyword)
-            ).map(j => ({ ...j, isUnlocked: true }));
+            );
 
             setLibraryData([...manualFromDb, ...suggestions]);
 
@@ -139,8 +147,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
     useEffect(() => {
         const active = currentData[activeArticleIdx];
-        // Solo permitimos editar si es de DB, no está generado y está DESBLOQUEADO
-        if (active && active.isFromDb && !active.isGenerated && active.isUnlocked !== false) {
+        // Permitimos editar si no está generado y está DESBLOQUEADO (independiente de si es DB o JSON)
+        if (active && !active.isGenerated && active.isUnlocked !== false) {
             setLocalEdit({
                 title: active.title,
                 strategy: active.strategy,
@@ -151,6 +159,32 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
             setLocalEdit(null);
         }
     }, [activeArticleIdx, activeTab, currentData]);
+
+    const saveJsonArticle = async (jsonIndex: number, updatedData: any) => {
+        if (!projectId) return;
+        try {
+            const project = await api.getProjectById(projectId);
+            if (!project || !project.strategy_json) return;
+
+            const strategy = { ...project.strategy_json };
+            if (!strategy.modules) strategy.modules = {};
+            if (!strategy.modules.content) strategy.modules.content = [];
+
+            // Actualizar el elemento en el índice original
+            strategy.modules.content[jsonIndex] = {
+                ...strategy.modules.content[jsonIndex],
+                title: updatedData.title,
+                strategy: updatedData.strategy,
+                keyword: updatedData.keyword,
+                searchVolume: updatedData.searchVolume
+            };
+
+            await api.updateProject(projectId, { ...project, strategy_json: strategy } as any);
+        } catch (e) {
+            console.error("Error saving JSON article:", e);
+            throw e;
+        }
+    };
 
     const handleBlurSave = async () => {
         const active = currentData[activeArticleIdx];
@@ -165,15 +199,19 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         ) return;
 
         try {
-            await api.updateArticle(active.id, {
-                title: localEdit.title,
-                psychologicalStrategy: {
-                    focus: localEdit.strategy,
-                    keyword: localEdit.keyword,
-                    searchVolume: localEdit.searchVolume,
-                    targetUrl: ""
-                }
-            } as any);
+            if (active.isFromDb) {
+                await api.updateArticle(active.id, {
+                    title: localEdit.title,
+                    psychologicalStrategy: {
+                        focus: localEdit.strategy,
+                        keyword: localEdit.keyword,
+                        searchVolume: localEdit.searchVolume,
+                        targetUrl: ""
+                    }
+                } as any);
+            } else if (typeof active.jsonIndex === 'number') {
+                await saveJsonArticle(active.jsonIndex, localEdit);
+            }
         } catch (e) {
             console.error("Blur save error:", e);
         }
@@ -223,15 +261,19 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
         const timer = setTimeout(async () => {
             try {
-                await api.updateArticle(active.id, {
-                    title: localEdit.title,
-                    psychologicalStrategy: {
-                        focus: localEdit.strategy,
-                        keyword: localEdit.keyword,
-                        searchVolume: localEdit.searchVolume,
-                        targetUrl: ""
-                    }
-                } as any);
+                if (active.isFromDb) {
+                    await api.updateArticle(active.id, {
+                        title: localEdit.title,
+                        psychologicalStrategy: {
+                            focus: localEdit.strategy,
+                            keyword: localEdit.keyword,
+                            searchVolume: localEdit.searchVolume,
+                            targetUrl: ""
+                        }
+                    } as any);
+                } else if (typeof active.jsonIndex === 'number') {
+                    await saveJsonArticle(active.jsonIndex, localEdit);
+                }
                 
                 // Actualizar localmente los datos
                 if (activeTab === 'library') {
@@ -345,7 +387,19 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         if (window.confirm("¿Deseas eliminar este artículo? No se puede recuperar")) {
             setLoadingLocal(true);
             try {
-                await api.deleteArticle(active.id);
+                if (active.isFromDb) {
+                    await api.deleteArticle(active.id);
+                } else if (typeof active.jsonIndex === 'number') {
+                    // Lógica para eliminar del JSON del proyecto
+                    const project = await api.getProjectById(projectId!);
+                    if (project && project.strategy_json) {
+                        const strategy = { ...project.strategy_json };
+                        if (strategy.modules && strategy.modules.content) {
+                            strategy.modules.content.splice(active.jsonIndex, 1);
+                            await api.updateProject(projectId!, { ...project, strategy_json: strategy } as any);
+                        }
+                    }
+                }
                 await loadLocalData();
                 setActiveArticleIdx(0);
                 alert("Artículo eliminado correctamente.");
