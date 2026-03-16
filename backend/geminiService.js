@@ -183,7 +183,7 @@ export const generateFullStrategy = async (projectId) => {
     // 2. LOG DE ACCESO A BASE DE DATOS
     process.stdout.write(`[PIPELINE DB] Consultando base de datos para ID: ${projectId}...\n`);
     const [rows] = await pool.query(
-        "SELECT niche, product_name, brand_tone, full_price, commission_rate, lead_magnet_type, description FROM projects WHERE id = ?",
+        "SELECT niche, product_name, brand_tone, full_price, commission_rate, lead_magnet_type, description, master_parent_id FROM projects WHERE id = ?",
         [projectId]
     );
 
@@ -193,7 +193,8 @@ export const generateFullStrategy = async (projectId) => {
     }
     
     const projectData = rows[0];
-    const { niche, product_name: productName, brand_tone: brandTone, full_price: fullPrice, commission_rate: commissionRate, lead_magnet_type: leadMagnetType  } = projectData;
+    const { niche, product_name: productName, brand_tone: brandTone, full_price: fullPrice, commission_rate: commissionRate, lead_magnet_type: leadMagnetType, master_parent_id: masterParentId  } = projectData;
+    const isCloned = masterParentId !== null;
 
     let step1Data;
 
@@ -251,7 +252,10 @@ export const generateFullStrategy = async (projectId) => {
         Genera un análisis de miedos, objeciones y motivaciones reales para este nicho.
 
         INSTRUCCIONES PARA CONTENIDOS DE BLOG content (OBLIGATORIO):
-        Genera 7 articulos de blog optimizados para SEO que tenga que ver con el producto especificamente, usa un volumen de keyword de entre 100 a 1000, añade palabras claves realistas con intension de busqueda informativa, titulos que no superen los 60 caracteres, dirigidos a ser informativos en forma de pregunta y optimizados para generar el maximo ctr posible y atraer audiencia cualificada, 3 articulos iniciales enfocados en el primer avatar definido, 2 articulos enfocados en el segundo avatar definido, 2 ultimos articulos enfocados en el tercer avatar definido
+        ${isCloned 
+            ? "NO GENERES ARTÍCULOS. Devuelve estrictamente un array vacío [] en la clave 'content' del JSON final." 
+            : "Genera 7 articulos de blog optimizados para SEO que tenga que ver con el producto especificamente, usa un volumen de keyword de entre 100 a 1000, añade palabras claves realistas con intension de busqueda informativa, titulos que no superen los 60 caracteres, dirigidos a ser informativos en forma de pregunta y optimizados para generar el maximo ctr posible y atraer audiencia cualificada, 3 articulos iniciales enfocados en el primer avatar definido, 2 articulos enfocados en el segundo avatar definido, 2 ultimos articulos enfocados en el tercer avatar definido"
+        }
         
 
         INSTRUCCIONES PARA CONTENIDOS DE EMAIL emails (OBLIGATORIO):
@@ -490,7 +494,7 @@ export const generateFullStrategy = async (projectId) => {
 
 
 
-    "content": [
+    "content": ${isCloned ? "[]" : `[
       {
             id: 1,
             title: "¿Qué es el microblading en cejas?",
@@ -561,7 +565,7 @@ export const generateFullStrategy = async (projectId) => {
             objective: "Posicionamiento High Ticket",
             strategy: "Comparamos el costo del servicio vs la rentabilidad para el artista. Enfocamos el contenido en cómo vender el valor del resultado final en lugar de competir por el precio más bajo."
         }
-    ],
+    ]`},
 
 
 
