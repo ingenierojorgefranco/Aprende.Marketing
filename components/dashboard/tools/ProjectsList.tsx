@@ -269,7 +269,7 @@ export const ProjectsList: React.FC = () => {
                                 <Briefcase className="w-3 h-3 text-blue-400" /> Estrategia & Nichos
                             </div>
                             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                                Gestiona tus Proyectos <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">y Construye Estrategias</span>
+                                Gestiona tus Proyectos <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">y Copia Nuestras Estrategias</span>
                             </h1>
                             <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-relaxed">
                                 Los Proyectos son el centro de tu estrategia de Ventas. Define tu nicho, audiencia y enlaces de afiliado. Nuestro sistema usará Inteligencia Artificial para generar contenido que te genere grandes resultados.
@@ -279,7 +279,7 @@ export const ProjectsList: React.FC = () => {
                         {/* Plan Usage Bar */}
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
                             <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Páginas (Superusuario)' : 'Proyectos Activos'}</span>
+                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Páginas (Superusuario)' : 'Proyectos Activos/Desbloqueados'}</span>
                                 <span className="text-white font-bold">{currentCount} / {isRealAdmin ? '∞' : maxProjects}</span>
                             </div>
                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -304,7 +304,7 @@ export const ProjectsList: React.FC = () => {
                         >
                             <iframe 
                                 className="w-full h-full rounded-2xl"
-                                src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                                src="https://www.youtube.com/embed/2yez3O8ibzA?rel=0&controls=1&showinfo=0" 
                                 title="Video Tutorial" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowFullScreen
@@ -635,7 +635,7 @@ export const ProjectsList: React.FC = () => {
                                 <div className="aspect-video max-w-lg mx-auto w-full bg-black rounded-[2rem] overflow-hidden border border-white/5 shadow-2xl relative group cursor-pointer">
                                     <iframe 
                                         className="w-full h-full rounded-2xl"
-                                        src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                                        src="https://www.youtube.com/embed/2yez3O8ibzA?rel=0&controls=1&showinfo=0" 
                                         title="Video Preview" 
                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                         allowFullScreen

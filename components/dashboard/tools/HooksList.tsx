@@ -160,10 +160,10 @@ export const HooksList: React.FC = () => {
                                 <Zap className="w-3 h-3 text-orange-400" /> Atracción & Copywriting
                             </div>
                             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                                Hooks <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">de Atracción</span>
+                                Atrae Clientes Potenciales <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">en Automático</span>
                             </h1>
                             <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-relaxed">
-                                Los Hooks son el primer impacto de tu estrategia. Aquí puedes gestionar todos los ganchos generados para tus diferentes proyectos y optimizar tu comunicación.
+                                Los hooks son el punto de partida para captar la atención de tu audiencia. Aquí podrás generar y gestionar ganchos estratégicos diseñados para atraer personas interesadas en tu oferta y convertir tus publicaciones en oportunidades reales de captar clientes.
                             </p>
                         </div>
                         
@@ -294,7 +294,7 @@ export const HooksList: React.FC = () => {
                             <Target className="w-8 h-8" />
                         </div>
                         <div className="text-left">
-                            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Ganchos</h2>
+                            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Hooks de Atracción</h2>
                             <p className="text-white font-medium pt-2.5 text-[1.2em]">Biblioteca centralizada de ángulos de venta</p>
                         </div>
                     </div>
