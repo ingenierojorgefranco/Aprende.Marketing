@@ -18,6 +18,13 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
     const [expandedSection, setExpandedSection] = useState<'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks' | null>(null);
     const [loadingSection, setLoadingSection] = useState<string | null>(null);
 
+    // Pagination and Filtering states
+    const [selectedProjectArticles, setSelectedProjectArticles] = useState<string>('all');
+    const [selectedProjectHooks, setSelectedProjectHooks] = useState<string>('all');
+    const [currentPageArticles, setCurrentPageArticles] = useState(1);
+    const [currentPageHooks, setCurrentPageHooks] = useState(1);
+    const itemsPerPage = 10;
+
     const toggleSection = async (section: 'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks') => {
         if (expandedSection === section) {
             setExpandedSection(null);
@@ -92,6 +99,15 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                     console.log("Admin: Total artículos combinados:", combined.length);
                     data = combined;
                     // También guardamos los proyectos si no estaban cargados
+                    if (loadedData.projects === null) {
+                        setLoadedData(prev => ({ ...prev, projects }));
+                    }
+                } else if (section === 'hooks') {
+                    const [hooks, projects] = await Promise.all([
+                        api.getAdminUserResources(user.id, 'hooks'),
+                        loadedData.projects === null ? api.getAdminUserResources(user.id, 'projects') : Promise.resolve(loadedData.projects)
+                    ]);
+                    data = hooks;
                     if (loadedData.projects === null) {
                         setLoadedData(prev => ({ ...prev, projects }));
                     }
@@ -400,43 +416,89 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                 {loadingSection === 'articles' ? (
                                     <div className="flex justify-center py-4"><Loader2 className="w-6 h-6 animate-spin text-blue-500" /></div>
                                 ) : loadedData.articles && loadedData.articles.length > 0 ? (
-                                    <table className="w-full text-xs text-left">
-                                        <thead className="text-gray-500 uppercase">
-                                            <tr>
-                                                <th className="pb-2 pl-2">Título</th>
-                                                <th className="pb-2">Procedencia</th>
-                                                <th className="pb-2">Estado</th>
-                                                <th className="pb-2 text-right">SEO</th>
-                                                <th className="pb-2 text-right pr-2">Acción</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="text-gray-300 divide-y divide-gray-800">
-                                            {loadedData.articles.map((a: any) => (
-                                                <tr key={a.id} className="hover:bg-white/[0.02]">
-                                                    <td className="py-2 pl-2 font-medium truncate max-w-[200px]">{a.title}</td>
-                                                    <td className="py-2">
-                                                        <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.isJson ? 'bg-purple-900/30 text-purple-400' : 'bg-blue-900/30 text-blue-400'}`}>
-                                                            {a.isJson ? 'JSON' : 'Base de Datos'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-2">
-                                                        <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.is_generated ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
-                                                            {a.is_generated ? 'Published' : 'Draft'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-2 text-right font-mono">{a.seo_score}</td>
-                                                    <td className="py-2 text-right pr-2">
-                                                        <button 
-                                                            onClick={() => handleDeleteAsset('articles', a.id, a.title)}
-                                                            className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
-                                                        >
-                                                            <Trash2 className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </td>
+                                    <>
+                                        {/* Project Filter */}
+                                        <div className="mb-4 flex items-center gap-3">
+                                            <label className="text-xs text-gray-400 uppercase font-bold">Filtrar por Proyecto:</label>
+                                            <select 
+                                                value={selectedProjectArticles}
+                                                onChange={(e) => {
+                                                    setSelectedProjectArticles(e.target.value);
+                                                    setCurrentPageArticles(1);
+                                                }}
+                                                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-blue-500"
+                                            >
+                                                <option value="all">Todos los proyectos</option>
+                                                {loadedData.projects?.map(p => (
+                                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <table className="w-full text-xs text-left">
+                                            <thead className="text-gray-500 uppercase">
+                                                <tr>
+                                                    <th className="pb-2 pl-2">Título</th>
+                                                    <th className="pb-2">Procedencia</th>
+                                                    <th className="pb-2">Estado</th>
+                                                    <th className="pb-2 text-right">SEO</th>
+                                                    <th className="pb-2 text-right pr-2">Acción</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody className="text-gray-300 divide-y divide-gray-800">
+                                                {loadedData.articles
+                                                    .filter(a => selectedProjectArticles === 'all' || String(a.project_id || a.projectId) === String(selectedProjectArticles))
+                                                    .slice((currentPageArticles - 1) * itemsPerPage, currentPageArticles * itemsPerPage)
+                                                    .map((a: any) => (
+                                                        <tr key={a.id} className="hover:bg-white/[0.02]">
+                                                            <td className="py-2 pl-2 font-medium truncate max-w-[200px]">{a.title}</td>
+                                                            <td className="py-2">
+                                                                <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.isJson ? 'bg-purple-900/30 text-purple-400' : 'bg-blue-900/30 text-blue-400'}`}>
+                                                                    {a.isJson ? 'JSON' : 'Base de Datos'}
+                                                                </span>
+                                                            </td>
+                                                            <td className="py-2">
+                                                                <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.is_generated ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
+                                                                    {a.is_generated ? 'Published' : 'Draft'}
+                                                                </span>
+                                                            </td>
+                                                            <td className="py-2 text-right font-mono">{a.seo_score}</td>
+                                                            <td className="py-2 text-right pr-2">
+                                                                <button 
+                                                                    onClick={() => handleDeleteAsset('articles', a.id, a.title)}
+                                                                    className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
+                                                                >
+                                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                            </tbody>
+                                        </table>
+
+                                        {/* Pagination */}
+                                        {Math.ceil((loadedData.articles?.filter(a => selectedProjectArticles === 'all' || String(a.project_id || a.projectId) === String(selectedProjectArticles)).length || 0) / itemsPerPage) > 1 && (
+                                            <div className="mt-4 flex items-center justify-between px-2">
+                                                <span className="text-[10px] text-gray-500 uppercase">Página {currentPageArticles} de {Math.ceil((loadedData.articles?.filter(a => selectedProjectArticles === 'all' || String(a.project_id || a.projectId) === String(selectedProjectArticles)).length || 0) / itemsPerPage)}</span>
+                                                <div className="flex gap-2">
+                                                    <button 
+                                                        disabled={currentPageArticles === 1}
+                                                        onClick={() => setCurrentPageArticles(prev => prev - 1)}
+                                                        className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-[10px] text-gray-400 hover:text-white disabled:opacity-50"
+                                                    >
+                                                        Anterior
+                                                    </button>
+                                                    <button 
+                                                        disabled={currentPageArticles >= Math.ceil((loadedData.articles?.filter(a => selectedProjectArticles === 'all' || String(a.project_id || a.projectId) === String(selectedProjectArticles)).length || 0) / itemsPerPage)}
+                                                        onClick={() => setCurrentPageArticles(prev => prev + 1)}
+                                                        className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-[10px] text-gray-400 hover:text-white disabled:opacity-50"
+                                                    >
+                                                        Siguiente
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
                                 ) : (
                                     <p className="text-sm text-gray-500 italic text-center">No hay artículos creados.</p>
                                 )}
@@ -461,33 +523,79 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                 {loadingSection === 'hooks' ? (
                                     <div className="flex justify-center py-4"><Loader2 className="w-6 h-6 animate-spin text-orange-500" /></div>
                                 ) : loadedData.hooks && loadedData.hooks.length > 0 ? (
-                                    <table className="w-full text-xs text-left">
-                                        <thead className="text-gray-500 uppercase">
-                                            <tr>
-                                                <th className="pb-2 pl-2">Título del Gancho</th>
-                                                <th className="pb-2">Estrategia</th>
-                                                <th className="pb-2">Proyecto</th>
-                                                <th className="pb-2 text-right pr-2">Acción</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="text-gray-300 divide-y divide-gray-800">
-                                            {loadedData.hooks.map((h: any) => (
-                                                <tr key={h.id} className="hover:bg-white/[0.02]">
-                                                    <td className="py-2 pl-2 font-medium truncate max-w-[200px]">{h.title}</td>
-                                                    <td className="py-2 truncate max-w-[200px] text-gray-400">{h.psychological_strategy}</td>
-                                                    <td className="py-2 text-orange-400">{h.project_name}</td>
-                                                    <td className="py-2 text-right pr-2">
-                                                        <button 
-                                                            onClick={() => handleDeleteAsset('hooks', h.id, h.title)}
-                                                            className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
-                                                        >
-                                                            <Trash2 className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </td>
+                                    <>
+                                        {/* Project Filter */}
+                                        <div className="mb-4 flex items-center gap-3">
+                                            <label className="text-xs text-gray-400 uppercase font-bold">Filtrar por Proyecto:</label>
+                                            <select 
+                                                value={selectedProjectHooks}
+                                                onChange={(e) => {
+                                                    setSelectedProjectHooks(e.target.value);
+                                                    setCurrentPageHooks(1);
+                                                }}
+                                                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-blue-500"
+                                            >
+                                                <option value="all">Todos los proyectos</option>
+                                                {loadedData.projects?.map(p => (
+                                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <table className="w-full text-xs text-left">
+                                            <thead className="text-gray-500 uppercase">
+                                                <tr>
+                                                    <th className="pb-2 pl-2">Título del Gancho</th>
+                                                    <th className="pb-2">Estrategia</th>
+                                                    <th className="pb-2">Proyecto</th>
+                                                    <th className="pb-2 text-right pr-2">Acción</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody className="text-gray-300 divide-y divide-gray-800">
+                                                {loadedData.hooks
+                                                    .filter(h => selectedProjectHooks === 'all' || String(h.project_id || h.projectId) === String(selectedProjectHooks))
+                                                    .slice((currentPageHooks - 1) * itemsPerPage, currentPageHooks * itemsPerPage)
+                                                    .map((h: any) => (
+                                                        <tr key={h.id} className="hover:bg-white/[0.02]">
+                                                            <td className="py-2 pl-2 font-medium truncate max-w-[200px]">{h.title}</td>
+                                                            <td className="py-2 truncate max-w-[200px] text-gray-400">{h.psychological_strategy}</td>
+                                                            <td className="py-2 text-orange-400">{h.project_name}</td>
+                                                            <td className="py-2 text-right pr-2">
+                                                                <button 
+                                                                    onClick={() => handleDeleteAsset('hooks', h.id, h.title)}
+                                                                    className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
+                                                                >
+                                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                            </tbody>
+                                        </table>
+
+                                        {/* Pagination */}
+                                        {Math.ceil((loadedData.hooks?.filter(h => selectedProjectHooks === 'all' || String(h.project_id || h.projectId) === String(selectedProjectHooks)).length || 0) / itemsPerPage) > 1 && (
+                                            <div className="mt-4 flex items-center justify-between px-2">
+                                                <span className="text-[10px] text-gray-500 uppercase">Página {currentPageHooks} de {Math.ceil((loadedData.hooks?.filter(h => selectedProjectHooks === 'all' || String(h.project_id || h.projectId) === String(selectedProjectHooks)).length || 0) / itemsPerPage)}</span>
+                                                <div className="flex gap-2">
+                                                    <button 
+                                                        disabled={currentPageHooks === 1}
+                                                        onClick={() => setCurrentPageHooks(prev => prev - 1)}
+                                                        className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-[10px] text-gray-400 hover:text-white disabled:opacity-50"
+                                                    >
+                                                        Anterior
+                                                    </button>
+                                                    <button 
+                                                        disabled={currentPageHooks >= Math.ceil((loadedData.hooks?.filter(h => selectedProjectHooks === 'all' || String(h.project_id || h.projectId) === String(selectedProjectHooks)).length || 0) / itemsPerPage)}
+                                                        onClick={() => setCurrentPageHooks(prev => prev + 1)}
+                                                        className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-[10px] text-gray-400 hover:text-white disabled:opacity-50"
+                                                    >
+                                                        Siguiente
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
                                 ) : (
                                     <p className="text-sm text-gray-500 italic text-center">No hay hooks generados.</p>
                                 )}
