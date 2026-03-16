@@ -368,6 +368,10 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   };
 
   const handleCreateManualHook = async () => {
+    if (isLimitReached) {
+        setShowUpgradeModalLocal(true);
+        return;
+    }
     if (window.confirm("¿Deseas crear el hook manualmente?")) {
         setSaving(true);
         try {

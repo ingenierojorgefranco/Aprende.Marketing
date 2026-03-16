@@ -60,7 +60,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
 
-    const loadLocalData = async () => {
+    const loadLocalData = async (targetTitle?: string) => {
         if (!projectId) return;
         setLoadingLocal(true);
         try {
@@ -133,7 +133,18 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 !manualFromDb.some(m => m.title === j.title || m.keyword === j.keyword)
             );
 
-            setLibraryData([...manualFromDb, ...suggestions]);
+            const newLibrary = [...manualFromDb, ...suggestions];
+            setLibraryData(newLibrary);
+
+            if (targetTitle) {
+                const newIdx = newLibrary.findIndex(a => a.title === targetTitle);
+                if (newIdx !== -1) {
+                    setActiveLibraryArticle(newIdx);
+                    // Asegurarnos de que estamos en la página correcta
+                    const newPage = Math.floor(newIdx / itemsPerPage) + 1;
+                    setCurrentPage(newPage);
+                }
+            }
 
         } catch (e) {
             console.error(e);
@@ -368,10 +379,11 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
         
         setShowUnlockConfirmModal(false);
         const masterId = active.id.replace('available-', '');
+        const targetTitle = active.title;
         setUnlockingSingle(true);
         try {
             await api.unlockArticle(projectId!, masterId);
-            await loadLocalData();
+            await loadLocalData(targetTitle);
             alert("¡Artículo desbloqueado con éxito!");
         } catch (e: any) {
             alert("Error al desbloquear: " + e.message);
@@ -490,7 +502,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             <div className="w-full mb-6">
                                 <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                                     <div className="flex justify-between items-center mb-2 text-sm">
-                                        <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Artículos Generados</span>
+                                        <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Artículos Generados/Desbloqueados</span>
                                         <span className="text-white font-bold">{currentArticleCount} / {maxArticles}</span>
                                     </div>
                                     <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
