@@ -796,6 +796,19 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                     <div className="p-2 bg-gray-800 border border-gray-700 rounded text-gray-400" title="Este botón abre una ventana modal con formulario"><MousePointerClick className="w-5 h-5"/></div>
                                 </div>
                             </div>
+
+                            {/* Controles de Urgencia (Relocated) */}
+                            <div className="pt-4 border-t border-gray-800 space-y-4">
+                                <h4 className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-widest">Controles de Urgencia</h4>
+                                <div>
+                                    <Label>Etiqueta del Temporizador</Label>
+                                    <Input value={content.capture?.timerLabel || ''} onChange={(e) => updateCaptureField('timerLabel', e.target.value)} placeholder="Ej: La sesión expira en:" />
+                                </div>
+                                <div>
+                                    <Label>Tiempo de Expiración (Minutos)</Label>
+                                    <Input type="number" value={content.capture?.timerDuration || 15} onChange={(e) => updateCaptureField('timerDuration', parseInt(e.target.value) || 0)} />
+                                </div>
+                            </div>
                         </SectionContent>
 
                         {/* 2. Hero Section */}
@@ -846,34 +859,13 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                     * Si pegas un video, la imagen previa se mantendrá como portada/miniatura.
                                 </p>
                             </div>
-
-                            {/* 5. Video Title */}
-                            <div>
-                                <Label>5. Título dentro de la imagen</Label>
-                                <Input value={content.hero.videoTitle || ''} onChange={(e) => updateNestedField('hero', 'videoTitle', e.target.value)} placeholder="Ej: Masterclass" />
-                            </div>
-
-                            {/* 6. Duration */}
-                            <div>
-                                <Label>6. Duración (Texto)</Label>
-                                <Input value={content.hero.videoDuration || ''} onChange={(e) => updateNestedField('hero', 'videoDuration', e.target.value)} placeholder="Ej: 1h 30m" />
-                            </div>
                         </SectionContent>
 
                         {/* NEW: 3. Formulario de Captura (SmartCTA) */}
                         <SectionHeader id="capture" title="Formulario de Captura" icon={Target} openSection={openSection} toggleSection={toggleSection} />
                         <SectionContent id="capture" openSection={openSection}>
-                            {/* 1. Urgencia */}
+                            {/* 1. Urgencia (Badge Cupos Only) */}
                             <div className="space-y-4 pb-4 border-b border-gray-800">
-                                <h4 className="text-[10px] font-black text-[#FF5A1F] uppercase tracking-widest">Controles de Urgencia</h4>
-                                <div>
-                                    <Label>Etiqueta del Temporizador</Label>
-                                    <Input value={content.capture?.timerLabel || ''} onChange={(e) => updateCaptureField('timerLabel', e.target.value)} placeholder="Ej: La sesión expira en:" />
-                                </div>
-                                <div>
-                                    <Label>Tiempo de Expiración (Minutos)</Label>
-                                    <Input type="number" value={content.capture?.timerDuration || 15} onChange={(e) => updateCaptureField('timerDuration', parseInt(e.target.value) || 0)} />
-                                </div>
                                 <div>
                                     <Label>Badge Cupos Restantes</Label>
                                     <Input value={content.hero.spotsLeft || ''} onChange={(e) => updateNestedField('hero', 'spotsLeft', e.target.value)} placeholder="Ej: Solo 5 lugares" />

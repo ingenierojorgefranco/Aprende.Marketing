@@ -61,7 +61,7 @@ export const WebinarTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                 </div>
                 
                 {/* 3. Hero Media */}
-                <div className={`w-full max-w-4xl aspect-video rounded-2xl shadow-2xl overflow-hidden relative border-4 ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
+                <div className={`w-full max-w-[61rem] aspect-video rounded-2xl shadow-2xl overflow-hidden relative border-4 ${ds.hero.videoCardBg} ${ds.hero.videoCardBorder}`}>
                     <HeroMedia url={content.hero.videoUrl} poster={content.hero.heroImage} ds={ds} />
                 </div>
 

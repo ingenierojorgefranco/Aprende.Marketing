@@ -61,13 +61,9 @@ export const ClassicSalesTemplate: React.FC<TemplateProps> = ({ content, ds, isM
                             {!content.hero.videoUrl && (
                                 <>
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90"></div>
-                                    <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 flex items-center gap-4">
-                                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full backdrop-blur-md flex items-center justify-center border group-hover:scale-110 transition-transform ${ds.decorations.playButtonBg} ${ds.decorations.playButtonBorder}`}>
-                                            <PlayCircle className={`w-5 h-5 md:w-6 md:h-6 ${ds.decorations.playButtonIcon}`} />
-                                        </div>
-                                        <div>
-                                            <p className="text-white font-bold text-base md:text-lg">{content.hero.videoTitle || "Clase Gratuita: Estrategia Exclusiva"}</p>
-                                            <p className="text-gray-300 text-xs md:text-sm">{content.hero.videoDuration || "Duración: 45 Minutos"}</p>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full backdrop-blur-md flex items-center justify-center border group-hover:scale-110 transition-transform ${ds.decorations.playButtonBg} ${ds.decorations.playButtonBorder}`}>
+                                            <PlayCircle className={`w-8 h-8 md:w-10 md:h-10 ${ds.decorations.playButtonIcon}`} />
                                         </div>
                                     </div>
                                 </>

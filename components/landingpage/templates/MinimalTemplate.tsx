@@ -27,8 +27,25 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
   return (
     <div id="minimal-template-root" className="min-h-screen font-sans flex flex-col bg-white text-slate-900 scroll-smooth">
         <UrgencyBar content={content} ds={ds} />
-        <div className="sticky top-0 z-[60] bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
-            <Navbar content={content} ds={ds} isMobilePreview={isMobilePreview} pageId={pageId} basePath={basePath} hasBlogArticles={hasBlogArticles || false} hasUrgencyBar={true} forcePrimaryLinks={true} />
+        <div className="sticky top-0 z-[60] bg-slate-900 backdrop-blur-md border-b border-slate-800 shadow-lg">
+            <Navbar 
+                content={content} 
+                ds={{
+                    ...ds, 
+                    nav: {
+                        ...ds.nav, 
+                        transparentText: 'text-white', 
+                        stickyText: 'text-white',
+                        linkHover: 'text-primary'
+                    }
+                }} 
+                isMobilePreview={isMobilePreview} 
+                pageId={pageId} 
+                basePath={basePath} 
+                hasBlogArticles={hasBlogArticles || false} 
+                hasUrgencyBar={true} 
+                forcePrimaryLinks={false} 
+            />
         </div>
 
         <main className="flex-1 flex flex-col">
@@ -36,7 +53,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
              <header className="max-w-4xl mx-auto px-6 pt-16 md:pt-24 pb-8 md:pb-12 text-center">
                   {content.topTagline && (
                       <div className="mb-6 pt-[3em]">
-                          <span className="text-primary font-bold uppercase tracking-widest text-sm">
+                          <span className="bg-slate-900 text-white px-4 py-2 rounded-full font-bold uppercase tracking-widest text-xs shadow-lg inline-block">
                               {content.topTagline}
                           </span>
                       </div>
@@ -100,7 +117,7 @@ export const MinimalTemplate: React.FC<TemplateProps> = ({ content, ds, isMobile
                 </div>
              </section>
 
-             <div className="max-w-3xl mx-auto px-6">
+             <div className="w-full">
                  {/* 4. Testimonials - WhatsApp Module */}
                  <WhatsAppTestimonials 
                     testimonials={content.testimonials} 
