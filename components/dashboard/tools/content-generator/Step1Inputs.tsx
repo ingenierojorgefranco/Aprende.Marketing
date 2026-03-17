@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Project, LandingPage, User } from '../../../../types';
-import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, ChevronLeft, Loader2, AlertTriangle, ExternalLink, X, Zap, Rocket } from 'lucide-react';
+import { Briefcase, Globe, Sparkles, Search, Target, Brain, ArrowLeft, PenTool, Plus, CheckCircle2, Users, ChevronRight, ChevronLeft, Loader2, AlertTriangle, ExternalLink, X, Zap, Rocket, FileText, BarChart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Step1InputsProps {
