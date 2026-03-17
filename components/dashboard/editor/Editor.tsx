@@ -368,6 +368,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const [subdomain, setSubdomain] = useState(page.subdomain);
   const [linkedProjectId, setLinkedProjectId] = useState(page.projectId || '');
   const [userProjects, setUserProjects] = useState<Project[]>([]);
+  const [masterLibrary, setMasterLibrary] = useState<Project[]>([]);
   
   const location = useLocation();
   const getInitialTab = () => {
@@ -385,6 +386,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   const [openSection, setOpenSection] = useState<string | null>('header');
 
   const linkedProject = userProjects.find(p => String(p.id) === String(linkedProjectId));
+  const masterProject = masterLibrary.find(p => String(p.id) === String(linkedProject?.masterParentId)) || (linkedProject?.isMaster ? linkedProject : null);
+
   const [libraryModal, setLibraryModal] = useState<{ isOpen: boolean, images: string[], videos: string[], onSelect: (url: string) => void }>({
       isOpen: false,
       images: [],
@@ -399,6 +402,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
   // Carga de proyectos disponibles
   useEffect(() => {
     api.getProjects().then(setUserProjects).catch(err => console.error("Error cargando proyectos", err));
+    api.getMasterLibrary().then(setMasterLibrary).catch(err => console.error("Error cargando biblioteca maestra", err));
   }, []);
 
   // URL calculation
@@ -845,8 +849,8 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         type="button"
                                         onClick={() => setLibraryModal({
                                             isOpen: true,
-                                            images: linkedProject?.multimedia_json?.heroImages || [],
-                                            videos: linkedProject?.multimedia_json?.videoUrls || [],
+                                            images: masterProject?.multimedia_json?.heroImages || linkedProject?.multimedia_json?.heroImages || [],
+                                            videos: masterProject?.multimedia_json?.videoUrls || linkedProject?.multimedia_json?.videoUrls || [],
                                             onSelect: handleHeroMediaChange
                                         })}
                                         className="px-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-gray-400 hover:text-white transition-all flex items-center gap-2 shrink-0 text-xs font-bold uppercase tracking-widest"
@@ -997,7 +1001,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         type="button"
                                         onClick={() => setLibraryModal({
                                             isOpen: true,
-                                            images: linkedProject?.multimedia_json?.descriptiveImages || [],
+                                            images: masterProject?.multimedia_json?.descriptiveImages || linkedProject?.multimedia_json?.descriptiveImages || [],
                                             videos: [],
                                             onSelect: (url) => updateNestedField('intro', 'imageUrl', url)
                                         })}
@@ -1069,7 +1073,7 @@ export const Editor: React.FC<EditorProps> = ({ page, onSave, onBack }) => {
                                         type="button"
                                         onClick={() => setLibraryModal({
                                             isOpen: true,
-                                            images: linkedProject?.multimedia_json?.instructorImage ? [linkedProject.multimedia_json.instructorImage] : [],
+                                            images: masterProject?.multimedia_json?.instructorImage ? [masterProject.multimedia_json.instructorImage] : (linkedProject?.multimedia_json?.instructorImage ? [linkedProject.multimedia_json.instructorImage] : []),
                                             videos: [],
                                             onSelect: (url) => updateNestedField('instructor', 'imageUrl', url)
                                         })}
