@@ -558,16 +558,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   };
 
   const isRealAdmin = user.role === 'admin' && !isSimulating;
-  const maxArticles = user.planLimits?.maxArticles || 2;
-  const usagePercent = Math.min(100, (articleCount / maxArticles) * 100);
-  const isAtLimit = !isRealAdmin && articleCount >= maxArticles;
-
-  let progressColor = "bg-green-500";
-  if (usagePercent > 50) progressColor = "bg-yellow-500";
-  if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
-
   return (
-    <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step === 5 ? 'max-w-[98%] xl:max-w-[1600px]' : 'max-w-5xl'}`}>
+    <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step > 0 ? 'max-w-[98%] xl:max-w-[1600px]' : 'max-w-5xl'}`}>
       <style>{`
         @keyframes confetti-fall { 0% { transform: translateY(-100%) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
         .confetti { position: absolute; width: 8px; height: 8px; animation: confetti-fall 3s linear forwards; top: -10px; z-index: 50; }
@@ -723,8 +715,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
                             <div className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col p-10 text-center space-y-8">
                                 <div className="w-20 h-20 bg-blue-500/20 text-blue-500 rounded-3xl flex items-center justify-center mx-auto border border-blue-500/30"><AlertTriangle className="w-10 h-10" /></div>
-                                <div className="space-y-4"><h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¿Estás seguro de generar este artículo?</h3><p className="text-white text-lg leading-relaxed font-medium">Vas a consumir créditos al momento de crearlo.</p><div className="mt-8 p-6 bg-black/40 border border-white/10 rounded-[2rem] shadow-inner text-left"><div className="flex justify-between items-center mb-3"><span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span><span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span></div><div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden shadow-inner p-0.5"><div className={`h-full transition-all duration-1000 ease-out rounded-full ${progressColor}`} style={{ width: `${isRealAdmin ? (articleCount > 0 ? 100 : 0) : usagePercent}%` }}></div></div></div></div>
-                                <div className="flex flex-col gap-3 pt-4">{!isAtLimit ? (<><button onClick={executeManualGenerateOutline} className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest">Sí, Generar Ahora</button><button onClick={() => setShowManualConfirm(false)} className="w-full py-5 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-2xl transition-all text-xs uppercase tracking-widest">Cancelar</button></>) : (<button onClick={() => { setShowManualConfirm(false); setShowUpgradeModal(true); }} className="w-full py-5 bg-gradient-to-r from-[#FF5A1F] to-orange-600 text-white font-black rounded-2xl transition-all shadow-lg uppercase text-sm tracking-widest">Actualizar Plan</button>)}</div>
+                                <div className="space-y-4">
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight leading-tight">¿Estás seguro de que deseas generar este artículo completo con IA?</h3>
+                                    <p className="text-gray-400 text-sm leading-relaxed font-medium">Esta acción iniciará el proceso de redacción automática basado en tu configuración.</p>
+                                </div>
+                                <div className="flex flex-col gap-3 pt-4">
+                                    <button onClick={executeManualGenerateOutline} className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest">Sí, Generar Ahora</button>
+                                    <button onClick={() => setShowManualConfirm(false)} className="w-full py-5 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-2xl transition-all text-xs uppercase tracking-widest">Cancelar</button>
+                                </div>
                             </div>
                         </div>
                     )}
