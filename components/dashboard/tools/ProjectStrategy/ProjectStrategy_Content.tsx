@@ -732,7 +732,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                 {isAtLimit ? (
                                                     <button onClick={onUpgrade} className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"><Crown className="w-6 h-6 fill-current" /> Límite Alcanzado: Subir a PRO</button>
                                                 ) : (
-                                                    <button onClick={() => setShowConfirmModal(true)} className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]`}><PenTool className="w-6 h-6" /> Escribir Artículo Seleccionado</button>
+                                                    <button onClick={() => setShowGeneratorModal(true)} className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-[#FF5A1F] hover:bg-[#D94A1E] text-white shadow-orange-900/20 hover:scale-[1.02]`}><PenTool className="w-6 h-6" /> Escribir Artículo Seleccionado</button>
                                                 )}
                                             </div>
                                         )}
@@ -828,7 +828,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 topic: currentData[activeArticleIdx]?.title || '',
                                 objective: currentData[activeArticleIdx]?.strategy || '',
                                 keyword: currentData[activeArticleIdx]?.keyword || '',
-                                pageId: linkedPages[0]?.id || '',
+                                pageId: linkedPages.length === 1 ? linkedPages[0].id : '',
                                 articleId: currentData[activeArticleIdx]?.id
                             }}
                             embeddedProjectId={projectId}

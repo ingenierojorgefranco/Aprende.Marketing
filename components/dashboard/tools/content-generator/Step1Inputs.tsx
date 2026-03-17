@@ -63,11 +63,11 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
 
   /* Actualización: Auto-disparo del selector si es un flujo pre-llenado desde estrategia - 11/03/2025 11:45 */
   useEffect(() => {
-    if (isPreFilled && !hasAutoOpened) {
+    if (isPreFilled && !hasAutoOpened && (filteredPages.length > 0 || userProjects.length > 0)) {
       setHasAutoOpened(true);
       handleInitiateAction('ia');
     }
-  }, [isPreFilled, filteredPages, hasAutoOpened]);
+  }, [isPreFilled, filteredPages, hasAutoOpened, userProjects]);
 
   /* Actualización: Función para interceptar el inicio de la acción y abrir el selector de página estratégica - 25/05/2024 10:10 */
   const handleInitiateAction = (action: 'ia' | 'manual') => {
