@@ -267,7 +267,10 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                           throw e;
                       }
                   }}
-                  onClose={() => setIsGeneratorOpen(false)}
+                  onClose={() => {
+                      setIsGeneratorOpen(false);
+                      setPage(1); // Forzar refresco al cerrar
+                  }}
               />
           </div>
       ) : (

@@ -339,6 +339,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
   const handleManualGenerateOutline = () => {
     if (!topic || !objective) return alert("Por favor completa el tema y el objetivo.");
+    if (!ctaLink) return alert("Por favor selecciona una Landing Page o ingresa un enlace de CTA antes de generar.");
     setShowManualConfirm(true);
   };
 
@@ -559,7 +560,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
   const isRealAdmin = user.role === 'admin' && !isSimulating;
   return (
-    <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step > 0 ? 'max-w-[98%] xl:max-w-[1600px]' : 'max-w-5xl'}`}>
+    <div className={`mx-auto bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden min-h-[600px] flex flex-col relative transition-all duration-500 ${step > 0 ? 'max-w-[98%] xl:max-w-[90rem]' : 'max-w-5xl'}`}>
       <style>{`
         @keyframes confetti-fall { 0% { transform: translateY(-100%) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
         .confetti { position: absolute; width: 8px; height: 8px; animation: confetti-fall 3s linear forwards; top: -10px; z-index: 50; }
@@ -772,7 +773,13 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                                     )}
                                 </div>
                             </div>
-                            <button onClick={handleManualGenerateOutline} disabled={loading || !ctaLink} className={`w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest ${(!ctaLink) ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>{loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <PenTool className="w-5 h-5" />} Generar Artículo Completo con IA</button>
+                            <button 
+                                onClick={handleManualGenerateOutline} 
+                                disabled={loading} 
+                                className={`w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 uppercase text-sm tracking-widest ${loading ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                            >
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <PenTool className="w-5 h-5" />} Generar Artículo Completo con IA
+                            </button>
                         </div>
                     </div>
                 </div>
