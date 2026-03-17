@@ -12,6 +12,7 @@ import { Step2Titles } from './content-generator/Step2Titles';
 import { Step3Outline } from './content-generator/Step3Outline';
 import { Step4Editor } from './content-generator/Step4Editor';
 import { SaveLogModal } from './content-generator/SaveLogModal';
+import { ProjectStrategy_Content } from './ProjectStrategy/ProjectStrategy_Content';
 
 interface ContentGeneratorProps {
     onSave?: (article: any) => Promise<void>;
@@ -84,6 +85,34 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   
   const [seoScore, setSeoScore] = useState(0);
 
+  const [strategyData, setStrategyData] = useState<any>(null);
+  const [loadingStrategy, setLoadingStrategy] = useState(false);
+
+  const [activeArticle, setActiveArticle] = useState(0);
+  const [selectedArticles, setSelectedArticles] = useState<number[]>([]);
+  const [tooltipState, setTooltipState] = useState<{ visible: boolean; x: number; y: number; content: string[] }>({
+      visible: false,
+      x: 0,
+      y: 0,
+      content: []
+  });
+
+  const handleTooltipHover = (e: React.MouseEvent, content: string[]) => {
+      setTooltipState({ visible: true, x: e.clientX + 15, y: e.clientY + 15, content });
+  };
+
+  const handleTooltipLeave = () => setTooltipState(prev => ({ ...prev, visible: false }));
+
+  const toggleArticleSelection = (index: number, isSingle: boolean = false) => {
+      if (isSingle) {
+          setSelectedArticles([index]);
+          return;
+      }
+      if (selectedArticles.includes(index)) setSelectedArticles(prev => prev.filter(i => i !== index));
+      else if (selectedArticles.length < (user.planLimits?.maxArticles || 2)) setSelectedArticles(prev => [...prev, index]);
+      else { alert("Límite de artículos alcanzado."); setShowUpgradeModal(true); }
+  };
+
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [saveLogs, setSaveLogs] = useState<string[]>([]);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
@@ -145,6 +174,23 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
   // Sincronizar links cuando cambia el proyecto seleccionado
   useEffect(() => {
+    const fetchStrategy = async () => {
+      if (selectedProject) {
+        setLoadingStrategy(true);
+        try {
+          const strategy = await api.getProjectStrategy(selectedProject);
+          setStrategyData(strategy);
+        } catch (e) {
+          console.error("Error fetching strategy:", e);
+        } finally {
+          setLoadingStrategy(false);
+        }
+      } else {
+        setStrategyData(null);
+      }
+    };
+    fetchStrategy();
+
     if (selectedProject) {
         const proj = userProjects.find(p => p.id === selectedProject);
         if (proj) {
@@ -225,52 +271,36 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         .join('-');
   };
 
-  const handleProjectSelect = async (projectId: string) => {
+  const handleProjectSelect = (projectId: string) => {
       setSelectedProject(projectId);
+      const proj = userProjects.find(p => p.id === projectId);
       
-      // Intentar obtener el proyecto completo para asegurar que tenemos la estrategia_json completa
-      try {
-          const fullProj = await api.getProjectById(projectId);
-          if (fullProj) {
-              setUserProjects(prev => prev.map(p => p.id === projectId ? fullProj : p));
+      if (proj) {
+          // Sync links immediately to prevent overwriting
+          setProjectLinks(proj.affiliateLinks || []);
+          
+          if (!preFilledData) {
+              let audienceInfo = proj.targetAudience || '';
               
-              // Sincronizar links inmediatamente
-              setProjectLinks(fullProj.affiliateLinks || []);
-              
-              if (!preFilledData) {
-                  let audienceInfo = fullProj.targetAudience || '';
-                  
-                  if (fullProj.strategy_json) {
-                      const s = fullProj.strategy_json;
-                      if (s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0) {
-                          const main = s.avatars[0];
-                          audienceInfo = `${main.archetype}. Su principal dolor es: ${main.pain}. Su gran deseo: ${main.desire}`;
-                      } 
-                      else if (s.avatar && s.avatar.story) {
-                          audienceInfo = s.avatar.story;
-                      }
+              if (proj.strategy_json) {
+                  const s = proj.strategy_json;
+                  if (s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0) {
+                      const main = s.avatars[0];
+                      audienceInfo = `${main.archetype}. Su principal dolor es: ${main.pain}. Su gran deseo: ${main.desire}`;
+                  } 
+                  else if (s.avatar && s.avatar.story) {
+                      audienceInfo = s.avatar.story;
                   }
+              }
 
-                  setTopic(fullProj.niche || '');
-                  setObjective(fullProj.mainGoal ? `Atraer clientes interesados en ${fullProj.mainGoal}` : '');
-                  
-                  const hasHotlinks = fullProj.affiliateLinks && fullProj.affiliateLinks.length > 0;
-                  const initialRedirect = hasHotlinks ? 'hotlink' : 'landing';
-                  
-                  setRedirectType(initialRedirect);
-                  setCtaLink(hasHotlinks ? fullProj.affiliateLinks[0].url : '');
-              }
-          }
-      } catch (e) {
-          console.error("Error fetching full project:", e);
-          // Fallback al proyecto local si falla la API
-          const proj = userProjects.find(p => p.id === projectId);
-          if (proj) {
-              setProjectLinks(proj.affiliateLinks || []);
-              if (!preFilledData) {
-                  setTopic(proj.niche || '');
-                  setObjective(proj.mainGoal ? `Atraer clientes interesados en ${proj.mainGoal}` : '');
-              }
+              setTopic(proj.niche || '');
+              setObjective(proj.mainGoal ? `Atraer clientes interesados en ${proj.mainGoal}` : '');
+              
+              const hasHotlinks = proj.affiliateLinks && proj.affiliateLinks.length > 0;
+              const initialRedirect = hasHotlinks ? 'hotlink' : 'landing';
+              
+              setRedirectType(initialRedirect);
+              setCtaLink(hasHotlinks ? proj.affiliateLinks[0].url : '');
           }
       }
       setStep(1);
@@ -559,6 +589,12 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       </div>
 
       <div className={`p-8 flex-1 overflow-y-auto relative transition-colors duration-500 ${generationStatus === 'generating' ? 'bg-white' : ''} ${showUpgradeModal ? 'opacity-30 pointer-events-none' : ''}`}>
+        {tooltipState.visible && (
+            <div className="fixed z-[300] w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700 p-5 rounded-2xl shadow-2xl pointer-events-none" style={{ top: tooltipState.y, left: tooltipState.x }}>
+                {tooltipState.content.map((text, i) => <p key={i} className="text-sm text-gray-300">{text}</p>)}
+            </div>
+        )}
+
         {generationStatus === 'generating' && (
             <div className="h-full flex flex-col items-center justify-center py-20 space-y-12 animate-in fade-in duration-500">
                 <div className="relative mb-4"><div className="w-24 h-24 bg-purple-50 rounded-3xl flex items-center justify-center animate-pulse border border-purple-100"><Wand2 className="w-12 h-12 text-purple-600" /></div></div>
@@ -614,15 +650,48 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                 )}
 
                 {step === 1 && (
-                <Step1Inputs 
-                    userProjects={userProjects} selectedProject={selectedProject} onSelectProject={handleProjectSelect}
-                    userPages={userPages} selectedPageId={selectedPageId} onSelectPage={setSelectedPageId}
-                    topic={topic} setTopic={setTopic} objective={objective} setObjective={setObjective}
-                    keyword={keyword} setKeyword={setKeyword} onGenerate={() => { setIsAiGeneratedFlow(false); setStep(2); }}
-                    onSelectRecommendation={handleSelectRecommendation} loading={loading} onBack={() => setStep(0)}
-                    user={user} articleCount={articleCount} setShowUpgradeModal={setShowUpgradeModal} isSimulating={isSimulating} isPreFilled={!!preFilledData}
-                    onClose={onClose}
-                />
+                  <>
+                    {preFilledData ? (
+                      <Step1Inputs 
+                          userProjects={userProjects} selectedProject={selectedProject} onSelectProject={handleProjectSelect}
+                          userPages={userPages} selectedPageId={selectedPageId} onSelectPage={setSelectedPageId}
+                          topic={topic} setTopic={setTopic} objective={objective} setObjective={setObjective}
+                          keyword={keyword} setKeyword={setKeyword} onGenerate={() => { setIsAiGeneratedFlow(false); setStep(2); }}
+                          onSelectRecommendation={handleSelectRecommendation} loading={loading} onBack={() => setStep(0)}
+                          user={user} articleCount={articleCount} setShowUpgradeModal={setShowUpgradeModal} isSimulating={isSimulating} isPreFilled={!!preFilledData}
+                          onClose={onClose}
+                      />
+                    ) : (
+                      <div className="space-y-8 animate-in fade-in duration-500">
+                        <button onClick={() => setStep(0)} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm font-bold"><ChevronRight className="w-4 h-4 rotate-180" /> Volver al selector de proyectos</button>
+                        
+                        {loadingStrategy ? (
+                          <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                            <Loader2 className="w-10 h-10 animate-spin text-purple-500" />
+                            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Cargando Estrategia de Contenidos...</p>
+                          </div>
+                        ) : (
+                          <ProjectStrategy_Content 
+                              contentData={strategyData?.modules?.content || []}
+                              activeArticle={activeArticle}
+                              setActiveArticle={setActiveArticle}
+                              selectedArticles={selectedArticles}
+                              toggleArticleSelection={toggleArticleSelection}
+                              handleTooltipHover={handleTooltipHover}
+                              handleTooltipLeave={handleTooltipLeave}
+                              onUpgrade={() => setShowUpgradeModal(true)}
+                              articleCount={articleCount}
+                              planLimits={user.planLimits}
+                              isSimulating={isSimulating}
+                              hideHeader={true}
+                              isEmbedded={true}
+                              embeddedProjectId={selectedProject}
+                              onArticleSelect={handleSelectRecommendation}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
 
                 {step === 2 && (
