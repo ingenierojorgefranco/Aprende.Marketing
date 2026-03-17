@@ -38,8 +38,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { id: urlId } = useParams() as { id: string };
-  const [editArticleId, setEditArticleId] = useState<string | undefined>(urlId);
+  const { id: editArticleId } = useParams() as { id: string };
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preSelectedProjectId = embeddedProjectId || searchParams.get('projectId');
@@ -207,7 +206,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         setObjective(preFilledData.objective || '');
         setKeyword(preFilledData.keyword || '');
         setSelectedPageId(preFilledData.pageId || '');
-        setEditArticleId(preFilledData.articleId);
         setIsAiGeneratedFlow(true);
         setStep(1); 
     }
@@ -320,7 +318,6 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       setTopic(rec.title);
       setKeyword(rec.keyword);
       setObjective(rec.strategy);
-      setEditArticleId(rec.id);
       setIsAiGeneratedFlow(true);
 
       const projectPages = userPages.filter(p => String(p.projectId) === String(selectedProject));
