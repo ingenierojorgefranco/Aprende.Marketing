@@ -201,7 +201,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
   // Pre-fill effect for Modal usage
   useEffect(() => {
-    if (preFilledData) {
+    if (preFilledData && step === 0) {
         setTopic(preFilledData.topic || '');
         setObjective(preFilledData.objective || '');
         setKeyword(preFilledData.keyword || '');
@@ -209,15 +209,15 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         setIsAiGeneratedFlow(true);
         setStep(1); 
     }
-  }, [preFilledData]);
+  }, [preFilledData, step]);
 
   // Sync pre-selected project from URL or Props
   useEffect(() => {
-    if (preSelectedProjectId && userProjects.length > 0 && !selectedProject) {
+    if (preSelectedProjectId && userProjects.length > 0 && !selectedProject && step === 0) {
       handleProjectSelect(preSelectedProjectId);
       setStep(1);
     }
-  }, [preSelectedProjectId, userProjects, selectedProject]);
+  }, [preSelectedProjectId, userProjects, selectedProject, step]);
 
   useEffect(() => {
     if (editArticleId) {
@@ -275,6 +275,14 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       setSelectedProject(projectId);
       const proj = userProjects.find(p => p.id === projectId);
       
+      // Auto-select page if only one exists for this project
+      const projectPages = userPages.filter(p => String(p.projectId) === String(projectId));
+      if (projectPages.length === 1) {
+          setSelectedPageId(projectPages[0].id);
+      } else {
+          setSelectedPageId('');
+      }
+
       if (proj) {
           // Sync links immediately to prevent overwriting
           setProjectLinks(proj.affiliateLinks || []);
@@ -311,6 +319,21 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       setKeyword(rec.keyword);
       setObjective(rec.strategy);
       setIsAiGeneratedFlow(true);
+
+      const projectPages = userPages.filter(p => String(p.projectId) === String(selectedProject));
+      
+      if (projectPages.length === 0) {
+          alert("Este proyecto no tiene ninguna Landing Page vinculada. Por favor, crea una página primero para poder publicar contenidos.");
+          navigate('/dashboard/pages');
+          return;
+      }
+
+      if (projectPages.length === 1) {
+          setSelectedPageId(projectPages[0].id);
+      } else if (!selectedPageId) {
+          setIsPageSelectorOpen(true);
+      }
+
       setStep(2); 
   };
 
