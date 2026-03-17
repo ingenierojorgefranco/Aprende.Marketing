@@ -855,10 +855,13 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                             embeddedProjectId={projectId}
                             onClose={handleCloseAndReload}
                             onSave={async (article) => {
-                                if (article.id) {
-                                    await api.updateArticle(article.id, article);
+                                const isUpdate = article.id && !String(article.id).startsWith('json-') && !String(article.id).startsWith('available-');
+                                
+                                if (isUpdate) {
+                                    await api.updateArticle(article.id!, article);
                                 } else {
-                                    await api.saveArticle(article);
+                                    const { id, ...dataToSave } = article;
+                                    await api.saveArticle(dataToSave);
                                 }
                                 handleCloseAndReload();
                             }}

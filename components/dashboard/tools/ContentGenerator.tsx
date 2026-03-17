@@ -493,6 +493,10 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
     const articlePayload = {
       id: editArticleId || preFilledData?.articleId,
+      projectId: selectedProject || preSelectedProjectId || undefined,
+      masterArticleId: (preFilledData?.articleId && String(preFilledData.articleId).startsWith('available-')) 
+        ? String(preFilledData.articleId).replace('available-', '') 
+        : undefined,
       pageId: selectedPageId || undefined,
       title: articleTitle,
       slug: slug || generateCleanSlug(articleTitle),

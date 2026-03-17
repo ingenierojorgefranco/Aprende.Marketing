@@ -253,10 +253,14 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
               <ContentGenerator 
                   onSave={async (articleData) => {
                       try {
-                          if (articleData.id) {
-                              await api.updateArticle(articleData.id, articleData);
+                          const isUpdate = articleData.id && !String(articleData.id).startsWith('json-') && !String(articleData.id).startsWith('available-');
+                          
+                          if (isUpdate) {
+                              await api.updateArticle(articleData.id!, articleData);
                           } else {
-                              await api.saveArticle(articleData);
+                              // Si es json- o available-, eliminamos el ID temporal para que la DB genere uno real
+                              const { id, ...dataToSave } = articleData;
+                              await api.saveArticle(dataToSave);
                           }
                           setIsGeneratorOpen(false);
                           // El useEffect de ArticlesList recargará la lista automáticamente al desmontar el generador

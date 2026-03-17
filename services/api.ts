@@ -929,6 +929,7 @@ export const api = {
             body: JSON.stringify({
                 page_id: article.pageId,
                 project_id: article.projectId,
+                master_article_id: article.masterArticleId,
                 is_generated: article.isGenerated,
                 psychological_strategy: article.psychologicalStrategy,
                 title: article.title,
@@ -960,6 +961,7 @@ export const api = {
       const body: any = {};
       if (article.pageId !== undefined) body.page_id = article.pageId;
       if (article.projectId !== undefined) body.project_id = article.projectId;
+      if (article.masterArticleId !== undefined) body.master_article_id = article.masterArticleId;
       if (article.isGenerated !== undefined) body.is_generated = article.isGenerated;
       if (article.psychologicalStrategy !== undefined) body.psychological_strategy = article.psychologicalStrategy;
       if (article.title !== undefined) body.title = article.title;
