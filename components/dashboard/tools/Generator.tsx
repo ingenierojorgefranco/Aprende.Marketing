@@ -122,7 +122,7 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
               ...prev,
               pageName: proj.productName || proj.name, 
               targetAudience: audienceInfo,
-              destinationType: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? 'external_url' : 'form',
+              destinationType: 'form',
               destinationUrl: proj.affiliateLinks && proj.affiliateLinks.length > 0 ? proj.affiliateLinks[0].url : '',
           }));
       }

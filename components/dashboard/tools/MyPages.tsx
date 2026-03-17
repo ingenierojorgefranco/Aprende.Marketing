@@ -188,7 +188,7 @@ export const MyPages: React.FC = () => {
                             {isAtLimit && (
                                 <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30">
                                     <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                                    <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
+                                    <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza a Pro para Crear más Páginas de Captura</span>
                                 </div>
                             )}
                         </div>
@@ -280,7 +280,7 @@ export const MyPages: React.FC = () => {
             ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <button 
-                        onClick={() => setIsGeneratorOpen(true)}
+                        onClick={() => isAtLimit ? setShowUpgradeModal(true) : setIsGeneratorOpen(true)}
                         className="bg-[#111] border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px] shadow-2xl"
                     >
                         <div className="w-20 h-20 bg-white/5 rounded-[1.5rem] flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all shadow-lg">
@@ -288,7 +288,12 @@ export const MyPages: React.FC = () => {
                         </div>
                         <div className="text-center">
                             <h4 className="font-black transition-colors" style={{ color: 'white', fontSize: '2em' }}>Crear Nueva Página</h4>
-                            <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Diseño de alta conversión generado por IA</p>
+                            <p className="mt-2 font-bold opacity-60" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>
+                                {isAtLimit 
+                                    ? "Has alcanzado el límite de tu plan. Actualiza a Pro para Crear más Páginas de Captura."
+                                    : "Diseño de alta conversión generado por IA"
+                                }
+                            </p>
                         </div>
                     </button>
                     {pages.map((page) => {
@@ -305,30 +310,20 @@ export const MyPages: React.FC = () => {
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600 opacity-80"></div>
 
                                 <div className="p-8 flex-1 flex flex-col">
-                                    <div className="flex flex-col items-center text-center mb-6 pt-4">
+                                    <div className="flex flex-col items-start text-left mb-6 pt-4">
                                         <div className="mb-4">
                                             <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${page.isPublished ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>
                                                 {page.isPublished ? "Publicada" : "Borrador"}
                                             </span>
                                         </div>
                                         <div className="w-full px-4">
-                                            <Link to={`/dashboard/editor/${page.id}`} target="_blank">
+                                            <a href={publicUrl} target="_blank" rel="noopener noreferrer">
                                                 <h3 className="text-2xl font-black text-white group-hover:text-[#FF5A1F] transition-colors duration-300">{page.name}</h3>
-                                            </Link>
-                                            <div className="flex items-center justify-center gap-2 mt-3">
-                                                <Briefcase className="w-4 h-4 text-gray-500" />
-                                                <Link 
-                                                    to={page.projectId ? `/dashboard/projects/${page.projectId}/strategy` : "/dashboard/projects"}
-                                                    target="_blank"
-                                                    className="text-base font-medium text-gray-400 hover:text-[#FF5A1F] transition-colors"
-                                                >
-                                                    Proyecto: {page.projectName || 'Sin Proyecto'}
-                                                </Link>
-                                            </div>
+                                            </a>
                                         </div>
                                     </div>
                                     
-                                    <div className="grid grid-cols-2 gap-2 mb-8 bg-black/40 p-4 rounded-2xl border border-white/5 overflow-hidden">
+                                    <div className="grid grid-cols-2 gap-2 mb-4 bg-black/40 p-4 rounded-2xl border border-white/5 overflow-hidden">
                                         <div className="text-center p-1">
                                             <p className="text-xl font-black text-white">{page.visits}</p>
                                             <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Visitas</p>
@@ -339,6 +334,17 @@ export const MyPages: React.FC = () => {
                                         >
                                             <p className="text-xl font-black text-white group-hover:text-[#FF5A1F] transition-colors">{page.conversions}</p>
                                             <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest group-hover:text-[#FF5A1F] transition-colors">Leads</p>
+                                        </Link>
+                                    </div>
+
+                                    <div className="flex items-center justify-start gap-2 mb-8 px-4">
+                                        <Briefcase className="w-4 h-4 text-gray-500" />
+                                        <Link 
+                                            to={page.projectId ? `/dashboard/projects/${page.projectId}/strategy` : "/dashboard/projects"}
+                                            target="_blank"
+                                            className="text-base font-medium text-gray-400 hover:text-[#FF5A1F] transition-colors"
+                                        >
+                                            Proyecto: {page.projectName || 'Sin Proyecto'}
                                         </Link>
                                     </div>
 
