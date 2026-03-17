@@ -305,25 +305,27 @@ export const MyPages: React.FC = () => {
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF5A1F] to-orange-600 opacity-80"></div>
 
                                 <div className="p-8 flex-1 flex flex-col">
-                                    <div className="flex justify-between items-start mb-6">
-                                        <div className="flex-1 min-w-0 pr-3">
-                                            <Link to={`/dashboard/editor/${page.id}`}>
-                                                <h3 className="text-2xl font-black text-white truncate group-hover:text-[#FF5A1F] transition-colors duration-300">{page.name}</h3>
+                                    <div className="flex flex-col items-center text-center mb-6 pt-4">
+                                        <div className="mb-4">
+                                            <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${page.isPublished ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>
+                                                {page.isPublished ? "Publicada" : "Borrador"}
+                                            </span>
+                                        </div>
+                                        <div className="w-full px-4">
+                                            <Link to={`/dashboard/editor/${page.id}`} target="_blank">
+                                                <h3 className="text-2xl font-black text-white group-hover:text-[#FF5A1F] transition-colors duration-300">{page.name}</h3>
                                             </Link>
-                                            <div className="flex items-center gap-2 mt-2">
+                                            <div className="flex items-center justify-center gap-2 mt-3">
                                                 <Briefcase className="w-4 h-4 text-gray-500" />
                                                 <Link 
                                                     to={page.projectId ? `/dashboard/projects/${page.projectId}/strategy` : "/dashboard/projects"}
                                                     target="_blank"
-                                                    className="text-base font-medium text-gray-400 truncate hover:text-[#FF5A1F] transition-colors"
+                                                    className="text-base font-medium text-gray-400 hover:text-[#FF5A1F] transition-colors"
                                                 >
                                                     Proyecto: {page.projectName || 'Sin Proyecto'}
                                                 </Link>
                                             </div>
                                         </div>
-                                        <span className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${page.isPublished ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>
-                                            {page.isPublished ? "Publicada" : "Borrador"}
-                                        </span>
                                     </div>
                                     
                                     <div className="grid grid-cols-2 gap-2 mb-8 bg-black/40 p-4 rounded-2xl border border-white/5 overflow-hidden">
@@ -341,7 +343,7 @@ export const MyPages: React.FC = () => {
                                     </div>
 
                                     <div className="mt-auto space-y-3 pt-6 border-t border-white/5">
-                                        <button onClick={() => navigate(`/dashboard/editor/${page.id}`)} className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-gray-300 font-black text-xs uppercase tracking-widest hover:bg-white/10 hover:text-white flex items-center justify-center gap-2 transition group-hover:border-[#FF5A1F]/30 shadow-lg">
+                                        <button onClick={() => navigate(`/dashboard/editor/${page.id}`)} className="w-full py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-widest rounded-2xl flex items-center justify-center gap-2 transition shadow-lg shadow-[#FF5A1F]/20">
                                             <PenTool className="w-4 h-4" /> Editar Diseño
                                         </button>
                                         
@@ -349,8 +351,8 @@ export const MyPages: React.FC = () => {
                                             onClick={() => openDomainModal(page)}
                                             className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition border ${
                                                 page.customDomain 
-                                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20" 
-                                                : "bg-transparent text-gray-500 border-white/5 hover:text-white hover:border-white/20"
+                                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-white" 
+                                                : "bg-blue-500/10 text-blue-400 border-blue-500/30 hover:bg-blue-600 hover:text-white"
                                             }`}
                                         >
                                             {page.customDomain ? <CheckCircle className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
@@ -358,15 +360,15 @@ export const MyPages: React.FC = () => {
                                         </button>
 
                                         <div className="flex gap-2">
-                                            <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 border border-white/5 bg-white/5 rounded-xl text-gray-500 hover:bg-white/10 hover:text-white flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest">
+                                            <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="flex-1 py-3 border border-indigo-500/30 bg-indigo-500/10 rounded-xl text-indigo-400 hover:bg-indigo-600 hover:text-white flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest">
                                                 <LayoutTemplate className="w-3.5 h-3.5" /> Ver Online
                                             </a>
-                                            <button onClick={() => handleTogglePublish(page)} className={`flex-1 py-3 border rounded-xl flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest ${page.isPublished ? "border-orange-500/20 text-orange-500/80 hover:bg-orange-500/10" : "border-emerald-500/20 text-emerald-400/80 hover:bg-emerald-500/10"}`}>
+                                            <button onClick={() => handleTogglePublish(page)} className={`flex-1 py-3 border rounded-xl flex items-center justify-center gap-2 transition text-[10px] font-black uppercase tracking-widest ${page.isPublished ? "border-orange-500/30 bg-orange-500/10 text-orange-400 hover:bg-orange-600 hover:text-white" : "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-600 hover:text-white"}`}>
                                                 <Globe className="w-3.5 h-3.5" /> {page.isPublished ? "Pausar" : "Publicar"}
                                             </button>
                                         </div>
 
-                                        <button onClick={() => handleDeleteAttempt(page)} className="w-full py-3 text-red-500/40 hover:text-red-400 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition hover:bg-red-500/5 rounded-xl">
+                                        <button onClick={() => handleDeleteAttempt(page)} className="w-full py-3 bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-600 hover:text-white font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition rounded-xl">
                                             <Trash2 className="w-3.5 h-3.5" /> Eliminar Página
                                         </button>
                                     </div>

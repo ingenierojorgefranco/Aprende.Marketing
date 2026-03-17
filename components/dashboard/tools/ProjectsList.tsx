@@ -448,7 +448,7 @@ export const ProjectsList: React.FC = () => {
                                             </div>
                                         </div>
                                         
-                                        <h3 className={`text-2xl font-black mb-3 line-clamp-1 group-hover:text-primary transition-colors duration-300 ${isClonedFromMaster ? 'text-yellow-400' : 'text-white'}`}>{project.name}</h3>
+                                        <h3 className={`text-2xl font-black mb-3 group-hover:text-primary transition-colors duration-300 ${isClonedFromMaster ? 'text-yellow-400' : 'text-white'}`}>{project.name}</h3>
                                         <p className="text-[1.2rem] text-white mb-8 min-h-[56px] leading-relaxed">
                                             {project.shortDescription || (project.description ? project.description.replace(/<[^>]*>?/gm, '') : "Sin descripción definida.")}
                                         </p>

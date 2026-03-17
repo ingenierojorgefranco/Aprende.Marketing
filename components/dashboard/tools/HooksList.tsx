@@ -256,7 +256,7 @@ export const HooksList: React.FC = () => {
                                                     <Briefcase className="w-8 h-8" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <h4 className="text-white font-black text-2xl group-hover:text-orange-500 transition-colors truncate">{project.name}</h4>
+                                                    <h4 className="text-white font-black text-2xl group-hover:text-orange-500 transition-colors">{project.name}</h4>
                                                     <p className="text-[11px] text-gray-500 uppercase tracking-[0.3em] font-black mt-2">{project.niche}</p>
                                                 </div>
                                             </div>
