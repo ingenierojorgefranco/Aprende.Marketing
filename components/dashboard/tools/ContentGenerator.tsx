@@ -225,36 +225,52 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         .join('-');
   };
 
-  const handleProjectSelect = (projectId: string) => {
+  const handleProjectSelect = async (projectId: string) => {
       setSelectedProject(projectId);
-      const proj = userProjects.find(p => p.id === projectId);
       
-      if (proj) {
-          // Sync links immediately to prevent overwriting
-          setProjectLinks(proj.affiliateLinks || []);
-          
-          if (!preFilledData) {
-              let audienceInfo = proj.targetAudience || '';
+      // Intentar obtener el proyecto completo para asegurar que tenemos la estrategia_json completa
+      try {
+          const fullProj = await api.getProjectById(projectId);
+          if (fullProj) {
+              setUserProjects(prev => prev.map(p => p.id === projectId ? fullProj : p));
               
-              if (proj.strategy_json) {
-                  const s = proj.strategy_json;
-                  if (s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0) {
-                      const main = s.avatars[0];
-                      audienceInfo = `${main.archetype}. Su principal dolor es: ${main.pain}. Su gran deseo: ${main.desire}`;
-                  } 
-                  else if (s.avatar && s.avatar.story) {
-                      audienceInfo = s.avatar.story;
+              // Sincronizar links inmediatamente
+              setProjectLinks(fullProj.affiliateLinks || []);
+              
+              if (!preFilledData) {
+                  let audienceInfo = fullProj.targetAudience || '';
+                  
+                  if (fullProj.strategy_json) {
+                      const s = fullProj.strategy_json;
+                      if (s.avatars && Array.isArray(s.avatars) && s.avatars.length > 0) {
+                          const main = s.avatars[0];
+                          audienceInfo = `${main.archetype}. Su principal dolor es: ${main.pain}. Su gran deseo: ${main.desire}`;
+                      } 
+                      else if (s.avatar && s.avatar.story) {
+                          audienceInfo = s.avatar.story;
+                      }
                   }
-              }
 
-              setTopic(proj.niche || '');
-              setObjective(proj.mainGoal ? `Atraer clientes interesados en ${proj.mainGoal}` : '');
-              
-              const hasHotlinks = proj.affiliateLinks && proj.affiliateLinks.length > 0;
-              const initialRedirect = hasHotlinks ? 'hotlink' : 'landing';
-              
-              setRedirectType(initialRedirect);
-              setCtaLink(hasHotlinks ? proj.affiliateLinks[0].url : '');
+                  setTopic(fullProj.niche || '');
+                  setObjective(fullProj.mainGoal ? `Atraer clientes interesados en ${fullProj.mainGoal}` : '');
+                  
+                  const hasHotlinks = fullProj.affiliateLinks && fullProj.affiliateLinks.length > 0;
+                  const initialRedirect = hasHotlinks ? 'hotlink' : 'landing';
+                  
+                  setRedirectType(initialRedirect);
+                  setCtaLink(hasHotlinks ? fullProj.affiliateLinks[0].url : '');
+              }
+          }
+      } catch (e) {
+          console.error("Error fetching full project:", e);
+          // Fallback al proyecto local si falla la API
+          const proj = userProjects.find(p => p.id === projectId);
+          if (proj) {
+              setProjectLinks(proj.affiliateLinks || []);
+              if (!preFilledData) {
+                  setTopic(proj.niche || '');
+                  setObjective(proj.mainGoal ? `Atraer clientes interesados en ${proj.mainGoal}` : '');
+              }
           }
       }
       setStep(1);
@@ -620,12 +636,16 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                             </div>
                         </div>
                     )}
-                    <button onClick={() => setStep(1)} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm font-bold"><ChevronRight className="w-4 h-4 rotate-180" /> Volver al selector</button>
+                    {!preFilledData && (
+                        <button onClick={() => setStep(1)} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 text-sm font-bold"><ChevronRight className="w-4 h-4 rotate-180" /> Volver al selector</button>
+                    )}
                     <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700 border-dashed mb-6"><label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2 flex items-center gap-2"><Briefcase className="w-3.5 h-3.5 text-[#FF5A1F]" /> Proyecto Seleccionado</label><div className="flex items-center justify-between bg-black border border-[#FF5A1F]/20 rounded-xl px-4 py-3"><div className="flex items-center gap-3"><div className="w-5 h-5 text-[#FF5A1F]"><CheckCircle className="w-full h-full"/></div><span className="text-white font-bold">{userProjects.find(p => p.id === selectedProject)?.name || 'Proyecto'}</span></div></div></div>
-                    <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700 border-dashed mb-6">
-                        <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2 flex items-center gap-2"><Globe className="w-3.5 h-3.5 text-blue-400" /> Landing Page Seleccionada</label>
-                        <div className="flex items-center justify-between bg-black border border-blue-500/20 rounded-xl px-4 py-3"><div className="flex items-center gap-3"><div className="w-5 h-5 text-blue-400"><CheckCircle className="w-full h-full"/></div><span className="text-white font-bold">{filteredUserPages.find(p => p.id === selectedPageId)?.name || 'Sin seleccionar'}</span></div><button onClick={() => setIsPageSelectorOpen(true)} className="text-xs text-gray-500 hover:text-white underline transition">Cambiar</button></div>
-                    </div>
+                    {!preFilledData && (
+                        <div className="bg-gray-800/30 p-4 rounded-xl border border-gray-700 border-dashed mb-6">
+                            <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2 flex items-center gap-2"><Globe className="w-3.5 h-3.5 text-blue-400" /> Landing Page Seleccionada</label>
+                            <div className="flex items-center justify-between bg-black border border-blue-500/20 rounded-xl px-4 py-3"><div className="flex items-center gap-3"><div className="w-5 h-5 text-blue-400"><CheckCircle className="w-full h-full"/></div><span className="text-white font-bold">{filteredUserPages.find(p => p.id === selectedPageId)?.name || 'Sin seleccionar'}</span></div><button onClick={() => setIsPageSelectorOpen(true)} className="text-xs text-gray-500 hover:text-white underline transition">Cambiar</button></div>
+                        </div>
+                    )}
                     {isPageSelectorOpen && (
                         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setIsPageSelectorOpen(false)}>
                             <div className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative" onClick={e => e.stopPropagation()}>
