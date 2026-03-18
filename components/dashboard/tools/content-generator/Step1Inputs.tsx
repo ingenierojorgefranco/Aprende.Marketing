@@ -201,7 +201,7 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
 
         {/* Actualización: Implementación de la ventana modal prioritaria para la selección de página estratégica con estética Premium Dark y línea de acento naranja - 25/05/2024 10:20 */}
         {showPageSelector && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => { setShowPageSelector(false); if (isPreFilled && onClose) onClose(); }}>
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => { setShowPageSelector(false); if (isPreFilled && onClose) onClose(); }}>
             <div 
               className="bg-[#161616] border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative"
               onClick={e => e.stopPropagation()}

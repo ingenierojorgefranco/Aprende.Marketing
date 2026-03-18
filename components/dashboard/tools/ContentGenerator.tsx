@@ -203,6 +203,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   // Pre-fill effect for Modal usage
   useEffect(() => {
     if (preFilledData && step === 0) {
+        if (embeddedProjectId) setSelectedProject(embeddedProjectId);
         setTopic(preFilledData.topic || '');
         setObjective(preFilledData.objective || '');
         setKeyword(preFilledData.keyword || '');
