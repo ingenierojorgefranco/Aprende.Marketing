@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Globe, Check, Layout, CheckCircle2, Wand2, Sparkles, AlertTriangle, ArrowRight, PenTool, ExternalLink, X, Plus, Lock, Smartphone, Monitor, MessageCircle, BookOpen, Zap, ArrowDown, XCircle, Crown, Loader2, Settings, PlayCircle, Gift, Download, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { LandingPage, PlanLimits, Plan } from '../../../../types';
+import { LandingPage, PlanLimits, Plan, Project } from '../../../../types';
 import { Generator } from '../Generator';
 import { api } from '../../../../services/api';
 import { UpgradeModal } from '../../UpgradeModal';
@@ -38,6 +38,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [domainCount, setDomainCount] = useState(0);
     const [strategy, setStrategy] = useState<ProjectMasterStrategy | null>(null);
+    const [projectData, setProjectData] = useState<Project | null>(null);
     
     // Estado para el control de acordeón en el modal de dominios
     const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
@@ -57,14 +58,16 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
             if (!projectId) return;
             setLoadingLocal(true);
             try {
-                const [pages, strategyData] = await Promise.all([
+                const [pages, strategyData, project] = await Promise.all([
                     api.getPages(),
-                    api.getProjectStrategy(projectId)
+                    api.getProjectStrategy(projectId),
+                    api.getProjectById(projectId)
                 ]);
                 const projectPages = pages.filter(p => String(p.projectId) === String(projectId));
                 setLinkedPages(projectPages);
                 setDomainCount(pages.filter(p => !!p.customDomain).length);
                 setStrategy(strategyData);
+                setProjectData(project);
             } catch (e) {
                 console.error(e);
             } finally {
@@ -76,7 +79,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
 
     const handlePageGenerated = async (page: LandingPage) => {
         try {
-            await api.createPage(page);
+            await api.createPage(page, projectData || undefined);
             handleCloseAndReload();
         } catch (e: any) {
             alert(`Error guardando la página: ${e.message}`);

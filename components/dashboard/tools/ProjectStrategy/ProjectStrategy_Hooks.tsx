@@ -45,7 +45,7 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
-  const [activeKitTab, setActiveKitTab] = useState<'video' | 'ads' | 'thumbs' | 'publish'>('video');
+  const [activeKitTab, setActiveKitTab] = useState<'video' | 'ads' | 'thumbs' | 'publish'>('thumbs');
   const [openAccordion, setOpenAccordion] = useState<number | null>(0);
 
   const [saving, setSaving] = useState(false);
@@ -921,13 +921,42 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                     <h5 className="text-white font-black text-xl flex items-center gap-3 uppercase tracking-tight">
                                         <Layout className="w-6 h-6 text-emerald-400" /> Video
                                     </h5>
-                                    <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl">
-                                        <iframe 
-                                            className="w-full h-full"
-                                            src={currentKit.videoUrl}
-                                            allow="autoplay"
-                                        ></iframe>
-                                    </div>
+
+                                    {/* Lógica condicional de video/descarga - 18/03/2026 */}
+                                    {((currentHook.contentJson?.videoUrl && currentHook.contentJson?.videoUrl !== defaultKitContent.videoUrl) || 
+                                      (currentHook.contentJson?.downloadUrl && currentHook.contentJson?.downloadUrl !== defaultKitContent.downloadUrl)) ? (
+                                        <>
+                                            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6">
+                                                <p className="text-white text-lg font-medium leading-relaxed">
+                                                    ¡Tu video personalizado está listo! A continuación puedes previsualizar el contenido que hemos diseñado para potenciar tu estrategia. No olvides usar el botón de descarga para guardarlo y empezar a usarlo en tus redes.
+                                                </p>
+                                            </div>
+                                            <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl">
+                                                <iframe 
+                                                    className="w-full h-full"
+                                                    src={currentKit.videoUrl}
+                                                    allow="autoplay"
+                                                ></iframe>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="space-y-6">
+                                            <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-6">
+                                                <p className="text-white text-lg font-medium leading-relaxed">
+                                                    Actualmente no hay un video asignado a este hook. ¡Pero no te preocupes! En el siguiente tutorial te explicamos paso a paso cómo puedes crear tus propios videos de alto impacto de forma rápida y sencilla para maximizar tus resultados.
+                                                </p>
+                                            </div>
+                                            <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl">
+                                                <iframe 
+                                                    className="w-full h-full"
+                                                    src="https://www.youtube.com/embed/5sntDvgSKUo" 
+                                                    title="Tutorial de Creación de Videos"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                    allowFullScreen
+                                                ></iframe>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* SECCIÓN DE EDICIÓN DE URL PARA ADMIN */}
                                     {user?.role === 'admin' && (
@@ -960,16 +989,18 @@ export const ProjectStrategy_Hooks: React.FC<ProjectStrategy_HooksProps> = ({
                                         </div>
                                     )}
 
-                                    <div className="flex justify-center">
-                                        <a 
-                                            href={currentKit.downloadUrl} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            className="px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-900/20"
-                                        >
-                                            <Download className="w-5 h-5" /> Descargar Video
-                                        </a>
-                                    </div>
+                                    {currentKit.downloadUrl && currentKit.downloadUrl !== defaultKitContent.downloadUrl && (
+                                        <div className="flex justify-center">
+                                            <a 
+                                                href={currentKit.downloadUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="px-10 py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-900/20"
+                                            >
+                                                <Download className="w-5 h-5" /> Descargar Video
+                                            </a>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

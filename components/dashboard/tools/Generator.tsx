@@ -320,7 +320,8 @@ export const Generator: React.FC<GeneratorProps> = ({ onPageGenerated, embeddedP
       };
 
       // Guardado automático en el servidor antes de mostrar el éxito para obtener el ID real
-      const savedPage = await api.createPage(newPage);
+      // Se pasa el projectContext para la auto-asignación de multimedia si aplica
+      const savedPage = await api.createPage(newPage, projectContext);
 
       // Limpiamos intervalos
       clearInterval(progressInterval);

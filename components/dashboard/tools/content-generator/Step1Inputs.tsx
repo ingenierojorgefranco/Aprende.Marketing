@@ -71,6 +71,11 @@ export const Step1Inputs: React.FC<Step1InputsProps> = ({
 
   /* Actualización: Función para interceptar el inicio de la acción y abrir el selector de página estratégica - 25/05/2024 10:10 */
   const handleInitiateAction = (action: 'ia' | 'manual') => {
+    if (filteredPages.length === 0) {
+      alert("Este proyecto no tiene ninguna Landing Page vinculada. Por favor, crea una página primero para poder publicar contenidos.");
+      navigate(`/dashboard/projects/${selectedProject}/strategy?section=web`);
+      return;
+    }
     if (selectedPageId || filteredPages.length === 1) {
       const pageId = selectedPageId || filteredPages[0].id;
       onSelectPage(pageId);

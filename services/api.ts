@@ -439,7 +439,57 @@ export const api = {
       }
   },
 
-  createPage: async (page: LandingPage): Promise<LandingPage> => {
+  createPage: async (page: LandingPage, projectContext?: Project): Promise<LandingPage> => {
+    // Lógica de asignación automática de multimedia desde Proyecto Maestro - 18/03/2026
+    try {
+        let multimediaSource: Project | null | undefined = projectContext;
+        
+        // Si no se pasó el contexto pero hay projectId, intentamos obtenerlo (usando el caché de la API)
+        if (!multimediaSource && page.projectId) {
+            multimediaSource = await api.getProjectById(page.projectId);
+        }
+
+        // Si el proyecto es hijo, intentamos buscar el multimedia en el padre (Maestro) si el actual está vacío
+        if (multimediaSource && multimediaSource.masterParentId) {
+            const hasLocalMultimedia = multimediaSource.multimedia_json && 
+                (multimediaSource.multimedia_json.heroImages.length > 0 || !!multimediaSource.multimedia_json.instructorImage);
+            
+            if (!hasLocalMultimedia) {
+                const master = await api.getProjectById(multimediaSource.masterParentId);
+                if (master && master.multimedia_json) {
+                    multimediaSource = master;
+                }
+            }
+        }
+
+        if (multimediaSource && multimediaSource.multimedia_json) {
+            const mm = multimediaSource.multimedia_json;
+            
+            // 1. Hero Image (Aleatoria si hay varias)
+            if (mm.heroImages && mm.heroImages.length > 0) {
+                const validHeroes = mm.heroImages.filter(img => img && img.trim() !== '');
+                if (validHeroes.length > 0) {
+                    page.content.hero.heroImage = validHeroes[Math.floor(Math.random() * validHeroes.length)];
+                }
+            }
+            
+            // 2. Instructor Image
+            if (mm.instructorImage && mm.instructorImage.trim() !== '') {
+                page.content.instructor.imageUrl = mm.instructorImage;
+            }
+            
+            // 3. Descriptive Images (Intro section - Aleatoria)
+            if (mm.descriptiveImages && mm.descriptiveImages.length > 0) {
+                const validDescs = mm.descriptiveImages.filter(img => img && img.trim() !== '');
+                if (validDescs.length > 0) {
+                    page.content.intro.imageUrl = validDescs[Math.floor(Math.random() * validDescs.length)];
+                }
+            }
+        }
+    } catch (err) {
+        console.error("Error auto-asignando multimedia:", err);
+    }
+
     if (isMockMode) {
         const newPage = { ...page, id: `mock-page-${Date.now()}`, createdAt: new Date() };
         localPages.unshift(newPage);

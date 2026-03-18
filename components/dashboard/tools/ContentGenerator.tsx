@@ -329,7 +329,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       
       if (projectPages.length === 0) {
           alert("Este proyecto no tiene ninguna Landing Page vinculada. Por favor, crea una página primero para poder publicar contenidos.");
-          navigate('/dashboard/pages');
+          navigate(`/dashboard/projects/${selectedProject}/strategy?section=web`);
           return;
       }
 
