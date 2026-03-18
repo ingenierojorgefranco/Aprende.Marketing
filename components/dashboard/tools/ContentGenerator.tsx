@@ -49,6 +49,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const [progress, setProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [savedArticleResult, setSavedArticleResult] = useState<Article | null>(null);
+  const [activeArticleId, setActiveArticleId] = useState<string | undefined>(undefined);
   // -----------------------------
 
   // Limit Check State
@@ -206,6 +207,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         setObjective(preFilledData.objective || '');
         setKeyword(preFilledData.keyword || '');
         setSelectedPageId(preFilledData.pageId || '');
+        setActiveArticleId(preFilledData.articleId);
         setIsAiGeneratedFlow(true);
         setStep(1); 
     }
@@ -237,6 +239,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                     setStatus(article.status);
                     setSelectedPageId(article.pageId || '');
                     setSeoScore(article.seoScore);
+                    setActiveArticleId(editArticleId);
                     if (article.publishedAt) {
                         setPublishDate(new Date(article.publishedAt).toISOString().split('T')[0]);
                     }
@@ -318,6 +321,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       setTopic(rec.title);
       setKeyword(rec.keyword);
       setObjective(rec.strategy);
+      setActiveArticleId(rec.id);
       setIsAiGeneratedFlow(true);
 
       const projectPages = userPages.filter(p => String(p.projectId) === String(selectedProject));
@@ -404,6 +408,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         setMetaDescription(result.metaDescription || '');
 
         const articlePayload = {
+          projectId: selectedProject || preSelectedProjectId || undefined,
           pageId: selectedPageId || undefined,
           title: topic,
           slug: finalSlug,
@@ -420,13 +425,16 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         };
 
         let saved;
-        if (preFilledData?.articleId) {
-            await api.updateArticle(preFilledData.articleId, articlePayload as any);
-            saved = await api.getArticleById(preFilledData.articleId);
+        const currentId = activeArticleId || preFilledData?.articleId;
+        
+        if (currentId && !String(currentId).startsWith('json-') && !String(currentId).startsWith('available-')) {
+            await api.updateArticle(currentId, articlePayload as any);
+            saved = await api.getArticleById(currentId);
         } else {
             saved = await api.saveArticle(articlePayload as any);
         }
         setSavedArticleResult(saved);
+        if (saved?.id) setActiveArticleId(saved.id);
 
         clearInterval(progressInterval);
         setProgress(100);
@@ -492,7 +500,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     addLog("Iniciando secuencia de guardado...");
 
     const articlePayload = {
-      id: editArticleId || preFilledData?.articleId,
+      id: activeArticleId || editArticleId || preFilledData?.articleId,
       projectId: selectedProject || preSelectedProjectId || undefined,
       masterArticleId: (preFilledData?.articleId && String(preFilledData.articleId).startsWith('available-')) 
         ? String(preFilledData.articleId).replace('available-', '') 
