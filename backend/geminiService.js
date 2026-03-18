@@ -251,6 +251,10 @@ export const generateFullStrategy = async (projectId) => {
         INSTRUCCIONES PARA LA PSICOLOGÍA (OBLIGATORIO):
         Genera un análisis de miedos, objeciones y motivaciones reales para este nicho.
 
+        Instrucciones para Pains:
+        Es importante personalizar los contenidos al usuario, por ejemplo en vez de decir Inestabilidad financiera por depender de un sueldo mínimo o empleos temporales., podrias decir ¿Sientes inestabilidad financiera por depender de un sueldo mínimo o empleos temporales?, este es tan solo un ejemplo, no lo copies pero si ten en cuenta el formato para cuando crees los contenidos
+
+
         INSTRUCCIONES PARA CONTENIDOS DE BLOG content (OBLIGATORIO):
         ${isCloned 
             ? "NO GENERES ARTÍCULOS. Devuelve estrictamente un array vacío [] en la clave 'content' del JSON final." 
@@ -284,7 +288,6 @@ export const generateFullStrategy = async (projectId) => {
                 type: tipo de objetivo del correo entrega de valor agitacion del dolor etc,
                 objective: establece el objetivo del correo (Con base en la explicacion anterior que te di de cada tipo de correo) hazlo bien explicado como instruccion para que luego la ia sepa como construir el correo electronico completo,
 
-
         INSTRUCCIONES PARA TESTIMONIOS testimonials (OBLIGATORIO):
         Genera exactamente 3 testimonios. 
         - Debes usar los nombres exactos de los 3 AVATARES generados arriba.
@@ -292,12 +295,9 @@ export const generateFullStrategy = async (projectId) => {
         - Añade el nicho del producto al que se dedica por ejemplo Gracias al Curso de Diseño de Cejas, El curso de Resina de Suelos, El curso de adiestramiento de mascotas...
         - Lenguaje natural, corto (máximo 50 palabras) y con tono de mensaje de agradecimiento.
 
-
-        En landingPageTabs, genera copy persuasivo para 3 momentos:
-            h1: "Añade un titulo Profesional altamente persuasivo que llame la atención de la audiencia enfocado en el beneficio del usuario (Añade el nicho del producto al que se dedica)",
-            h2: "añade un subtitulo de 150 caracteres que de la solucion al titulo profesional anterior y haga que el usuario se sienta identificada en la solucion que brinda el producto (Añade el nicho del producto al que se dedica)."
-
-
+        Instrucciones para landingPageTabs, genera copy persuasivo para 3 momentos:
+            h1: "Añade un titulo Profesional altamente persuasivo que llame la atención de la audiencia enfocado en el beneficio del usuario (el titulo tiene que ser muy potente y englobar la transformación de los avatares, el titulo tiene que llamar la atención conectar con el usuario y con no más de 100 caracteres decirle al usuario el objetivo de esta pagina)",
+            h2: "añade un subtitulo de 150 caracteres que amplie y responda la idea principal del titulo h1 anterior y haga que el usuario se sienta identificado con el objetivo de la landingpage."
 
         En thankYouPageTabs, genera copy persuasivo para 3 momentos:
             header: Un titular de confirmación inmediata (ej: '¡Lugar Reservado!').
@@ -406,37 +406,37 @@ export const generateFullStrategy = async (projectId) => {
 
           psychology: {
             pains: [
-                "Identifica un dolor agudo relacionado con la falta de ingresos o estabilidad en este nicho. (Este es el Dolor 1, No muestres el texto Dolor 1, solo el texto normal)",
-                "Detecta una frustración técnica o de aprendizaje específica que detiene al avatar.  (Este es el Dolor 2, No muestres el texto Dolor 1, solo el texto normal)",
-                "Analiza el miedo al fracaso o a la pérdida de tiempo o dinero en este mercado. (Este es el Dolor 3, No muestres el texto Dolor 1, solo el texto normal)",
-                "Describe la sensación de estancamiento profesional o personal del prospecto. (Este es el Dolor 4, No muestres el texto Dolor 1, solo el texto normal)",
-                "Identifica la presión social o familiar que siente el avatar por no tener resultados. (Este es el Dolor 5, No muestres el texto Dolor 1, solo el texto normal)",
-                "Analiza el agotamiento por métodos tradicionales que no funcionan en este sector. (Este es el Dolor 6, No muestres el texto Dolor 1, solo el texto normal)",
+                "Identifica un dolor agudo relacionado con la falta de ingresos o estabilidad en este nicho. (Este es el Dolor 1, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
+                "Detecta una frustración técnica o de aprendizaje específica que detiene al avatar.  (Este es el Dolor 2, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
+                "Analiza el miedo al fracaso o a la pérdida de tiempo o dinero en este mercado. (Este es el Dolor 3, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
+                "Describe la sensación de estancamiento profesional o personal del prospecto. (Este es el Dolor 4, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
+                "Identifica la presión social o familiar que siente el avatar por no tener resultados. (Este es el Dolor 5, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
+                "Analiza el agotamiento por métodos tradicionales que no funcionan en este sector. (Este es el Dolor 6, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
             ],
             "solutions": [
             {
-                "title": "Título corto y potente como Solucion al Dolor 1", 
-                "description": "Descripción persuasiva que explica la transformación del Dolor 1"
+                "title": "Título corto, enfocado al usuario como Solucion al Dolor 1", 
+                "description": "Descripción corta, persuasiva y enfocada al usuario que explica la transformación del Dolor 1"
             },
             {
-                "title": "Título corto y potente como Solucion al Dolor 2", 
-                "description": "Descripción persuasiva que explica la transformación del Dolor 2"
+                "title": "Título corto, enfocado al usuario como Solucion al Dolor 2", 
+                "description": "Descripción corta, persuasiva y enfocada al usuario que explica la transformación del Dolor 2"
             },
             {
-                "title": "Título corto y potente como Solucion al Dolor 3", 
-                "description": "Descripción persuasiva que explica la transformación del Dolor 3"
+                "title": "Título corto, enfocado al usuario como Solucion al Dolor 3", 
+                "description": "Descripción corta, persuasiva y enfocada al usuario que explica la transformación del Dolor 3"
             },
             {
-                "title": "Título corto y potente como Solucion al Dolor 4", 
-                "description": "Descripción persuasiva que explica la transformación del Dolor 4"
+                "title": "Título corto, enfocado al usuario como Solucion al Dolor 4", 
+                "description": "Descripción corta, persuasiva y enfocada al usuario que explica la transformación del Dolor 4"
             },
             {
-                "title": "Título corto y potente como Solucion al Dolor 5", 
-                "description": "Descripción persuasiva que explica la transformación del Dolor 5"
+                "title": "Título corto, enfocado al usuario como Solucion al Dolor 5", 
+                "description": "Descripción corta, persuasiva y enfocada al usuario que explica la transformación del Dolor 5"
             },
             {
-                "title": "Título corto y potente como Solucion al Dolor 6", 
-                "description": "Descripción persuasiva que explica la transformación del Dolor 6"
+                "title": "Título corto, enfocado al usuario como Solucion al Dolor 6", 
+                "description": "Descripción corta, persuasiva y enfocada al usuario que explica la transformación del Dolor 6"
             }
         ],
             awarenessStages: {
