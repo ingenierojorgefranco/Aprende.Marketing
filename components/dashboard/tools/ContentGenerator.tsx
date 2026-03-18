@@ -279,12 +279,16 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       setSelectedProject(projectId);
       const proj = userProjects.find(p => p.id === projectId);
       
-      // Auto-select page if only one exists for this project
+      // Auto-select first page if any exist for this project
       const projectPages = userPages.filter(p => String(p.projectId) === String(projectId));
-      if (projectPages.length === 1) {
-          setSelectedPageId(projectPages[0].id);
+      if (projectPages.length > 0) {
+          const firstPage = projectPages[0];
+          setSelectedPageId(firstPage.id);
+          const url = firstPage.customDomain ? `https://${firstPage.customDomain}` : `https://${firstPage.subdomain}`;
+          setCtaLink(url);
       } else {
           setSelectedPageId('');
+          setCtaLink('');
       }
 
       if (proj) {
@@ -308,11 +312,8 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
               setTopic(proj.niche || '');
               setObjective(proj.mainGoal ? `Atraer clientes interesados en ${proj.mainGoal}` : '');
               
-              const hasHotlinks = proj.affiliateLinks && proj.affiliateLinks.length > 0;
-              const initialRedirect = hasHotlinks ? 'hotlink' : 'landing';
-              
-              setRedirectType(initialRedirect);
-              setCtaLink(hasHotlinks ? proj.affiliateLinks[0].url : '');
+              // Por defecto seleccionamos Landing Page como destino
+              setRedirectType('landing');
           }
       }
       setStep(1);
@@ -333,8 +334,13 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
           return;
       }
 
-      if (projectPages.length === 1) {
-          setSelectedPageId(projectPages[0].id);
+      if (projectPages.length > 0) {
+          if (!selectedPageId) {
+              const firstPage = projectPages[0];
+              setSelectedPageId(firstPage.id);
+              const url = firstPage.customDomain ? `https://${firstPage.customDomain}` : `https://${firstPage.subdomain}`;
+              setCtaLink(url);
+          }
       } else if (!selectedPageId) {
           setIsPageSelectorOpen(true);
       }
@@ -768,7 +774,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                             <div>
                                 <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">¿Dónde dirigir a tus visitantes?</label>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div onClick={() => { setRedirectType('landing'); setCtaLink(''); setSelectedPageId(''); }} className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'landing' ? 'bg-blue-600/10 border-blue-500 shadow-lg shadow-blue-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}><div className={`p-4 rounded-2xl transition-colors ${redirectType === 'landing' ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-500'}`}><Globe className="w-8 h-8" /></div><div><h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'landing' ? 'text-white' : 'text-gray-400'}`}>Landing Page</h4><p className="text-[10px] text-gray-500 font-medium leading-relaxed">Envía el tráfico a una de tus páginas internas.</p></div></div>
+                                    <div onClick={() => { setRedirectType('landing'); if (selectedPageId) handlePageRedirectSelect(selectedPageId); }} className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'landing' ? 'bg-blue-600/10 border-blue-500 shadow-lg shadow-blue-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}><div className={`p-4 rounded-2xl transition-colors ${redirectType === 'landing' ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-500'}`}><Globe className="w-8 h-8" /></div><div><h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'landing' ? 'text-white' : 'text-gray-400'}`}>Landing Page</h4><p className="text-[10px] text-gray-500 font-medium leading-relaxed">Envía el tráfico a una de tus páginas internas.</p></div></div>
                                     <div onClick={() => { setRedirectType('hotlink'); setCtaLink(''); }} className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'hotlink' ? 'bg-[#FF5A1F]/10 border-[#FF5A1F] shadow-lg shadow-orange-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}><div className={`p-4 rounded-2xl transition-colors ${redirectType === 'hotlink' ? 'bg-[#FF5A1F] text-white' : 'bg-white/5 text-gray-500'}`}><LinkIcon className="w-8 h-8" /></div><div><h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'hotlink' ? 'text-white' : 'text-gray-400'}`}>Hotlink Proyecto</h4><p className="text-[10px] text-gray-500 font-medium leading-relaxed">Usa tus enlaces de afiliado de Hotmart.</p></div></div>
                                     <div onClick={() => { setRedirectType('external'); setCtaLink(''); }} className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'external' ? 'bg-purple-600/10 border-purple-500 shadow-lg shadow-purple-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}><div className={`p-4 rounded-2xl transition-colors ${redirectType === 'external' ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-500'}`}><ExternalLink className="w-8 h-8" /></div><div><h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'external' ? 'text-white' : 'text-gray-400'}`}>Link Externo</h4><p className="text-[10px] text-gray-500 font-medium leading-relaxed">Cualquier otra página web externa.</p></div></div>
                                 </div>
