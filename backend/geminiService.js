@@ -230,16 +230,16 @@ export const generateFullStrategy = async (projectId) => {
 
             Etapa 1 (Mes 1): 0 ventas/mes obligatorio). 
             Etapa 2 (Mes 2): Mes anterior + (0 ventas/mes obligatorio). 
-            Etapa 2 (Mes 3): Mes anterior + (0 ventas/mes obligatorio). 
+            Etapa 2 (Mes 3): Mes anterior + (1 ventas/mes obligatorio). 
             Etapa 2 (Mes 4): Mes anterior + (1 ventas/mes obligatorio). 
-            Etapa 2 (Mes 5): Mes anterior + (2 ventas/mes obligatorio). 
-            Etapa 3 (Mes 6): Mes anterior + (3 ventas/mes obligatorio). 
-            Etapa 3 (Mes 7): Mes anterior + (4 ventas/mes obligatorio).
-            Etapa 3 (Mes 8): Mes anterior + (5 ventas/mes obligatorio).
+            Etapa 2 (Mes 5): Mes anterior + (3 ventas/mes obligatorio). 
+            Etapa 3 (Mes 6): Mes anterior + (2 ventas/mes obligatorio). 
+            Etapa 3 (Mes 7): Mes anterior + (1 ventas/mes obligatorio).
+            Etapa 3 (Mes 8): Mes anterior + (4 ventas/mes obligatorio).
             Etapa 3 (Mes 9): Mes anterior + (6 ventas/mes obligatorio). 
-            Etapa 3 (Mes 10): Mes anterior + (7 ventas/mes obligatorio). 
-            Etapa 3 (Mes 11): Mes anterior + (8 ventas/mes obligatorio). 
-            Etapa 3 (Mes 12): Mes anterior + (9 ventas/mes obligatorio).
+            Etapa 3 (Mes 10): Mes anterior + (4 ventas/mes obligatorio). 
+            Etapa 3 (Mes 11): Mes anterior + (5 ventas/mes obligatorio). 
+            Etapa 3 (Mes 12): Mes anterior + (7 ventas/mes obligatorio).
 
 
         INSTRUCCIONES PARA LOS 3 AVATARES (OBLIGATORIO):
@@ -296,8 +296,8 @@ export const generateFullStrategy = async (projectId) => {
         - Lenguaje natural, corto (máximo 50 palabras) y con tono de mensaje de agradecimiento.
 
         Instrucciones para landingPageTabs, genera copy persuasivo para 3 momentos:
-            h1: "Añade un titulo Profesional altamente persuasivo que llame la atención de la audiencia enfocado en el beneficio del usuario (el titulo tiene que ser muy potente y englobar la transformación de los avatares, el titulo tiene que llamar la atención conectar con el usuario y con no más de 100 caracteres decirle al usuario el objetivo de esta pagina)",
-            h2: "añade un subtitulo de 150 caracteres que amplie y responda la idea principal del titulo h1 anterior y haga que el usuario se sienta identificado con el objetivo de la landingpage."
+            h1: "Añade un titulo Profesional altamente persuasivo que llame la atención de la audiencia enfocado en el beneficio de los avatares (incluye el nicho del producto dentro del titulo, el cual tiene que ser muy potente y englobar la transformación de los avatares, el titulo tiene que tener un lenguaje personal con el que la persona se sienta identificado, el cual tiene que conectar con el usuario y con no más de 100 caracteres decirle al usuario el objetivo de esta pagina)",
+            h2: "añade un subtitulo de 150 caracteres que amplie y responda la idea principal del titulo h1 anterior y haga que el usuario se sienta identificado con el objetivo de la landingpage, usa un lenguaje personal que conecte con el usuario, que se sienta conectado con la persona que ingresa a la pagina."
 
         En thankYouPageTabs, genera copy persuasivo para 3 momentos:
             header: Un titular de confirmación inmediata (ej: '¡Lugar Reservado!').
@@ -406,12 +406,12 @@ export const generateFullStrategy = async (projectId) => {
 
           psychology: {
             pains: [
-                "Identifica un dolor agudo relacionado con la falta de ingresos o estabilidad en este nicho. (Este es el Dolor 1, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
-                "Detecta una frustración técnica o de aprendizaje específica que detiene al avatar.  (Este es el Dolor 2, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
-                "Analiza el miedo al fracaso o a la pérdida de tiempo o dinero en este mercado. (Este es el Dolor 3, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
-                "Describe la sensación de estancamiento profesional o personal del prospecto. (Este es el Dolor 4, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
-                "Identifica la presión social o familiar que siente el avatar por no tener resultados. (Este es el Dolor 5, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
-                "Analiza el agotamiento por métodos tradicionales que no funcionan en este sector. (Este es el Dolor 6, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
+                "Identifica un dolor agudo del Avatar 3 relacionado con la falta de ingresos o estabilidad en este nicho. (Este es el Dolor 1, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
+                "Detecta una frustración técnica o de aprendizaje específica que detiene al avatar 2.  (Este es el Dolor 2, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
+                "Analiza el miedo al fracaso o a la pérdida de tiempo o dinero en este mercado para el Avatar 1. (Este es el Dolor 3, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
+                "Describe la sensación de estancamiento profesional o personal del Avatar 3. (Este es el Dolor 4, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
+                "Identifica la presión social o familiar que siente el avatar 2 por no tener resultados. (Este es el Dolor 5, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
+                "Analiza el agotamiento por métodos tradicionales que no funcionan en este sector para el Avatar 1. (Este es el Dolor 6, No muestres el texto Dolor 1, solo el texto normal, hazlo enfocado en el usuario, un dolor en el que el usuario siente que se le habla)",
             ],
             "solutions": [
             {
