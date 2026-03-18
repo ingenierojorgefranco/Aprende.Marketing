@@ -858,6 +858,7 @@ export const api = {
             pageName: a.page_name,
             isGenerated: !!a.is_generated,
             isUnlocked: !!a.isUnlocked,
+            unlockedAt: a.unlockedAt,
             psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
             title: a.title,
             slug: a.slug,

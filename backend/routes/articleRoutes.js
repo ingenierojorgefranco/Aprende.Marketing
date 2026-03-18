@@ -80,6 +80,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 pageSubdomain: a.page_subdomain,
                 isUnlocked: true,
                 isGenerated: !!a.is_generated,
+                unlockedAt: a.unlocked_at,
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
             }));
 
@@ -94,6 +95,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 pageSubdomain: undefined,
                 isUnlocked: false,
                 isGenerated: false,
+                unlockedAt: null,
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy,
                 content_html: null // No enviamos el contenido hasta que se desbloquee
             }));
@@ -119,6 +121,7 @@ router.get('/articles/project/:projectId', authMiddleware, async (req, res) => {
                 pageSubdomain: a.page_subdomain,
                 isUnlocked: true,
                 isGenerated: !!a.is_generated,
+                unlockedAt: a.unlocked_at,
                 psychologicalStrategy: typeof a.psychological_strategy === 'string' ? JSON.parse(a.psychological_strategy) : a.psychological_strategy
             }));
         }
@@ -151,8 +154,8 @@ router.post('/articles/unlock-article', authMiddleware, async (req, res) => {
         if (masterRows.length === 0) return res.status(404).json({ error: "Artículo maestro no encontrado" });
         const master = masterRows[0];
 
-        const fields = ['user_id', 'project_id', 'master_article_id', 'created_at', 'status', 'is_generated'];
-        const placeholders = ['?', '?', '?', 'NOW()', '?', '?'];
+        const fields = ['user_id', 'project_id', 'master_article_id', 'created_at', 'unlocked_at', 'status', 'is_generated'];
+        const placeholders = ['?', '?', '?', 'NOW()', 'NOW()', '?', '?'];
         const values = [req.user.id, projectId, master.id, 'draft', 0];
 
         const allowedFields = [

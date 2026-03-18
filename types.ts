@@ -458,6 +458,7 @@ export interface Article {
   status: 'published' | 'draft' | 'scheduled';
   isGenerated?: boolean;
   isUnlocked?: boolean;
+  unlockedAt?: string | Date;
   publishedAt: Date;
   createdAt: Date;
   updatedAt?: Date | string;

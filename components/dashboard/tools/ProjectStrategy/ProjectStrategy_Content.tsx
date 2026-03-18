@@ -30,6 +30,21 @@ interface ProjectStrategy_ContentProps {
     embeddedProjectId?: string;
 }
 
+const formatRelativeTime = (date: Date | string | null) => {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'hace unos segundos';
+    if (diffInSeconds < 3600) return `hace ${Math.floor(diffInSeconds / 60)} min`;
+    if (diffInSeconds < 86400) return `hace ${Math.floor(diffInSeconds / 3600)} horas`;
+    if (diffInSeconds < 2592000) return `hace ${Math.floor(diffInSeconds / 86400)} días`;
+    return d.toLocaleDateString();
+};
+
 export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = ({
     contentData, activeArticle, setActiveArticle, selectedArticles, toggleArticleSelection, handleTooltipHover, handleTooltipLeave, onUpgrade,
     articleCount = 0, planLimits, nextPlan, isSimulating = false,
@@ -104,7 +119,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     isUnlocked: true,
                     slug: a.slug,
                     updatedAt: a.updatedAt,
-                    createdAt: a.createdAt
+                    createdAt: a.createdAt,
+                    unlockedAt: a.unlockedAt
                 }))
                 .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime());
 
@@ -124,7 +140,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     isUnlocked: !!a.isUnlocked,
                     slug: a.slug,
                     updatedAt: a.updatedAt,
-                    createdAt: a.createdAt
+                    createdAt: a.createdAt,
+                    unlockedAt: a.unlockedAt
                 }))
                 .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
@@ -557,6 +574,16 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
                                                     {art.title}
                                                 </h4>
+                                                {isGenerated && (
+                                                    <p className="text-[10px] font-bold opacity-60 mt-1">
+                                                        Creado {formatRelativeTime(art.createdAt)}
+                                                    </p>
+                                                )}
+                                                {isUnlockedButNotGenerated && art.unlockedAt && (
+                                                    <p className="text-[10px] font-bold opacity-60 mt-1">
+                                                        Desbloqueado {formatRelativeTime(art.unlockedAt)}
+                                                    </p>
+                                                )}
                                             </div>
                                             <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isGenerated ? 'bg-white border-white' : isSelected ? 'bg-white border-white scale-110' : 'border-gray-600 group-hover:border-purple-400'}`}>
                                                 {(isGenerated || isSelected) && <Check className={`w-4 h-4 font-bold ${isGenerated ? 'text-emerald-600' : 'text-blue-600'}`} />}

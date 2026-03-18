@@ -407,6 +407,7 @@ const initDb = async () => {
                     psychological_strategy JSON NULL,
                     status VARCHAR(50) DEFAULT 'published',
                     is_generated BOOLEAN DEFAULT FALSE,
+                    unlocked_at DATETIME NULL,
                     published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -475,6 +476,7 @@ const initDb = async () => {
         await addColumnSafe(connection, 'articles', "project_id INT NULL");
         await addColumnSafe(connection, 'articles', "master_article_id INT NULL");
         await addColumnSafe(connection, 'articles', "is_generated BOOLEAN DEFAULT FALSE");
+        await addColumnSafe(connection, 'articles', "unlocked_at DATETIME NULL");
         await addColumnSafe(connection, 'articles', "psychological_strategy JSON NULL");
         await addColumnSafe(connection, 'users', "role VARCHAR(50) DEFAULT 'user'");
         await addColumnSafe(connection, 'users', "plan_limits JSON NULL");
