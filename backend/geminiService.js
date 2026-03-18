@@ -243,7 +243,7 @@ export const generateFullStrategy = async (projectId) => {
 
 
         INSTRUCCIONES PARA LOS 3 AVATARES (OBLIGATORIO):
-        Genera perfiles diferenciados y profundos para estos 3 tipos de cliente:
+        Genera perfiles diferenciados y profundos para estos 3 tipos de cliente (Crea nombres para cada avatar completamente diferentes al que te entrego como base):
         1. AVATAR 1 (El Emprendedor Activo): Alguien con energía que busca escalar un negocio o empezar uno nuevo con decisión.
         2. AVATAR 2 (El Escéptico con Miedo): Alguien que ha tenido malas experiencias previas o tiene miedo a perder su inversión.
         3. AVATAR 3 (La Persona en Reinvención): Alguien estancado en un trabajo convencional que busca un cambio total de estilo de vida.
@@ -252,7 +252,10 @@ export const generateFullStrategy = async (projectId) => {
         Genera un análisis de miedos, objeciones y motivaciones reales para este nicho.
 
         Instrucciones para Pains:
-        Es importante personalizar los contenidos al usuario, por ejemplo en vez de decir Inestabilidad financiera por depender de un sueldo mínimo o empleos temporales., podrias decir ¿Sientes inestabilidad financiera por depender de un sueldo mínimo o empleos temporales?, este es tan solo un ejemplo, no lo copies pero si ten en cuenta el formato para cuando crees los contenidos
+        Es importante personalizar los contenidos al usuario, por ejemplo en vez de decir Inestabilidad financiera por depender de un sueldo mínimo o empleos temporales., podrias decir ¿Sientes inestabilidad financiera por depender de un sueldo mínimo o empleos temporales?, este es tan solo un ejemplo, no lo copies pero si ten en cuenta el formato para cuando crees los contenidos, usa un lenguaje natural, cercano al usuario, haz que tenga relaciones con lo descrito en el titulo principal h1 y subtitulo h2
+
+        Instrucciones para solutions:
+        Es importante personalizar los contenidos al usuario, haz que cada solucion sea una respuesta al dolor puntual que esta intentando resolver, esta solucion debe conectar con la persona, ser concisa, bien detallada y altamente persuasiva, usa un lenguaje natural, cercano al usuario, haz que tenga relaciones con lo descrito en el titulo principal h1 y subtitulo h2
 
 
         INSTRUCCIONES PARA CONTENIDOS DE BLOG content (OBLIGATORIO):
@@ -297,7 +300,7 @@ export const generateFullStrategy = async (projectId) => {
 
         Instrucciones para landingPageTabs, genera copy persuasivo para 3 momentos:
             h1: "Añade un titulo Profesional altamente persuasivo que llame la atención de la audiencia enfocado en el beneficio de los avatares (incluye el nicho del producto dentro del titulo, el cual tiene que ser muy potente y englobar la transformación de los avatares, el titulo tiene que tener un lenguaje personal con el que la persona se sienta identificado, el cual tiene que conectar con el usuario y con no más de 100 caracteres decirle al usuario el objetivo de esta pagina)",
-            h2: "añade un subtitulo de 150 caracteres que amplie y responda la idea principal del titulo h1 anterior y haga que el usuario se sienta identificado con el objetivo de la landingpage, usa un lenguaje personal que conecte con el usuario, que se sienta conectado con la persona que ingresa a la pagina."
+            h2: "añade un subtitulo de 200 y 300 caracteres que amplie y responda la idea principal del titulo h1 anterior y haga que el usuario se sienta identificado con el objetivo de la landingpage, usa un lenguaje personal que conecte con el usuario, que se sienta conectado con la persona que ingresa a la pagina. usa un tono similar al que usaste en el h1, intenta incluir el nicho del producto para el seo e identificacion por parte del usuario"
 
         En thankYouPageTabs, genera copy persuasivo para 3 momentos:
             header: Un titular de confirmación inmediata (ej: '¡Lugar Reservado!').
