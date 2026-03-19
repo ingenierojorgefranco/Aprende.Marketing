@@ -449,6 +449,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
           seoScore: 0,
           metaTitle: finalTitle,
           metaDescription: result.metaDescription || '',
+          psychologicalStrategy: { targetUrl: ctaLink },
           status: 'published' as const,
           publishedAt: new Date(),
           isGenerated: true
@@ -548,6 +549,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       seoScore: seoScore,
       metaTitle: metaTitle,
       metaDescription: metaDescription,
+      psychologicalStrategy: { targetUrl: ctaLink },
       status: status,
       publishedAt: new Date(publishDate),
       isGenerated: true
@@ -679,11 +681,12 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                 <button 
                     onClick={() => { 
                         setGenerationStatus('idle'); 
-                        window.location.href = '/dashboard/articles'; 
+                        if (onClose) onClose();
+                        else window.location.href = '/dashboard/articles'; 
                     }} 
                     className="w-full max-w-md bg-gray-800 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-700 transform hover:scale-[1.03] active:scale-95 mt-4"
                 >
-                    Cerrar y Actualizar Lista
+                    Cerrar
                 </button>
             </div>
         )}

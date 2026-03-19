@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, UserSubscription } from '../../../types';
 import { api } from '../../../services/api';
-import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap, CreditCard, Power, Edit } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap, CreditCard, Power, Edit, Check } from 'lucide-react';
 
 ////////// Actualización: Creación de archivo independiente para carga dinámica - 05/06/2025 21:30 //////////
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -32,6 +32,8 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
         const diffInDays = Math.floor(diffInHours / 24);
         return `Hace ${diffInDays} ${diffInDays === 1 ? 'día' : 'días'}`;
     };
+
+    const slugify = (text: string) => text.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-');
 
     // Pagination and Filtering states
     const [selectedProjectArticles, setSelectedProjectArticles] = useState<string>('all');
@@ -384,8 +386,9 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                         <thead className="text-gray-500 uppercase">
                                             <tr>
                                                 <th className="pb-2 pl-2">Nombre</th>
-                                                <th className="pb-2">Subdominio</th>
                                                 <th className="pb-2 text-right">Visitas</th>
+                                                <th className="pb-2 text-right">Leads</th>
+                                                <th className="pb-2 text-center">Dominio</th>
                                                 <th className="pb-2 text-right pr-2">Acción</th>
                                             </tr>
                                         </thead>
@@ -393,12 +396,30 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                             {loadedData.pages.map((p: any) => (
                                                 <tr key={p.id} className="hover:bg-white/[0.02]">
                                                     <td className="py-2 pl-2 font-medium">{p.name}</td>
-                                                    <td className="py-2 text-gray-400">{p.subdomain}</td>
                                                     <td className="py-2 text-right font-mono">{p.visits}</td>
-                                                    <td className="py-2 text-right pr-2">
+                                                    <td className="py-2 text-right font-mono">{p.conversions || 0}</td>
+                                                    <td className="py-2 text-center">
+                                                        {p.customDomain || p.custom_domain ? (
+                                                            <Check className="w-4 h-4 text-green-500 mx-auto" />
+                                                        ) : (
+                                                            <span className="text-red-500 font-bold">x</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="py-2 text-right pr-2 flex justify-end gap-1">
+                                                        <button 
+                                                            onClick={() => {
+                                                                const pageSlug = slugify(p.name);
+                                                                window.open(`https://aprende.marketing/admin/lp/${p.id}-${pageSlug}`, '_blank');
+                                                            }}
+                                                            className="p-1.5 text-blue-400 hover:bg-blue-900/20 rounded transition"
+                                                            title="Ver Página"
+                                                        >
+                                                            <Eye className="w-3.5 h-3.5" />
+                                                        </button>
                                                         <button 
                                                             onClick={() => handleDeleteAsset('pages', p.id, p.name)}
                                                             className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
+                                                            title="Eliminar"
                                                         >
                                                             <Trash2 className="w-3.5 h-3.5" />
                                                         </button>
@@ -464,30 +485,50 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                                 {loadedData.articles
                                                     .filter(a => selectedProjectArticles === 'all' || String(a.project_id || a.projectId) === String(selectedProjectArticles))
                                                     .slice((currentPageArticles - 1) * itemsPerPage, currentPageArticles * itemsPerPage)
-                                                    .map((a: any) => (
-                                                        <tr key={a.id} className="hover:bg-white/[0.02]">
-                                                            <td className="py-2 pl-2 font-medium truncate max-w-[200px]">{a.title}</td>
-                                                            <td className="py-2">
-                                                                <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.isJson ? 'bg-purple-900/30 text-purple-400' : 'bg-blue-900/30 text-blue-400'}`}>
-                                                                    {a.isJson ? 'JSON' : 'Base de Datos'}
-                                                                </span>
-                                                            </td>
-                                                            <td className="py-2">
-                                                                <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.is_generated ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
-                                                                    {a.is_generated ? 'Published' : 'Draft'}
-                                                                </span>
-                                                            </td>
-                                                            <td className="py-2 text-gray-400">{formatRelativeTime(a.created_at || a.createdAt)}</td>
-                                                            <td className="py-2 text-right pr-2">
-                                                                <button 
-                                                                    onClick={() => handleDeleteAsset('articles', a.id, a.title)}
-                                                                    className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
-                                                                >
-                                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
+                                                    .map((a: any) => {
+                                                        const isPublished = a.status === 'published' || a.is_generated;
+                                                        const statusLabel = a.status === 'published' ? 'Publicado' : a.status === 'draft' ? 'Borrador' : a.status === 'scheduled' ? 'Programado' : (a.is_generated ? 'Publicado' : 'Borrador');
+                                                        
+                                                        return (
+                                                            <tr key={a.id} className="hover:bg-white/[0.02]">
+                                                                <td className="py-2 pl-2 font-medium truncate max-w-[200px]">{a.title}</td>
+                                                                <td className="py-2">
+                                                                    <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${a.isJson ? 'bg-purple-900/30 text-purple-400' : 'bg-blue-900/30 text-blue-400'}`}>
+                                                                        {a.isJson ? 'JSON' : 'Base de Datos'}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="py-2">
+                                                                    <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${isPublished ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
+                                                                        {statusLabel}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="py-2 text-gray-400">{formatRelativeTime(a.created_at || a.createdAt)}</td>
+                                                                <td className="py-2 text-right pr-2 flex justify-end gap-1">
+                                                                    <button 
+                                                                        onClick={() => {
+                                                                            const pageSubdomain = a.pageSubdomain || (loadedData.pages?.find(p => String(p.id) === String(a.pageId))?.subdomain);
+                                                                            if (pageSubdomain) {
+                                                                                window.open(`https://${pageSubdomain}/blog/${a.slug}`, '_blank');
+                                                                            } else {
+                                                                                alert("No se encontró la página vinculada para este artículo.");
+                                                                            }
+                                                                        }}
+                                                                        className="p-1.5 text-blue-400 hover:bg-blue-900/20 rounded transition"
+                                                                        title="Ver Artículo"
+                                                                    >
+                                                                        <Eye className="w-3.5 h-3.5" />
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={() => handleDeleteAsset('articles', a.id, a.title)}
+                                                                        className="p-1.5 text-red-500 hover:bg-red-900/20 rounded transition"
+                                                                        title="Eliminar"
+                                                                    >
+                                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
                                             </tbody>
                                         </table>
 
@@ -580,8 +621,8 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                                                 </span>
                                                             </td>
                                                             <td className="py-2">
-                                                                <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${h.is_generated ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
-                                                                    {h.is_generated ? 'Generado' : 'No Generado'}
+                                                                <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${(h.is_generated || h.isGenerated) ? 'bg-green-900/30 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
+                                                                    {(h.is_generated || h.isGenerated) ? 'Generado' : 'No Generado'}
                                                                 </span>
                                                             </td>
                                                             <td className="py-2 text-gray-400">{formatRelativeTime(h.created_at || h.createdAt)}</td>

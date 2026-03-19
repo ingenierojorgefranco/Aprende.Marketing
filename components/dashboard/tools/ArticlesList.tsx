@@ -42,6 +42,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalArticles, setTotalArticles] = useState(0);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // Modals States
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -119,7 +120,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
           }
       };
       loadArticles();
-  }, [page, filterProjectId]);
+  }, [page, filterProjectId, refreshTrigger]);
 
   const handleDelete = async (article: Article) => {
       if (user.role !== 'admin') {
@@ -279,9 +280,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                               await api.saveArticle(dataToSave);
                           }
                           setIsGeneratorOpen(false);
-                          // El useEffect de ArticlesList recargará la lista automáticamente al desmontar el generador
-                          // si forzamos un refresco o si el componente se vuelve a montar.
-                          // Para asegurar el refresco, podemos resetear la página a 1.
+                          setRefreshTrigger(prev => prev + 1);
                           setPage(1);
                       } catch (e) {
                           throw e;
@@ -289,6 +288,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                   }}
                   onClose={() => {
                       setIsGeneratorOpen(false);
+                      setRefreshTrigger(prev => prev + 1);
                       setPage(1); // Forzar refresco al cerrar
                   }}
               />

@@ -173,15 +173,33 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
                           />
                       )}
 
-                      <div className="prose prose-lg prose-indigo max-w-none text-gray-800" dangerouslySetInnerHTML={{ __html: currentArticle.contentHtml }} />
+                      <div 
+                          className="prose prose-lg prose-indigo max-w-none text-gray-800" 
+                          style={{ fontSize: '1.3rem', lineHeight: '1.8' }}
+                          dangerouslySetInnerHTML={{ __html: currentArticle.contentHtml }} 
+                      />
                       
-                      {/* CTA IN ARTICLE */}
-                      <div className="mt-16 p-8 rounded-2xl bg-gray-50 border border-gray-100 text-center">
-                          <h3 className="text-2xl font-bold mb-3 text-gray-900">¿Te gustó este artículo?</h3>
-                          <p className="mb-6 text-gray-600">No te pierdas nuestra oferta exclusiva relacionada con este tema.</p>
-                          <a href={basePath || '/'} className={`inline-block font-bold px-8 py-4 rounded-full transition shadow-lg text-white ${ds.primaryBtn}`}>
-                              Ver Oferta Principal
-                          </a>
+                      {/* CTA IN ARTICLE - Rediseño Premium enfocado en Transformación */}
+                      <div className="mt-16 p-10 rounded-[2.5rem] bg-gradient-to-br from-gray-900 to-black border border-white/10 text-center relative overflow-hidden shadow-2xl">
+                          {/* Decoración de fondo */}
+                          <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] opacity-20 -mr-32 -mt-32 ${ds.blobColor}`}></div>
+                          
+                          <div className="relative z-10">
+                              <div className="inline-flex items-center justify-center w-16 h-16 bg-white/5 rounded-2xl mb-6 border border-white/10">
+                                  <Target className="w-8 h-8 text-[#FF5A1F]" />
+                              </div>
+                              <h3 className="text-3xl md:text-4xl font-black mb-4 text-white uppercase tracking-tight italic">Tu transformación comienza aquí</h3>
+                              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+                                  Has descubierto el potencial de esta oportunidad. Ahora, queremos mostrarte el camino exacto para dominarlo. 
+                                  <span className="block mt-2 font-bold text-[#FF5A1F]">Únete a nuestra próxima Clase Gratuita y da el primer paso.</span>
+                              </p>
+                              <a 
+                                  href={currentArticle.psychologicalStrategy?.targetUrl || basePath || '/'} 
+                                  className={`inline-flex items-center gap-3 font-black px-10 py-5 rounded-2xl transition-all shadow-xl text-white transform hover:scale-105 active:scale-95 uppercase tracking-widest text-sm ${ds.primaryBtn}`}
+                              >
+                                  Acceder a la Clase Gratuita <ChevronRight className="w-5 h-5" />
+                              </a>
+                          </div>
                       </div>
 
                       {/* RECOMMENDED READING SECTION */}

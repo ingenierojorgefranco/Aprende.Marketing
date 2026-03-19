@@ -1083,6 +1083,7 @@ export const api = {
             featuredImage: article.featured_image,
             metaTitle: article.meta_title,
             metaDescription: article.meta_description,
+            psychologicalStrategy: safeJsonParse(article.psychological_strategy, 'article.psychological_strategy'),
             publishedAt: new Date(article.published_at),
             status: article.status,
             createdAt: new Date(article.created_at),
