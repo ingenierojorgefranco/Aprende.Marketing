@@ -192,20 +192,20 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
               <div className="flex-1 space-y-6 text-center md:text-left">
                   <div>
                       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-900/30 border border-purple-800 text-xs font-bold text-purple-300 uppercase tracking-wider mb-3 shadow-sm">
-                          <Sparkles className="w-3 h-3 text-purple-400" /> Motor de Contenidos IA
+                          <Sparkles className="w-3 h-3 text-purple-400" /> Contenidos Automáticos para Convertir Clientes
                       </div>
                       <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                          Generador de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Artículos SEO</span>
+                          Genera Artículos de Blog <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Optimizados para Posicionarse</span>
                       </h1>
                       <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-[1.625]">
-                          Genera artículos optimizados para buscadores que atraen tráfico orgánico a tus ofertas las 24 horas.
+                          Genera Articulos de Blog Optimizados para Buscadores de forma automática. Atrae y nutre tu audiencia con contenido informativo que generará confianza en tu producto digital,
                       </p>
                   </div>
                   
                   {/* Plan Usage Bar */}
                   <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner">
                       <div className="flex justify-between items-center mb-2 text-sm">
-                          <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Consumo de Artículos'}</span>
+                          <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Artículos (Superusuario)' : 'Articulos de Blog Creados/Desbloqueados'}</span>
                           <span className="text-white font-bold">{articleCount} / {isRealAdmin ? '∞' : maxArticles}</span>
                       </div>
                       <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -454,7 +454,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                                 {article.projectId || article.pageId ? (
                                     <div className="flex flex-col gap-3">
                                         {article.projectId && (
-                                            <div className="flex items-center gap-3 text-[1.2rem] opacity-80 text-white">
+                                            <div className="flex items-center gap-3 text-[1rem] leading-[1.6em] opacity-80 text-white">
                                                 <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
                                                     <Briefcase className="w-3.5 h-3.5" />
                                                 </div>
@@ -469,7 +469,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                                             </div>
                                         )}
                                         {article.pageId && (
-                                            <div className="flex items-center gap-3 text-[1.2rem] opacity-80 text-white">
+                                            <div className="flex items-center gap-3 text-[1rem] leading-[1.6em] opacity-80 text-white">
                                                 <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
                                                     <Globe className="w-3.5 h-3.5" />
                                                 </div>
