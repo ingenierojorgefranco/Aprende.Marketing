@@ -75,8 +75,8 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
               // LISTA DE ARTICULOS
               <div className="animate-in fade-in slide-in-from-bottom-4">
                   <div className="text-center mb-16">
-                      <h1 className={`text-4xl md:text-5xl font-bold mb-4 text-white`}>Blog & Novedades</h1>
-                      <p className="text-lg opacity-90 max-w-2xl mx-auto text-white">Contenido exclusivo para complementar tu aprendizaje.</p>
+                      <h1 className={`text-4xl md:text-5xl font-bold mb-4 text-white`}>Explora Nuestra Biblioteca de Conocimiento</h1>
+                      <p className="text-lg opacity-90 max-w-2xl mx-auto text-white">Artículos diseñados para acelerar tu transformación y dominio profesional.</p>
                   </div>
                   
                   {blogArticles.length === 0 ? (
@@ -85,34 +85,27 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
                       <>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {displayedArticles.map(article => (
-                                <a key={article.id} href={`${basePath || ''}/blog/${article.slug}`} className="group block bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 flex flex-col h-full">
-                                    <div className="h-56 overflow-hidden bg-gray-200 relative">
+                                <a key={article.id} href={`${basePath || ''}/blog/${article.slug}`} className="group block bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 flex flex-col h-full border border-gray-100">
+                                    <div className="h-56 overflow-hidden bg-gray-900 relative">
                                         {article.featuredImage ? (
-                                            <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                                            <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-700 opacity-90 group-hover:opacity-100" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                                                {/* Fallback image placeholder in grayscale */}
-                                                <img 
-                                                    src="https://images.unsplash.com/photo-1499750310159-5b5f22132069?auto=format&fit=crop&q=80&w=600&saturation=-100" 
-                                                    alt="Default" 
-                                                    className="w-full h-full object-cover grayscale opacity-50"
-                                                />
+                                            <div className="w-full h-full bg-slate-900 flex items-center justify-center">
+                                                <div className="w-12 h-1 bg-orange-500/30 rounded-full"></div>
                                             </div>
                                         )}
                                         <div className="absolute top-0 right-0 bg-white/90 backdrop-blur px-3 py-1 m-3 rounded-md text-xs font-bold text-gray-800 shadow-sm">
                                             {new Date(article.publishedAt).toLocaleDateString()}
                                         </div>
                                     </div>
-                                    <div className="p-6 flex-1 flex flex-col">
-                                        <h2 className={`text-xl font-bold mb-3 leading-tight ${ds.textColor || 'text-gray-900'}`}>{article.title}</h2>
-                                        <p className="text-gray-600 text-sm line-clamp-3 mb-4 flex-1">
+                                    <div className="p-8 flex flex-col items-center text-center flex-1">
+                                        <h2 className={`text-2xl font-black mb-4 leading-tight text-gray-900 group-hover:text-orange-600 transition-colors duration-300`}>{article.title}</h2>
+                                        <p className="text-gray-600 text-lg leading-relaxed mb-8 flex-1">
                                             {article.metaDescription || article.description}
                                         </p>
-                                        <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
-                                            <span className={`text-sm font-bold flex items-center gap-1 ${ds.textColor || 'text-blue-600'}`}>
-                                                Leer Más <ArrowRight className="w-4 h-4" />
-                                            </span>
-                                        </div>
+                                        <span className="inline-flex items-center justify-center px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-orange-500/20 group-hover:shadow-orange-500/40 group-hover:-translate-y-1">
+                                            Leer más <ArrowRight className="ml-2 w-5 h-5" />
+                                        </span>
                                     </div>
                                 </a>
                             ))}
@@ -225,13 +218,13 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
                                                   </div>
                                               )}
                                           </div>
-                                          <div className="p-6 flex flex-col items-center text-center flex-1">
-                                              <h4 className="font-black text-gray-900 text-xl mb-3 line-clamp-2 group-hover:text-orange-600 transition-colors duration-300">{rec.title}</h4>
-                                              <p className="text-gray-600 text-sm line-clamp-2 mb-6 flex-1">
+                                          <div className="p-8 flex flex-col items-center text-center flex-1">
+                                              <h4 className="font-black text-gray-900 text-2xl mb-4 group-hover:text-orange-600 transition-colors duration-300">{rec.title}</h4>
+                                              <p className="text-gray-600 text-lg leading-relaxed mb-8 flex-1">
                                                   {rec.metaDescription || rec.description}
                                               </p>
-                                              <span className="inline-flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-orange-500/20 group-hover:shadow-orange-500/40 group-hover:-translate-y-1">
-                                                  Leer más <ArrowRight className="ml-2 w-4 h-4"/>
+                                              <span className="inline-flex items-center justify-center px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-orange-500/20 group-hover:shadow-orange-500/40 group-hover:-translate-y-1">
+                                                  Leer más <ArrowRight className="ml-2 w-5 h-5"/>
                                               </span>
                                           </div>
                                       </a>
