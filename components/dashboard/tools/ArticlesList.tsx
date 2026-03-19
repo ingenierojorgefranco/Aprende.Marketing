@@ -445,16 +445,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                                 <h3 className="text-xl font-black text-[#FF5A1F] mb-1 line-clamp-2 group-hover/content:text-orange-400 transition-colors duration-300 leading-[1.6]">
                                 {article.title}
                                 </h3>
-                                <div className="flex flex-col gap-1 mb-3">
-                                    {article.unlockedAt && (
-                                        <p className="text-[10px] font-bold opacity-60 text-white flex items-center gap-1">
-                                            <Unlock className="w-3 h-3" /> Desbloqueado {formatRelativeTime(article.unlockedAt)}
-                                        </p>
-                                    )}
-                                    <p className="text-[10px] font-bold opacity-60 text-white flex items-center gap-1">
-                                        <PenTool className="w-3 h-3" /> Redactado {formatRelativeTime(article.publishedAt)}
-                                    </p>
-                                </div>
                                 <p className="text-white text-[1.2rem] line-clamp-3 mb-8 flex-1 leading-relaxed opacity-80 group-hover/content:opacity-100 transition-opacity">
                                 {article.metaDescription || article.description || "Sin descripción disponible."}
                                 </p>
@@ -464,7 +454,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                                 {article.projectId || article.pageId ? (
                                     <div className="flex flex-col gap-3">
                                         {article.projectId && (
-                                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
+                                            <div className="flex items-center gap-3 text-[1.2rem] opacity-80 text-white">
                                                 <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
                                                     <Briefcase className="w-3.5 h-3.5" />
                                                 </div>
@@ -479,7 +469,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                                             </div>
                                         )}
                                         {article.pageId && (
-                                            <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white">
+                                            <div className="flex items-center gap-3 text-[1.2rem] opacity-80 text-white">
                                                 <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
                                                     <Globe className="w-3.5 h-3.5" />
                                                 </div>

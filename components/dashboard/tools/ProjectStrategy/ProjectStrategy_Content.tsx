@@ -153,7 +153,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                 ...j,
                 jsonIndex: originalIdx,
                 id: `json-${originalIdx}`,
-                isUnlocked: true,
+                isUnlocked: false,
                 isFromDb: false,
                 isGenerated: false
             })).filter(j => 
@@ -365,6 +365,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     projectId: projectId,
                     title: "Nuevo Contenido",
                     isGenerated: false,
+                    isUnlocked: true,
                     status: 'draft',
                     psychologicalStrategy: {
                         focus: "Describe el enfoque aquí...",
@@ -402,14 +403,33 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
 
     const handleUnlockArticle = async () => {
         const active = currentData[activeArticleIdx];
-        if (!active || !active.id || !String(active.id).startsWith('available-')) return;
+        if (!active || !active.id) return;
         
         setShowUnlockConfirmModal(false);
-        const masterId = active.id.replace('available-', '');
         const targetTitle = active.title;
         setUnlockingSingle(true);
         try {
-            await api.unlockArticle(projectId!, masterId);
+            if (String(active.id).startsWith('available-')) {
+                const masterId = active.id.replace('available-', '');
+                await api.unlockArticle(projectId!, masterId);
+            } else if (String(active.id).startsWith('json-')) {
+                // Para sugerencias del JSON, las "desbloqueamos" guardándolas en la DB
+                await api.saveArticle({
+                    projectId: projectId!,
+                    title: active.title,
+                    description: active.strategy || '',
+                    keyword: active.keyword || '',
+                    isUnlocked: true,
+                    isGenerated: false,
+                    status: 'draft',
+                    psychologicalStrategy: {
+                        focus: active.strategy || '',
+                        keyword: active.keyword || '',
+                        searchVolume: String(active.searchVolume || '0'),
+                        targetUrl: ''
+                    }
+                } as any);
+            }
             await loadLocalData(targetTitle);
             alert("¡Artículo desbloqueado con éxito!");
         } catch (e: any) {
@@ -651,15 +671,18 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 <>
                                 <div className="mb-auto">
                                     <div className="flex justify-between items-center mb-4">
-                                        <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">
-                                            {currentData[activeArticleIdx].isFromDb && !currentData[activeArticleIdx].isGenerated ? 'Estrategia Manual' : 'Análisis de IA'}
-                                        </span>
+                                        {currentData[activeArticleIdx]?.isGenerated ? (
+                                            <span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                                                <Check className="w-3 h-3" /> Artículo Generado
+                                            </span>
+                                        ) : (
+                                            <span className="inline-block py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider border bg-purple-500/10 text-purple-300 border-purple-500/20">
+                                                Estrategia Manual
+                                            </span>
+                                        )}
                                         <div className="flex items-center gap-2">
-                                            {currentData[activeArticleIdx]?.isGenerated && (
-                                                <span className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-black uppercase bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                                                    <Check className="w-3 h-3" /> Generado
-                                                </span>
-                                            )}
+                                            {/* Removed duplicate badge logic */}
+                                        </div>
                                             {currentData[activeArticleIdx]?.id && !String(currentData[activeArticleIdx].id).startsWith('available-') && (
                                                 <button 
                                                     onClick={handleDeleteArticle}
@@ -670,7 +693,6 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                 </button>
                                             )}
                                         </div>
-                                    </div>
 
                                     {editingField === 'title' ? (
                                         <input 
@@ -768,7 +790,7 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                         {/* Botón de Acción Reubicado */}
                                         {!currentData[activeArticleIdx]?.isGenerated && (
                                             <div className="pt-2">
-                                                {isAtLimit ? (
+                                                {isAtLimit && !currentData[activeArticleIdx]?.isUnlocked ? (
                                                     <button onClick={onUpgrade} className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-orange-900/20 hover:scale-[1.02]"><Crown className="w-6 h-6 fill-current" /> Límite Alcanzado: Subir a PRO</button>
                                                 ) : (
                                                     <button 
@@ -791,8 +813,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                 <div className="mt-8 pt-8 border-t border-gray-800 space-y-4">
                                     {currentData[activeArticleIdx]?.isGenerated && (
                                         <>
-                                            <a href={`/admin/lp/${linkedPages[0]?.subdomain?.split('.')[0] || 'page'}/blog/${currentData[activeArticleIdx]?.slug}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20 hover:scale-[1.02]"><Eye className="w-6 h-6" /> Ver Artículo Online</a>
-                                            <a href={window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${currentData[activeArticleIdx]?.id}` : `/dashboard/articles/edit/${currentData[activeArticleIdx]?.id}`} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition text-sm bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"><PenTool className="w-4 h-4" /> Editar Contenido Profesional</a>
+                                            <a href={`/admin/lp/${linkedPages[0]?.subdomain?.split('.')[0] || 'page'}/blog/${currentData[activeArticleIdx]?.slug}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20 hover:scale-[1.02]"><Eye className="w-6 h-6" /> Ver Artículo de Blog</a>
+                                            <a href={window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${currentData[activeArticleIdx]?.id}` : `/dashboard/articles/edit/${currentData[activeArticleIdx]?.id}`} target="_blank" rel="noopener noreferrer" className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition text-lg bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"><PenTool className="w-6 h-6" /> Editar Artículo de Blog</a>
                                         </>
                                     )}
                                 </div>
