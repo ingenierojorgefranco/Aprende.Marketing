@@ -180,6 +180,34 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
                           dangerouslySetInnerHTML={{ __html: currentArticle.contentHtml }} 
                       />
 
+                      {/* INSTRUCTOR BIO SECTION */}
+                      {content.instructor && (
+                          <div className="mt-16 p-8 bg-gray-50 rounded-3xl border border-gray-100 flex flex-col md:flex-row items-center gap-8 shadow-sm">
+                              <div className="w-32 h-32 md:w-40 md:h-40 flex-shrink-0 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                                  {content.instructor.imageUrl ? (
+                                      <img 
+                                          src={content.instructor.imageUrl} 
+                                          alt={content.instructor.name} 
+                                          className="w-full h-full object-cover"
+                                      />
+                                  ) : (
+                                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                          <Target className="w-12 h-12 text-gray-400" />
+                                      </div>
+                                  )}
+                              </div>
+                              <div className="flex-1 text-center md:text-left">
+                                  <span className="inline-block px-3 py-1 bg-orange-100 text-orange-600 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
+                                      {content.instructor.title || "Sobre la Autora"}
+                                  </span>
+                                  <h3 className="text-2xl font-black text-gray-900 mb-3">{content.instructor.name}</h3>
+                                  <p className="text-gray-600 leading-relaxed italic">
+                                      "{content.instructor.bio}"
+                                  </p>
+                              </div>
+                          </div>
+                      )}
+
 
                       {/* RECOMMENDED READING SECTION */}
                       {recommendedArticles.length > 0 && (
