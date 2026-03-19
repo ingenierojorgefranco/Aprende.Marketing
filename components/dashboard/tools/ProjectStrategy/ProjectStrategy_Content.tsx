@@ -120,7 +120,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     slug: a.slug,
                     updatedAt: a.updatedAt,
                     createdAt: a.createdAt,
-                    unlockedAt: a.unlockedAt
+                    unlockedAt: a.unlockedAt,
+                    publishedAt: a.publishedAt
                 }))
                 .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime());
 
@@ -141,7 +142,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                     slug: a.slug,
                     updatedAt: a.updatedAt,
                     createdAt: a.createdAt,
-                    unlockedAt: a.unlockedAt
+                    unlockedAt: a.unlockedAt,
+                    publishedAt: a.publishedAt
                 }))
                 .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
@@ -574,14 +576,14 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                     {!isUnlocked && <Lock className="w-4 h-4 text-gray-500" />}
                                                     {art.title}
                                                 </h4>
-                                                {isGenerated && (
-                                                    <p className="text-[10px] font-bold opacity-60 mt-1">
-                                                        Creado {formatRelativeTime(art.createdAt)}
-                                                    </p>
-                                                )}
-                                                {isUnlockedButNotGenerated && art.unlockedAt && (
+                                                {art.unlockedAt && (
                                                     <p className="text-[10px] font-bold opacity-60 mt-1">
                                                         Desbloqueado {formatRelativeTime(art.unlockedAt)}
+                                                    </p>
+                                                )}
+                                                {isGenerated && (
+                                                    <p className="text-[10px] font-bold opacity-60 mt-1">
+                                                        Redactado {formatRelativeTime(art.publishedAt || art.updatedAt || art.createdAt)}
                                                     </p>
                                                 )}
                                             </div>
@@ -680,12 +682,12 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                             className="w-full bg-black/40 border border-purple-500/50 rounded-xl px-4 py-2 text-3xl md:text-4xl font-bold text-white mb-6 outline-none"
                                         />
                                     ) : (
-                                        <h3 
-                                            onClick={() => setEditingField('title')}
-                                            className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight cursor-pointer hover:text-purple-300 transition-colors"
-                                        >
-                                            {localEdit?.title || currentData[activeArticleIdx]?.title}
-                                        </h3>
+                                    <h3 
+                                        onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('title')}
+                                        className={`text-3xl md:text-4xl font-bold text-white mb-6 leading-tight transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-purple-300' : ''}`}
+                                    >
+                                        {localEdit?.title || currentData[activeArticleIdx]?.title}
+                                    </h3>
                                     )}
 
                                     <div className="bg-black/40 rounded-xl p-6 border border-gray-700/50 backdrop-blur-sm mb-6">
@@ -703,8 +705,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                 />
                                             ) : (
                                                 <p 
-                                                    onClick={() => setEditingField('strategy')}
-                                                    className="text-gray-300 text-xl leading-relaxed font-light cursor-pointer hover:text-white transition-colors"
+                                                    onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('strategy')}
+                                                    className={`text-gray-300 text-xl leading-relaxed font-light transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-white' : ''}`}
                                                 >
                                                     {localEdit?.strategy || currentData[activeArticleIdx]?.strategy}
                                                 </p>
@@ -730,8 +732,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                 />
                                             ) : (
                                                 <p 
-                                                    onClick={() => setEditingField('keyword')}
-                                                    className="text-purple-300 font-bold text-lg leading-tight break-words cursor-pointer hover:text-purple-100 transition-colors"
+                                                    onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('keyword')}
+                                                    className={`text-purple-300 font-bold text-lg leading-tight break-words transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-purple-100' : ''}`}
                                                 >
                                                     {localEdit?.keyword || currentData[activeArticleIdx]?.keyword}
                                                 </p>
@@ -755,8 +757,8 @@ export const ProjectStrategy_Content: React.FC<ProjectStrategy_ContentProps> = (
                                                 />
                                             ) : (
                                                 <p 
-                                                    onClick={() => setEditingField('searchVolume')}
-                                                    className="text-emerald-300 font-bold text-lg leading-tight break-words cursor-pointer hover:text-emerald-100 transition-colors"
+                                                    onClick={() => !currentData[activeArticleIdx]?.isGenerated && setEditingField('searchVolume')}
+                                                    className={`text-emerald-300 font-bold text-lg leading-tight break-words transition-colors ${!currentData[activeArticleIdx]?.isGenerated ? 'cursor-pointer hover:text-emerald-100' : ''}`}
                                                 >
                                                     {localEdit?.searchVolume || currentData[activeArticleIdx]?.searchVolume || 'N/A'}
                                                 </p>

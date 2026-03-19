@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Article, User, Project } from '../../../types';
-import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus, Briefcase } from 'lucide-react';
+import { BookOpen, Calendar, Search, Edit2, FileText, Globe, Clock, ExternalLink, Trash2, Loader2, Sparkles, BarChart, PenTool, Zap, AlertTriangle, Crown, PlayCircle, X, Plus, Briefcase, Unlock } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { UpgradeModal } from '../UpgradeModal';
@@ -16,6 +16,21 @@ interface DashboardContext {
 interface ArticlesListProps {
   onCreateNew?: () => void;
 }
+
+const formatRelativeTime = (date: Date | string | null) => {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'hace unos segundos';
+    if (diffInSeconds < 3600) return `hace ${Math.floor(diffInSeconds / 60)} min`;
+    if (diffInSeconds < 86400) return `hace ${Math.floor(diffInSeconds / 3600)} horas`;
+    if (diffInSeconds < 2592000) return `hace ${Math.floor(diffInSeconds / 86400)} días`;
+    return d.toLocaleDateString();
+};
 
 export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   const navigate = useNavigate();
@@ -83,7 +98,8 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                       status: a.status || 'published',
                       isGenerated: !!a.is_generated,
                       publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
-                      createdAt: a.created_at ? new Date(a.created_at) : new Date()
+                      createdAt: a.created_at ? new Date(a.created_at) : new Date(),
+                      unlockedAt: a.unlocked_at ? new Date(a.unlocked_at) : undefined
                   })).filter((a: any) => a.isGenerated);
 
                   setLocalArticles(mapped);
@@ -426,9 +442,19 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                                 onClick={() => navigate(`/dashboard/articles/edit/${article.id}`)}
                                 className="cursor-pointer group/content"
                             >
-                                <h3 className="text-xl font-black text-[#FF5A1F] mb-3 line-clamp-2 group-hover/content:text-orange-400 transition-colors duration-300 leading-[1.6]">
+                                <h3 className="text-xl font-black text-[#FF5A1F] mb-1 line-clamp-2 group-hover/content:text-orange-400 transition-colors duration-300 leading-[1.6]">
                                 {article.title}
                                 </h3>
+                                <div className="flex flex-col gap-1 mb-3">
+                                    {article.unlockedAt && (
+                                        <p className="text-[10px] font-bold opacity-60 text-white flex items-center gap-1">
+                                            <Unlock className="w-3 h-3" /> Desbloqueado {formatRelativeTime(article.unlockedAt)}
+                                        </p>
+                                    )}
+                                    <p className="text-[10px] font-bold opacity-60 text-white flex items-center gap-1">
+                                        <PenTool className="w-3 h-3" /> Redactado {formatRelativeTime(article.publishedAt)}
+                                    </p>
+                                </div>
                                 <p className="text-white text-[1.2rem] line-clamp-3 mb-8 flex-1 leading-relaxed opacity-80 group-hover/content:opacity-100 transition-opacity">
                                 {article.metaDescription || article.description || "Sin descripción disponible."}
                                 </p>

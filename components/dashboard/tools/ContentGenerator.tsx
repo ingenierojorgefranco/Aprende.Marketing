@@ -649,7 +649,15 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                     <button onClick={() => { const basePageSlug = selectedPageId ? userPages.find(p => p.id === selectedPageId)?.subdomain?.split('.')[0] : null; const articleUrl = basePageSlug ? `/admin/lp/${basePageSlug}/blog/${savedArticleResult?.slug}` : '#'; window.open(articleUrl, '_blank'); }} className="flex-1 bg-white text-black font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-100 transform hover:scale-[1.03] active:scale-95"><Eye className="w-5 h-5" /> Ver Artículo</button>
                     <button onClick={() => { const editUrl = window.location.hash.startsWith('#/') ? `#/dashboard/articles/edit/${savedArticleResult?.id}` : `/dashboard/articles/edit/${savedArticleResult?.id}`; window.open(editUrl, '_blank'); }} className="flex-1 bg-purple-600 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl shadow-purple-900/20 flex items-center justify-center gap-3 hover:bg-purple-700 transform hover:scale-[1.03] active:scale-95"><PenTool className="w-5 h-5" /> Editar Artículo</button>
                 </div>
-                <button onClick={() => { setGenerationStatus('idle'); if(onClose) onClose(); else navigate('/dashboard/articles'); }} className="text-gray-500 hover:text-white font-bold text-sm transition-colors pt-4 underline">Cerrar</button>
+                <button 
+                    onClick={() => { 
+                        setGenerationStatus('idle'); 
+                        window.location.href = '/dashboard/articles'; 
+                    }} 
+                    className="w-full max-w-md bg-gray-800 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-gray-700 transform hover:scale-[1.03] active:scale-95 mt-4"
+                >
+                    Cerrar y Actualizar Lista
+                </button>
             </div>
         )}
 
