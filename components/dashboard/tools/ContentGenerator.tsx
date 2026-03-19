@@ -85,6 +85,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
   const [publishDate, setPublishDate] = useState(new Date().toISOString().split('T')[0]);
   
   const [seoScore, setSeoScore] = useState(0);
+  const [validationError, setValidationError] = useState(false);
 
   const [strategyData, setStrategyData] = useState<any>(null);
   const [loadingStrategy, setLoadingStrategy] = useState(false);
@@ -172,6 +173,18 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     };
     fetchContext();
   }, []);
+
+  // Sincronización automática de ctaLink cuando cambia la página seleccionada
+  useEffect(() => {
+    if (redirectType === 'landing' && selectedPageId) {
+      const page = userPages.find(p => String(p.id) === String(selectedPageId));
+      if (page) {
+        const url = page.customDomain ? `https://${page.customDomain}` : `https://${page.subdomain}`;
+        setCtaLink(url);
+        setValidationError(false);
+      }
+    }
+  }, [selectedPageId, userPages, redirectType]);
 
   // Sincronizar links cuando cambia el proyecto seleccionado
   useEffect(() => {
@@ -281,7 +294,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       
       // Auto-select first page if any exist for this project
       const projectPages = userPages.filter(p => String(p.projectId) === String(projectId));
-      if (projectPages.length > 0) {
+      if (projectPages.length === 1) {
           const firstPage = projectPages[0];
           setSelectedPageId(firstPage.id);
           const url = firstPage.customDomain ? `https://${firstPage.customDomain}` : `https://${firstPage.subdomain}`;
@@ -334,13 +347,16 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
           return;
       }
 
-      if (projectPages.length > 0) {
+      if (projectPages.length === 1) {
           if (!selectedPageId) {
               const firstPage = projectPages[0];
               setSelectedPageId(firstPage.id);
               const url = firstPage.customDomain ? `https://${firstPage.customDomain}` : `https://${firstPage.subdomain}`;
               setCtaLink(url);
           }
+      } else if (projectPages.length > 1) {
+          setSelectedPageId('');
+          setCtaLink('');
       } else if (!selectedPageId) {
           setIsPageSelectorOpen(true);
       }
@@ -350,7 +366,10 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
   const handleManualGenerateOutline = () => {
     if (!topic || !objective) return alert("Por favor completa el tema y el objetivo.");
-    if (!ctaLink) return alert("Por favor selecciona una Landing Page o ingresa un enlace de CTA antes de generar.");
+    if (!ctaLink) {
+        setValidationError(true);
+        return;
+    }
     setShowManualConfirm(true);
   };
 
@@ -546,6 +565,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
 
   const handlePageRedirectSelect = (pageId: string) => {
     setSelectedPageId(pageId);
+    setValidationError(false);
     const page = userPages.find(p => String(p.id) === String(pageId));
     if (page) {
         const url = page.customDomain ? `https://${page.customDomain}` : `https://${page.subdomain}`;
@@ -787,14 +807,67 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
                                     <div onClick={() => { setRedirectType('external'); setCtaLink(''); }} className={`p-6 rounded-[2rem] border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-4 group ${redirectType === 'external' ? 'bg-purple-600/10 border-purple-500 shadow-lg shadow-purple-900/20' : 'bg-black border-white/5 hover:border-white/10'}`}><div className={`p-4 rounded-2xl transition-colors ${redirectType === 'external' ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-500'}`}><ExternalLink className="w-8 h-8" /></div><div><h4 className={`font-black text-sm uppercase tracking-widest mb-1 ${redirectType === 'external' ? 'text-white' : 'text-gray-400'}`}>Link Externo</h4><p className="text-[10px] text-gray-500 font-medium leading-relaxed">Cualquier otra página web externa.</p></div></div>
                                 </div>
                                 <div className="mt-4">
-                                    {redirectType === 'landing' && (<div className="animate-in fade-in slide-in-from-top-2"><select value={selectedPageId} onChange={(e) => handlePageRedirectSelect(e.target.value)} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"><option value="" disabled>-- Selecciona una Landing Page --</option>{filteredUserPages.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}</select></div>)}
-                                    {redirectType === 'external' && (<div className="animate-in fade-in slide-in-from-top-2"><input type="text" value={ctaLink} onChange={(e) => setCtaLink(e.target.value)} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition" placeholder="https://ejemplo.com/tu-enlace" /></div>)}
+                                    {redirectType === 'landing' && (
+                                        <div className="animate-in fade-in slide-in-from-top-2 relative">
+                                            <select 
+                                                value={selectedPageId} 
+                                                onChange={(e) => handlePageRedirectSelect(e.target.value)} 
+                                                className={`w-full bg-black border ${validationError && !selectedPageId ? 'border-red-500 ring-2 ring-red-500/20' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer`}
+                                            >
+                                                <option value="" disabled>-- Selecciona una Landing Page --</option>
+                                                {filteredUserPages.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
+                                            </select>
+                                            {validationError && !selectedPageId && (
+                                                <div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse">
+                                                    <AlertTriangle className="w-3 h-3" /> Selección de página obligatoria
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {redirectType === 'external' && (
+                                        <div className="animate-in fade-in slide-in-from-top-2 relative">
+                                            <input 
+                                                type="text" 
+                                                value={ctaLink} 
+                                                onChange={(e) => { setCtaLink(e.target.value); setValidationError(false); }} 
+                                                className={`w-full bg-black border ${validationError && !ctaLink ? 'border-red-500 ring-2 ring-red-500/20' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition`} 
+                                                placeholder="https://ejemplo.com/tu-enlace" 
+                                            />
+                                            {validationError && !ctaLink && (
+                                                <div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse">
+                                                    <AlertTriangle className="w-3 h-3" /> Enlace externo obligatorio
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                     {redirectType === 'hotlink' && (
                                         <div className="animate-in fade-in slide-in-from-top-2 space-y-4">
                                             {isAddingNewLink ? (
                                                 <div className="p-6 bg-black border border-white/10 rounded-2xl space-y-4 shadow-xl"><div className="flex justify-between items-center mb-2"><h5 className="text-white font-bold text-sm">Nuevo Hotlink para Proyecto</h5><button onClick={() => setIsAddingNewLink(false)}><X className="w-4 h-4 text-gray-500"/></button></div><div className="grid grid-cols-2 gap-4"><div className="space-y-1"><label className="text-[10px] text-gray-500 font-black uppercase">Nombre del Enlace</label><input type="text" value={newLinkLabel} onChange={e => setNewLinkLabel(e.target.value)} className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-white text-sm focus:border-[#FF5A1F] outline-none" placeholder="Ej: Checkout Pro" /></div><div className="space-y-1"><label className="text-[10px] text-gray-500 font-black uppercase">URL Hotmart</label><input type="text" value={newLinkUrl} onChange={e => setNewLinkUrl(e.target.value)} className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-emerald-400 text-sm focus:border-[#FF5A1F] outline-none" placeholder="https://go.hotmart.com/..." /></div></div><button onClick={handleAddNewHotlink} disabled={savingNewLink || !newLinkLabel || !newLinkUrl} className="w-full py-3 bg-[#FF5A1F] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#D94A1E] transition flex items-center justify-center gap-2">{savingNewLink ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>} Guardar en el Proyecto</button></div>
                                             ) : (
-                                                <div className={`relative ${!ctaLink ? 'ring-2 ring-red-500/50 rounded-xl' : ''}`}><select value={ctaLink || ''} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] appearance-none" onChange={(e) => { if (e.target.value === 'ADD_NEW') { setIsAddingNewLink(true); } else { setCtaLink(e.target.value); } }}><option value="">-- Elige un Hotlink --</option>{(projectLinks || []).map((link, i) => (<option key={i} value={link.url}>{link.label}</option>))}<option value="ADD_NEW" className="text-[#FF5A1F] font-bold">+ Añadir nuevo Hotlink</option></select>{!ctaLink && (<div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse"><AlertTriangle className="w-3 h-3" /> Link de destino obligatorio</div>)}</div>
+                                                <div className={`relative ${validationError && !ctaLink ? 'ring-2 ring-red-500/50 rounded-xl' : ''}`}>
+                                                    <select 
+                                                        value={ctaLink || ''} 
+                                                        className={`w-full bg-black border ${validationError && !ctaLink ? 'border-red-500' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] appearance-none`} 
+                                                        onChange={(e) => { 
+                                                            if (e.target.value === 'ADD_NEW') { 
+                                                                setIsAddingNewLink(true); 
+                                                            } else { 
+                                                                setCtaLink(e.target.value); 
+                                                                setValidationError(false);
+                                                            } 
+                                                        }}
+                                                    >
+                                                        <option value="">-- Elige un Hotlink --</option>
+                                                        {(projectLinks || []).map((link, i) => (<option key={i} value={link.url}>{link.label}</option>))}
+                                                        <option value="ADD_NEW" className="text-[#FF5A1F] font-bold">+ Añadir nuevo Hotlink</option>
+                                                    </select>
+                                                    {validationError && !ctaLink && (
+                                                        <div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse">
+                                                            <AlertTriangle className="w-3 h-3" /> Link de destino obligatorio
+                                                        </div>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
                                     )}
