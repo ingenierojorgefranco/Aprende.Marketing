@@ -114,7 +114,18 @@ export const generateFullArticle = async (
     REGLAS DE REDACCIÓN Y ESTRUCTURA:
     1. PÁRRAFOS CORTOS: Cada párrafo debe tener un máximo de 3 a 4 líneas para facilitar la lectura rápida.
     2. TÍTULO ÚNICO: Genera una variación del título base que sea única, viral y altamente atractiva, manteniendo el enfoque y la keyword (o una variación coherente de la misma).
-    3. BANNER DE VALOR INTERMEDIO: En la mitad del artículo, inserta EXACTAMENTE esta etiqueta: [CTA_BANNER]. No añadas estilos ni HTML complejo aquí, solo esa etiqueta de texto plano.
+    3. LLAMADOS A LA ACCIÓN (CTAs) PERSUASIVOS: Inserta exactamente DOS banners de CTA en formato HTML dentro del contenido. 
+       - El primero debe ir aproximadamente a la mitad del artículo.
+       - El segundo debe ir al final del artículo.
+       - Cada CTA debe tener un texto persuasivo DIFERENTE y UNICO, enfocado en la motivación y la transformación. No repitas el mismo texto.
+       - Usa exactamente esta estructura HTML para cada banner (rellenando los campos entre corchetes con contenido altamente persuasivo):
+       
+       <div style="margin: 40px 0; padding: 40px; border-radius: 24px; background: linear-gradient(135deg, #0f172a 0%, #000000 100%); border: 1px solid rgba(255,255,255,0.1); text-align: center; font-family: sans-serif;">
+         <h3 style="font-size: 28px; font-weight: 800; color: #ffffff; margin-bottom: 16px; line-height: 1.2;">[TITULO_PERSUASIVO_AQUÍ]</h3>
+         <p style="font-size: 18px; color: #cbd5e1; margin-bottom: 32px; line-height: 1.6;">[TEXTO_MOTIVADOR_AQUÍ]</p>
+         <a href="${ctaLink}" style="display: inline-block; background-color: #ffffff; color: #000000; font-weight: 700; padding: 18px 36px; border-radius: 16px; text-decoration: none; font-size: 18px;">[TEXTO_BOTON_AQUÍ]</a>
+       </div>
+
     4. META DESCRIPTION: Genera una meta description optimizada (Máx 155 car.).
     5. NO incluyas el Título Principal (H1) dentro del campo 'html'.
 

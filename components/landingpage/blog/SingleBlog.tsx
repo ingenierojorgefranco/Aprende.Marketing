@@ -13,30 +13,6 @@ interface SingleBlogProps {
   isDark: boolean;
 }
 
-const PremiumCTA: React.FC<{ url: string; ds: any }> = ({ url, ds }) => (
-    <div className="my-16 p-10 rounded-[2.5rem] bg-gradient-to-br from-gray-900 to-black border border-white/10 text-center relative overflow-hidden shadow-2xl">
-        {/* Decoración de fondo */}
-        <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] opacity-20 -mr-32 -mt-32 ${ds.blobColor}`}></div>
-        
-        <div className="relative z-10">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/5 rounded-2xl mb-6 border border-white/10">
-                <Target className="w-8 h-8 text-[#FF5A1F]" />
-            </div>
-            <h3 className="text-3xl md:text-4xl font-black mb-4 text-white uppercase tracking-tight italic">Tu transformación comienza aquí</h3>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-                Has descubierto el potencial de esta oportunidad. Ahora, queremos mostrarte el camino exacto para dominarlo. 
-                <span className="block mt-2 font-bold text-[#FF5A1F]">Únete a nuestra próxima Clase Gratuita y da el primer paso.</span>
-            </p>
-            <a 
-                href={url} 
-                className={`inline-flex items-center gap-3 font-black px-10 py-5 rounded-2xl transition-all shadow-xl text-white transform hover:scale-105 active:scale-95 uppercase tracking-widest text-sm ${ds.primaryBtn}`}
-            >
-                Acceder a la Clase Gratuita <ChevronRight className="w-5 h-5" />
-            </a>
-        </div>
-    </div>
-);
-
 export const SingleBlog: React.FC<SingleBlogProps> = ({ 
   content, 
   viewMode, 
@@ -197,34 +173,12 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
                           />
                       )}
 
-                      {/* Article Content with Dynamic CTAs */}
-                      {(() => {
-                          const ctaUrl = currentArticle.psychologicalStrategy?.targetUrl || basePath || '/';
-                          // Limpiamos posibles etiquetas <p> que envuelvan el marcador para evitar rotura de HTML
-                          const cleanHtml = currentArticle.contentHtml.replace(/<p>\s*\[CTA_BANNER\]\s*<\/p>/g, '[CTA_BANNER]');
-                          const contentParts = cleanHtml.split('[CTA_BANNER]');
-                          
-                          return (
-                              <>
-                                  {contentParts.map((part, index) => (
-                                      <React.Fragment key={index}>
-                                          <div 
-                                              className="prose prose-lg prose-indigo max-w-none text-gray-800" 
-                                              style={{ fontSize: '1.3rem', lineHeight: '1.8' }}
-                                              dangerouslySetInnerHTML={{ __html: part }} 
-                                          />
-                                          {index < contentParts.length - 1 && (
-                                              <PremiumCTA url={ctaUrl} ds={ds} />
-                                          )}
-                                      </React.Fragment>
-                                  ))}
-                                  
-                                  {/* Final CTA - Siempre al final del contenido */}
-                                  <PremiumCTA url={ctaUrl} ds={ds} />
-                              </>
-                          );
-                      })()}
-
+                      {/* Article Content */}
+                      <div 
+                          className="prose prose-lg prose-indigo max-w-none text-gray-800" 
+                          style={{ fontSize: '1.3rem', lineHeight: '1.8' }}
+                          dangerouslySetInnerHTML={{ __html: currentArticle.contentHtml }} 
+                      />
 
                       {/* RECOMMENDED READING SECTION */}
                       {recommendedArticles.length > 0 && (
