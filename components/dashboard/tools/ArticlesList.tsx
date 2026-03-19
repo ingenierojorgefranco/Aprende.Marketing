@@ -195,7 +195,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                           <Sparkles className="w-3 h-3 text-purple-400" /> Contenidos Automáticos para Convertir Clientes
                       </div>
                       <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                          Genera Artículos de Blog <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Optimizados para Posicionarse</span>
+                          Genera Artículos de Blog Optimizados <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">para Posicionarse</span>
                       </h1>
                       <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-[1.625]">
                           Genera Articulos de Blog Optimizados para Buscadores de forma automática. Atrae y nutre tu audiencia con contenido informativo que generará confianza en tu producto digital,
@@ -439,13 +439,19 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                             </div>
                             
                             <div 
-                                onClick={() => navigate(`/dashboard/articles/edit/${article.id}`)}
+                                onClick={() => {
+                                    if (articleUrl !== '#') {
+                                        window.open(articleUrl, '_blank');
+                                    } else {
+                                        navigate(`/dashboard/articles/edit/${article.id}`);
+                                    }
+                                }}
                                 className="cursor-pointer group/content"
                             >
                                 <h3 className="text-xl font-black text-[#FF5A1F] mb-1 line-clamp-2 group-hover/content:text-orange-400 transition-colors duration-300 leading-[1.6]">
                                 {article.title}
                                 </h3>
-                                <p className="text-white text-[1.2rem] line-clamp-3 mb-8 flex-1 leading-relaxed opacity-80 group-hover/content:opacity-100 transition-opacity">
+                                <p className="text-white text-[1.2rem] mb-8 flex-1 leading-relaxed opacity-80 group-hover/content:opacity-100 transition-opacity">
                                 {article.metaDescription || article.description || "Sin descripción disponible."}
                                 </p>
                             </div>

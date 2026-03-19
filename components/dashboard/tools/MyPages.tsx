@@ -157,7 +157,7 @@ export const MyPages: React.FC = () => {
                                 <LayoutTemplate className="w-3 h-3 text-primary" /> Gestor de Landing Pages
                             </div>
                             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                                Tus Páginas de <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Alta Conversión</span>
+                                Activa tu Página Web Profesional <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">y captura clientes en automático</span>
                             </h1>
                             <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-xl leading-[1.625]">
                                 Centraliza todas tus ofertas en un solo lugar. Crea, edita y optimiza tus páginas de venta para maximizar tus conversiones.
@@ -167,7 +167,7 @@ export const MyPages: React.FC = () => {
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 max-w-md shadow-inner space-y-4">
                             <div>
                                 <div className="flex justify-between items-center mb-2 text-sm">
-                                    <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Páginas (Superusuario)' : 'Páginas Creadas'}</span>
+                                    <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">{isRealAdmin ? 'Páginas (Superusuario)' : 'Páginas Web Creadas/Desbloqueadas'}</span>
                                     <span className="text-white font-bold">{currentCount} / {isRealAdmin ? '∞' : maxLandings}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
@@ -188,7 +188,7 @@ export const MyPages: React.FC = () => {
                             {isAtLimit && (
                                 <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30">
                                     <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                                    <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza a Pro para Crear más Páginas de Captura</span>
+                                    <span className="text-[1rem] leading-[1.5rem] text-white">Has alcanzado el límite de tu plan. Actualiza a Pro para Crear más Páginas de Captura</span>
                                 </div>
                             )}
                         </div>
@@ -246,7 +246,7 @@ export const MyPages: React.FC = () => {
                         </div>
                         <div>
                             <h2 className="text-3xl font-black text-white uppercase tracking-tight">Mis Páginas</h2>
-                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tus embudos de venta y páginas de aterrizaje</p>
+                            <p className="text-white font-medium pt-2.5 text-[1.2em]">Gestiona tus páginas de captura fácilmente</p>
                         </div>
                     </div>
                 </div>
@@ -337,12 +337,14 @@ export const MyPages: React.FC = () => {
                                         </Link>
                                     </div>
 
-                                    <div className="flex items-center justify-start gap-2 mb-8 px-4">
-                                        <Briefcase className="w-4 h-4 text-gray-500" />
+                                    <div className="mb-8 bg-black/40 p-4 rounded-2xl border border-white/5 flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-colors">
+                                            <Briefcase className="w-4 h-4 text-gray-500" />
+                                        </div>
                                         <Link 
                                             to={page.projectId ? `/dashboard/projects/${page.projectId}/strategy` : "/dashboard/projects"}
                                             target="_blank"
-                                            className="text-base font-medium text-gray-400 hover:text-[#FF5A1F] transition-colors"
+                                            className="text-base font-medium text-gray-400 hover:text-[#FF5A1F] transition-colors line-clamp-1"
                                         >
                                             Proyecto: {page.projectName || 'Sin Proyecto'}
                                         </Link>
