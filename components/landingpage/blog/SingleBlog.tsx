@@ -45,7 +45,7 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
                      // Filtrar el actual, mezclar y tomar 3
                      const others = allArticles.filter(a => a.id !== article.id);
                      const shuffled = others.sort(() => 0.5 - Math.random());
-                     setRecommendedArticles(shuffled.slice(0, 3));
+                     setRecommendedArticles(shuffled.slice(0, 2));
                  });
              }
          }).finally(() => setBlogLoading(false));
@@ -185,19 +185,26 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
                       {recommendedArticles.length > 0 && (
                           <div className="mt-20 pt-10 border-t border-gray-200">
                               <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Te recomendamos leer también</h3>
-                              <div className="grid md:grid-cols-3 gap-6">
+                              <div className="grid md:grid-cols-2 gap-8">
                                   {recommendedArticles.map(rec => (
-                                      <a key={rec.id} href={`${basePath || ''}/blog/${rec.slug}`} className="group block bg-gray-50 rounded-xl overflow-hidden hover:shadow-md transition border border-gray-100">
-                                          <div className="h-32 overflow-hidden bg-gray-200 relative">
+                                      <a key={rec.id} href={`${basePath || ''}/blog/${rec.slug}`} className="group block bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col h-full">
+                                          <div className="h-48 overflow-hidden bg-gray-900 relative">
                                               {rec.featuredImage ? (
-                                                  <img src={rec.featuredImage} alt={rec.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                                                  <img src={rec.featuredImage} alt={rec.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-700 opacity-90 group-hover:opacity-100" />
                                               ) : (
-                                                  <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 text-xs">Sin Imagen</div>
+                                                  <div className="w-full h-full bg-slate-900 flex items-center justify-center">
+                                                      <div className="w-12 h-1 bg-orange-500/30 rounded-full"></div>
+                                                  </div>
                                               )}
                                           </div>
-                                          <div className="p-4">
-                                              <h4 className="font-bold text-gray-900 text-sm mb-2 line-clamp-2 group-hover:text-blue-600 transition">{rec.title}</h4>
-                                              <span className="text-xs text-blue-600 font-bold flex items-center gap-1">Leer más <ArrowRight className="w-3 h-3"/></span>
+                                          <div className="p-6 flex flex-col items-center text-center flex-1">
+                                              <h4 className="font-black text-gray-900 text-xl mb-3 line-clamp-2 group-hover:text-orange-600 transition-colors duration-300">{rec.title}</h4>
+                                              <p className="text-gray-600 text-sm line-clamp-2 mb-6 flex-1">
+                                                  {rec.metaDescription || rec.description}
+                                              </p>
+                                              <span className="inline-flex items-center justify-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-orange-500/20 group-hover:shadow-orange-500/40 group-hover:-translate-y-1">
+                                                  Leer más <ArrowRight className="ml-2 w-4 h-4"/>
+                                              </span>
                                           </div>
                                       </a>
                                   ))}

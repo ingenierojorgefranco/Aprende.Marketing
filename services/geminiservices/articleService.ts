@@ -117,16 +117,18 @@ export const generateFullArticle = async (
     3. BANNERS DE LLAMADO A LA ACCIÓN (CTA) REALES: 
        - Inserta DOS banners de CTA en formato HTML real dentro del contenido (uno aproximadamente en la mitad y otro al final).
        - CADA BANNER DEBE TENER UN TEXTO PERSUASIVO DIFERENTE. No los repitas.
-       - El primer banner debe enfocarse en despertar curiosidad y el deseo de transformación.
-       - El segundo banner (al final) debe ser un cierre potente invitando a la acción inmediata (Clase Gratuita).
+       - TONO PERSONALIZADO: El párrafo del CTA debe estar dirigido directamente al usuario que lee (usa "tú", "estás", "quieres", "puedes"). Evita el tono plural/colectivo en el banner.
+       - BOTÓN EN PRIMERA PERSONA: El texto del botón debe ser un deseo del usuario (ej: "QUIERO INGRESAR A LA CLASE GRATUITA", "SÍ, DESEO EMPEZAR AHORA", "QUIERO MI TRANSFORMACIÓN").
+       - El primer banner debe enfocarse en despertar curiosidad y el deseo de transformación personal.
+       - El segundo banner (al final) debe ser un cierre potente invitando a la acción inmediata.
        - Usa EXACTAMENTE esta estructura HTML para los banners, adaptando los textos internos para que sean altamente motivadores y persuasivos:
 
        <div style="margin: 4rem 0; padding: 2.5rem; border-radius: 2.5rem; background: linear-gradient(to bottom right, #111827, #000000); border: 1px solid rgba(255,255,255,0.1); text-align: center; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
          <div style="position: relative; z-index: 10;">
-           <h3 style="font-size: 2.25rem; font-weight: 900; margin-bottom: 1rem; color: #ffffff; text-transform: uppercase; letter-spacing: -0.025em; font-style: italic;">[TEXTO PERSUASIVO AQUÍ]</h3>
-           <p style="font-size: 1.25rem; color: #d1d5db; margin-bottom: 2rem; max-width: 42rem; margin-left: auto; margin-right: auto; line-height: 1.625;">[DESCRIPCIÓN MOTIVADORA AQUÍ]</p>
+           <h3 style="font-size: 2.25rem; font-weight: 900; margin-bottom: 1rem; color: #ffffff; text-transform: uppercase; letter-spacing: -0.025em; font-style: italic;">[TEXTO PERSUASIVO PERSONALIZADO AQUÍ]</h3>
+           <p style="font-size: 1.25rem; color: #d1d5db; margin-bottom: 2rem; max-width: 42rem; margin-left: auto; margin-right: auto; line-height: 1.625;">[DESCRIPCIÓN MOTIVADORA DIRIGIDA A "TI" AQUÍ]</p>
            <a href="${ctaLink}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.75rem; font-weight: 900; padding: 1.25rem 2.5rem; border-radius: 1rem; background-color: #FF5A1F; color: #ffffff; text-decoration: none; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.875rem;">
-             ACCEDER A LA CLASE GRATUITA
+             [TEXTO BOTÓN EN PRIMERA PERSONA AQUÍ]
            </a>
          </div>
        </div>
