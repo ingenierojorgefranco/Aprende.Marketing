@@ -180,6 +180,7 @@ export const SingleBlog: React.FC<SingleBlogProps> = ({
                           dangerouslySetInnerHTML={{ __html: currentArticle.contentHtml }} 
                       />
 
+
                       {/* RECOMMENDED READING SECTION */}
                       {recommendedArticles.length > 0 && (
                           <div className="mt-20 pt-10 border-t border-gray-200">

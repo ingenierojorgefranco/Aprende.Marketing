@@ -179,13 +179,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     if (redirectType === 'landing' && selectedPageId) {
       const page = userPages.find(p => String(p.id) === String(selectedPageId));
       if (page) {
-        let url = '';
-        if (page.customDomain) {
-          url = `https://${page.customDomain}`;
-        } else {
-          const pageSlug = generateCleanSlug(page.name);
-          url = `https://aprende.marketing/admin/lp/${page.id}-${pageSlug}`;
-        }
+        const url = page.customDomain ? `https://${page.customDomain}` : `https://aprende.marketing/admin/lp/${page.subdomain}/`;
         setCtaLink(url);
         setValidationError(false);
       }
@@ -303,13 +297,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
       if (projectPages.length === 1) {
           const firstPage = projectPages[0];
           setSelectedPageId(firstPage.id);
-          let url = '';
-          if (firstPage.customDomain) {
-              url = `https://${firstPage.customDomain}`;
-          } else {
-              const pageSlug = generateCleanSlug(firstPage.name);
-              url = `https://aprende.marketing/admin/lp/${firstPage.id}-${pageSlug}`;
-          }
+          const url = firstPage.customDomain ? `https://${firstPage.customDomain}` : `https://aprende.marketing/admin/lp/${firstPage.subdomain}/`;
           setCtaLink(url);
       } else {
           setSelectedPageId('');
@@ -589,7 +577,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     setValidationError(false);
     const page = userPages.find(p => String(p.id) === String(pageId));
     if (page) {
-        const url = page.customDomain ? `https://${page.customDomain}` : `https://${page.subdomain}`;
+        const url = page.customDomain ? `https://${page.customDomain}` : `https://aprende.marketing/admin/lp/${page.subdomain}/`;
         setCtaLink(url);
     } else {
         setCtaLink('');

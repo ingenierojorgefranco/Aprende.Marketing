@@ -114,20 +114,26 @@ export const generateFullArticle = async (
     REGLAS DE REDACCIÓN Y ESTRUCTURA:
     1. PÁRRAFOS CORTOS: Cada párrafo debe tener un máximo de 3 a 4 líneas para facilitar la lectura rápida.
     2. TÍTULO ÚNICO: Genera una variación del título base que sea única, viral y altamente atractiva, manteniendo el enfoque y la keyword (o una variación coherente de la misma).
-    3. LLAMADOS A LA ACCIÓN (CTAs) PERSUASIVOS: Inserta exactamente DOS banners de CTA en formato HTML dentro del contenido. 
-       - El primero debe ir aproximadamente a la mitad del artículo.
-       - El segundo debe ir al final del artículo.
-       - Cada CTA debe tener un texto persuasivo DIFERENTE y UNICO, enfocado en la motivación y la transformación. No repitas el mismo texto.
-       - Usa exactamente esta estructura HTML para cada banner (rellenando los campos entre corchetes con contenido altamente persuasivo):
-       
-       <div style="margin: 40px 0; padding: 40px; border-radius: 24px; background: linear-gradient(135deg, #0f172a 0%, #000000 100%); border: 1px solid rgba(255,255,255,0.1); text-align: center; font-family: sans-serif;">
-         <h3 style="font-size: 28px; font-weight: 800; color: #ffffff; margin-bottom: 16px; line-height: 1.2;">[TITULO_PERSUASIVO_AQUÍ]</h3>
-         <p style="font-size: 18px; color: #cbd5e1; margin-bottom: 32px; line-height: 1.6;">[TEXTO_MOTIVADOR_AQUÍ]</p>
-         <a href="${ctaLink}" style="display: inline-block; background-color: #ffffff; color: #000000; font-weight: 700; padding: 18px 36px; border-radius: 16px; text-decoration: none; font-size: 18px;">[TEXTO_BOTON_AQUÍ]</a>
+    3. BANNERS DE LLAMADO A LA ACCIÓN (CTA) REALES: 
+       - Inserta DOS banners de CTA en formato HTML real dentro del contenido (uno aproximadamente en la mitad y otro al final).
+       - CADA BANNER DEBE TENER UN TEXTO PERSUASIVO DIFERENTE. No los repitas.
+       - El primer banner debe enfocarse en despertar curiosidad y el deseo de transformación.
+       - El segundo banner (al final) debe ser un cierre potente invitando a la acción inmediata (Clase Gratuita).
+       - Usa EXACTAMENTE esta estructura HTML para los banners, adaptando los textos internos para que sean altamente motivadores y persuasivos:
+
+       <div style="margin: 4rem 0; padding: 2.5rem; border-radius: 2.5rem; background: linear-gradient(to bottom right, #111827, #000000); border: 1px solid rgba(255,255,255,0.1); text-align: center; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+         <div style="position: relative; z-index: 10;">
+           <h3 style="font-size: 2.25rem; font-weight: 900; margin-bottom: 1rem; color: #ffffff; text-transform: uppercase; letter-spacing: -0.025em; font-style: italic;">[TEXTO PERSUASIVO AQUÍ]</h3>
+           <p style="font-size: 1.25rem; color: #d1d5db; margin-bottom: 2rem; max-width: 42rem; margin-left: auto; margin-right: auto; line-height: 1.625;">[DESCRIPCIÓN MOTIVADORA AQUÍ]</p>
+           <a href="${ctaLink}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.75rem; font-weight: 900; padding: 1.25rem 2.5rem; border-radius: 1rem; background-color: #FF5A1F; color: #ffffff; text-decoration: none; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.875rem;">
+             ACCEDER A LA CLASE GRATUITA
+           </a>
+         </div>
        </div>
 
     4. META DESCRIPTION: Genera una meta description optimizada (Máx 155 car.).
     5. NO incluyas el Título Principal (H1) dentro del campo 'html'.
+    6. ASEGÚRATE de que el enlace en el botón sea "${ctaLink}" y tenga target="_blank".
 
     Formato de Salida JSON: { "title": "Nuevo Título Viral", "html": "Contenido HTML...", "metaDescription": "..." }`;
 
