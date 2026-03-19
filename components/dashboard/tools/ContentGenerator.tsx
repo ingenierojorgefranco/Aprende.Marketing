@@ -423,6 +423,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
         if (api.isUsingMockData()) {
             await new Promise(resolve => setTimeout(resolve, 2000));
             result = {
+                title: topic,
                 html: `<p>Contenido de prueba para <strong>${topic}</strong>.</p><h2>Introducción</h2><p>Texto generado.</p><div style="text-align: center;"><a href="${ctaLink || '#'}" style="background-color: #FF5A1F; color: white; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: bold;">ADQUIRIR EL MÉTODO</a></div>`,
                 metaDescription: `Descubre los secretos de ${topic}.`
             };
@@ -430,20 +431,23 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
             result = await generateFullArticle(idea.title, generatedOutline, objective, ctaLink || '#', keyword, projectContext);
         }
 
+        const finalTitle = result.title || topic;
+        setArticleTitle(finalTitle);
+        setMetaTitle(finalTitle);
         setArticleContent(result.html || "<p>Error en la generación.</p>");
         setMetaDescription(result.metaDescription || '');
 
         const articlePayload = {
           projectId: selectedProject || preSelectedProjectId || undefined,
           pageId: selectedPageId || undefined,
-          title: topic,
+          title: finalTitle,
           slug: finalSlug,
           description: result.metaDescription || objective || '',
           contentHtml: result.html || '',
           featuredImage: featuredImage,
           keyword: keyword,
           seoScore: 0,
-          metaTitle: topic,
+          metaTitle: finalTitle,
           metaDescription: result.metaDescription || '',
           status: 'published' as const,
           publishedAt: new Date(),
@@ -508,6 +512,9 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ onSave, preF
     const projectContext = userProjects.find(p => p.id === selectedProject);
     try {
       const result = await generateFullArticle(selectedTitle.title, outline, objective, ctaLink || '#', keyword, projectContext);
+      const finalTitle = result.title || selectedTitle.title;
+      setArticleTitle(finalTitle);
+      setMetaTitle(finalTitle);
       setArticleContent(result.html || "<p>Error en la generación.</p>");
       setMetaDescription(result.metaDescription || '');
       setStep(5);

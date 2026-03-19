@@ -83,7 +83,7 @@ export const generateFullArticle = async (
     ctaLink: string, 
     keyword: string,
     projectContext?: Project 
-): Promise<{ html: string; metaDescription: string }> => {
+): Promise<{ title: string; html: string; metaDescription: string }> => {
     
     let projectStrategy = "";
     if (projectContext) {
@@ -98,9 +98,11 @@ export const generateFullArticle = async (
         `;
     }
 
-    const prompt = `Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este título y esquema estructural OBLIGATORIO.
+    const prompt = `Actúa como un Mentor/Profesor experto que se dirige a una audiencia colectiva (usa "nosotros", "ustedes", "nuestra comunidad"). Evita mencionar nombres de avatares específicos o dirigirte a una sola persona.
+
+    Escribe un artículo de blog COMPLETO y optimizado para SEO basado en este esquema estructural OBLIGATORIO.
     
-    Título: "${title}"
+    Título Base: "${title}"
     Esquema Estructural: ${JSON.stringify(outline)}
     Objetivo: "${objective}"
     ${keyword ? `Keyword SEO: "${keyword}"` : ''}
@@ -108,19 +110,24 @@ export const generateFullArticle = async (
     
     ${projectStrategy}
 
-    INSTRUCCIONES ADICIONALES:
-    1. Genera también una 'metaDescription' optimizada para SEO (Máx 155 car.).
-    2. NO incluyas el Título Principal (H1) dentro de la respuesta 'html'.
-    
-    Formato de Salida JSON: { "html": "...", "metaDescription": "..." }`;
+    REGLAS DE REDACCIÓN Y ESTRUCTURA:
+    1. PÁRRAFOS CORTOS: Cada párrafo debe tener un máximo de 3 a 4 líneas para facilitar la lectura rápida.
+    2. TÍTULO ÚNICO: Genera una variación del título base que sea única, viral y altamente atractiva, manteniendo el enfoque y la keyword.
+    3. CTA INTERMEDIO (H3): En la mitad del artículo, inserta un encabezado H3 con un llamado a la acción persuasivo que invite a hacer clic en el enlace: ${ctaLink}.
+    4. CTA FINAL DE TRANSFORMACIÓN (H2): Cerca del final, antes de la conclusión, inserta un encabezado H2 enfocado en la transformación que el usuario logrará, seguido de un llamado a la acción motivador hacia: ${ctaLink}.
+    5. META DESCRIPTION: Genera una meta description optimizada (Máx 155 car.).
+    6. NO incluyas el Título Principal (H1) dentro del campo 'html'.
+
+    Formato de Salida JSON: { "title": "Nuevo Título Viral", "html": "Contenido HTML...", "metaDescription": "..." }`;
 
     const schema = {
         type: Type.OBJECT,
         properties: {
+            title: { type: Type.STRING },
             html: { type: Type.STRING },
             metaDescription: { type: Type.STRING }
         },
-        required: ["html", "metaDescription"]
+        required: ["title", "html", "metaDescription"]
     };
 
     try {
@@ -128,8 +135,8 @@ export const generateFullArticle = async (
         if (response.text) {
             return JSON.parse(response.text);
         }
-        return { html: "<p>Error generando el artículo.</p>", metaDescription: "" };
+        return { title: title, html: "<p>Error generando el artículo.</p>", metaDescription: "" };
     } catch (e) {
-        return { html: `<p>Error de conexión o timeout. Intenta con un tema más corto.</p>`, metaDescription: "" };
+        return { title: title, html: `<p>Error de conexión o timeout. Intenta con un tema más corto.</p>`, metaDescription: "" };
     }
 };
