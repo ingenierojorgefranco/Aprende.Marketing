@@ -16,6 +16,7 @@ export const generateArticleTitles = async (topic: string, objective: string, ke
     1. Longitud máxima: 60 caracteres por título.
     2. En el campo 'title' devuelve SOLO el texto del título.
     3. NO generes descripciones. Deja el campo 'description' como una cadena vacía "".
+    4. PRIORIDAD: Coherencia gramatical y contexto. Si la keyword SEO no encaja de forma natural (ej: "errores microblading"), adáptala ligeramente (ej: "Evita estos errores comunes en el microblading") para que el título sea profesional y legible.
     
     Devuelve JSON Array: [{ "title": "...", "description": "" }]`;
 
@@ -112,12 +113,10 @@ export const generateFullArticle = async (
 
     REGLAS DE REDACCIÓN Y ESTRUCTURA:
     1. PÁRRAFOS CORTOS: Cada párrafo debe tener un máximo de 3 a 4 líneas para facilitar la lectura rápida.
-    2. TÍTULO ÚNICO: Genera una variación del título base que sea única, viral y altamente atractiva, manteniendo el enfoque y la keyword.
-    3. BANNER DE VALOR INTERMEDIO: En la mitad del artículo, inserta un bloque HTML que actúe como un banner destacado (Premium Card). Debe tener un fondo suave (#f9fafb), un borde lateral izquierdo llamativo (#FF5A1F de 5px), bordes redondeados y un botón de acción estilizado. Usa este enlace: ${ctaLink}.
-    4. BANNER DE TRANSFORMACIÓN FINAL: Cerca del final, antes de la conclusión, inserta un segundo banner HTML (Premium Card) enfocado en la transformación definitiva del lector, con un diseño profesional y un botón que dirija a: ${ctaLink}.
-    5. ESTILO DE BANNERS: Los banners deben usar estilos en línea (inline-styles) para asegurar que se vean bien en cualquier navegador. Estructura sugerida: <div style="background-color: #f9fafb; border-left: 5px solid #FF5A1F; border-radius: 12px; padding: 25px; margin: 35px 0; font-family: sans-serif;"><h3 style="margin-top: 0; color: #111; font-size: 1.4em; font-weight: 800;">[Título]</h3><p style="color: #4b5563; font-size: 1.1em;">[Beneficio]</p><a href="${ctaLink}" style="display: inline-block; background-color: #FF5A1F; color: white; padding: 14px 28px; border-radius: 50px; text-decoration: none; font-weight: bold;">[Botón]</a></div>
-    6. META DESCRIPTION: Genera una meta description optimizada (Máx 155 car.).
-    7. NO incluyas el Título Principal (H1) dentro del campo 'html'.
+    2. TÍTULO ÚNICO: Genera una variación del título base que sea única, viral y altamente atractiva, manteniendo el enfoque y la keyword (o una variación coherente de la misma).
+    3. BANNER DE VALOR INTERMEDIO: En la mitad del artículo, inserta EXACTAMENTE esta etiqueta: [CTA_BANNER]. No añadas estilos ni HTML complejo aquí, solo esa etiqueta de texto plano.
+    4. META DESCRIPTION: Genera una meta description optimizada (Máx 155 car.).
+    5. NO incluyas el Título Principal (H1) dentro del campo 'html'.
 
     Formato de Salida JSON: { "title": "Nuevo Título Viral", "html": "Contenido HTML...", "metaDescription": "..." }`;
 
