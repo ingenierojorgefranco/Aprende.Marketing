@@ -192,13 +192,14 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             if (!sequence) throw new Error("No se pudo crear o encontrar la secuencia");
 
             // 2. Generar con IA
+            const avatar = strategy.avatars?.[0];
             const generatedEmails = await generateFullEmailSequence(
                 project.name,
                 project.productName || project.name,
                 project.description || '',
-                strategy.avatars?.[0]?.description || '',
-                strategy.avatars?.[0]?.painPoints || [],
-                strategy.avatars?.[0]?.keyBenefits || [],
+                avatar ? `${avatar.archetype}: ${avatar.quote}` : '',
+                avatar ? [avatar.pain] : [],
+                avatar ? [avatar.desire] : [],
                 emailData
             );
 
@@ -258,8 +259,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     Email Marketing: <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-400">Secuencia de Conversión (7 Días)</span>
                 </h3>
 
-                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
-                    <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">
+                <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.1rem] leading-[2rem] font-light">
+                    <p className="flex-1 text-gray-300">
                         Hemos diseñado una secuencia de 7 correos electrónicos estratégicos diseñados para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia.
                     </p>
                     <div className="hidden md:block w-px h-24 bg-blue-500/30"></div>
@@ -340,9 +341,14 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             <div className="bg-white rounded-[2.5rem] shadow-2xl p-10 flex-1 overflow-y-auto font-serif text-xl leading-[1.8] text-gray-900">
                                 <div dangerouslySetInnerHTML={{ __html: currentRealContent }} />
                             </div>
-                            <button onClick={handleCopyEmail} className="w-full py-6 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-black text-lg uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-4">
-                                <Copy className="w-6 h-6" /> Copiar Contenido
-                            </button>
+                            <div className="flex gap-4">
+                                <button onClick={handleCopyEmail} className="flex-1 py-6 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-black text-lg uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-4">
+                                    <Copy className="w-6 h-6" /> Copiar Contenido
+                                </button>
+                                <button onClick={handleStartWriting} className="flex-1 py-6 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-black text-lg uppercase tracking-widest transition-all border border-white/10 flex items-center justify-center gap-4">
+                                    <Edit3 className="w-6 h-6" /> Editar Correo
+                                </button>
+                            </div>
                         </div>
                     ) : (
                         <div className="relative z-10 space-y-10 animate-in fade-in duration-500 h-full flex flex-col">
@@ -367,66 +373,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                 </div>
 
                                 <div className="space-y-12">
-                                    <div className="space-y-4">
-                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                            <Edit3 className="w-4 h-4 text-orange-500" /> Asunto Sugerido
-                                        </label>
-                                        <div className="relative">
-                                            <textarea 
-                                                rows={2}
-                                                value={localSubject}
-                                                onChange={(e) => setLocalSubject(e.target.value)}
-                                                className="w-full bg-black/40 border border-white/5 rounded-2xl py-5 px-6 text-white font-semibold text-lg outline-none focus:border-yellow-500/30 focus:ring-4 focus:ring-yellow-500/5 transition-all resize-none leading-relaxed"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center">
-                                            <label className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                                <Settings2 className="w-4 h-4 text-orange-500" /> Pilar Estratégico (Tipo)
-                                            </label>
-                                            <button 
-                                                onClick={() => setIsTypeLocked(!isTypeLocked)}
-                                                className="text-[10px] font-black text-orange-500 uppercase tracking-widest hover:text-orange-400 transition-all"
-                                            >
-                                                {isTypeLocked ? '[ Cambiar ]' : '[ Bloquear ]'}
-                                            </button>
-                                        </div>
-                                        <div className="relative">
-                                            <select 
-                                                disabled={isTypeLocked}
-                                                value={localPilar}
-                                                onChange={(e) => setLocalPilar(e.target.value)}
-                                                className={`w-full bg-black/40 border border-white/5 rounded-2xl py-5 px-6 text-white font-semibold text-lg outline-none transition-all appearance-none cursor-pointer ${isTypeLocked ? 'opacity-40 grayscale pointer-events-none' : 'border-yellow-500/30 ring-4 ring-yellow-500/5'}`}
-                                            >
-                                                {emailTypes.map(t => (
-                                                    <option key={t} value={t}>{t}</option>
-                                                ))}
-                                            </select>
-                                            {!isTypeLocked && (
-                                                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
-                                                    <ChevronDown className="w-6 h-6 text-yellow-500" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                            <Zap className="w-4 h-4 text-orange-500" /> Propósito Estratégico del Día
-                                        </label>
-                                        <textarea 
-                                            rows={4}
-                                            value={localPurpose}
-                                            onChange={(e) => setLocalPurpose(e.target.value)}
-                                            className="w-full bg-black/40 border border-white/5 rounded-[2rem] p-6 text-gray-400 text-base font-normal leading-relaxed outline-none focus:border-yellow-500/30 focus:ring-4 focus:ring-yellow-500/5 transition-all resize-none mb-6"
-                                        />
-                                    </div>
-
                                     <div className="space-y-6">
                                         <label className="block text-sm font-bold text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                            <Target className="w-4 h-4 text-orange-500" /> ¿Dónde dirigir a tu audiencia?
+                                            <Target className="w-4 h-4 text-blue-500" /> ¿Dónde dirigir a tu audiencia?
                                         </label>
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div 
@@ -515,7 +464,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                                         type="text" 
                                                                         value={newLinkLabel}
                                                                         onChange={e => setNewLinkLabel(e.target.value)}
-                                                                        className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-white text-sm focus:border-[#FF5A1F] outline-none"
+                                                                        className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
                                                                         placeholder="Ej: Checkout Pro"
                                                                     />
                                                                 </div>
@@ -525,7 +474,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                                         type="text" 
                                                                         value={newLinkUrl}
                                                                         onChange={e => setNewLinkUrl(e.target.value)}
-                                                                        className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-emerald-400 text-sm focus:border-[#FF5A1F] outline-none"
+                                                                        className="w-full bg-gray-900 border border-white/5 rounded-xl px-3 py-2 text-emerald-400 text-sm focus:border-blue-500 outline-none"
                                                                         placeholder="https://go.hotmart.com/..."
                                                                     />
                                                                 </div>
@@ -533,7 +482,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                             <button 
                                                                 onClick={handleAddNewHotlink}
                                                                 disabled={savingNewLink}
-                                                                className="w-full py-3 bg-[#FF5A1F] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-[#D94A1E] transition flex items-center justify-center gap-2"
+                                                                className="w-full py-3 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2"
                                                             >
                                                                 {savingNewLink ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
                                                                 Guardar en el Proyecto
@@ -543,7 +492,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                         <div className={`relative ${!localRedirectUrl ? 'ring-2 ring-red-500/50 rounded-xl' : ''}`}>
                                                             <select
                                                                 value={localRedirectUrl || ''}
-                                                                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#FF5A1F] outline-none transition appearance-none cursor-pointer"
+                                                                className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
                                                                 onChange={(e) => {
                                                                     if (e.target.value === 'ADD_NEW') {
                                                                         setIsAddingNewLink(true);
@@ -556,7 +505,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                                 {projectLinks.map((link, i) => (
                                                                     <option key={i} value={link.url}>{link.label}</option>
                                                                 ))}
-                                                                <option value="ADD_NEW" className="text-[#FF5A1F] font-bold">+ Añadir nuevo Hotlink</option>
+                                                                <option value="ADD_NEW" className="text-blue-500 font-bold">+ Añadir nuevo Hotlink</option>
                                                             </select>
                                                             {!localRedirectUrl && (
                                                                 <div className="absolute -bottom-6 left-1 flex items-center gap-1 text-red-500 text-[9px] font-black uppercase tracking-widest animate-pulse">
@@ -575,7 +524,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                     <button 
                                         onClick={() => setShowConfirmModal(true)}
                                         disabled={!localRedirectUrl || isGeneratingFull}
-                                        className={`w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.01] active:scale-95 shadow-orange-500/20 ${(!localRedirectUrl || isGeneratingFull) ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                                        className={`w-full py-6 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.01] active:scale-95 shadow-blue-500/20 ${(!localRedirectUrl || isGeneratingFull) ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
                                     >
                                         {isGeneratingFull ? (
                                             <>
