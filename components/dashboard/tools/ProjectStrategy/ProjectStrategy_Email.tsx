@@ -3,6 +3,7 @@ import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2,
 import { useNavigate, useParams } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, EmailMessage, LandingPage, AffiliateLink } from '../../../../types';
 import { api } from '../../../../services/api';
+import { generateFullEmailSequence } from '../../../../services/geminiService';
 
 interface ProjectStrategy_EmailProps {
     emailData: any[];
@@ -47,6 +48,12 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [newLinkLabel, setNewLinkLabel] = useState('');
     const [newLinkUrl, setNewLinkUrl] = useState('');
     const [savingNewLink, setSavingNewLink] = useState(false);
+    const [isGeneratingFull, setIsGeneratingFull] = useState(false);
+    const [localRealMessages, setLocalRealMessages] = useState<EmailMessage[]>(realMessages);
+
+    useEffect(() => {
+        setLocalRealMessages(realMessages);
+    }, [realMessages]);
 
     const emailTypes = [
         'Entrega de Valor', 
@@ -159,6 +166,71 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         navigate(`/dashboard/email/create?projectId=${projectId}&day=${activeEmail}`);
     };
 
+    const handleGenerateFullSequence = async () => {
+        if (isGeneratingFull) return;
+        
+        setIsGeneratingFull(true);
+        setShowConfirmModal(false);
+
+        try {
+            const project = await api.getProjectById(projectId);
+            if (!project) throw new Error("Proyecto no encontrado");
+
+            const strategy = await api.getProjectStrategy(projectId);
+            if (!strategy) throw new Error("Estrategia no encontrada");
+
+            // 1. Crear la secuencia si no existe
+            const allSequences = await api.getEmailSequences();
+            let sequence = allSequences.find(s => String(s.projectId) === String(projectId));
+            
+            if (!sequence) {
+                const newSeq = await api.createEmailSequence(projectId, `Secuencia: ${project.name}`);
+                const updatedSequences = await api.getEmailSequences();
+                sequence = updatedSequences.find(s => String(s.id) === String(newSeq.id));
+            }
+
+            if (!sequence) throw new Error("No se pudo crear o encontrar la secuencia");
+
+            // 2. Generar con IA
+            const generatedEmails = await generateFullEmailSequence(
+                project.name,
+                project.productName || project.name,
+                project.description || '',
+                strategy.avatars?.[0]?.description || '',
+                strategy.avatars?.[0]?.painPoints || [],
+                strategy.avatars?.[0]?.keyBenefits || [],
+                emailData
+            );
+
+            // 3. Guardar mensajes
+            const existingMessages = await api.getSequenceMessages(sequence.id);
+            
+            for (const genEmail of generatedEmails) {
+                const existing = existingMessages.find(m => m.dayIndex === genEmail.dayIndex);
+                if (existing) {
+                    await api.updateEmailMessage(existing.id, {
+                        subject: genEmail.subject,
+                        content_html: genEmail.contentHtml,
+                        pilarType: genEmail.pilarType,
+                        purpose: genEmail.purpose,
+                        is_generated: true
+                    } as any);
+                }
+            }
+
+            // 4. Recargar mensajes
+            const finalMessages = await api.getSequenceMessages(sequence.id);
+            setLocalRealMessages(finalMessages);
+            alert("¡Secuencia de 7 correos generada con éxito!");
+            
+        } catch (error: any) {
+            console.error(error);
+            alert(`Error al generar secuencia: ${error.message}`);
+        } finally {
+            setIsGeneratingFull(false);
+        }
+    };
+
     // Lógica de límites
     const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
     const maxSequences = planLimits?.maxEmailSequences || 5;
@@ -168,9 +240,11 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     if (usagePercent > 50) progressColor = "bg-yellow-500";
     if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
-    const currentMsg = realMessages.find(m => m.dayIndex === activeEmail);
+    const currentMsg = localRealMessages.find(m => m.dayIndex === activeEmail);
     const isCurrentGenerated = !!currentMsg?.isGenerated;
     const currentRealContent = currentMsg?.contentHtml || '';
+
+    const anyGenerated = localRealMessages.some(m => m.isGenerated);
 
     return (
         <div id="psd-email-section" className="pt-8">
@@ -500,11 +574,22 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                 <div className="mt-8 pb-6">
                                     <button 
                                         onClick={() => setShowConfirmModal(true)}
-                                        disabled={!localRedirectUrl}
-                                        className={`w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.01] active:scale-95 shadow-orange-500/20 ${!localRedirectUrl ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                                        disabled={!localRedirectUrl || isGeneratingFull}
+                                        className={`w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.01] active:scale-95 shadow-orange-500/20 ${(!localRedirectUrl || isGeneratingFull) ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
                                     >
-                                        <Wand2 className="w-6 h-6 fill-current" /> Redactar Correo Electrónico <ArrowRight className="w-4 h-4" />
+                                        {isGeneratingFull ? (
+                                            <>
+                                                <Loader2 className="w-6 h-6 animate-spin" /> Generando Secuencia...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Wand2 className="w-6 h-6 fill-current" /> {anyGenerated ? 'Regenerar Secuencia Completa' : 'Generar Secuencia Completa (7 Días)'} <ArrowRight className="w-4 h-4" />
+                                            </>
+                                        )}
                                     </button>
+                                    <p className="text-center text-gray-500 text-[10px] mt-4 uppercase tracking-widest font-bold">
+                                        * Se generarán los 7 correos de forma coherente en un solo proceso.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -522,10 +607,15 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                     <Sparkles className="w-10 h-10" />
                                 </div>
                                 <div className="space-y-2">
-                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirma si deseas generar tu secuencia</h3>
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">
+                                        {anyGenerated ? '¿Deseas regenerar la secuencia?' : 'Confirma si deseas generar tu secuencia'}
+                                    </h3>
                                 </div>
                                 <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                                    Redactar una nueva secuencia de email consumirá créditos de tu plan. Confirma a continuación si deseas generar la secuencia de email que has seleccionado en tu plan <span className="text-blue-400 font-bold capitalize">{planLimits?.planName || 'Starter'}</span>.
+                                    {anyGenerated 
+                                        ? 'Esta acción reemplazará los correos actuales por una nueva secuencia coherente de 7 días. Esto consumirá 1 crédito de tu plan.'
+                                        : `Redactar una nueva secuencia de email consumirá créditos de tu plan. Confirma a continuación si deseas generar la secuencia de email que has seleccionado en tu plan ${planLimits?.planName || 'Starter'}.`
+                                    }
                                 </p>
                             </div>
                             <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner">
@@ -540,7 +630,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         </div>
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
                             <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
-                            <button onClick={handleStartWriting} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-purple-900/20 transform hover:scale-105 active:scale-95 transition-all">Confirmar y Redactar</button>
+                            <button onClick={handleGenerateFullSequence} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-purple-900/20 transform hover:scale-105 active:scale-95 transition-all">Confirmar y Generar Todo</button>
                         </div>
                     </div>
                 </div>

@@ -43,3 +43,8 @@ export const generateBotReply = async (...args: any[]) => {
     const { generateBotReply: func } = await import("./geminiservices/chatService");
     return (func as any)(...args);
 };
+
+export const generateFullEmailSequence = async (...args: any[]) => {
+    const { generateFullEmailSequence: func } = await import("./geminiservices/emailService");
+    return (func as any)(...args);
+};
