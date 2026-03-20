@@ -85,10 +85,33 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
             [req.user.id, projectId]
         );
 
+        let sequenceId;
+
         if (seqRows.length === 0) {
-            return res.status(404).json({ error: "Secuencia no encontrada para este proyecto." });
+            // Si no existe, la creamos automáticamente
+            const [projectRows] = await pool.query('SELECT name FROM projects WHERE id = ?', [projectId]);
+            const projectName = projectRows[0]?.name || 'Secuencia Nueva';
+
+            const [result] = await pool.query(
+                'INSERT INTO email_sequences (user_id, project_id, name, status) VALUES (?, ?, ?, "borrador")',
+                [req.user.id, projectId, projectName]
+            );
+            sequenceId = result.insertId;
+
+            // Inicializar los 7 mensajes basados en sequenceData
+            if (sequenceData && Array.isArray(sequenceData)) {
+                for (let i = 0; i < sequenceData.length; i++) {
+                    const p = sequenceData[i];
+                    await pool.query(
+                        `INSERT INTO email_messages (sequence_id, day_index, pilar_type, subject, purpose, content_html, is_generated) 
+                         VALUES (?, ?, ?, ?, ?, "", 0)`,
+                        [sequenceId, i, p.pilarType, p.subject, p.purpose]
+                    );
+                }
+            }
+        } else {
+            sequenceId = seqRows[0].id;
         }
-        const sequenceId = seqRows[0].id;
 
         // 2. Generar contenido con IA
         const generatedEmails = await generateEmailSequenceContent(projectId, sequenceData);
@@ -101,7 +124,7 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
             );
         }
 
-        res.json({ success: true });
+        res.json({ success: true, sequenceId });
     } catch (e) {
         console.error("Error en generate-full sequence:", e);
         res.status(500).json({ error: e.message });
