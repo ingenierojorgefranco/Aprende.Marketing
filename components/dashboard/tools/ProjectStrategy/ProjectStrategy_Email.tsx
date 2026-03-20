@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, EmailMessage, LandingPage, AffiliateLink } from '../../../../types';
 import { api } from '../../../../services/api';
 
@@ -26,6 +26,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 }) => {
     const navigate = useNavigate();
     const { id: projectId } = useParams() as { id: string };
+    const { user } = useOutletContext() as any;
 
     // Estados locales para permitir el refinamiento estratégico antes de la generación
     const [localSubject, setLocalSubject] = useState('');
@@ -35,6 +36,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [saveIndicator, setSaveIndicator] = useState<'idle' | 'saving' | 'saved'>('idle');
+    const [isPreviewMode, setIsPreviewMode] = useState(true);
 
     // Estados locales para interactividad inmediata de redirección
     const [localRedirectType, setLocalRedirectType] = useState<'landing' | 'hotlink' | 'external' | undefined>(undefined);
@@ -88,19 +90,44 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 setLocalSubject(currentReal.subject || '');
                 setLocalPilar(currentReal.pilarType || '');
                 setLocalPurpose(currentReal.purpose || '');
-                setLocalRedirectType(currentReal.redirectType);
-                setLocalRedirectUrl(currentReal.redirectUrl);
+                
+                // Lógica de destino por defecto
+                const defaultType = currentReal.redirectType || 'hotlink';
+                setLocalRedirectType(defaultType);
+                
+                if (currentReal.redirectUrl) {
+                    setLocalRedirectUrl(currentReal.redirectUrl);
+                } else if (defaultType === 'hotlink' && projectLinks.length > 0) {
+                    // Buscar link con "precio full" o "completo"
+                    const fullPriceLink = projectLinks.find(l => 
+                        l.label.toLowerCase().includes('precio full') || 
+                        l.label.toLowerCase().includes('completo')
+                    );
+                    setLocalRedirectUrl(fullPriceLink ? fullPriceLink.url : projectLinks[0].url);
+                } else {
+                    setLocalRedirectUrl(undefined);
+                }
             } else if (currentStatic) {
                 setLocalSubject(currentStatic.subject || '');
                 setLocalPilar(currentStatic.type || '');
                 setLocalPurpose(currentStatic.objective || '');
-                setLocalRedirectType(undefined);
-                setLocalRedirectUrl(undefined);
+                
+                // Default para estáticos
+                setLocalRedirectType('hotlink');
+                if (projectLinks.length > 0) {
+                    const fullPriceLink = projectLinks.find(l => 
+                        l.label.toLowerCase().includes('precio full') || 
+                        l.label.toLowerCase().includes('completo')
+                    );
+                    setLocalRedirectUrl(fullPriceLink ? fullPriceLink.url : projectLinks[0].url);
+                } else {
+                    setLocalRedirectUrl(undefined);
+                }
             }
             setIsTypeLocked(true);
             lastActiveEmailRef.current = activeEmail;
         }
-    }, [activeEmail, emailData, realMessages]);
+    }, [activeEmail, emailData, realMessages, projectLinks]);
 
     const handleUpdateMessage = async (field: string, value: any) => {
         // Actualización optimista del estado local para interactividad inmediata
@@ -273,8 +300,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                             {idx + 1}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <span className={`text-[1em] font-bold uppercase tracking-wider block mb-0.5 ${isDayGenerated ? 'text-emerald-400' : 'text-gray-500'}`}>Día {idx + 1}</span>
-                                            <h4 className={`text-[1em] font-normal leading-relaxed whitespace-normal break-words ${isDayGenerated ? 'text-white' : (activeEmail === idx ? 'text-blue-200' : 'text-gray-400')}`}>{email.subject}</h4>
+                                            <span className={`text-lg font-bold uppercase tracking-wider block mb-0.5 ${isDayGenerated ? 'text-emerald-400' : 'text-gray-500'}`}>Día {idx + 1}</span>
+                                            <h4 className={`text-xl font-normal leading-relaxed whitespace-normal break-words ${isDayGenerated ? 'text-white' : (activeEmail === idx ? 'text-blue-200' : 'text-gray-400')}`}>{email.subject}</h4>
                                         </div>
                                     </div>
                                     <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${isDayGenerated ? 'border-emerald-500 bg-emerald-500' : (activeEmail === idx ? 'border-blue-500 bg-blue-500' : 'border-white/10 bg-white/5')}`}>
@@ -312,41 +339,81 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     
                     {isCurrentGenerated ? (
                         <div className="relative z-10 flex flex-col h-full animate-in slide-in-from-bottom-4 duration-500 space-y-6">
-                            <div className="flex justify-between items-center bg-emerald-900/20 text-emerald-400 border border-emerald-500/20 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
-                                <span>VISTA PREVIA: DÍA {activeEmail + 1}</span>
-                                {saveIndicator === 'saving' && <span className="flex items-center gap-2 text-blue-400"><Loader2 className="w-3 h-3 animate-spin"/> Guardando...</span>}
-                                {saveIndicator === 'saved' && <span className="flex items-center gap-2 text-emerald-400"><CheckCircle2 className="w-3 h-3"/> Guardado</span>}
+                            <div className="flex justify-between items-center">
+                                <span className="text-2xl font-black text-white uppercase tracking-tight">
+                                    {localPilar || 'Nutrición'}
+                                </span>
+                                <div className="flex items-center gap-4">
+                                    <span className="bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-500/20 border border-blue-400/30">
+                                        Día {activeEmail + 1}
+                                    </span>
+                                    {saveIndicator === 'saving' && <span className="flex items-center gap-2 text-blue-400 text-[10px] font-bold uppercase tracking-widest"><Loader2 className="w-3 h-3 animate-spin"/> Guardando...</span>}
+                                    {saveIndicator === 'saved' && <span className="flex items-center gap-2 text-emerald-400 text-[10px] font-bold uppercase tracking-widest"><CheckCircle2 className="w-3 h-3"/> Guardado</span>}
+                                </div>
                             </div>
                             
-                            <div className="bg-white rounded-[2.5rem] shadow-2xl p-0 flex-1 overflow-hidden flex flex-col border border-gray-200">
-                                {/* Email Header Mockup */}
-                                <div className="bg-gray-50 border-b border-gray-200 p-6 space-y-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">A</div>
-                                        <div>
-                                            <div className="text-sm font-bold text-gray-900">Tu Asistente de Marketing</div>
-                                            <div className="text-xs text-gray-500">Para: tu_cliente@ejemplo.com</div>
-                                        </div>
+                            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-200 overflow-hidden flex flex-col flex-1">
+                                <div className="h-10 bg-white border-b border-gray-200 flex items-center px-6 justify-between shrink-0">
+                                    <div className="flex gap-1.5">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                                        <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
                                     </div>
-                                    <div className="pt-2">
-                                        <input 
-                                            type="text"
-                                            value={localSubject}
-                                            onChange={(e) => handleUpdateMessage('subject', e.target.value)}
-                                            className="w-full bg-transparent border-none p-0 text-xl font-bold text-gray-900 focus:ring-0 outline-none"
-                                            placeholder="Asunto del correo..."
-                                        />
-                                    </div>
+                                    <div className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">Editor de Correo Persuasivo</div>
+                                    <div className="w-10"></div>
                                 </div>
 
-                                {/* Email Content Editor */}
-                                <div className="p-10 flex-1 overflow-y-auto font-serif text-xl leading-[1.8] text-gray-900">
-                                    <textarea 
-                                        value={currentRealContent}
-                                        onChange={(e) => handleUpdateMessage('contentHtml', e.target.value)}
-                                        className="w-full h-full bg-transparent border-none p-0 focus:ring-0 outline-none resize-none"
-                                        placeholder="Escribe el contenido del correo aquí..."
-                                    />
+                                <div className="p-6 md:p-8 space-y-6 flex-1 flex flex-col">
+                                    <div className="space-y-3 text-sm border-b border-gray-100 pb-6">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px]">De:</span>
+                                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-xs font-bold">{user?.name?.charAt(0) || 'A'}</div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-black font-bold leading-none">{user?.name || 'Tu Asistente'}</span>
+                                                    <span className="text-[10px] text-gray-400 font-medium">{user?.email || 'asistente@marketing.com'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px]">Para:</span>
+                                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                                <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-bold">L</div>
+                                                <span className="text-black font-bold">{avatars[0]?.name || 'Cliente Ideal'} (Avatar Estratégico)</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-2 mt-4">
+                                            <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px] mt-2">Asunto:</span>
+                                            <textarea 
+                                                value={localSubject}
+                                                title="Clic para editar"
+                                                onChange={(e) => handleUpdateMessage('subject', e.target.value)}
+                                                className="flex-1 bg-white border-none focus:ring-0 text-black font-black text-xl md:text-2xl leading-tight resize-none h-auto p-0 cursor-text"
+                                                rows={2}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 pt-2">
+                                        {isPreviewMode ? (
+                                            <div 
+                                                className="w-full h-full min-h-[400px] bg-gray-50 border border-gray-100 rounded-2xl p-6 md:p-8 focus:ring-0 text-black text-xl leading-[1.8] font-serif outline-none overflow-y-auto custom-scrollbar cursor-text"
+                                                title="Clic para editar"
+                                                onClick={() => setIsPreviewMode(false)}
+                                                dangerouslySetInnerHTML={{ __html: currentRealContent }}
+                                            />
+                                        ) : (
+                                            <textarea 
+                                                value={currentRealContent}
+                                                title="Clic para editar"
+                                                onChange={(e) => handleUpdateMessage('contentHtml', e.target.value)}
+                                                onBlur={() => setIsPreviewMode(true)}
+                                                className="w-full h-full min-h-[400px] bg-gray-50 border border-gray-100 rounded-2xl p-6 md:p-8 focus:ring-0 text-black text-base font-mono outline-none resize-none overflow-y-auto custom-scrollbar"
+                                                placeholder="Escribe el contenido del correo aquí..."
+                                                autoFocus
+                                            />
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -354,21 +421,15 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                 <button onClick={handleCopyEmail} className="flex-1 py-5 rounded-2xl bg-gray-800 hover:bg-gray-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3">
                                     <Copy className="w-5 h-5" /> Copiar Contenido
                                 </button>
-                                <button 
-                                    onClick={() => navigate(`/dashboard/email/create?projectId=${projectId}&day=${activeEmail}`)}
-                                    className="px-8 py-5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3"
-                                >
-                                    <Edit3 className="w-5 h-5" /> Editor Avanzado
-                                </button>
                             </div>
                         </div>
                     ) : (
                         <div className="relative z-10 space-y-10 animate-in fade-in duration-500 h-full flex flex-col">
-                            <div className="flex items-center gap-3">
-                                <span className="bg-yellow-900/20 text-yellow-400 border border-yellow-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
+                            <div className="flex justify-between items-center">
+                                <span className="text-2xl font-black text-white uppercase tracking-tight">
                                     {localPilar || 'Nutrición'}
                                 </span>
-                                <span className="bg-blue-900/20 text-blue-400 border border-blue-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
+                                <span className="bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-500/20 border border-blue-400/30">
                                     Día {activeEmail + 1}
                                 </span>
                             </div>
@@ -380,7 +441,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                     </div>
                                     <div>
                                         <h4 className="text-white font-medium tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>Estrategia de Correo Electrónico: Día No {activeEmail + 1}</h4>
-                                        <p className="text-sm text-gray-400 font-medium leading-relaxed mt-2">Nuestra inteligencia Artificial generará tu correo electrónico teniendo en cuenta la siguiente información.</p>
                                     </div>
                                 </div>
 
@@ -397,7 +457,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                     setLocalSubject(e.target.value);
                                                     handleUpdateMessage('subject', e.target.value);
                                                 }}
-                                                className="w-full bg-black/40 border border-white/5 rounded-2xl py-5 px-6 text-white font-semibold text-lg outline-none focus:border-yellow-500/30 focus:ring-4 focus:ring-yellow-500/5 transition-all resize-none leading-relaxed"
+                                                className="w-full bg-black/40 border border-white/5 rounded-2xl py-5 px-6 text-white font-semibold text-xl outline-none focus:border-yellow-500/30 focus:ring-4 focus:ring-yellow-500/5 transition-all resize-none leading-relaxed"
                                             />
                                         </div>
                                     </div>
@@ -447,7 +507,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                 setLocalPurpose(e.target.value);
                                                 handleUpdateMessage('purpose', e.target.value);
                                             }}
-                                            className="w-full bg-black/40 border border-white/5 rounded-[2rem] p-6 text-gray-400 text-base font-normal leading-relaxed outline-none focus:border-yellow-500/30 focus:ring-4 focus:ring-yellow-500/5 transition-all resize-none mb-6"
+                                            className="w-full bg-black/40 border border-white/5 rounded-[2rem] p-6 text-gray-400 text-lg font-normal leading-relaxed outline-none focus:border-yellow-500/30 focus:ring-4 focus:ring-yellow-500/5 transition-all resize-none mb-6"
                                         />
                                     </div>
 
