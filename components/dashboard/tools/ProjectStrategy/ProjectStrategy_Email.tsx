@@ -213,6 +213,19 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         </div>
                     </div>
 
+                    {/* Barra de Progreso de Emails */}
+                    <div className="w-full mb-6">
+                        <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
+                            <div className="flex justify-between items-center mb-2 text-sm">
+                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Correos Generados/Desbloqueados</span>
+                                <span className="text-white font-bold">{sequenceUsed} / {isRealAdmin ? '∞' : maxSequences}</span>
+                            </div>
+                            <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (sequenceUsed > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="space-y-4 flex-1 pr-2">
                         {emailData.map((email: any, idx: number) => {
                             const isDayGenerated = realMessages.some(m => m.dayIndex === idx && m.isGenerated);
@@ -227,8 +240,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                             {idx + 1}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <span className={`text-[10px] font-bold uppercase tracking-wider block mb-0.5 ${isDayGenerated ? 'text-emerald-400' : 'text-gray-500'}`}>{email.day}</span>
-                                            <h4 className={`text-sm font-semibold leading-relaxed whitespace-normal break-words ${isDayGenerated ? 'text-white' : (activeEmail === idx ? 'text-blue-200' : 'text-gray-400')}`}>{email.subject}</h4>
+                                            <span className={`text-[1em] font-bold uppercase tracking-wider block mb-0.5 ${isDayGenerated ? 'text-emerald-400' : 'text-gray-500'}`}>Día {idx + 1}</span>
+                                            <h4 className={`text-[1em] font-normal leading-relaxed whitespace-normal break-words ${isDayGenerated ? 'text-white' : (activeEmail === idx ? 'text-blue-200' : 'text-gray-400')}`}>{email.subject}</h4>
                                         </div>
                                     </div>
                                     <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${isDayGenerated ? 'border-emerald-500 bg-emerald-500' : (activeEmail === idx ? 'border-blue-500 bg-blue-500' : 'border-white/10 bg-white/5')}`}>
@@ -241,7 +254,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 </div>
 
                 {/* RIGHT: CONFIGURATION / CONTENT */}
-                <div className="lg:col-span-7 bg-gray-900/40 backdrop-blur-md border border-white/5 rounded-[3rem] p-10 shadow-xl relative overflow-hidden flex-1 min-h-[600px]">
+                <div className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-blue-900/10 border border-white/5 rounded-[3rem] p-10 shadow-xl relative overflow-hidden flex-1 min-h-[600px]">
+                    <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Target className="w-40 h-40 text-blue-500" /></div>
                     <div className={`absolute top-0 left-0 w-1 h-full ${isCurrentGenerated ? 'bg-emerald-500/50' : 'bg-blue-500/50'}`}></div>
                     
                     {isCurrentGenerated ? (
@@ -258,11 +272,13 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         </div>
                     ) : (
                         <div className="relative z-10 space-y-10 animate-in fade-in duration-500 h-full flex flex-col">
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
                                 <span className="bg-yellow-900/20 text-yellow-400 border border-yellow-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
-                                    Configurando: {localPilar || 'Nutrición'}
+                                    {localPilar || 'Nutrición'}
                                 </span>
-                                <span className="text-white text-lg font-black uppercase tracking-widest">Correo del Día {activeEmail + 1}</span>
+                                <span className="bg-blue-900/20 text-blue-400 border border-blue-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
+                                    Día {activeEmail + 1}
+                                </span>
                             </div>
 
                             <div className="relative flex-1">
@@ -271,8 +287,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                         <Lightbulb className="w-8 h-8" />
                                     </div>
                                     <div>
-                                        <h4 className="text-2xl font-black text-white tracking-tight">Estrategia de Correo Electrónico: Día No {activeEmail + 1}</h4>
-                                        <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-2 leading-relaxed">Nuestra inteligencia Artificial generará tu correo electrónico teniendo en cuenta la siguiente información.</p>
+                                        <h4 className="text-white font-medium tracking-tight" style={{ fontSize: '1.6rem', lineHeight: '2.2rem' }}>Estrategia de Correo Electrónico: Día No {activeEmail + 1}</h4>
+                                        <p className="text-sm text-gray-400 font-medium leading-relaxed mt-2">Nuestra inteligencia Artificial generará tu correo electrónico teniendo en cuenta la siguiente información.</p>
                                     </div>
                                 </div>
 
