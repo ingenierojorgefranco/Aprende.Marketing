@@ -266,22 +266,22 @@ export const generateFullStrategy = async (projectId) => {
         
 
         INSTRUCCIONES PARA CONTENIDOS DE EMAIL emails (OBLIGATORIO):
-       Actúa como un Copywriter Senior experto en Marketing de Respuesta Directa. Tu misión es redactar una secuencia de titulos y contenidos de 7 correos electrónicos (Día 0 al Día 6) diseñada para convertir prospectos en compradores del producto
+       Actúa como un Copywriter Senior experto en Marketing de Respuesta Directa. Tu misión es redactar una secuencia de titulos y contenidos de 7 correos electrónicos (Día 1 al Día 7) diseñada para convertir prospectos en compradores del producto
         
         REGLA DE COHERENCIA DE VERBOS:
         Si el Lead Magnet es un PDF, Guía o Ebook, utiliza verbos como "Descargar", "Leer", "Revisar el archivo".
         Si el Lead Magnet es una Clase, Webinar o VSL, utiliza verbos como "Ver ahora", "Asistir", "Reproducir", "Mirar".
-        El correo del Día 0 y los recordatorios posteriores deben ser consistentes con esta acción.
+        El correo del Día 1 y los recordatorios posteriores deben ser consistentes con esta acción.
         
         para ello el sistema tendra el siguiente enfoque segun los dias de envio.
 
-        Día 0: Entrega de Valor. Cumple la promesa. Entrega al usuario el acceso a su Lead Magnet con entusiasmo. Establece autoridad y reciprocidad.
-        Día 1: Agitación del Dolor. Toca la herida. Describe cómo se siente el avatar 1 con sus dolores
-        Día 2: Prueba Social. Muestra que es posible. Narra un caso de éxito del avatar 2 (puedes crear un nombre ficticio coherente) que haya superado los mismos miedos.
-        Día 3: Mecanismo Único. Explica por qué lo que han intentado antes no funciona y por qué este método es la solución definitiva. Elimina las posibles objeciones del avatar 1.
-        Día 4: Lanzamiento de Oferta. Presenta el producto como la mejor opcion para la persona, la que indica la transformacion en su vida.
-        Día 5: Escasez y Valor. Añade presión ética. Menciona que los cupos son limitados o que los bonos están por expirar. Refuerza el valor de la inversión.
-        Día 6: Cierre Final. Llamado a la acción agresivo pero profesional. Confronta al prospecto con su situación actual vs. su potencial futuro si toma acción hoy.
+        Día 1: Entrega de Valor. Cumple la promesa. Entrega al usuario el acceso a su Lead Magnet con entusiasmo. Establece autoridad y reciprocidad.
+        Día 2: Agitación del Dolor. Toca la herida. Describe cómo se siente el avatar 1 con sus dolores
+        Día 3: Prueba Social. Muestra que es posible. Narra un caso de éxito del avatar 2 (puedes crear un nombre ficticio coherente) que haya superado los mismos miedos.
+        Día 4: Mecanismo Único. Explica por qué lo que han intentado antes no funciona y por qué este método es la solución definitiva. Elimina las posibles objeciones del avatar 1.
+        Día 5: Lanzamiento de Oferta. Presenta el producto como la mejor opcion para la persona, la que indica la transformacion en su vida.
+        Día 6: Escasez y Valor. Añade presión ética. Menciona que los cupos son limitados o que los bonos están por expirar. Refuerza el valor de la inversión.
+        Día 7: Cierre Final. Llamado a la acción agresivo pero profesional. Confronta al prospecto con su situación actual vs. su potencial futuro si toma acción hoy.
 
         ten en cuenta la siguiente estructura para generar el json
         
@@ -578,49 +578,49 @@ export const generateFullStrategy = async (projectId) => {
       "nurture": [
         {
                 id: 1,
-                day: "Día 0",
+                day: "Día 1",
                 subject: "🎁 Titulo altamente persuasivo y motivador con acceso al LeadMagnet definido en el proyecto",
                 type: "Entrega de Valor",
                 objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se invita al usuario a ingresar al leadmagnet"
             },
             {
                 id: 2,
-                day: "Día 1",
+                day: "Día 2",
                 subject: "😫 ¿Cansada de trabajar 10h y no ver frutos reales?",
                 type: "Agitación del Dolor",
                 objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que busca conectar emocionalmente con el cansancio sistémico del avatar y la frustración económica."
             },
             {
-                id: 2,
-                day: "Día 2",
+                id: 3,
+                day: "Día 3",
                 subject: "📈 Cómo Maria pasó de 0 a $2,000/mes con cejas",
                 type: "Prueba Social",
                 objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se demuestra la factibilidad mediante un caso de éxito real que genere deseo y credibilidad."
             },
             {
-                id: 3,
-                day: "Día 3",
+                id: 4,
+                day: "Día 4",
                 subject: "💎 La verdad sobre el Microblading (y por qué otros fallan)",
                 type: "Mecanismo Único",
                 objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se explica la diferenciación del curso digital frrente a otros cursos genericos"
             },
             {
-                id: 4,
-                day: "Día 4",
+                id: 5,
+                day: "Día 5",
                 subject: "🚀 ¡INSCRIPCIONES ABIERTAS! Domina la Certificación Pro",
                 type: "Lanzamiento / Oferta",
                 objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se busca Presentar oficialmente el programa completo con todos los beneficios y abrir inscripciones."
             },
             {
-                id: 5,
-                day: "Día 5",
+                id: 6,
+                day: "Día 6",
                 subject: "⏳ Tus 3 Bonos Exclusivos expiran en pocas horas...",
                 type: "Escasez / Valor",
                 objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que Añadir presión positiva mediante la pérdida inminente de los bonos adicionales."
             },
             {
-                id: 6,
-                day: "Día 6",
+                id: 7,
+                day: "Día 7",
                 subject: "⚠️ ÚLTIMA LLAMADA: Tu futuro profesional empieza hoy",
                 type: "Cierre / Urgencia",
                 objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se hace una Llamada final a la acción agresivo pero profesional. Confronta al prospecto con su situación actual vs. su potencial futuro si toma acción hoy."
@@ -793,11 +793,11 @@ export const generateEmailSequenceContent = async (projectId, sequenceData) => {
     Tono de marca: "${project.brand_tone}".
 
     La secuencia debe seguir estos pilares estratégicos para cada día:
-    ${sequenceData.map((s, i) => `Día ${i}: Pilar: ${s.pilarType}, Asunto: ${s.subject}, Objetivo: ${s.purpose}`).join('\n')}
+    ${sequenceData.map((s, i) => `Día ${s.dayIndex}: Pilar: ${s.pilarType}, Asunto: ${s.subject}, Objetivo: ${s.purpose}`).join('\n')}
 
     INSTRUCCIONES DE FORMATO:
     - Retorna un array JSON con 7 objetos.
-    - Cada objeto debe tener: "dayIndex" (0-6) y "contentHtml" (el cuerpo del correo en formato HTML limpio, usa <p>, <br>, <strong>, <a>).
+    - Cada objeto debe tener: "dayIndex" (1-7) y "contentHtml" (el cuerpo del correo en formato HTML limpio, usa <p>, <br>, <strong>, <a>).
     - El contenido debe ser altamente persuasivo, usando técnicas de copywriting (AIDA, PAS).
     - Incluye un marcador de posición [LINK] donde deba ir el enlace de redirección.
     - No incluyas el asunto en el contentHtml, solo el cuerpo.

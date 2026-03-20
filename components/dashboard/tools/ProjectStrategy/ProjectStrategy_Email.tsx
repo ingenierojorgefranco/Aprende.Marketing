@@ -18,10 +18,11 @@ interface ProjectStrategy_EmailProps {
     realMessages?: EmailMessage[];
     isSimulating?: boolean;
     sequenceCount?: number;
+    sequenceId?: string | null;
 }
 
 export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
-    emailData, avatars, activeEmail, setActiveEmail, onUpgrade, features, planLimits, nextPlan, realMessages = [], isSimulating = false, sequenceCount = 0
+    emailData, avatars, activeEmail, setActiveEmail, onUpgrade, features, planLimits, nextPlan, realMessages = [], isSimulating = false, sequenceCount = 0, sequenceId = null
 }) => {
     const navigate = useNavigate();
     const { id: projectId } = useParams() as { id: string };
@@ -78,11 +79,11 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
     // Sincronizar estados locales solo cuando realmente cambiamos de correo
     useEffect(() => {
-        const currentReal = realMessages.find(m => m.dayIndex === activeEmail);
+        const currentReal = realMessages.find(m => m.dayIndex === activeEmail + 1);
         const currentStatic = emailData[activeEmail];
         
-        // Solo reseteamos los estados locales si el índice del correo ha cambiado
-        if (lastActiveEmailRef.current !== activeEmail || localSubject === '') {
+        // Solo reseteamos los estados locales si el índice del correo ha cambiado o si los datos reales acaban de cargar
+        if (lastActiveEmailRef.current !== activeEmail || localSubject === '' || (currentReal && !localSubject)) {
             if (currentReal) {
                 setLocalSubject(currentReal.subject || '');
                 setLocalPilar(currentReal.pilarType || '');
@@ -109,7 +110,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         if (field === 'pilarType') setLocalPilar(value);
         if (field === 'purpose') setLocalPurpose(value);
 
-        const currentReal = realMessages.find(m => m.dayIndex === activeEmail);
+        const currentReal = realMessages.find(m => m.dayIndex === activeEmail + 1);
         if (!currentReal) return;
 
         setSaveIndicator('saving');
@@ -146,7 +147,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     };
 
     const handleCopyEmail = () => {
-        const email = realMessages.find(m => m.dayIndex === activeEmail);
+        const email = realMessages.find(m => m.dayIndex === activeEmail + 1);
         if (!email?.contentHtml) return;
         
         const htmlContent = `<div>${email.contentHtml}</div>`;
@@ -169,9 +170,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         try {
             // Recopilamos la configuración de los 7 días
             const sequenceData = emailData.map((email, idx) => {
-                const real = realMessages.find(m => m.dayIndex === idx);
+                const real = realMessages.find(m => m.dayIndex === idx + 1);
                 return {
-                    dayIndex: idx,
+                    dayIndex: idx + 1,
                     subject: real?.subject || email.subject,
                     pilarType: real?.pilarType || email.type,
                     purpose: real?.purpose || email.objective,
@@ -200,7 +201,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     if (usagePercent > 50) progressColor = "bg-yellow-500";
     if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
-    const currentMsg = realMessages.find(m => m.dayIndex === activeEmail);
+    const currentMsg = realMessages.find(m => m.dayIndex === activeEmail + 1);
     const isCurrentGenerated = !!currentMsg?.isGenerated;
     const currentRealContent = currentMsg?.contentHtml || '';
 
@@ -260,7 +261,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
                     <div className="space-y-4 flex-1 pr-2">
                         {emailData.map((email: any, idx: number) => {
-                            const isDayGenerated = realMessages.some(m => m.dayIndex === idx && m.isGenerated);
+                            const isDayGenerated = realMessages.some(m => m.dayIndex === idx + 1 && m.isGenerated);
                             return (
                                 <div 
                                     key={idx} 
@@ -595,24 +596,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                             )}
                                         </div>
                                     </div>
-                                </div>
-
-                                <div className="mt-8 pb-6">
-                                    <button 
-                                        onClick={() => setShowConfirmModal(true)}
-                                        disabled={!localRedirectUrl || isGenerating}
-                                        className={`w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.01] active:scale-95 shadow-orange-500/20 ${(!localRedirectUrl || isGenerating) ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
-                                    >
-                                        {isGenerating ? (
-                                            <>
-                                                <Loader2 className="w-6 h-6 animate-spin" /> Generando Secuencia...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Sparkles className="w-6 h-6" /> Generar Secuencia de Correo Completa <ArrowRight className="w-4 h-4" />
-                                            </>
-                                        )}
-                                    </button>
                                 </div>
                             </div>
                         </div>

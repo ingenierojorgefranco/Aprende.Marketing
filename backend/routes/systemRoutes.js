@@ -105,7 +105,7 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
                     await pool.query(
                         `INSERT INTO email_messages (sequence_id, day_index, pilar_type, subject, purpose, content_html, is_generated) 
                          VALUES (?, ?, ?, ?, ?, "", 0)`,
-                        [sequenceId, i, p.pilarType, p.subject, p.purpose]
+                        [sequenceId, i + 1, p.pilarType, p.subject, p.purpose]
                     );
                 }
             }
@@ -170,7 +170,7 @@ router.post('/email/sequences', authMiddleware, async (req, res) => {
             await pool.query(
                 `INSERT INTO email_messages (sequence_id, day_index, pilar_type, subject, purpose, content_html, is_generated) 
                  VALUES (?, ?, ?, ?, ?, "", 0)`,
-                [sequenceId, i, p.type, p.subject, `Objetivo del Día ${i}: ${p.type}`]
+                [sequenceId, i + 1, p.type, p.subject, `Objetivo del Día ${i + 1}: ${p.type}`]
             );
         }
 
