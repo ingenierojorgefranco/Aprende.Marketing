@@ -1738,6 +1738,20 @@ export const api = {
         clearCache('emailSequences');
     },
 
+    generateFullEmailSequence: async (projectId: string, sequenceData: any[]): Promise<void> => {
+        if (isMockMode) {
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            return Promise.resolve();
+        }
+        await fetchWithFallback(`/email/sequences/generate-full`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ projectId, sequenceData })
+        });
+        clearCache('emailSequences');
+        clearCache('projectDetails', projectId);
+    },
+
     getWhatsAppLaunches: async (): Promise<WhatsAppLaunch[]> => {
         if (isMockMode) return [];
         if (apiCache.waLaunches) return apiCache.waLaunches;

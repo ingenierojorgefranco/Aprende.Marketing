@@ -774,3 +774,45 @@ export const generateFullStrategy = async (projectId) => {
         throw globalError;
     }
 };
+
+/**
+ * Genera el contenido de una secuencia de correos electrónicos de forma masiva
+ */
+export const generateEmailSequenceContent = async (projectId, sequenceData) => {
+    const [rows] = await pool.query(
+        "SELECT niche, product_name, description, brand_tone FROM projects WHERE id = ?",
+        [projectId]
+    );
+
+    if (rows.length === 0) throw new Error("Proyecto no encontrado.");
+    const project = rows[0];
+
+    const prompt = `Eres un Copywriter experto en Email Marketing y Ventas. 
+    Tu tarea es generar el contenido de una secuencia de 7 correos electrónicos para el producto "${project.product_name}" en el nicho "${project.niche}".
+    Descripción del producto: "${project.description}".
+    Tono de marca: "${project.brand_tone}".
+
+    La secuencia debe seguir estos pilares estratégicos para cada día:
+    ${sequenceData.map((s, i) => `Día ${i}: Pilar: ${s.pilarType}, Asunto: ${s.subject}, Objetivo: ${s.purpose}`).join('\n')}
+
+    INSTRUCCIONES DE FORMATO:
+    - Retorna un array JSON con 7 objetos.
+    - Cada objeto debe tener: "dayIndex" (0-6) y "contentHtml" (el cuerpo del correo en formato HTML limpio, usa <p>, <br>, <strong>, <a>).
+    - El contenido debe ser altamente persuasivo, usando técnicas de copywriting (AIDA, PAS).
+    - Incluye un marcador de posición [LINK] donde deba ir el enlace de redirección.
+    - No incluyas el asunto en el contentHtml, solo el cuerpo.
+    - Asegúrate de que el JSON sea válido y no incluya markdown adicional.`;
+
+    const response = await generateContent('gemini-3-flash-preview', prompt, {
+        responseMimeType: "application/json"
+    });
+
+    try {
+        const cleaned = cleanJsonString(response);
+        const data = JSON.parse(cleaned);
+        return data;
+    } catch (e) {
+        console.error("Error parseando JSON de secuencia de emails:", e);
+        throw new Error("Error en el formato de respuesta de la IA.");
+    }
+};

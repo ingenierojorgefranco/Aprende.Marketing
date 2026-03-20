@@ -32,6 +32,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [localPurpose, setLocalPurpose] = useState('');
     const [isTypeLocked, setIsTypeLocked] = useState(true);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [saveIndicator, setSaveIndicator] = useState<'idle' | 'saving' | 'saved'>('idle');
 
     // Estados locales para interactividad inmediata de redirección
     const [localRedirectType, setLocalRedirectType] = useState<'landing' | 'hotlink' | 'external' | undefined>(undefined);
@@ -103,15 +105,22 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         // Actualización optimista del estado local para interactividad inmediata
         if (field === 'redirectType') setLocalRedirectType(value);
         if (field === 'redirectUrl') setLocalRedirectUrl(value);
+        if (field === 'subject') setLocalSubject(value);
+        if (field === 'pilarType') setLocalPilar(value);
+        if (field === 'purpose') setLocalPurpose(value);
 
         const currentReal = realMessages.find(m => m.dayIndex === activeEmail);
         if (!currentReal) return;
 
+        setSaveIndicator('saving');
         try {
             const apiField = field === 'contentHtml' ? 'content_html' : (field === 'isGenerated' ? 'is_generated' : field);
             await api.updateEmailMessage(currentReal.id, { [apiField]: value } as any);
+            setSaveIndicator('saved');
+            setTimeout(() => setSaveIndicator('idle'), 2000);
         } catch (e) {
             console.error(e);
+            setSaveIndicator('idle');
         }
     };
 
@@ -154,9 +163,32 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         });
     };
 
-    const handleStartWriting = () => {
+    const handleGenerateFullSequence = async () => {
         setShowConfirmModal(false);
-        navigate(`/dashboard/email/create?projectId=${projectId}&day=${activeEmail}`);
+        setIsGenerating(true);
+        try {
+            // Recopilamos la configuración de los 7 días
+            const sequenceData = emailData.map((email, idx) => {
+                const real = realMessages.find(m => m.dayIndex === idx);
+                return {
+                    dayIndex: idx,
+                    subject: real?.subject || email.subject,
+                    pilarType: real?.pilarType || email.type,
+                    purpose: real?.purpose || email.objective,
+                    redirectType: real?.redirectType || 'landing',
+                    redirectUrl: real?.redirectUrl || ''
+                };
+            });
+
+            await api.generateFullEmailSequence(projectId, sequenceData);
+            // Recargar la página o refrescar datos
+            window.location.reload();
+        } catch (e) {
+            console.error(e);
+            alert("Error al generar la secuencia completa.");
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     // Lógica de límites
@@ -251,6 +283,25 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             );
                         })}
                     </div>
+
+                    {/* Botón General de Generación */}
+                    <div className="mt-6 pt-6 border-t border-white/5">
+                        <button 
+                            onClick={() => setShowConfirmModal(true)}
+                            disabled={isGenerating}
+                            className="w-full py-5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isGenerating ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" /> Generando Secuencia...
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles className="w-5 h-5" /> Generar Secuencia Completa
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
 
                 {/* RIGHT: CONFIGURATION / CONTENT */}
@@ -259,16 +310,56 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     <div className={`absolute top-0 left-0 w-1 h-full ${isCurrentGenerated ? 'bg-emerald-500/50' : 'bg-blue-500/50'}`}></div>
                     
                     {isCurrentGenerated ? (
-                        <div className="relative z-10 flex flex-col h-full animate-in slide-in-from-bottom-4 duration-500 space-y-10">
+                        <div className="relative z-10 flex flex-col h-full animate-in slide-in-from-bottom-4 duration-500 space-y-6">
                             <div className="flex justify-between items-center bg-emerald-900/20 text-emerald-400 border border-emerald-500/20 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
-                                GENERADO: DÍA {activeEmail + 1}
+                                <span>VISTA PREVIA: DÍA {activeEmail + 1}</span>
+                                {saveIndicator === 'saving' && <span className="flex items-center gap-2 text-blue-400"><Loader2 className="w-3 h-3 animate-spin"/> Guardando...</span>}
+                                {saveIndicator === 'saved' && <span className="flex items-center gap-2 text-emerald-400"><CheckCircle2 className="w-3 h-3"/> Guardado</span>}
                             </div>
-                            <div className="bg-white rounded-[2.5rem] shadow-2xl p-10 flex-1 overflow-y-auto font-serif text-xl leading-[1.8] text-gray-900">
-                                <div dangerouslySetInnerHTML={{ __html: currentRealContent }} />
+                            
+                            <div className="bg-white rounded-[2.5rem] shadow-2xl p-0 flex-1 overflow-hidden flex flex-col border border-gray-200">
+                                {/* Email Header Mockup */}
+                                <div className="bg-gray-50 border-b border-gray-200 p-6 space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">A</div>
+                                        <div>
+                                            <div className="text-sm font-bold text-gray-900">Tu Asistente de Marketing</div>
+                                            <div className="text-xs text-gray-500">Para: tu_cliente@ejemplo.com</div>
+                                        </div>
+                                    </div>
+                                    <div className="pt-2">
+                                        <input 
+                                            type="text"
+                                            value={localSubject}
+                                            onChange={(e) => handleUpdateMessage('subject', e.target.value)}
+                                            className="w-full bg-transparent border-none p-0 text-xl font-bold text-gray-900 focus:ring-0 outline-none"
+                                            placeholder="Asunto del correo..."
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Email Content Editor */}
+                                <div className="p-10 flex-1 overflow-y-auto font-serif text-xl leading-[1.8] text-gray-900">
+                                    <textarea 
+                                        value={currentRealContent}
+                                        onChange={(e) => handleUpdateMessage('contentHtml', e.target.value)}
+                                        className="w-full h-full bg-transparent border-none p-0 focus:ring-0 outline-none resize-none"
+                                        placeholder="Escribe el contenido del correo aquí..."
+                                    />
+                                </div>
                             </div>
-                            <button onClick={handleCopyEmail} className="w-full py-6 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-black text-lg uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-4">
-                                <Copy className="w-6 h-6" /> Copiar Contenido
-                            </button>
+
+                            <div className="flex gap-4">
+                                <button onClick={handleCopyEmail} className="flex-1 py-5 rounded-2xl bg-gray-800 hover:bg-gray-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3">
+                                    <Copy className="w-5 h-5" /> Copiar Contenido
+                                </button>
+                                <button 
+                                    onClick={() => navigate(`/dashboard/email/create?projectId=${projectId}&day=${activeEmail}`)}
+                                    className="px-8 py-5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3"
+                                >
+                                    <Edit3 className="w-5 h-5" /> Editor Avanzado
+                                </button>
+                            </div>
                         </div>
                     ) : (
                         <div className="relative z-10 space-y-10 animate-in fade-in duration-500 h-full flex flex-col">
@@ -301,7 +392,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                             <textarea 
                                                 rows={2}
                                                 value={localSubject}
-                                                onChange={(e) => setLocalSubject(e.target.value)}
+                                                onChange={(e) => {
+                                                    setLocalSubject(e.target.value);
+                                                    handleUpdateMessage('subject', e.target.value);
+                                                }}
                                                 className="w-full bg-black/40 border border-white/5 rounded-2xl py-5 px-6 text-white font-semibold text-lg outline-none focus:border-yellow-500/30 focus:ring-4 focus:ring-yellow-500/5 transition-all resize-none leading-relaxed"
                                             />
                                         </div>
@@ -323,7 +417,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                             <select 
                                                 disabled={isTypeLocked}
                                                 value={localPilar}
-                                                onChange={(e) => setLocalPilar(e.target.value)}
+                                                onChange={(e) => {
+                                                    setLocalPilar(e.target.value);
+                                                    handleUpdateMessage('pilarType', e.target.value);
+                                                }}
                                                 className={`w-full bg-black/40 border border-white/5 rounded-2xl py-5 px-6 text-white font-semibold text-lg outline-none transition-all appearance-none cursor-pointer ${isTypeLocked ? 'opacity-40 grayscale pointer-events-none' : 'border-yellow-500/30 ring-4 ring-yellow-500/5'}`}
                                             >
                                                 {emailTypes.map(t => (
@@ -345,7 +442,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                         <textarea 
                                             rows={4}
                                             value={localPurpose}
-                                            onChange={(e) => setLocalPurpose(e.target.value)}
+                                            onChange={(e) => {
+                                                setLocalPurpose(e.target.value);
+                                                handleUpdateMessage('purpose', e.target.value);
+                                            }}
                                             className="w-full bg-black/40 border border-white/5 rounded-[2rem] p-6 text-gray-400 text-base font-normal leading-relaxed outline-none focus:border-yellow-500/30 focus:ring-4 focus:ring-yellow-500/5 transition-all resize-none mb-6"
                                         />
                                     </div>
@@ -500,10 +600,18 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                 <div className="mt-8 pb-6">
                                     <button 
                                         onClick={() => setShowConfirmModal(true)}
-                                        disabled={!localRedirectUrl}
-                                        className={`w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.01] active:scale-95 shadow-orange-500/20 ${!localRedirectUrl ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                                        disabled={!localRedirectUrl || isGenerating}
+                                        className={`w-full py-6 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-lg uppercase tracking-[0.2em] transition-all shadow-xl flex items-center justify-center gap-4 transform hover:scale-[1.01] active:scale-95 shadow-orange-500/20 ${(!localRedirectUrl || isGenerating) ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
                                     >
-                                        <Wand2 className="w-6 h-6 fill-current" /> Redactar Correo Electrónico <ArrowRight className="w-4 h-4" />
+                                        {isGenerating ? (
+                                            <>
+                                                <Loader2 className="w-6 h-6 animate-spin" /> Generando Secuencia...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Sparkles className="w-6 h-6" /> Generar Secuencia de Correo Completa <ArrowRight className="w-4 h-4" />
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                             </div>
@@ -522,15 +630,15 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                     <Sparkles className="w-10 h-10" />
                                 </div>
                                 <div className="space-y-2">
-                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirma si deseas generar tu secuencia</h3>
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tight italic">Confirma la generación masiva</h3>
                                 </div>
                                 <p className="text-gray-400 text-lg leading-relaxed font-medium">
-                                    Redactar una nueva secuencia de email consumirá créditos de tu plan. Confirma a continuación si deseas generar la secuencia de email que has seleccionado en tu plan <span className="text-blue-400 font-bold capitalize">{planLimits?.planName || 'Starter'}</span>.
+                                    Estás a punto de generar la secuencia completa de 7 correos electrónicos. Por favor, asegúrate de haber revisado los asuntos, pilares y propósitos de cada día antes de proceder.
                                 </p>
                             </div>
                             <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner">
                                 <div className="flex justify-between items-center mb-3">
-                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Número de Secuencias en tu plan <span className="capitalize">{planLimits?.planName || 'Starter'}</span></span>
+                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Créditos de Secuencia Disponibles</span>
                                     <span className="text-white font-bold text-sm">{sequenceUsed} / {isRealAdmin ? '∞' : maxSequences}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
@@ -539,8 +647,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                             </div>
                         </div>
                         <div className="p-8 bg-black/40 border-t border-white/5 flex gap-4 shrink-0">
-                            <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">No, cancelar</button>
-                            <button onClick={handleStartWriting} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-purple-900/20 transform hover:scale-105 active:scale-95 transition-all">Confirmar y Redactar</button>
+                            <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">Revisar de nuevo</button>
+                            <button onClick={handleGenerateFullSequence} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-purple-900/20 transform hover:scale-105 active:scale-95 transition-all">Generar Secuencia Completa</button>
                         </div>
                     </div>
                 </div>

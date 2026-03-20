@@ -1,6 +1,6 @@
 import express from 'express';
 import pool from '../db.js';
-import { generateContent } from '../geminiService.js';
+import { generateContent, generateEmailSequenceContent } from '../geminiService.js';
 import { authMiddleware } from '../authMiddleware.js';
 import * as stripeService from '../stripeService.js';
 
@@ -69,6 +69,41 @@ router.get('/email/sequences', authMiddleware, async (req, res) => {
 
         res.json(sequencesWithDays);
     } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Generar secuencia completa de correos con IA
+router.post('/email/sequences/generate-full', authMiddleware, async (req, res) => {
+    const { projectId, sequenceData } = req.body;
+    if (!projectId) return res.status(400).json({ error: "Falta ID de proyecto" });
+
+    try {
+        // 1. Verificar si la secuencia existe para este usuario
+        const [seqRows] = await pool.query(
+            'SELECT id FROM email_sequences WHERE user_id = ? AND project_id = ? LIMIT 1',
+            [req.user.id, projectId]
+        );
+
+        if (seqRows.length === 0) {
+            return res.status(404).json({ error: "Secuencia no encontrada para este proyecto." });
+        }
+        const sequenceId = seqRows[0].id;
+
+        // 2. Generar contenido con IA
+        const generatedEmails = await generateEmailSequenceContent(projectId, sequenceData);
+
+        // 3. Actualizar los mensajes en la base de datos
+        for (const email of generatedEmails) {
+            await pool.query(
+                'UPDATE email_messages SET content_html = ?, is_generated = 1 WHERE sequence_id = ? AND day_index = ?',
+                [email.contentHtml, sequenceId, email.dayIndex]
+            );
+        }
+
+        res.json({ success: true });
+    } catch (e) {
+        console.error("Error en generate-full sequence:", e);
         res.status(500).json({ error: e.message });
     }
 });
