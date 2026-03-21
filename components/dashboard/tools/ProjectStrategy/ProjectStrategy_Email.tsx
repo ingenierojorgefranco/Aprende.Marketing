@@ -312,9 +312,6 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                             <h4 className={`text-xl font-normal leading-relaxed whitespace-normal break-words ${isDayGenerated ? 'text-white' : (activeEmail === idx ? 'text-blue-200' : 'text-gray-400')}`}>{email.subject}</h4>
                                         </div>
                                     </div>
-                                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${isDayGenerated ? 'border-emerald-500 bg-emerald-500' : (activeEmail === idx ? 'border-blue-500 bg-blue-500' : 'border-white/10 bg-white/5')}`}>
-                                        {(isDayGenerated || activeEmail === idx) && <Check className={`w-3 h-3 font-bold ${isDayGenerated ? 'text-white' : 'text-white'}`} />}
-                                    </div>
                                 </div>
                             );
                         })}
@@ -410,8 +407,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                 <span className="text-black font-bold">{avatars[0]?.name || 'Cliente Ideal'} (Avatar Estratégico)</span>
                                             </div>
                                         </div>
-                                        <div className="flex items-start gap-2 mt-16 bg-blue-50/50 p-5 rounded-2xl border-2 border-dashed border-blue-200 transition-all hover:bg-blue-100/30 group/subject shadow-inner">
-                                            <span className="font-bold text-blue-500 min-w-[70px] uppercase text-[10px] mt-2.5">Asunto:</span>
+                                        <div className="flex items-start gap-2 bg-blue-50/50 p-5 rounded-2xl border-2 border-dashed border-blue-200 transition-all hover:bg-blue-100/30 group/subject shadow-inner" style={{ marginTop: '3em' }}>
+                                            <span className="font-bold text-blue-500 min-w-[70px] uppercase text-[1em] mt-2.5">Asunto:</span>
                                             <textarea 
                                                 value={localSubject}
                                                 title="Haz clic para editar el asunto"
@@ -430,6 +427,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                         <div 
                                             ref={editorRef}
                                             contentEditable={!isPreviewMode}
+                                            onClick={() => setIsPreviewMode(false)}
                                             onFocus={() => setIsPreviewMode(false)}
                                             onBlur={(e) => {
                                                 setIsPreviewMode(true);

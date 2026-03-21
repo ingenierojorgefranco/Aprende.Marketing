@@ -27,6 +27,12 @@ export interface ProjectMasterStrategy {
             objective: { title: string; description: string };
         };
     };
+    teacher?: {
+        name: string;
+        title: string;
+        bio: string;
+        transformation_tip: string;
+    };
     avatars: Array<{
         id: number;
         name: string;
