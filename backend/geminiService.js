@@ -822,8 +822,9 @@ export const generateEmailSequenceContent = async (projectId, sequenceData) => {
     - BOTÓN CTA: Incluye un botón de llamado a la acción (CTA) llamativo. Usa una etiqueta <a href="[URL_DE_REDIRECCION_DEL_DIA]"> con los siguientes estilos inline: 
       display: inline-block; padding: 15px 30px; background-color: #FF5A1F; color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: bold; margin: 20px 0;
       IMPORTANTE: Debes reemplazar [URL_DE_REDIRECCION_DEL_DIA] con la "URL de Redirección" proporcionada para el día correspondiente. Si la URL proporcionada es solo un slug (ej: "mi-pagina"), anteponle "${process.env.APP_URL || ''}/".
-    - FIRMA: Al final del cuerpo, añade una despedida cordial de "${teacherInfo.name}", mencionando que puede consultar sus datos estratégicos para más ayuda.
-    - POSDATA (P.D.): Después de la firma, añade una posdata con un "Tip de transformación para tu vida" relacionado con el nicho del producto. Usa este tip como base o mejóralo: "${teacherInfo.transformation_tip}".
+      TEXTO DEL BOTÓN: El texto del botón debe ser un llamado a la acción directo de venta como "¡Haz clic para Unirte ahora!" o "¡Quiero mi acceso ahora!". Prohibido usar "Ver Clase Gratuita Ahora".
+    - FIRMA: Al final del cuerpo, añade una despedida cordial con el nombre de la profesora "${teacherInfo.name}" y en la línea de abajo su cargo "${teacherInfo.title || 'Especialista'}". No añadas textos adicionales de ayuda.
+    - POSDATA (Pdta:): Después de la firma, añade una posdata usando estrictamente el prefijo "Pdta:". El contenido debe ser un consejo directo y persuasivo basado en: "${teacherInfo.transformation_tip}". No incluyas el texto "Tip de transformación".
     
     REGLAS ADICIONALES:
     - El contenido debe ser altamente persuasivo, usando técnicas de copywriting (AIDA, PAS).

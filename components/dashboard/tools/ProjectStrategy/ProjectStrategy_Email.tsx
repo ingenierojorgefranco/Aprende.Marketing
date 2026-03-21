@@ -394,40 +394,23 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                     <div className="w-10"></div>
                                 </div>
 
-                                {/* WYSIWYG Toolbar */}
-                                {!isPreviewMode && (
-                                    <div className="bg-gray-50 border-b border-gray-200 p-2 flex flex-wrap gap-1 items-center shrink-0 animate-in slide-in-from-top-2 duration-300">
-                                        <button onClick={() => execCommand('bold')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Negrita"><Bold className="w-4 h-4" /></button>
-                                        <button onClick={() => execCommand('italic')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Cursiva"><Italic className="w-4 h-4" /></button>
-                                        <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                                        <button onClick={() => execCommand('justifyLeft')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Izquierda"><AlignLeft className="w-4 h-4" /></button>
-                                        <button onClick={() => execCommand('justifyCenter')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Centro"><AlignCenter className="w-4 h-4" /></button>
-                                        <button onClick={() => execCommand('justifyRight')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Derecha"><AlignRight className="w-4 h-4" /></button>
-                                        <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                                        <button onClick={() => execCommand('insertUnorderedList')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Lista"><List className="w-4 h-4" /></button>
-                                        <button onClick={() => execCommand('formatBlock', 'h2')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Título"><Type className="w-4 h-4" /></button>
-                                        <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                                        <button onClick={() => execCommand('foreColor', '#FF5A1F')} className="p-2 hover:bg-gray-200 rounded transition-colors text-[#FF5A1F]" title="Color Principal"><Palette className="w-4 h-4" /></button>
-                                    </div>
-                                )}
-
                                 <div className="p-6 md:p-8 space-y-6 flex-1 flex flex-col">
                                     <div className="space-y-3 text-sm border-b border-gray-100 pb-6">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px]">De:</span>
+                                            <span className="font-bold text-gray-400 min-w-[60px] uppercase text-sm">De:</span>
                                             <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
                                                 <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-xs font-bold">{user?.name?.charAt(0) || 'A'}</div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-black font-bold leading-none">{user?.name || 'Tu Asistente'}</span>
-                                                    <span className="text-[10px] text-gray-400 font-medium">{user?.email || 'asistente@marketing.com'}</span>
+                                                    <span className="text-black font-bold leading-none text-base">{user?.name || 'Tu Asistente'}</span>
+                                                    <span className="text-base text-gray-400 font-medium">{user?.email || 'asistente@marketing.com'}</span>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px]">Para:</span>
+                                            <span className="font-bold text-gray-400 min-w-[60px] uppercase text-sm">Para:</span>
                                             <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
                                                 <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-bold">L</div>
-                                                <span className="text-black font-bold">{avatars[0]?.name || 'Cliente Ideal'} (Avatar Estratégico)</span>
+                                                <span className="text-black font-bold text-base">{avatars[0]?.name || 'Cliente Ideal'} (Avatar Estratégico)</span>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-2 bg-blue-50/50 p-5 rounded-2xl border-2 border-dashed border-blue-200 transition-all hover:bg-blue-100/30 group/subject shadow-inner" style={{ marginTop: '3em' }}>
@@ -438,15 +421,38 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                 onChange={(e) => {
                                                     setLocalSubject(e.target.value);
                                                     handleUpdateMessage('subject', e.target.value);
+                                                    // Auto-resize
+                                                    e.target.style.height = 'inherit';
+                                                    e.target.style.height = `${e.target.scrollHeight}px`;
                                                 }}
-                                                className="flex-1 bg-transparent border-none focus:ring-0 text-black font-black text-xl md:text-2xl leading-tight resize-none h-auto p-0 cursor-text placeholder:text-gray-300"
-                                                rows={2}
+                                                onFocus={(e) => {
+                                                    e.target.style.height = 'inherit';
+                                                    e.target.style.height = `${e.target.scrollHeight}px`;
+                                                }}
+                                                className="flex-1 bg-transparent border-none focus:ring-0 text-black font-black text-2xl leading-tight resize-none p-0 cursor-text placeholder:text-gray-300 overflow-hidden"
+                                                rows={1}
                                                 placeholder="Escribe el asunto aquí..."
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="flex-1 pt-4">
+                                    <div className="flex-1 pt-4 relative">
+                                        {/* WYSIWYG Toolbar - Reposicionado encima del mensaje */}
+                                        {!isPreviewMode && (
+                                            <div className="absolute -top-12 left-0 right-0 bg-white border border-gray-200 p-2 flex flex-wrap gap-1 items-center z-20 rounded-xl shadow-xl animate-in slide-in-from-bottom-2 duration-300">
+                                                <button onClick={() => execCommand('bold')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Negrita"><Bold className="w-4 h-4" /></button>
+                                                <button onClick={() => execCommand('italic')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Cursiva"><Italic className="w-4 h-4" /></button>
+                                                <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                <button onClick={() => execCommand('justifyLeft')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Izquierda"><AlignLeft className="w-4 h-4" /></button>
+                                                <button onClick={() => execCommand('justifyCenter')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Centro"><AlignCenter className="w-4 h-4" /></button>
+                                                <button onClick={() => execCommand('justifyRight')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Derecha"><AlignRight className="w-4 h-4" /></button>
+                                                <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                <button onClick={() => execCommand('insertUnorderedList')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Lista"><List className="w-4 h-4" /></button>
+                                                <button onClick={() => execCommand('formatBlock', 'h2')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Título"><Type className="w-4 h-4" /></button>
+                                                <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                <button onClick={() => execCommand('foreColor', '#FF5A1F')} className="p-2 hover:bg-gray-200 rounded transition-colors text-[#FF5A1F]" title="Color Principal"><Palette className="w-4 h-4" /></button>
+                                            </div>
+                                        )}
                                         <div 
                                             ref={editorRef}
                                             contentEditable={!isPreviewMode}
