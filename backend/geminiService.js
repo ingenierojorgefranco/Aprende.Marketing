@@ -199,8 +199,7 @@ export const generateFullStrategy = async (projectId) => {
     let step1Data;
 
     // 3. GENERACIÓN REAL ETAPA 1 (IA - Fusionada con Psicología)
-    try {
-        process.stdout.write(`⏳ [PIPELINE IA] Llamando a Gemini 3 Flash para Etapa 1 + Psicología: ${productName}...\n`);
+    process.stdout.write(`⏳ [PIPELINE IA] Llamando a Gemini 3 Flash para Etapa 1 + Psicología: ${productName}...\n`);
 
         //const step1Prompt = ``;
         
