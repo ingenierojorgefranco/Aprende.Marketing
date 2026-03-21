@@ -18,7 +18,8 @@ export const EmailMarketing: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   /* Fin de actualización - 24/06/2024 15:15 */
 
-  const [activeTab, setActiveTab] = useState<'sequence' | 'leads' | 'config'>('sequence');
+  const [activeTab, setActiveTab] = useState<'conversion' | 'nurturing' | 'leads' | 'config'>('conversion');
+  const [wizardType, setWizardType] = useState<'conversion' | 'nurturing'>('conversion');
   const [systemeIoKey, setSystemeIoKey] = useState('');
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [savingKey, setSavingKey] = useState(false);
@@ -69,11 +70,17 @@ export const EmailMarketing: React.FC = () => {
       }
   };
 
-  const maxSequences = projects.reduce((sum, p) => {
+  const maxConversionSequences = projects.reduce((sum, p) => {
       if (p.limitsConfig?.maxEmailSequences) return sum + p.limitsConfig.maxEmailSequences;
       const slug = p.planSlug || 'starter';
       return sum + (slug === 'starter' ? 1 : 5);
   }, projects.length === 0 ? (user.planLimits?.maxEmailSequences || 1) : 0);
+
+  const maxNurturingSequences = projects.reduce((sum, p) => {
+      if (p.limitsConfig?.maxEmailSequencesNurturing) return sum + p.limitsConfig.maxEmailSequencesNurturing;
+      const slug = p.planSlug || 'starter';
+      return sum + (slug === 'starter' ? 15 : 20);
+  }, projects.length === 0 ? (user.planLimits?.maxEmailSequencesNurturing || 15) : 0);
 
   useEffect(() => {
     if (systemeIoKey) {
@@ -229,13 +236,21 @@ export const EmailMarketing: React.FC = () => {
   };
 
   const isRealAdmin = user.role === 'admin' && !isSimulating;
-  const isAtLimit = !isRealAdmin && sequences.length >= maxSequences;
+  
+  const conversionSequences = sequences.filter(s => s.type === 'conversion' || !s.type);
+  const nurturingSequences = sequences.filter(s => s.type === 'nurturing');
 
-  // Lógica de color de progreso sincronizada con MyPages
-  const usagePercent = maxSequences > 0 ? Math.min(100, (sequences.length / maxSequences) * 100) : 0;
-  let progressColor = "bg-green-500";
-  if (usagePercent > 50) progressColor = "bg-yellow-500";
-  if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
+  const isAtLimitConversion = !isRealAdmin && conversionSequences.length >= maxConversionSequences;
+  const isAtLimitNurturing = !isRealAdmin && nurturingSequences.length >= maxNurturingSequences;
+
+  const usagePercentConversion = maxConversionSequences > 0 ? Math.min(100, (conversionSequences.length / maxConversionSequences) * 100) : 0;
+  const usagePercentNurturing = maxNurturingSequences > 0 ? Math.min(100, (nurturingSequences.length / maxNurturingSequences) * 100) : 0;
+
+  const getProgressColor = (percent: number) => {
+    if (percent > 85) return isRealAdmin ? "bg-green-500" : "bg-red-500";
+    if (percent > 50) return "bg-yellow-500";
+    return "bg-green-500";
+  };
 
   return (
     <div className="space-y-10 animate-in fade-in duration-500 pb-20">
@@ -258,24 +273,45 @@ export const EmailMarketing: React.FC = () => {
                   {/* Barra de Límite de Secuencias Premium - Sincronizada con MyPages */}
                   <div className="pt-4 max-w-md mx-auto md:mx-0">
                       <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 shadow-inner space-y-4">
+                          {/* Contador Conversión */}
                           <div>
                               <div className="flex justify-between items-center mb-2">
-                                  <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Secuencias Creadas</span>
-                                  <span className="text-white font-bold">{sequences.length} / {isRealAdmin ? '∞' : maxSequences}</span>
+                                  <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Secuencia de Emails de Conversión</span>
+                                  <span className="text-white font-bold">{conversionSequences.length} / {isRealAdmin ? '∞' : maxConversionSequences}</span>
                               </div>
                               <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
                                   <div 
-                                    className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} 
-                                    style={{ width: `${isRealAdmin ? (sequences.length > 0 ? 100 : 0) : usagePercent}%` }}
+                                    className={`h-full transition-all duration-1000 ease-out shadow-lg ${getProgressColor(usagePercentConversion)}`} 
+                                    style={{ width: `${isRealAdmin ? (conversionSequences.length > 0 ? 100 : 0) : usagePercentConversion}%` }}
                                   ></div>
                               </div>
+                              {isAtLimitConversion && (
+                                  <div className="mt-2 flex items-start gap-2 text-[10px] text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
+                                      <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                                      <span>Límite de Conversión alcanzado.</span>
+                                  </div>
+                              )}
                           </div>
-                          {isAtLimit && (
-                              <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30">
-                                  <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
-                                  <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
+
+                          {/* Contador Nutrición */}
+                          <div>
+                              <div className="flex justify-between items-center mb-2">
+                                  <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Secuencia de Emails de Nutrición</span>
+                                  <span className="text-white font-bold">{nurturingSequences.length} / {isRealAdmin ? '∞' : maxNurturingSequences}</span>
                               </div>
-                          )}
+                              <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                  <div 
+                                    className={`h-full transition-all duration-1000 ease-out shadow-lg ${getProgressColor(usagePercentNurturing)}`} 
+                                    style={{ width: `${isRealAdmin ? (nurturingSequences.length > 0 ? 100 : 0) : usagePercentNurturing}%` }}
+                                  ></div>
+                              </div>
+                              {isAtLimitNurturing && (
+                                  <div className="mt-2 flex items-start gap-2 text-[10px] text-yellow-300 bg-yellow-900/20 p-2 rounded-lg border border-yellow-700/30">
+                                      <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                                      <span>Límite de Nutrición alcanzado.</span>
+                                  </div>
+                              )}
+                          </div>
                       </div>
                   </div>
               </div>
@@ -297,7 +333,10 @@ export const EmailMarketing: React.FC = () => {
                   {/* Botones centrados debajo del video */}
                   <div className="flex flex-col gap-3">
                       <button 
-                        onClick={() => setIsWizardOpen(true)}
+                        onClick={() => {
+                          setWizardType(activeTab === 'nurturing' ? 'nurturing' : 'conversion');
+                          setIsWizardOpen(true);
+                        }}
                         className="w-full px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
                       >
                         <Plus className="w-4 h-4" /> Crear Nueva Secuencia
@@ -311,11 +350,18 @@ export const EmailMarketing: React.FC = () => {
       {!isWizardOpen && (
         <div className="flex flex-wrap gap-4 border-b border-white/5 pb-2">
             <button 
-                onClick={() => setActiveTab('sequence')}
-                className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'sequence' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
+                onClick={() => setActiveTab('conversion')}
+                className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'conversion' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
             >
-                <LayoutTemplate className="w-4 h-4" /> Secuencias
-                {activeTab === 'sequence' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
+                <LayoutTemplate className="w-4 h-4" /> Secuencia de Conversión
+                {activeTab === 'conversion' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
+            </button>
+            <button 
+                onClick={() => setActiveTab('nurturing')}
+                className={`flex items-center gap-2 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'nurturing' ? 'text-[#FF5A1F]' : 'text-gray-500 hover:text-white'}`}
+            >
+                <Mail className="w-4 h-4" /> Emails de Nutrición
+                {activeTab === 'nurturing' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF5A1F] rounded-full shadow-[0_0_10px_rgba(255,90,31,0.5)]"></div>}
             </button>
             <button 
                 onClick={() => setActiveTab('leads')}
@@ -338,6 +384,7 @@ export const EmailMarketing: React.FC = () => {
       <div className="animate-in fade-in duration-500">
         {isWizardOpen ? (
           <EmailSequenceWizard 
+            type={wizardType}
             onClose={() => {
               setIsWizardOpen(false);
               setSearchParams({}); // Clear params when closing
@@ -347,15 +394,18 @@ export const EmailMarketing: React.FC = () => {
         ) : (
           <>
             {/* PESTAÑA: SECUENCIAS */}
-            {activeTab === 'sequence' && (
+            {(activeTab === 'conversion' || activeTab === 'nurturing') && (
             <div className="space-y-8 animate-in slide-in-from-left-4">
                 {loadingSequences ? (
                     <div className="flex justify-center p-20 text-[#FF5A1F]"><Loader2 className="w-12 h-12 animate-spin" /></div>
-                ) : sequences.length > 0 ? (
+                ) : sequences.filter(s => activeTab === 'conversion' ? (s.type === 'conversion' || !s.type) : s.type === 'nurturing').length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Tarjeta de añadir nueva */}
                         <button 
-                            onClick={() => setIsWizardOpen(true)}
+                            onClick={() => {
+                              setWizardType(activeTab === 'nurturing' ? 'nurturing' : 'conversion');
+                              setIsWizardOpen(true);
+                            }}
                             className="bg-gray-900 border-2 border-dashed border-white/20 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 group hover:border-[#FF5A1F]/30 hover:bg-[#FF5A1F]/5 transition-all duration-500 min-h-[400px]"
                         >
                             <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center text-gray-600 group-hover:bg-[#FF5A1F]/10 group-hover:text-[#FF5A1F] transition-all">
@@ -366,7 +416,7 @@ export const EmailMarketing: React.FC = () => {
                                 <p className="mt-2 font-medium" style={{ color: 'gray', paddingTop: '1em', fontSize: '1.2em' }}>Vincula un nuevo proyecto para automatizar ventas</p>
                             </div>
                         </button>
-                        {sequences.map(seq => (
+                        {sequences.filter(s => activeTab === 'conversion' ? (s.type === 'conversion' || !s.type) : s.type === 'nurturing').map(seq => (
                             <div key={seq.id} className="bg-[#111] rounded-[2.5rem] border border-white/5 p-6 hover:border-[#FF5A1F]/30 transition-all duration-300 group flex flex-col shadow-2xl relative overflow-hidden">
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="flex-1">
@@ -418,6 +468,7 @@ export const EmailMarketing: React.FC = () => {
                                 <div className="flex flex-col gap-3 mt-10">
                                     <button 
                                         onClick={() => {
+                                          setWizardType(seq.type || 'conversion');
                                           setSearchParams({ projectId: seq.projectId });
                                           setIsWizardOpen(true);
                                         }}
@@ -441,7 +492,10 @@ export const EmailMarketing: React.FC = () => {
                             </p>
                         </div>
                         <button 
-                            onClick={() => setIsWizardOpen(true)}
+                            onClick={() => {
+                              setWizardType(activeTab === 'nurturing' ? 'nurturing' : 'conversion');
+                              setIsWizardOpen(true);
+                            }}
                             className="px-12 py-5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-lg uppercase tracking-widest rounded-2xl transition-all shadow-2xl shadow-[#FF5A1F]/20 transform hover:scale-105 active:scale-95"
                         >
                             Crear mi primera secuencia
