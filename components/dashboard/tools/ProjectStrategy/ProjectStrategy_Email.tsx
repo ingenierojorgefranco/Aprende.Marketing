@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown } from 'lucide-react';
+import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette } from 'lucide-react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, EmailMessage, LandingPage, AffiliateLink } from '../../../../types';
 import { api } from '../../../../services/api';
@@ -37,6 +37,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [isGenerating, setIsGenerating] = useState(false);
     const [saveIndicator, setSaveIndicator] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [isPreviewMode, setIsPreviewMode] = useState(true);
+    const editorRef = useRef<HTMLDivElement>(null);
 
     // Estados locales para interactividad inmediata de redirección
     const [localRedirectType, setLocalRedirectType] = useState<'landing' | 'hotlink' | 'external' | undefined>(undefined);
@@ -191,6 +192,13 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         });
     };
 
+    const execCommand = (command: string, value: any = null) => {
+        document.execCommand(command, false, value);
+        if (editorRef.current) {
+            handleUpdateMessage('contentHtml', editorRef.current.innerHTML);
+        }
+    };
+
     const handleGenerateFullSequence = async () => {
         setShowConfirmModal(false);
         setIsGenerating(true);
@@ -313,23 +321,25 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     </div>
 
                     {/* Botón General de Generación */}
-                    <div className="mt-6 pt-6 border-t border-white/5">
-                        <button 
-                            onClick={() => setShowConfirmModal(true)}
-                            disabled={isGenerating}
-                            className="w-full py-5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isGenerating ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin" /> Generando Secuencia...
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles className="w-5 h-5" /> Generar Secuencia Completa
-                                </>
-                            )}
-                        </button>
-                    </div>
+                    {sequenceUsed === 0 && (
+                        <div className="mt-6 pt-6 border-t border-white/5">
+                            <button 
+                                onClick={() => setShowConfirmModal(true)}
+                                disabled={isGenerating}
+                                className="w-full py-5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isGenerating ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" /> Generando Secuencia...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles className="w-5 h-5" /> Generar Secuencia Completa
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* RIGHT: CONFIGURATION / CONTENT */}
@@ -338,7 +348,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     <div className={`absolute top-0 left-0 w-1 h-full ${isCurrentGenerated ? 'bg-emerald-500/50' : 'bg-blue-500/50'}`}></div>
                     
                     {isCurrentGenerated ? (
-                        <div className="relative z-10 flex flex-col h-full animate-in slide-in-from-bottom-4 duration-500 space-y-6">
+                        <div className="flex flex-col h-full space-y-6">
+                            <div className="relative z-10 flex flex-col h-full animate-in slide-in-from-bottom-4 duration-500 space-y-6">
                             <div className="flex justify-between items-center">
                                 <span className="text-2xl font-black text-white uppercase tracking-tight">
                                     {localPilar || 'Nutrición'}
@@ -359,9 +370,26 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                         <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
                                         <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
                                     </div>
-                                    <div className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">Editor de Correo Persuasivo</div>
+                                    <div className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">Editor de Correo Profesional</div>
                                     <div className="w-10"></div>
                                 </div>
+
+                                {/* WYSIWYG Toolbar */}
+                                {!isPreviewMode && (
+                                    <div className="bg-gray-50 border-b border-gray-200 p-2 flex flex-wrap gap-1 items-center shrink-0 animate-in slide-in-from-top-2 duration-300">
+                                        <button onClick={() => execCommand('bold')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Negrita"><Bold className="w-4 h-4" /></button>
+                                        <button onClick={() => execCommand('italic')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Cursiva"><Italic className="w-4 h-4" /></button>
+                                        <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                        <button onClick={() => execCommand('justifyLeft')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Izquierda"><AlignLeft className="w-4 h-4" /></button>
+                                        <button onClick={() => execCommand('justifyCenter')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Centro"><AlignCenter className="w-4 h-4" /></button>
+                                        <button onClick={() => execCommand('justifyRight')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Derecha"><AlignRight className="w-4 h-4" /></button>
+                                        <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                        <button onClick={() => execCommand('insertUnorderedList')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Lista"><List className="w-4 h-4" /></button>
+                                        <button onClick={() => execCommand('formatBlock', 'h2')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Título"><Type className="w-4 h-4" /></button>
+                                        <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                        <button onClick={() => execCommand('foreColor', '#FF5A1F')} className="p-2 hover:bg-gray-200 rounded transition-colors text-[#FF5A1F]" title="Color Principal"><Palette className="w-4 h-4" /></button>
+                                    </div>
+                                )}
 
                                 <div className="p-6 md:p-8 space-y-6 flex-1 flex flex-col">
                                     <div className="space-y-3 text-sm border-b border-gray-100 pb-6">
@@ -382,42 +410,41 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                 <span className="text-black font-bold">{avatars[0]?.name || 'Cliente Ideal'} (Avatar Estratégico)</span>
                                             </div>
                                         </div>
-                                        <div className="flex items-start gap-2 mt-4">
-                                            <span className="font-bold text-gray-400 min-w-[60px] uppercase text-[10px] mt-2">Asunto:</span>
+                                        <div className="flex items-start gap-2 mt-16 bg-blue-50/50 p-5 rounded-2xl border-2 border-dashed border-blue-200 transition-all hover:bg-blue-100/30 group/subject shadow-inner">
+                                            <span className="font-bold text-blue-500 min-w-[70px] uppercase text-[10px] mt-2.5">Asunto:</span>
                                             <textarea 
                                                 value={localSubject}
-                                                title="Clic para editar"
-                                                onChange={(e) => handleUpdateMessage('subject', e.target.value)}
-                                                className="flex-1 bg-white border-none focus:ring-0 text-black font-black text-xl md:text-2xl leading-tight resize-none h-auto p-0 cursor-text"
+                                                title="Haz clic para editar el asunto"
+                                                onChange={(e) => {
+                                                    setLocalSubject(e.target.value);
+                                                    handleUpdateMessage('subject', e.target.value);
+                                                }}
+                                                className="flex-1 bg-transparent border-none focus:ring-0 text-black font-black text-xl md:text-2xl leading-tight resize-none h-auto p-0 cursor-text placeholder:text-gray-300"
                                                 rows={2}
+                                                placeholder="Escribe el asunto aquí..."
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="flex-1 pt-2">
-                                        {isPreviewMode ? (
-                                            <div 
-                                                className="w-full h-full min-h-[400px] bg-gray-50 border border-gray-100 rounded-2xl p-6 md:p-8 focus:ring-0 text-black text-xl leading-[1.8] font-serif outline-none overflow-y-auto custom-scrollbar cursor-text"
-                                                title="Clic para editar"
-                                                onClick={() => setIsPreviewMode(false)}
-                                                dangerouslySetInnerHTML={{ __html: currentRealContent }}
-                                            />
-                                        ) : (
-                                            <textarea 
-                                                value={currentRealContent}
-                                                title="Clic para editar"
-                                                onChange={(e) => handleUpdateMessage('contentHtml', e.target.value)}
-                                                onBlur={() => setIsPreviewMode(true)}
-                                                className="w-full h-full min-h-[400px] bg-gray-50 border border-gray-100 rounded-2xl p-6 md:p-8 focus:ring-0 text-black text-base font-mono outline-none resize-none overflow-y-auto custom-scrollbar"
-                                                placeholder="Escribe el contenido del correo aquí..."
-                                                autoFocus
-                                            />
-                                        )}
+                                    <div className="flex-1 pt-4">
+                                        <div 
+                                            ref={editorRef}
+                                            contentEditable={!isPreviewMode}
+                                            onFocus={() => setIsPreviewMode(false)}
+                                            onBlur={(e) => {
+                                                setIsPreviewMode(true);
+                                                handleUpdateMessage('contentHtml', e.currentTarget.innerHTML);
+                                            }}
+                                            className={`w-full h-full min-h-[450px] bg-gray-50 border border-gray-100 rounded-3xl p-8 md:p-12 focus:ring-4 focus:ring-blue-500/5 text-black text-2xl leading-[2] font-serif outline-none overflow-y-auto custom-scrollbar cursor-text transition-all ${!isPreviewMode ? 'bg-white shadow-2xl ring-1 ring-blue-100' : 'hover:bg-gray-100/50'}`}
+                                            title="Haz clic para editar el contenido del mensaje"
+                                            dangerouslySetInnerHTML={{ __html: currentRealContent }}
+                                        />
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="flex gap-4">
+                        <div className="flex gap-4">
                                 <button onClick={handleCopyEmail} className="flex-1 py-5 rounded-2xl bg-gray-800 hover:bg-gray-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3">
                                     <Copy className="w-5 h-5" /> Copiar Contenido
                                 </button>
