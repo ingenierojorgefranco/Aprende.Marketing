@@ -108,6 +108,7 @@ export const AdminPanel: React.FC = () => {
             maxDomains: 1,
             maxArticles: 2,
             maxEmailSequences: 1,
+            maxEmailSequencesNurturing: 15,
             maxWhatsAppLaunches: 1,
             maxHooks: 10,
             features: {
@@ -122,6 +123,7 @@ export const AdminPanel: React.FC = () => {
         
         // Asegurar la propiedad maxWhatsAppLaunches y maxHooks si faltan por migración parcial
         if (currentLimits.maxWhatsAppLaunches === undefined) currentLimits.maxWhatsAppLaunches = 1;
+        if (currentLimits.maxEmailSequencesNurturing === undefined) currentLimits.maxEmailSequencesNurturing = 15;
         if (currentLimits.maxHooks === undefined) currentLimits.maxHooks = 10;
         
         setTempPlanLimits(JSON.parse(JSON.stringify(currentLimits)));
@@ -206,6 +208,7 @@ export const AdminPanel: React.FC = () => {
             maxDomains: plan.limitsConfig.maxDomains || 1,
             maxArticles: plan.limitsConfig.maxArticles || 0,
             maxEmailSequences: plan.limitsConfig.maxEmailSequences || 1,
+            maxEmailSequencesNurturing: plan.limitsConfig.maxEmailSequencesNurturing || 15,
             maxWhatsAppLaunches: plan.limitsConfig.maxWhatsAppLaunches || 1,
             maxHooks: plan.limitsConfig.maxHooks || 10,
             features: { ...plan.limitsConfig.features }

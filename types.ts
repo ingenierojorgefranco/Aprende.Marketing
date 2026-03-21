@@ -121,6 +121,7 @@ export interface PlanLimits {
   maxDomains: number; // Nuevo límite de dominios
   maxArticles: number; // Actualizado a obligatorio
   maxEmailSequences: number; // Nuevo límite solicitado
+  maxEmailSequencesNurturing: number; // Nuevo límite para nutrición
   maxWhatsAppLaunches: number; // Nuevo límite añadido para control de cuotas
   maxHooks: number; // Nuevo: Límite de Hooks de Atracción
   features: PlanFeatures;

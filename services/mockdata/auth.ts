@@ -18,6 +18,7 @@ export const MOCK_USER: User = {
       maxDomains: 5,
       maxArticles: 20,
       maxEmailSequences: 5,
+      maxEmailSequencesNurturing: 20,
       maxWhatsAppLaunches: 5,
       maxHooks: 50, // Añadido límite de ganchos
       features: {

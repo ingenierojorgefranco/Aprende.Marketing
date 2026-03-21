@@ -1393,6 +1393,7 @@ export const api = {
                     maxArticles: 2, 
                     maxDomains: 0, 
                     maxEmailSequences: 1,
+                    maxEmailSequencesNurturing: 15,
                     maxWhatsAppLaunches: 1, 
                     maxHooks: 10,
                     features: { whatsappBot: false, blogGenerator: false, emailMarketing: false, removeBranding: false, emailStrategy: false, evergreenStrategy: false } 
@@ -1421,6 +1422,7 @@ export const api = {
                         maxArticles: 20,
                         maxDomains: 3,
                         maxEmailSequences: 5,
+                        maxEmailSequencesNurturing: 20,
                         maxWhatsAppLaunches: 5,
                         maxHooks: 50,
                         features: { whatsappBot: true, blogGenerator: true, emailMarketing: true, removeBranding: true, emailStrategy: true, evergreenStrategy: true }

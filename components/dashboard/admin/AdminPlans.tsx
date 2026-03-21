@@ -12,6 +12,7 @@ const DEFAULT_LIMITS: PlanLimits = {
     maxArticles: 1,
     maxDomains: 1,
     maxEmailSequences: 1,
+    maxEmailSequencesNurturing: 15,
     maxWhatsAppLaunches: 1,
     maxHooks: 10,
     features: {
@@ -145,6 +146,7 @@ export const AdminPlans: React.FC = () => {
         const safeLimits = { ...DEFAULT_LIMITS, ...plan.limitsConfig, features: { ...DEFAULT_LIMITS.features, ...plan.limitsConfig.features } };
         if (safeLimits.maxDomains === undefined) safeLimits.maxDomains = 1;
         if (safeLimits.maxEmailSequences === undefined) safeLimits.maxEmailSequences = 1;
+        if (safeLimits.maxEmailSequencesNurturing === undefined) safeLimits.maxEmailSequencesNurturing = 15;
         if (safeLimits.maxWhatsAppLaunches === undefined) safeLimits.maxWhatsAppLaunches = 1;
         if (safeLimits.maxHooks === undefined) safeLimits.maxHooks = 10;
 
@@ -236,7 +238,8 @@ export const AdminPlans: React.FC = () => {
                             <p>Landings: <strong>{plan.limitsConfig.maxLandings}</strong></p>
                             <p>Dominios: <strong>{plan.limitsConfig.maxDomains || 0}</strong></p>
                             <p>Artículos SEO: <strong>{plan.limitsConfig.maxArticles || 0}</strong></p>
-                            <p>Secuencias Email: <strong>{plan.limitsConfig.maxEmailSequences || 0}</strong></p>
+                            <p>Email Conversión: <strong>{plan.limitsConfig.maxEmailSequences || 0}</strong></p>
+                            <p>Email Nutrición: <strong>{plan.limitsConfig.maxEmailSequencesNurturing || 0}</strong></p>
                             <p>Lanzamientos WA: <strong>{plan.limitsConfig.maxWhatsAppLaunches || 0}</strong></p>
                             <p>Ganchos IA: <strong>{plan.limitsConfig.maxHooks || 0}</strong></p>
                             <p>Features: {Object.values(plan.limitsConfig.features).filter(Boolean).length} activas</p>
@@ -498,7 +501,7 @@ export const AdminPlans: React.FC = () => {
                                             <p className="text-[10px] text-gray-500 mt-1">Límite mensual de generación IA.</p>
                                         </div>
                                         <div className="mt-4">
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Secuencias Email</label>
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Secuencia Email Conversión</label>
                                             <input 
                                                 type="number" 
                                                 value={editingPlan.limitsConfig.maxEmailSequences || 0} 
@@ -508,7 +511,20 @@ export const AdminPlans: React.FC = () => {
                                                 })}
                                                 className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-yellow-500 outline-none"
                                             />
-                                            <p className="text-[10px] text-gray-500 mt-1">Límite de secuencias activas.</p>
+                                            <p className="text-[10px] text-gray-500 mt-1">Límite de secuencias de conversión.</p>
+                                        </div>
+                                        <div className="mt-4">
+                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Secuencia Emails Nutrición</label>
+                                            <input 
+                                                type="number" 
+                                                value={editingPlan.limitsConfig.maxEmailSequencesNurturing || 0} 
+                                                onChange={(e) => setEditingPlan({
+                                                    ...editingPlan, 
+                                                    limitsConfig: { ...editingPlan.limitsConfig!, maxEmailSequencesNurturing: parseInt(e.target.value) }
+                                                })}
+                                                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white focus:border-orange-500 outline-none"
+                                            />
+                                            <p className="text-[10px] text-gray-500 mt-1">Límite de secuencias de nutrición.</p>
                                         </div>
                                         <div className="mt-4">
                                             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Máx Lanzamientos WhatsApp</label>
@@ -680,12 +696,24 @@ export const AdminPlans: React.FC = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Emails</label>
+                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Email Conv.</label>
                                         <input 
                                             type="number" 
                                             value={project.limitsConfig?.maxEmailSequences || 0}
                                             onChange={(e) => {
                                                 const newLimits = { ...project.limitsConfig!, maxEmailSequences: parseInt(e.target.value) };
+                                                setUserProjects(prev => prev.map(p => p.id === project.id ? { ...p, limitsConfig: newLimits } : p));
+                                            }}
+                                            className="w-full bg-black border border-gray-700 rounded px-3 py-1.5 text-white text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Email Nutr.</label>
+                                        <input 
+                                            type="number" 
+                                            value={project.limitsConfig?.maxEmailSequencesNurturing || 0}
+                                            onChange={(e) => {
+                                                const newLimits = { ...project.limitsConfig!, maxEmailSequencesNurturing: parseInt(e.target.value) };
                                                 setUserProjects(prev => prev.map(p => p.id === project.id ? { ...p, limitsConfig: newLimits } : p));
                                             }}
                                             className="w-full bg-black border border-gray-700 rounded px-3 py-1.5 text-white text-sm"
