@@ -43,6 +43,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [localRedirectType, setLocalRedirectType] = useState<'landing' | 'hotlink' | 'external' | undefined>(undefined);
     const [localRedirectUrl, setLocalRedirectUrl] = useState<string | undefined>(undefined);
 
+    // NUEVO: Estado para configuraciones de redirección pendientes (locales e independientes por correo)
+    const [pendingConfigs, setPendingConfigs] = useState<Record<number, { type: 'landing' | 'hotlink' | 'external', url: string }>>({});
+
     // Referencia para rastrear el cambio de correo activo y evitar resets accidentales
     const lastActiveEmailRef = useRef<number>(activeEmail);
 
@@ -87,53 +90,71 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         
         // Solo reseteamos los estados locales si el índice del correo ha cambiado o si los datos reales acaban de cargar
         if (lastActiveEmailRef.current !== activeEmail || localSubject === '' || (currentReal && !localSubject)) {
+            
+            // 1. Cargar metadatos (Asunto, Pilar, Propósito)
             if (currentReal) {
                 setLocalSubject(currentReal.subject || '');
                 setLocalPilar(currentReal.pilarType || '');
                 setLocalPurpose(currentReal.purpose || '');
-                
-                // Lógica de destino por defecto
+            } else if (currentStatic) {
+                setLocalSubject(currentStatic.subject || '');
+                setLocalPilar(currentStatic.type || '');
+                setLocalPurpose(currentStatic.objective || '');
+            }
+
+            // 2. Lógica de Redirección (Prioridad: Pendiente > Real > Defecto)
+            const pending = pendingConfigs[activeEmail];
+            
+            if (pending) {
+                setLocalRedirectType(pending.type);
+                setLocalRedirectUrl(pending.url);
+            } else if (currentReal) {
                 const defaultType = currentReal.redirectType || 'hotlink';
                 setLocalRedirectType(defaultType);
                 
                 if (currentReal.redirectUrl) {
                     setLocalRedirectUrl(currentReal.redirectUrl);
                 } else if (defaultType === 'hotlink' && projectLinks.length > 0) {
-                    // Buscar link con "precio full" o "completo"
-                    const fullPriceLink = projectLinks.find(l => 
-                        l.label.toLowerCase().includes('precio full') || 
-                        l.label.toLowerCase().includes('completo')
-                    );
-                    setLocalRedirectUrl(fullPriceLink ? fullPriceLink.url : projectLinks[0].url);
+                    // Por defecto el primer link real (segundo de la lista visual)
+                    setLocalRedirectUrl(projectLinks[0].url);
                 } else {
                     setLocalRedirectUrl(undefined);
                 }
-            } else if (currentStatic) {
-                setLocalSubject(currentStatic.subject || '');
-                setLocalPilar(currentStatic.type || '');
-                setLocalPurpose(currentStatic.objective || '');
-                
-                // Default para estáticos
+            } else {
+                // Default absoluto para correos no generados: Hotlink + Primer enlace disponible
                 setLocalRedirectType('hotlink');
-                if (projectLinks.length > 0) {
-                    const fullPriceLink = projectLinks.find(l => 
-                        l.label.toLowerCase().includes('precio full') || 
-                        l.label.toLowerCase().includes('completo')
-                    );
-                    setLocalRedirectUrl(fullPriceLink ? fullPriceLink.url : projectLinks[0].url);
-                } else {
-                    setLocalRedirectUrl(undefined);
-                }
+                setLocalRedirectUrl(projectLinks.length > 0 ? projectLinks[0].url : undefined);
             }
+
             setIsTypeLocked(true);
             lastActiveEmailRef.current = activeEmail;
         }
-    }, [activeEmail, emailData, realMessages, projectLinks]);
+    }, [activeEmail, emailData, realMessages, projectLinks, pendingConfigs]);
 
     const handleUpdateMessage = async (field: string, value: any) => {
         // Actualización optimista del estado local para interactividad inmediata
-        if (field === 'redirectType') setLocalRedirectType(value);
-        if (field === 'redirectUrl') setLocalRedirectUrl(value);
+        if (field === 'redirectType') {
+            setLocalRedirectType(value);
+            // Guardar en configuración pendiente para persistencia entre pestañas
+            setPendingConfigs(prev => ({
+                ...prev,
+                [activeEmail]: { 
+                    type: value, 
+                    url: prev[activeEmail]?.url || (value === 'hotlink' && projectLinks.length > 0 ? projectLinks[0].url : '') 
+                }
+            }));
+        }
+        if (field === 'redirectUrl') {
+            setLocalRedirectUrl(value);
+            // Guardar en configuración pendiente para persistencia entre pestañas
+            setPendingConfigs(prev => ({
+                ...prev,
+                [activeEmail]: { 
+                    type: localRedirectType || 'hotlink', 
+                    url: value 
+                }
+            }));
+        }
         if (field === 'subject') setLocalSubject(value);
         if (field === 'pilarType') setLocalPilar(value);
         if (field === 'purpose') setLocalPurpose(value);
@@ -206,13 +227,15 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             // Recopilamos la configuración de los 7 días
             const sequenceData = emailData.map((email, idx) => {
                 const real = realMessages.find(m => m.dayIndex === idx + 1);
+                const pending = pendingConfigs[idx];
+                
                 return {
                     dayIndex: idx + 1,
                     subject: real?.subject || email.subject,
                     pilarType: real?.pilarType || email.type,
                     purpose: real?.purpose || email.objective,
-                    redirectType: real?.redirectType || 'landing',
-                    redirectUrl: real?.redirectUrl || ''
+                    redirectType: pending?.type || real?.redirectType || 'hotlink',
+                    redirectUrl: pending?.url || real?.redirectUrl || (projectLinks.length > 0 ? projectLinks[0].url : '')
                 };
             });
 
@@ -549,8 +572,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                     <Globe className="w-6 h-6" />
                                                 </div>
                                                 <div>
-                                                    <h4 className={`font-bold text-xs uppercase tracking-widest mb-1 ${localRedirectType === 'landing' ? 'text-white' : 'text-gray-400'}`}>Landing Page</h4>
-                                                    <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Envía el tráfico a una de tus páginas internas creadas.</p>
+                                                    <h4 className={`font-bold text-sm uppercase tracking-widest mb-1 ${localRedirectType === 'landing' ? 'text-white' : 'text-gray-400'}`}>Landing Page</h4>
+                                                    <p className="text-xs text-gray-500 font-medium leading-relaxed">Envía el tráfico a una de tus páginas internas creadas.</p>
                                                 </div>
                                             </div>
                                             
@@ -562,8 +585,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                     <LinkIcon className="w-6 h-6" />
                                                 </div>
                                                 <div>
-                                                    <h4 className={`font-bold text-xs uppercase tracking-widest mb-1 ${localRedirectType === 'hotlink' ? 'text-white' : 'text-gray-400'}`}>Hotlink Proyecto</h4>
-                                                    <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Usa directamente tus enlaces de afiliado de Hotmart.</p>
+                                                    <h4 className={`font-bold text-sm uppercase tracking-widest mb-1 ${localRedirectType === 'hotlink' ? 'text-white' : 'text-gray-400'}`}>Hotlink Proyecto</h4>
+                                                    <p className="text-xs text-gray-500 font-medium leading-relaxed">Usa directamente tus enlaces de afiliado de Hotmart.</p>
                                                 </div>
                                             </div>
 
@@ -575,8 +598,8 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                     <ExternalLink className="w-6 h-6" />
                                                 </div>
                                                 <div>
-                                                    <h4 className={`font-bold text-xs uppercase tracking-widest mb-1 ${localRedirectType === 'external' ? 'text-white' : 'text-gray-400'}`}>Link Externo</h4>
-                                                    <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Cualquier otra página web externa que desees promocionar.</p>
+                                                    <h4 className={`font-bold text-sm uppercase tracking-widest mb-1 ${localRedirectType === 'external' ? 'text-white' : 'text-gray-400'}`}>Link Externo</h4>
+                                                    <p className="text-xs text-gray-500 font-medium leading-relaxed">Cualquier otra página web externa que desees promocionar.</p>
                                                 </div>
                                             </div>
                                         </div>
