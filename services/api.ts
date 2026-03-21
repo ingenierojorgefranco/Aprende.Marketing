@@ -1699,6 +1699,7 @@ export const api = {
             projectId: String(seq.project_id),
             projectName: seq.project_name,
             tagName: seq.tag_name || 'Sin etiqueta',
+            type: seq.type || 'conversion',
             createdAt: new Date(seq.created_at),
             generatedDays: seq.generatedDays || []
         }));
@@ -1706,12 +1707,12 @@ export const api = {
         return mapped;
     },
 
-    createEmailSequence: async (projectId: string, name?: string): Promise<{ id: string; isNew: boolean }> => {
+    createEmailSequence: async (projectId: string, name?: string, type: 'conversion' | 'nurturing' = 'conversion'): Promise<{ id: string; isNew: boolean }> => {
         if (isMockMode) return Promise.resolve({ id: 'mock-seq-1', isNew: true });
         const res = await fetchWithFallback('/email/sequences', {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ projectId, name })
+            body: JSON.stringify({ projectId, name, type })
         });
         clearCache('emailSequences');
         return res;
@@ -1738,7 +1739,7 @@ export const api = {
         clearCache('emailSequences');
     },
 
-    generateFullEmailSequence: async (projectId: string, sequenceData: any[]): Promise<void> => {
+    generateFullEmailSequence: async (projectId: string, sequenceData: any[], type: 'conversion' | 'nurturing' = 'conversion'): Promise<void> => {
         if (isMockMode) {
             await new Promise(resolve => setTimeout(resolve, 3000));
             return Promise.resolve();
@@ -1746,7 +1747,7 @@ export const api = {
         await fetchWithFallback(`/email/sequences/generate-full`, {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ projectId, sequenceData })
+            body: JSON.stringify({ projectId, sequenceData, type })
         });
         clearCache('emailSequences');
         clearCache('projectDetails', projectId);

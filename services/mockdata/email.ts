@@ -10,6 +10,7 @@ export const MOCK_EMAIL_SEQUENCES: EmailSequence[] = [
     name: "Secuencia de Ventas: Microblading Pro",
     status: "activa",
     tagName: "Lead Microblading",
+    type: "conversion",
     createdAt: new Date("2024-06-20"),
     generatedDays: [0]
   }

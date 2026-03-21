@@ -773,19 +773,15 @@ export const generateFullStrategy = async (projectId) => {
         return finalJson;
 
     } catch (error) {
-            process.stdout.write(`❌ [PIPELINE CRITICAL ERROR]: ${error.message}\n`);
-            throw error;
-        }
-    } catch (globalError) { // Este catch cierra el try de la línea 212
-        process.stdout.write(`❌ [PIPELINE GLOBAL FAILURE]: ${globalError.message}\n`);
-        throw globalError;
+        process.stdout.write(`❌ [PIPELINE CRITICAL ERROR]: ${error.message}\n`);
+        throw error;
     }
 };
 
 /**
  * Genera el contenido de una secuencia de correos electrónicos de forma masiva
  */
-export const generateEmailSequenceContent = async (projectId, sequenceData) => {
+export const generateEmailSequenceContent = async (projectId, sequenceData, type = 'conversion') => {
     const [rows] = await pool.query(
         "SELECT niche, product_name, description, brand_tone, strategy_json FROM projects WHERE id = ?",
         [projectId]
@@ -795,34 +791,57 @@ export const generateEmailSequenceContent = async (projectId, sequenceData) => {
     const project = rows[0];
     
     let teacherInfo = { name: "la profesora", transformation_tip: "Enfócate en tu crecimiento personal hoy." };
+    let avatarInfo = "";
     if (project.strategy_json) {
         try {
             const strategy = typeof project.strategy_json === 'string' ? JSON.parse(project.strategy_json) : project.strategy_json;
             if (strategy.teacher) {
                 teacherInfo = strategy.teacher;
             }
+            if (strategy.avatars && Array.isArray(strategy.avatars)) {
+                avatarInfo = strategy.avatars.map(a => `- ${a.name}: ${a.description}`).join('\n');
+            }
         } catch (e) {
-            console.error("Error parseando strategy_json para teacherInfo:", e);
+            console.error("Error parseando strategy_json para teacherInfo/avatarInfo:", e);
+        }
+    }
+
+    let articlesInfo = "";
+    if (type === 'nurturing') {
+        try {
+            const [articles] = await pool.query(
+                "SELECT title, content_json FROM blog_articles WHERE project_id = ? LIMIT 3",
+                [projectId]
+            );
+            if (articles.length > 0) {
+                articlesInfo = "\nARTÍCULOS DE BLOG PARA NUTRICIÓN:\n" + articles.map(a => `- ${a.title}`).join('\n');
+            }
+        } catch (e) {
+            console.error("Error obteniendo artículos para nutrición:", e);
         }
     }
 
     const prompt = `Eres un Copywriter experto en Email Marketing y Ventas. 
-    Tu tarea es generar el contenido de una secuencia de 7 correos electrónicos para el producto "${project.product_name}" en el nicho "${project.niche}".
+    Tu tarea es generar el contenido de una secuencia de correos electrónicos de tipo "${type === 'conversion' ? 'CONVERSIÓN (VENTA DIRECTA)' : 'NUTRICIÓN (VALOR Y CONFIANZA)'}" para el producto "${project.product_name}" en el nicho "${project.niche}".
     Descripción del producto: "${project.description}".
     Tono de marca: "${project.brand_tone}".
     Información de la profesora: "${teacherInfo.name}" (${teacherInfo.title || 'Especialista'}).
+    
+    AVATARES OBJETIVO:
+    ${avatarInfo || 'Público general interesado en el nicho.'}
+    ${articlesInfo}
 
-    La secuencia debe seguir estos pilares estratégicos para cada día:
-    ${sequenceData.map((s, i) => `Día ${s.dayIndex}: Pilar: ${s.pilarType}, Asunto: ${s.subject}, Objetivo: ${s.purpose}, URL de Redirección: ${s.redirectUrl || '[LINK]'}`).join('\n')}
+    La secuencia debe seguir estas especificaciones para cada día:
+    ${sequenceData.map((s, i) => `Día ${s.dayIndex}: ${type === 'conversion' ? `Pilar: ${s.pilarType}, ` : ''}Asunto: ${s.subject}, Objetivo: ${s.purpose}, URL de Redirección: ${s.redirectUrl || '[LINK]'}`).join('\n')}
 
     INSTRUCCIONES DE FORMATO Y ESTILO (OBLIGATORIAS):
-    - Retorna un array JSON con 7 objetos.
-    - Cada objeto debe tener: "dayIndex" (1-7) y "contentHtml" (el cuerpo del correo en formato HTML limpio).
+    - Retorna un array JSON con los objetos correspondientes a cada día.
+    - Cada objeto debe tener: "dayIndex" y "contentHtml" (el cuerpo del correo en formato HTML limpio).
     - PÁRRAFOS CORTOS: Todo el contenido debe estar dividido en párrafos cortos de máximo 2 a 3 líneas para facilitar la lectura profesional. Usa etiquetas <p> para cada párrafo.
     - BOTÓN CTA: Incluye un botón de llamado a la acción (CTA) llamativo. Usa una etiqueta <a href="[URL_DE_REDIRECCION_DEL_DIA]"> con los siguientes estilos inline: 
       display: inline-block; padding: 15px 30px; background-color: #FF5A1F; color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: bold; margin: 20px 0;
       IMPORTANTE: Debes reemplazar [URL_DE_REDIRECCION_DEL_DIA] con la "URL de Redirección" proporcionada para el día correspondiente. Si la URL proporcionada es solo un slug (ej: "mi-pagina"), anteponle "${process.env.APP_URL || ''}/".
-      TEXTO DEL BOTÓN: El texto del botón debe ser un llamado a la acción directo de venta como "¡Haz clic para Unirte ahora!" o "¡Quiero mi acceso ahora!". Prohibido usar "Ver Clase Gratuita Ahora".
+      TEXTO DEL BOTÓN: ${type === 'conversion' ? 'El texto del botón debe ser un llamado a la acción directo de venta como "¡Haz clic para Unirte ahora!" o "¡Quiero mi acceso ahora!". Prohibido usar "Ver Clase Gratuita Ahora".' : 'El texto del botón debe invitar a leer más o profundizar en el valor aportado.'}
     - FIRMA: Al final del cuerpo, añade una despedida cordial con el nombre de la profesora "${teacherInfo.name}" y en la línea de abajo su cargo "${teacherInfo.title || 'Especialista'}". No añadas textos adicionales de ayuda.
     - POSDATA (Pdta:): Después de la firma, añade una posdata usando estrictamente el prefijo "Pdta:". El contenido debe ser un consejo directo y persuasivo basado en: "${teacherInfo.transformation_tip}". No incluyas el texto "Tip de transformación".
     

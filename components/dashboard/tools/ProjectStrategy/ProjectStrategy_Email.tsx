@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette } from 'lucide-react';
+import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, BookOpen } from 'lucide-react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, EmailMessage, LandingPage, AffiliateLink } from '../../../../types';
 import { api } from '../../../../services/api';
@@ -19,10 +19,13 @@ interface ProjectStrategy_EmailProps {
     isSimulating?: boolean;
     sequenceCount?: number;
     sequenceId?: string | null;
+    activeType?: 'conversion' | 'nurturing';
+    setActiveType?: (type: 'conversion' | 'nurturing') => void;
 }
 
 export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
-    emailData, avatars, activeEmail, setActiveEmail, onUpgrade, features, planLimits, nextPlan, realMessages = [], isSimulating = false, sequenceCount = 0, sequenceId = null
+    emailData, avatars, activeEmail, setActiveEmail, onUpgrade, features, planLimits, nextPlan, realMessages = [], isSimulating = false, sequenceCount = 0, sequenceId = null,
+    activeType = 'conversion', setActiveType
 }) => {
     const navigate = useNavigate();
     const { id: projectId } = useParams() as { id: string };
@@ -164,7 +167,13 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
         setSaveIndicator('saving');
         try {
-            const apiField = field === 'contentHtml' ? 'content_html' : (field === 'isGenerated' ? 'is_generated' : field);
+            let apiField = field;
+            if (field === 'contentHtml') apiField = 'content_html';
+            else if (field === 'isGenerated') apiField = 'is_generated';
+            else if (field === 'redirectType') apiField = 'redirect_type';
+            else if (field === 'redirectUrl') apiField = 'redirect_url';
+            else if (field === 'pilarType') apiField = 'pilar_type';
+
             await api.updateEmailMessage(currentReal.id, { [apiField]: value } as any);
             setSaveIndicator('saved');
             setTimeout(() => setSaveIndicator('idle'), 2000);
@@ -239,7 +248,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                 };
             });
 
-            await api.generateFullEmailSequence(projectId, sequenceData);
+            await api.generateFullEmailSequence(projectId, sequenceData, activeType);
             // Recargar la página o refrescar datos
             window.location.reload();
         } catch (e) {
@@ -265,27 +274,49 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
     return (
         <div id="psd-email-section" className="pt-8">
+            {/* --- SELECTOR DE TIPO DE SECUENCIA --- */}
+            <div className="max-w-[70em] mx-auto mb-10">
+                <div className="flex p-1 bg-gray-900/50 border border-white/5 rounded-2xl w-fit mx-auto">
+                    <button 
+                        onClick={() => setActiveType?.('conversion')}
+                        className={`px-8 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${activeType === 'conversion' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        <Zap className="w-4 h-4" /> Secuencia de Conversión
+                    </button>
+                    <button 
+                        onClick={() => setActiveType?.('nurturing')}
+                        className={`px-8 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${activeType === 'nurturing' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        <BookOpen className="w-4 h-4" /> Secuencia de Nutrición
+                    </button>
+                </div>
+            </div>
+
             {/* --- ENCABEZADO ESTRATÉGICO ACTUALIZADO --- */}
             <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
-                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/5">
-                    <Sparkles className="w-5 h-5" /> Correos Electrónicos Automáticos
+                <div className={`inline-flex items-center gap-3 px-5 py-2 rounded-full border text-sm font-black uppercase tracking-[0.2em] shadow-lg ${activeType === 'conversion' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400 shadow-blue-500/5' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-emerald-500/5'}`}>
+                    <Sparkles className="w-5 h-5" /> {activeType === 'conversion' ? 'Correos de Conversión' : 'Correos de Nutrición'}
                 </div>
                 
                 <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
-                    Email Marketing: <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-400">Secuencia de Conversión (7 Días)</span>
+                    Email Marketing: <span className={`text-transparent bg-clip-text bg-gradient-to-r ${activeType === 'conversion' ? 'from-yellow-400 to-blue-400' : 'from-emerald-400 to-teal-400'}`}>
+                        {activeType === 'conversion' ? 'Secuencia de Conversión (7 Días)' : 'Secuencia de Nutrición (Artículos de Valor)'}
+                    </span>
                 </h3>
 
                 <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
-                    <p className="flex-1 border-l-4 border-blue-500 pl-8 py-2">
-                        Hemos diseñado una secuencia de 7 correos electrónicos estratégicos diseñados para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia.
+                    <p className={`flex-1 border-l-4 pl-8 py-2 ${activeType === 'conversion' ? 'border-blue-500' : 'border-emerald-500'}`}>
+                        {activeType === 'conversion' 
+                            ? 'Hemos diseñado una secuencia de 7 correos electrónicos estratégicos diseñados para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia.'
+                            : 'Esta secuencia está diseñada para mantener el interés de tus prospectos a largo plazo, compartiendo artículos de valor de tu blog y posicionándote como una autoridad en tu nicho de forma constante.'}
                     </p>
-                    <div className="hidden md:block w-px h-24 bg-blue-500/30"></div>
+                    <div className={`hidden md:block w-px h-24 ${activeType === 'conversion' ? 'bg-blue-500/30' : 'bg-emerald-500/30'}`}></div>
                     <div 
                         className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
                     >
                         <iframe 
                             className="w-full h-full rounded-2xl"
-                            src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                            src={activeType === 'conversion' ? "https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" : "https://www.youtube.com/embed/dQw4w9WgXcQ"} 
                             title="Video Tutorial" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowFullScreen

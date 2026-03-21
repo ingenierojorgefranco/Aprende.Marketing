@@ -260,6 +260,7 @@ const initDb = async () => {
             name VARCHAR(255) NOT NULL,
             status VARCHAR(50) DEFAULT 'borrador',
             tag_name VARCHAR(255),
+            type VARCHAR(50) DEFAULT 'conversion',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -275,6 +276,8 @@ const initDb = async () => {
             purpose TEXT,
             content_html LONGTEXT,
             is_generated BOOLEAN DEFAULT FALSE,
+            redirect_type VARCHAR(50),
+            redirect_url TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (sequence_id) REFERENCES email_sequences(id) ON DELETE CASCADE
@@ -541,6 +544,11 @@ const initDb = async () => {
 
         /* Actualización: Adición de columna landing_page_url a project_hooks para evitar errores de persistencia */
         await addColumnSafe(connection, 'project_hooks', "landing_page_url VARCHAR(255)");
+
+        /* Actualización: Columnas para separación de secuencias de email y persistencia de redirección - 21/03/2026 */
+        await addColumnSafe(connection, 'email_sequences', "type VARCHAR(50) DEFAULT 'conversion'");
+        await addColumnSafe(connection, 'email_messages', "redirect_type VARCHAR(50)");
+        await addColumnSafe(connection, 'email_messages', "redirect_url TEXT");
         ////////// Fin de migración //////////
 
         ////////// LIMPIEZA DE COLUMNAS OBSOLETAS (DATOS BASURA) //////////

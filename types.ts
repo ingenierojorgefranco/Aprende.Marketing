@@ -18,6 +18,7 @@ export interface EmailSequence {
   name: string;
   status: 'activa' | 'borrador';
   tagName: string;
+  type: 'conversion' | 'nurturing';
   createdAt: Date;
   generatedDays: number[];
 }

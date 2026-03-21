@@ -61,6 +61,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
     const [linkedArticles, setLinkedArticles] = useState<Article[]>([]);
     const [realMessages, setRealMessages] = useState<any[]>([]);
     const [emailSequenceId, setEmailSequenceId] = useState<string | null>(null);
+    const [activeEmailSequenceType, setActiveEmailSequenceType] = useState<'conversion' | 'nurturing'>('conversion');
 
     const [tooltipState, setTooltipState] = useState<{ visible: boolean; x: number; y: number; content: string[] }>({
         visible: false,
@@ -103,11 +104,14 @@ export const ProjectStrategyDashboard: React.FC = () => {
             // Cargar secuencia de email si existe
             try {
                 const sequences = await api.getEmailSequences();
-                const projectSequence = sequences.find(s => String(s.projectId) === String(id));
+                const projectSequence = sequences.find(s => String(s.projectId) === String(id) && s.type === activeEmailSequenceType);
                 if (projectSequence) {
                     setEmailSequenceId(projectSequence.id);
                     const messages = await api.getSequenceMessages(projectSequence.id);
                     setRealMessages(messages);
+                } else {
+                    setEmailSequenceId(null);
+                    setRealMessages([]);
                 }
             } catch (err) {
                 console.warn("Error cargando secuencia de email:", err);
@@ -125,7 +129,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
         }
     };
 
-    useEffect(() => { loadCoreData(); }, [id, user.planLimits]);
+    useEffect(() => { loadCoreData(); }, [id, user.planLimits, activeEmailSequenceType]);
 
     const handleGenerateStrategy = async () => {
         setGenerating(true);
@@ -223,7 +227,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                         {activeSection === 'testimonials' && <ProjectStrategy_Testimonials strategyData={strategyData} />}
                         {activeSection === 'web' && <ProjectStrategy_WebSystem projectId={id} lpTabsData={strategyData.modules?.web?.landingPageTabs} tyTabsData={strategyData.modules?.web?.thankYouPageTabs} selectedLpTab={selectedLpTab} setSelectedLpTab={setSelectedLpTab} selectedTyTab={selectedTyTab} setSelectedTyTab={setSelectedTyTab} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} onEditPage={(pid: string) => navigate(`/dashboard/editor/${pid}`)} pageCount={globalPageCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
                         {activeSection === 'content' && <ProjectStrategy_Content contentData={strategyData.modules.content} activeArticle={activeArticle} setActiveArticle={setActiveArticle} selectedArticles={selectedArticles} toggleArticleSelection={toggleArticleSelection} handleTooltipHover={handleTooltipHover} handleTooltipLeave={handleTooltipLeave} articleCount={globalArticleCount} planLimits={user.planLimits} onUpgrade={() => setShowUpgradeModal(true)} nextPlan={nextPlan} isSimulating={isSimulating} />}
-                        {activeSection === 'email' && <ProjectStrategy_Email emailData={strategyData.modules.emails.nurture} avatars={strategyData.avatars} activeEmail={activeEmail} setActiveEmail={setActiveEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} isSimulating={isSimulating} realMessages={realMessages} sequenceId={emailSequenceId} />}
+                        {activeSection === 'email' && <ProjectStrategy_Email emailData={activeEmailSequenceType === 'conversion' ? strategyData.modules.emails.nurture : []} avatars={strategyData.avatars} activeEmail={activeEmail} setActiveEmail={setActiveEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} isSimulating={isSimulating} realMessages={realMessages} sequenceId={emailSequenceId} activeType={activeEmailSequenceType} setActiveType={setActiveEmailSequenceType} />}
                         {activeSection === 'evergreen' && <ProjectStrategy_Evergreen evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
                         {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} projectId={id} isSimulating={isSimulating} planLimits={user.planLimits} strategyData={strategyData} />}
                     </Suspense>
