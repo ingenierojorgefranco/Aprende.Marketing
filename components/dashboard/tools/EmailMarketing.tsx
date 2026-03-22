@@ -85,7 +85,9 @@ export const EmailMarketing: React.FC = () => {
     if (!user.planLimits) return null;
     if (typeof user.planLimits === 'string') {
       try {
-        return JSON.parse(user.planLimits);
+        const parsed = JSON.parse(user.planLimits);
+        // Handle potential nesting or direct object
+        return parsed.planLimits || parsed;
       } catch (e) {
         return null;
       }
@@ -93,18 +95,21 @@ export const EmailMarketing: React.FC = () => {
     return user.planLimits;
   }, [user.planLimits]);
 
-  const userPlan = plans.find(p => p.slug === user.planSlug);
+  // Use user.planSlug or fallback to planName from effectiveLimits
+  const planSlugToFind = user.planSlug || effectiveLimits?.planName;
+  const userPlan = plans.find(p => p.slug === planSlugToFind);
+
+  const maxConversionSequences = Number(effectiveLimits?.maxEmailSequences ?? userPlan?.limitsConfig?.maxEmailSequences ?? 0);
+  const maxNurturingSequences = Number(effectiveLimits?.maxEmailSequencesNurturing ?? userPlan?.limitsConfig?.maxEmailSequencesNurturing ?? 0);
 
   useEffect(() => {
     console.log("DEBUG - EmailMarketing User Context:", user);
     console.log("DEBUG - planLimits original:", user.planLimits, "Tipo:", typeof user.planLimits);
     console.log("DEBUG - effectiveLimits:", effectiveLimits);
+    console.log("DEBUG - planSlugToFind:", planSlugToFind);
     console.log("DEBUG - userPlan:", userPlan);
     console.log("DEBUG - maxNurturingSequences:", maxNurturingSequences);
-  }, [user, effectiveLimits, userPlan, maxNurturingSequences]);
-
-  const maxConversionSequences = effectiveLimits?.maxEmailSequences ?? userPlan?.limitsConfig?.maxEmailSequences ?? 0;
-  const maxNurturingSequences = effectiveLimits?.maxEmailSequencesNurturing ?? userPlan?.limitsConfig?.maxEmailSequencesNurturing ?? 0;
+  }, [user, effectiveLimits, planSlugToFind, userPlan, maxNurturingSequences]);
 
   useEffect(() => {
     if (systemeIoKey) {
