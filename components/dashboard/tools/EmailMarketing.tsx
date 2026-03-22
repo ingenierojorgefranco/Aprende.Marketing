@@ -489,8 +489,7 @@ export const EmailMarketing: React.FC = () => {
                                                 <div 
                                                     key={day} 
                                                     onClick={() => {
-                                                      setSearchParams({ projectId: seq.projectId, day: day.toString() });
-                                                      setIsWizardOpen(true);
+                                                      navigate(`/dashboard/projects/${seq.projectId}/strategy?section=email&day=${day}&type=${seq.type || 'conversion'}`);
                                                     }}
                                                     className={`flex-1 h-10 rounded-lg transition-all duration-500 flex items-center justify-center cursor-pointer hover:opacity-80 active:scale-95 min-w-[60px] ${seq.generatedDays.includes(day) ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-gray-800'}`}
                                                 >

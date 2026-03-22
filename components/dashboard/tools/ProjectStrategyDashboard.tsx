@@ -133,6 +133,21 @@ export const ProjectStrategyDashboard: React.FC = () => {
 
     useEffect(() => { loadCoreData(); }, [id, user.planLimits, activeEmailSequenceType]);
 
+    useEffect(() => {
+        const dayParam = searchParams.get('day');
+        const typeParam = searchParams.get('type') as 'conversion' | 'nurturing' | null;
+        
+        if (dayParam !== null) {
+            const dayIdx = parseInt(dayParam);
+            if (!isNaN(dayIdx)) {
+                setActiveEmail(dayIdx);
+            }
+        }
+        if (typeParam && (typeParam === 'conversion' || typeParam === 'nurturing')) {
+            setActiveEmailSequenceType(typeParam);
+        }
+    }, [searchParams]);
+
     const handleGenerateStrategy = async () => {
         setGenerating(true);
         try {
