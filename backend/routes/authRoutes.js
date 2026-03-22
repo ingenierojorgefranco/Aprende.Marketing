@@ -132,6 +132,7 @@ export const getEffectiveLimits = async (userId) => {
             maxArticles: 0,
             maxDomains: 0,
             maxEmailSequences: 0,
+            maxEmailSequencesNurturing: 0,
             maxWhatsAppLaunches: 0,
             maxHooks: 0,
             features: { ...DEFAULT_LIMITS.features }
@@ -146,6 +147,7 @@ export const getEffectiveLimits = async (userId) => {
             summary.maxArticles += (limits.maxArticles || 0);
             summary.maxDomains += (limits.maxDomains || 0);
             summary.maxEmailSequences += (limits.maxEmailSequences || 0);
+            summary.maxEmailSequencesNurturing += (limits.maxEmailSequencesNurturing || 0);
             summary.maxWhatsAppLaunches += (limits.maxWhatsAppLaunches || 0);
             summary.maxHooks += (limits.maxHooks || 0);
 

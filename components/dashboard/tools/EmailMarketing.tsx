@@ -74,7 +74,7 @@ export const EmailMarketing: React.FC = () => {
 
   const loadPlans = async () => {
       try {
-          const data = await api.getPlans();
+          const data = await api.getPublicPlans();
           setPlans(data || []);
       } catch (e) {
           console.error("Error loading plans", e);
@@ -103,12 +103,14 @@ export const EmailMarketing: React.FC = () => {
   const maxNurturingSequences = Number(effectiveLimits?.maxEmailSequencesNurturing ?? userPlan?.limitsConfig?.maxEmailSequencesNurturing ?? 0);
 
   useEffect(() => {
-    console.log("DEBUG - EmailMarketing User Context:", user);
-    console.log("DEBUG - planLimits original:", user.planLimits, "Tipo:", typeof user.planLimits);
-    console.log("DEBUG - effectiveLimits:", effectiveLimits);
-    console.log("DEBUG - planSlugToFind:", planSlugToFind);
-    console.log("DEBUG - userPlan:", userPlan);
-    console.log("DEBUG - maxNurturingSequences:", maxNurturingSequences);
+    if (user.role === 'admin') {
+      console.log("DEBUG - EmailMarketing User Context:", user);
+      console.log("DEBUG - planLimits original:", user.planLimits, "Tipo:", typeof user.planLimits);
+      console.log("DEBUG - effectiveLimits:", effectiveLimits);
+      console.log("DEBUG - planSlugToFind:", planSlugToFind);
+      console.log("DEBUG - userPlan:", userPlan);
+      console.log("DEBUG - maxNurturingSequences:", maxNurturingSequences);
+    }
   }, [user, effectiveLimits, planSlugToFind, userPlan, maxNurturingSequences]);
 
   useEffect(() => {
