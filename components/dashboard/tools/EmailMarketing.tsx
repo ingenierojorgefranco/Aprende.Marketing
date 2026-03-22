@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lead, EmailSequence, User, Project } from '../../../types';
+import { Lead, EmailSequence, User, Project, Plan } from '../../../types';
 import { Mail, RefreshCw, Database, Loader2, CheckCircle, ExternalLink, Zap, Send, X, List, Target, ShieldCheck, Tag, Plus, Clock, LayoutTemplate, Settings, Users, AlertCircle, Play, PlayCircle, Edit3, Eye, Trash2, Crown, Calendar } from 'lucide-react';
 import { api } from '../../../services/api';
 /* */ /* Actualización: Importación de useNavigate para manejar redirección - 24/06/2024 15:15 */
@@ -16,6 +16,7 @@ export const EmailMarketing: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, isSimulating } = useOutletContext() as { user: User, isSimulating: boolean };
   const [projects, setProjects] = useState<Project[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
   /* Fin de actualización - 24/06/2024 15:15 */
 
   const [activeTab, setActiveTab] = useState<'conversion' | 'nurturing' | 'leads' | 'config'>('conversion');
@@ -54,6 +55,7 @@ export const EmailMarketing: React.FC = () => {
     loadLeads();
     loadSequences();
     loadProjects();
+    loadPlans();
 
     // Check if we should open the wizard based on URL params
     if (searchParams.get('projectId') || searchParams.get('day')) {
@@ -70,17 +72,19 @@ export const EmailMarketing: React.FC = () => {
       }
   };
 
-  const maxConversionSequences = projects.reduce((sum, p) => {
-      if (p.limitsConfig?.maxEmailSequences) return sum + p.limitsConfig.maxEmailSequences;
-      const slug = p.planSlug || 'starter';
-      return sum + (slug === 'starter' ? 1 : 5);
-  }, projects.length === 0 ? (user.planLimits?.maxEmailSequences || 1) : 0);
+  const loadPlans = async () => {
+      try {
+          const data = await api.getPlans();
+          setPlans(data || []);
+      } catch (e) {
+          console.error("Error loading plans", e);
+      }
+  };
 
-  const maxNurturingSequences = projects.reduce((sum, p) => {
-      if (p.limitsConfig?.maxEmailSequencesNurturing) return sum + p.limitsConfig.maxEmailSequencesNurturing;
-      const slug = p.planSlug || 'starter';
-      return sum + (slug === 'starter' ? 15 : 20);
-  }, projects.length === 0 ? (user.planLimits?.maxEmailSequencesNurturing || 15) : 0);
+  const userPlan = plans.find(p => p.slug === user.planSlug);
+
+  const maxConversionSequences = user.planLimits?.maxEmailSequences ?? userPlan?.limitsConfig?.maxEmailSequences ?? 0;
+  const maxNurturingSequences = user.planLimits?.maxEmailSequencesNurturing ?? userPlan?.limitsConfig?.maxEmailSequencesNurturing ?? 0;
 
   useEffect(() => {
     if (systemeIoKey) {
@@ -261,13 +265,13 @@ export const EmailMarketing: React.FC = () => {
           <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="flex-1 space-y-4 text-center md:text-left">
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-[#FF5A1F] uppercase tracking-[0.2em] shadow-sm">
-                      <Mail className="w-3 h-3" /> Email Marketing Automático
+                      <Mail className="w-3 h-3" /> Sistema de Email Marketing Profesional
                   </div>
                   <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
-                      Vende en <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] to-orange-400">Piloto Automático</span>
+                      Crea Campañas de Email Marketing Profesionales <span className="text-[#FF5A1F]">para incrementar tus Ventas</span>
                   </h1>
                   <p className="text-white pt-[0.8em] pb-[0.6em] text-[1.2rem] max-w-2xl leading-[1.625] font-medium">
-                      Sincroniza tus prospectos con Systeme.io y activa secuencias de correos persuasivos diseñados para cerrar ventas mientras duermes.
+                      Activa secuencias de correos estratégicas que trabajan por ti 24/7. Nutre a tus prospectos, elimina sus objeciones y guíalos paso a paso hasta la compra, sin necesidad de estar presente.
                   </p>
                   
                   {/* Barra de Límite de Secuencias Premium - Sincronizada con MyPages */}
@@ -333,13 +337,19 @@ export const EmailMarketing: React.FC = () => {
                   {/* Botones centrados debajo del video */}
                   <div className="flex flex-col gap-3">
                       <button 
+                        className="w-full px-8 py-4 bg-gray-800/50 text-gray-500 font-black text-xs uppercase tracking-widest rounded-xl transition-all border border-white/5 flex items-center justify-center gap-3 cursor-default"
+                      >
+                        <Plus className="w-4 h-4" /> Crear Secuencia de Conversión
+                      </button>
+                      
+                      <button 
                         onClick={() => {
-                          setWizardType(activeTab === 'nurturing' ? 'nurturing' : 'conversion');
+                          setWizardType('nurturing');
                           setIsWizardOpen(true);
                         }}
                         className="w-full px-8 py-4 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#FF5A1F]/20 flex items-center justify-center gap-3 transform active:scale-[0.98]"
                       >
-                        <Plus className="w-4 h-4" /> Crear Nueva Secuencia
+                        <Plus className="w-4 h-4" /> Crear Secuencia de Nutrición
                       </button>
                   </div>
               </div>
