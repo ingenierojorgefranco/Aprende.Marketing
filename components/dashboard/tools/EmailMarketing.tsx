@@ -95,6 +95,14 @@ export const EmailMarketing: React.FC = () => {
 
   const userPlan = plans.find(p => p.slug === user.planSlug);
 
+  useEffect(() => {
+    console.log("DEBUG - EmailMarketing User Context:", user);
+    console.log("DEBUG - planLimits original:", user.planLimits, "Tipo:", typeof user.planLimits);
+    console.log("DEBUG - effectiveLimits:", effectiveLimits);
+    console.log("DEBUG - userPlan:", userPlan);
+    console.log("DEBUG - maxNurturingSequences:", maxNurturingSequences);
+  }, [user, effectiveLimits, userPlan, maxNurturingSequences]);
+
   const maxConversionSequences = effectiveLimits?.maxEmailSequences ?? userPlan?.limitsConfig?.maxEmailSequences ?? 0;
   const maxNurturingSequences = effectiveLimits?.maxEmailSequencesNurturing ?? userPlan?.limitsConfig?.maxEmailSequencesNurturing ?? 0;
 
