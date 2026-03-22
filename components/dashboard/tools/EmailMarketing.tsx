@@ -81,10 +81,22 @@ export const EmailMarketing: React.FC = () => {
       }
   };
 
+  const effectiveLimits = React.useMemo(() => {
+    if (!user.planLimits) return null;
+    if (typeof user.planLimits === 'string') {
+      try {
+        return JSON.parse(user.planLimits);
+      } catch (e) {
+        return null;
+      }
+    }
+    return user.planLimits;
+  }, [user.planLimits]);
+
   const userPlan = plans.find(p => p.slug === user.planSlug);
 
-  const maxConversionSequences = user.planLimits?.maxEmailSequences ?? userPlan?.limitsConfig?.maxEmailSequences ?? 0;
-  const maxNurturingSequences = user.planLimits?.maxEmailSequencesNurturing ?? userPlan?.limitsConfig?.maxEmailSequencesNurturing ?? 0;
+  const maxConversionSequences = effectiveLimits?.maxEmailSequences ?? userPlan?.limitsConfig?.maxEmailSequences ?? 0;
+  const maxNurturingSequences = effectiveLimits?.maxEmailSequencesNurturing ?? userPlan?.limitsConfig?.maxEmailSequencesNurturing ?? 0;
 
   useEffect(() => {
     if (systemeIoKey) {

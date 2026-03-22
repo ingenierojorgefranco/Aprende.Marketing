@@ -207,6 +207,7 @@ const App: React.FC = () => {
               name: authUser.name,
               email: authUser.email,
               role: (authUser as any).role,
+              planSlug: (authUser as any).planSlug,
               planLimits: (authUser as any).planLimits,
               maxHooks: (authUser as any).maxHooks,
               avatarUrl: (authUser as any).avatarUrl,
