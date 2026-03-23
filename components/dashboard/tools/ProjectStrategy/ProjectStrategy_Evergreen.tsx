@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X, Loader2, Copy } from 'lucide-react';
+import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X, Loader2, Copy, Lock, Unlock, Search, BarChart, Eye, Target, Brain, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, Article } from '../../../../types';
 import { api } from '../../../../services/api';
@@ -220,10 +220,20 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
             <div id="psd-evergreen-grid" className="grid lg:grid-cols-12 gap-8 max-w-[85em] mx-auto">
                 
                 {/* COLUMNA IZQUIERDA: LISTADO DE CORREOS (Ocupa 5 de 12) */}
-                <div id="psd-evergreen-list-col" className="lg:col-span-5 bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col h-full">
+                <div id="psd-evergreen-list-col" className="lg:col-span-5 bg-gray-900 p-8 rounded-[2.5rem] border border-gray-800 shadow-2xl flex flex-col h-full">
                     
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 bg-orange-900/30 rounded-2xl text-orange-400 border border-orange-900/50">
+                            <Mail className="w-7 h-7" />
+                        </div>
+                        <div>
+                            <h4 className="text-2xl font-bold text-white tracking-tight">Cronograma de Autoridad</h4>
+                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-1">Sincronizado con tus Artículos</p>
+                        </div>
+                    </div>
+
                     {/* BARRA DE PROGRESO DE LÍMITES */}
-                    <div className="mb-8 p-6 bg-black/40 rounded-3xl border border-white/5 space-y-4">
+                    <div className="mb-10 p-6 bg-black/40 rounded-3xl border border-white/5 space-y-4">
                         <div className="flex justify-between items-end">
                             <div>
                                 <h5 className="text-white font-bold text-sm">Correos de Nutrición</h5>
@@ -234,7 +244,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                 <span className="text-gray-600 font-bold text-sm ml-1">/ {maxEmails}</span>
                             </div>
                         </div>
-                        <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+                        <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden shadow-inner">
                             <div 
                                 className={`h-full transition-all duration-1000 ${progressColor}`}
                                 style={{ width: `${usagePercent}%` }}
@@ -247,45 +257,32 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         )}
                     </div>
 
-                    <div className="flex items-center gap-4 mb-10">
-                        <div className="p-3 bg-orange-900/30 rounded-2xl text-orange-400 border border-orange-900/50">
-                            <Mail className="w-7 h-7" />
-                        </div>
-                        <div>
-                            <h4 className="text-2xl font-bold text-white tracking-tight">Cronograma de Autoridad</h4>
-                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-1">Sincronizado con tus Artículos</p>
-                        </div>
-                    </div>
-
                     <div className="space-y-4 overflow-y-auto max-h-[600px] custom-scrollbar pr-2">
-                        {dynamicSequence.map((email, idx) => (
-                            <div 
-                                key={email.id} 
-                                onClick={() => setActiveEvergreenEmail(idx)}
-                                className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer flex items-center justify-between gap-5 ${activeEvergreenEmail === idx ? 'bg-orange-900/10 border-orange-500/30 shadow-xl' : 'bg-black/40 border-white/5 hover:border-white/20'}`}
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xs font-black shrink-0 transition-colors ${activeEvergreenEmail === idx ? 'bg-orange-500 text-white' : 'bg-gray-800 text-gray-400'}`}>
-                                        {email.day.split(' ')[1]}
-                                    </div>
+                        {dynamicSequence.map((email, idx) => {
+                            const isActive = activeEvergreenEmail === idx;
+                            const isGenerated = !!email.body;
+
+                            return (
+                                <div 
+                                    key={email.id} 
+                                    onClick={() => setActiveEvergreenEmail(idx)}
+                                    className={`w-full text-left p-4 rounded-xl border transition-all duration-300 cursor-pointer flex items-center justify-between gap-3 relative overflow-hidden ${isGenerated ? 'bg-emerald-600 border-emerald-500 text-white' : isActive ? 'bg-orange-900/20 border-orange-500/50 translate-x-2' : 'bg-black/20 border-gray-800 hover:border-gray-700'}`}
+                                >
                                     <div className="flex-1 min-w-0">
-                                        <p className={`text-[11px] font-black uppercase tracking-widest mb-1 ${activeEvergreenEmail === idx ? 'text-orange-400' : 'text-gray-600'}`}>
+                                        <h4 className={`font-medium text-lg leading-snug ${isGenerated ? 'text-white' : isActive ? 'text-orange-300' : 'text-gray-300 group-hover:text-white'} flex items-center gap-2`}>
+                                            {!isGenerated && <Lock className="w-4 h-4 text-gray-500" />}
+                                            {email.subject}
+                                        </h4>
+                                        <p className={`text-[10px] font-bold opacity-60 mt-1 uppercase tracking-widest`}>
                                             {email.day}
                                         </p>
-                                        <h5 className={`font-bold text-lg leading-tight whitespace-normal break-words ${activeEvergreenEmail === idx ? 'text-white' : 'text-gray-400'}`}>
-                                            {email.subject}
-                                        </h5>
+                                    </div>
+                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 ${isGenerated ? 'bg-white border-white' : 'border-gray-600 group-hover:border-orange-400'}`}>
+                                        {isGenerated && <Check className="w-4 h-4 font-bold text-emerald-600" />}
                                     </div>
                                 </div>
-                                <div className="shrink-0">
-                                    {email.body ? (
-                                        <Check className={`w-5 h-5 ${activeEvergreenEmail === idx ? 'text-orange-500' : 'text-green-500/50'}`} />
-                                    ) : (
-                                        <div className="w-2 h-2 rounded-full bg-gray-700" />
-                                    )}
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -296,97 +293,130 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     </div>
 
                     <div className="relative z-10 flex flex-col h-full">
-                        <div className="mb-10">
-                            <div className="flex justify-between items-center mb-4">
-                                <span className="bg-orange-900/20 text-orange-400 border border-orange-900/50 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
-                                    {activeEmail.type}
-                                </span>
-                                <span className="text-gray-600 font-mono text-xs font-bold">{activeEmail.day}</span>
-                            </div>
-                            <h3 className="text-3xl md:text-4xl font-black text-white leading-tight">{activeEmail.subject}</h3>
-                        </div>
-
-                        <div className="bg-orange-900/10 border border-orange-500/20 p-6 rounded-2xl mb-10 flex gap-4">
-                            <Info className="w-6 h-6 text-orange-400 shrink-0" />
-                            <p className="text-gray-300 text-base leading-relaxed">
-                                <span className="font-bold text-orange-200 block mb-1">Estrategia Detrás:</span>
-                                {activeEmail.objective}
-                            </p>
-                        </div>
-
-                        <div className="bg-white rounded-2xl shadow-2xl p-10 text-gray-900 font-serif leading-relaxed text-xl flex-1 border-2 border-gray-200 flex flex-col relative group">
-                            <div className="border-b border-gray-100 pb-6 mb-8 text-sm text-gray-400 font-sans italic flex justify-between items-center">
-                                <div>
-                                    <p>De: Tu Marca Profesional</p>
-                                    <p>Asunto: {activeEmail.subject}</p>
+                        {activeEmail.body ? (
+                            <>
+                                <div className="mb-10">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="bg-orange-900/20 text-orange-400 border border-orange-900/50 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                            {activeEmail.type}
+                                        </span>
+                                        <span className="text-gray-600 font-mono text-xs font-bold">{activeEmail.day}</span>
+                                    </div>
+                                    <h3 className="text-3xl md:text-4xl font-black text-white leading-tight">{activeEmail.subject}</h3>
                                 </div>
-                                {activeEmail.body && (
-                                    <button 
-                                        onClick={() => handleCopy(`${activeEmail.subject}\n\n${activeEmail.body}`, activeEmail.id)}
-                                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-orange-500"
-                                        title="Copiar correo completo"
-                                    >
-                                        {copySuccess === activeEmail.id ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
-                                    </button>
-                                )}
-                            </div>
 
-                            {activeEmail.body ? (
-                                <div className="whitespace-pre-wrap">
-                                    <p className="mb-6">Hola {avatars[0]?.name.split(' ')[0] || 'amiga'},</p>                            
-                                    {activeEmail.body}
-                                    
-                                    <div className="my-10 text-center">
-                                        <div className="inline-block px-10 py-5 bg-orange-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl pointer-events-none">
-                                            Hacer clic para leer el artículo
+                                <div className="bg-orange-900/10 border border-orange-500/20 p-6 rounded-2xl mb-10 flex gap-4">
+                                    <Info className="w-6 h-6 text-orange-400 shrink-0" />
+                                    <p className="text-gray-300 text-base leading-relaxed">
+                                        <span className="font-bold text-orange-200 block mb-1">Estrategia Detrás:</span>
+                                        {activeEmail.objective}
+                                    </p>
+                                </div>
+
+                                <div className="bg-white rounded-2xl shadow-2xl p-10 text-gray-900 font-serif leading-relaxed text-xl flex-1 border-2 border-gray-200 flex flex-col relative group">
+                                    <div className="border-b border-gray-100 pb-6 mb-8 text-sm text-gray-400 font-sans italic flex justify-between items-center">
+                                        <div>
+                                            <p>De: Tu Marca Profesional</p>
+                                            <p>Asunto: {activeEmail.subject}</p>
                                         </div>
-                                        <p className="text-gray-400 text-xs mt-4 font-sans italic">El enlace dirigirá automáticamente al blog de tu landing page.</p>
+                                        <button 
+                                            onClick={() => handleCopy(`${activeEmail.subject}\n\n${activeEmail.body}`, activeEmail.id)}
+                                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-orange-500"
+                                            title="Copiar correo completo"
+                                        >
+                                            {copySuccess === activeEmail.id ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
+                                        </button>
                                     </div>
 
-                                    <div className="mt-auto pt-8 border-t border-gray-100 font-sans">
-                                        <p className="text-base text-gray-500">Un abrazo,<br/><strong>Tu Equipo.</strong></p>
+                                    <div className="whitespace-pre-wrap">
+                                        <p className="mb-6">Hola {avatars[0]?.name.split(' ')[0] || 'amiga'},</p>                            
+                                        {activeEmail.body}
+                                        
+                                        <div className="my-10 text-center">
+                                            <div className="inline-block px-10 py-5 bg-orange-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl pointer-events-none">
+                                                Hacer clic para leer el artículo
+                                            </div>
+                                            <p className="text-gray-400 text-xs mt-4 font-sans italic">El enlace dirigirá automáticamente al blog de tu landing page.</p>
+                                        </div>
+
+                                        <div className="mt-auto pt-8 border-t border-gray-100 font-sans">
+                                            <p className="text-base text-gray-500">Un abrazo,<br/><strong>Tu Equipo.</strong></p>
+                                        </div>
                                     </div>
                                 </div>
-                            ) : (
-                                <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6 py-20">
-                                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
-                                        <PenTool className="w-10 h-10" />
-                                    </div>
-                                    <div className="max-w-xs">
-                                        <h4 className="text-xl font-bold text-gray-400">Correo no redactado</h4>
-                                        <p className="text-sm text-gray-400 mt-2">Usa el botón de abajo para que la IA redacte este correo basado en el contenido de tu artículo.</p>
-                                    </div>
+
+                                <div className="mt-10">
                                     <button 
-                                        onClick={() => handleGenerateEmail(activeEmail.originalArticle)}
-                                        disabled={generatingId === activeEmail.id || (isLimitReached && !activeEmail.body)}
-                                        className={`px-8 py-3 font-black rounded-xl transition-all shadow-lg flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed ${isLimitReached && !activeEmail.body ? 'bg-gray-800 text-gray-500' : 'bg-orange-600 hover:bg-orange-500 text-white'}`}
+                                        onClick={() => navigate('/dashboard/email')}
+                                        className="w-full py-5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 transform active:scale-95"
                                     >
-                                        {generatingId === activeEmail.id ? (
-                                            <>
-                                                <Loader2 className="w-5 h-5 animate-spin" /> Redactando...
-                                            </>
-                                        ) : isLimitReached && !activeEmail.body ? (
-                                            <>
-                                                <Crown className="w-5 h-5" /> Límite Alcanzado
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Sparkles className="w-5 h-5" /> Redactar con IA
-                                            </>
-                                        )}
+                                        <PenTool className="w-5 h-5" /> Configurar en Systeme.io
                                     </button>
                                 </div>
-                            )}
-                        </div>
+                            </>
+                        ) : (
+                            <div className="flex-1 flex flex-col h-full">
+                                <div className="flex flex-col items-center text-center relative animate-in zoom-in-95 w-full h-full">
+                                    <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+                                        <Lock className="w-40 h-40 text-orange-500" />
+                                    </div>
+                                    
+                                    <div className="w-full text-left mb-8">
+                                        <h3 className="text-white mb-6 font-medium tracking-tight text-3xl md:text-4xl leading-tight">
+                                            {activeEmail.originalArticle.title}
+                                        </h3>
+                                        
+                                        <div className="bg-orange-500/5 rounded-2xl p-6 border border-orange-500/20 backdrop-blur-sm mb-8">
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <Brain className="w-5 h-5 text-orange-400" />
+                                                <span className="text-white font-bold text-xs uppercase tracking-widest">Enfoque Estratégico</span>
+                                            </div>
+                                            <div className="max-h-[180px] overflow-y-auto custom-scrollbar">
+                                                <p className="text-white text-lg font-light leading-relaxed">
+                                                    {activeEmail.originalArticle.description}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                        <div className="mt-10">
-                            <button 
-                                onClick={() => navigate('/dashboard/email')}
-                                className="w-full py-5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 transform active:scale-95"
-                            >
-                                <PenTool className="w-5 h-5" /> Configurar en Systeme.io
-                            </button>
-                        </div>
+                                    <div className="flex-1 flex flex-col items-center justify-center w-full">
+                                        <div className="w-20 h-20 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6 border border-orange-500/20 shadow-lg animate-pulse">
+                                            <Lock className="w-10 h-10 text-orange-500" />
+                                        </div>
+                                        
+                                        <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Artículos Disponibles para Desbloquear</h4>
+                                        <p className="text-white font-medium leading-relaxed max-w-md mx-auto mb-10 text-lg">
+                                            Nuestro sistema ha generado este Artículo Estratégico por ti. Haz clic en Desbloquear para ver todo el contenido.
+                                        </p>
+
+                                        <div className="w-full max-w-sm space-y-4">
+                                            <button 
+                                                onClick={() => handleGenerateEmail(activeEmail.originalArticle)}
+                                                disabled={generatingId === activeEmail.id || (isLimitReached && !activeEmail.body)}
+                                                className={`w-full py-5 rounded-2xl font-black text-xl uppercase tracking-widest transition-all shadow-xl shadow-orange-900/40 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group ${isLimitReached && !activeEmail.body ? 'bg-gray-800 text-gray-500' : 'bg-orange-600 hover:bg-orange-500 text-white'}`}
+                                            >
+                                                {generatingId === activeEmail.id ? (
+                                                    <>
+                                                        <Loader2 className="w-6 h-6 animate-spin" /> Redactando...
+                                                    </>
+                                                ) : isLimitReached && !activeEmail.body ? (
+                                                    <>
+                                                        <Crown className="w-6 h-6" /> Límite Alcanzado
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Unlock className="w-6 h-6 group-hover:rotate-12 transition-transform" /> Desbloquear Artículo
+                                                    </>
+                                                )}
+                                            </button>
+                                            <div className="flex items-center justify-center gap-3 text-[10px] font-black text-gray-600 uppercase tracking-widest">
+                                                <Shield className="w-3 h-3" /> Acceso Instantáneo tras Desbloqueo
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
