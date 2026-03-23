@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import pool from './db.js';
+import { EMAIL_BLUEPRINTS, GLOBAL_CONFIG } from './prompts/emails/emailBlueprints.js';
 
 
 
@@ -739,13 +740,6 @@ export const generateFullStrategy = async (projectId) => {
         throw err;
     }
 
-    // 4. DATOS DUMMY PARA ETAPAS 3-6 (PARA PRUEBAS - SINCRO CON MOCK)
-    process.stdout.write(`[PIPELINE DEBUG] Inyectando datos estáticos para etapas 3 a 6...\n`);
-
-
-
-    
-
     try {
         // 5. CONSOLIDACIÓN FINAL
         process.stdout.write(`[PIPELINE DEBUG] Ensamblando JSON final...\n`);
@@ -820,19 +814,35 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
         }
     }
 
-    const prompt = `Eres un Copywriter experto en Email Marketing y Ventas. 
+    const prompt = `Eres un Copywriter experto en Email Marketing y Ventas de Respuesta Directa. 
     Tu tarea es generar el contenido de una secuencia de correos electrónicos de tipo "${type === 'conversion' ? 'CONVERSIÓN (VENTA DIRECTA)' : 'NUTRICIÓN (VALOR Y CONFIANZA)'}" para el producto "${project.product_name}" en el nicho "${project.niche}".
     Descripción del producto: "${project.description}".
     Tono de marca: "${project.brand_tone}".
     Información de la profesora: "${teacherInfo.name}" (${teacherInfo.title || 'Especialista'}).
     
+    REGLAS GLOBALES DE COPYWRITING (OBLIGATORIAS):
+    - Tono: ${GLOBAL_CONFIG.tone}
+    - Formato: ${GLOBAL_CONFIG.formatting}
+    - Evitar: ${GLOBAL_CONFIG.avoid}
+
     AVATARES OBJETIVO:
     ${avatarInfo || 'Público general interesado en el nicho.'}
     ${articlesInfo}
 
-    La secuencia debe seguir estas especificaciones para cada día:
-    ${sequenceData.map((s, i) => `Día ${s.dayIndex}: ${type === 'conversion' ? `Pilar: ${s.pilarType}, ` : ''}Asunto: ${s.subject}, Objetivo: ${s.purpose}, URL de Redirección: ${s.redirectUrl || '[LINK]'}`).join('\n')}
-
+    ESTRUCTURA ESTRATÉGICA POR DÍA (BLUEPRINTS):
+    ${sequenceData.map((s, i) => {
+        const blueprint = EMAIL_BLUEPRINTS[s.pilarType] || EMAIL_BLUEPRINTS['default'];
+        return `
+        DÍA ${s.dayIndex} - PILAR: ${s.pilarType}
+        - Objetivo Psicológico: ${blueprint.goal}
+        - Estructura Obligatoria: ${blueprint.structure}
+        - Tips de Copywriting: ${blueprint.copywritingTips}
+        ${blueprint.constraints ? `- RESTRICCIONES ESPECÍFICAS: ${blueprint.constraints}\n` : ''}
+        ${blueprint.example ? `- EJEMPLO DE REFERENCIA (Mimetiza este estilo, ritmo y estructura, pero adáptalo al producto real):\n${blueprint.example}\n` : ''}
+        - URL de Redirección: ${s.redirectUrl || '[LINK]'}
+        `;
+    }).join('\n')}
+    
     INSTRUCCIONES DE FORMATO Y ESTILO (OBLIGATORIAS):
     - Retorna un array JSON con los objetos correspondientes a cada día.
     - Cada objeto debe tener: "dayIndex" y "contentHtml" (el cuerpo del correo en formato HTML limpio).
@@ -847,7 +857,7 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
     REGLAS ADICIONALES:
     - El contenido debe ser altamente persuasivo, usando técnicas de copywriting (AIDA, PAS).
     - No incluyas el asunto en el contentHtml, solo el cuerpo.
-    - Asegúrate de que el JSON sea válido y no incluya markdown adicional.`;
+    - Asegúrate de que el JSON sea válido y no incluyas markdown adicional.`;
 
     const response = await generateContent('gemini-3-flash-preview', prompt, {
         responseMimeType: "application/json"
