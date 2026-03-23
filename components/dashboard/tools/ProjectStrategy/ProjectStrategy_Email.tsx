@@ -536,7 +536,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                 setIsPreviewMode(true);
                                                 handleUpdateMessage('contentHtml', e.currentTarget.innerHTML);
                                             }}
-                                            className={`w-full h-full min-h-[450px] bg-gray-50 border border-gray-100 rounded-3xl p-8 md:p-12 focus:ring-4 focus:ring-blue-500/5 text-black text-2xl leading-[2] font-serif outline-none overflow-y-auto custom-scrollbar cursor-text transition-all ${!isPreviewMode ? 'bg-white shadow-2xl ring-1 ring-blue-100' : 'hover:bg-gray-100/50'}`}
+                                            className={`w-full h-full min-h-[450px] bg-gray-50 border border-gray-100 rounded-3xl p-8 md:p-12 focus:ring-4 focus:ring-blue-500/5 text-black text-[1.3rem] leading-[1.7em] font-serif outline-none overflow-y-auto custom-scrollbar cursor-text transition-all [&_p]:pt-[1.1em] [&_a]:my-8 [&_a]:inline-block ${!isPreviewMode ? 'bg-white shadow-2xl ring-1 ring-blue-100' : 'hover:bg-gray-100/50'}`}
                                             title="Haz clic para editar el contenido del mensaje"
                                             dangerouslySetInnerHTML={{ __html: currentRealContent }}
                                         />

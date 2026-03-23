@@ -4,7 +4,7 @@
  */
 export const GLOBAL_CONFIG = {
     tone: "Cercano y natural (como una persona real), claro, sin tecnicismos, empático con el usuario, profesional pero no robótico.",
-    formatting: "Párrafos cortos y bien estructurados para facilitar la lectura profesional.",
+    formatting: "Párrafos cortos y bien estructurados para facilitar la lectura profesional. Usa negritas (<strong>) para resaltar conceptos clave, beneficios y frases de alto impacto. Asegura que los botones tengan espacio suficiente alrededor.",
     avoid: "Promesas exageradas, lenguaje demasiado técnico, textos largos sin ritmo."
 };
 
@@ -15,11 +15,11 @@ export const GLOBAL_CONFIG = {
 export const EMAIL_BLUEPRINTS = {
     'Bienvenida + Valor': {
         goal: "Dar la bienvenida al usuario, entregar el recurso prometido (lead magnet) y preparar el terreno para los siguientes correos.",
-        structure: "1. Asunto llamativo y natural (no spam)\n2. Preheader corto complementario\n3. Saludo cercano usando [Nombre]\n4. Bienvenida emocional (reconocer la decisión del usuario)\n5. Entrega del recurso con llamada a la acción (ej: acceder a guía, clase, etc.)\n6. Mini insight: explicar por qué la mayoría falla (sin atacar, pero generando conciencia)\n7. Introducción sutil a lo que vendrá en la secuencia (crear expectativa)\n8. Cierre cercano y humano",
+        structure: "1. Asunto llamativo y natural (no spam)\n2. Preheader corto complementario\n3. Saludo cercano usando [Firstname]\n4. Bienvenida emocional (reconocer la decisión del usuario)\n5. Entrega del recurso con llamada a la acción (ej: acceder a guía, clase, etc.)\n6. Mini insight: explicar por qué la mayoría falla (sin atacar, pero generando conciencia)\n7. Introducción sutil a lo que vendrá en la secuencia (crear expectativa)\n8. Cierre cercano y humano",
         copywritingTips: "Usa un tono entusiasta y profesional. Haz que el usuario se sienta inteligente por haber tomado la decisión de descargar el material.",
         example: `Asunto: Aquí tienes lo prometido + algo importante que debes saber
 
-Hola [Nombre],
+Hola [Firstname],
 
 Primero que nada, quiero darte la bienvenida.
 
@@ -68,7 +68,7 @@ Pdata: Piensa que hoy es el gran cambio que has esperado en tu vida, hoy tienes 
         example: `Asunto: Lo que nadie te dice sobre empezar desde cero
 Preheader: Esto puede cambiar cómo ves tu futuro hoy
 
-Hola [Nombre],
+Hola [Firstname],
 
 Déjame decirte algo directo:
 
@@ -126,7 +126,7 @@ Tu Equipo`
         example: `Asunto: Ella también pensaba que no podía
 Preheader: Hasta que decidió intentarlo…
 
-Hola [Nombre],
+Hola [Firstname],
 
 Quiero contarte algo que probablemente te suene familiar…
 
@@ -197,7 +197,7 @@ Tu Equipo`
         example: `Asunto: Así funciona realmente este proceso (sin complicaciones)
 Preheader: Te lo explico paso a paso
 
-Hola [Nombre],
+Hola [Firstname],
 
 Hasta ahora hemos hablado de algo importante:
 
@@ -275,7 +275,7 @@ Tu Equipo`
         example: `Asunto: Sé lo que estás pensando…
 Preheader: Y es totalmente normal
 
-Hola [Nombre],
+Hola [Firstname],
 
 Si has llegado hasta aquí…
 seguramente hay algo que te interesa.
@@ -347,7 +347,7 @@ Tu Equipo`
         example: `Asunto: Esto fue lo que pasó cuando decidió empezar
 Preheader: No fue magia… fue decisión
 
-Hola [Nombre],
+Hola [Firstname],
 
 Quiero mostrarte algo real.
 
@@ -431,7 +431,7 @@ Tu Equipo`
         example: `Asunto: Es tu momento de decidir
 Preheader: Puedes seguir igual… o empezar hoy
 
-Hola [Nombre],
+Hola [Firstname],
 
 Hemos llegado al punto más importante.
 

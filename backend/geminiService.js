@@ -846,9 +846,11 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
     INSTRUCCIONES DE FORMATO Y ESTILO (OBLIGATORIAS):
     - Retorna un array JSON con los objetos correspondientes a cada día.
     - Cada objeto debe tener: "dayIndex" y "contentHtml" (el cuerpo del correo en formato HTML limpio).
+    - SALUDO: Comienza siempre el correo con "Hola [Firstname]," para asegurar la personalización.
     - PÁRRAFOS CORTOS: Todo el contenido debe estar dividido en párrafos cortos de máximo 2 a 3 líneas para facilitar la lectura profesional. Usa etiquetas <p> para cada párrafo.
+    - RESALTADO: Usa etiquetas <strong> para poner en negrita conceptos clave, beneficios, promesas y frases de alto impacto. No abuses, pero asegúrate de que lo más importante destaque.
     - BOTÓN CTA: Incluye un botón de llamado a la acción (CTA) llamativo. Usa una etiqueta <a href="[URL_DE_REDIRECCION_DEL_DIA]"> con los siguientes estilos inline: 
-      display: inline-block; padding: 15px 30px; background-color: #FF5A1F; color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: bold; margin: 20px 0;
+      display: inline-block; padding: 15px 30px; background-color: #FF5A1F; color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: bold; margin: 30px 0;
       IMPORTANTE: Debes reemplazar [URL_DE_REDIRECCION_DEL_DIA] con la "URL de Redirección" proporcionada para el día correspondiente. Si la URL proporcionada es solo un slug (ej: "mi-pagina"), anteponle "${process.env.APP_URL || ''}/".
       TEXTO DEL BOTÓN: ${type === 'conversion' ? 'El texto del botón debe ser un llamado a la acción directo de venta como "¡Haz clic para Unirte ahora!" o "¡Quiero mi acceso ahora!". Prohibido usar "Ver Clase Gratuita Ahora".' : 'El texto del botón debe invitar a leer más o profundizar en el valor aportado.'}
     - FIRMA: Al final del cuerpo, añade una despedida cordial con el nombre de la profesora "${teacherInfo.name}" y en la línea de abajo su cargo "${teacherInfo.title || 'Especialista'}". No añadas textos adicionales de ayuda.
