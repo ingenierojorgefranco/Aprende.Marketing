@@ -40,7 +40,10 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [isGenerating, setIsGenerating] = useState(false);
     const [saveIndicator, setSaveIndicator] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [isPreviewMode, setIsPreviewMode] = useState(true);
+    const [editingLink, setEditingLink] = useState<{ element: HTMLAnchorElement, url: string } | null>(null);
     const editorRef = useRef<HTMLDivElement>(null);
+    const linkEditorRef = useRef<HTMLDivElement>(null);
+    const subjectRef = useRef<HTMLTextAreaElement>(null);
 
     // Estados locales para interactividad inmediata de redirección
     const [localRedirectType, setLocalRedirectType] = useState<'landing' | 'hotlink' | 'external' | undefined>(undefined);
@@ -272,51 +275,64 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const isCurrentGenerated = !!currentMsg?.isGenerated;
     const currentRealContent = currentMsg?.contentHtml || '';
 
+    // Auto-resize subject on load
+    useEffect(() => {
+        if (subjectRef.current) {
+            subjectRef.current.style.height = 'auto';
+            subjectRef.current.style.height = `${subjectRef.current.scrollHeight}px`;
+        }
+    }, [localSubject]);
+
+    const handleEditorClick = (e: React.MouseEvent) => {
+        const target = e.target as HTMLElement;
+        const anchor = target.closest('a');
+        
+        if (anchor && editorRef.current?.contains(anchor)) {
+            e.preventDefault();
+            setEditingLink({
+                element: anchor as HTMLAnchorElement,
+                url: anchor.getAttribute('href') || ''
+            });
+        } else {
+            setEditingLink(null);
+        }
+    };
+
+    const handleLinkUpdate = (newUrl: string) => {
+        if (editingLink) {
+            editingLink.element.setAttribute('href', newUrl);
+            setEditingLink({ ...editingLink, url: newUrl });
+            if (editorRef.current) {
+                handleUpdateMessage('contentHtml', editorRef.current.innerHTML);
+            }
+        }
+    };
+
     return (
         <div id="psd-email-section" className="pt-8">
-            {/* --- SELECTOR DE TIPO DE SECUENCIA --- */}
-            <div className="max-w-[70em] mx-auto mb-10">
-                <div className="flex p-1 bg-gray-900/50 border border-white/5 rounded-2xl w-fit mx-auto">
-                    <button 
-                        onClick={() => setActiveType?.('conversion')}
-                        className={`px-8 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${activeType === 'conversion' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' : 'text-gray-400 hover:text-white'}`}
-                    >
-                        <Zap className="w-4 h-4" /> Secuencia de Conversión
-                    </button>
-                    <button 
-                        onClick={() => setActiveType?.('nurturing')}
-                        className={`px-8 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${activeType === 'nurturing' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20' : 'text-gray-400 hover:text-white'}`}
-                    >
-                        <BookOpen className="w-4 h-4" /> Secuencia de Nutrición
-                    </button>
-                </div>
-            </div>
-
             {/* --- ENCABEZADO ESTRATÉGICO ACTUALIZADO --- */}
             <div className="max-w-[70em] mx-auto text-left space-y-8 py-10">
-                <div className={`inline-flex items-center gap-3 px-5 py-2 rounded-full border text-sm font-black uppercase tracking-[0.2em] shadow-lg ${activeType === 'conversion' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400 shadow-blue-500/5' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-emerald-500/5'}`}>
-                    <Sparkles className="w-5 h-5" /> {activeType === 'conversion' ? 'Correos de Conversión' : 'Correos de Nutrición'}
+                <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border text-sm font-black uppercase tracking-[0.2em] shadow-lg bg-blue-500/10 border-blue-500/20 text-blue-400 shadow-blue-500/5">
+                    <Sparkles className="w-5 h-5" /> Correos de Conversión
                 </div>
                 
                 <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
-                    Email Marketing: <span className={`text-transparent bg-clip-text bg-gradient-to-r ${activeType === 'conversion' ? 'from-yellow-400 to-blue-400' : 'from-emerald-400 to-teal-400'}`}>
-                        {activeType === 'conversion' ? 'Secuencia de Conversión (7 Días)' : 'Secuencia de Nutrición (Artículos de Valor)'}
+                    Email Marketing: <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-blue-400">
+                        Secuencia de Conversión (7 Días)
                     </span>
                 </h3>
 
                 <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
-                    <p className={`flex-1 border-l-4 pl-8 py-2 ${activeType === 'conversion' ? 'border-blue-500' : 'border-emerald-500'}`}>
-                        {activeType === 'conversion' 
-                            ? 'Hemos diseñado una secuencia de 7 correos electrónicos estratégicos diseñados para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia.'
-                            : 'Esta secuencia está diseñada para mantener el interés de tus prospectos a largo plazo, compartiendo artículos de valor de tu blog y posicionándote como una autoridad en tu nicho de forma constante.'}
+                    <p className="flex-1 border-l-4 pl-8 py-2 border-blue-500">
+                        Hemos diseñado una secuencia de 7 correos electrónicos estratégicos diseñados para nutrir a tus prospectos y llevarlos paso a paso hacia la decisión de compra, utilizando gatillos mentales de autoridad, escasez y urgencia.
                     </p>
-                    <div className={`hidden md:block w-px h-24 ${activeType === 'conversion' ? 'bg-blue-500/30' : 'bg-emerald-500/30'}`}></div>
+                    <div className="hidden md:block w-px h-24 bg-blue-500/30"></div>
                     <div 
                         className="flex-1 w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black relative group"
                     >
                         <iframe 
                             className="w-full h-full rounded-2xl"
-                            src={activeType === 'conversion' ? "https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" : "https://www.youtube.com/embed/dQw4w9WgXcQ"} 
+                            src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
                             title="Video Tutorial" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowFullScreen
@@ -484,26 +500,22 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                             <span className="font-bold text-gray-400 min-w-[60px] uppercase text-sm">Para:</span>
                                             <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
                                                 <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-bold">L</div>
-                                                <span className="text-black font-bold text-base">{avatars[0]?.name || 'Cliente Ideal'} (Avatar Estratégico)</span>
+                                                <span className="text-black font-bold text-base">Tu Suscriptor (Avatar Estratégico)</span>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-2 bg-blue-50/50 p-5 rounded-2xl border-2 border-dashed border-blue-200 transition-all hover:bg-blue-100/30 group/subject shadow-inner" style={{ marginTop: '3em' }}>
                                             <span className="font-bold text-blue-500 min-w-[70px] uppercase text-[1em] mt-2.5">Asunto:</span>
                                             <textarea 
+                                                ref={subjectRef}
                                                 value={localSubject}
                                                 title="Haz clic para editar el asunto"
                                                 onChange={(e) => {
                                                     setLocalSubject(e.target.value);
                                                     handleUpdateMessage('subject', e.target.value);
-                                                    // Auto-resize
-                                                    e.target.style.height = 'inherit';
+                                                    e.target.style.height = 'auto';
                                                     e.target.style.height = `${e.target.scrollHeight}px`;
                                                 }}
-                                                onFocus={(e) => {
-                                                    e.target.style.height = 'inherit';
-                                                    e.target.style.height = `${e.target.scrollHeight}px`;
-                                                }}
-                                                className="flex-1 bg-transparent border-none focus:ring-0 text-black font-black text-2xl leading-tight resize-none p-0 cursor-text placeholder:text-gray-300 overflow-hidden"
+                                                className="flex-1 bg-transparent border-none focus:ring-0 text-black font-normal text-[1.2rem] leading-[1.3em] resize-none p-0 cursor-text placeholder:text-gray-300 overflow-hidden"
                                                 rows={1}
                                                 placeholder="Escribe el asunto aquí..."
                                             />
@@ -511,6 +523,37 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                     </div>
 
                                     <div className="flex-1 pt-4 relative">
+                                        {/* Link Editor Floating UI */}
+                                        {editingLink && (
+                                            <div 
+                                                className="absolute z-[100] bg-white border border-gray-200 rounded-xl shadow-2xl p-4 flex items-center gap-3 animate-in fade-in zoom-in-95 duration-200"
+                                                style={{
+                                                    top: `${editingLink.element.offsetTop - 70}px`,
+                                                    left: `${editingLink.element.offsetLeft}px`
+                                                }}
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <div className="flex flex-col gap-1">
+                                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Enlace del Botón</label>
+                                                    <div className="flex items-center gap-2">
+                                                        <input 
+                                                            type="text"
+                                                            value={editingLink.url}
+                                                            onChange={(e) => handleLinkUpdate(e.target.value)}
+                                                            className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-blue-600 font-medium outline-none focus:ring-2 focus:ring-blue-500/20 w-64"
+                                                            placeholder="https://..."
+                                                        />
+                                                        <button 
+                                                            onClick={() => setEditingLink(null)}
+                                                            className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors"
+                                                        >
+                                                            <Check className="w-4 h-4 text-emerald-500" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         {/* WYSIWYG Toolbar - Reposicionado encima del mensaje */}
                                         {!isPreviewMode && (
                                             <div className="absolute -top-12 left-0 right-0 bg-white border border-gray-200 p-2 flex flex-wrap gap-1 items-center z-20 rounded-xl shadow-xl animate-in slide-in-from-bottom-2 duration-300">
@@ -530,7 +573,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                         <div 
                                             ref={editorRef}
                                             contentEditable={!isPreviewMode}
-                                            onClick={() => setIsPreviewMode(false)}
+                                            onClick={handleEditorClick}
                                             onFocus={() => setIsPreviewMode(false)}
                                             onBlur={(e) => {
                                                 setIsPreviewMode(true);

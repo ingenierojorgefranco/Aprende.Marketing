@@ -194,7 +194,7 @@ export const generateFullStrategy = async (projectId) => {
     }
     
     const projectData = rows[0];
-    const { niche, product_name: productName, brand_tone: brandTone, full_price: fullPrice, commission_rate: commissionRate, lead_magnet_type: leadMagnetType, master_parent_id: masterParentId  } = projectData;
+    const { niche, product_name: productName, brand_tone: brandTone, full_price: fullPrice, commission_rate: commissionRate, lead_magnet_type: leadMagnetType, master_parent_id: masterParentId, description  } = projectData;
     const isCloned = masterParentId !== null;
 
     let step1Data;
@@ -206,6 +206,9 @@ export const generateFullStrategy = async (projectId) => {
         
         
         const step1Prompt = `Eres un Estratega Senior de Marketing Digital. Tu misión es generar el ADN de marketing, 3 perfiles de Avatar extremadamente detallados y la psicología profunda del consumidor para el producto "${productName}" en el nicho "${niche}". Tono de marca: "${brandTone}".
+
+        Descripción del producto (Extrae de aquí los datos del profesor si están disponibles):
+        "${description}"
 
         "El regalo (Lead Magnet) que el usuario entrega es de tipo: "${leadMagnetType}"
         
@@ -358,9 +361,9 @@ export const generateFullStrategy = async (projectId) => {
             }
           },
           "teacher": {
-            "name": "Nombre de la profesora (inventa uno realista si no se proporciona)",
-            "title": "Título profesional (ej: Especialista en Microblading)",
-            "bio": "Breve biografía persuasiva de 2-3 líneas",
+            "name": "Nombre real del profesor/a extraído de la descripción. REGLA CRÍTICA: Si no encuentras un nombre real en la descripción, escribe estrictamente 'Tu Profesor' o 'Tu Profesora'. PROHIBIDO INVENTAR NOMBRES.",
+            "title": "Título profesional extraído (ej: Especialista en Microblading). Si no hay, usa uno genérico profesional acorde al nicho.",
+            "bio": "Breve biografía persuasiva de 2-3 líneas extraída de su experiencia. Si no hay, crea una basada en su autoridad como experto en el nicho.",
             "transformation_tip": "Un consejo de vida poderoso relacionado con el nicho"
           },
           "avatars": [
@@ -853,8 +856,8 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
       display: inline-block; padding: 15px 30px; background-color: #FF5A1F; color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: bold; margin: 30px 0;
       IMPORTANTE: Debes reemplazar [URL_DE_REDIRECCION_DEL_DIA] con la "URL de Redirección" proporcionada para el día correspondiente. Si la URL proporcionada es solo un slug (ej: "mi-pagina"), anteponle "${process.env.APP_URL || ''}/".
       TEXTO DEL BOTÓN: ${type === 'conversion' ? 'El texto del botón debe ser un llamado a la acción directo de venta como "¡Haz clic para Unirte ahora!" o "¡Quiero mi acceso ahora!". Prohibido usar "Ver Clase Gratuita Ahora".' : 'El texto del botón debe invitar a leer más o profundizar en el valor aportado.'}
-    - FIRMA: Al final del cuerpo, añade una despedida cordial con el nombre de la profesora "${teacherInfo.name}" y en la línea de abajo su cargo "${teacherInfo.title || 'Especialista'}". No añadas textos adicionales de ayuda.
-    - POSDATA (Pdta:): Después de la firma, añade una posdata usando estrictamente el prefijo "Pdta:". El contenido debe ser un consejo directo y persuasivo basado en: "${teacherInfo.transformation_tip}". No incluyas el texto "Tip de transformación".
+    - FIRMA: Al final del cuerpo, añade una despedida cordial con el nombre de la profesora "<strong>${teacherInfo.name}</strong>" y en la línea de abajo su cargo "${teacherInfo.title || 'Especialista'}". No añadas textos adicionales de ayuda.
+    - POSDATA (Pdta:): Después de la firma, añade una posdata usando estrictamente el prefijo "<strong>Pdta:</strong>". El contenido debe ser un consejo directo y persuasivo basado en: "${teacherInfo.transformation_tip}". No incluyas el texto "Tip de transformación".
     
     REGLAS ADICIONALES:
     - El contenido debe ser altamente persuasivo, usando técnicas de copywriting (AIDA, PAS).
