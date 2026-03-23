@@ -260,7 +260,6 @@ const initDb = async () => {
             name VARCHAR(255) NOT NULL,
             status VARCHAR(50) DEFAULT 'borrador',
             tag_name VARCHAR(255),
-            type VARCHAR(50) DEFAULT 'conversion',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -276,6 +275,7 @@ const initDb = async () => {
             purpose TEXT,
             content_html LONGTEXT,
             is_generated BOOLEAN DEFAULT FALSE,
+            type VARCHAR(50) DEFAULT 'conversion',
             redirect_type VARCHAR(50),
             redirect_url TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -546,9 +546,16 @@ const initDb = async () => {
         await addColumnSafe(connection, 'project_hooks', "landing_page_url VARCHAR(255)");
 
         /* Actualización: Columnas para separación de secuencias de email y persistencia de redirección - 21/03/2026 */
-        await addColumnSafe(connection, 'email_sequences', "type VARCHAR(50) DEFAULT 'conversion'");
+        await dropColumnSafe(connection, 'email_sequences', "type");
+        await addColumnSafe(connection, 'email_messages', "type VARCHAR(50) DEFAULT 'conversion'");
         await addColumnSafe(connection, 'email_messages', "redirect_type VARCHAR(50)");
         await addColumnSafe(connection, 'email_messages', "redirect_url TEXT");
+        
+        try {
+            await connection.query(`ALTER TABLE email_messages ADD UNIQUE INDEX idx_seq_day (sequence_id, day_index)`);
+        } catch (e) {
+            // Ignore if index already exists
+        }
         ////////// Fin de migración //////////
 
         ////////// LIMPIEZA DE COLUMNAS OBSOLETAS (DATOS BASURA) //////////

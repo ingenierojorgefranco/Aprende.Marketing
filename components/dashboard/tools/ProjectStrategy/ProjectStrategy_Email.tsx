@@ -176,6 +176,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
             else if (field === 'redirectType') apiField = 'redirect_type';
             else if (field === 'redirectUrl') apiField = 'redirect_url';
             else if (field === 'pilarType') apiField = 'pilar_type';
+            else if (field === 'type') apiField = 'type';
 
             await api.updateEmailMessage(currentReal.id, { [apiField]: value } as any);
             setSaveIndicator('saved');

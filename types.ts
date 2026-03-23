@@ -18,7 +18,7 @@ export interface EmailSequence {
   name: string;
   status: 'activa' | 'borrador';
   tagName: string;
-  type: 'conversion' | 'nurturing';
+  type?: 'conversion' | 'nurturing';
   createdAt: Date;
   generatedDays: number[];
 }
@@ -32,6 +32,7 @@ export interface EmailMessage {
   purpose: string;
   contentHtml: string;
   isGenerated: boolean;
+  type: 'conversion' | 'nurturing';
   redirectType?: 'landing' | 'hotlink' | 'external';
   redirectUrl?: string;
 }

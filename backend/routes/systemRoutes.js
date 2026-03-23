@@ -56,15 +56,17 @@ router.get('/email/sequences', authMiddleware, async (req, res) => {
 
         const sequencesWithDays = await Promise.all(rows.map(async (seq) => {
             const [msgRows] = await pool.query(
-                `SELECT day_index FROM email_messages WHERE sequence_id = ? AND is_generated = 1`,
+                `SELECT day_index, type FROM email_messages WHERE sequence_id = ? AND is_generated = 1`,
                 [seq.id]
             );
             return {
                 ...seq,
                 projectName: seq.project_name,
                 tagName: seq.tag_name || 'Sin etiqueta',
-                type: seq.type || 'conversion',
-                generatedDays: msgRows.map(m => m.day_index)
+                generatedDays: msgRows.map(m => m.day_index),
+                // We can still provide a default type for the sequence based on its messages if needed, 
+                // but the individual messages will have their own type.
+                type: msgRows.length > 0 ? msgRows[0].type : 'conversion'
             };
         }));
 
@@ -80,10 +82,10 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
     if (!projectId) return res.status(400).json({ error: "Falta ID de proyecto" });
 
     try {
-        // 1. Verificar si la secuencia existe para este usuario y tipo
+        // 1. Verificar si la secuencia existe para este usuario
         const [seqRows] = await pool.query(
-            'SELECT id FROM email_sequences WHERE user_id = ? AND project_id = ? AND type = ? LIMIT 1',
-            [req.user.id, projectId, type]
+            'SELECT id FROM email_sequences WHERE user_id = ? AND project_id = ? LIMIT 1',
+            [req.user.id, projectId]
         );
 
         let sequenceId;
@@ -94,40 +96,36 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
             const projectName = projectRows[0]?.name || 'Secuencia Nueva';
 
             const [result] = await pool.query(
-                'INSERT INTO email_sequences (user_id, project_id, name, status, type) VALUES (?, ?, ?, "borrador", ?)',
-                [req.user.id, projectId, projectName, type]
+                'INSERT INTO email_sequences (user_id, project_id, name, status) VALUES (?, ?, ?, "borrador")',
+                [req.user.id, projectId, projectName]
             );
             sequenceId = result.insertId;
-
-            // Inicializar los mensajes basados en sequenceData
-            if (sequenceData && Array.isArray(sequenceData)) {
-                for (let i = 0; i < sequenceData.length; i++) {
-                    const p = sequenceData[i];
-                    await pool.query(
-                        `INSERT INTO email_messages (sequence_id, day_index, pilar_type, subject, purpose, content_html, is_generated, redirect_type, redirect_url) 
-                         VALUES (?, ?, ?, ?, ?, "", 0, ?, ?)`,
-                        [sequenceId, i + 1, p.pilarType, p.subject, p.purpose, p.redirectType || null, p.redirectUrl || null]
-                    );
-                }
-            }
         } else {
             sequenceId = seqRows[0].id;
-            // Actualizar configuraciones de redirección si vienen en sequenceData
-            if (sequenceData && Array.isArray(sequenceData)) {
-                for (let i = 0; i < sequenceData.length; i++) {
-                    const p = sequenceData[i];
-                    await pool.query(
-                        `UPDATE email_messages SET redirect_type = ?, redirect_url = ? WHERE sequence_id = ? AND day_index = ?`,
-                        [p.redirectType || null, p.redirectUrl || null, sequenceId, i + 1]
-                    );
-                }
+        }
+
+        // 2. Inicializar o actualizar los mensajes basados en sequenceData (Upsert)
+        if (sequenceData && Array.isArray(sequenceData)) {
+            for (const p of sequenceData) {
+                await pool.query(
+                    `INSERT INTO email_messages (sequence_id, day_index, pilar_type, subject, purpose, type, redirect_type, redirect_url, content_html, is_generated) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, "", 0)
+                     ON DUPLICATE KEY UPDATE 
+                        pilar_type = VALUES(pilar_type),
+                        subject = VALUES(subject),
+                        purpose = VALUES(purpose),
+                        type = VALUES(type),
+                        redirect_type = VALUES(redirect_type),
+                        redirect_url = VALUES(redirect_url)`,
+                    [sequenceId, p.dayIndex, p.pilarType, p.subject, p.purpose, type, p.redirectType || null, p.redirectUrl || null]
+                );
             }
         }
 
-        // 2. Generar contenido con IA
+        // 3. Generar contenido con IA
         const generatedEmails = await generateEmailSequenceContent(projectId, sequenceData, type);
 
-        // 3. Actualizar los mensajes en la base de datos
+        // 4. Actualizar los mensajes en la base de datos con el contenido generado
         for (const email of generatedEmails) {
             await pool.query(
                 'UPDATE email_messages SET content_html = ?, is_generated = 1 WHERE sequence_id = ? AND day_index = ?',
@@ -148,20 +146,29 @@ router.post('/email/sequences', authMiddleware, async (req, res) => {
     if (!projectId) return res.status(400).json({ error: "Falta ID de proyecto" });
 
     try {
-        // Verificar si ya existe por tipo
+        // Verificar si ya existe
         const [existing] = await pool.query(
-            'SELECT id FROM email_sequences WHERE user_id = ? AND project_id = ? AND type = ? LIMIT 1',
-            [req.user.id, projectId, type]
+            'SELECT id FROM email_sequences WHERE user_id = ? AND project_id = ? LIMIT 1',
+            [req.user.id, projectId]
         );
 
         if (existing.length > 0) {
+            // Si ya existe la secuencia, verificamos si tiene mensajes de este tipo
+            const [existingMsgs] = await pool.query(
+                'SELECT id FROM email_messages WHERE sequence_id = ? AND type = ? LIMIT 1',
+                [existing[0].id, type]
+            );
+            if (existingMsgs.length > 0) {
+                return res.json({ id: existing[0].id, isNew: false });
+            }
+            // Si existe la secuencia pero no mensajes de este tipo, devolvemos el ID para que se añadan
             return res.json({ id: existing[0].id, isNew: false });
         }
 
         // Crear nueva
         const [result] = await pool.query(
-            'INSERT INTO email_sequences (user_id, project_id, name, status, type) VALUES (?, ?, ?, "borrador", ?)',
-            [req.user.id, projectId, name || 'Secuencia Nueva', type]
+            'INSERT INTO email_sequences (user_id, project_id, name, status) VALUES (?, ?, ?, "borrador")',
+            [req.user.id, projectId, name || 'Secuencia Nueva']
         );
         const sequenceId = result.insertId;
 
@@ -180,18 +187,18 @@ router.post('/email/sequences', authMiddleware, async (req, res) => {
             for (let i = 0; i < pillars.length; i++) {
                 const p = pillars[i];
                 await pool.query(
-                    `INSERT INTO email_messages (sequence_id, day_index, pilar_type, subject, purpose, content_html, is_generated) 
-                     VALUES (?, ?, ?, ?, ?, "", 0)`,
-                    [sequenceId, i + 1, p.type, p.subject, `Objetivo del Día ${i + 1}: ${p.type}`]
+                    `INSERT INTO email_messages (sequence_id, day_index, pilar_type, subject, purpose, content_html, is_generated, type) 
+                     VALUES (?, ?, ?, ?, ?, "", 0, ?)`,
+                    [sequenceId, i + 1, p.type, p.subject, `Objetivo del Día ${i + 1}: ${p.type}`, type]
                 );
             }
         } else {
             // Para nutrición, inicializamos 3 correos base (pueden ser más luego)
             for (let i = 0; i < 3; i++) {
                 await pool.query(
-                    `INSERT INTO email_messages (sequence_id, day_index, pilar_type, subject, purpose, content_html, is_generated) 
-                     VALUES (?, ?, ?, ?, ?, "", 0)`,
-                    [sequenceId, i + 1, 'Nutrición', `Contenido de Valor ${i + 1}`, `Aportar valor basado en artículo de blog`]
+                    `INSERT INTO email_messages (sequence_id, day_index, pilar_type, subject, purpose, content_html, is_generated, type) 
+                     VALUES (?, ?, ?, ?, ?, "", 0, ?)`,
+                    [sequenceId, i + 1, 'Nutrición', `Contenido de Valor ${i + 1}`, `Aportar valor basado en artículo de blog`, type]
                 );
             }
         }
@@ -209,6 +216,33 @@ router.delete('/email/sequences/:id', authMiddleware, async (req, res) => {
         if (check.length === 0 || (check[0].user_id !== req.user.id && req.user.role !== 'admin')) return res.status(403).json({ error: 'No autorizado o no encontrado' });
 
         await pool.query('DELETE FROM email_sequences WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Upsert mensaje individual por sequence_id y day_index
+router.post('/email/messages/upsert', authMiddleware, async (req, res) => {
+    const { sequenceId, dayIndex, subject, contentHtml, type, pilarType, purpose, redirectType, redirectUrl } = req.body;
+    try {
+        await pool.query(
+            `INSERT INTO email_messages (sequence_id, day_index, subject, content_html, type, pilar_type, purpose, is_generated, redirect_type, redirect_url) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
+             ON DUPLICATE KEY UPDATE 
+                subject = COALESCE(?, subject),
+                content_html = COALESCE(?, content_html),
+                type = COALESCE(?, type),
+                pilar_type = COALESCE(?, pilar_type),
+                purpose = COALESCE(?, purpose),
+                is_generated = 1,
+                redirect_type = COALESCE(?, redirect_type),
+                redirect_url = COALESCE(?, redirect_url)`,
+            [
+                sequenceId, dayIndex, subject, contentHtml, type, pilarType || 'Nutrición', purpose || 'Contenido de Valor', redirectType || null, redirectUrl || null,
+                subject, contentHtml, type, pilarType || 'Nutrición', purpose || 'Contenido de Valor', redirectType || null, redirectUrl || null
+            ]
+        );
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -239,7 +273,7 @@ router.get('/email/sequences/:id/messages', authMiddleware, async (req, res) => 
 
 // Actualizar mensaje individual
 router.put('/email/messages/:id', authMiddleware, async (req, res) => {
-    const { subject, pilar_type, purpose, content_html, is_generated, redirect_type, redirect_url } = req.body;
+    const { subject, pilar_type, purpose, content_html, is_generated, type, redirect_type, redirect_url } = req.body;
     try {
         await pool.query(
             `UPDATE email_messages SET 
@@ -248,10 +282,11 @@ router.put('/email/messages/:id', authMiddleware, async (req, res) => {
                 purpose = COALESCE(?, purpose),
                 content_html = COALESCE(?, content_html),
                 is_generated = COALESCE(?, is_generated),
+                type = COALESCE(?, type),
                 redirect_type = COALESCE(?, redirect_type),
                 redirect_url = COALESCE(?, redirect_url)
              WHERE id = ?`,
-            [subject, pilar_type, purpose, content_html, is_generated, redirect_type, redirect_url, req.params.id]
+            [subject, pilar_type, purpose, content_html, is_generated, type, redirect_type, redirect_url, req.params.id]
         );
         res.json({ success: true });
     } catch (e) {

@@ -278,7 +278,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                 setActiveType={setActiveEmailSequenceType} 
                             />
                         )}
-                        {activeSection === 'evergreen' && <ProjectStrategy_Evergreen evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
+                        {activeSection === 'evergreen' && <ProjectStrategy_Evergreen projectId={id} evergreenData={strategyData.modules.emails.evergreen} avatars={strategyData.avatars} activeEvergreenEmail={activeEvergreenEmail} setActiveEvergreenEmail={setActiveEvergreenEmail} features={user.planLimits?.features} onUpgrade={() => setShowUpgradeModal(true)} planLimits={user.planLimits} nextPlan={nextPlan} linkedArticles={linkedArticles} />}
                         {activeSection === 'whatsapp' && <ProjectStrategy_WhatsApp activeWaScript={activeWaScript} setActiveWaScript={setActiveWaScript} onUpgrade={() => setShowUpgradeModal(true)} projectId={id} isSimulating={isSimulating} planLimits={user.planLimits} strategyData={strategyData} />}
                     </Suspense>
                 </div>

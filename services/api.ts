@@ -1741,6 +1741,16 @@ export const api = {
         clearCache('emailSequences');
     },
 
+    upsertEmailMessage: async (data: { sequenceId: string, dayIndex: number, subject: string, contentHtml: string, type: 'conversion' | 'nurturing', pilarType?: string, purpose?: string, redirectType?: string, redirectUrl?: string }) => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback(`/email/messages/upsert`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(data)
+        });
+        clearCache('emailSequences');
+    },
+
     generateFullEmailSequence: async (projectId: string, sequenceData: any[], type: 'conversion' | 'nurturing' = 'conversion'): Promise<void> => {
         if (isMockMode) {
             await new Promise(resolve => setTimeout(resolve, 3000));

@@ -10,7 +10,6 @@ export const MOCK_EMAIL_SEQUENCES: EmailSequence[] = [
     name: "Secuencia de Ventas: Microblading Pro",
     status: "activa",
     tagName: "Lead Microblading",
-    type: "conversion",
     createdAt: new Date("2024-06-20"),
     generatedDays: [0]
   }
@@ -51,7 +50,8 @@ export const MOCK_EMAIL_MESSAGES: EmailMessage[] = [
         </p>
       </div>
     `,
-    isGenerated: true
+    isGenerated: true,
+    type: 'conversion'
   },
   {
     id: "m2",
@@ -61,7 +61,8 @@ export const MOCK_EMAIL_MESSAGES: EmailMessage[] = [
     pilarType: "Agitación del Dolor",
     purpose: "Conectar emocionalmente con el cansancio de trabajar mucho por poco dinero y presentar el producto como la salida al 'techo de cristal' de ingresos en estética.",
     contentHtml: "",
-    isGenerated: false
+    isGenerated: false,
+    type: 'conversion'
   },
   {
     id: "m3",
@@ -71,7 +72,8 @@ export const MOCK_EMAIL_MESSAGES: EmailMessage[] = [
     pilarType: "Prueba Social",
     purpose: "Demostrar factibilidad mediante un caso de éxito real de microblading que genere deseo y credibilidad en el método.",
     contentHtml: "",
-    isGenerated: false
+    isGenerated: false,
+    type: 'conversion'
   },
   {
     id: "m4",
@@ -81,7 +83,8 @@ export const MOCK_EMAIL_MESSAGES: EmailMessage[] = [
     pilarType: "Mecanismo Único",
     purpose: "Eliminar la objeción de 'falta de talento artístico' explicando el método técnico simplificado que hace el diseño perfecto por la alumna.",
     contentHtml: "",
-    isGenerated: false
+    isGenerated: false,
+    type: 'conversion'
   },
   {
     id: "m5",
@@ -91,7 +94,8 @@ export const MOCK_EMAIL_MESSAGES: EmailMessage[] = [
     pilarType: "Lanzamiento",
     purpose: "Presentar oficialmente el programa completo, desglosar los módulos y realizar el primer llamado a la acción directo de venta.",
     contentHtml: "",
-    isGenerated: false
+    isGenerated: false,
+    type: 'conversion'
   },
   {
     id: "m6",
@@ -101,7 +105,8 @@ export const MOCK_EMAIL_MESSAGES: EmailMessage[] = [
     pilarType: "Escasez",
     purpose: "Generar urgencia mediante la pérdida inminente de los regalos adicionales (Kit de pigmentos, Asesoría VIP) para cerrar ventas rezagadas.",
     contentHtml: "",
-    isGenerated: false
+    isGenerated: false,
+    type: 'conversion'
   },
   {
     id: "m7",
@@ -111,6 +116,7 @@ export const MOCK_EMAIL_MESSAGES: EmailMessage[] = [
     pilarType: "Cierre",
     purpose: "Llamado final a la acción confrontando al lead con su situación actual vs su potencial futuro antes de cerrar el carrito definitivamente.",
     contentHtml: "",
-    isGenerated: false
+    isGenerated: false,
+    type: 'conversion'
   }
 ];

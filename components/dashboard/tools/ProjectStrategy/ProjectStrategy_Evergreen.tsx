@@ -5,6 +5,7 @@ import { PlanFeatures, PlanLimits, Plan, Article } from '../../../../types';
 import { api } from '../../../../services/api';
 
 interface ProjectStrategy_EvergreenProps {
+    projectId: string;
     evergreenData: any[];
     avatars: any[];
     activeEvergreenEmail: number;
@@ -19,7 +20,7 @@ interface ProjectStrategy_EvergreenProps {
 }
 
 export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps> = ({
-    evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan, linkedArticles = []
+    projectId, evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan, linkedArticles = []
 }) => {
     const navigate = useNavigate();
     const [generatingId, setGeneratingId] = useState<string | null>(null);
@@ -131,6 +132,28 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 emailSubject: result.subject,
                 emailBody: result.body
             });
+
+            // --- NUEVO: Asociar con email_messages de tipo 'nurturing' ---
+            try {
+                // 1. Asegurar que existe la secuencia de nutrición
+                const seq = await api.createEmailSequence(projectId, "Secuencia de Nutrición", 'nurturing');
+                const sequenceId = seq.id;
+
+                // 2. Upsert del mensaje en la secuencia
+                const dayIndex = linkedArticles.findIndex(a => a.id === article.id) + 1;
+                await api.upsertEmailMessage({
+                    sequenceId,
+                    dayIndex,
+                    subject: result.subject,
+                    contentHtml: result.body, // Se guarda como contentHtml para consistencia
+                    type: 'nurturing',
+                    pilarType: 'Nutrición',
+                    purpose: `Contenido de Valor: ${article.title}`
+                });
+            } catch (seqError) {
+                console.error("Error asociando email a secuencia:", seqError);
+                // No bloqueamos el proceso principal si falla la asociación
+            }
 
             // Recargar la página o actualizar el estado local si fuera necesario
             // En este caso, como linkedArticles viene de arriba, lo ideal sería que el padre refresque
