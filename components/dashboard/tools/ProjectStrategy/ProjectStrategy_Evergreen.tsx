@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X, Loader2, Copy, Lock, Unlock, Search, BarChart, Eye, Target, Brain, Shield } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { PlanFeatures, PlanLimits, Plan, Article } from '../../../../types';
+import React, { useState, useEffect, useRef } from 'react';
+import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X, Loader2, Copy, Lock, Unlock, Search, BarChart, Eye, Target, Brain, Shield, Edit3, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, CheckCircle2, Wand2 } from 'lucide-react';
+import { useNavigate, useOutletContext } from 'react-router-dom';
+import { PlanFeatures, PlanLimits, Plan, Article, EmailMessage } from '../../../../types';
 import { api } from '../../../../services/api';
 
 interface ProjectStrategy_EvergreenProps {
@@ -23,8 +23,41 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     projectId, evergreenData, avatars, activeEvergreenEmail, setActiveEvergreenEmail, onUpgrade, features, planLimits, nextPlan, linkedArticles = []
 }) => {
     const navigate = useNavigate();
+    const { user } = useOutletContext() as any;
     const [generatingId, setGeneratingId] = useState<string | null>(null);
     const [copySuccess, setCopySuccess] = useState<string | null>(null);
+    const [nurturingMessages, setNurturingMessages] = useState<EmailMessage[]>([]);
+    const [loadingMessages, setLoadingMessages] = useState(true);
+
+    // Estados para el editor profesional (igual que en ProjectStrategy_Email)
+    const [localSubject, setLocalSubject] = useState('');
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [saveIndicator, setSaveIndicator] = useState<'idle' | 'saving' | 'saved'>('idle');
+    const [isPreviewMode, setIsPreviewMode] = useState(true);
+    const [editingLink, setEditingLink] = useState<{ element: HTMLAnchorElement, url: string } | null>(null);
+    
+    const editorRef = useRef<HTMLDivElement>(null);
+    const subjectRef = useRef<HTMLTextAreaElement>(null);
+    const lastActiveEmailRef = useRef<number>(activeEvergreenEmail);
+
+    useEffect(() => {
+        const loadMessages = async () => {
+            try {
+                const sequences = await api.getEmailSequences();
+                const nurturingSeq = sequences.find(s => s.projectId === projectId && s.type === 'nurturing');
+                if (nurturingSeq) {
+                    const messages = await api.getSequenceMessages(nurturingSeq.id);
+                    setNurturingMessages(messages);
+                }
+            } catch (error) {
+                console.error("Error loading nurturing messages:", error);
+            } finally {
+                setLoadingMessages(false);
+            }
+        };
+        loadMessages();
+    }, [projectId]);
 
     // Si no hay artículos, mostramos el estado vacío con invitación a generar contenido
     if (linkedArticles.length === 0) {
@@ -82,7 +115,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     }
 
     // Lógica de límites
-    const emailsUsed = linkedArticles.filter(a => a.emailBody).length;
+    const emailsUsed = nurturingMessages.length;
     const maxEmails = planLimits?.maxEmailSequencesNurturing || 0;
     const usagePercent = maxEmails > 0 ? Math.min(100, (emailsUsed / maxEmails) * 100) : 0;
     const isLimitReached = maxEmails > 0 && emailsUsed >= maxEmails;
@@ -90,16 +123,96 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     // Color de la barra de progreso
     const progressColor = usagePercent > 90 ? 'bg-red-500' : usagePercent > 70 ? 'bg-orange-500' : 'bg-blue-500';
 
-    const handleGenerateEmail = async (article: Article) => {
-        if (generatingId) return;
-
-        // Verificar límites antes de generar si no tiene contenido previo
-        if (isLimitReached && !article.emailBody) {
-            onUpgrade();
-            return;
+    // Sincronizar estados locales cuando cambiamos de correo
+    useEffect(() => {
+        const dayNum = 8 + (activeEvergreenEmail * 2);
+        const dbMessage = nurturingMessages.find(m => m.dayIndex === dayNum);
+        
+        if (lastActiveEmailRef.current !== activeEvergreenEmail || localSubject === '' || (dbMessage && !localSubject)) {
+            if (dbMessage) {
+                setLocalSubject(dbMessage.subject || '');
+            } else {
+                const article = linkedArticles[activeEvergreenEmail];
+                setLocalSubject(article ? `[LECTURA RECOMENDADA] ${article.title}` : '');
+            }
+            setIsPreviewMode(true);
+            lastActiveEmailRef.current = activeEvergreenEmail;
         }
+    }, [activeEvergreenEmail, nurturingMessages, linkedArticles]);
 
+    // Auto-resize subject
+    useEffect(() => {
+        if (subjectRef.current) {
+            subjectRef.current.style.height = 'auto';
+            subjectRef.current.style.height = `${subjectRef.current.scrollHeight}px`;
+        }
+    }, [localSubject]);
+
+    const handleUpdateMessage = async (field: string, value: any) => {
+        if (field === 'subject') setLocalSubject(value);
+
+        const dayNum = 8 + (activeEvergreenEmail * 2);
+        const dbMessage = nurturingMessages.find(m => m.dayIndex === dayNum);
+        if (!dbMessage) return;
+
+        setSaveIndicator('saving');
+        try {
+            let apiField = field;
+            if (field === 'contentHtml') apiField = 'content_html';
+            
+            await api.updateEmailMessage(dbMessage.id, { [apiField]: value } as any);
+            
+            // Actualizar estado local de mensajes
+            setNurturingMessages(prev => prev.map(m => m.id === dbMessage.id ? { ...m, [field]: value } : m));
+            
+            setSaveIndicator('saved');
+            setTimeout(() => setSaveIndicator('idle'), 2000);
+        } catch (e) {
+            console.error(e);
+            setSaveIndicator('idle');
+        }
+    };
+
+    const handleEditorClick = (e: React.MouseEvent) => {
+        const target = e.target as HTMLElement;
+        const anchor = target.closest('a');
+        setIsPreviewMode(false);
+
+        if (anchor && editorRef.current?.contains(anchor)) {
+            e.preventDefault();
+            setEditingLink({
+                element: anchor as HTMLAnchorElement,
+                url: anchor.getAttribute('href') || ''
+            });
+        } else {
+            setEditingLink(null);
+        }
+    };
+
+    const handleLinkUpdate = (newUrl: string) => {
+        if (editingLink) {
+            editingLink.element.setAttribute('href', newUrl);
+            setEditingLink({ ...editingLink, url: newUrl });
+            if (editorRef.current) {
+                handleUpdateMessage('contentHtml', editorRef.current.innerHTML);
+            }
+        }
+    };
+
+    const execCommand = (command: string, value: any = null) => {
+        document.execCommand(command, false, value);
+        if (editorRef.current) {
+            handleUpdateMessage('contentHtml', editorRef.current.innerHTML);
+        }
+    };
+
+    const handleGenerateEmail = async () => {
+        const article = linkedArticles[activeEvergreenEmail];
+        if (!article || generatingId) return;
+
+        setShowConfirmModal(false);
         setGeneratingId(article.id);
+        setIsGenerating(true);
 
         try {
             const prompt = `
@@ -127,43 +240,62 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
             const response = await api.generateWithIA(prompt, { responseMimeType: 'application/json' });
             const result = JSON.parse(response.text);
 
-            await api.updateArticle(article.id, {
-                ...article,
-                emailSubject: result.subject,
-                emailBody: result.body
+            // --- ASOCIAR SOLO CON email_messages de tipo 'nurturing' ---
+            // 1. Asegurar que existe la secuencia de nutrición
+            const seq = await api.createEmailSequence(projectId, "Secuencia de Nutrición", 'nurturing');
+            const sequenceId = seq.id;
+
+            // 2. Upsert del mensaje en la secuencia (Día 8, 10, 12...)
+            const dayIndex = 8 + (activeEvergreenEmail * 2);
+            const newMessage = {
+                sequenceId,
+                dayIndex,
+                subject: result.subject,
+                contentHtml: result.body,
+                type: 'nurturing' as const,
+                pilarType: 'Nutrición',
+                purpose: `Contenido de Valor: ${article.title}`
+            };
+            
+            await api.upsertEmailMessage(newMessage);
+
+            // Actualizar estado local para evitar recarga
+            setNurturingMessages(prev => {
+                const existing = prev.findIndex(m => m.dayIndex === dayIndex);
+                if (existing !== -1) {
+                    return prev.map((m, i) => i === existing ? { ...m, ...newMessage, id: m.id } : m);
+                }
+                return [...prev, { ...newMessage, id: `temp-${Date.now()}` } as EmailMessage];
             });
-
-            // --- NUEVO: Asociar con email_messages de tipo 'nurturing' ---
-            try {
-                // 1. Asegurar que existe la secuencia de nutrición
-                const seq = await api.createEmailSequence(projectId, "Secuencia de Nutrición", 'nurturing');
-                const sequenceId = seq.id;
-
-                // 2. Upsert del mensaje en la secuencia
-                const dayIndex = linkedArticles.findIndex(a => a.id === article.id) + 1;
-                await api.upsertEmailMessage({
-                    sequenceId,
-                    dayIndex,
-                    subject: result.subject,
-                    contentHtml: result.body, // Se guarda como contentHtml para consistencia
-                    type: 'nurturing',
-                    pilarType: 'Nutrición',
-                    purpose: `Contenido de Valor: ${article.title}`
-                });
-            } catch (seqError) {
-                console.error("Error asociando email a secuencia:", seqError);
-                // No bloqueamos el proceso principal si falla la asociación
-            }
-
-            // Recargar la página o actualizar el estado local si fuera necesario
-            // En este caso, como linkedArticles viene de arriba, lo ideal sería que el padre refresque
-            window.location.reload(); 
+            
+            setLocalSubject(result.subject);
+            setIsPreviewMode(true);
         } catch (error) {
             console.error("Error generating email:", error);
             alert("Hubo un error al generar el correo. Por favor intenta de nuevo.");
         } finally {
             setGeneratingId(null);
+            setIsGenerating(false);
         }
+    };
+
+    const handleCopyEmail = () => {
+        const dayNum = 8 + (activeEvergreenEmail * 2);
+        const email = nurturingMessages.find(m => m.dayIndex === dayNum);
+        if (!email?.contentHtml) return;
+        
+        const htmlContent = `<div>${email.contentHtml}</div>`;
+        const plainText = email.contentHtml.replace(/<[^>]*>/g, '');
+        const blobHtml = new Blob([htmlContent], { type: 'text/html' });
+        const blobText = new Blob([plainText], { type: 'text/plain' });
+        const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })];
+
+        navigator.clipboard.write(data).then(() => {
+            alert("Mensaje de Correo Electrónico Copiado Correctamente. Pégalo en tu Sistema de Envío de Correos Masivos.");
+        }).catch(() => {
+            navigator.clipboard.writeText(plainText);
+            alert("Copiado como texto plano.");
+        });
     };
 
     const handleCopy = (text: string, id: string) => {
@@ -172,17 +304,23 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         setTimeout(() => setCopySuccess(null), 2000);
     };
 
-    // Mapeamos los artículos reales a una secuencia dinámica
-    const dynamicSequence = linkedArticles.map((article, idx) => ({
-        id: article.id,
-        day: `Día ${8 + (idx * 7)}`,
-        subject: article.emailSubject || `[LECTURA RECOMENDADA] ${article.title}`,
-        body: article.emailBody,
-        type: 'Evergreen / Valor',
-        objective: 'Construir autoridad de marca enviando tráfico al blog de tu landing page.',
-        articleSlug: article.slug,
-        originalArticle: article
-    }));
+    // Mapeamos los artículos reales a una secuencia dinámica basada en email_messages
+    const dynamicSequence = linkedArticles.map((article, idx) => {
+        const dayNum = 8 + (idx * 2);
+        const dbMessage = nurturingMessages.find(m => m.dayIndex === dayNum);
+        
+        return {
+            id: article.id,
+            day: `Día ${dayNum}`,
+            subject: dbMessage?.subject || `[LECTURA RECOMENDADA] ${article.title}`,
+            body: dbMessage?.contentHtml || '',
+            type: 'Evergreen / Valor',
+            objective: 'Construir autoridad de marca enviando tráfico al blog de tu landing page.',
+            articleSlug: article.slug,
+            originalArticle: article,
+            isGenerated: !!dbMessage
+        };
+    });
 
     const activeEmail = dynamicSequence[activeEvergreenEmail] || dynamicSequence[0];
 
@@ -287,73 +425,155 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 </div>
 
                 {/* COLUMNA DERECHA: VISTA PREVIA DEL CORREO (Ocupa 7 de 12) */}
-                <div id="psd-evergreen-preview-col" className="lg:col-span-7 bg-[#0b0b0b] border border-gray-800 rounded-[3rem] p-10 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl">
+                <div id="psd-evergreen-preview-col" className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-orange-900/10 border border-white/5 rounded-[3rem] p-10 flex flex-col relative overflow-hidden h-full min-h-[600px] shadow-2xl">
                     <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
-                        <Calendar className="w-40 h-40 text-orange-500" />
+                        <Target className="w-40 h-40 text-orange-500" />
                     </div>
+                    <div className={`absolute top-0 left-0 w-1 h-full ${activeEmail.isGenerated ? 'bg-emerald-500/50' : 'bg-orange-500/50'}`}></div>
 
                     <div className="relative z-10 flex flex-col h-full">
-                        {activeEmail.body ? (
-                            <>
-                                <div className="mb-10">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="bg-orange-900/20 text-orange-400 border border-orange-900/50 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        {activeEmail.isGenerated ? (
+                            <div className="flex flex-col h-full space-y-6">
+                                <div className="relative z-10 flex flex-col h-full animate-in slide-in-from-bottom-4 duration-500 space-y-6">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-2xl font-black text-white uppercase tracking-tight">
                                             {activeEmail.type}
                                         </span>
-                                        <span className="text-gray-600 font-mono text-xs font-bold">{activeEmail.day}</span>
-                                    </div>
-                                    <h3 className="text-3xl md:text-4xl font-black text-white leading-tight">{activeEmail.subject}</h3>
-                                </div>
-
-                                <div className="bg-orange-900/10 border border-orange-500/20 p-6 rounded-2xl mb-10 flex gap-4">
-                                    <Info className="w-6 h-6 text-orange-400 shrink-0" />
-                                    <p className="text-gray-300 text-base leading-relaxed">
-                                        <span className="font-bold text-orange-200 block mb-1">Estrategia Detrás:</span>
-                                        {activeEmail.objective}
-                                    </p>
-                                </div>
-
-                                <div className="bg-white rounded-2xl shadow-2xl p-10 text-gray-900 font-serif leading-relaxed text-xl flex-1 border-2 border-gray-200 flex flex-col relative group">
-                                    <div className="border-b border-gray-100 pb-6 mb-8 text-sm text-gray-400 font-sans italic flex justify-between items-center">
-                                        <div>
-                                            <p>De: Tu Marca Profesional</p>
-                                            <p>Asunto: {activeEmail.subject}</p>
+                                        <div className="flex items-center gap-4">
+                                            <span className="bg-orange-600 text-white px-6 py-2.5 rounded-full text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-orange-500/20 border border-orange-400/30">
+                                                {activeEmail.day}
+                                            </span>
+                                            {saveIndicator === 'saving' && <span className="flex items-center gap-2 text-orange-400 text-[10px] font-bold uppercase tracking-widest"><Loader2 className="w-3 h-3 animate-spin"/> Guardando...</span>}
+                                            {saveIndicator === 'saved' && <span className="flex items-center gap-2 text-emerald-400 text-[10px] font-bold uppercase tracking-widest"><CheckCircle2 className="w-3 h-3"/> Guardado</span>}
                                         </div>
-                                        <button 
-                                            onClick={() => handleCopy(`${activeEmail.subject}\n\n${activeEmail.body}`, activeEmail.id)}
-                                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-orange-500"
-                                            title="Copiar correo completo"
-                                        >
-                                            {copySuccess === activeEmail.id ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
-                                        </button>
                                     </div>
-
-                                    <div className="whitespace-pre-wrap">
-                                        <p className="mb-6">Hola {avatars[0]?.name.split(' ')[0] || 'amiga'},</p>                            
-                                        {activeEmail.body}
-                                        
-                                        <div className="my-10 text-center">
-                                            <div className="inline-block px-10 py-5 bg-orange-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl pointer-events-none">
-                                                Hacer clic para leer el artículo
+                                    
+                                    <div className="bg-white rounded-[2.5rem] shadow-2xl border border-gray-200 overflow-hidden flex flex-col flex-1">
+                                        <div className="h-10 bg-white border-b border-gray-200 flex items-center px-6 justify-between shrink-0">
+                                            <div className="flex gap-1.5">
+                                                <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                                                <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                                                <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
                                             </div>
-                                            <p className="text-gray-400 text-xs mt-4 font-sans italic">El enlace dirigirá automáticamente al blog de tu landing page.</p>
+                                            <div className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">Editor de Correo Profesional</div>
+                                            <div className="w-10"></div>
                                         </div>
 
-                                        <div className="mt-auto pt-8 border-t border-gray-100 font-sans">
-                                            <p className="text-base text-gray-500">Un abrazo,<br/><strong>Tu Equipo.</strong></p>
+                                        <div className="p-6 md:p-8 space-y-6 flex-1 flex flex-col">
+                                            <div className="space-y-3 text-sm border-b border-gray-100 pb-6">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-gray-400 min-w-[60px] uppercase text-sm">De:</span>
+                                                    <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                                        <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-xs font-bold">{user?.name?.charAt(0) || 'A'}</div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-black font-bold leading-none text-base">{user?.name || 'Tu Asistente'}</span>
+                                                            <span className="text-base text-gray-400 font-medium">{user?.email || 'asistente@marketing.com'}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-gray-400 min-w-[60px] uppercase text-sm">Para:</span>
+                                                    <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                                        <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-bold">L</div>
+                                                        <span className="text-black font-bold text-base">Tu Suscriptor (Avatar Estratégico)</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-start gap-2 bg-orange-50/50 p-5 rounded-2xl border-2 border-dashed border-orange-200 transition-all hover:bg-orange-100/30 group/subject shadow-inner" style={{ marginTop: '3em' }}>
+                                                    <span className="font-bold text-orange-500 min-w-[70px] uppercase text-[1em] mt-2.5">Asunto:</span>
+                                                    <textarea 
+                                                        ref={subjectRef}
+                                                        value={localSubject}
+                                                        title="Haz clic para editar el asunto"
+                                                        onChange={(e) => {
+                                                            setLocalSubject(e.target.value);
+                                                            handleUpdateMessage('subject', e.target.value);
+                                                            e.target.style.height = 'auto';
+                                                            e.target.style.height = `${e.target.scrollHeight}px`;
+                                                        }}
+                                                        className="flex-1 bg-transparent border-none focus:ring-0 text-black font-normal text-[1.2rem] leading-[1.3em] resize-none p-0 cursor-text placeholder:text-gray-300 overflow-hidden"
+                                                        rows={1}
+                                                        placeholder="Escribe el asunto aquí..."
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="flex-1 pt-4 relative">
+                                                {/* Link Editor Floating UI */}
+                                                {editingLink && (
+                                                    <div 
+                                                        className="absolute z-[100] bg-white border border-gray-200 rounded-xl shadow-2xl p-4 flex items-center gap-3 animate-in fade-in zoom-in-95 duration-200"
+                                                        style={{
+                                                            top: `${editingLink.element.offsetTop - 70}px`,
+                                                            left: `${editingLink.element.offsetLeft}px`
+                                                        }}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        <div className="flex flex-col gap-1">
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Enlace del Botón</label>
+                                                            <div className="flex items-center gap-2">
+                                                                <input 
+                                                                    type="text"
+                                                                    value={editingLink.url}
+                                                                    onChange={(e) => handleLinkUpdate(e.target.value)}
+                                                                    className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-blue-600 font-medium outline-none focus:ring-2 focus:ring-blue-500/20 w-64"
+                                                                    placeholder="https://..."
+                                                                />
+                                                                <button 
+                                                                    onClick={() => setEditingLink(null)}
+                                                                    className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors"
+                                                                >
+                                                                    <Check className="w-4 h-4 text-emerald-500" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* WYSIWYG Toolbar */}
+                                                {!isPreviewMode && (
+                                                    <>
+                                                        <div className="absolute -top-16 left-0 flex items-center gap-2 bg-yellow-400 text-black px-4 py-1.5 rounded-t-xl text-[10px] font-black uppercase tracking-widest animate-in slide-in-from-bottom-2 duration-300">
+                                                            <Edit3 className="w-3 h-3" /> Modo Edición
+                                                        </div>
+                                                        <div className="absolute -top-12 left-0 right-0 bg-white border border-gray-200 p-2 flex flex-wrap gap-1 items-center z-20 rounded-xl shadow-xl animate-in slide-in-from-bottom-2 duration-300">
+                                                            <button onClick={() => execCommand('bold')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Negrita"><Bold className="w-4 h-4" /></button>
+                                                            <button onClick={() => execCommand('italic')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Cursiva"><Italic className="w-4 h-4" /></button>
+                                                            <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                            <button onClick={() => execCommand('justifyLeft')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Izquierda"><AlignLeft className="w-4 h-4" /></button>
+                                                            <button onClick={() => execCommand('justifyCenter')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Centro"><AlignCenter className="w-4 h-4" /></button>
+                                                            <button onClick={() => execCommand('justifyRight')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Derecha"><AlignRight className="w-4 h-4" /></button>
+                                                            <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                            <button onClick={() => execCommand('insertUnorderedList')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Lista"><List className="w-4 h-4" /></button>
+                                                            <button onClick={() => execCommand('formatBlock', 'h2')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Título"><Type className="w-4 h-4" /></button>
+                                                            <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                            <button onClick={() => execCommand('foreColor', '#FF5A1F')} className="p-2 hover:bg-gray-200 rounded transition-colors text-[#FF5A1F]" title="Color Principal"><Palette className="w-4 h-4" /></button>
+                                                        </div>
+                                                    </>
+                                                )}
+                                                <div 
+                                                    ref={editorRef}
+                                                    contentEditable={!isPreviewMode}
+                                                    onClick={handleEditorClick}
+                                                    onFocus={() => setIsPreviewMode(false)}
+                                                    onBlur={(e) => {
+                                                        setIsPreviewMode(true);
+                                                        handleUpdateMessage('contentHtml', e.currentTarget.innerHTML);
+                                                    }}
+                                                    className={`w-full h-full min-h-[450px] rounded-3xl p-8 md:p-12 focus:ring-4 focus:ring-orange-500/5 text-black text-[1.3rem] leading-[1.7em] font-serif outline-none overflow-y-auto custom-scrollbar cursor-text transition-all [&_p]:pt-[1.1em] [&_a]:my-8 [&_a]:inline-block ${!isPreviewMode ? 'bg-yellow-50/50 border-2 border-dashed border-yellow-400 shadow-2xl ring-1 ring-yellow-100' : 'bg-gray-50 border border-gray-100 hover:bg-gray-100/50'}`}
+                                                    title="Haz clic para editar el contenido del mensaje"
+                                                    dangerouslySetInnerHTML={{ __html: activeEmail.body }}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="mt-10">
-                                    <button 
-                                        onClick={() => navigate('/dashboard/email')}
-                                        className="w-full py-5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-black text-sm uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-orange-900/20 flex items-center justify-center gap-3 transform active:scale-95"
-                                    >
-                                        <PenTool className="w-5 h-5" /> Configurar en Systeme.io
+                                <div className="flex gap-4">
+                                    <button onClick={handleCopyEmail} className="flex-1 py-5 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3">
+                                        <Copy className="w-5 h-5" /> Copiar Contenido
                                     </button>
                                 </div>
-                            </>
+                            </div>
                         ) : (
                             <div className="flex-1 flex flex-col h-full">
                                 <div className="flex flex-col items-center text-center relative animate-in zoom-in-95 w-full h-full">
@@ -391,15 +611,15 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
 
                                         <div className="w-full max-w-sm space-y-4">
                                             <button 
-                                                onClick={() => handleGenerateEmail(activeEmail.originalArticle)}
-                                                disabled={generatingId === activeEmail.id || (isLimitReached && !activeEmail.body)}
-                                                className={`w-full py-5 rounded-2xl font-black text-xl uppercase tracking-widest transition-all shadow-xl shadow-orange-900/40 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group ${isLimitReached && !activeEmail.body ? 'bg-gray-800 text-gray-500' : 'bg-orange-600 hover:bg-orange-500 text-white'}`}
+                                                onClick={() => isLimitReached ? onUpgrade() : setShowConfirmModal(true)}
+                                                disabled={generatingId === activeEmail.id || (isLimitReached && !activeEmail.isGenerated)}
+                                                className={`w-full py-5 rounded-2xl font-black text-xl uppercase tracking-widest transition-all shadow-xl shadow-orange-900/40 transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group ${isLimitReached && !activeEmail.isGenerated ? 'bg-gray-800 text-gray-500' : 'bg-orange-600 hover:bg-orange-500 text-white'}`}
                                             >
                                                 {generatingId === activeEmail.id ? (
                                                     <>
                                                         <Loader2 className="w-6 h-6 animate-spin" /> Redactando...
                                                     </>
-                                                ) : isLimitReached && !activeEmail.body ? (
+                                                ) : isLimitReached && !activeEmail.isGenerated ? (
                                                     <>
                                                         <Crown className="w-6 h-6" /> Límite Alcanzado
                                                     </>
@@ -425,6 +645,72 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
             <div className="max-w-[70em] mx-auto text-center pt-12 border-t border-white/5 opacity-40">
                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500">Sistema Evergreen Automatizado v2.9 — Motor de Autoridad Dinámico</p>
             </div>
+
+            {/* MODAL DE CONFIRMACIÓN Y LÍMITES */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-[#161616] border border-white/10 rounded-[3rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-red-600"></div>
+                        
+                        <div className="p-10 space-y-8">
+                            <div className="flex items-center gap-5">
+                                <div className="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center text-orange-500 border border-orange-500/20 shadow-lg">
+                                    <Sparkles className="w-8 h-8" />
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-black text-white uppercase tracking-tight">¿Generar Correo de Nutrición?</h3>
+                                    <p className="text-gray-400 font-medium">Usaremos IA para transformar tu artículo en un correo persuasivo.</p>
+                                </div>
+                            </div>
+
+                            {/* Barra de Límites dentro de la Modal */}
+                            <div className="bg-black/40 rounded-3xl p-6 border border-white/5 space-y-4">
+                                <div className="flex justify-between items-end">
+                                    <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">Uso de tu Plan</span>
+                                    <span className="text-white font-black">{emailsUsed} / {maxEmails}</span>
+                                </div>
+                                <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+                                    <div className={`h-full transition-all duration-1000 ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3">
+                                <button 
+                                    onClick={handleGenerateEmail}
+                                    className="w-full py-5 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-orange-900/20 uppercase text-sm tracking-widest flex items-center justify-center gap-3"
+                                >
+                                    <PenTool className="w-5 h-5" /> Sí, Redactar Ahora
+                                </button>
+                                <button 
+                                    onClick={() => setShowConfirmModal(false)}
+                                    className="w-full py-5 bg-white/5 hover:bg-white/10 text-gray-400 font-bold rounded-2xl transition-all text-xs uppercase tracking-widest"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* PANTALLA DE CARGA DE GENERACIÓN */}
+            {isGenerating && (
+                <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-500">
+                    <div className="relative mb-12">
+                        <div className="w-32 h-32 bg-orange-500/10 rounded-[2.5rem] flex items-center justify-center animate-pulse border border-orange-500/20">
+                            <Wand2 className="w-16 h-16 text-orange-500" />
+                        </div>
+                        <div className="absolute -top-4 -right-4 w-12 h-12 bg-orange-600 rounded-2xl flex items-center justify-center shadow-xl animate-bounce">
+                            <Sparkles className="w-6 h-6 text-white" />
+                        </div>
+                    </div>
+                    <h3 className="text-4xl font-black text-white uppercase tracking-tighter italic mb-4">Redactando tu Correo Evergreen</h3>
+                    <p className="text-orange-400 font-bold text-sm uppercase tracking-[0.3em] mb-12">Nuestra IA está analizando tu artículo para crear el copy perfecto...</p>
+                    <div className="w-full max-w-md bg-gray-900 h-2 rounded-full overflow-hidden border border-white/5">
+                        <div className="h-full bg-gradient-to-r from-orange-600 to-red-500 animate-progress-indefinite"></div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -887,8 +887,6 @@ export const api = {
             seoScore: a.seo_score,
             metaTitle: a.meta_title,
             metaDescription: a.meta_description || '',
-            emailSubject: a.email_subject,
-            emailBody: a.email_body,
             status: a.status || 'published',
             publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
             createdAt: a.created_at ? new Date(a.created_at) : new Date()
@@ -919,8 +917,6 @@ export const api = {
             seoScore: a.seo_score,
             metaTitle: a.meta_title,
             metaDescription: a.meta_description || '',
-            emailSubject: a.email_subject,
-            emailBody: a.email_body,
             status: a.status || 'published',
             publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
             createdAt: a.created_at ? new Date(a.created_at) : new Date()
@@ -957,8 +953,6 @@ export const api = {
                 seoScore: a.seo_score || 0,
                 metaTitle: a.meta_title,
                 metaDescription: a.meta_description || '',
-                emailSubject: a.email_subject,
-                emailBody: a.email_body,
                 status: a.status || 'published',
                 publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
                 createdAt: a.created_at ? new Date(a.created_at) : new Date()
@@ -992,8 +986,6 @@ export const api = {
                 seo_score: article.seoScore,
                 meta_title: article.metaTitle,
                 meta_description: article.metaDescription,
-                email_subject: article.emailSubject,
-                email_body: article.emailBody,
                 status: article.status,
                 published_at: article.publishedAt
             })
@@ -1024,8 +1016,6 @@ export const api = {
       if (article.seoScore !== undefined) body.seo_score = article.seoScore;
       if (article.metaTitle !== undefined) body.meta_title = article.metaTitle;
       if (article.metaDescription !== undefined) body.meta_description = article.metaDescription;
-      if (article.emailSubject !== undefined) body.email_subject = article.emailSubject;
-      if (article.emailBody !== undefined) body.email_body = article.emailBody;
       if (article.status !== undefined) body.status = article.status;
       if (article.publishedAt !== undefined) body.published_at = article.publishedAt;
 

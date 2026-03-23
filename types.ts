@@ -450,8 +450,6 @@ export interface Article {
   seoScore: number;
   metaTitle?: string;
   metaDescription?: string;
-  emailSubject?: string;
-  emailBody?: string;
   psychologicalStrategy?: {
     focus: string;
     keyword: string;

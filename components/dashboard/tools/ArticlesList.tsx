@@ -94,8 +94,6 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
                       seoScore: a.seo_score,
                       metaTitle: a.meta_title,
                       metaDescription: a.meta_description || '',
-                      emailSubject: a.email_subject,
-                      emailBody: a.email_body,
                       status: a.status || 'published',
                       isGenerated: !!a.is_generated,
                       publishedAt: a.published_at ? new Date(a.published_at) : (a.created_at ? new Date(a.created_at) : new Date()),
