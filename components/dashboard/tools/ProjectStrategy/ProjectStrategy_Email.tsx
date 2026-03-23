@@ -218,7 +218,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })];
 
         navigator.clipboard.write(data).then(() => {
-            alert("Cuerpo del correo copiado. Listo para pegar en Systeme.io");
+            alert("Mensaje de Correo Electrónico Copiado Correctamente. Pégalo en tu Sistema de Envío de Correos Masivos.");
         }).catch(() => {
             navigator.clipboard.writeText(plainText);
             alert("Copiado como texto plano.");
@@ -287,6 +287,9 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
         const target = e.target as HTMLElement;
         const anchor = target.closest('a');
         
+        // Activar modo edición al hacer clic en cualquier parte del mensaje
+        setIsPreviewMode(false);
+
         if (anchor && editorRef.current?.contains(anchor)) {
             e.preventDefault();
             setEditingLink({
@@ -556,19 +559,24 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
                                         {/* WYSIWYG Toolbar - Reposicionado encima del mensaje */}
                                         {!isPreviewMode && (
-                                            <div className="absolute -top-12 left-0 right-0 bg-white border border-gray-200 p-2 flex flex-wrap gap-1 items-center z-20 rounded-xl shadow-xl animate-in slide-in-from-bottom-2 duration-300">
-                                                <button onClick={() => execCommand('bold')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Negrita"><Bold className="w-4 h-4" /></button>
-                                                <button onClick={() => execCommand('italic')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Cursiva"><Italic className="w-4 h-4" /></button>
-                                                <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                                                <button onClick={() => execCommand('justifyLeft')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Izquierda"><AlignLeft className="w-4 h-4" /></button>
-                                                <button onClick={() => execCommand('justifyCenter')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Centro"><AlignCenter className="w-4 h-4" /></button>
-                                                <button onClick={() => execCommand('justifyRight')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Derecha"><AlignRight className="w-4 h-4" /></button>
-                                                <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                                                <button onClick={() => execCommand('insertUnorderedList')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Lista"><List className="w-4 h-4" /></button>
-                                                <button onClick={() => execCommand('formatBlock', 'h2')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Título"><Type className="w-4 h-4" /></button>
-                                                <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                                                <button onClick={() => execCommand('foreColor', '#FF5A1F')} className="p-2 hover:bg-gray-200 rounded transition-colors text-[#FF5A1F]" title="Color Principal"><Palette className="w-4 h-4" /></button>
-                                            </div>
+                                            <>
+                                                <div className="absolute -top-16 left-0 flex items-center gap-2 bg-yellow-400 text-black px-4 py-1.5 rounded-t-xl text-[10px] font-black uppercase tracking-widest animate-in slide-in-from-bottom-2 duration-300">
+                                                    <Edit3 className="w-3 h-3" /> Modo Edición
+                                                </div>
+                                                <div className="absolute -top-12 left-0 right-0 bg-white border border-gray-200 p-2 flex flex-wrap gap-1 items-center z-20 rounded-xl shadow-xl animate-in slide-in-from-bottom-2 duration-300">
+                                                    <button onClick={() => execCommand('bold')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Negrita"><Bold className="w-4 h-4" /></button>
+                                                    <button onClick={() => execCommand('italic')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Cursiva"><Italic className="w-4 h-4" /></button>
+                                                    <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                    <button onClick={() => execCommand('justifyLeft')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Izquierda"><AlignLeft className="w-4 h-4" /></button>
+                                                    <button onClick={() => execCommand('justifyCenter')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Centro"><AlignCenter className="w-4 h-4" /></button>
+                                                    <button onClick={() => execCommand('justifyRight')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Derecha"><AlignRight className="w-4 h-4" /></button>
+                                                    <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                    <button onClick={() => execCommand('insertUnorderedList')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Lista"><List className="w-4 h-4" /></button>
+                                                    <button onClick={() => execCommand('formatBlock', 'h2')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Título"><Type className="w-4 h-4" /></button>
+                                                    <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                    <button onClick={() => execCommand('foreColor', '#FF5A1F')} className="p-2 hover:bg-gray-200 rounded transition-colors text-[#FF5A1F]" title="Color Principal"><Palette className="w-4 h-4" /></button>
+                                                </div>
+                                            </>
                                         )}
                                         <div 
                                             ref={editorRef}
@@ -579,7 +587,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                                 setIsPreviewMode(true);
                                                 handleUpdateMessage('contentHtml', e.currentTarget.innerHTML);
                                             }}
-                                            className={`w-full h-full min-h-[450px] bg-gray-50 border border-gray-100 rounded-3xl p-8 md:p-12 focus:ring-4 focus:ring-blue-500/5 text-black text-[1.3rem] leading-[1.7em] font-serif outline-none overflow-y-auto custom-scrollbar cursor-text transition-all [&_p]:pt-[1.1em] [&_a]:my-8 [&_a]:inline-block ${!isPreviewMode ? 'bg-white shadow-2xl ring-1 ring-blue-100' : 'hover:bg-gray-100/50'}`}
+                                            className={`w-full h-full min-h-[450px] rounded-3xl p-8 md:p-12 focus:ring-4 focus:ring-blue-500/5 text-black text-[1.3rem] leading-[1.7em] font-serif outline-none overflow-y-auto custom-scrollbar cursor-text transition-all [&_p]:pt-[1.1em] [&_a]:my-8 [&_a]:inline-block ${!isPreviewMode ? 'bg-yellow-50/50 border-2 border-dashed border-yellow-400 shadow-2xl ring-1 ring-yellow-100' : 'bg-gray-50 border border-gray-100 hover:bg-gray-100/50'}`}
                                             title="Haz clic para editar el contenido del mensaje"
                                             dangerouslySetInnerHTML={{ __html: currentRealContent }}
                                         />
@@ -589,7 +597,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                         </div>
 
                         <div className="flex gap-4">
-                                <button onClick={handleCopyEmail} className="flex-1 py-5 rounded-2xl bg-gray-800 hover:bg-gray-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3">
+                                <button onClick={handleCopyEmail} className="flex-1 py-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3">
                                     <Copy className="w-5 h-5" /> Copiar Contenido
                                 </button>
                             </div>

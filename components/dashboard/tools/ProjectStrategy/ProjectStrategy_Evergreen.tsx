@@ -80,8 +80,24 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         );
     }
 
+    // Lógica de límites
+    const emailsUsed = linkedArticles.filter(a => a.emailBody).length;
+    const maxEmails = planLimits?.maxEmailSequencesNurturing || 0;
+    const usagePercent = maxEmails > 0 ? Math.min(100, (emailsUsed / maxEmails) * 100) : 0;
+    const isLimitReached = maxEmails > 0 && emailsUsed >= maxEmails;
+
+    // Color de la barra de progreso
+    const progressColor = usagePercent > 90 ? 'bg-red-500' : usagePercent > 70 ? 'bg-orange-500' : 'bg-blue-500';
+
     const handleGenerateEmail = async (article: Article) => {
         if (generatingId) return;
+
+        // Verificar límites antes de generar si no tiene contenido previo
+        if (isLimitReached && !article.emailBody) {
+            onUpgrade();
+            return;
+        }
+
         setGeneratingId(article.id);
 
         try {
@@ -155,7 +171,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     <Sparkles className="w-4 h-4" /> Secuencia dinámica activa
                 </div>
                 <h3 className="text-5xl md:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl">
-                    Tu Estrategia <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">Evergreen de 30 Días</span>
+                    Tu Estrategia <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-orange-400">de Nutrición (Evergreen)</span>
                 </h3>
                 
                 <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
@@ -182,6 +198,32 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 
                 {/* COLUMNA IZQUIERDA: LISTADO DE CORREOS (Ocupa 5 de 12) */}
                 <div id="psd-evergreen-list-col" className="lg:col-span-5 bg-[#111] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl flex flex-col h-full">
+                    
+                    {/* BARRA DE PROGRESO DE LÍMITES */}
+                    <div className="mb-8 p-6 bg-black/40 rounded-3xl border border-white/5 space-y-4">
+                        <div className="flex justify-between items-end">
+                            <div>
+                                <h5 className="text-white font-bold text-sm">Correos de Nutrición</h5>
+                                <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-0.5">Límite de tu Plan</p>
+                            </div>
+                            <div className="text-right">
+                                <span className="text-white font-black text-xl">{emailsUsed}</span>
+                                <span className="text-gray-600 font-bold text-sm ml-1">/ {maxEmails}</span>
+                            </div>
+                        </div>
+                        <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+                            <div 
+                                className={`h-full transition-all duration-1000 ${progressColor}`}
+                                style={{ width: `${usagePercent}%` }}
+                            ></div>
+                        </div>
+                        {isLimitReached && (
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-orange-400 uppercase tracking-wider animate-pulse">
+                                <Crown className="w-3 h-3" /> Has alcanzado el límite de tu plan
+                            </div>
+                        )}
+                    </div>
+
                     <div className="flex items-center gap-4 mb-10">
                         <div className="p-3 bg-orange-900/30 rounded-2xl text-orange-400 border border-orange-900/50">
                             <Mail className="w-7 h-7" />
@@ -293,12 +335,16 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                     </div>
                                     <button 
                                         onClick={() => handleGenerateEmail(activeEmail.originalArticle)}
-                                        disabled={generatingId === activeEmail.id}
-                                        className="px-8 py-3 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-xl transition-all shadow-lg flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        disabled={generatingId === activeEmail.id || (isLimitReached && !activeEmail.body)}
+                                        className={`px-8 py-3 font-black rounded-xl transition-all shadow-lg flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed ${isLimitReached && !activeEmail.body ? 'bg-gray-800 text-gray-500' : 'bg-orange-600 hover:bg-orange-500 text-white'}`}
                                     >
                                         {generatingId === activeEmail.id ? (
                                             <>
                                                 <Loader2 className="w-5 h-5 animate-spin" /> Redactando...
+                                            </>
+                                        ) : isLimitReached && !activeEmail.body ? (
+                                            <>
+                                                <Crown className="w-5 h-5" /> Límite Alcanzado
                                             </>
                                         ) : (
                                             <>
