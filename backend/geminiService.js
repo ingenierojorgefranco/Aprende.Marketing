@@ -274,13 +274,13 @@ export const generateFullStrategy = async (projectId) => {
         
         para ello el sistema tendra el siguiente enfoque segun los dias de envio.
 
-        Día 1: Entrega de Valor. Cumple la promesa. Entrega al usuario el acceso a su Lead Magnet con entusiasmo. Establece autoridad y reciprocidad.
-        Día 2: Agitación del Dolor. Toca la herida. Describe cómo se siente el avatar 1 con sus dolores
-        Día 3: Prueba Social. Muestra que es posible. Narra un caso de éxito del avatar 2 (puedes crear un nombre ficticio coherente) que haya superado los mismos miedos.
-        Día 4: Mecanismo Único. Explica por qué lo que han intentado antes no funciona y por qué este método es la solución definitiva. Elimina las posibles objeciones del avatar 1.
-        Día 5: Lanzamiento de Oferta. Presenta el producto como la mejor opcion para la persona, la que indica la transformacion en su vida.
-        Día 6: Escasez y Valor. Añade presión ética. Menciona que los cupos son limitados o que los bonos están por expirar. Refuerza el valor de la inversión.
-        Día 7: Cierre Final. Llamado a la acción agresivo pero profesional. Confronta al prospecto con su situación actual vs. su potencial futuro si toma acción hoy.
+        Día 1: Bienvenida + entrega de valor. Cumple la promesa inicial. Entrega al usuario el acceso a su Lead Magnet con entusiasmo. Establece autoridad y reciprocidad inmediata.
+        Día 2: Romper creencias. Ataca el "No puedo" o "Esto no es para mí" antes de que el cliente lo piense. Limpia el camino mental del prospecto.
+        Día 3: Historia / conexión emocional. El cerebro humano ama las historias. Crea empatía y hace que el problema sea "humano", no técnico, conectando con las emociones del avatar.
+        Día 4: Educación + autoridad. Demuestras que sabes de lo que hablas. Aquí es donde el usuario confía en tu solución y te posicionas como el experto definitivo.
+        Día 5: Objeciones. Respondes al "Es muy caro", "No tengo tiempo", etc. Es una venta preventiva que elimina las barreras finales.
+        Día 6: Caso de éxito. Prueba social. "Si a él le funcionó, a mí también". Es el gatillo mental más potente para generar deseo y credibilidad.
+        Día 7: Cierre / oferta. Escasez y Urgencia. El empujón final para tomar la decisión. Llamado a la acción agresivo pero profesional.
 
         ten en cuenta la siguiente estructura para generar el json
         
@@ -584,51 +584,51 @@ export const generateFullStrategy = async (projectId) => {
         {
                 id: 1,
                 day: "Día 1",
-                subject: "🎁 Titulo altamente persuasivo y motivador con acceso al LeadMagnet definido en el proyecto",
-                type: "Entrega de Valor",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se invita al usuario a ingresar al leadmagnet"
+                subject: "🎁 ¡Aquí tienes lo prometido! (Y una sorpresa especial)",
+                type: "Bienvenida + Valor",
+                objective: "Entrega del Lead Magnet y bienvenida calurosa. Establecer autoridad y reciprocidad inmediata."
             },
             {
                 id: 2,
                 day: "Día 2",
-                subject: "😫 ¿Cansada de trabajar 10h y no ver frutos reales?",
-                type: "Agitación del Dolor",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que busca conectar emocionalmente con el cansancio sistémico del avatar y la frustración económica."
+                subject: "🤔 La verdad que nadie te cuenta sobre [Nicho]",
+                type: "Romper Creencias",
+                objective: "Atacar mitos comunes y barreras mentales que impiden al avatar tomar acción."
             },
             {
                 id: 3,
                 day: "Día 3",
-                subject: "📈 Cómo Maria pasó de 0 a $2,000/mes con cejas",
-                type: "Prueba Social",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se demuestra la factibilidad mediante un caso de éxito real que genere deseo y credibilidad."
+                subject: "✨ Mi historia personal con [Problema]",
+                type: "Historia / Conexión",
+                objective: "Conectar emocionalmente mediante una historia vulnerable que humanice la marca."
             },
             {
                 id: 4,
                 day: "Día 4",
-                subject: "💎 La verdad sobre el Microblading (y por qué otros fallan)",
-                type: "Mecanismo Único",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se explica la diferenciación del curso digital frrente a otros cursos genericos"
+                subject: "🎓 Cómo dominar [Habilidad] sin morir en el intento",
+                type: "Educación + Autoridad",
+                objective: "Entregar contenido educativo de alto valor que posicione al experto como la autoridad."
             },
             {
                 id: 5,
                 day: "Día 5",
-                subject: "🚀 ¡INSCRIPCIONES ABIERTAS! Domina la Certificación Pro",
-                type: "Lanzamiento / Oferta",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se busca Presentar oficialmente el programa completo con todos los beneficios y abrir inscripciones."
+                subject: "🛑 ¿Es esto para ti? (Respondemos tus dudas)",
+                type: "Objeciones",
+                objective: "Rebatir las objeciones más comunes (precio, tiempo, capacidad) de forma preventiva."
             },
             {
                 id: 6,
                 day: "Día 6",
-                subject: "⏳ Tus 3 Bonos Exclusivos expiran en pocas horas...",
-                type: "Escasez / Valor",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que Añadir presión positiva mediante la pérdida inminente de los bonos adicionales."
+                subject: "🔥 Resultados reales: Cómo [Nombre] logró [Resultado]",
+                type: "Caso de éxito",
+                objective: "Presentar un caso de éxito potente como prueba social definitiva."
             },
             {
                 id: 7,
                 day: "Día 7",
-                subject: "⚠️ ÚLTIMA LLAMADA: Tu futuro profesional empieza hoy",
-                type: "Cierre / Urgencia",
-                objective: "texto de minimo 200 caracteres en el que se establece las instrucciones con las que debe ser generado el correo electronico con el que se hace una Llamada final a la acción agresivo pero profesional. Confronta al prospecto con su situación actual vs. su potencial futuro si toma acción hoy."
+                subject: "⚠️ ÚLTIMA LLAMADA: Tu transformación empieza ahora",
+                type: "Cierre / Oferta",
+                objective: "Llamado a la acción final con escasez y urgencia real para cerrar la venta."
             }
       ],
       "evergreen": [

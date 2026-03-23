@@ -168,13 +168,13 @@ router.post('/email/sequences', authMiddleware, async (req, res) => {
         // Inicializar correos según el tipo
         if (type === 'conversion') {
             const pillars = [
-                { type: 'Entrega de Valor', subject: 'Tu regalo está aquí 🎁' },
-                { type: 'Agitación del Dolor', subject: '¿Te sientes estancado? 😫' },
-                { type: 'Prueba Social', subject: 'Mira estos resultados 📈' },
-                { type: 'Mecanismo Único', subject: 'El secreto de la técnica 💎' },
-                { type: 'Lanzamiento', subject: 'Inscripciones abiertas 🚀' },
-                { type: 'Escasez', subject: 'Quedan pocas plazas ⏳' },
-                { type: 'Cierre', subject: 'Última oportunidad' }
+                { type: 'Bienvenida + Valor', subject: 'Tu regalo está aquí 🎁' },
+                { type: 'Romper Creencias', subject: 'La verdad sobre [Nicho] 🤔' },
+                { type: 'Historia / Conexión', subject: 'Mi historia personal ✨' },
+                { type: 'Educación + Autoridad', subject: 'Cómo dominar [Habilidad] 🎓' },
+                { type: 'Objeciones', subject: '¿Es esto para ti? 🛑' },
+                { type: 'Caso de éxito', subject: 'Mira estos resultados 🔥' },
+                { type: 'Cierre / Oferta', subject: 'Última oportunidad ⚠️' }
             ];
 
             for (let i = 0; i < pillars.length; i++) {

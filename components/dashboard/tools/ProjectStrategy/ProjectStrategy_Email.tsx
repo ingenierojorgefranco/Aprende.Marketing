@@ -61,13 +61,13 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [savingNewLink, setSavingNewLink] = useState(false);
 
     const emailTypes = [
-        'Entrega de Valor', 
-        'Agitación del Dolor', 
-        'Prueba Social', 
-        'Mecanismo Único', 
-        'Lanzamiento', 
-        'Escasez', 
-        'Cierre'
+        'Bienvenida + Valor', 
+        'Romper Creencias', 
+        'Historia / Conexión', 
+        'Educación + Autoridad', 
+        'Objeciones', 
+        'Caso de éxito', 
+        'Cierre / Oferta'
     ];
 
     useEffect(() => {
@@ -351,20 +351,63 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     <div className="space-y-4 flex-1 pr-2">
                         {emailData.map((email: any, idx: number) => {
                             const isDayGenerated = realMessages.some(m => m.dayIndex === idx + 1 && m.isGenerated);
+                            const isActive = activeEmail === idx;
                             return (
                                 <div 
                                     key={idx} 
                                     onClick={() => setActiveEmail(idx)}
-                                    className={`relative pl-6 pr-6 py-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${isDayGenerated ? 'bg-emerald-900/10 border-emerald-500/30' : (activeEmail === idx ? 'bg-blue-900/10 border-blue-500/30' : 'bg-black/20 border-white/5 hover:bg-white/5')}`}
+                                    className={`relative pl-8 pr-6 py-5 rounded-xl border transition-all duration-300 cursor-pointer flex items-center justify-between gap-4 group overflow-hidden ${
+                                        isActive 
+                                            ? (isDayGenerated 
+                                                ? 'bg-emerald-500/15 border-emerald-400 translate-x-4 shadow-2xl shadow-emerald-500/20' 
+                                                : 'bg-blue-500/15 border-blue-400 translate-x-4 shadow-2xl shadow-blue-500/20')
+                                            : (isDayGenerated 
+                                                ? 'bg-black/20 border-emerald-500/30 hover:border-emerald-500/50 hover:bg-emerald-500/5' 
+                                                : 'bg-black/20 border-white/5 hover:bg-white/5')
+                                    }`}
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isDayGenerated ? 'bg-emerald-500 text-black' : (activeEmail === idx ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-500')}`}>
+                                    {/* Barra de Acento Vertical */}
+                                    <div className={`absolute left-0 top-0 h-full w-1.5 transition-all duration-300 ${
+                                        isActive 
+                                            ? (isDayGenerated ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.8)]' : 'bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.8)]') 
+                                            : 'bg-transparent'
+                                    }`} />
+
+                                    <div className="flex items-center gap-4 flex-1">
+                                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all duration-300 ${
+                                            isActive 
+                                                ? (isDayGenerated 
+                                                    ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.6)] scale-110' 
+                                                    : 'bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.6)] scale-110')
+                                                : (isDayGenerated ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-gray-800 text-gray-500')
+                                        }`}>
                                             {idx + 1}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <span className={`text-lg font-bold uppercase tracking-wider block mb-0.5 ${isDayGenerated ? 'text-emerald-400' : 'text-gray-500'}`}>Día {idx + 1}</span>
-                                            <h4 className={`text-xl font-normal leading-relaxed whitespace-normal break-words ${isDayGenerated ? 'text-white' : (activeEmail === idx ? 'text-blue-200' : 'text-gray-400')}`}>{email.subject}</h4>
+                                            <span className={`text-lg font-bold uppercase tracking-widest block mb-0.5 transition-colors duration-300 ${
+                                                isActive 
+                                                    ? (isDayGenerated ? 'text-emerald-300' : 'text-blue-300')
+                                                    : (isDayGenerated ? 'text-emerald-500/60' : 'text-gray-500')
+                                            }`}>Día {idx + 1}</span>
+                                            <h4 className={`text-xl font-medium leading-relaxed whitespace-normal break-words transition-colors duration-300 ${
+                                                isActive 
+                                                    ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]' 
+                                                    : (isDayGenerated ? 'text-gray-300' : 'text-gray-400')
+                                            }`}>{email.subject}</h4>
                                         </div>
+                                    </div>
+                                    <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-500 ${
+                                        isActive 
+                                          ? (isDayGenerated ? 'bg-emerald-500 border-emerald-500 scale-110' : 'bg-blue-500 border-blue-500 scale-110')
+                                          : (isDayGenerated ? 'bg-emerald-500/10 border-emerald-500/20' : 'border-gray-600 group-hover:border-gray-500')
+                                    }`}>
+                                        {(isActive || isDayGenerated) && (
+                                          <Check className={`w-4 h-4 font-bold transition-colors duration-300 ${
+                                            isActive 
+                                              ? 'text-white' 
+                                              : (isDayGenerated ? 'text-emerald-500/40' : 'text-transparent')
+                                          }`} />
+                                        )}
                                     </div>
                                 </div>
                             );

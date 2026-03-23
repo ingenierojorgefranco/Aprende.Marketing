@@ -52,13 +52,13 @@ export const EmailSequenceWizard: React.FC<{ onClose?: () => void, type?: 'conve
     /* Actualización: Implementación de lógica de bloqueo para el tipo de correo y lista de pilares estratégicos - 24/05/2024 16:45 */
     const [isTypeLocked, setIsTypeLocked] = useState(true);
     const emailTypes = [
-        'Entrega de Valor', 
-        'Agitación del Dolor', 
-        'Prueba Social', 
-        'Mecanismo Único', 
-        'Lanzamiento', 
-        'Escasez', 
-        'Cierre'
+        'Bienvenida + Valor', 
+        'Romper Creencias', 
+        'Historia / Conexión', 
+        'Educación + Autoridad', 
+        'Objeciones', 
+        'Caso de éxito', 
+        'Cierre / Oferta'
     ];
 
     /* */ /* Actualización: Estados para la generación asincrónica individual de correos y seguimiento de estado de generación - 24/05/2024 21:15 */
@@ -272,9 +272,9 @@ export const EmailSequenceWizard: React.FC<{ onClose?: () => void, type?: 'conve
             
             let generatedBody = `Hola ${avatarName},<br><br>Tal como te lo prometí, aquí tienes la llave para empezar tu transformación. Entiendo que hoy en día es difícil encontrar un camino claro en ${selectedProject?.niche}, pero estoy aquí para decirte que existe una <span style="color: #FF5A1F; font-weight: bold;">solución directa</span>.<br><br>He preparado este material pensando exclusivamente en resolver ese sentimiento de estancamiento que me comentaste. No se trata solo de aprender una técnica, sino de dominar un negocio que te brinde la libertad que mereces.<br><br><a href="${targetUrl}" style="color: #FF5A1F; text-decoration: underline; font-weight: bold;">[Haz clic aquí para acceder ahora mismo]</a><br><br>Haz clic en el enlace de abajo para acceder ahora mismo.<br><br>Espero que lo disfrutes,<br>${user.name}`;
 
-            if (email.pilarType === 'Agitación del Dolor') {
-                generatedBody = `Hola ${avatarName},<br><br>¿Alguna vez has sentido que trabajas 10 horas al día y al final del mes tu cuenta bancaria sigue igual? Ese nudo en el estómago es real y no es tu culpa, es el vehículo que estás usando.<br><br>Muchas personas en ${selectedProject?.niche} cometen el error de competir por precio en lugar de por valor. Mañana te mostraré cómo <span style="color: #FF5A1F; font-weight: bold;">romper ese ciclo para siempre</span>.<br><br><a href="${targetUrl}" style="color: #FF5A1F; text-decoration: underline; font-weight: bold;">[Consulta la guía de ayuda aquí]</a><br><br>Un abrazo,<br>${user.name}`;
-            } else if (email.pilarType === 'Prueba Social') {
+            if (email.pilarType === 'Romper Creencias') {
+                generatedBody = `Hola ${avatarName},<br><br>¿Alguna vez has pensado que para tener éxito en ${selectedProject?.niche} necesitas años de experiencia o una gran inversión? Ese es el primer mito que quiero romper hoy.<br><br>La realidad es que con el método adecuado, puedes ver resultados mucho antes de lo que imaginas. Mañana te mostraré cómo <span style="color: #FF5A1F; font-weight: bold;">conectar emocionalmente</span> con tu propósito para que nada te detenga.<br><br><a href="${targetUrl}" style="color: #FF5A1F; text-decoration: underline; font-weight: bold;">[Consulta la guía de ayuda aquí]</a><br><br>Un abrazo,<br>${user.name}`;
+            } else if (email.pilarType === 'Caso de éxito') {
                 generatedBody = `Hola ${avatarName},<br><br>Hoy quiero contarte la historia de una de mis alumnas que estaba exactamente donde tú estás hoy. Tenía miedo de fracasar y no sabía por dónde empezar.<br><br>Después de aplicar el método que te he estado compartiendo, logró sus <span style="color: #10B981; font-weight: bold;">primeros $500 extras</span> en menos de 15 días. Si ella pudo, tú también puedes.<br><br><a href="${targetUrl}" style="color: #FF5A1F; text-decoration: underline; font-weight: bold;">[Mira más resultados aquí]</a><br><br>Mañana te contaré el secreto técnico detrás de este éxito.<br><br>Saludos,<br>${user.name}`;
             }
 

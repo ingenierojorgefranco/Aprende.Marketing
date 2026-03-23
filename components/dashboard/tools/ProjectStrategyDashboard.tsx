@@ -248,7 +248,15 @@ export const ProjectStrategyDashboard: React.FC = () => {
                             <ProjectStrategy_Email 
                                 emailData={
                                     activeEmailSequenceType === 'conversion' 
-                                        ? (strategyData?.modules?.emails?.nurture || []) 
+                                        ? (strategyData?.modules?.emails?.nurture || [
+                                            { id: 1, subject: 'Bienvenida + Valor', type: 'Bienvenida + Valor', objective: 'Entrega del Lead Magnet y bienvenida' },
+                                            { id: 2, subject: 'Romper Creencias', type: 'Romper Creencias', objective: 'Eliminar mitos y barreras mentales' },
+                                            { id: 3, subject: 'Historia / Conexión', type: 'Historia / Conexión', objective: 'Conectar emocionalmente con el avatar' },
+                                            { id: 4, subject: 'Educación + Autoridad', type: 'Educación + Autoridad', objective: 'Posicionarse como experto' },
+                                            { id: 5, subject: 'Objeciones', type: 'Objeciones', objective: 'Rebatir miedos y dudas frecuentes' },
+                                            { id: 6, subject: 'Caso de éxito', type: 'Caso de éxito', objective: 'Prueba social y resultados reales' },
+                                            { id: 7, subject: 'Cierre / Oferta', type: 'Cierre / Oferta', objective: 'Llamado a la acción final' }
+                                        ]) 
                                         : [
                                             { id: 1, subject: 'Contenido de Valor 1', type: 'Nutrición', purpose: 'Aportar valor basado en artículo de blog' },
                                             { id: 2, subject: 'Contenido de Valor 2', type: 'Nutrición', purpose: 'Aportar valor basado en artículo de blog' },
