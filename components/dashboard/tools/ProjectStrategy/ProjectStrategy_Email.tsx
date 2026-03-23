@@ -435,25 +435,23 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     </div>
 
                     {/* Botón General de Generación */}
-                    {sequenceUsed === 0 && (
-                        <div className="mt-6 pt-6 border-t border-white/5">
-                            <button 
-                                onClick={() => setShowConfirmModal(true)}
-                                disabled={isGenerating}
-                                className="w-full py-5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isGenerating ? (
-                                    <>
-                                        <Loader2 className="w-5 h-5 animate-spin" /> Generando Secuencia...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Sparkles className="w-5 h-5" /> Generar Secuencia Completa
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    )}
+                    <div className="mt-6 pt-6 border-t border-white/5">
+                        <button 
+                            onClick={() => setShowConfirmModal(true)}
+                            disabled={isGenerating}
+                            className="w-full py-5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isGenerating ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" /> Generando Secuencia...
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles className="w-5 h-5" /> Generar Secuencia Completa
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
 
                 {/* RIGHT: CONFIGURATION / CONTENT */}

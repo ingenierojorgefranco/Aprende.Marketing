@@ -257,11 +257,7 @@ export const ProjectStrategyDashboard: React.FC = () => {
                                             { id: 6, subject: 'Caso de éxito', type: 'Caso de éxito', objective: 'Prueba social y resultados reales' },
                                             { id: 7, subject: 'Cierre / Oferta', type: 'Cierre / Oferta', objective: 'Llamado a la acción final' }
                                         ]) 
-                                        : [
-                                            { id: 1, subject: 'Contenido de Valor 1', type: 'Nutrición', purpose: 'Aportar valor basado en artículo de blog' },
-                                            { id: 2, subject: 'Contenido de Valor 2', type: 'Nutrición', purpose: 'Aportar valor basado en artículo de blog' },
-                                            { id: 3, subject: 'Contenido de Valor 3', type: 'Nutrición', purpose: 'Aportar valor basado en artículo de blog' }
-                                        ]
+                                        : []
                                 } 
                                 avatars={strategyData?.avatars || []} 
                                 activeEmail={activeEmail} 
