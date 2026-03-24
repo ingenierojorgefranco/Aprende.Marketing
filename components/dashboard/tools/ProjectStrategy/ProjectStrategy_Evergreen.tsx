@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X, Loader2, Copy, Lock, Unlock, Search, BarChart, Eye, Target, Brain, Shield, Edit3, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, CheckCircle2, Wand2 } from 'lucide-react';
+import { Calendar, Sparkles, Check, Info, Crown, Mail, ArrowRight, BookOpen, ChevronRight, PenTool, PlayCircle, X, Loader2, Copy, Lock, Unlock, Search, BarChart, Eye, Target, Brain, Shield, Edit3, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, CheckCircle2, Wand2, Code } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { PlanFeatures, PlanLimits, Plan, Article, EmailMessage } from '../../../../types';
 import { api } from '../../../../services/api';
@@ -35,6 +35,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     const [isGenerating, setIsGenerating] = useState(false);
     const [saveIndicator, setSaveIndicator] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [isPreviewMode, setIsPreviewMode] = useState(true);
+    const [isHtmlMode, setIsHtmlMode] = useState(false);
     const [editingLink, setEditingLink] = useState<{ element: HTMLAnchorElement, url: string } | null>(null);
     
     const editorRef = useRef<HTMLDivElement>(null);
@@ -81,7 +82,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                         >
                             <iframe 
                                 className="w-full h-full rounded-2xl"
-                                src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                                src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
                                 title="Video Tutorial" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowFullScreen
@@ -129,11 +130,11 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         const dbMessage = nurturingMessages.find(m => m.dayIndex === dayNum);
         
         if (lastActiveEmailRef.current !== activeEvergreenEmail || localSubject === '' || (dbMessage && !localSubject)) {
+            const tabName = `Día ${dayNum}`;
             if (dbMessage) {
-                setLocalSubject(dbMessage.subject || '');
+                setLocalSubject(dbMessage.subject || tabName);
             } else {
-                const article = linkedArticles[activeEvergreenEmail];
-                setLocalSubject(article ? `[LECTURA RECOMENDADA] ${article.title}` : '');
+                setLocalSubject(tabName);
             }
             setIsPreviewMode(true);
             lastActiveEmailRef.current = activeEvergreenEmail;
@@ -327,7 +328,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     >
                         <iframe 
                             className="w-full h-full rounded-2xl"
-                            src="https://www.youtube.com/embed/5sntDvgSKUo?rel=0&controls=1&showinfo=0" 
+                            src="https://www.youtube.com/embed/vGfXD9VbfXo?rel=0&controls=1&showinfo=0" 
                             title="Video Tutorial" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowFullScreen
@@ -483,26 +484,27 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                                 {/* Link Editor Floating UI */}
                                                 {editingLink && (
                                                     <div 
-                                                        className="absolute z-[100] bg-white border border-gray-200 rounded-xl shadow-2xl p-4 flex items-center gap-3 animate-in fade-in zoom-in-95 duration-200"
+                                                        className="absolute z-[100] bg-white border border-gray-200 rounded-xl shadow-2xl p-4 flex items-center gap-3 animate-in fade-in zoom-in-95 duration-200 link-editor-popup"
                                                         style={{
                                                             top: `${editingLink.element.offsetTop - 70}px`,
                                                             left: `${editingLink.element.offsetLeft}px`
                                                         }}
                                                         onClick={(e) => e.stopPropagation()}
                                                     >
-                                                        <div className="flex flex-col gap-1">
+                                                        <div className="flex flex-col gap-1 w-full">
                                                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Enlace del Botón</label>
                                                             <div className="flex items-center gap-2">
                                                                 <input 
                                                                     type="text"
                                                                     value={editingLink.url}
                                                                     onChange={(e) => handleLinkUpdate(e.target.value)}
-                                                                    className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-blue-600 font-medium outline-none focus:ring-2 focus:ring-blue-500/20 w-64"
+                                                                    className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-blue-600 font-medium outline-none focus:ring-2 focus:ring-blue-500/20 w-full min-w-[300px]"
                                                                     placeholder="https://..."
+                                                                    autoFocus
                                                                 />
                                                                 <button 
                                                                     onClick={() => setEditingLink(null)}
-                                                                    className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors"
+                                                                    className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors shrink-0"
                                                                 >
                                                                     <Check className="w-4 h-4 text-emerald-500" />
                                                                 </button>
@@ -513,38 +515,66 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
 
                                                 {/* WYSIWYG Toolbar */}
                                                 {!isPreviewMode && (
-                                                    <>
-                                                        <div className="absolute -top-16 left-0 flex items-center gap-2 bg-yellow-400 text-black px-4 py-1.5 rounded-t-xl text-[10px] font-black uppercase tracking-widest animate-in slide-in-from-bottom-2 duration-300">
-                                                            <Edit3 className="w-3 h-3" /> Modo Edición
+                                                    <div className="sticky top-0 z-30 mb-4 animate-in slide-in-from-top-2 duration-300">
+                                                        <div className="flex items-center gap-2 bg-yellow-400 text-black px-4 py-1.5 rounded-t-xl text-[10px] font-black uppercase tracking-widest">
+                                                            <Edit3 className="w-3 h-3" /> {isHtmlMode ? 'Modo HTML' : 'Modo Edición'}
                                                         </div>
-                                                        <div className="absolute -top-12 left-0 right-0 bg-white border border-gray-200 p-2 flex flex-wrap gap-1 items-center z-20 rounded-xl shadow-xl animate-in slide-in-from-bottom-2 duration-300">
-                                                            <button onClick={() => execCommand('bold')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Negrita"><Bold className="w-4 h-4" /></button>
-                                                            <button onClick={() => execCommand('italic')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Cursiva"><Italic className="w-4 h-4" /></button>
-                                                            <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                                                            <button onClick={() => execCommand('justifyLeft')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Izquierda"><AlignLeft className="w-4 h-4" /></button>
-                                                            <button onClick={() => execCommand('justifyCenter')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Centro"><AlignCenter className="w-4 h-4" /></button>
-                                                            <button onClick={() => execCommand('justifyRight')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Derecha"><AlignRight className="w-4 h-4" /></button>
-                                                            <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                                                            <button onClick={() => execCommand('insertUnorderedList')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Lista"><List className="w-4 h-4" /></button>
-                                                            <button onClick={() => execCommand('formatBlock', 'h2')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Título"><Type className="w-4 h-4" /></button>
-                                                            <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                                                            <button onClick={() => execCommand('foreColor', '#FF5A1F')} className="p-2 hover:bg-gray-200 rounded transition-colors text-[#FF5A1F]" title="Color Principal"><Palette className="w-4 h-4" /></button>
+                                                        <div className="bg-white border border-gray-200 p-2 flex flex-wrap gap-1 items-center rounded-b-xl rounded-tr-xl shadow-xl">
+                                                            {!isHtmlMode && (
+                                                                <>
+                                                                    <button onClick={() => execCommand('bold')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Negrita"><Bold className="w-4 h-4" /></button>
+                                                                    <button onClick={() => execCommand('italic')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Cursiva"><Italic className="w-4 h-4" /></button>
+                                                                    <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                                    <button onClick={() => execCommand('justifyLeft')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Izquierda"><AlignLeft className="w-4 h-4" /></button>
+                                                                    <button onClick={() => execCommand('justifyCenter')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Centro"><AlignCenter className="w-4 h-4" /></button>
+                                                                    <button onClick={() => execCommand('justifyRight')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Alinear Derecha"><AlignRight className="w-4 h-4" /></button>
+                                                                    <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                                    <button onClick={() => execCommand('insertUnorderedList')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Lista"><List className="w-4 h-4" /></button>
+                                                                    <button onClick={() => execCommand('formatBlock', 'h2')} className="p-2 hover:bg-gray-200 rounded transition-colors text-gray-700" title="Título"><Type className="w-4 h-4" /></button>
+                                                                    <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                                    <button onClick={() => execCommand('foreColor', '#FF5A1F')} className="p-2 hover:bg-gray-200 rounded transition-colors text-[#FF5A1F]" title="Color Principal"><Palette className="w-4 h-4" /></button>
+                                                                    <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                                                </>
+                                                            )}
+                                                            <button 
+                                                                onClick={() => setIsHtmlMode(!isHtmlMode)} 
+                                                                className={`p-2 rounded transition-colors ${isHtmlMode ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-200 text-gray-700'}`} 
+                                                                title={isHtmlMode ? "Vista Visual" : "Ver HTML"}
+                                                            >
+                                                                <Code className="w-4 h-4" />
+                                                            </button>
                                                         </div>
-                                                    </>
+                                                    </div>
                                                 )}
-                                                <div 
-                                                    ref={editorRef}
-                                                    contentEditable={!isPreviewMode}
-                                                    onClick={handleEditorClick}
-                                                    onFocus={() => setIsPreviewMode(false)}
-                                                    onBlur={(e) => {
-                                                        setIsPreviewMode(true);
-                                                        handleUpdateMessage('contentHtml', e.currentTarget.innerHTML);
-                                                    }}
-                                                    className={`w-full h-full min-h-[450px] rounded-3xl p-8 md:p-12 focus:ring-4 focus:ring-orange-500/5 text-black text-[1.3rem] leading-[1.7em] font-serif outline-none overflow-y-auto custom-scrollbar cursor-text transition-all [&_p]:pt-[1.1em] [&_a]:my-8 [&_a]:inline-block ${!isPreviewMode ? 'bg-yellow-50/50 border-2 border-dashed border-yellow-400 shadow-2xl ring-1 ring-yellow-100' : 'bg-gray-50 border border-gray-100 hover:bg-gray-100/50'}`}
-                                                    title="Haz clic para editar el contenido del mensaje"
-                                                    dangerouslySetInnerHTML={{ __html: activeEmail.body }}
-                                                />
+                                                
+                                                <div className="flex-1 relative">
+                                                    {isHtmlMode && !isPreviewMode ? (
+                                                        <textarea
+                                                            value={activeEmail.body}
+                                                            onChange={(e) => handleUpdateMessage('contentHtml', e.target.value)}
+                                                            className="w-full h-full min-h-[450px] rounded-3xl p-8 md:p-12 bg-gray-900 text-emerald-400 font-mono text-sm outline-none border border-gray-800 focus:ring-4 focus:ring-emerald-500/10 overflow-y-auto custom-scrollbar"
+                                                            placeholder="Escribe tu HTML aquí..."
+                                                        />
+                                                    ) : (
+                                                        <div 
+                                                            ref={editorRef}
+                                                            contentEditable={!isPreviewMode}
+                                                            onClick={handleEditorClick}
+                                                            onFocus={() => setIsPreviewMode(false)}
+                                                            onBlur={(e) => {
+                                                                const currentTarget = e.currentTarget;
+                                                                setTimeout(() => {
+                                                                    if (document.activeElement?.closest('.link-editor-popup')) return;
+                                                                    setIsPreviewMode(true);
+                                                                    handleUpdateMessage('contentHtml', currentTarget.innerHTML);
+                                                                }, 200);
+                                                            }}
+                                                            className={`w-full h-full min-h-[450px] rounded-3xl p-8 md:p-12 focus:ring-4 focus:ring-orange-500/5 text-black text-[1.3rem] leading-[1.7em] font-serif outline-none overflow-y-auto custom-scrollbar cursor-text transition-all [&_p]:pt-[1.1em] [&_a]:my-8 [&_a]:inline-block ${!isPreviewMode ? 'bg-yellow-50/50 border-2 border-dashed border-yellow-400 shadow-2xl ring-1 ring-yellow-100' : 'bg-gray-50 border border-gray-100 hover:bg-gray-100/50'}`}
+                                                            title="Haz clic para editar el contenido del mensaje"
+                                                            dangerouslySetInnerHTML={{ __html: activeEmail.body }}
+                                                        />
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
