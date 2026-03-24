@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Sparkles, Check, Info, Wand2, Lock, PlayCircle, Edit3, Settings2, Zap, Lightbulb, ChevronDown, ArrowRight, Copy, CheckCircle2, Globe, Link as LinkIcon, ExternalLink, X, Save, Target, AlertTriangle, Loader2, Crown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, List, Type, Palette, BookOpen } from 'lucide-react';
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
-import { PlanFeatures, PlanLimits, Plan, EmailMessage, LandingPage, AffiliateLink } from '../../../../types';
+import { PlanFeatures, PlanLimits, Plan, EmailMessage, EmailSequence, LandingPage, AffiliateLink } from '../../../../types';
 import { api } from '../../../../services/api';
 
 interface ProjectStrategy_EmailProps {
@@ -62,6 +62,19 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const [newLinkLabel, setNewLinkLabel] = useState('');
     const [newLinkUrl, setNewLinkUrl] = useState('');
     const [savingNewLink, setSavingNewLink] = useState(false);
+    const [allSequences, setAllSequences] = useState<EmailSequence[]>([]);
+
+    useEffect(() => {
+        const fetchSequences = async () => {
+            try {
+                const sequences = await api.getEmailSequences();
+                setAllSequences(sequences);
+            } catch (e) {
+                console.error("Error fetching sequences:", e);
+            }
+        };
+        fetchSequences();
+    }, []);
 
     const emailTypes = [
         'Bienvenida + Valor', 
@@ -265,8 +278,18 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
 
     // Lógica de límites
     const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
-    const maxSequences = planLimits?.maxEmailSequences || 5;
-    const sequenceUsed = sequenceCount;
+    
+    // Recalcular sequenceUsed basado en la lógica solicitada:
+    // En conversión se cuenta por secuencia (si tiene al menos un correo generado)
+    // En nutrición se cuenta por el total de correos individuales generados
+    const sequenceUsed = activeType === 'conversion' 
+        ? allSequences.filter(s => s.type === 'conversion' && s.generatedDays && s.generatedDays.length > 0).length
+        : allSequences.filter(s => s.type === 'nurturing').reduce((acc, s) => acc + (s.generatedDays?.length || 0), 0);
+
+    const maxSequences = activeType === 'conversion'
+        ? (planLimits?.maxEmailSequences || 5)
+        : (planLimits?.maxEmailSequencesNurturing || 20);
+
     const generatedInCurrent = realMessages.filter(m => m.isGenerated).length;
     const usagePercent = Math.min(100, (sequenceUsed / maxSequences) * 100);
     let progressColor = "bg-green-500";
