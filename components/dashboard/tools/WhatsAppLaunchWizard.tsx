@@ -13,20 +13,19 @@ import { UpgradeModal } from '../UpgradeModal';
 
 // Estructura estática de los 14 momentos para visualización persuasiva local
 const WHATSAPP_LAUNCH_MOMENTS = [
-    { id: 'wl1', name: 'Bienvenida y Confirmación de Fecha', momentText: 'Día -7', objective: 'Confirmar lugar, dar gracias, fijar fecha/hora.', pilarType: 'Seguridad', purpose: 'Confirmar que están en el lugar correcto, dar las gracias y fijar la fecha/hora del evento en el calendario mental del usuario.' },
-    { id: 'wl2', name: 'Historia de Autoridad (Storytelling)', momentText: 'Día -5', objective: 'Conectar emocionalmente con la experta.', pilarType: 'Empatía y Confianza', purpose: 'Quién es el experto, sus fracasos iniciales y cómo el método que va a enseñar cambió su vida. Humaniza la marca.' },
-    { id: 'wl3', name: 'El "Qué" vs el "Cómo" (Curiosidad)', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Valor Percibido', purpose: 'Revelar los temas que se verán en la clase. Prometer un secreto o técnica específica que no encontrarán en YouTube.' },
-    { id: 'wl4', name: 'Los 3 Errores Fatales', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Conciencia del Dolor', purpose: 'Identificar qué están haciendo mal los leads hoy. Esto posiciona al experto como la única solución para dejar de perder tiempo/dinero.' },
-    { id: 'wl5', name: 'Recordatorio Matutino', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Entusiasmo', purpose: '¡Llegó el día!. Confirmar horarios por países para evitar confusiones.' },
-    { id: 'wl6', name: 'Instrucciones de Preparación (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Compromiso', purpose: 'Pedir que preparen libreta, café y eliminen distracciones. Crea un ritual en torno a la clase.' },
-    { id: 'wl7', name: '¡Estamos en Vivo! (El Link)', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acción Inmediata', purpose: 'Enlace directo a YouTube/Zoom/VSL. Corto, al grano y con muchos emojis de alerta.' },
-    { id: 'wl8', name: 'Apertura de Carrito y Oferta Irresistible', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Lanzamiento', purpose: 'Revelar el precio especial de lanzamiento, los bonos y el enlace de Hotmart.' },
-    { id: 'wl9', name: 'Bonos de Acción Rápida (Urgencia)', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Beneficio extra', purpose: 'Regalo extra solo para las primeras X personas que compren en las próximas 2 horas.' },
-    { id: 'wl10', name: 'Tutorial de Pago y Soporte', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Eliminación de Fricción', purpose: 'Explicar cómo pagar (tarjeta, PayPal, efectivo) y dejar el link de contacto directo para dudas.' },
-    { id: 'wl11', name: 'Prueba Social Dinámica', momentText: 'Validación', objective: 'Validación de resultados.', pilarType: 'Validación', purpose: 'Mostrar capturas de pantalla de nuevos alumnos o testimonios rápidos. "Si ellos pudieron, tú también".' },
-    { id: 'wl12', name: 'Garantía y Seguridad', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Riesgo Cero', purpose: 'Recordar los 7 o 15 días de garantía de Hotmart. Derriba el miedo al fraude.' },
-    { id: 'wl13', name: 'Última Llamada (Faltan 4 horas)', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Escasez Real', purpose: 'El contador llega a cero. Los bonos desaparecen y el precio subirá.' },
-    { id: 'wl14', name: 'Inscripciones Cerradas y Bienvenida', momentText: 'Bienvenida', objective: 'Bienvenida a las nuevas alumnas.', pilarType: 'Integridad de Marca', purpose: 'Avisar que ya no se puede comprar. Da la bienvenida oficial a los nuevos alumnos (onboarding).' }
+    { id: 'wl1', name: 'Bienvenida y Confirmación de Fecha', momentText: 'Día -7', objective: 'Confirmar lugar, dar gracias, fijar fecha/hora.', pilarType: 'Bienvenida y Valor', purpose: 'Confirmar que están en el lugar correcto, dar las gracias y fijar la fecha/hora del evento en el calendario mental del usuario.' },
+    { id: 'wl2', name: 'Historia de Autoridad (Storytelling)', momentText: 'Día -5', objective: 'Conectar emocionalmente con la experta.', pilarType: 'Autoridad y Conexión', purpose: 'Quién es el experto, sus fracasos iniciales y cómo el método que va a enseñar cambió su vida. Humaniza la marca.' },
+    { id: 'wl3', name: 'El "Qué" vs el "Cómo" (Curiosidad)', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Curiosidad y Deseo', purpose: 'Revelar los temas que se verán en la clase. Prometer un secreto o técnica específica que no encontrarán en YouTube.' },
+    { id: 'wl4', name: 'Los 3 Errores Fatales', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Conciencia del Problema', purpose: 'Identificar qué están haciendo mal los leads hoy. Esto posiciona al experto como la única solución para dejar de perder tiempo/dinero.' },
+    { id: 'wl5', name: 'Recordatorio Matutino', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Recordatorio y Logística', purpose: '¡Llegó el día!. Confirmar horarios por países para evitar confusiones.' },
+    { id: 'wl6', name: 'Instrucciones de Preparación (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Preparación y Compromiso', purpose: 'Pedir que preparen libreta, café y eliminen distracciones. Crea un ritual en torno a la clase.' },
+    { id: 'wl7', name: '¡Estamos en Vivo! (El Link)', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acceso al Evento', purpose: 'Enlace directo a YouTube/Zoom/VSL. Corto, al grano y con muchos emojis de alerta.' },
+    { id: 'wl8', name: 'Apertura de Carrito y Oferta Irresistible', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Presentación de Oferta', purpose: 'Revelar el precio especial de lanzamiento, los bonos y el enlace de Hotmart.' },
+    { id: 'wl9', name: 'Bonos de Acción Rápida (Urgencia)', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Bonos y Objeciones', purpose: 'Regalo extra solo para las primeras X personas que compren en las próximas 2 horas.' },
+    { id: 'wl10', name: 'Tutorial de Pago y Soporte', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Prueba Social y Validación', purpose: 'Explicar cómo pagar (tarjeta, PayPal, efectivo) y dejar el link de contacto directo para dudas.' },
+    { id: 'wl11', name: 'Prueba Social Dinámica', momentText: 'Validación', objective: 'Validación de resultados.', pilarType: 'Garantía y Seguridad', purpose: 'Mostrar capturas de pantalla de nuevos alumnos o testimonios rápidos. "Si ellos pudieron, tú también".' },
+    { id: 'wl12', name: 'Garantía y Seguridad', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Urgencia y Cierre', purpose: 'Recordar los 7 o 15 días de garantía de Hotmart. Derriba el miedo al fraude.' },
+    { id: 'wl13', name: 'Última Llamada (Faltan 4 horas)', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Urgencia y Cierre', purpose: 'El contador llega a cero. Los bonos desaparecen y el precio subirá.' }
 ];
 
 // Professional WhatsApp Chat Simulator Component
@@ -102,10 +101,9 @@ export const WhatsAppLaunchWizard: React.FC<{ onClose?: () => void; editLaunchId
     const [upgradeProjectId, setUpgradeProjectId] = useState<string | undefined>(undefined);
 
     const waTypes = [
-        'Seguridad', 'Empatía y Confianza', 'Valor Percibido', 'Conciencia del Dolor',
-        'Entusiasmo', 'Compromiso', 'Acción Inmediata', 'Lanzamiento',
-        'Beneficio extra', 'Eliminación de Fricción', 'Validación', 'Riesgo Cero',
-        'Escasez Real', 'Integridad de Marca'
+        'Bienvenida y Valor', 'Autoridad y Conexión', 'Curiosidad y Deseo', 'Conciencia del Problema',
+        'Recordatorio y Logística', 'Preparación y Compromiso', 'Acceso al Evento', 'Presentación de Oferta',
+        'Bonos y Objeciones', 'Prueba Social y Validación', 'Garantía y Seguridad', 'Urgencia y Cierre'
     ];
 
     useEffect(() => {
