@@ -54,21 +54,36 @@ router.get('/email/sequences', authMiddleware, async (req, res) => {
             [req.user.id]
         );
 
-        const sequencesWithDays = await Promise.all(rows.map(async (seq) => {
+        const sequencesWithDays = [];
+        for (const seq of rows) {
             const [msgRows] = await pool.query(
                 `SELECT day_index, type FROM email_messages WHERE sequence_id = ? AND is_generated = 1`,
                 [seq.id]
             );
-            return {
-                ...seq,
-                projectName: seq.project_name,
-                tagName: seq.tag_name || 'Sin etiqueta',
-                generatedDays: msgRows.map(m => m.day_index),
-                // We can still provide a default type for the sequence based on its messages if needed, 
-                // but the individual messages will have their own type.
-                type: msgRows.length > 0 ? msgRows[0].type : 'conversion'
-            };
-        }));
+            
+            // Agrupar mensajes por tipo para devolver secuencias virtuales separadas
+            const types = [...new Set(msgRows.map(m => m.type))];
+            if (types.length === 0) {
+                // Si no hay mensajes generados, devolvemos una por defecto (conversión)
+                sequencesWithDays.push({
+                    ...seq,
+                    projectName: seq.project_name,
+                    tagName: seq.tag_name || 'Sin etiqueta',
+                    generatedDays: [],
+                    type: 'conversion'
+                });
+            } else {
+                for (const t of types) {
+                    sequencesWithDays.push({
+                        ...seq,
+                        projectName: seq.project_name,
+                        tagName: seq.tag_name || 'Sin etiqueta',
+                        generatedDays: msgRows.filter(m => m.type === t).map(m => m.day_index),
+                        type: t
+                    });
+                }
+            }
+        }
 
         res.json(sequencesWithDays);
     } catch (e) {

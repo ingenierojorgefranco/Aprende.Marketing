@@ -48,7 +48,7 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                 const nurturingSeq = sequences.find(s => s.projectId === projectId && s.type === 'nurturing');
                 if (nurturingSeq) {
                     const messages = await api.getSequenceMessages(nurturingSeq.id);
-                    setNurturingMessages(messages);
+                    setNurturingMessages(messages.filter(m => m.type === 'nurturing'));
                 }
             } catch (error) {
                 console.error("Error loading nurturing messages:", error);

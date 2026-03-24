@@ -105,14 +105,16 @@ export const ProjectStrategyDashboard: React.FC = () => {
             // Cargar secuencia de email si existe
             try {
                 const sequences = await api.getEmailSequences();
-                // Solo contamos secuencias que tengan al menos un correo generado
-                const activeSequences = sequences.filter(s => s.generatedDays && s.generatedDays.length > 0);
-                setSequenceCount(activeSequences.length);
+                // Contamos proyectos únicos que tengan al menos un correo generado (conversión o nutrición)
+                const activeProjectIds = new Set(sequences.filter(s => s.generatedDays && s.generatedDays.length > 0).map(s => s.projectId));
+                setSequenceCount(activeProjectIds.size);
+                
                 const projectSequence = sequences.find(s => String(s.projectId) === String(id) && s.type === activeEmailSequenceType);
                 if (projectSequence) {
                     setEmailSequenceId(projectSequence.id);
                     const messages = await api.getSequenceMessages(projectSequence.id);
-                    setRealMessages(messages);
+                    // Filtramos para que el componente solo reciba los mensajes del tipo actual
+                    setRealMessages(messages.filter((m: any) => m.type === activeEmailSequenceType));
                 } else {
                     setEmailSequenceId(null);
                     setRealMessages([]);

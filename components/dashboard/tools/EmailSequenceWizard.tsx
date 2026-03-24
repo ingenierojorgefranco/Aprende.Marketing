@@ -110,7 +110,7 @@ export const EmailSequenceWizard: React.FC<{ onClose?: () => void, type?: 'conve
         setLoading(true);
         try {
             const allSequences = await api.getEmailSequences();
-            const existingSeq = allSequences.find(s => String(s.projectId) === String(project.id));
+            const existingSeq = allSequences.find(s => String(s.projectId) === String(project.id) && s.type === type);
             
             // Limit check for new sequences
             if (!existingSeq && user.role !== 'admin') {

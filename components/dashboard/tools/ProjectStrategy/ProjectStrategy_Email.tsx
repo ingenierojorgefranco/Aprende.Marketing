@@ -360,11 +360,11 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     <div className="w-full mb-6">
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                             <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Progreso de esta Secuencia</span>
-                                <span className="text-white font-bold">{generatedInCurrent} / 7</span>
+                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Secuencias creadas</span>
+                                <span className="text-white font-bold">{sequenceUsed} / {maxSequences}</span>
                             </div>
                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${(generatedInCurrent / 7) * 100 > 90 ? 'bg-red-500' : (generatedInCurrent / 7) * 100 > 70 ? 'bg-orange-500' : 'bg-blue-500'}`} style={{ width: `${(generatedInCurrent / 7) * 100}%` }}></div>
+                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
                             </div>
                         </div>
                     </div>
@@ -436,23 +436,25 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     </div>
 
                     {/* Botón General de Generación */}
-                    <div className="mt-6 pt-6 border-t border-white/5">
-                        <button 
-                            onClick={() => setShowConfirmModal(true)}
-                            disabled={isGenerating}
-                            className="w-full py-5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isGenerating ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin" /> Generando Secuencia...
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles className="w-5 h-5" /> Generar Secuencia Completa
-                                </>
-                            )}
-                        </button>
-                    </div>
+                    {generatedInCurrent < 7 && (
+                        <div className="mt-6 pt-6 border-t border-white/5">
+                            <button 
+                                onClick={() => setShowConfirmModal(true)}
+                                disabled={isGenerating}
+                                className="w-full py-5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isGenerating ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" /> Generando Secuencia...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles className="w-5 h-5" /> Generar Secuencia Completa
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* RIGHT: CONFIGURATION / CONTENT */}
