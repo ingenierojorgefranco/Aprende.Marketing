@@ -71,11 +71,7 @@ export const WhatsAppLaunchManager: React.FC = () => {
 
     // Lógica de límites respetando simulación
     const isRealAdmin = user.role === 'admin' && !isSimulating;
-    const maxLaunches = projects.reduce((sum, p) => {
-        if (p.limitsConfig?.maxWhatsAppLaunches) return sum + p.limitsConfig.maxWhatsAppLaunches;
-        const slug = p.planSlug || 'starter';
-        return sum + (slug === 'starter' ? 1 : 5);
-    }, projects.length === 0 ? (user.planLimits?.maxWhatsAppLaunches || 1) : 0);
+    const maxLaunches = user.planLimits?.maxWhatsAppLaunches || 1;
     const currentCount = launches.length;
     const isAtLimit = !isRealAdmin && currentCount >= maxLaunches;
     const usagePercent = Math.min(100, (currentCount / maxLaunches) * 100);

@@ -478,6 +478,19 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                             <div id="psd-whatsapp-grid" className="grid lg:grid-cols-12 gap-8 relative">
                                 <div className="lg:col-span-4 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-2xl">
                                     <div className="flex items-center gap-3 mb-6 shrink-0"><div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50"><Calendar className="w-6 h-6" /></div><h3 className="text-xl font-bold text-white">Listado de Mensajes</h3></div>
+                                    
+                                    {/* Barra de Progreso de Lanzamientos */}
+                                    <div className="w-full mb-6">
+                                        <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
+                                            <div className="flex justify-between items-center mb-2 text-sm">
+                                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Lanzamientos creados</span>
+                                                <span className="text-white font-bold">{launchUsed} / {maxLaunches}</span>
+                                            </div>
+                                            <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div className="space-y-1 flex-1 pr-2 overflow-y-auto custom-scrollbar">
                                         {whatsappLaunch.map((script: any, idx: number) => (
                                             <React.Fragment key={script.id}>
