@@ -192,15 +192,6 @@ router.post('/email/sequences', authMiddleware, async (req, res) => {
                     [sequenceId, i + 1, p.type, p.subject, `Objetivo del Día ${i + 1}: ${p.type}`, type]
                 );
             }
-        } else {
-            // Para nutrición, inicializamos 3 correos base (pueden ser más luego)
-            for (let i = 0; i < 3; i++) {
-                await pool.query(
-                    `INSERT INTO email_messages (sequence_id, day_index, pilar_type, subject, purpose, content_html, is_generated, type) 
-                     VALUES (?, ?, ?, ?, ?, "", 0, ?)`,
-                    [sequenceId, i + 1, 'Nutrición', `Contenido de Valor ${i + 1}`, `Aportar valor basado en artículo de blog`, type]
-                );
-            }
         }
 
         res.json({ id: sequenceId, isNew: true });

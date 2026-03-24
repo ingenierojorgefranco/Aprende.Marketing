@@ -105,7 +105,9 @@ export const ProjectStrategyDashboard: React.FC = () => {
             // Cargar secuencia de email si existe
             try {
                 const sequences = await api.getEmailSequences();
-                setSequenceCount(sequences.length);
+                // Solo contamos secuencias que tengan al menos un correo generado
+                const activeSequences = sequences.filter(s => s.generatedDays && s.generatedDays.length > 0);
+                setSequenceCount(activeSequences.length);
                 const projectSequence = sequences.find(s => String(s.projectId) === String(id) && s.type === activeEmailSequenceType);
                 if (projectSequence) {
                     setEmailSequenceId(projectSequence.id);

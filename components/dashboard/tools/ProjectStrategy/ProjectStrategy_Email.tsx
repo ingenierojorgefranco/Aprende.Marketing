@@ -267,6 +267,7 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
     const isRealAdmin = planLimits?.planName === 'admin' && !isSimulating;
     const maxSequences = planLimits?.maxEmailSequences || 5;
     const sequenceUsed = sequenceCount;
+    const generatedInCurrent = realMessages.filter(m => m.isGenerated).length;
     const usagePercent = Math.min(100, (sequenceUsed / maxSequences) * 100);
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";
@@ -359,11 +360,11 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                     <div className="w-full mb-6">
                         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 border border-white/10 w-full shadow-inner">
                             <div className="flex justify-between items-center mb-2 text-sm">
-                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Correos Generados/Desbloqueados</span>
-                                <span className="text-white font-bold">{sequenceUsed} / {isRealAdmin ? '∞' : maxSequences}</span>
+                                <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Progreso de esta Secuencia</span>
+                                <span className="text-white font-bold">{generatedInCurrent} / 7</span>
                             </div>
                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
-                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (sequenceUsed > 0 ? 100 : 0) : usagePercent}%` }}></div>
+                                <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${(generatedInCurrent / 7) * 100 > 90 ? 'bg-red-500' : (generatedInCurrent / 7) * 100 > 70 ? 'bg-orange-500' : 'bg-blue-500'}`} style={{ width: `${(generatedInCurrent / 7) * 100}%` }}></div>
                             </div>
                         </div>
                     </div>
@@ -858,8 +859,14 @@ export const ProjectStrategy_Email: React.FC<ProjectStrategy_EmailProps> = ({
                                 </p>
                             </div>
                             <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] shadow-inner">
+                                {generatedInCurrent === 0 && (
+                                    <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center gap-3 text-blue-400 animate-pulse">
+                                        <Info className="w-5 h-5" />
+                                        <span className="text-xs font-bold uppercase tracking-wider">Esta secuencia de conversión aún no ha sido generada</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between items-center mb-3">
-                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Créditos de Secuencia Disponibles</span>
+                                    <span className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Uso Total de Secuencias (Global)</span>
                                     <span className="text-white font-bold text-sm">{sequenceUsed} / {isRealAdmin ? '∞' : maxSequences}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/5">
