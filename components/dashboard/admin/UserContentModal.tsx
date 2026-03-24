@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { User, UserSubscription } from '../../../types';
+import { User, UserSubscription, EmailMessage } from '../../../types';
 import { api } from '../../../services/api';
-import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap, CreditCard, Power, Edit, Check } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Folder, FileText, Globe, Eye, Loader2, Trash2, Mail, Smartphone, Zap, CreditCard, Power, Edit, Check, Calendar } from 'lucide-react';
 
 ////////// Actualización: Creación de archivo independiente para carga dinámica - 05/06/2025 21:30 //////////
 const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user, onClose }) => {
@@ -41,6 +41,11 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
     const [currentPageArticles, setCurrentPageArticles] = useState(1);
     const [currentPageHooks, setCurrentPageHooks] = useState(1);
     const itemsPerPage = 10;
+
+    // Email Messages states
+    const [selectedSequenceId, setSelectedSequenceId] = useState<string | null>(null);
+    const [sequenceMessages, setSequenceMessages] = useState<EmailMessage[]>([]);
+    const [loadingMessages, setLoadingMessages] = useState(false);
 
     const toggleSection = async (section: 'plans' | 'projects' | 'pages' | 'articles' | 'emails' | 'whatsapp' | 'hooks') => {
         if (expandedSection === section) {
@@ -152,6 +157,36 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
             }));
         } catch (error) {
             alert("Error al actualizar la suscripción.");
+        }
+    };
+
+    const handleLoadSequenceMessages = async (sequenceId: string) => {
+        if (selectedSequenceId === sequenceId) {
+            setSelectedSequenceId(null);
+            setSequenceMessages([]);
+            return;
+        }
+        
+        setSelectedSequenceId(sequenceId);
+        setLoadingMessages(true);
+        try {
+            const messages = await api.getSequenceMessages(sequenceId);
+            setSequenceMessages(messages);
+        } catch (error) {
+            console.error("Error loading messages:", error);
+        } finally {
+            setLoadingMessages(false);
+        }
+    };
+
+    const handleDeleteEmailMessage = async (messageId: string) => {
+        if (!window.confirm("¿Estás seguro de eliminar este correo?")) return;
+        try {
+            await api.deleteEmailMessage(messageId);
+            setSequenceMessages(prev => prev.filter(m => m.id !== messageId));
+        } catch (error) {
+            console.error("Error deleting message:", error);
+            alert("Error al eliminar el correo.");
         }
     };
 
@@ -719,6 +754,93 @@ const UserContentModal: React.FC<{ user: User, onClose: () => void }> = ({ user,
                                     </table>
                                 ) : (
                                     <p className="text-sm text-gray-500 italic text-center">No hay secuencias creadas.</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Correos Electrónicos Section */}
+                    <div className="border border-gray-700 rounded-xl overflow-hidden">
+                        <button 
+                            onClick={() => toggleSection('emails')}
+                            className="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-750 transition text-left"
+                        >
+                            <div className="flex items-center gap-3 font-bold text-white">
+                                <Mail className="w-5 h-5 text-indigo-400" /> Correos Electrónicos
+                            </div>
+                            {expandedSection === 'emails' ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+                        </button>
+                        
+                        {expandedSection === 'emails' && (
+                            <div className="bg-black/50 p-4 border-t border-gray-700 animate-in slide-in-from-top-2">
+                                {loadingSection === 'emails' ? (
+                                    <div className="flex justify-center py-4"><Loader2 className="w-6 h-6 animate-spin text-blue-500" /></div>
+                                ) : loadedData.emails && loadedData.emails.length > 0 ? (
+                                    <div className="space-y-4">
+                                        <p className="text-xs text-gray-400 mb-2 italic">Selecciona una secuencia para ver sus correos:</p>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            {loadedData.emails.map((e: any) => (
+                                                <div key={`msg-seq-${e.id}`} className="border border-gray-800 rounded-lg overflow-hidden">
+                                                    <button 
+                                                        onClick={() => handleLoadSequenceMessages(e.id)}
+                                                        className={`w-full flex items-center justify-between p-3 text-left transition ${selectedSequenceId === e.id ? 'bg-indigo-900/20 border-indigo-500/30' : 'bg-gray-900/40 hover:bg-gray-800'}`}
+                                                    >
+                                                        <div className="flex items-center gap-2">
+                                                            <Mail className={`w-4 h-4 ${selectedSequenceId === e.id ? 'text-indigo-400' : 'text-gray-500'}`} />
+                                                            <span className="text-xs font-medium text-gray-200">{e.name}</span>
+                                                        </div>
+                                                        {selectedSequenceId === e.id ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+                                                    </button>
+
+                                                    {selectedSequenceId === e.id && (
+                                                        <div className="p-3 bg-black/30 border-t border-gray-800">
+                                                            {loadingMessages ? (
+                                                                <div className="flex justify-center py-2"><Loader2 className="w-4 h-4 animate-spin text-indigo-500" /></div>
+                                                            ) : sequenceMessages.length > 0 ? (
+                                                                <table className="w-full text-[10px] text-left">
+                                                                    <thead className="text-gray-500 uppercase">
+                                                                        <tr>
+                                                                            <th className="pb-2">Día</th>
+                                                                            <th className="pb-2">Asunto</th>
+                                                                            <th className="pb-2">Tipo</th>
+                                                                            <th className="pb-2">Fecha</th>
+                                                                            <th className="pb-2 text-right">Acción</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody className="text-gray-400 divide-y divide-gray-800/50">
+                                                                        {sequenceMessages.map((msg) => (
+                                                                            <tr key={msg.id} className="hover:bg-white/[0.01]">
+                                                                                <td className="py-2 font-bold text-indigo-400">Día {msg.dayIndex}</td>
+                                                                                <td className="py-2 max-w-[150px] truncate" title={msg.subject}>{msg.subject}</td>
+                                                                                <td className="py-2 uppercase">
+                                                                                    <span className={`px-1 rounded-[2px] ${msg.type === 'conversion' ? 'bg-orange-900/20 text-orange-400' : 'bg-blue-900/20 text-blue-400'}`}>
+                                                                                        {msg.type === 'conversion' ? 'Conv' : 'Nutr'}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td className="py-2">{msg.createdAt ? new Date(msg.createdAt).toLocaleDateString() : 'N/A'}</td>
+                                                                                <td className="py-2 text-right">
+                                                                                    <button 
+                                                                                        onClick={() => handleDeleteEmailMessage(msg.id)}
+                                                                                        className="p-1 text-red-500 hover:bg-red-900/20 rounded transition"
+                                                                                    >
+                                                                                        <Trash2 className="w-3 h-3" />
+                                                                                    </button>
+                                                                                </td>
+                                                                            </tr>
+                                                                        ))}
+                                                                    </tbody>
+                                                                </table>
+                                                            ) : (
+                                                                <p className="text-[10px] text-gray-500 italic text-center py-2">No hay correos generados en esta secuencia.</p>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-gray-500 italic text-center">No hay secuencias para mostrar correos.</p>
                                 )}
                             </div>
                         )}

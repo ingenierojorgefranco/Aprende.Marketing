@@ -1731,6 +1731,12 @@ export const api = {
         clearCache('emailSequences');
     },
 
+    deleteEmailMessage: async (messageId: string) => {
+        if (isMockMode) return Promise.resolve();
+        await fetchWithFallback(`/email/messages/${messageId}`, { method: 'DELETE', headers: getAuthHeaders() });
+        clearCache('emailSequences');
+    },
+
     upsertEmailMessage: async (data: { sequenceId: string, dayIndex: number, subject: string, contentHtml: string, type: 'conversion' | 'nurturing', pilarType?: string, purpose?: string, redirectType?: string, redirectUrl?: string }) => {
         if (isMockMode) return Promise.resolve();
         await fetchWithFallback(`/email/messages/upsert`, {

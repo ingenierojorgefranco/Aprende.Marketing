@@ -33,6 +33,7 @@ export interface EmailMessage {
   contentHtml: string;
   isGenerated: boolean;
   type: 'conversion' | 'nurturing';
+  createdAt?: Date | string;
   redirectType?: 'landing' | 'hotlink' | 'external';
   redirectUrl?: string;
 }
