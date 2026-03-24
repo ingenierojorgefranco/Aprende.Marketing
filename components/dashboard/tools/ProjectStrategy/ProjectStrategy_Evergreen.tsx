@@ -215,25 +215,12 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         setIsGenerating(true);
 
         try {
-            // Llamada al nuevo endpoint centralizado en el backend
-            const response = await fetch('/api/email/generate-evergreen', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    projectId,
-                    articleData: {
-                        title: article.title,
-                        description: article.description,
-                        contentHtml: article.contentHtml
-                    }
-                })
+            // Llamada al nuevo endpoint centralizado a través del servicio api
+            const result = await api.generateEvergreenEmail(projectId, {
+                title: article.title,
+                description: article.description,
+                contentHtml: article.contentHtml
             });
-
-            if (!response.ok) throw new Error("Error en la generación del correo");
-            const result = await response.json();
 
             // --- ASOCIAR SOLO CON email_messages de tipo 'nurturing' ---
             // 1. Asegurar que existe la secuencia de nutrición
