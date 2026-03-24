@@ -3,9 +3,9 @@
  * Define el tono, estilo y restricciones que deben aplicarse a toda la secuencia.
  */
 export const GLOBAL_CONFIG = {
-    tone: "Cercano y natural (como una persona real), claro, sin tecnicismos, empático con el usuario, profesional pero no robótico.",
-    formatting: "Párrafos cortos y bien estructurados para facilitar la lectura profesional. Usa negritas (<strong>) para resaltar conceptos clave, beneficios y frases de alto impacto. Asegura que los botones tengan espacio suficiente alrededor.",
-    avoid: "Promesas exageradas, lenguaje demasiado técnico, textos largos sin ritmo."
+    tone: "Mentor-Amigo: Empático, cercano, basado en la experiencia personal y autoridad suave. Habla como alguien que ya recorrió el camino y entiende perfectamente las dudas del usuario.",
+    formatting: "Párrafos cortos (máximo 2-3 líneas) para lectura rápida. Uso estratégico de emojis para guiar la vista. Usa negritas (<strong>) para resaltar conceptos clave y frases de alto impacto. Estructura visual limpia con espacios en blanco.",
+    avoid: "Promesas exageradas, lenguaje corporativo o robótico, bloques de texto densos, sonar como un vendedor agresivo."
 };
 
 /**
@@ -495,33 +495,49 @@ Un abrazo,
 Tu Equipo`
     },
     'Evergreen / Nutrición': {
-        goal: "Invitar al usuario a leer un artículo de blog específico, aportando valor previo y generando curiosidad para que haga clic.",
-        structure: "1. Asunto intrigante relacionado con el tema del artículo\n2. Saludo cercano usando [Firstname]\n3. Gancho inicial: plantear un problema o curiosidad que el artículo resuelve\n4. Valor: dar un pequeño 'insight' o adelanto de lo que aprenderá\n5. CTA: botón o enlace claro para leer el artículo completo\n6. Cierre profesional y cercano\n7. Posdata persuasiva",
-        copywritingTips: "Usa un tono educativo y servicial. No intentes vender el producto aquí, vende el CLIC al artículo. Haz que el usuario sienta que se perderá algo importante si no lee el post.",
-        constraints: "No ser agresivo en la venta, enfocarse 100% en el valor del artículo, mantener párrafos cortos. Longitud: 150-200 palabras.",
-        example: `Asunto: 🛑 Lo que nadie te dice sobre [Tema del Artículo]
-Preheader: Te lo explico en 2 minutos...
+        goal: "Generar confianza y autoridad a través de la empatía, validando las dudas del usuario y guiándolo hacia contenido de valor (artículo) que resuelva un problema específico.",
+        structure: "1. Asunto empático (validación de pensamiento interno)\n2. Saludo personalizado\n3. Gancho de validación: reconocer un pensamiento o deseo común del usuario\n4. Historia/Empatía: 'Yo también estuve ahí' o 'Te entiendo perfectamente'\n5. Educación sobre el riesgo: explicar por qué el camino fácil/gratuito tiene peligros ocultos (técnica, ciencia, precisión)\n6. Contraste: ❌ Errores/Miedos vs ✨ Resultados/Seguridad con guía\n7. Transición al Valor: invitar a leer el artículo para decidir con claridad\n8. CTA: enlace claro al artículo\n9. Reflexión filosófica final sobre la diferencia entre intentar y lograr\n10. Cierre cálido y humano\n11. PD Estratégico: vincular el contenido con un beneficio del curso/producto",
+        copywritingTips: "Adopta la voz de un mentor que ya superó los obstáculos. Usa frases como 'Sé que lo has pensado', 'Te entiendo perfectamente'. No vendas el producto, vende la claridad y la seguridad que da el conocimiento guiado.",
+        constraints: "No ser agresivo, párrafos muy cortos, tono de acompañamiento constante. Longitud: 200-300 palabras.",
+        example: `Asunto: Sé que lo has pensado (y te entiendo perfectamente)
+Preheader: La diferencia entre intentarlo y lograrlo...
 
 Hola [Firstname],
 
-Seguramente te ha pasado que intentas avanzar en [Nicho] y sientes que algo no encaja.
+Sé que lo has pensado.
 
-Hoy he publicado un nuevo artículo donde desgloso exactamente por qué sucede esto y, lo más importante, cómo puedes solucionarlo hoy mismo.
+Ves videos, tutoriales de [Nicho], y dices: 💭 “Tal vez podría aprender yo sola.”
 
-En este post aprenderás:
-✅ El error #1 que cometen los principiantes.
-✅ Cómo optimizar tu proceso sin gastar de más.
-✅ El secreto para obtener resultados en tiempo récord.
+Y te entiendo perfectamente —porque yo también lo pensé alguna vez.
 
-Puedes leerlo completo aquí:
+Pero déjame contarte una verdad que aprendí con los años: sí puedes intentarlo por tu cuenta… pero no llegarás muy lejos sin guía.
 
-👉 [Leer artículo completo]
+[Tema del Artículo] parece fácil desde fuera, pero detrás de esa aparente simplicidad hay técnica, ciencia y precisión. No es solo “hacerlo”, es entender el porqué de cada paso.
 
-Espero que te sirva de mucho para tu camino.
+Aprender sin guía puede llevarte a:
+❌ Malos hábitos difíciles de corregir.
+❌ Errores que te hacen perder tiempo y dinero.
+❌ O, peor aún, perder la confianza antes de empezar bien.
 
-Un abrazo,
+En cambio, cuando aprendes con una estructura y una mentora, todo cambia:
+✨ Sabes qué hacer y por qué.
+✨ Avanzas con seguridad.
+✨ Y tus resultados te llenan de orgullo, no de dudas.
 
-[Nombre del Profesor]`
+Por eso escribí este artículo, donde te cuento exactamente qué sí puedes aprender por tu cuenta y qué necesitas aprender con guía profesional:
+
+👉 Léelo aquí: [Título del Artículo]
+
+Es una lectura que te abrirá los ojos y te ayudará a decidir con claridad.
+
+💭 La diferencia entre intentarlo y lograrlo está en la guía que eliges. Porque sola puedes empezar… pero acompañada, puedes llegar mucho más lejos. 💖
+
+Con cariño y la voz de alguien que también empezó desde cero,
+
+[Nombre del Profesor]
+
+PD: Si te animas a avanzar mucho más y en menos tiempo, en el siguiente enlace puedes ver todos los detalles de mi formación [Nombre del Producto], donde te incluyo bonos exclusivos para lograr mejores resultados.
+Haz clic aquí para ver los detalles.`
     },
     'default': {
         goal: "Aportar valor y mantener el interés del prospecto en el producto.",

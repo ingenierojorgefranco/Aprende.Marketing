@@ -2,6 +2,21 @@ import { GoogleGenAI } from "@google/genai";
 import pool from './db.js';
 import { EMAIL_BLUEPRINTS, GLOBAL_CONFIG } from './prompts/emails/emailBlueprints.js';
 
+/**
+ * Función auxiliar para generar slugs consistentes con el frontend
+ */
+const slugify = (text) => {
+    if (!text) return "";
+    return text.toString()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/--+/g, '-');
+};
+
 
 
 /**
@@ -887,11 +902,30 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
     if (projectRows.length === 0) throw new Error("Proyecto no encontrado");
     const project = projectRows[0];
 
+    // Obtener la landing page asociada para construir la URL correcta
+    const [pageRows] = await pool.query(
+        "SELECT id, name, custom_domain FROM landing_pages WHERE project_id = ? LIMIT 1",
+        [projectId]
+    );
+    const page = pageRows[0];
+    
+    // Construir la URL del artículo siguiendo la lógica de MyPages.tsx
+    let articleUrl = "#";
+    if (page) {
+        const articleSlug = articleData.slug || slugify(articleData.title);
+        if (page.custom_domain) {
+            articleUrl = `https://${page.custom_domain}/blog/${articleSlug}`;
+        } else {
+            const pageSlug = slugify(page.name);
+            articleUrl = `https://aprende.marketing/admin/lp/${page.id}-${pageSlug}/blog/${articleSlug}`;
+        }
+    }
+
     // Obtener info de la profesora/avatar si existe
     let teacherInfo = { name: "Tu Equipo", title: "Especialista", transformation_tip: "Empieza hoy mismo." };
     if (project.strategy_json) {
         try {
-            const strategy = JSON.parse(project.strategy_json);
+            const strategy = typeof project.strategy_json === 'string' ? JSON.parse(project.strategy_json) : project.strategy_json;
             if (strategy.teacher) teacherInfo = strategy.teacher;
         } catch (e) {
             console.error("Error parseando strategy_json para teacherInfo:", e);
@@ -915,6 +949,7 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
         - Título: ${articleData.title}
         - Descripción: ${articleData.description}
         - Contenido (Resumen): ${articleData.contentHtml ? articleData.contentHtml.substring(0, 1500) : 'No disponible'}
+        - URL DEL ARTÍCULO (OBLIGATORIA): ${articleUrl}
         
         ESTRATEGIA DEL CORREO (BLUEPRINT):
         - Objetivo: ${blueprint.goal}
@@ -931,13 +966,14 @@ export async function generateSingleEvergreenEmail(projectId, articleData) {
         1. El correo debe ser profesional, empático y generar mucha curiosidad.
         2. Usa [Firstname] para el saludo.
         3. El botón de acción debe decir algo como "Leer artículo completo" o "Ver el post ahora".
-        4. Incluye una firma profesional al final con el nombre del autor: <strong>${teacherInfo.name}</strong> y su cargo ${teacherInfo.title}.
-        5. Incluye una Posdata (P.S.) persuasiva basada en: ${teacherInfo.transformation_tip}.
+        4. DEBES usar la URL DEL ARTÍCULO proporcionada (${articleUrl}) en el atributo href del botón.
+        5. Incluye una firma profesional al final con el nombre del autor: <strong>${teacherInfo.name}</strong> y su cargo ${teacherInfo.title}.
+        6. Incluye una Posdata (P.S.) persuasiva basada en: ${teacherInfo.transformation_tip}.
         
         Responde estrictamente en formato JSON:
         {
             "subject": "Asunto con emoji",
-            "body": "Cuerpo del correo en HTML profesional. Usa <p>, <strong>, <br>. El botón de acción debe estar representado como un enlace con estilo de botón: <a href='#' style='display:inline-block; padding:15px 30px; background-color: #FF5A1F; color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: bold; margin: 30px 0;'>Texto del Botón</a>"
+            "body": "Cuerpo del correo en HTML profesional. Usa <p>, <strong>, <br>. El botón de acción debe estar representado como un enlace con estilo de botón: <a href='${articleUrl}' style='display:inline-block; padding:15px 30px; background-color: #FF5A1F; color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: bold; margin: 30px 0;'>Texto del Botón</a>"
         }
     `;
 
