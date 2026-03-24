@@ -7,20 +7,19 @@ import { ProjectMasterStrategy } from '../../../../services/strategySchema';
 import { generateWhatsAppMessage } from '../../../../services/geminiservices/whatsappService';
 
 const WHATSAPP_LAUNCH_MOMENTS = [
-    { id: 'wl1', name: 'Bienvenida y Confirmación de Fecha', momentText: 'Día -7', objective: 'Confirmar lugar, dar gracias, fijar fecha/hora.', pilarType: 'Seguridad', purpose: 'Confirmar que están en el lugar correcto, dar las gracias y fijar la fecha/hora del evento en el calendario mental del usuario.' },
-    { id: 'wl2', name: 'Historia de Autoridad (Storytelling)', momentText: 'Día -5', objective: 'Conectar emocionalmente con la experta.', pilarType: 'Empatía y Confianza', purpose: 'Quién es el experto, sus fracasos iniciales y cómo el método que va a enseñar cambió su vida. Humaniza la marca.' },
-    { id: 'wl3', name: 'El "Qué" vs el "Cómo" (Curiosidad)', momentText: 'Día -3', objective: 'Elevar el valor percibido de la clase.', pilarType: 'Valor Percibido', purpose: 'Revelar los temas que se verán en la clase. Prometer un secreto o técnica específica que no encontrarán en YouTube.' },
-    { id: 'wl4', name: 'Los 3 Errores Fatales', momentText: 'Día -1', objective: 'Entregar valor previo para generar compromiso.', pilarType: 'Conciencia del Dolor', purpose: 'Identificar qué están haciendo mal los leads hoy. Esto posiciona al experto como la única solución para dejar de perder tiempo/dinero.' },
-    { id: 'wl5', name: 'Recordatorio Matutino', momentText: 'Día Clase (AM)', objective: 'Recordatorio matutino.', pilarType: 'Entusiasmo', purpose: '¡Llegó el día!. Confirmar horarios por países para evitar confusiones.' },
-    { id: 'wl6', name: 'Instrucciones de Preparación (T-4h)', momentText: 'Día Clase (PM)', objective: 'Instrucciones de preparación.', pilarType: 'Compromiso', purpose: 'Pedir que preparen libreta, café y eliminen distracciones. Crea un ritual en torno a la clase.' },
-    { id: 'wl7', name: '¡Estamos en Vivo! (El Link)', momentText: 'Día Clase (Link)', objective: 'Acceso directo a la transmisión.', pilarType: 'Acción Inmediata', purpose: 'Enlace directo a YouTube/Zoom/VSL. Corto, al grano y con muchos emojis de alerta.' },
-    { id: 'wl8', name: 'Apertura de Carrito y Oferta Irresistible', momentText: 'Post-Clase', objective: 'Apertura de inscripciones.', pilarType: 'Lanzamiento', purpose: 'Revelar el precio especial de lanzamiento, los bonos y el enlace de Hotmart.' },
-    { id: 'wl9', name: 'Bonos de Acción Rápida (Urgencia)', momentText: 'Urgencia 1', objective: 'Presión por los regalos exclusivos.', pilarType: 'Beneficio extra', purpose: 'Regalo extra solo para las primeras X personas que compren en las próximas 2 horas.' },
-    { id: 'wl10', name: 'Tutorial de Pago y Soporte', momentText: 'Soporte', objective: 'Eliminar fricción técnica en el checkout.', pilarType: 'Eliminación de Fricción', purpose: 'Explicar cómo pagar (tarjeta, PayPal, efectivo) y dejar el link de contacto directo para dudas.' },
-    { id: 'wl11', name: 'Prueba Social Dinámica', momentText: 'Validación', objective: 'Validación de resultados.', pilarType: 'Validación', purpose: 'Mostrar capturas de pantalla de nuevos alumnos o testimonios rápidos. "Si ellos pudieron, tú también".' },
-    { id: 'wl12', name: 'Garantía y Seguridad', momentText: 'Garantía', objective: 'Seguridad y aval profesional.', pilarType: 'Riesgo Cero', purpose: 'Recordar los 7 o 15 días de garantía de Hotmart. Derriba el miedo al fraude.' },
-    { id: 'wl13', name: 'Última Llamada (Faltan 4 horas)', momentText: 'Cierre', objective: 'Escasez máxima y resolución de dudas.', pilarType: 'Escasez Real', purpose: 'El contador llega a cero. Los bonos desaparecen y el precio subirá.' },
-    { id: 'wl14', name: 'Inscripciones Cerradas y Bienvenida', momentText: 'Bienvenida', objective: 'Bienvenida a las nuevas alumnas.', pilarType: 'Integridad de Marca', purpose: 'Avisar que ya no se puede comprar. Da la bienvenida oficial a los nuevos alumnos (onboarding).' }
+    { id: 'wl1', name: 'Bienvenida + Fecha (Día -7)', momentText: 'Día -7', objective: 'Confirmar que está en el lugar correcto y fijar la fecha del evento en su mente.', pilarType: 'Seguridad', purpose: 'Reduce la incertidumbre, genera el primer micro-compromiso y evita que el usuario se olvide del evento.' },
+    { id: 'wl2', name: 'Historia / Autoridad (Día -5)', momentText: 'Día -5', objective: 'Humanizar al experto y generar conexión emocional.', pilarType: 'Empatía y Confianza', purpose: 'Aumenta la confianza, hace que el usuario crea en el guía y se posicione como autoridad.' },
+    { id: 'wl3', name: 'Curiosidad (Día -3)', momentText: 'Día -3', objective: 'Generar intriga sobre lo que se enseñará en el evento.', pilarType: 'Valor Percibido', purpose: 'Aumenta el deseo de asistir, hace que el usuario espere el evento y sube el valor percibido.' },
+    { id: 'wl4', name: 'Errores (Día -1)', momentText: 'Día -1', objective: 'Mostrarle al usuario que está cometiendo errores fatales.', pilarType: 'Conciencia del Dolor', purpose: 'Activa el dolor, genera necesidad urgente de solución y posiciona el evento como algo necesario.' },
+    { id: 'wl5', name: 'Recordatorio (Mañana)', momentText: 'Día Clase (AM)', objective: 'Recordar el evento del día de hoy.', pilarType: 'Entusiasmo', purpose: 'Mantiene el evento presente en su mente, reduce olvidos y aumenta la tasa de asistencia.' },
+    { id: 'wl6', name: 'Preparación (Horas antes)', momentText: 'Día Clase (PM)', objective: 'Preparar al usuario mentalmente para la clase.', pilarType: 'Compromiso', purpose: 'Aumenta el compromiso, mejora la atención durante la clase y hace que el usuario se lo tome en serio.' },
+    { id: 'wl7', name: 'Link en Vivo', momentText: 'Día Clase (Link)', objective: 'Llevar tráfico directo al evento en vivo.', pilarType: 'Acción Inmediata', purpose: 'Acción inmediata, elimina fricción y maximiza los asistentes en tiempo real.' },
+    { id: 'wl8', name: 'Oferta + Link (Post-clase)', momentText: 'Post-Clase', objective: 'Presentar la oferta de forma clara y directa.', pilarType: 'Lanzamiento', purpose: 'Captura el pico de emoción, convierte a los prospectos más calientes y genera las primeras ventas.' },
+    { id: 'wl9', name: 'Bonos + Resolución de dudas', momentText: 'Urgencia 1', objective: 'Acelerar la decisión de compra y eliminar fricción técnica.', pilarType: 'Beneficio extra', purpose: 'Reduce dudas de último momento, incrementa conversiones y evita el abandono del carrito.' },
+    { id: 'wl10', name: 'Prueba social', momentText: 'Validación', objective: 'Mostrar que otros ya compraron y están teniendo resultados.', pilarType: 'Validación', purpose: 'Reduce el miedo, genera validación social y activa el efecto de deseo de pertenencia.' },
+    { id: 'wl11', name: 'Garantía', momentText: 'Garantía', objective: 'Eliminar el riesgo percibido por el comprador.', pilarType: 'Riesgo Cero', purpose: 'Disminuye el miedo a perder dinero, facilita el "sí" y aumenta la confianza final en la compra.' },
+    { id: 'wl12', name: 'Última llamada', momentText: 'Cierre', objective: 'Forzar la decisión inmediata antes del cierre.', pilarType: 'Escasez Real', purpose: 'Activa la urgencia real, dispara ventas de último momento y evita que el usuario postergue la decisión.' },
+    { id: 'wl13', name: 'Bienvenida (Solo compradores)', momentText: 'Bienvenida', objective: 'Dar inicio a la experiencia de los nuevos alumnos.', pilarType: 'Integridad de Marca', purpose: 'Refuerza la decisión de compra, genera satisfacción inmediata y reduce el arrepentimiento post-compra.' }
 ];
 
 const ChatSimulator: React.FC<{ 
@@ -234,7 +233,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const getCalculatedDate = (baseDateStr: string, index: number) => {
         if (!baseDateStr) return '';
         const baseDate = new Date(baseDateStr + 'T12:00:00');
-        const offsets = [0, 2, 4, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7];
+        const offsets = [0, 2, 4, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7];
         const offset = offsets[index] !== undefined ? offsets[index] : 7;
         const calculatedDate = new Date(baseDate);
         calculatedDate.setDate(baseDate.getDate() + offset);
@@ -366,10 +365,11 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
     const renderPhaseHeader = (index: number) => {
-        if (index === 0) return <div className="mt-6 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 1: Anticipación y Autoridad (Días previos)</div>;
-        if (index === 4) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 2: El Día del Evento</div>;
-        if (index === 7) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 3: Apertura y Conversión</div>;
-        if (index === 10) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 4: Cierre y Escasez</div>;
+        if (index === 0) return <div className="mt-6 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 1: Anticipación (Calentar al prospecto)</div>;
+        if (index === 4) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 2: Día del Evento (Maximizar asistencia)</div>;
+        if (index === 7) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 3: Conversión (Aprovechar el momento caliente)</div>;
+        if (index === 9) return <div className="mt-8 mb-4 px-6 py-4 bg-blue-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Fase 4: Cierre (Forzar decisión final)</div>;
+        if (index === 12) return <div className="mt-8 mb-4 px-6 py-4 bg-purple-500/50 border border-white/60 rounded-lg text-sm font-black uppercase text-white tracking-widest">Mensaje Extra (Solo compradores)</div>;
         return null;
     };
 
@@ -428,7 +428,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 
                 <div className="flex flex-col md:flex-row gap-10 items-center text-white text-[1.3rem] leading-[2.5rem] font-light">
                     <p className="flex-1 border-l-4 border-green-500 pl-8 py-2">
-                        El cierre por WhatsApp permite humanizar la venta y generar picos de facturación masiva. Nuestra estrategia divide el lanzamiento en 14 momentos críticos divididos en 4 fases psicológicas.
+                        El cierre por WhatsApp permite humanizar la venta y generar picos de facturación masiva. Nuestra estrategia divide el lanzamiento en 13 momentos críticos divididos en 4 fases psicológicas.
                     </p>
                     <div className="hidden md:block w-px h-24 bg-emerald-500/30"></div>
                     <div 
@@ -456,7 +456,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                     <Calendar className="w-10 h-10 text-emerald-500" />
                                 </div>
                                 <h3 className="text-3xl font-black text-white mb-4">Define la Fecha de Inicio del Lanzamiento</h3>
-                                <p className="text-gray-400 text-lg mb-10 leading-relaxed">Selecciona la fecha para desbloquear tu secuencia estratégica de 14 mensajes coordinados.</p>
+                                <p className="text-gray-400 text-lg mb-10 leading-relaxed">Selecciona la fecha para desbloquear tu secuencia estratégica de 13 mensajes coordinados.</p>
                                 <input 
                                     type="date" 
                                     value={launchDate} 
