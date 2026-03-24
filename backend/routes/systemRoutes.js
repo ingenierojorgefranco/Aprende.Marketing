@@ -1,6 +1,6 @@
 import express from 'express';
 import pool from '../db.js';
-import { generateContent, generateEmailSequenceContent } from '../geminiService.js';
+import { generateContent, generateEmailSequenceContent, generateSingleEvergreenEmail } from '../geminiService.js';
 import { authMiddleware } from '../authMiddleware.js';
 import * as stripeService from '../stripeService.js';
 
@@ -152,6 +152,20 @@ router.post('/email/sequences/generate-full', authMiddleware, async (req, res) =
     } catch (e) {
         console.error("Error en generate-full sequence:", e);
         res.status(500).json({ error: e.message });
+    }
+});
+
+// Generar correo Evergreen (Nutrición) individual
+router.post('/email/generate-evergreen', authMiddleware, async (req, res) => {
+    const { projectId, articleData } = req.body;
+    if (!projectId || !articleData) return res.status(400).json({ error: "Faltan datos requeridos (projectId, articleData)" });
+
+    try {
+        const result = await generateSingleEvergreenEmail(projectId, articleData);
+        res.json(result);
+    } catch (e) {
+        console.error("[Evergreen Generation Error]", e);
+        res.status(500).json({ error: e.message || "Error al generar correo evergreen." });
     }
 });
 

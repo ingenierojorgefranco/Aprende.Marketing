@@ -215,30 +215,25 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
         setIsGenerating(true);
 
         try {
-            const prompt = `
-                Actúa como un experto en Email Marketing y Copywriting de Respuesta Directa.
-                Tu objetivo es redactar un correo electrónico persuasivo para invitar a un prospecto a leer el siguiente artículo de blog:
-                
-                TÍTULO DEL ARTÍCULO: ${article.title}
-                RESUMEN/DESCRIPCIÓN: ${article.description}
-                CONTENIDO (HTML): ${article.contentHtml.substring(0, 2000)}
-                
-                INSTRUCCIONES:
-                1. El asunto debe ser intrigante, corto y con un emoji (máximo 60 caracteres).
-                2. El cuerpo del correo debe ser cercano, empático y generar curiosidad por el contenido del artículo.
-                3. Usa un tono profesional pero amigable (Tú).
-                4. No incluyas el enlace final, solo el texto del correo.
-                5. El correo debe terminar con una transición natural hacia la lectura del artículo.
-                
-                Responde estrictamente en formato JSON:
-                {
-                    "subject": "Asunto del correo",
-                    "body": "Cuerpo del correo en formato texto plano con saltos de línea \\n"
-                }
-            `;
+            // Llamada al nuevo endpoint centralizado en el backend
+            const response = await fetch('/api/email/generate-evergreen', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    projectId,
+                    articleData: {
+                        title: article.title,
+                        description: article.description,
+                        contentHtml: article.contentHtml
+                    }
+                })
+            });
 
-            const response = await api.generateWithIA(prompt, { responseMimeType: 'application/json' });
-            const result = JSON.parse(response.text);
+            if (!response.ok) throw new Error("Error en la generación del correo");
+            const result = await response.json();
 
             // --- ASOCIAR SOLO CON email_messages de tipo 'nurturing' ---
             // 1. Asegurar que existe la secuencia de nutrición

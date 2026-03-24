@@ -877,3 +877,79 @@ export const generateEmailSequenceContent = async (projectId, sequenceData, type
         throw new Error("Error en el formato de respuesta de la IA.");
     }
 };
+
+/**
+ * Genera un único correo electrónico de nutrición (Evergreen) basado en un artículo de blog.
+ * Utiliza el blueprint de 'Evergreen / Nutrición' para mantener la consistencia estratégica.
+ */
+export async function generateSingleEvergreenEmail(projectId, articleData) {
+    const [projectRows] = await pool.query("SELECT * FROM projects WHERE id = ?", [projectId]);
+    if (projectRows.length === 0) throw new Error("Proyecto no encontrado");
+    const project = projectRows[0];
+
+    // Obtener info de la profesora/avatar si existe
+    let teacherInfo = { name: "Tu Equipo", title: "Especialista", transformation_tip: "Empieza hoy mismo." };
+    if (project.strategy_json) {
+        try {
+            const strategy = JSON.parse(project.strategy_json);
+            if (strategy.teacher) teacherInfo = strategy.teacher;
+        } catch (e) {
+            console.error("Error parseando strategy_json para teacherInfo:", e);
+        }
+    }
+
+    const blueprint = EMAIL_BLUEPRINTS['Evergreen / Nutrición'];
+    
+    const prompt = `
+        Actúa como un experto en Email Marketing y Copywriting de Respuesta Directa.
+        Tu objetivo es redactar un correo electrónico persuasivo para invitar a un prospecto a leer el siguiente artículo de blog.
+        
+        DATOS DEL PROYECTO:
+        - Nombre: ${project.name}
+        - Producto: ${project.product_name}
+        - Descripción: ${project.description}
+        - Público Objetivo: ${project.target_audience || 'No especificado'}
+        - Nombre del Profesor/Autor: ${teacherInfo.name}
+        
+        DATOS DEL ARTÍCULO:
+        - Título: ${articleData.title}
+        - Descripción: ${articleData.description}
+        - Contenido (Resumen): ${articleData.contentHtml ? articleData.contentHtml.substring(0, 1500) : 'No disponible'}
+        
+        ESTRATEGIA DEL CORREO (BLUEPRINT):
+        - Objetivo: ${blueprint.goal}
+        - Estructura: ${blueprint.structure}
+        - Tips de Copywriting: ${blueprint.copywritingTips}
+        - Restricciones: ${blueprint.constraints}
+        
+        CONFIGURACIÓN GLOBAL:
+        - Tono: ${GLOBAL_CONFIG.tone}
+        - Formato: ${GLOBAL_CONFIG.formatting}
+        - Evitar: ${GLOBAL_CONFIG.avoid}
+        
+        INSTRUCCIONES ADICIONALES:
+        1. El correo debe ser profesional, empático y generar mucha curiosidad.
+        2. Usa [Firstname] para el saludo.
+        3. El botón de acción debe decir algo como "Leer artículo completo" o "Ver el post ahora".
+        4. Incluye una firma profesional al final con el nombre del autor: <strong>${teacherInfo.name}</strong> y su cargo ${teacherInfo.title}.
+        5. Incluye una Posdata (P.S.) persuasiva basada en: ${teacherInfo.transformation_tip}.
+        
+        Responde estrictamente en formato JSON:
+        {
+            "subject": "Asunto con emoji",
+            "body": "Cuerpo del correo en HTML profesional. Usa <p>, <strong>, <br>. El botón de acción debe estar representado como un enlace con estilo de botón: <a href='#' style='display:inline-block; padding:15px 30px; background-color: #FF5A1F; color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: bold; margin: 30px 0;'>Texto del Botón</a>"
+        }
+    `;
+
+    const response = await generateContent('gemini-3-flash-preview', prompt, {
+        responseMimeType: "application/json"
+    });
+
+    try {
+        const cleaned = cleanJsonString(response);
+        return JSON.parse(cleaned);
+    } catch (e) {
+        console.error("Error parseando JSON de correo evergreen:", e);
+        throw new Error("Error en el formato de respuesta de la IA.");
+    }
+}

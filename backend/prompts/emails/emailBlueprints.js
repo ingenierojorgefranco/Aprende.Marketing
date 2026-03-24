@@ -25,7 +25,7 @@ Primero que nada, quiero darte la bienvenida.
 
 Acabas de dar un paso que muchas personas llevan tiempo posponiendo: empezar a hacer algo diferente para mejorar sus ingresos.
 
-Y eso ya dice mucho de ti.
+And eso ya dice mucho de ti.
 
 Tal como te prometí, aquí tienes tu acceso a [recurso / guía / clase gratuita]:
 
@@ -305,7 +305,7 @@ sin necesidad de dedicar horas interminables.
 ❌ No se trata de ser perfecta desde el inicio
 Se trata de aprender correctamente.
 
-Nadie empieza sabiendo.
+Nadíe empieza sabiendo.
 Todo se construye con práctica guiada.
 
 ❌ No se trata de “probar suerte”
@@ -491,7 +491,37 @@ La pregunta es simple:
 La decisión es tuya.
 
 Un abrazo,
+
 Tu Equipo`
+    },
+    'Evergreen / Nutrición': {
+        goal: "Invitar al usuario a leer un artículo de blog específico, aportando valor previo y generando curiosidad para que haga clic.",
+        structure: "1. Asunto intrigante relacionado con el tema del artículo\n2. Saludo cercano usando [Firstname]\n3. Gancho inicial: plantear un problema o curiosidad que el artículo resuelve\n4. Valor: dar un pequeño 'insight' o adelanto de lo que aprenderá\n5. CTA: botón o enlace claro para leer el artículo completo\n6. Cierre profesional y cercano\n7. Posdata persuasiva",
+        copywritingTips: "Usa un tono educativo y servicial. No intentes vender el producto aquí, vende el CLIC al artículo. Haz que el usuario sienta que se perderá algo importante si no lee el post.",
+        constraints: "No ser agresivo en la venta, enfocarse 100% en el valor del artículo, mantener párrafos cortos. Longitud: 150-200 palabras.",
+        example: `Asunto: 🛑 Lo que nadie te dice sobre [Tema del Artículo]
+Preheader: Te lo explico en 2 minutos...
+
+Hola [Firstname],
+
+Seguramente te ha pasado que intentas avanzar en [Nicho] y sientes que algo no encaja.
+
+Hoy he publicado un nuevo artículo donde desgloso exactamente por qué sucede esto y, lo más importante, cómo puedes solucionarlo hoy mismo.
+
+En este post aprenderás:
+✅ El error #1 que cometen los principiantes.
+✅ Cómo optimizar tu proceso sin gastar de más.
+✅ El secreto para obtener resultados en tiempo récord.
+
+Puedes leerlo completo aquí:
+
+👉 [Leer artículo completo]
+
+Espero que te sirva de mucho para tu camino.
+
+Un abrazo,
+
+[Nombre del Profesor]`
     },
     'default': {
         goal: "Aportar valor y mantener el interés del prospecto en el producto.",
