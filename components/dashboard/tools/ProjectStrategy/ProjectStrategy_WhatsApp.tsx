@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2, Crown, X, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { MessageCircle, Check, Copy, Calendar, Brain, PlayCircle, Download, Image as ImageIcon, Lock, Wand2, ArrowRight, PenTool, Info, Sparkles, Lightbulb, ChevronDown, Settings2, Crown, X, Loader2, AlertTriangle, CheckCircle2, Target } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { api } from '../../../../services/api';
 import { PlanLimits, WhatsAppLaunchMessage, WhatsAppLaunch } from '../../../../types';
@@ -477,7 +477,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                         </div>
                     </div>
 
-                    <div id="psd-whatsapp-grid" className="grid lg:grid-cols-12 gap-8 relative">
+                    <div id="psd-whatsapp-grid" className="grid lg:grid-cols-11 gap-8 relative">
                                 <div className="lg:col-span-4 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-2xl">
                                     <div className="flex items-center gap-3 mb-6 shrink-0"><div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50"><Calendar className="w-6 h-6" /></div><h3 className="text-xl font-bold text-white">Listado de Mensajes</h3></div>
                                     
@@ -518,61 +518,81 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                     </div>
                                 </div>
 
-                                <div className="lg:col-span-8 bg-black/40 border border-gray-800 rounded-2xl p-6 flex flex-col relative h-full shadow-2xl">
-                                    {activeItem && activeItem.isGenerated ? (
-                                        <>
-                                            <div className="bg-green-900/10 border border-green-500/20 p-8 rounded-xl space-y-8 mb-6">
-                                                <h5 className="text-green-400 font-bold text-2xl uppercase tracking-wider">{activeItem.name}</h5>
-                                                
-                                                {/* CAMPO FECHA DE LANZAMIENTO (PUNTO 2) */}
-                                                <div className="space-y-2">
-                                                    <label className="text-xs font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
-                                                        <Calendar className="w-3 h-3" /> Fecha de Lanzamiento
-                                                    </label>
-                                                    <p className="text-lg font-bold text-white">
-                                                        {launchDate ? getCalculatedDate(launchDate, activeWaScript) : 'Fecha por Definir'}
-                                                    </p>
-                                                </div>
+                                <div className="lg:col-span-7 bg-gradient-to-br from-gray-900 via-gray-900 to-blue-900/10 border border-white/5 rounded-[3rem] p-10 flex flex-col relative h-full shadow-2xl overflow-hidden min-h-[600px]">
+                                    <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none"><Target className="w-40 h-40 text-blue-500" /></div>
+                                    <div className={`absolute top-0 left-0 w-1 h-full ${activeItem?.isGenerated ? 'bg-emerald-500/50' : 'bg-blue-500/50'}`}></div>
 
-                                                <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4">
-                                                    <Info className="w-6 h-6 text-emerald-400 shrink-0" />
-                                                    <div className="text-gray-300 text-base leading-relaxed">
-                                                        <span className="font-bold text-emerald-200 block mb-1">Propósito Estratégico:</span>
-                                                        <div className="prose prose-invert prose-p:text-gray-300 max-w-none">
-                                                            {activeItem.purpose}
-                                                        </div>
+                                    {activeItem && activeItem.isGenerated ? (
+                                        <div className="flex flex-col h-full space-y-6 relative z-10">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-2xl font-black text-white uppercase tracking-tight">
+                                                    {activeItem.name}
+                                                </span>
+                                                <div className="flex items-center gap-4">
+                                                    <span className="bg-emerald-600 text-white px-6 py-2.5 rounded-full text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-emerald-500/20 border border-emerald-400/30">
+                                                        Mensaje {activeWaScript + 1}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4">
+                                                <Info className="w-6 h-6 text-emerald-400 shrink-0" />
+                                                <div className="text-gray-300 text-base leading-relaxed">
+                                                    <span className="font-bold text-emerald-200 block mb-1">Propósito Estratégico:</span>
+                                                    <div className="prose prose-invert prose-p:text-gray-300 max-w-none">
+                                                        {activeItem.purpose}
                                                     </div>
                                                 </div>
                                             </div>
+
                                             <ChatSimulator messages={processedMessages} senderName={user?.name} onSaveMessage={handleSaveChatMessage} />
                                             <div className="flex gap-4 mt-6"><button onClick={() => handleCopy(processedMessages[0]?.text || '')} className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-lg shadow-lg flex items-center justify-center gap-2"><Copy className="w-5 h-5" /> Copiar Mensaje</button></div>
-                                        </>
+                                        </div>
                                     ) : (
-                                        <div className="space-y-12 animate-in fade-in duration-500 flex-1 flex flex-col">
-                                            <div className="flex items-center justify-between"><span className="bg-emerald-900/20 text-emerald-400 border border-emerald-900/50 px-5 py-2 rounded-full text-[10px] font-black uppercase shadow-lg">Pilar: {activeItem?.pilarType}</span><span className="text-white text-lg font-black uppercase tracking-widest italic">Mensaje {activeWaScript + 1}</span></div>
-                                            <div className="bg-black/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden flex-1">
-                                                <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/50"></div>
-                                                <div className="flex items-center gap-4 mb-10"><div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400"><Lightbulb className="w-8 h-8" /></div><h4 className="text-2xl font-black text-white tracking-tight">{activeItem?.name}</h4></div>
-                                                <div className="space-y-10">
-                                                    <div className="space-y-3"><div className="flex justify-between items-center"><label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2"><Settings2 className="w-5 h-5 text-emerald-500" /> Pilar Estratégico (Tipo)</label><button onClick={() => setIsTypeLocked(!isTypeLocked)} className="text-xs font-black text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">{isTypeLocked ? 'Desbloquear' : 'Bloquear'}</button></div><select disabled={isTypeLocked} value={activeItem?.pilarType} onChange={(e) => handleUpdateMessage(activeWaScript, 'pilarType', e.target.value)} className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none appearance-none ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50'}`}>{waTypes.map(t => (<option key={t} value={t}>{t}</option>))}</select></div>
-                                                    
-                                                    {/* CAMPO FECHA DE LANZAMIENTO (PUNTO 2) */}
-                                                    <div className="space-y-3">
-                                                        <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2">
-                                                            <Calendar className="w-5 h-5 text-emerald-500" /> Fecha de Lanzamiento
-                                                        </label>
-                                                        <div className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl">
-                                                            {launchDate ? getCalculatedDate(launchDate, activeWaScript) : 'Fecha por Definir'}
-                                                        </div>
-                                                    </div>
+                                        <div className="space-y-12 animate-in fade-in duration-500 flex-1 flex flex-col relative z-10">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-2xl font-black text-white uppercase tracking-tight">
+                                                    {activeItem?.name}
+                                                </span>
+                                                <span className="bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-500/20 border border-blue-400/30">
+                                                    Mensaje {activeWaScript + 1}
+                                                </span>
+                                            </div>
 
-                                                    <div className="space-y-3">
-                                                        <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2"><Brain className="w-5 h-5 text-emerald-500" /> Propósito Estratégico</label>
-                                                        <textarea rows={4} value={activeItem?.purpose} onChange={(e) => handleUpdateMessage(activeWaScript, 'purpose', e.target.value)} className="w-full bg-black/60 border border-white/10 rounded-[2.5rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none resize-none" />
+                                            <div className="space-y-10">
+                                                <div className="space-y-3">
+                                                    <div className="flex justify-between items-center">
+                                                        <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2">
+                                                            <Settings2 className="w-5 h-5 text-emerald-500" /> Pilar Estratégico (Tipo)
+                                                        </label>
+                                                        <button onClick={() => setIsTypeLocked(!isTypeLocked)} className="text-xs font-black text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
+                                                            {isTypeLocked ? 'Desbloquear' : 'Bloquear'}
+                                                        </button>
                                                     </div>
-                                                    <div className="pt-4">
-                                                        <button onClick={() => setShowConfirmModal(true)} className="w-full py-6 rounded-[2cm] bg-emerald-600 text-white font-black text-lg uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-4"><Wand2 className="w-7 h-7 fill-current" /> Generar con IA</button>
+                                                    <select disabled={isTypeLocked} value={activeItem?.pilarType} onChange={(e) => handleUpdateMessage(activeWaScript, 'pilarType', e.target.value)} className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none appearance-none ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50'}`}>
+                                                        {waTypes.map(t => (<option key={t} value={t}>{t}</option>))}
+                                                    </select>
+                                                </div>
+                                                
+                                                <div className="space-y-3">
+                                                    <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2">
+                                                        <Calendar className="w-5 h-5 text-emerald-500" /> Fecha de Lanzamiento
+                                                    </label>
+                                                    <div className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl">
+                                                        {launchDate ? getCalculatedDate(launchDate, activeWaScript) : 'Fecha por Definir'}
                                                     </div>
+                                                </div>
+
+                                                <div className="space-y-3">
+                                                    <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2">
+                                                        <Brain className="w-5 h-5 text-emerald-500" /> Propósito Estratégico
+                                                    </label>
+                                                    <textarea rows={4} value={activeItem?.purpose} onChange={(e) => handleUpdateMessage(activeWaScript, 'purpose', e.target.value)} className="w-full bg-black/60 border border-white/10 rounded-[2.5rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none resize-none" />
+                                                </div>
+                                                <div className="pt-4">
+                                                    <button onClick={() => setShowConfirmModal(true)} className="w-full py-6 rounded-[2cm] bg-emerald-600 text-white font-black text-lg uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-4">
+                                                        <Wand2 className="w-7 h-7 fill-current" /> Generar con IA
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
