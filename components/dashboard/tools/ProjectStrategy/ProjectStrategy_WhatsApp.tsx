@@ -135,6 +135,13 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const dateInputRef = useRef<HTMLInputElement>(null);
 
+    // --- CÁLCULO DE FECHA MÍNIMA (HOY + 8 DÍAS) ---
+    const minDateStr = (() => {
+        const d = new Date();
+        d.setDate(d.getDate() + 8);
+        return d.toISOString().split('T')[0];
+    })();
+
     // --- ESTADOS DE GENERACIÓN BAJO DEMANDA ---
     const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'success'>('idle');
     const [loadingText, setLoadingText] = useState("");
@@ -449,33 +456,28 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 <div className="flex justify-center py-20"><Loader2 className="animate-spin text-primary" /></div>
             ) : (
                 <>
-                    {!launchDate ? (
-                        <div className="max-w-2xl mx-auto py-20 animate-in zoom-in-95 duration-500">
-                            <div className="bg-[#111] border border-emerald-500/30 p-12 rounded-[3rem] text-center shadow-2xl">
-                                <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8 border border-emerald-500/20">
-                                    <Calendar className="w-10 h-10 text-emerald-500" />
-                                </div>
-                                <h3 className="text-3xl font-black text-white mb-4">Define la Fecha de Inicio del Lanzamiento</h3>
-                                <p className="text-gray-400 text-lg mb-10 leading-relaxed">Selecciona la fecha para desbloquear tu secuencia estratégica de 13 mensajes coordinados.</p>
-                                <input 
-                                    type="date" 
-                                    value={launchDate} 
-                                    onChange={handleLaunchDateChange} 
-                                    className="w-full bg-black border border-gray-700 rounded-2xl px-6 py-4 text-white font-bold text-xl outline-none focus:border-emerald-500 transition-all" 
-                                    style={{ colorScheme: 'dark' }} 
-                                />
-                            </div>
+                    <div className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
+                        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl animate-in slide-in-from-top-2 duration-500 cursor-pointer hover:bg-white/10 transition-all" onClick={() => dateInputRef.current?.showPicker()}>
+                            <label className="block text-xs font-black text-green-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-3 cursor-pointer"><Calendar className="w-8 h-8" /> Fecha de Inicio del Lanzamiento</label>
+                            
+                            {!launchDate && (
+                                <p className="text-gray-400 font-bold text-xl mb-2">Haz clic para definir la fecha de tu Lanzamiento.</p>
+                            )}
+                            
+                            <input 
+                                ref={dateInputRef} 
+                                type="date" 
+                                value={launchDate} 
+                                onChange={handleLaunchDateChange} 
+                                min={minDateStr}
+                                required
+                                className={`w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white font-bold ${!launchDate ? 'opacity-50' : ''}`} 
+                                style={{ colorScheme: 'dark' }} 
+                            />
                         </div>
-                    ) : (
-                        <>
-                            <div className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
-                                <div className="bg-white/5 border border-white/10 p-6 rounded-2xl animate-in slide-in-from-top-2 duration-500 cursor-pointer hover:bg-white/10 transition-all" onClick={() => dateInputRef.current?.showPicker()}>
-                                    <label className="block text-xs font-black text-green-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-3 cursor-pointer"><Calendar className="w-8 h-8" /> Fecha de Inicio del Lanzamiento</label>
-                                    <input ref={dateInputRef} type="date" value={launchDate} onChange={handleLaunchDateChange} className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white font-bold" style={{ colorScheme: 'dark' }} />
-                                </div>
-                            </div>
+                    </div>
 
-                            <div id="psd-whatsapp-grid" className="grid lg:grid-cols-12 gap-8 relative">
+                    <div id="psd-whatsapp-grid" className="grid lg:grid-cols-12 gap-8 relative">
                                 <div className="lg:col-span-4 bg-gray-900 p-6 rounded-2xl border border-gray-800 h-full flex flex-col shadow-2xl">
                                     <div className="flex items-center gap-3 mb-6 shrink-0"><div className="p-2 bg-green-900/30 rounded-lg text-green-400 border border-green-900/50"><Calendar className="w-6 h-6" /></div><h3 className="text-xl font-bold text-white">Listado de Mensajes</h3></div>
                                     
@@ -521,6 +523,17 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         <>
                                             <div className="bg-green-900/10 border border-green-500/20 p-8 rounded-xl space-y-8 mb-6">
                                                 <h5 className="text-green-400 font-bold text-2xl uppercase tracking-wider">{activeItem.name}</h5>
+                                                
+                                                {/* CAMPO FECHA DE LANZAMIENTO (PUNTO 2) */}
+                                                <div className="space-y-2">
+                                                    <label className="text-xs font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
+                                                        <Calendar className="w-3 h-3" /> Fecha de Lanzamiento
+                                                    </label>
+                                                    <p className="text-lg font-bold text-white">
+                                                        {launchDate ? getCalculatedDate(launchDate, activeWaScript) : 'Fecha por Definir'}
+                                                    </p>
+                                                </div>
+
                                                 <div className="bg-emerald-900/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4">
                                                     <Info className="w-6 h-6 text-emerald-400 shrink-0" />
                                                     <div className="text-gray-300 text-base leading-relaxed">
@@ -542,6 +555,17 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                 <div className="flex items-center gap-4 mb-10"><div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400"><Lightbulb className="w-8 h-8" /></div><h4 className="text-2xl font-black text-white tracking-tight">{activeItem?.name}</h4></div>
                                                 <div className="space-y-10">
                                                     <div className="space-y-3"><div className="flex justify-between items-center"><label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2"><Settings2 className="w-5 h-5 text-emerald-500" /> Pilar Estratégico (Tipo)</label><button onClick={() => setIsTypeLocked(!isTypeLocked)} className="text-xs font-black text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">{isTypeLocked ? 'Desbloquear' : 'Bloquear'}</button></div><select disabled={isTypeLocked} value={activeItem?.pilarType} onChange={(e) => handleUpdateMessage(activeWaScript, 'pilarType', e.target.value)} className={`w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl outline-none appearance-none ${isTypeLocked ? 'opacity-50 grayscale pointer-events-none' : 'border-emerald-500/50'}`}>{waTypes.map(t => (<option key={t} value={t}>{t}</option>))}</select></div>
+                                                    
+                                                    {/* CAMPO FECHA DE LANZAMIENTO (PUNTO 2) */}
+                                                    <div className="space-y-3">
+                                                        <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2">
+                                                            <Calendar className="w-5 h-5 text-emerald-500" /> Fecha de Lanzamiento
+                                                        </label>
+                                                        <div className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 px-6 text-white font-bold text-xl">
+                                                            {launchDate ? getCalculatedDate(launchDate, activeWaScript) : 'Fecha por Definir'}
+                                                        </div>
+                                                    </div>
+
                                                     <div className="space-y-3">
                                                         <label className="text-lg font-black text-white uppercase ml-1 flex items-center gap-2"><Brain className="w-5 h-5 text-emerald-500" /> Propósito Estratégico</label>
                                                         <textarea rows={4} value={activeItem?.purpose} onChange={(e) => handleUpdateMessage(activeWaScript, 'purpose', e.target.value)} className="w-full bg-black/60 border border-white/10 rounded-[2.5rem] p-6 text-gray-300 text-lg font-light leading-relaxed outline-none resize-none" />
@@ -555,8 +579,6 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                     )}
                                 </div>
                             </div>
-                        </>
-                    )}
                 </>
             )}
 
