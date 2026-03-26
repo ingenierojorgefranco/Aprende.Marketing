@@ -560,16 +560,16 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                 <>
                     <div className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
                         <div 
-                            className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 p-8 rounded-[2.5rem] animate-in slide-in-from-top-2 duration-500 cursor-pointer hover:bg-white/10 transition-all group relative overflow-hidden" 
+                            className="bg-gradient-to-br from-orange-600/20 to-orange-900/40 border border-orange-500/30 p-8 rounded-[2.5rem] animate-in slide-in-from-top-2 duration-500 cursor-pointer hover:bg-orange-500/10 transition-all group relative overflow-hidden shadow-2xl shadow-orange-900/20" 
                             onClick={handleOpenDateTimeModal}
                         >
                             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <Calendar className="w-24 h-24 text-green-500" />
+                                <Calendar className="w-24 h-24 text-orange-400" />
                             </div>
                             
                             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                                 <div className="space-y-2">
-                                    <label className="block text-xs font-black text-green-500 uppercase tracking-[0.2em] flex items-center gap-3">
+                                    <label className="block text-xs font-black text-orange-400 uppercase tracking-[0.2em] flex items-center gap-3">
                                         <Calendar className="w-5 h-5" /> Configuración del Lanzamiento
                                     </label>
                                     <h4 className="text-3xl md:text-4xl font-black text-white tracking-tighter italic">
@@ -580,7 +580,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                     </p>
                                 </div>
                                 
-                                <button className="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white font-black text-xs uppercase tracking-widest transition-all group-hover:scale-105 active:scale-95">
+                                <button className="px-8 py-4 bg-orange-600 hover:bg-orange-500 border border-orange-400/30 rounded-2xl text-white font-black text-xs uppercase tracking-widest transition-all group-hover:scale-105 active:scale-95 shadow-lg shadow-orange-600/20">
                                     Cambiar Fecha y Hora
                                 </button>
                             </div>
@@ -614,7 +614,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         </button>
                                     )}
 
-                                    <div className="space-y-4 flex-1 pr-2 overflow-y-auto custom-scrollbar">
+                                    <div className="space-y-4 flex-1 pr-2 overflow-y-auto custom-scrollbar pb-12">
                                         {phases.map((phase, pIdx) => (
                                             <div key={pIdx} className="space-y-2">
                                                 <button 
@@ -709,11 +709,11 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                                 </div>
                                             </div>
 
-                                            <div className="bg-amber-900/10 border border-amber-500/20 p-4 rounded-2xl flex gap-3">
-                                                <Calendar className="w-5 h-5 text-amber-400 shrink-0" />
-                                                <div>
-                                                    <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block mb-1">Fecha de Envío</span>
-                                                    <span className="text-white font-bold text-sm">
+                                            <div className="bg-amber-900/10 border border-amber-500/20 p-8 rounded-2xl flex flex-col items-center text-center gap-6">
+                                                <Calendar className="w-8 h-8 text-amber-400 shrink-0" />
+                                                <div className="space-y-4">
+                                                    <span className="font-black text-amber-500 uppercase tracking-widest block" style={{ fontSize: '1.1em' }}>Fecha en la que debes enviar el mensaje</span>
+                                                    <span className="text-white font-bold block" style={{ fontSize: '1.3em' }}>
                                                         {launchDate ? getCalculatedDate(launchDate, activeWaScript, true) : 'Fecha por Definir'}
                                                     </span>
                                                 </div>
@@ -820,8 +820,9 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         type="date" 
                                         value={tempLaunchDate} 
                                         onChange={(e) => setTempLaunchDate(e.target.value)} 
+                                        onClick={(e) => (e.currentTarget as any).showPicker?.()}
                                         min={minDateStr}
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-lg outline-none focus:border-blue-500/50 transition-colors"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-lg outline-none focus:border-blue-500/50 transition-colors cursor-pointer"
                                         style={{ colorScheme: 'dark' }}
                                     />
                                 </div>
@@ -831,7 +832,8 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                         type="time" 
                                         value={tempLaunchTime} 
                                         onChange={(e) => setTempLaunchTime(e.target.value)} 
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-lg outline-none focus:border-blue-500/50 transition-colors"
+                                        onClick={(e) => (e.currentTarget as any).showPicker?.()}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white font-bold text-lg outline-none focus:border-blue-500/50 transition-colors cursor-pointer"
                                         style={{ colorScheme: 'dark' }}
                                     />
                                 </div>
